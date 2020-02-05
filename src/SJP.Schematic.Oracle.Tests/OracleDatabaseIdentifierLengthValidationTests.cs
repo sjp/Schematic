@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Oracle.Tests
@@ -12,13 +11,13 @@ namespace SJP.Schematic.Oracle.Tests
         [Test]
         public static void Ctor_GivenZeroLength_ThrowsArgumentException()
         {
-            Assert.Throws<ArgumentException>(() => new OracleDatabaseIdentifierLengthValidation(0));
+            Assert.That(() => new OracleDatabaseIdentifierLengthValidation(0), Throws.ArgumentException);
         }
 
         [Test]
         public static void IsValidIdentifier_GivenNullIdentifier_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => Validator.IsValidIdentifier(null));
+            Assert.That(() => Validator.IsValidIdentifier(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -28,7 +27,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var isValid = Validator.IsValidIdentifier(identifier);
 
-            Assert.IsTrue(isValid);
+            Assert.That(isValid, Is.True);
         }
 
         [Test]
@@ -38,7 +37,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var isValid = Validator.IsValidIdentifier(identifier);
 
-            Assert.IsFalse(isValid);
+            Assert.That(isValid, Is.False);
         }
 
         [Test]
@@ -49,7 +48,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var isValid = Validator.IsValidIdentifier(identifier);
 
-            Assert.IsFalse(isValid);
+            Assert.That(isValid, Is.False);
         }
     }
 }

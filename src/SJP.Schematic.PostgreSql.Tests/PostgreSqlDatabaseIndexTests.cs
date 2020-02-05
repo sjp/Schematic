@@ -15,7 +15,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var column = Mock.Of<IDatabaseIndexColumn>();
             var columns = new[] { column };
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseIndex(null, isUnique, columns));
+            Assert.That(() => new PostgreSqlDatabaseIndex(null, isUnique, columns), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -24,7 +24,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             Identifier indexName = "test_index";
             const bool isUnique = true;
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseIndex(indexName, isUnique, null));
+            Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -34,7 +34,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             const bool isUnique = true;
             var columns = Array.Empty<IDatabaseIndexColumn>();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns));
+            Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -44,7 +44,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             const bool isUnique = true;
             var columns = new IDatabaseIndexColumn[] { null };
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns));
+            Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -55,7 +55,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var column = Mock.Of<IDatabaseIndexColumn>();
             var columns = new[] { column };
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns, null));
+            Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -67,7 +67,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var columns = new[] { column };
             var includedColumns = new IDatabaseColumn[] { null };
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns, includedColumns));
+            Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns, includedColumns), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -80,7 +80,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var index = new PostgreSqlDatabaseIndex(indexName, isUnique, columns);
 
-            Assert.AreEqual(indexName, index.Name);
+            Assert.That(index.Name, Is.EqualTo(indexName));
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var index = new PostgreSqlDatabaseIndex(indexName, isUnique, columns);
 
-            Assert.IsTrue(index.IsUnique);
+            Assert.That(index.IsUnique, Is.True);
         }
 
         [Test]
@@ -106,7 +106,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var index = new PostgreSqlDatabaseIndex(indexName, isUnique, columns);
 
-            Assert.IsFalse(index.IsUnique);
+            Assert.That(index.IsUnique, Is.False);
         }
 
         [Test]
@@ -119,7 +119,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var index = new PostgreSqlDatabaseIndex(indexName, isUnique, columns);
 
-            Assert.AreEqual(columns, index.Columns);
+            Assert.That(index.Columns, Is.EqualTo(columns));
         }
 
         [Test]
@@ -132,7 +132,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var index = new PostgreSqlDatabaseIndex(indexName, isUnique, columns);
 
-            Assert.Zero(index.IncludedColumns.Count);
+            Assert.That(index.IncludedColumns, Is.Empty);
         }
 
         [Test]
@@ -147,7 +147,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var index = new PostgreSqlDatabaseIndex(indexName, isUnique, columns, includedColumns);
 
-            Assert.AreEqual(includedColumns, index.IncludedColumns);
+            Assert.That(index.IncludedColumns, Is.EqualTo(includedColumns));
         }
 
         [Test]
@@ -160,7 +160,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var index = new PostgreSqlDatabaseIndex(indexName, isUnique, columns);
 
-            Assert.IsTrue(index.IsEnabled);
+            Assert.That(index.IsEnabled, Is.True);
         }
     }
 }

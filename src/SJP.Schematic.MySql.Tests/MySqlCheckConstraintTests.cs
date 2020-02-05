@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -11,7 +10,7 @@ namespace SJP.Schematic.MySql.Tests
         [Test]
         public static void Ctor_GivenNullName_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new MySqlCheckConstraint(null, "test", true));
+            Assert.That(() => new MySqlCheckConstraint(null, "test", true), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -19,7 +18,7 @@ namespace SJP.Schematic.MySql.Tests
         {
             Identifier checkName = "test_check";
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlCheckConstraint(checkName, null, true));
+            Assert.That(() => new MySqlCheckConstraint(checkName, null, true), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -27,7 +26,7 @@ namespace SJP.Schematic.MySql.Tests
         {
             Identifier checkName = "test_check";
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlCheckConstraint(checkName, string.Empty, true));
+            Assert.That(() => new MySqlCheckConstraint(checkName, string.Empty, true), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -35,7 +34,7 @@ namespace SJP.Schematic.MySql.Tests
         {
             Identifier checkName = "test_check";
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlCheckConstraint(checkName, "    ", true));
+            Assert.That(() => new MySqlCheckConstraint(checkName, "    ", true), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -44,7 +43,7 @@ namespace SJP.Schematic.MySql.Tests
             Identifier checkName = "test_check";
             var check = new MySqlCheckConstraint(checkName, "test_definition", true);
 
-            Assert.AreEqual(checkName, check.Name.UnwrapSome());
+            Assert.That(check.Name.UnwrapSome(), Is.EqualTo(checkName));
         }
 
         [Test]
@@ -54,7 +53,7 @@ namespace SJP.Schematic.MySql.Tests
             const string definition = "test_definition";
             var check = new MySqlCheckConstraint(checkName, definition, true);
 
-            Assert.AreEqual(definition, check.Definition);
+            Assert.That(check.Definition, Is.EqualTo(definition));
         }
 
         [Test]
@@ -64,7 +63,7 @@ namespace SJP.Schematic.MySql.Tests
             const string definition = "test_definition";
             var check = new MySqlCheckConstraint(checkName, definition, true);
 
-            Assert.IsTrue(check.IsEnabled);
+            Assert.That(check.IsEnabled, Is.True);
         }
 
         [Test]
@@ -74,7 +73,7 @@ namespace SJP.Schematic.MySql.Tests
             const string definition = "test_definition";
             var check = new MySqlCheckConstraint(checkName, definition, false);
 
-            Assert.IsFalse(check.IsEnabled);
+            Assert.That(check.IsEnabled, Is.False);
         }
     }
 }

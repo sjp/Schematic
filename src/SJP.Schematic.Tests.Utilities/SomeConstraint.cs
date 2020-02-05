@@ -4,7 +4,6 @@ using NUnit.Framework.Constraints;
 
 namespace SJP.Schematic.Tests.Utilities
 {
-
     public sealed class SomeConstraint : Constraint
     {
         public override string Description { get; protected set; } = "Some";

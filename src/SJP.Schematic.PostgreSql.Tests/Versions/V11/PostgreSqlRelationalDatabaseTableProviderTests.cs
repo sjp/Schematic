@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 using System.Data;
@@ -17,7 +16,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Versions.V11
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new TableProvider(null, identifierDefaults, identifierResolver, typeProvider));
+            Assert.That(() => new TableProvider(null, identifierDefaults, identifierResolver, typeProvider), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -27,7 +26,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Versions.V11
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new TableProvider(connection, null, identifierResolver, typeProvider));
+            Assert.That(() => new TableProvider(connection, null, identifierResolver, typeProvider), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -37,7 +36,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Versions.V11
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new TableProvider(connection, identifierDefaults, null, typeProvider));
+            Assert.That(() => new TableProvider(connection, identifierDefaults, null, typeProvider), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -47,7 +46,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Versions.V11
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
-            Assert.Throws<ArgumentNullException>(() => new TableProvider(connection, identifierDefaults, identifierResolver, null));
+            Assert.That(() => new TableProvider(connection, identifierDefaults, identifierResolver, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -60,7 +59,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Versions.V11
 
             var tableProvider = new TableProvider(connection, identifierDefaults, identifierResolver, typeProvider);
 
-            Assert.Throws<ArgumentNullException>(() => tableProvider.GetTable(null));
+            Assert.That(() => tableProvider.GetTable(null), Throws.ArgumentNullException);
         }
     }
 }

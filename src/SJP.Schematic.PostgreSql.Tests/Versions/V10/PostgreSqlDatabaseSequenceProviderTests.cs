@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 using System.Data;
@@ -16,7 +15,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Versions.V10
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
-            Assert.Throws<ArgumentNullException>(() => new SequenceProvider(null, identifierDefaults, identifierResolver));
+            Assert.That(() => new SequenceProvider(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -25,7 +24,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Versions.V10
             var connection = Mock.Of<IDbConnection>();
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
-            Assert.Throws<ArgumentNullException>(() => new SequenceProvider(connection, null, identifierResolver));
+            Assert.That(() => new SequenceProvider(connection, null, identifierResolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -34,7 +33,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Versions.V10
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new SequenceProvider(connection, identifierDefaults, null));
+            Assert.That(() => new SequenceProvider(connection, identifierDefaults, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -46,7 +45,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Versions.V10
 
             var sequenceProvider = new SequenceProvider(connection, identifierDefaults, identifierResolver);
 
-            Assert.Throws<ArgumentNullException>(() => sequenceProvider.GetSequence(null));
+            Assert.That(() => sequenceProvider.GetSequence(null), Throws.ArgumentNullException);
         }
     }
 }

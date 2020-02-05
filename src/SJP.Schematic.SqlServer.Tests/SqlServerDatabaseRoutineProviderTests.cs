@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 using System.Data;
@@ -14,7 +13,7 @@ namespace SJP.Schematic.SqlServer.Tests
         {
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseRoutineProvider(null, identifierDefaults));
+            Assert.That(() => new SqlServerDatabaseRoutineProvider(null, identifierDefaults), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -22,7 +21,7 @@ namespace SJP.Schematic.SqlServer.Tests
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseRoutineProvider(connection, null));
+            Assert.That(() => new SqlServerDatabaseRoutineProvider(connection, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -33,7 +32,7 @@ namespace SJP.Schematic.SqlServer.Tests
 
             var routineProvider = new SqlServerDatabaseRoutineProvider(connection, identifierDefaults);
 
-            Assert.Throws<ArgumentNullException>(() => routineProvider.GetRoutine(null));
+            Assert.That(() => routineProvider.GetRoutine(null), Throws.ArgumentNullException);
         }
     }
 }

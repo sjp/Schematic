@@ -98,7 +98,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         public async Task GetViewComments_WhenViewPresent_ReturnsViewComment()
         {
             var viewIsSome = await ViewCommentProvider.GetViewComments("view_comment_view_1").IsSome.ConfigureAwait(false);
-            Assert.IsTrue(viewIsSome);
+            Assert.That(viewIsSome, Is.True);
         }
 
         [Test]
@@ -107,7 +107,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             const string viewName = "view_comment_view_1";
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(viewName, viewComments.ViewName.LocalName);
+            Assert.That(viewComments.ViewName.LocalName, Is.EqualTo(viewName));
         }
 
         [Test]
@@ -118,7 +118,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, viewComments.ViewName);
+            Assert.That(viewComments.ViewName, Is.EqualTo(expectedViewName));
         }
 
         [Test]
@@ -129,7 +129,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, viewComments.ViewName);
+            Assert.That(viewComments.ViewName, Is.EqualTo(expectedViewName));
         }
 
         [Test]
@@ -140,7 +140,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, viewComments.ViewName);
+            Assert.That(viewComments.ViewName, Is.EqualTo(expectedViewName));
         }
 
         [Test]
@@ -150,7 +150,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(viewName, viewComments.ViewName);
+            Assert.That(viewComments.ViewName, Is.EqualTo(viewName));
         }
 
         [Test]
@@ -161,7 +161,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, viewComments.ViewName);
+            Assert.That(viewComments.ViewName, Is.EqualTo(expectedViewName));
         }
 
         [Test]
@@ -172,14 +172,14 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, viewComments.ViewName);
+            Assert.That(viewComments.ViewName, Is.EqualTo(expectedViewName));
         }
 
         [Test]
         public async Task GetViewComments_WhenViewMissing_ReturnsNone()
         {
             var viewIsNone = await ViewCommentProvider.GetViewComments("view_that_doesnt_exist").IsNone.ConfigureAwait(false);
-            Assert.IsTrue(viewIsNone);
+            Assert.That(viewIsNone, Is.True);
         }
 
         [Test]
@@ -189,7 +189,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             var viewComments = await ViewCommentProvider.GetViewComments(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
             var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, viewComments.ViewName.LocalName);
-            Assert.IsTrue(equalNames);
+            Assert.That(equalNames, Is.True);
         }
 
         [Test]
@@ -200,7 +200,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, viewComments.ViewName.Schema)
                 && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, viewComments.ViewName.LocalName);
-            Assert.IsTrue(equalNames);
+            Assert.That(equalNames, Is.True);
         }
 
         [Test]
@@ -210,7 +210,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(hasViewComments);
+            Assert.That(hasViewComments, Is.True);
         }
 
         [Test]
@@ -220,7 +220,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                 .AnyAsync(t => t.ViewName.LocalName == "view_comment_view_1")
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(containsTestView);
+            Assert.That(containsTestView, Is.True);
         }
 
         [Test]
@@ -228,7 +228,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         {
             var comments = await GetViewCommentsAsync("view_comment_view_1").ConfigureAwait(false);
 
-            Assert.IsTrue(comments.Comment.IsNone);
+            Assert.That(comments.Comment.IsNone, Is.True);
         }
 
         [Test]
@@ -239,7 +239,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             var columnComments = comments.ColumnComments;
             var hasColumns = columnComments.Count == 1 && columnComments.Keys.Single().LocalName == "test_column_1";
 
-            Assert.IsTrue(hasColumns);
+            Assert.That(hasColumns, Is.True);
         }
 
         [Test]
@@ -250,7 +250,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             var columnComments = comments.ColumnComments;
             var hasOnlyNones = columnComments.Count == 1 && columnComments.Values.Single().IsNone;
 
-            Assert.IsTrue(hasOnlyNones);
+            Assert.That(hasOnlyNones, Is.True);
         }
 
         [Test]
@@ -261,7 +261,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var viewComment = comments.Comment.UnwrapSome();
 
-            Assert.AreEqual(expectedComment, viewComment);
+            Assert.That(viewComment, Is.EqualTo(expectedComment));
         }
 
         [Test]
@@ -274,10 +274,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             };
             var comments = await GetViewCommentsAsync("view_comment_view_2").ConfigureAwait(false);
 
-            var columnComments = comments.ColumnComments;
-            var allKeysPresent = columnNames.All(columnComments.ContainsKey);
-
-            Assert.IsTrue(allKeysPresent);
+            Assert.That(comments.ColumnComments.Keys, Is.EqualTo(columnNames));
         }
 
         [Test]
@@ -297,9 +294,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                 columnComments["test_column_2"].IsNone
             };
 
-            var seqEqual = expectedNoneStates.SequenceEqual(noneStates);
-
-            Assert.IsTrue(seqEqual);
+            Assert.That(noneStates, Is.EqualTo(expectedNoneStates));
         }
 
         [Test]
@@ -310,7 +305,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var comment = comments.ColumnComments["test_column_2"].UnwrapSome();
 
-            Assert.AreEqual(expectedComment, comment);
+            Assert.That(comment, Is.EqualTo(expectedComment));
         }
     }
 }

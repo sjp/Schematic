@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
 {
@@ -12,9 +13,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public async Task PrimaryKey_WhenGivenTableWithNoPrimaryKey_ReturnsNone()
         {
             var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
-            var pkIsNone = table.PrimaryKey.IsNone;
 
-            Assert.IsTrue(pkIsNone);
+            Assert.That(table.PrimaryKey, OptionIs.None);
         }
 
         [Test]
@@ -23,7 +23,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var table = await GetTableAsync("table_test_table_2").ConfigureAwait(false);
             var primaryKey = table.PrimaryKey.UnwrapSome();
 
-            Assert.AreEqual(DatabaseKeyType.Primary, primaryKey.KeyType);
+            Assert.That(primaryKey.KeyType, Is.EqualTo(DatabaseKeyType.Primary));
         }
 
         [Test]
@@ -35,8 +35,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(1, pkColumns.Count);
-                Assert.AreEqual("test_column", pkColumns.Single().Name.LocalName);
+                Assert.That(pkColumns, Has.Exactly(1).Items);
+                Assert.That(pkColumns.Single().Name.LocalName, Is.EqualTo("test_column"));
             });
         }
 
@@ -49,8 +49,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(1, pkColumns.Count);
-                Assert.AreEqual("test_column", pkColumns.Single().Name.LocalName);
+                Assert.That(pkColumns, Has.Exactly(1).Items);
+                Assert.That(pkColumns.Single().Name.LocalName, Is.EqualTo("test_column"));
             });
         }
 
@@ -60,7 +60,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var table = await GetTableAsync("table_test_table_3").ConfigureAwait(false);
             var pk = table.PrimaryKey.UnwrapSome();
 
-            Assert.AreEqual("pk_test_table_3", pk.Name.UnwrapSome().LocalName);
+            Assert.That(pk.Name.UnwrapSome().LocalName, Is.EqualTo("pk_test_table_3"));
         }
 
         [Test]
@@ -71,13 +71,12 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var table = await GetTableAsync("table_test_table_4").ConfigureAwait(false);
             var pk = table.PrimaryKey.UnwrapSome();
             var pkColumns = pk.Columns.ToList();
-
-            var columnsEqual = pkColumns.Select(c => c.Name.LocalName).SequenceEqual(expectedColumnNames);
+            var pkColumnNames = pkColumns.Select(c => c.Name.LocalName).ToList();
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(3, pkColumns.Count);
-                Assert.IsTrue(columnsEqual);
+                Assert.That(pkColumns, Has.Exactly(3).Items);
+                Assert.That(pkColumnNames, Is.EqualTo(expectedColumnNames));
             });
         }
 
@@ -87,7 +86,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var table = await GetTableAsync("table_test_table_4").ConfigureAwait(false);
             var pk = table.PrimaryKey.UnwrapSome();
 
-            Assert.AreEqual("pk_test_table_4", pk.Name.UnwrapSome().LocalName);
+            Assert.That(pk.Name.UnwrapSome().LocalName, Is.EqualTo("pk_test_table_4"));
         }
     }
 }

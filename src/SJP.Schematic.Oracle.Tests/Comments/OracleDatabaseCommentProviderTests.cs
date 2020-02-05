@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 using System.Data;
@@ -16,7 +15,7 @@ namespace SJP.Schematic.Oracle.Tests.Comments
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseCommentProvider(null, identifierDefaults, identifierResolver));
+            Assert.That(() => new OracleDatabaseCommentProvider(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -25,7 +24,7 @@ namespace SJP.Schematic.Oracle.Tests.Comments
             var connection = Mock.Of<IDbConnection>();
             var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseCommentProvider(connection, null, identifierResolver));
+            Assert.That(() => new OracleDatabaseCommentProvider(connection, null, identifierResolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -34,7 +33,7 @@ namespace SJP.Schematic.Oracle.Tests.Comments
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseCommentProvider(connection, identifierDefaults, null));
+            Assert.That(() => new OracleDatabaseCommentProvider(connection, identifierDefaults, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -46,7 +45,7 @@ namespace SJP.Schematic.Oracle.Tests.Comments
 
             var commentProvider = new OracleDatabaseCommentProvider(connection, identifierDefaults, identifierResolver);
 
-            Assert.Throws<ArgumentNullException>(() => commentProvider.GetTableComments(null));
+            Assert.That(() => commentProvider.GetTableComments(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -58,7 +57,7 @@ namespace SJP.Schematic.Oracle.Tests.Comments
 
             var commentProvider = new OracleDatabaseCommentProvider(connection, identifierDefaults, identifierResolver);
 
-            Assert.Throws<ArgumentNullException>(() => commentProvider.GetViewComments(null));
+            Assert.That(() => commentProvider.GetViewComments(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -70,7 +69,7 @@ namespace SJP.Schematic.Oracle.Tests.Comments
 
             var commentProvider = new OracleDatabaseCommentProvider(connection, identifierDefaults, identifierResolver);
 
-            Assert.Throws<ArgumentNullException>(() => commentProvider.GetSequenceComments(null));
+            Assert.That(() => commentProvider.GetSequenceComments(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -82,7 +81,7 @@ namespace SJP.Schematic.Oracle.Tests.Comments
 
             var commentProvider = new OracleDatabaseCommentProvider(connection, identifierDefaults, identifierResolver);
 
-            Assert.Throws<ArgumentNullException>(() => commentProvider.GetSynonymComments(null));
+            Assert.That(() => commentProvider.GetSynonymComments(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -94,7 +93,7 @@ namespace SJP.Schematic.Oracle.Tests.Comments
 
             var commentProvider = new OracleDatabaseCommentProvider(connection, identifierDefaults, identifierResolver);
 
-            Assert.Throws<ArgumentNullException>(() => commentProvider.GetRoutineComments(null));
+            Assert.That(() => commentProvider.GetRoutineComments(null), Throws.ArgumentNullException);
         }
     }
 }

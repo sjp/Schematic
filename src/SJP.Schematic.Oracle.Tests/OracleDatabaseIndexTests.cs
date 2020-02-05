@@ -16,7 +16,7 @@ namespace SJP.Schematic.Oracle.Tests
             var columns = new[] { column };
             const OracleIndexProperties properties = OracleIndexProperties.None;
 
-            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseIndex(null, isUnique, columns, properties));
+            Assert.That(() => new OracleDatabaseIndex(null, isUnique, columns, properties), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -26,7 +26,7 @@ namespace SJP.Schematic.Oracle.Tests
             const bool isUnique = true;
             const OracleIndexProperties properties = OracleIndexProperties.None;
 
-            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseIndex(indexName, isUnique, null, properties));
+            Assert.That(() => new OracleDatabaseIndex(indexName, isUnique, null, properties), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -37,7 +37,7 @@ namespace SJP.Schematic.Oracle.Tests
             var columns = Array.Empty<IDatabaseIndexColumn>();
             const OracleIndexProperties properties = OracleIndexProperties.None;
 
-            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseIndex(indexName, isUnique, columns, properties));
+            Assert.That(() => new OracleDatabaseIndex(indexName, isUnique, columns, properties), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -48,7 +48,7 @@ namespace SJP.Schematic.Oracle.Tests
             var columns = new IDatabaseIndexColumn[] { null };
             const OracleIndexProperties properties = OracleIndexProperties.None;
 
-            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseIndex(indexName, isUnique, columns, properties));
+            Assert.That(() => new OracleDatabaseIndex(indexName, isUnique, columns, properties), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -60,7 +60,7 @@ namespace SJP.Schematic.Oracle.Tests
             var columns = new[] { column };
             const OracleIndexProperties properties = (OracleIndexProperties)(-1);
 
-            Assert.Throws<ArgumentException>(() => new OracleDatabaseIndex(indexName, isUnique, columns, properties));
+            Assert.That(() => new OracleDatabaseIndex(indexName, isUnique, columns, properties), Throws.ArgumentException);
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var index = new OracleDatabaseIndex(indexName, isUnique, columns, properties);
 
-            Assert.AreEqual(indexName, index.Name);
+            Assert.That(index.Name, Is.EqualTo(indexName));
         }
 
         [Test]
@@ -88,7 +88,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var index = new OracleDatabaseIndex(indexName, isUnique, columns, properties);
 
-            Assert.AreEqual(isUnique, index.IsUnique);
+            Assert.That(index.IsUnique, Is.EqualTo(isUnique));
         }
 
         [Test]
@@ -102,7 +102,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var index = new OracleDatabaseIndex(indexName, isUnique, columns, properties);
 
-            Assert.AreEqual(isUnique, index.IsUnique);
+            Assert.That(index.IsUnique, Is.EqualTo(isUnique));
         }
 
         [Test]
@@ -116,7 +116,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var index = new OracleDatabaseIndex(indexName, isUnique, columns, properties);
 
-            Assert.AreEqual(columns, index.Columns);
+            Assert.That(index.Columns, Is.EqualTo(columns));
         }
 
         [Test]
@@ -130,7 +130,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var index = new OracleDatabaseIndex(indexName, isUnique, columns, properties);
 
-            Assert.IsTrue(index.GeneratedByConstraint);
+            Assert.That(index.GeneratedByConstraint, Is.True);
         }
 
         [Test]
@@ -144,7 +144,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var index = new OracleDatabaseIndex(indexName, isUnique, columns, properties);
 
-            Assert.IsFalse(index.GeneratedByConstraint);
+            Assert.That(index.GeneratedByConstraint, Is.False);
         }
 
         [Test]
@@ -158,7 +158,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var index = new OracleDatabaseIndex(indexName, isUnique, columns, properties);
 
-            Assert.IsFalse(index.GeneratedByConstraint);
+            Assert.That(index.GeneratedByConstraint, Is.False);
         }
 
         [Test]
@@ -172,7 +172,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var index = new OracleDatabaseIndex(indexName, isUnique, columns, properties);
 
-            Assert.IsFalse(index.GeneratedByConstraint);
+            Assert.That(index.GeneratedByConstraint, Is.False);
         }
 
         [Test]
@@ -186,7 +186,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var index = new OracleDatabaseIndex(indexName, isUnique, columns, properties);
 
-            Assert.IsTrue(index.IsEnabled);
+            Assert.That(index.IsEnabled, Is.True);
         }
     }
 }

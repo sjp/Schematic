@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -17,7 +16,7 @@ namespace SJP.Schematic.Oracle.Tests
             var parentKey = Mock.Of<IDatabaseKey>();
             const ReferentialAction deleteAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentNullException>(() => new OracleRelationalKey(null, childKey, parentTableName, parentKey, deleteAction));
+            Assert.That(() => new OracleRelationalKey(null, childKey, parentTableName, parentKey, deleteAction), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -28,7 +27,7 @@ namespace SJP.Schematic.Oracle.Tests
             var parentKey = Mock.Of<IDatabaseKey>();
             const ReferentialAction deleteAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentNullException>(() => new OracleRelationalKey(childTableName, null, parentTableName, parentKey, deleteAction));
+            Assert.That(() => new OracleRelationalKey(childTableName, null, parentTableName, parentKey, deleteAction), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -39,7 +38,7 @@ namespace SJP.Schematic.Oracle.Tests
             var parentKey = Mock.Of<IDatabaseKey>();
             const ReferentialAction deleteAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentNullException>(() => new OracleRelationalKey(childTableName, childKey, null, parentKey, deleteAction));
+            Assert.That(() => new OracleRelationalKey(childTableName, childKey, null, parentKey, deleteAction), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -50,7 +49,7 @@ namespace SJP.Schematic.Oracle.Tests
             const string parentTableName = "parent_table";
             const ReferentialAction deleteAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentNullException>(() => new OracleRelationalKey(childTableName, childKey, parentTableName, null, deleteAction));
+            Assert.That(() => new OracleRelationalKey(childTableName, childKey, parentTableName, null, deleteAction), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -62,7 +61,7 @@ namespace SJP.Schematic.Oracle.Tests
             var parentKey = Mock.Of<IDatabaseKey>();
             const ReferentialAction deleteAction = (ReferentialAction)55;
 
-            Assert.Throws<ArgumentException>(() => new OracleRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction));
+            Assert.That(() => new OracleRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction), Throws.ArgumentException);
         }
 
         [Test]
@@ -81,7 +80,7 @@ namespace SJP.Schematic.Oracle.Tests
             var parentKey = parentKeyMock.Object;
 
             var relationalKey = new OracleRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction);
-            Assert.AreEqual(new Identifier(childTableName), relationalKey.ChildTable);
+            Assert.That(relationalKey.ChildTable, Is.EqualTo(new Identifier(childTableName)));
         }
 
         [Test]
@@ -106,8 +105,8 @@ namespace SJP.Schematic.Oracle.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(keyName, relationalKey.ChildKey.Name.UnwrapSome());
-                Assert.AreSame(childKey, relationalKey.ChildKey);
+                Assert.That(relationalKey.ChildKey.Name.UnwrapSome(), Is.EqualTo(keyName));
+                Assert.That(relationalKey.ChildKey, Is.EqualTo(childKey));
             });
         }
 
@@ -127,7 +126,7 @@ namespace SJP.Schematic.Oracle.Tests
             var parentKey = parentKeyMock.Object;
 
             var relationalKey = new OracleRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction);
-            Assert.AreEqual(new Identifier(parentTableName), relationalKey.ParentTable);
+            Assert.That(relationalKey.ParentTable, Is.EqualTo(new Identifier(parentTableName)));
         }
 
         [Test]
@@ -152,8 +151,8 @@ namespace SJP.Schematic.Oracle.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(keyName, relationalKey.ParentKey.Name.UnwrapSome());
-                Assert.AreSame(parentKey, relationalKey.ParentKey);
+                Assert.That(relationalKey.ParentKey.Name.UnwrapSome(), Is.EqualTo(keyName));
+                Assert.That(relationalKey.ParentKey, Is.EqualTo(parentKey));
             });
         }
 
@@ -174,7 +173,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var relationalKey = new OracleRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction);
 
-            Assert.AreEqual(deleteAction, relationalKey.DeleteAction);
+            Assert.That(relationalKey.DeleteAction, Is.EqualTo(deleteAction));
         }
 
         [Test]
@@ -194,7 +193,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var relationalKey = new OracleRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction);
 
-            Assert.AreEqual(ReferentialAction.NoAction, relationalKey.UpdateAction);
+            Assert.That(relationalKey.UpdateAction, Is.EqualTo(ReferentialAction.NoAction));
         }
 
         [Test]
@@ -209,7 +208,7 @@ namespace SJP.Schematic.Oracle.Tests
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
             const ReferentialAction deleteAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentException>(() => new OracleRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction));
+            Assert.That(() => new OracleRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction), Throws.ArgumentException);
         }
 
         [Test]
@@ -224,7 +223,7 @@ namespace SJP.Schematic.Oracle.Tests
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
             const ReferentialAction deleteAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentException>(() => new OracleRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction));
+            Assert.That(() => new OracleRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction), Throws.ArgumentException);
         }
     }
 }

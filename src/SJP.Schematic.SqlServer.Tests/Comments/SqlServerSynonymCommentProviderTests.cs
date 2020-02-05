@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 using System.Data;
@@ -15,7 +14,7 @@ namespace SJP.Schematic.SqlServer.Tests.Comments
         {
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqlServerSynonymCommentProvider(null, identifierDefaults));
+            Assert.That(() => new SqlServerSynonymCommentProvider(null, identifierDefaults), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -23,7 +22,7 @@ namespace SJP.Schematic.SqlServer.Tests.Comments
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqlServerSynonymCommentProvider(connection, null));
+            Assert.That(() => new SqlServerSynonymCommentProvider(connection, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -34,7 +33,7 @@ namespace SJP.Schematic.SqlServer.Tests.Comments
 
             var commentProvider = new SqlServerSynonymCommentProvider(connection, identifierDefaults);
 
-            Assert.Throws<ArgumentNullException>(() => commentProvider.GetSynonymComments(null));
+            Assert.That(() => commentProvider.GetSynonymComments(null), Throws.ArgumentNullException);
         }
     }
 }

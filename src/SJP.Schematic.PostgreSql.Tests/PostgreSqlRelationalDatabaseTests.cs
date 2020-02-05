@@ -1,5 +1,4 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Moq;
@@ -18,7 +17,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabase(null, connection, identifierDefaults, identifierResolver));
+            Assert.That(() => new PostgreSqlRelationalDatabase(null, connection, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -29,7 +28,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabase(dialect, null, identifierDefaults, identifierResolver));
+            Assert.That(() => new PostgreSqlRelationalDatabase(dialect, null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -39,7 +38,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var dialect = new PostgreSqlDialect(connection);
             var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabase(dialect, connection, null, identifierResolver));
+            Assert.That(() => new PostgreSqlRelationalDatabase(dialect, connection, null, identifierResolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -49,7 +48,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var dialect = new PostgreSqlDialect(connection);
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabase(dialect, connection, identifierDefaults, null));
+            Assert.That(() => new PostgreSqlRelationalDatabase(dialect, connection, identifierDefaults, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -62,7 +61,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var database = new PostgreSqlRelationalDatabase(dialect, connection, identifierDefaults, identifierResolver);
 
-            Assert.Throws<ArgumentNullException>(() => database.GetTable(null));
+            Assert.That(() => database.GetTable(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -75,7 +74,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var database = new PostgreSqlRelationalDatabase(dialect, connection, identifierDefaults, identifierResolver);
 
-            Assert.Throws<ArgumentNullException>(() => database.GetView(null));
+            Assert.That(() => database.GetView(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -88,7 +87,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var database = new PostgreSqlRelationalDatabase(dialect, connection, identifierDefaults, identifierResolver);
 
-            Assert.Throws<ArgumentNullException>(() => database.GetSequence(null));
+            Assert.That(() => database.GetSequence(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -101,7 +100,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var database = new PostgreSqlRelationalDatabase(dialect, connection, identifierDefaults, identifierResolver);
 
-            Assert.Throws<ArgumentNullException>(() => database.GetSynonym(null));
+            Assert.That(() => database.GetSynonym(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -114,7 +113,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var database = new PostgreSqlRelationalDatabase(dialect, connection, identifierDefaults, identifierResolver);
 
-            Assert.Throws<ArgumentNullException>(() => database.GetRoutine(null));
+            Assert.That(() => database.GetRoutine(null), Throws.ArgumentNullException);
         }
 
         // testing that the behaviour is equivalent to an empty synonym provider
@@ -137,7 +136,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             [Test]
             public static void GetSynonym_GivenNullSynonymName_ThrowsArgumentNullException()
             {
-                Assert.Throws<ArgumentNullException>(() => Database.GetSynonym(null));
+                Assert.That(() => Database.GetSynonym(null), Throws.ArgumentNullException);
             }
 
             [Test]
@@ -146,7 +145,7 @@ namespace SJP.Schematic.PostgreSql.Tests
                 var synonymName = new Identifier("test");
                 var synonymIsNone = await Database.GetSynonym(synonymName).IsNone.ConfigureAwait(false);
 
-                Assert.IsTrue(synonymIsNone);
+                Assert.That(synonymIsNone, Is.True);
             }
 
             [Test]
@@ -156,7 +155,7 @@ namespace SJP.Schematic.PostgreSql.Tests
                     .AnyAsync()
                     .ConfigureAwait(false);
 
-                Assert.IsFalse(hasSynonyms);
+                Assert.That(hasSynonyms, Is.False);
             }
         }
     }

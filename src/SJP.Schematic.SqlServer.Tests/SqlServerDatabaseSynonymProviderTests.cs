@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 using System.Data;
@@ -14,7 +13,7 @@ namespace SJP.Schematic.SqlServer.Tests
         {
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseSynonymProvider(null, identifierDefaults));
+            Assert.That(() => new SqlServerDatabaseSynonymProvider(null, identifierDefaults), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -22,7 +21,7 @@ namespace SJP.Schematic.SqlServer.Tests
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseSynonymProvider(connection, null));
+            Assert.That(() => new SqlServerDatabaseSynonymProvider(connection, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -33,7 +32,7 @@ namespace SJP.Schematic.SqlServer.Tests
 
             var synonymProvider = new SqlServerDatabaseSynonymProvider(connection, identifierDefaults);
 
-            Assert.Throws<ArgumentNullException>(() => synonymProvider.GetSynonym(null));
+            Assert.That(() => synonymProvider.GetSynonym(null), Throws.ArgumentNullException);
         }
     }
 }

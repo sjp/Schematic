@@ -12,7 +12,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2016
             var versionStr = await Dialect.GetDatabaseDisplayVersionAsync().ConfigureAwait(false);
             var validStr = !versionStr.IsNullOrWhiteSpace();
 
-            Assert.IsTrue(validStr);
+            Assert.That(validStr, Is.True);
         }
 
         [Test]
@@ -20,7 +20,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2016
         {
             var version = await Dialect.GetDatabaseVersionAsync().ConfigureAwait(false);
 
-            Assert.IsNotNull(version);
+            Assert.That(version, Is.Not.Null);
         }
 
         [Test]
@@ -28,7 +28,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2016
         {
             var properties = await Dialect.GetServerProperties2014().ConfigureAwait(false);
 
-            Assert.IsNotNull(properties);
+            Assert.That(properties, Is.Not.Null);
         }
     }
 }

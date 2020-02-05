@@ -9,6 +9,7 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.SqlServer.Comments;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration.Comments
 {
@@ -140,7 +141,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         public async Task GetTableComments_WhenTablePresent_ReturnsTableComment()
         {
             var tableIsSome = await TableCommentProvider.GetTableComments("table_comment_table_1").IsSome.ConfigureAwait(false);
-            Assert.IsTrue(tableIsSome);
+            Assert.That(tableIsSome, Is.True);
         }
 
         [Test]
@@ -149,7 +150,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             const string tableName = "table_comment_table_1";
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(tableName, tableComments.TableName.LocalName);
+            Assert.That(tableComments.TableName.LocalName, Is.EqualTo(tableName));
         }
 
         [Test]
@@ -160,7 +161,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
         }
 
         [Test]
@@ -171,7 +172,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
         }
 
         [Test]
@@ -182,7 +183,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
         }
 
         [Test]
@@ -192,7 +193,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(tableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(tableName));
         }
 
         [Test]
@@ -203,7 +204,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
         }
 
         [Test]
@@ -214,14 +215,14 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
         }
 
         [Test]
         public async Task GetTableComments_WhenTableMissing_ReturnsNone()
         {
             var tableIsNone = await TableCommentProvider.GetTableComments("table_that_doesnt_exist").IsNone.ConfigureAwait(false);
-            Assert.IsTrue(tableIsNone);
+            Assert.That(tableIsNone, Is.True);
         }
 
         [Test]
@@ -231,7 +232,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             var tableComments = await TableCommentProvider.GetTableComments(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
             var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, tableComments.TableName.LocalName);
-            Assert.IsTrue(equalNames);
+            Assert.That(equalNames, Is.True);
         }
 
         [Test]
@@ -242,7 +243,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, tableComments.TableName.Schema)
                 && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, tableComments.TableName.LocalName);
-            Assert.IsTrue(equalNames);
+            Assert.That(equalNames, Is.True);
         }
 
         [Test]
@@ -252,7 +253,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(hasTableComments);
+            Assert.That(hasTableComments, Is.True);
         }
 
         [Test]
@@ -262,7 +263,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                 .AnyAsync(t => t.TableName.LocalName == "table_comment_table_1")
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(containsTestTable);
+            Assert.That(containsTestTable, Is.True);
         }
 
         [Test]
@@ -270,7 +271,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         {
             var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
 
-            Assert.IsTrue(comments.Comment.IsNone);
+            Assert.That(comments.Comment.IsNone, Is.True);
         }
 
         [Test]
@@ -278,7 +279,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         {
             var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
 
-            Assert.IsTrue(comments.PrimaryKeyComment.IsNone);
+            Assert.That(comments.PrimaryKeyComment, OptionIs.None);
         }
 
         [Test]
@@ -289,7 +290,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             var columnComments = comments.ColumnComments;
             var hasColumns = columnComments.Count == 1 && columnComments.Keys.Single().LocalName == "test_column_1";
 
-            Assert.IsTrue(hasColumns);
+            Assert.That(hasColumns, Is.True);
         }
 
         [Test]
@@ -300,7 +301,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             var columnComments = comments.ColumnComments;
             var hasOnlyNones = columnComments.Count == 1 && columnComments.Values.Single().IsNone;
 
-            Assert.IsTrue(hasOnlyNones);
+            Assert.That(hasOnlyNones, Is.True);
         }
 
         [Test]
@@ -308,9 +309,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         {
             var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
 
-            var checkCommentsCount = comments.CheckComments.Count;
-
-            Assert.Zero(checkCommentsCount);
+            Assert.That(comments.CheckComments, Is.Empty);
         }
 
         [Test]
@@ -318,9 +317,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         {
             var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
 
-            var uniqueKeyCommentsCount = comments.UniqueKeyComments.Count;
-
-            Assert.Zero(uniqueKeyCommentsCount);
+            Assert.That(comments.UniqueKeyComments, Is.Empty);
         }
 
         [Test]
@@ -328,9 +325,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         {
             var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
 
-            var indexCommentsCount = comments.IndexComments.Count;
-
-            Assert.Zero(indexCommentsCount);
+            Assert.That(comments.IndexComments, Is.Empty);
         }
 
         [Test]
@@ -338,9 +333,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         {
             var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
 
-            var triggerCommentsCount = comments.TriggerComments.Count;
-
-            Assert.Zero(triggerCommentsCount);
+            Assert.That(comments.TriggerComments, Is.Empty);
         }
 
         [Test]
@@ -348,9 +341,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         {
             var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
 
-            var foreignKeyCommentsCount = comments.ForeignKeyComments.Count;
-
-            Assert.Zero(foreignKeyCommentsCount);
+            Assert.That(comments.ForeignKeyComments, Is.Empty);
         }
 
         [Test]
@@ -361,7 +352,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var tableComment = comments.Comment.UnwrapSome();
 
-            Assert.AreEqual(expectedComment, tableComment);
+            Assert.That(tableComment, Is.EqualTo(expectedComment));
         }
 
         [Test]
@@ -369,9 +360,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         {
             var comments = await GetTableCommentsAsync("table_comment_table_2").ConfigureAwait(false);
 
-            var pkComment = comments.PrimaryKeyComment;
-
-            Assert.IsTrue(pkComment.IsNone);
+            Assert.That(comments.PrimaryKeyComment, OptionIs.None);
         }
 
         [Test]
@@ -382,7 +371,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var pkComment = comments.PrimaryKeyComment.UnwrapSome();
 
-            Assert.AreEqual(expectedComment, pkComment);
+            Assert.That(pkComment, Is.EqualTo(expectedComment));
         }
 
         [Test]
@@ -396,10 +385,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             };
             var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
-            var columnComments = comments.ColumnComments;
-            var allKeysPresent = columnNames.All(columnComments.ContainsKey);
-
-            Assert.IsTrue(allKeysPresent);
+            Assert.That(comments.ColumnComments.Keys, Is.EqualTo(columnNames));
         }
 
         [Test]
@@ -421,9 +407,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                 columnComments["test_column_3"].IsNone,
             };
 
-            var seqEqual = expectedNoneStates.SequenceEqual(noneStates);
-
-            Assert.IsTrue(seqEqual);
+            Assert.That(noneStates, Is.EqualTo(expectedNoneStates));
         }
 
         [Test]
@@ -434,7 +418,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var comment = comments.ColumnComments["test_column_2"].UnwrapSome();
 
-            Assert.AreEqual(expectedComment, comment);
+            Assert.That(comment, Is.EqualTo(expectedComment));
         }
 
         [Test]
@@ -447,10 +431,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             };
             var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
-            var indexComments = comments.IndexComments;
-            var allKeysPresent = indexNames.All(indexComments.ContainsKey);
-
-            Assert.IsTrue(allKeysPresent);
+            Assert.That(comments.IndexComments.Keys, Is.EqualTo(indexNames));
         }
 
         [Test]
@@ -466,9 +447,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                 indexComments["table_comment_table_3_ix_2"].IsNone,
             };
 
-            var seqEqual = expectedNoneStates.SequenceEqual(noneStates);
-
-            Assert.IsTrue(seqEqual);
+            Assert.That(noneStates, Is.EqualTo(expectedNoneStates));
         }
 
         [Test]
@@ -479,7 +458,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var comment = comments.IndexComments["table_comment_table_3_ix_2"].UnwrapSome();
 
-            Assert.AreEqual(expectedComment, comment);
+            Assert.That(comment, Is.EqualTo(expectedComment));
         }
 
         [Test]
@@ -492,10 +471,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             };
             var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
-            var triggerComments = comments.TriggerComments;
-            var allKeysPresent = triggerNames.All(triggerComments.ContainsKey);
-
-            Assert.IsTrue(allKeysPresent);
+            Assert.That(comments.TriggerComments.Keys, Is.EqualTo(triggerNames));
         }
 
         [Test]
@@ -511,9 +487,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                 triggerComments["table_comment_table_3_trigger_2"].IsNone,
             };
 
-            var seqEqual = expectedNoneStates.SequenceEqual(noneStates);
-
-            Assert.IsTrue(seqEqual);
+            Assert.That(noneStates, Is.EqualTo(expectedNoneStates));
         }
 
         [Test]
@@ -524,7 +498,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var comment = comments.TriggerComments["table_comment_table_3_trigger_2"].UnwrapSome();
 
-            Assert.AreEqual(expectedComment, comment);
+            Assert.That(comment, Is.EqualTo(expectedComment));
         }
 
         [Test]
@@ -537,10 +511,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             };
             var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
-            var checkComments = comments.CheckComments;
-            var allKeysPresent = checkNames.All(checkComments.ContainsKey);
-
-            Assert.IsTrue(allKeysPresent);
+            Assert.That(comments.CheckComments.Keys, Is.EqualTo(checkNames));
         }
 
         [Test]
@@ -556,9 +527,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                 checkComments["table_comment_table_3_ck_2"].IsNone,
             };
 
-            var seqEqual = expectedNoneStates.SequenceEqual(noneStates);
-
-            Assert.IsTrue(seqEqual);
+            Assert.That(noneStates, Is.EqualTo(expectedNoneStates));
         }
 
         [Test]
@@ -569,7 +538,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var comment = comments.CheckComments["table_comment_table_3_ck_2"].UnwrapSome();
 
-            Assert.AreEqual(expectedComment, comment);
+            Assert.That(comment, Is.EqualTo(expectedComment));
         }
 
         [Test]
@@ -582,10 +551,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             };
             var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
-            var uniqueKeyComments = comments.UniqueKeyComments;
-            var allKeysPresent = uniqueKeyNames.All(uniqueKeyComments.ContainsKey);
-
-            Assert.IsTrue(allKeysPresent);
+            Assert.That(comments.UniqueKeyComments.Keys, Is.EqualTo(uniqueKeyNames));
         }
 
         [Test]
@@ -601,9 +567,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                 uniqueKeyComments["table_comment_table_3_uk_2"].IsNone,
             };
 
-            var seqEqual = expectedNoneStates.SequenceEqual(noneStates);
-
-            Assert.IsTrue(seqEqual);
+            Assert.That(noneStates, Is.EqualTo(expectedNoneStates));
         }
 
         [Test]
@@ -614,7 +578,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var comment = comments.UniqueKeyComments["table_comment_table_3_uk_2"].UnwrapSome();
 
-            Assert.AreEqual(expectedComment, comment);
+            Assert.That(comment, Is.EqualTo(expectedComment));
         }
 
         [Test]
@@ -627,10 +591,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             };
             var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
-            var foreignKeyComments = comments.ForeignKeyComments;
-            var allKeysPresent = foreignKeyNames.All(foreignKeyComments.ContainsKey);
-
-            Assert.IsTrue(allKeysPresent);
+            Assert.That(comments.ForeignKeyComments.Keys, Is.EqualTo(foreignKeyNames));
         }
 
         [Test]
@@ -646,9 +607,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                 foreignKeyComments["table_comment_table_3_fk_2"].IsNone,
             };
 
-            var seqEqual = expectedNoneStates.SequenceEqual(noneStates);
-
-            Assert.IsTrue(seqEqual);
+            Assert.That(noneStates, Is.EqualTo(expectedNoneStates));
         }
 
         [Test]
@@ -659,7 +618,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var comment = comments.ForeignKeyComments["table_comment_table_3_fk_2"].UnwrapSome();
 
-            Assert.AreEqual(expectedComment, comment);
+            Assert.That(comment, Is.EqualTo(expectedComment));
         }
     }
 }

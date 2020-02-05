@@ -10,20 +10,20 @@ namespace SJP.Schematic.Oracle.Tests
         public static void Ctor_GivenNullComparer_CreatesWithoutError()
         {
             var argComparer = StringComparer.Ordinal;
-            Assert.DoesNotThrow(() => new OracleExpressionComparer(sqlStringComparer: argComparer));
+            Assert.That(() => new OracleExpressionComparer(sqlStringComparer: argComparer), Throws.Nothing);
         }
 
         [Test]
         public static void Ctor_GivenNullSqlStringComparer_CreatesWithoutError()
         {
             var argComparer = StringComparer.Ordinal;
-            Assert.DoesNotThrow(() => new OracleExpressionComparer(argComparer));
+            Assert.That(() => new OracleExpressionComparer(argComparer), Throws.Nothing);
         }
 
         [Test]
         public static void Ctor_GivenNoComparers_CreatesWithoutError()
         {
-            Assert.DoesNotThrow(() => new OracleExpressionComparer());
+            Assert.That(() => new OracleExpressionComparer(), Throws.Nothing);
         }
 
         [Test]
@@ -34,7 +34,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(input, input);
 
-            Assert.IsTrue(equals);
+            Assert.That(equals, Is.True);
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsFalse(equals);
+            Assert.That(equals, Is.False);
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(input, input);
 
-            Assert.IsTrue(equals);
+            Assert.That(equals, Is.True);
         }
 
         [Test]
@@ -69,7 +69,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsFalse(equals);
+            Assert.That(equals, Is.False);
         }
 
         [Test]
@@ -81,7 +81,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsTrue(equals);
+            Assert.That(equals, Is.True);
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsFalse(equals);
+            Assert.That(equals, Is.False);
         }
 
         [Test]
@@ -104,7 +104,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(input, input);
 
-            Assert.IsTrue(equals);
+            Assert.That(equals, Is.True);
         }
 
         [Test]
@@ -116,7 +116,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsFalse(equals);
+            Assert.That(equals, Is.False);
         }
 
         [Test]
@@ -127,7 +127,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(input, input);
 
-            Assert.IsTrue(equals);
+            Assert.That(equals, Is.True);
         }
 
         [Test]
@@ -139,7 +139,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsFalse(equals);
+            Assert.That(equals, Is.False);
         }
 
         [Test]
@@ -151,7 +151,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsTrue(equals);
+            Assert.That(equals, Is.True);
         }
 
         [Test]
@@ -163,7 +163,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsFalse(equals);
+            Assert.That(equals, Is.False);
         }
 
         [Test]
@@ -174,7 +174,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(input, input);
 
-            Assert.IsTrue(equals);
+            Assert.That(equals, Is.True);
         }
 
         [Test]
@@ -186,7 +186,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsFalse(equals);
+            Assert.That(equals, Is.False);
         }
 
         [Test]
@@ -197,7 +197,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(input, input);
 
-            Assert.IsTrue(equals);
+            Assert.That(equals, Is.True);
         }
 
         [Test]
@@ -209,7 +209,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsFalse(equals);
+            Assert.That(equals, Is.False);
         }
 
         [Test]
@@ -221,7 +221,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsTrue(equals);
+            Assert.That(equals, Is.True);
         }
 
         [Test]
@@ -233,7 +233,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsFalse(equals);
+            Assert.That(equals, Is.False);
         }
 
         [Test]
@@ -245,7 +245,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsTrue(equals);
+            Assert.That(equals, Is.True);
         }
 
         [Test]
@@ -256,7 +256,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(input, input);
 
-            Assert.IsTrue(equals);
+            Assert.That(equals, Is.True);
         }
 
         [Test]
@@ -268,7 +268,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsFalse(equals);
+            Assert.That(equals, Is.False);
         }
 
         [Test]
@@ -279,7 +279,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(input, input);
 
-            Assert.IsTrue(equals);
+            Assert.That(equals, Is.True);
         }
 
         [Test]
@@ -291,7 +291,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsTrue(equals);
+            Assert.That(equals, Is.True);
         }
 
         [Test]
@@ -303,7 +303,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsTrue(equals);
+            Assert.That(equals, Is.True);
         }
 
         [Test]
@@ -315,7 +315,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsFalse(equals);
+            Assert.That(equals, Is.False);
         }
 
         [Test]
@@ -327,7 +327,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsTrue(equals);
+            Assert.That(equals, Is.True);
         }
 
         [Test]
@@ -339,7 +339,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsFalse(equals);
+            Assert.That(equals, Is.False);
         }
 
         [Test]
@@ -351,7 +351,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsTrue(equals);
+            Assert.That(equals, Is.True);
         }
     }
 }

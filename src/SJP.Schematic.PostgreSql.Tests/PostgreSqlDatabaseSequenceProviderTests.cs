@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 using System.Data;
@@ -16,7 +15,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseSequenceProvider(null, connection, identifierDefaults, identifierResolver));
+            Assert.That(() => new PostgreSqlDatabaseSequenceProvider(null, connection, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -26,7 +25,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseSequenceProvider(dialect, null, identifierDefaults, identifierResolver));
+            Assert.That(() => new PostgreSqlDatabaseSequenceProvider(dialect, null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -36,7 +35,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var connection = Mock.Of<IDbConnection>();
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseSequenceProvider(dialect, connection, null, identifierResolver));
+            Assert.That(() => new PostgreSqlDatabaseSequenceProvider(dialect, connection, null, identifierResolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -46,7 +45,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseSequenceProvider(dialect, connection, identifierDefaults, null));
+            Assert.That(() => new PostgreSqlDatabaseSequenceProvider(dialect, connection, identifierDefaults, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -59,7 +58,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var sequenceProvider = new PostgreSqlDatabaseSequenceProvider(dialect, connection, identifierDefaults, identifierResolver);
 
-            Assert.Throws<ArgumentNullException>(() => sequenceProvider.GetSequence(null));
+            Assert.That(() => sequenceProvider.GetSequence(null), Throws.ArgumentNullException);
         }
     }
 }

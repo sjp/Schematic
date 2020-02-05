@@ -63,7 +63,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         public async Task GetView_WhenViewPresent_ReturnsView()
         {
             var viewIsSome = await ViewProvider.GetView("db_test_view_1").IsSome.ConfigureAwait(false);
-            Assert.IsTrue(viewIsSome);
+            Assert.That(viewIsSome, Is.True);
         }
 
         [Test]
@@ -72,7 +72,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             var viewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_view_1");
             var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(viewName, view.Name);
+            Assert.That(view.Name, Is.EqualTo(viewName));
         }
 
         [Test]
@@ -83,7 +83,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
 
             var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, view.Name);
+            Assert.That(view.Name, Is.EqualTo(expectedViewName));
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
 
             var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, view.Name);
+            Assert.That(view.Name, Is.EqualTo(expectedViewName));
         }
 
         [Test]
@@ -105,7 +105,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
 
             var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, view.Name);
+            Assert.That(view.Name, Is.EqualTo(expectedViewName));
         }
 
         [Test]
@@ -116,7 +116,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
 
             var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, view.Name);
+            Assert.That(view.Name, Is.EqualTo(expectedViewName));
         }
 
         [Test]
@@ -127,7 +127,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
 
             var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, view.Name);
+            Assert.That(view.Name, Is.EqualTo(expectedViewName));
         }
 
         [Test]
@@ -138,14 +138,14 @@ namespace SJP.Schematic.MySql.Tests.Integration
 
             var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, view.Name);
+            Assert.That(view.Name, Is.EqualTo(expectedViewName));
         }
 
         [Test]
         public async Task GetView_WhenViewMissing_ReturnsNone()
         {
             var viewIsNone = await ViewProvider.GetView("view_that_doesnt_exist").IsNone.ConfigureAwait(false);
-            Assert.IsTrue(viewIsNone);
+            Assert.That(viewIsNone, Is.True);
         }
 
         [Test]
@@ -155,7 +155,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(hasViews);
+            Assert.That(hasViews, Is.True);
         }
 
         [Test]
@@ -166,7 +166,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
                 .AnyAsync(v => v.Name.LocalName == viewName)
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(containsTestView);
+            Assert.That(containsTestView, Is.True);
         }
 
         [Test]
@@ -177,7 +177,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             var definition = view.Definition;
             const string expected = "select 1 AS `test`";
 
-            Assert.AreEqual(expected, definition);
+            Assert.That(definition, Is.EqualTo(expected));
         }
 
         [Test]
@@ -185,9 +185,8 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
             var view = await GetViewAsync(viewName).ConfigureAwait(false);
-            var columnCount = view.Columns.Count;
 
-            Assert.AreEqual(1, columnCount);
+            Assert.That(view.Columns, Has.Exactly(1).Items);
         }
 
         [Test]
@@ -197,7 +196,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             var view = await GetViewAsync(viewName).ConfigureAwait(false);
             var containsColumn = view.Columns.Any(c => c.Name == "test");
 
-            Assert.IsTrue(containsColumn);
+            Assert.That(containsColumn, Is.True);
         }
     }
 }

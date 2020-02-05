@@ -114,7 +114,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         public async Task GetRoutineComments_WhenRoutinePresent_ReturnsRoutineComment()
         {
             var routineIsSome = await RoutineCommentProvider.GetRoutineComments("routine_comment_tf_1").IsSome.ConfigureAwait(false);
-            Assert.IsTrue(routineIsSome);
+            Assert.That(routineIsSome, Is.True);
         }
 
         [Test]
@@ -123,7 +123,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             const string routineName = "routine_comment_tf_1";
             var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(routineName, routineComments.RoutineName.LocalName);
+            Assert.That(routineComments.RoutineName.LocalName, Is.EqualTo(routineName));
         }
 
         [Test]
@@ -134,7 +134,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedRoutineName, routineComments.RoutineName);
+            Assert.That(routineComments.RoutineName, Is.EqualTo(expectedRoutineName));
         }
 
         [Test]
@@ -145,7 +145,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedRoutineName, routineComments.RoutineName);
+            Assert.That(routineComments.RoutineName, Is.EqualTo(expectedRoutineName));
         }
 
         [Test]
@@ -156,7 +156,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedRoutineName, routineComments.RoutineName);
+            Assert.That(routineComments.RoutineName, Is.EqualTo(expectedRoutineName));
         }
 
         [Test]
@@ -166,7 +166,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(routineName, routineComments.RoutineName);
+            Assert.That(routineComments.RoutineName, Is.EqualTo(routineName));
         }
 
         [Test]
@@ -177,7 +177,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedRoutineName, routineComments.RoutineName);
+            Assert.That(routineComments.RoutineName, Is.EqualTo(expectedRoutineName));
         }
 
         [Test]
@@ -188,14 +188,14 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedRoutineName, routineComments.RoutineName);
+            Assert.That(routineComments.RoutineName, Is.EqualTo(expectedRoutineName));
         }
 
         [Test]
         public async Task GetRoutineComments_WhenRoutineMissing_ReturnsNone()
         {
             var routineIsNone = await RoutineCommentProvider.GetRoutineComments("routine_that_doesnt_exist").IsNone.ConfigureAwait(false);
-            Assert.IsTrue(routineIsNone);
+            Assert.That(routineIsNone, Is.True);
         }
 
         [Test]
@@ -205,7 +205,8 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             var routineComments = await RoutineCommentProvider.GetRoutineComments(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
             var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, routineComments.RoutineName.LocalName);
-            Assert.IsTrue(equalNames);
+
+            Assert.That(equalNames, Is.True);
         }
 
         [Test]
@@ -216,7 +217,8 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, routineComments.RoutineName.Schema)
                 && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, routineComments.RoutineName.LocalName);
-            Assert.IsTrue(equalNames);
+
+            Assert.That(equalNames, Is.True);
         }
 
         [Test]
@@ -226,7 +228,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(hasRoutineComments);
+            Assert.That(hasRoutineComments, Is.True);
         }
 
         [Test]
@@ -236,7 +238,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                 .AnyAsync(t => t.RoutineName.LocalName == "routine_comment_tf_1")
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(containsTestRoutine);
+            Assert.That(containsTestRoutine, Is.True);
         }
 
         [Test]
@@ -244,7 +246,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         {
             var comments = await GetRoutineCommentsAsync("routine_comment_tf_1").ConfigureAwait(false);
 
-            Assert.IsTrue(comments.Comment.IsNone);
+            Assert.That(comments.Comment.IsNone, Is.True);
         }
 
         [Test]
@@ -255,7 +257,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var routineComment = comments.Comment.UnwrapSome();
 
-            Assert.AreEqual(expectedComment, routineComment);
+            Assert.That(routineComment, Is.EqualTo(expectedComment));
         }
 
         [Test]
@@ -263,7 +265,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         {
             var comments = await GetRoutineCommentsAsync("routine_comment_sp_1").ConfigureAwait(false);
 
-            Assert.IsTrue(comments.Comment.IsNone);
+            Assert.That(comments.Comment.IsNone, Is.True);
         }
 
         [Test]
@@ -274,7 +276,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var routineComment = comments.Comment.UnwrapSome();
 
-            Assert.AreEqual(expectedComment, routineComment);
+            Assert.That(routineComment, Is.EqualTo(expectedComment));
         }
     }
 }

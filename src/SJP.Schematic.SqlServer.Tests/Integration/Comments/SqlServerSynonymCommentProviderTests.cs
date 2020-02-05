@@ -75,7 +75,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         public async Task GetSynonymComments_WhenSynonymPresent_ReturnsSynonymComment()
         {
             var synonymIsSome = await SynonymCommentProvider.GetSynonymComments("synonym_comment_synonym_1").IsSome.ConfigureAwait(false);
-            Assert.IsTrue(synonymIsSome);
+            Assert.That(synonymIsSome, Is.True);
         }
 
         [Test]
@@ -84,7 +84,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             const string synonymName = "synonym_comment_synonym_1";
             var synonymComments = await SynonymCommentProvider.GetSynonymComments(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(synonymName, synonymComments.SynonymName.LocalName);
+            Assert.That(synonymComments.SynonymName.LocalName, Is.EqualTo(synonymName));
         }
 
         [Test]
@@ -95,7 +95,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var synonymComments = await SynonymCommentProvider.GetSynonymComments(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSynonymName, synonymComments.SynonymName);
+            Assert.That(synonymComments.SynonymName, Is.EqualTo(expectedSynonymName));
         }
 
         [Test]
@@ -106,7 +106,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var synonymComments = await SynonymCommentProvider.GetSynonymComments(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSynonymName, synonymComments.SynonymName);
+            Assert.That(synonymComments.SynonymName, Is.EqualTo(expectedSynonymName));
         }
 
         [Test]
@@ -117,7 +117,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var synonymComments = await SynonymCommentProvider.GetSynonymComments(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSynonymName, synonymComments.SynonymName);
+            Assert.That(synonymComments.SynonymName, Is.EqualTo(expectedSynonymName));
         }
 
         [Test]
@@ -127,7 +127,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var synonymComments = await SynonymCommentProvider.GetSynonymComments(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(synonymName, synonymComments.SynonymName);
+            Assert.That(synonymComments.SynonymName, Is.EqualTo(synonymName));
         }
 
         [Test]
@@ -138,7 +138,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var synonymComments = await SynonymCommentProvider.GetSynonymComments(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSynonymName, synonymComments.SynonymName);
+            Assert.That(synonymComments.SynonymName, Is.EqualTo(expectedSynonymName));
         }
 
         [Test]
@@ -149,14 +149,14 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var synonymComments = await SynonymCommentProvider.GetSynonymComments(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSynonymName, synonymComments.SynonymName);
+            Assert.That(synonymComments.SynonymName, Is.EqualTo(expectedSynonymName));
         }
 
         [Test]
         public async Task GetSynonymComments_WhenSynonymMissing_ReturnsNone()
         {
             var synonymIsNone = await SynonymCommentProvider.GetSynonymComments("synonym_that_doesnt_exist").IsNone.ConfigureAwait(false);
-            Assert.IsTrue(synonymIsNone);
+            Assert.That(synonymIsNone, Is.True);
         }
 
         [Test]
@@ -166,7 +166,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             var synonymComments = await SynonymCommentProvider.GetSynonymComments(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
             var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, synonymComments.SynonymName.LocalName);
-            Assert.IsTrue(equalNames);
+            Assert.That(equalNames, Is.True);
         }
 
         [Test]
@@ -177,7 +177,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, synonymComments.SynonymName.Schema)
                 && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, synonymComments.SynonymName.LocalName);
-            Assert.IsTrue(equalNames);
+            Assert.That(equalNames, Is.True);
         }
 
         [Test]
@@ -187,7 +187,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(hasSynonymComments);
+            Assert.That(hasSynonymComments, Is.True);
         }
 
         [Test]
@@ -197,7 +197,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                 .AnyAsync(t => t.SynonymName.LocalName == "synonym_comment_synonym_1")
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(containsTestSynonym);
+            Assert.That(containsTestSynonym, Is.True);
         }
 
         [Test]
@@ -205,7 +205,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         {
             var comments = await GetSynonymCommentsAsync("synonym_comment_synonym_1").ConfigureAwait(false);
 
-            Assert.IsTrue(comments.Comment.IsNone);
+            Assert.That(comments.Comment.IsNone, Is.True);
         }
 
         [Test]
@@ -216,7 +216,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var synonymComment = comments.Comment.UnwrapSome();
 
-            Assert.AreEqual(expectedComment, synonymComment);
+            Assert.That(synonymComment, Is.EqualTo(expectedComment));
         }
     }
 }

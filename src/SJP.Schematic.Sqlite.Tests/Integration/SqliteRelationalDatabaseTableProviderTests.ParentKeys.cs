@@ -12,9 +12,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public async Task ParentKeys_WhenGivenTableWithNoForeignKeys_ReturnsEmptyCollection()
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
-            var count = table.ParentKeys.Count;
 
-            Assert.AreEqual(0, count);
+            Assert.That(table.ParentKeys, Is.Empty);
         }
 
         [Test]
@@ -25,8 +24,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("fk_test_table_16", foreignKey.ChildKey.Name.UnwrapSome().LocalName);
-                Assert.AreEqual("pk_test_table_15", foreignKey.ParentKey.Name.UnwrapSome().LocalName);
+                Assert.That(foreignKey.ChildKey.Name.UnwrapSome().LocalName, Is.EqualTo("fk_test_table_16"));
+                Assert.That(foreignKey.ParentKey.Name.UnwrapSome().LocalName, Is.EqualTo("pk_test_table_15"));
             });
         }
 
@@ -38,8 +37,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(DatabaseKeyType.Foreign, foreignKey.ChildKey.KeyType);
-                Assert.AreEqual(DatabaseKeyType.Primary, foreignKey.ParentKey.KeyType);
+                Assert.That(foreignKey.ChildKey.KeyType, Is.EqualTo(DatabaseKeyType.Foreign));
+                Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Primary));
             });
         }
 
@@ -51,8 +50,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("table_test_table_16", foreignKey.ChildTable.LocalName);
-                Assert.AreEqual("table_test_table_15", foreignKey.ParentTable.LocalName);
+                Assert.That(foreignKey.ChildTable.LocalName, Is.EqualTo("table_test_table_16"));
+                Assert.That(foreignKey.ParentTable.LocalName, Is.EqualTo("table_test_table_15"));
             });
         }
 
@@ -68,13 +67,10 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var expectedChildColumns = new[] { "first_name_child" };
             var expectedParentColumns = new[] { "first_name_parent" };
 
-            var childColumnsEqual = childColumns.SequenceEqual(expectedChildColumns);
-            var parentColumnsEqual = parentColumns.SequenceEqual(expectedParentColumns);
-
             Assert.Multiple(() =>
             {
-                Assert.IsTrue(childColumnsEqual);
-                Assert.IsTrue(parentColumnsEqual);
+                Assert.That(childColumns, Is.EqualTo(expectedChildColumns));
+                Assert.That(parentColumns, Is.EqualTo(expectedParentColumns));
             });
         }
 
@@ -85,7 +81,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.NoAction, foreignKey.UpdateAction);
+            Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.NoAction));
         }
 
         [Test]
@@ -95,7 +91,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.Cascade, foreignKey.UpdateAction);
+            Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.Cascade));
         }
 
         [Test]
@@ -105,7 +101,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.SetNull, foreignKey.UpdateAction);
+            Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.SetNull));
         }
 
         [Test]
@@ -115,7 +111,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.SetDefault, foreignKey.UpdateAction);
+            Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.SetDefault));
         }
 
         [Test]
@@ -125,7 +121,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.NoAction, foreignKey.DeleteAction);
+            Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.NoAction));
         }
 
         [Test]
@@ -135,7 +131,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.Cascade, foreignKey.DeleteAction);
+            Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.Cascade));
         }
 
         [Test]
@@ -145,7 +141,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.SetNull, foreignKey.DeleteAction);
+            Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.SetNull));
         }
 
         [Test]
@@ -155,7 +151,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.SetDefault, foreignKey.DeleteAction);
+            Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.SetDefault));
         }
 
         [Test]
@@ -165,7 +161,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.IsTrue(foreignKey.ChildKey.IsEnabled);
+            Assert.That(foreignKey.ChildKey.IsEnabled, Is.True);
         }
 
         [Test]
@@ -176,8 +172,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("fk_test_table_17", foreignKey.ChildKey.Name.UnwrapSome().LocalName);
-                Assert.AreEqual("uk_test_table_15", foreignKey.ParentKey.Name.UnwrapSome().LocalName);
+                Assert.That(foreignKey.ChildKey.Name.UnwrapSome().LocalName, Is.EqualTo("fk_test_table_17"));
+                Assert.That(foreignKey.ParentKey.Name.UnwrapSome().LocalName, Is.EqualTo("uk_test_table_15"));
             });
         }
 
@@ -189,8 +185,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(DatabaseKeyType.Foreign, foreignKey.ChildKey.KeyType);
-                Assert.AreEqual(DatabaseKeyType.Unique, foreignKey.ParentKey.KeyType);
+                Assert.That(foreignKey.ChildKey.KeyType, Is.EqualTo(DatabaseKeyType.Foreign));
+                Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
             });
         }
 
@@ -202,8 +198,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("table_test_table_17", foreignKey.ChildTable.LocalName);
-                Assert.AreEqual("table_test_table_15", foreignKey.ParentTable.LocalName);
+                Assert.That(foreignKey.ChildTable.LocalName, Is.EqualTo("table_test_table_17"));
+                Assert.That(foreignKey.ParentTable.LocalName, Is.EqualTo("table_test_table_15"));
             });
         }
 
@@ -219,13 +215,10 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var expectedChildColumns = new[] { "last_name_child", "middle_name_child" };
             var expectedParentColumns = new[] { "last_name_parent", "middle_name_parent" };
 
-            var childColumnsEqual = childColumns.SequenceEqual(expectedChildColumns);
-            var parentColumnsEqual = parentColumns.SequenceEqual(expectedParentColumns);
-
             Assert.Multiple(() =>
             {
-                Assert.IsTrue(childColumnsEqual);
-                Assert.IsTrue(parentColumnsEqual);
+                Assert.That(childColumns, Is.EqualTo(expectedChildColumns));
+                Assert.That(parentColumns, Is.EqualTo(expectedParentColumns));
             });
         }
 
@@ -236,7 +229,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.NoAction, foreignKey.UpdateAction);
+            Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.NoAction));
         }
 
         [Test]
@@ -246,7 +239,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.Cascade, foreignKey.UpdateAction);
+            Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.Cascade));
         }
 
         [Test]
@@ -256,7 +249,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.SetNull, foreignKey.UpdateAction);
+            Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.SetNull));
         }
 
         [Test]
@@ -266,7 +259,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.SetDefault, foreignKey.UpdateAction);
+            Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.SetDefault));
         }
 
         [Test]
@@ -276,7 +269,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.NoAction, foreignKey.DeleteAction);
+            Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.NoAction));
         }
 
         [Test]
@@ -286,7 +279,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.Cascade, foreignKey.DeleteAction);
+            Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.Cascade));
         }
 
         [Test]
@@ -296,7 +289,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.SetNull, foreignKey.DeleteAction);
+            Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.SetNull));
         }
 
         [Test]
@@ -306,7 +299,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.SetDefault, foreignKey.DeleteAction);
+            Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.SetDefault));
         }
 
         [Test]
@@ -316,7 +309,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.IsTrue(foreignKey.ChildKey.IsEnabled);
+            Assert.That(foreignKey.ChildKey.IsEnabled, Is.True);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 using System.Data;
@@ -14,7 +13,7 @@ namespace SJP.Schematic.SqlServer.Tests
         {
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseSequenceProvider(null, identifierDefaults));
+            Assert.That(() => new SqlServerDatabaseSequenceProvider(null, identifierDefaults), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -22,7 +21,7 @@ namespace SJP.Schematic.SqlServer.Tests
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqlServerDatabaseSequenceProvider(connection, null));
+            Assert.That(() => new SqlServerDatabaseSequenceProvider(connection, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -33,7 +32,7 @@ namespace SJP.Schematic.SqlServer.Tests
 
             var sequenceProvider = new SqlServerDatabaseSequenceProvider(connection, identifierDefaults);
 
-            Assert.Throws<ArgumentNullException>(() => sequenceProvider.GetSequence(null));
+            Assert.That(() => sequenceProvider.GetSequence(null), Throws.ArgumentNullException);
         }
     }
 }

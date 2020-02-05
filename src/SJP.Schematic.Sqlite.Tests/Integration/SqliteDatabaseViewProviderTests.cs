@@ -67,7 +67,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public async Task GetView_WhenViewPresent_ReturnsView()
         {
             var viewIsSome = await ViewProvider.GetView("db_test_view_1").IsSome.ConfigureAwait(false);
-            Assert.IsTrue(viewIsSome);
+            Assert.That(viewIsSome, Is.True);
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, view.Name);
+            Assert.That(view.Name, Is.EqualTo(expectedViewName));
         }
 
         [Test]
@@ -88,7 +88,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             var view = await ViewProvider.GetView(expectedViewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, view.Name);
+            Assert.That(view.Name, Is.EqualTo(expectedViewName));
         }
 
         [Test]
@@ -99,14 +99,14 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, view.Name);
+            Assert.That(view.Name, Is.EqualTo(expectedViewName));
         }
 
         [Test]
         public async Task GetView_WhenViewMissing_ReturnsNone()
         {
             var viewIsNone = await ViewProvider.GetView("view_that_doesnt_exist").IsNone.ConfigureAwait(false);
-            Assert.IsTrue(viewIsNone);
+            Assert.That(viewIsNone, Is.True);
         }
 
         [Test]
@@ -116,7 +116,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var view = await ViewProvider.GetView(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
             var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, view.Name.LocalName);
-            Assert.IsTrue(equalNames);
+            Assert.That(equalNames, Is.True);
         }
 
         [Test]
@@ -126,7 +126,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var view = await ViewProvider.GetView(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
             var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, view.Name);
-            Assert.IsTrue(equalNames);
+            Assert.That(equalNames, Is.True);
         }
 
         [Test]
@@ -139,7 +139,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             const string expected = "create view view_test_view_1 as select 1 as test";
 
             var definitionEqual = string.Equals(expected, definition, StringComparison.OrdinalIgnoreCase);
-            Assert.IsTrue(definitionEqual);
+            Assert.That(definitionEqual, Is.True);
         }
 
         [Test]
@@ -148,7 +148,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
             var view = await GetViewAsync(viewName).ConfigureAwait(false);
 
-            Assert.IsFalse(view.IsMaterialized);
+            Assert.That(view.IsMaterialized, Is.False);
         }
 
         [Test]
@@ -156,9 +156,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
             var view = await GetViewAsync(viewName).ConfigureAwait(false);
-            var columnCount = view.Columns.Count;
 
-            Assert.AreEqual(1, columnCount);
+            Assert.That(view.Columns, Has.Exactly(1).Items);
         }
 
         [Test]
@@ -168,7 +167,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var view = await GetViewAsync(viewName).ConfigureAwait(false);
             var containsColumn = view.Columns.Any(c => c.Name == "test");
 
-            Assert.IsTrue(containsColumn);
+            Assert.That(containsColumn, Is.True);
         }
 
         [Test]
@@ -176,9 +175,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_2");
             var view = await GetViewAsync(viewName).ConfigureAwait(false);
-            var columnCount = view.Columns.Count;
 
-            Assert.AreEqual(4, columnCount);
+            Assert.That(view.Columns, Has.Exactly(4).Items);
         }
 
         [Test]
@@ -189,8 +187,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var columnTypes = view.Columns.Select(c => c.Type.DataType).ToList();
             var expectedTypes = new[] { DataType.BigInteger, DataType.Float, DataType.UnicodeText, DataType.LargeBinary };
 
-            var typesEqual = columnTypes.SequenceEqual(expectedTypes);
-            Assert.IsTrue(typesEqual);
+            Assert.That(columnTypes, Is.EqualTo(expectedTypes));
         }
 
         [Test]
@@ -198,9 +195,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_3");
             var view = await GetViewAsync(viewName).ConfigureAwait(false);
-            var columnCount = view.Columns.Count;
 
-            Assert.AreEqual(5, columnCount);
+            Assert.That(view.Columns, Has.Exactly(5).Items);
         }
 
         [Test]
@@ -211,8 +207,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var columnTypes = view.Columns.Select(c => c.Type.DataType).ToList();
             var expectedTypes = new[] { DataType.Numeric, DataType.Numeric, DataType.Numeric, DataType.Numeric, DataType.BigInteger };
 
-            var typesEqual = columnTypes.SequenceEqual(expectedTypes);
-            Assert.IsTrue(typesEqual);
+            Assert.That(columnTypes, Is.EqualTo(expectedTypes));
         }
 
         [Test]
@@ -220,9 +215,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         {
             var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_4");
             var view = await GetViewAsync(viewName).ConfigureAwait(false);
-            var columnCount = view.Columns.Count;
 
-            Assert.AreEqual(4, columnCount);
+            Assert.That(view.Columns, Has.Exactly(4).Items);
         }
 
         [Test]
@@ -233,8 +227,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var columnTypes = view.Columns.Select(c => c.Type.DataType).ToList();
             var expectedTypes = new[] { DataType.BigInteger, DataType.BigInteger, DataType.BigInteger, DataType.BigInteger };
 
-            var typesEqual = columnTypes.SequenceEqual(expectedTypes);
-            Assert.IsTrue(typesEqual);
+            Assert.That(columnTypes, Is.EqualTo(expectedTypes));
         }
     }
 }

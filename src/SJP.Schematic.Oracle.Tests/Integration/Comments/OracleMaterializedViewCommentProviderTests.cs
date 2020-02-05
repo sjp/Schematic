@@ -65,7 +65,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         public async Task GetViewComments_WhenViewPresent_ReturnsViewComment()
         {
             var viewIsSome = await ViewCommentProvider.GetViewComments("mview_comment_mview_1").IsSome.ConfigureAwait(false);
-            Assert.IsTrue(viewIsSome);
+            Assert.That(viewIsSome, Is.True);
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
             const string viewName = "MVIEW_COMMENT_MVIEW_1";
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(viewName, viewComments.ViewName.LocalName);
+            Assert.That(viewComments.ViewName.LocalName, Is.EqualTo(viewName));
         }
 
         [Test]
@@ -85,7 +85,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
 
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, viewComments.ViewName);
+            Assert.That(viewComments.ViewName, Is.EqualTo(expectedViewName));
         }
 
         [Test]
@@ -96,7 +96,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
 
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, viewComments.ViewName);
+            Assert.That(viewComments.ViewName, Is.EqualTo(expectedViewName));
         }
 
         [Test]
@@ -107,7 +107,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
 
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, viewComments.ViewName);
+            Assert.That(viewComments.ViewName, Is.EqualTo(expectedViewName));
         }
 
         [Test]
@@ -117,7 +117,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
 
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(viewName, viewComments.ViewName);
+            Assert.That(viewComments.ViewName, Is.EqualTo(viewName));
         }
 
         [Test]
@@ -128,7 +128,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
 
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, viewComments.ViewName);
+            Assert.That(viewComments.ViewName, Is.EqualTo(expectedViewName));
         }
 
         [Test]
@@ -139,14 +139,14 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
 
             var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, viewComments.ViewName);
+            Assert.That(viewComments.ViewName, Is.EqualTo(expectedViewName));
         }
 
         [Test]
         public async Task GetViewComments_WhenViewMissing_ReturnsNone()
         {
             var viewIsNone = await ViewCommentProvider.GetViewComments("view_that_doesnt_exist").IsNone.ConfigureAwait(false);
-            Assert.IsTrue(viewIsNone);
+            Assert.That(viewIsNone, Is.True);
         }
 
         [Test]
@@ -156,7 +156,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(hasViewComments);
+            Assert.That(hasViewComments, Is.True);
         }
 
         [Test]
@@ -166,7 +166,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
                 .AnyAsync(t => t.ViewName.LocalName == "MVIEW_COMMENT_MVIEW_1")
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(containsTestView);
+            Assert.That(containsTestView, Is.True);
         }
 
         [Test]
@@ -177,7 +177,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
             var comments = await GetViewCommentsAsync("MVIEW_COMMENT_MVIEW_1").ConfigureAwait(false);
             var comment = comments.Comment.UnwrapSome();
 
-            Assert.AreEqual(expectedComment, comment);
+            Assert.That(comment, Is.EqualTo(expectedComment));
         }
 
         [Test]
@@ -192,10 +192,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
 
             var comments = await GetViewCommentsAsync("MVIEW_COMMENT_MVIEW_1").ConfigureAwait(false);
 
-            var columnComments = comments.ColumnComments;
-            var allKeysPresent = columnNames.All(columnComments.ContainsKey);
-
-            Assert.IsTrue(allKeysPresent);
+            Assert.That(comments.ColumnComments.Keys, Is.EqualTo(columnNames));
         }
 
         [Test]
@@ -206,7 +203,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
             var columnComments = comments.ColumnComments;
             var hasOnlyNones = columnComments.All(c => c.Value.IsNone);
 
-            Assert.IsTrue(hasOnlyNones);
+            Assert.That(hasOnlyNones, Is.True);
         }
 
         [Test]
@@ -217,7 +214,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
 
             var viewComment = comments.Comment.UnwrapSome();
 
-            Assert.AreEqual(expectedComment, viewComment);
+            Assert.That(viewComment, Is.EqualTo(expectedComment));
         }
 
         [Test]
@@ -231,10 +228,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
             };
             var comments = await GetViewCommentsAsync("MVIEW_COMMENT_MVIEW_2").ConfigureAwait(false);
 
-            var columnComments = comments.ColumnComments;
-            var allKeysPresent = columnNames.All(columnComments.ContainsKey);
-
-            Assert.IsTrue(allKeysPresent);
+            Assert.That(comments.ColumnComments.Keys, Is.EqualTo(columnNames));
         }
 
         [Test]
@@ -256,9 +250,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
                 columnComments["TEST_COLUMN_3"].IsNone
             };
 
-            var seqEqual = expectedNoneStates.SequenceEqual(noneStates);
-
-            Assert.IsTrue(seqEqual);
+            Assert.That(noneStates, Is.EqualTo(expectedNoneStates));
         }
 
         [Test]
@@ -269,7 +261,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
 
             var comment = comments.ColumnComments["TEST_COLUMN_2"].UnwrapSome();
 
-            Assert.AreEqual(expectedComment, comment);
+            Assert.That(comment, Is.EqualTo(expectedComment));
         }
     }
 }

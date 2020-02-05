@@ -11,18 +11,16 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_4
         public async Task Triggers_GivenTableWithNoTriggers_ReturnsEmptyCollection()
         {
             var table = await GetTableAsync("v94_trigger_test_table_2").ConfigureAwait(false);
-            var count = table.Triggers.Count;
 
-            Assert.Zero(count);
+            Assert.That(table.Triggers, Is.Empty);
         }
 
         [Test]
         public async Task Triggers_GivenTableWithTrigger_ReturnsNonEmptyCollection()
         {
             var table = await GetTableAsync("v94_trigger_test_table_1").ConfigureAwait(false);
-            var count = table.Triggers.Count;
 
-            Assert.NotZero(count);
+            Assert.That(table.Triggers, Is.Not.Empty);
         }
 
         [Test]
@@ -33,7 +31,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_4
             var table = await GetTableAsync("v94_trigger_test_table_1").ConfigureAwait(false);
             var trigger = table.Triggers.First(t => t.Name == triggerName);
 
-            Assert.AreEqual(triggerName, trigger.Name);
+            Assert.That(trigger.Name, Is.EqualTo(triggerName));
         }
 
         [Test]
@@ -44,7 +42,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_4
 
             const string expectedDefinition = "EXECUTE PROCEDURE v94_test_trigger_fn()";
 
-            Assert.AreEqual(expectedDefinition, trigger.Definition);
+            Assert.That(trigger.Definition, Is.EqualTo(expectedDefinition));
         }
 
         [Test]
@@ -58,8 +56,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_4
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(timing, trigger.QueryTiming);
-                Assert.AreEqual(events, trigger.TriggerEvent);
+                Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
+                Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
             });
         }
 
@@ -74,8 +72,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_4
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(timing, trigger.QueryTiming);
-                Assert.AreEqual(events, trigger.TriggerEvent);
+                Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
+                Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
             });
         }
 
@@ -90,8 +88,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_4
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(timing, trigger.QueryTiming);
-                Assert.AreEqual(events, trigger.TriggerEvent);
+                Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
+                Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
             });
         }
 
@@ -106,8 +104,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_4
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(timing, trigger.QueryTiming);
-                Assert.AreEqual(events, trigger.TriggerEvent);
+                Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
+                Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
             });
         }
 
@@ -122,8 +120,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_4
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(timing, trigger.QueryTiming);
-                Assert.AreEqual(events, trigger.TriggerEvent);
+                Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
+                Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
             });
         }
 
@@ -138,8 +136,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_4
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(timing, trigger.QueryTiming);
-                Assert.AreEqual(events, trigger.TriggerEvent);
+                Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
+                Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
             });
         }
     }

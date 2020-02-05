@@ -1,5 +1,4 @@
-﻿using System;
-using LanguageExt;
+﻿using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -12,19 +11,19 @@ namespace SJP.Schematic.Sqlite.Tests
         [Test]
         public static void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new SqliteCheckConstraint(Option<Identifier>.Some("test_check"), null));
+            Assert.That(() => new SqliteCheckConstraint(Option<Identifier>.Some("test_check"), null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenEmptyDefinition_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new SqliteCheckConstraint(Option<Identifier>.Some("test_check"), string.Empty));
+            Assert.That(() => new SqliteCheckConstraint(Option<Identifier>.Some("test_check"), string.Empty), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenWhiteSpaceDefinition_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new SqliteCheckConstraint(Option<Identifier>.Some("test_check"), "      "));
+            Assert.That(() => new SqliteCheckConstraint(Option<Identifier>.Some("test_check"), "      "), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -33,7 +32,7 @@ namespace SJP.Schematic.Sqlite.Tests
             Identifier checkName = "test_check";
             var check = new SqliteCheckConstraint(checkName, "test_check_definition");
 
-            Assert.AreEqual(checkName, check.Name.UnwrapSome());
+            Assert.That(check.Name.UnwrapSome(), Is.EqualTo(checkName));
         }
 
         [Test]
@@ -42,7 +41,7 @@ namespace SJP.Schematic.Sqlite.Tests
             const string checkDefinition = "test_check_definition";
             var check = new SqliteCheckConstraint(Option<Identifier>.Some("test_check"), checkDefinition);
 
-            Assert.AreEqual(checkDefinition, check.Definition);
+            Assert.That(check.Definition, Is.EqualTo(checkDefinition));
         }
 
         [Test]
@@ -50,7 +49,7 @@ namespace SJP.Schematic.Sqlite.Tests
         {
             var check = new SqliteCheckConstraint(Option<Identifier>.Some("test_check"), "test_check_definition");
 
-            Assert.IsTrue(check.IsEnabled);
+            Assert.That(check.IsEnabled, Is.True);
         }
     }
 }

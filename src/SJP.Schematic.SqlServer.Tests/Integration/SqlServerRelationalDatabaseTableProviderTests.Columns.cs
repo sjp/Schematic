@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
 {
@@ -12,9 +13,8 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public async Task Columns_WhenGivenTableWithOneColumn_ReturnsColumnCollectionWithOneValue()
         {
             var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
-            var count = table.Columns.Count;
 
-            Assert.AreEqual(1, count);
+            Assert.That(table.Columns, Has.Exactly(1).Items);
         }
 
         [Test]
@@ -24,7 +24,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var column = table.Columns.Single();
             const string columnName = "test_column";
 
-            Assert.AreEqual(columnName, column.Name.LocalName);
+            Assert.That(column.Name.LocalName, Is.EqualTo(columnName));
         }
 
         [Test]
@@ -35,7 +35,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var columns = table.Columns;
             var columnNames = columns.Select(c => c.Name.LocalName);
 
-            Assert.IsTrue(expectedColumnNames.SequenceEqual(columnNames));
+            Assert.That(columnNames, Is.EqualTo(expectedColumnNames));
         }
 
         [Test]
@@ -45,7 +45,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
-            Assert.IsTrue(column.IsNullable);
+            Assert.That(column.IsNullable, Is.True);
         }
 
         [Test]
@@ -55,7 +55,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
-            Assert.IsFalse(column.IsNullable);
+            Assert.That(column.IsNullable, Is.False);
         }
 
         [Test]
@@ -65,7 +65,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
-            Assert.IsTrue(column.DefaultValue.IsNone);
+            Assert.That(column.DefaultValue, OptionIs.None);
         }
 
         [Test]
@@ -79,7 +79,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var comparer = new SqlServerExpressionComparer();
             var equals = comparer.Equals(defaultValue, column.DefaultValue.UnwrapSome());
 
-            Assert.IsTrue(equals);
+            Assert.That(equals, Is.True);
         }
 
         [Test]
@@ -89,7 +89,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
-            Assert.IsFalse(column.IsComputed);
+            Assert.That(column.IsComputed, Is.False);
         }
 
         [Test]
@@ -99,7 +99,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Last();
 
-            Assert.IsTrue(column.IsComputed);
+            Assert.That(column.IsNullable, Is.True);
         }
 
         [Test]
@@ -110,7 +110,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var column = table.Columns.Last();
 
             var computedColumn = column as IDatabaseComputedColumn;
-            Assert.IsNotNull(computedColumn);
+            Assert.That(computedColumn, Is.Not.Null);
         }
 
         [Test]
@@ -123,7 +123,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var column = table.Columns.Last();
 
             var computedColumn = column as IDatabaseComputedColumn;
-            Assert.AreEqual(expectedDefinition, computedColumn.Definition.UnwrapSome());
+            Assert.That(computedColumn.Definition.UnwrapSome(), Is.EqualTo(expectedDefinition));
         }
 
         [Test]
@@ -133,7 +133,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
-            Assert.IsTrue(column.AutoIncrement.IsNone);
+            Assert.That(column.AutoIncrement, OptionIs.None);
         }
 
         [Test]
@@ -143,7 +143,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Last();
 
-            Assert.IsTrue(column.AutoIncrement.IsSome);
+            Assert.That(column.AutoIncrement, OptionIs.Some);
         }
 
         [Test]
@@ -153,7 +153,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Last();
 
-            Assert.AreEqual(10, column.AutoIncrement.UnwrapSome().InitialValue);
+            Assert.That(column.AutoIncrement.UnwrapSome().InitialValue, Is.EqualTo(10));
         }
 
         [Test]
@@ -163,7 +163,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Last();
 
-            Assert.AreEqual(5, column.AutoIncrement.UnwrapSome().Increment);
+            Assert.That(column.AutoIncrement.UnwrapSome().Increment, Is.EqualTo(5));
         }
     }
 }

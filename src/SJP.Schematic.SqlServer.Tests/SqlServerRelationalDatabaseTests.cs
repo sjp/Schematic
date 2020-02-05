@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using System.Data;
 using SJP.Schematic.Core;
@@ -15,7 +14,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabase(null, connection, identifierDefaults));
+            Assert.That(() => new SqlServerRelationalDatabase(null, connection, identifierDefaults), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -25,7 +24,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var dialect = new SqlServerDialect(connection);
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabase(dialect, null, identifierDefaults));
+            Assert.That(() => new SqlServerRelationalDatabase(dialect, null, identifierDefaults), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -34,7 +33,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var connection = Mock.Of<IDbConnection>();
             var dialect = new SqlServerDialect(connection);
 
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabase(dialect, connection, null));
+            Assert.That(() => new SqlServerRelationalDatabase(dialect, connection, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -46,7 +45,7 @@ namespace SJP.Schematic.SqlServer.Tests
 
             var database = new SqlServerRelationalDatabase(dialect, connection, identifierDefaults);
 
-            Assert.Throws<ArgumentNullException>(() => database.GetTable(null));
+            Assert.That(() => database.GetTable(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -58,7 +57,7 @@ namespace SJP.Schematic.SqlServer.Tests
 
             var database = new SqlServerRelationalDatabase(dialect, connection, identifierDefaults);
 
-            Assert.Throws<ArgumentNullException>(() => database.GetView(null));
+            Assert.That(() => database.GetView(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -70,7 +69,7 @@ namespace SJP.Schematic.SqlServer.Tests
 
             var database = new SqlServerRelationalDatabase(dialect, connection, identifierDefaults);
 
-            Assert.Throws<ArgumentNullException>(() => database.GetSequence(null));
+            Assert.That(() => database.GetSequence(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -82,7 +81,7 @@ namespace SJP.Schematic.SqlServer.Tests
 
             var database = new SqlServerRelationalDatabase(dialect, connection, identifierDefaults);
 
-            Assert.Throws<ArgumentNullException>(() => database.GetSynonym(null));
+            Assert.That(() => database.GetSynonym(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -94,7 +93,7 @@ namespace SJP.Schematic.SqlServer.Tests
 
             var database = new SqlServerRelationalDatabase(dialect, connection, identifierDefaults);
 
-            Assert.Throws<ArgumentNullException>(() => database.GetRoutine(null));
+            Assert.That(() => database.GetRoutine(null), Throws.ArgumentNullException);
         }
     }
 }

@@ -138,7 +138,9 @@ limit 1";
             var checkComments = GetCommentLookupByType(commentsData, Constants.Check);
             var foreignKeyComments = GetCommentLookupByType(commentsData, Constants.ForeignKey);
             var uniqueKeyComments = GetCommentLookupByType(commentsData, Constants.Unique);
-            var indexComments = GetCommentLookupByType(commentsData, Constants.Index);
+            var indexComments = GetCommentLookupByType(commentsData, Constants.Index)
+                .Where(kv => !uniqueKeyComments.ContainsKey(kv.Key))
+                .ToDictionary(kv => kv.Key, kv => kv.Value);
             var triggerComments = GetCommentLookupByType(commentsData, Constants.Trigger);
 
             return new RelationalDatabaseTableComments(
@@ -320,7 +322,7 @@ union
 select 'INDEX' as ObjectType, ci.relname as ObjectName, d.description as Comment
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
-inner join pg_catalog.pg_index i on i.indrelid = t.oid
+inner join pg_catalog.pg_index i on i.indrelid = t.oid and i.indisprimary = false
 inner join pg_catalog.pg_class ci on i.indexrelid = ci.oid and ci.relkind = 'i'
 left join pg_catalog.pg_description d on d.objoid = i.indexrelid
 where t.relkind = 'r' and ns.nspname = @SchemaName and t.relname = @TableName
@@ -332,7 +334,7 @@ union
 select 'TRIGGER' as ObjectType, tr.tgname as ObjectName, d.description as Comment
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
-inner join pg_catalog.pg_trigger tr on tr.tgrelid = t.oid
+inner join pg_catalog.pg_trigger tr on tr.tgrelid = t.oid and tr.tgisinternal = false
 left join pg_catalog.pg_description d on d.objoid = tr.oid
 where t.relkind = 'r' and ns.nspname = @SchemaName and t.relname = @TableName
     and ns.nspname not in ('pg_catalog', 'information_schema')

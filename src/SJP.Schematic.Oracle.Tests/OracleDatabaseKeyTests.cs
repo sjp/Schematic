@@ -17,7 +17,7 @@ namespace SJP.Schematic.Oracle.Tests
             var columns = new[] { column };
             const bool enabled = true;
 
-            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseKey(null, keyType, columns, enabled));
+            Assert.That(() => new OracleDatabaseKey(null, keyType, columns, enabled), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -29,7 +29,7 @@ namespace SJP.Schematic.Oracle.Tests
             var columns = new[] { column };
             const bool enabled = true;
 
-            Assert.Throws<ArgumentException>(() => new OracleDatabaseKey(keyName, keyType, columns, enabled));
+            Assert.That(() => new OracleDatabaseKey(keyName, keyType, columns, enabled), Throws.ArgumentException);
         }
 
         [Test]
@@ -39,7 +39,7 @@ namespace SJP.Schematic.Oracle.Tests
             const DatabaseKeyType keyType = DatabaseKeyType.Primary;
             const bool enabled = true;
 
-            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseKey(keyName, keyType, null, enabled));
+            Assert.That(() => new OracleDatabaseKey(keyName, keyType, null, enabled), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -50,7 +50,7 @@ namespace SJP.Schematic.Oracle.Tests
             var columns = Array.Empty<IDatabaseColumn>();
             const bool enabled = true;
 
-            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseKey(keyName, keyType, columns, enabled));
+            Assert.That(() => new OracleDatabaseKey(keyName, keyType, columns, enabled), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -61,7 +61,7 @@ namespace SJP.Schematic.Oracle.Tests
             var columns = new IDatabaseColumn[] { null };
             const bool enabled = true;
 
-            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseKey(keyName, keyType, columns, enabled));
+            Assert.That(() => new OracleDatabaseKey(keyName, keyType, columns, enabled), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var key = new OracleDatabaseKey(keyName, keyType, columns, enabled);
 
-            Assert.AreEqual(keyName, key.Name.UnwrapSome());
+            Assert.That(key.Name.UnwrapSome(), Is.EqualTo(keyName));
         }
 
         [Test]
@@ -89,7 +89,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var key = new OracleDatabaseKey(keyName, keyType, columns, enabled);
 
-            Assert.AreEqual(keyType, key.KeyType);
+            Assert.That(key.KeyType, Is.EqualTo(keyType));
         }
 
         [Test]
@@ -103,7 +103,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var key = new OracleDatabaseKey(keyName, keyType, columns, enabled);
 
-            Assert.AreEqual(columns, key.Columns);
+            Assert.That(key.Columns, Is.EqualTo(columns));
         }
 
         [Test]
@@ -117,7 +117,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var key = new OracleDatabaseKey(keyName, keyType, columns, enabled);
 
-            Assert.AreEqual(enabled, key.IsEnabled);
+            Assert.That(key.IsEnabled, Is.EqualTo(enabled));
         }
 
         [Test]
@@ -131,7 +131,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var key = new OracleDatabaseKey(keyName, keyType, columns, enabled);
 
-            Assert.AreEqual(enabled, key.IsEnabled);
+            Assert.That(key.IsEnabled, Is.EqualTo(enabled));
         }
     }
 }

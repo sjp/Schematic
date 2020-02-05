@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -18,7 +17,7 @@ namespace SJP.Schematic.MySql.Tests
             const ReferentialAction deleteAction = ReferentialAction.NoAction;
             const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalKey(null, childKey, parentTableName, parentKey, deleteAction, updateAction));
+            Assert.That(() => new MySqlRelationalKey(null, childKey, parentTableName, parentKey, deleteAction, updateAction), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -30,7 +29,7 @@ namespace SJP.Schematic.MySql.Tests
             const ReferentialAction deleteAction = ReferentialAction.NoAction;
             const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalKey(childTableName, null, parentTableName, parentKey, deleteAction, updateAction));
+            Assert.That(() => new MySqlRelationalKey(childTableName, null, parentTableName, parentKey, deleteAction, updateAction), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -42,7 +41,7 @@ namespace SJP.Schematic.MySql.Tests
             const ReferentialAction deleteAction = ReferentialAction.NoAction;
             const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalKey(childTableName, childKey, null, parentKey, deleteAction, updateAction));
+            Assert.That(() => new MySqlRelationalKey(childTableName, childKey, null, parentKey, deleteAction, updateAction), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -54,7 +53,7 @@ namespace SJP.Schematic.MySql.Tests
             const ReferentialAction deleteAction = ReferentialAction.NoAction;
             const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalKey(childTableName, childKey, parentTableName,  null, deleteAction, updateAction));
+            Assert.That(() => new MySqlRelationalKey(childTableName, childKey, parentTableName,  null, deleteAction, updateAction), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -67,7 +66,7 @@ namespace SJP.Schematic.MySql.Tests
             const ReferentialAction deleteAction = (ReferentialAction)55;
             const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentException>(() => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction));
+            Assert.That(() => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction), Throws.ArgumentException);
         }
 
         [Test]
@@ -80,7 +79,7 @@ namespace SJP.Schematic.MySql.Tests
             const ReferentialAction deleteAction = ReferentialAction.NoAction;
             const ReferentialAction updateAction = (ReferentialAction)55;
 
-            Assert.Throws<ArgumentException>(() => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction));
+            Assert.That(() => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction), Throws.ArgumentException);
         }
 
         [Test]
@@ -101,7 +100,7 @@ namespace SJP.Schematic.MySql.Tests
 
             var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
-            Assert.AreEqual(new Identifier(childTableName), relationalKey.ChildTable);
+            Assert.That(relationalKey.ChildTable, Is.EqualTo(new Identifier(childTableName)));
         }
 
         [Test]
@@ -126,8 +125,8 @@ namespace SJP.Schematic.MySql.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(keyName, relationalKey.ChildKey.Name.UnwrapSome());
-                Assert.AreSame(childKey, relationalKey.ChildKey);
+                Assert.That(relationalKey.ChildKey.Name.UnwrapSome(), Is.EqualTo(keyName));
+                Assert.That(relationalKey.ChildKey, Is.EqualTo(childKey));
             });
         }
 
@@ -149,7 +148,7 @@ namespace SJP.Schematic.MySql.Tests
 
             var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
-            Assert.AreEqual(new Identifier(parentTableName), relationalKey.ParentTable);
+            Assert.That(relationalKey.ParentTable, Is.EqualTo(new Identifier(parentTableName)));
         }
 
         [Test]
@@ -174,8 +173,8 @@ namespace SJP.Schematic.MySql.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(keyName, relationalKey.ParentKey.Name.UnwrapSome());
-                Assert.AreSame(parentKey, relationalKey.ParentKey);
+                Assert.That(relationalKey.ParentKey.Name.UnwrapSome(), Is.EqualTo(keyName));
+                Assert.That(relationalKey.ParentKey, Is.EqualTo(parentKey));
             });
         }
 
@@ -197,7 +196,7 @@ namespace SJP.Schematic.MySql.Tests
 
             var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
-            Assert.AreEqual(deleteAction, relationalKey.DeleteAction);
+            Assert.That(relationalKey.DeleteAction, Is.EqualTo(deleteAction));
         }
 
         [Test]
@@ -218,7 +217,7 @@ namespace SJP.Schematic.MySql.Tests
 
             var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
-            Assert.AreEqual(updateAction, relationalKey.UpdateAction);
+            Assert.That(relationalKey.UpdateAction, Is.EqualTo(updateAction));
         }
 
         [Test]
@@ -233,7 +232,7 @@ namespace SJP.Schematic.MySql.Tests
             const ReferentialAction deleteAction = ReferentialAction.NoAction;
             const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentException>(() => new MySqlRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction));
+            Assert.That(() => new MySqlRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction), Throws.ArgumentException);
         }
 
         [Test]
@@ -248,7 +247,7 @@ namespace SJP.Schematic.MySql.Tests
             const ReferentialAction deleteAction = ReferentialAction.NoAction;
             const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentException>(() => new MySqlRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction));
+            Assert.That(() => new MySqlRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction), Throws.ArgumentException);
         }
 
         [Test]
@@ -261,7 +260,7 @@ namespace SJP.Schematic.MySql.Tests
             const ReferentialAction deleteAction = ReferentialAction.NoAction;
             const ReferentialAction updateAction = ReferentialAction.SetDefault;
 
-            Assert.Throws<ArgumentException>(() => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction));
+            Assert.That(() => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction), Throws.ArgumentException);
         }
 
         [Test]
@@ -274,7 +273,7 @@ namespace SJP.Schematic.MySql.Tests
             const ReferentialAction deleteAction = ReferentialAction.SetDefault;
             const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.Throws<ArgumentException>(() => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction));
+            Assert.That(() => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction), Throws.ArgumentException);
         }
     }
 }

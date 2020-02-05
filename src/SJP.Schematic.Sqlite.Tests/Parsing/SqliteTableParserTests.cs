@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using SJP.Schematic.Sqlite.Parsing;
 using Superpower.Model;
 
@@ -14,7 +13,7 @@ namespace SJP.Schematic.Sqlite.Tests.Parsing
             var parser = new SqliteTableParser();
             var tokens = new TokenList<SqliteToken>(new[] { new Token<SqliteToken>(SqliteToken.Create, new TextSpan("CREATE")) });
 
-            Assert.Throws<ArgumentNullException>(() => parser.ParseTokens(null, tokens));
+            Assert.That(() => parser.ParseTokens(null, tokens), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -23,7 +22,7 @@ namespace SJP.Schematic.Sqlite.Tests.Parsing
             var parser = new SqliteTableParser();
             var tokens = new TokenList<SqliteToken>(new[] { new Token<SqliteToken>(SqliteToken.Create, new TextSpan("CREATE")) });
 
-            Assert.Throws<ArgumentNullException>(() => parser.ParseTokens(string.Empty, tokens));
+            Assert.That(() => parser.ParseTokens(string.Empty, tokens), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -32,7 +31,7 @@ namespace SJP.Schematic.Sqlite.Tests.Parsing
             var parser = new SqliteTableParser();
             var tokens = new TokenList<SqliteToken>(new[] { new Token<SqliteToken>(SqliteToken.Create, new TextSpan("CREATE")) });
 
-            Assert.Throws<ArgumentNullException>(() => parser.ParseTokens("   ", tokens));
+            Assert.That(() => parser.ParseTokens("   ", tokens), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -40,7 +39,7 @@ namespace SJP.Schematic.Sqlite.Tests.Parsing
         {
             var parser = new SqliteTableParser();
 
-            Assert.Throws<ArgumentNullException>(() => parser.ParseTokens("TEST", default));
+            Assert.That(() => parser.ParseTokens("TEST", default), Throws.ArgumentNullException);
         }
     }
 }

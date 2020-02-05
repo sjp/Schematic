@@ -15,7 +15,7 @@ namespace SJP.Schematic.MySql.Tests
             var column = Mock.Of<IDatabaseIndexColumn>();
             var columns = new[] { column };
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlDatabaseIndex(null, isUnique, columns));
+            Assert.That(() => new MySqlDatabaseIndex(null, isUnique, columns), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -24,7 +24,7 @@ namespace SJP.Schematic.MySql.Tests
             Identifier indexName = "test_index";
             const bool isUnique = true;
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlDatabaseIndex(indexName, isUnique, null));
+            Assert.That(() => new MySqlDatabaseIndex(indexName, isUnique, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -34,7 +34,7 @@ namespace SJP.Schematic.MySql.Tests
             const bool isUnique = true;
             var columns = Array.Empty<IDatabaseIndexColumn>();
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlDatabaseIndex(indexName, isUnique, columns));
+            Assert.That(() => new MySqlDatabaseIndex(indexName, isUnique, columns), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -44,7 +44,7 @@ namespace SJP.Schematic.MySql.Tests
             const bool isUnique = true;
             var columns = new IDatabaseIndexColumn[] { null };
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlDatabaseIndex(indexName, isUnique, columns));
+            Assert.That(() => new MySqlDatabaseIndex(indexName, isUnique, columns), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace SJP.Schematic.MySql.Tests
 
             var index = new MySqlDatabaseIndex(indexName, isUnique, columns);
 
-            Assert.AreEqual(indexName, index.Name);
+            Assert.That(index.Name, Is.EqualTo(indexName));
         }
 
         [Test]
@@ -70,7 +70,7 @@ namespace SJP.Schematic.MySql.Tests
 
             var index = new MySqlDatabaseIndex(indexName, isUnique, columns);
 
-            Assert.IsTrue(index.IsUnique);
+            Assert.That(index.IsUnique, Is.True);
         }
 
         [Test]
@@ -83,7 +83,7 @@ namespace SJP.Schematic.MySql.Tests
 
             var index = new MySqlDatabaseIndex(indexName, isUnique, columns);
 
-            Assert.IsFalse(index.IsUnique);
+            Assert.That(index.IsUnique, Is.False);
         }
 
         [Test]
@@ -96,7 +96,7 @@ namespace SJP.Schematic.MySql.Tests
 
             var index = new MySqlDatabaseIndex(indexName, isUnique, columns);
 
-            Assert.AreEqual(columns, index.Columns);
+            Assert.That(index.Columns, Is.EqualTo(columns));
         }
 
         [Test]
@@ -109,7 +109,7 @@ namespace SJP.Schematic.MySql.Tests
 
             var index = new MySqlDatabaseIndex(indexName, isUnique, columns);
 
-            Assert.Zero(index.IncludedColumns.Count);
+            Assert.That(index.IncludedColumns, Is.Empty);
         }
 
         [Test]
@@ -122,7 +122,7 @@ namespace SJP.Schematic.MySql.Tests
 
             var index = new MySqlDatabaseIndex(indexName, isUnique, columns);
 
-            Assert.IsTrue(index.IsEnabled);
+            Assert.That(index.IsEnabled, Is.True);
         }
     }
 }

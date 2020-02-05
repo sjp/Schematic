@@ -12,9 +12,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public async Task ParentKeys_WhenGivenTableWithNoForeignKeys_ReturnsEmptyCollection()
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
-            var count = table.ParentKeys.Count;
 
-            Assert.AreEqual(0, count);
+            Assert.That(table.ParentKeys, Is.Empty);
         }
 
         [Test]
@@ -25,8 +24,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("FK_TEST_TABLE_16", foreignKey.ChildKey.Name.UnwrapSome().LocalName);
-                Assert.AreEqual("PK_TEST_TABLE_15", foreignKey.ParentKey.Name.UnwrapSome().LocalName);
+                Assert.That(foreignKey.ChildKey.Name.UnwrapSome().LocalName, Is.EqualTo("FK_TEST_TABLE_16"));
+                Assert.That(foreignKey.ParentKey.Name.UnwrapSome().LocalName, Is.EqualTo("PK_TEST_TABLE_15"));
             });
         }
 
@@ -38,8 +37,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(DatabaseKeyType.Foreign, foreignKey.ChildKey.KeyType);
-                Assert.AreEqual(DatabaseKeyType.Primary, foreignKey.ParentKey.KeyType);
+                Assert.That(foreignKey.ChildKey.KeyType, Is.EqualTo(DatabaseKeyType.Foreign));
+                Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Primary));
             });
         }
 
@@ -51,8 +50,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("TABLE_TEST_TABLE_16", foreignKey.ChildTable.LocalName);
-                Assert.AreEqual("TABLE_TEST_TABLE_15", foreignKey.ParentTable.LocalName);
+                Assert.That(foreignKey.ChildTable.LocalName, Is.EqualTo("TABLE_TEST_TABLE_16"));
+                Assert.That(foreignKey.ParentTable.LocalName, Is.EqualTo("TABLE_TEST_TABLE_15"));
             });
         }
 
@@ -68,13 +67,10 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var expectedChildColumns = new[] { "FIRST_NAME_CHILD" };
             var expectedParentColumns = new[] { "FIRST_NAME_PARENT" };
 
-            var childColumnsEqual = childColumns.SequenceEqual(expectedChildColumns);
-            var parentColumnsEqual = parentColumns.SequenceEqual(expectedParentColumns);
-
             Assert.Multiple(() =>
             {
-                Assert.IsTrue(childColumnsEqual);
-                Assert.IsTrue(parentColumnsEqual);
+                Assert.That(childColumns, Is.EqualTo(expectedChildColumns));
+                Assert.That(parentColumns, Is.EqualTo(expectedParentColumns));
             });
         }
 
@@ -85,7 +81,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.NoAction, foreignKey.UpdateAction);
+            Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.NoAction));
         }
 
         [Test]
@@ -95,7 +91,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.NoAction, foreignKey.DeleteAction);
+            Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.NoAction));
         }
 
         [Test]
@@ -105,7 +101,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.Cascade, foreignKey.DeleteAction);
+            Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.Cascade));
         }
 
         [Test]
@@ -115,7 +111,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.SetNull, foreignKey.DeleteAction);
+            Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.SetNull));
         }
 
         [Test]
@@ -125,7 +121,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.IsTrue(foreignKey.ChildKey.IsEnabled);
+            Assert.That(foreignKey.ChildKey.IsEnabled, Is.True);
         }
 
         [Test]
@@ -135,7 +131,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.IsFalse(foreignKey.ChildKey.IsEnabled);
+            Assert.That(foreignKey.ChildKey.IsEnabled, Is.False);
         }
 
         [Test]
@@ -146,8 +142,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("FK_TEST_TABLE_17", foreignKey.ChildKey.Name.UnwrapSome().LocalName);
-                Assert.AreEqual("UK_TEST_TABLE_15", foreignKey.ParentKey.Name.UnwrapSome().LocalName);
+                Assert.That(foreignKey.ChildKey.Name.UnwrapSome().LocalName, Is.EqualTo("FK_TEST_TABLE_17"));
+                Assert.That(foreignKey.ParentKey.Name.UnwrapSome().LocalName, Is.EqualTo("UK_TEST_TABLE_15"));
             });
         }
 
@@ -159,8 +155,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(DatabaseKeyType.Foreign, foreignKey.ChildKey.KeyType);
-                Assert.AreEqual(DatabaseKeyType.Unique, foreignKey.ParentKey.KeyType);
+                Assert.That(foreignKey.ChildKey.KeyType, Is.EqualTo(DatabaseKeyType.Foreign));
+                Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
             });
         }
 
@@ -172,8 +168,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("TABLE_TEST_TABLE_17", foreignKey.ChildTable.LocalName);
-                Assert.AreEqual("TABLE_TEST_TABLE_15", foreignKey.ParentTable.LocalName);
+                Assert.That(foreignKey.ChildTable.LocalName, Is.EqualTo("TABLE_TEST_TABLE_17"));
+                Assert.That(foreignKey.ParentTable.LocalName, Is.EqualTo("TABLE_TEST_TABLE_15"));
             });
         }
 
@@ -189,13 +185,10 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var expectedChildColumns = new[] { "LAST_NAME_CHILD", "MIDDLE_NAME_CHILD" };
             var expectedParentColumns = new[] { "LAST_NAME_PARENT", "MIDDLE_NAME_PARENT" };
 
-            var childColumnsEqual = childColumns.SequenceEqual(expectedChildColumns);
-            var parentColumnsEqual = parentColumns.SequenceEqual(expectedParentColumns);
-
             Assert.Multiple(() =>
             {
-                Assert.IsTrue(childColumnsEqual);
-                Assert.IsTrue(parentColumnsEqual);
+                Assert.That(childColumns, Is.EqualTo(expectedChildColumns));
+                Assert.That(parentColumns, Is.EqualTo(expectedParentColumns));
             });
         }
 
@@ -206,7 +199,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.NoAction, foreignKey.UpdateAction);
+            Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.NoAction));
         }
 
         [Test]
@@ -216,7 +209,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.NoAction, foreignKey.DeleteAction);
+            Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.NoAction));
         }
 
         [Test]
@@ -226,7 +219,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.Cascade, foreignKey.DeleteAction);
+            Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.Cascade));
         }
 
         [Test]
@@ -236,7 +229,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.AreEqual(ReferentialAction.SetNull, foreignKey.DeleteAction);
+            Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.SetNull));
         }
 
         [Test]
@@ -246,7 +239,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.IsTrue(foreignKey.ChildKey.IsEnabled);
+            Assert.That(foreignKey.ChildKey.IsEnabled, Is.True);
         }
 
         [Test]
@@ -256,7 +249,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.IsFalse(foreignKey.ChildKey.IsEnabled);
+            Assert.That(foreignKey.ChildKey.IsEnabled, Is.False);
         }
     }
 }

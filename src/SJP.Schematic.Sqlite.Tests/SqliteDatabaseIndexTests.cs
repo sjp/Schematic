@@ -17,7 +17,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var includedColumn = Mock.Of<IDatabaseColumn>();
             var includedColumns = new[] { includedColumn };
 
-            Assert.Throws<ArgumentNullException>(() => new SqliteDatabaseIndex(null, isUnique, columns, includedColumns));
+            Assert.That(() => new SqliteDatabaseIndex(null, isUnique, columns, includedColumns), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -28,7 +28,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var includedColumn = Mock.Of<IDatabaseColumn>();
             var includedColumns = new[] { includedColumn };
 
-            Assert.Throws<ArgumentNullException>(() => new SqliteDatabaseIndex(indexName, isUnique, null, includedColumns));
+            Assert.That(() => new SqliteDatabaseIndex(indexName, isUnique, null, includedColumns), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var includedColumn = Mock.Of<IDatabaseColumn>();
             var includedColumns = new[] { includedColumn };
 
-            Assert.Throws<ArgumentNullException>(() => new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns));
+            Assert.That(() => new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -52,7 +52,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var includedColumn = Mock.Of<IDatabaseColumn>();
             var includedColumns = new[] { includedColumn };
 
-            Assert.Throws<ArgumentNullException>(() => new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns));
+            Assert.That(() => new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var columns = new[] { column };
             var includedColumns = new IDatabaseColumn[] { null };
 
-            Assert.Throws<ArgumentNullException>(() => new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns));
+            Assert.That(() => new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -79,7 +79,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var index = new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns);
 
-            Assert.AreEqual(indexName, index.Name);
+            Assert.That(index.Name, Is.EqualTo(indexName));
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var index = new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns);
 
-            Assert.IsTrue(index.IsUnique);
+            Assert.That(index.IsUnique, Is.True);
         }
 
         [Test]
@@ -109,7 +109,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var index = new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns);
 
-            Assert.IsFalse(index.IsUnique);
+            Assert.That(index.IsUnique, Is.False);
         }
 
         [Test]
@@ -124,7 +124,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var index = new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns);
 
-            Assert.AreEqual(columns, index.Columns);
+            Assert.That(index.Columns, Is.EqualTo(columns));
         }
 
         [Test]
@@ -139,7 +139,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var index = new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns);
 
-            Assert.AreEqual(includedColumns, index.IncludedColumns);
+            Assert.That(index.IncludedColumns, Is.EqualTo(includedColumns));
         }
 
         [Test]
@@ -154,7 +154,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var index = new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns);
 
-            Assert.IsTrue(index.IsEnabled);
+            Assert.That(index.IsEnabled, Is.True);
         }
     }
 }

@@ -1,8 +1,8 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Oracle.Tests
 {
@@ -13,13 +13,13 @@ namespace SJP.Schematic.Oracle.Tests
         public static void Ctor_GivenNullName_ThrowsArgumentNullException()
         {
             var columnType = Mock.Of<IDbType>();
-            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseColumn(null, columnType, true, null));
+            Assert.That(() => new OracleDatabaseColumn(null, columnType, true, null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullType_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseColumn("test_column", null, true, null));
+            Assert.That(() => new OracleDatabaseColumn("test_column", null, true, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -30,7 +30,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var column = new OracleDatabaseColumn(columnName, columnType, true, null);
 
-            Assert.AreEqual(columnName, column.Name);
+            Assert.That(column.Name, Is.EqualTo(columnName));
         }
 
         [Test]
@@ -41,7 +41,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var column = new OracleDatabaseColumn(columnName, columnType, true, null);
 
-            Assert.AreEqual(columnType, column.Type);
+            Assert.That(column.Type, Is.EqualTo(columnType));
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace SJP.Schematic.Oracle.Tests
             var columnType = Mock.Of<IDbType>();
             var column = new OracleDatabaseColumn(columnName, columnType, false, null);
 
-            Assert.IsFalse(column.IsNullable);
+            Assert.That(column.IsNullable, Is.False);
         }
 
         [Test]
@@ -61,7 +61,7 @@ namespace SJP.Schematic.Oracle.Tests
             var columnType = Mock.Of<IDbType>();
             var column = new OracleDatabaseColumn(columnName, columnType, true, null);
 
-            Assert.IsTrue(column.IsNullable);
+            Assert.That(column.IsNullable, Is.True);
         }
 
         [Test]
@@ -72,7 +72,7 @@ namespace SJP.Schematic.Oracle.Tests
             const string defaultValue = "1";
             var column = new OracleDatabaseColumn(columnName, columnType, true, defaultValue);
 
-            Assert.AreEqual(defaultValue, column.DefaultValue.UnwrapSome());
+            Assert.That(column.DefaultValue.UnwrapSome(), Is.EqualTo(defaultValue));
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace SJP.Schematic.Oracle.Tests
             var columnType = Mock.Of<IDbType>();
             var column = new OracleDatabaseColumn(columnName, columnType, true, null);
 
-            Assert.IsFalse(column.IsComputed);
+            Assert.That(column.IsComputed, Is.False);
         }
 
         [Test]
@@ -92,7 +92,7 @@ namespace SJP.Schematic.Oracle.Tests
             var columnType = Mock.Of<IDbType>();
             var column = new OracleDatabaseColumn(columnName, columnType, true, null);
 
-            Assert.IsTrue(column.AutoIncrement.IsNone);
+            Assert.That(column.AutoIncrement, OptionIs.None);
         }
     }
 }

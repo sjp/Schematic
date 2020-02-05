@@ -9,6 +9,7 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.PostgreSql.Comments;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
 {
@@ -106,7 +107,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
         public async Task GetTableComments_WhenTablePresent_ReturnsTableComment()
         {
             var tableIsSome = await TableCommentProvider.GetTableComments("table_comment_table_1").IsSome.ConfigureAwait(false);
-            Assert.IsTrue(tableIsSome);
+            Assert.That(tableIsSome, Is.True);
         }
 
         [Test]
@@ -115,7 +116,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
             const string tableName = "table_comment_table_1";
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(tableName, tableComments.TableName.LocalName);
+            Assert.That(tableComments.TableName.LocalName, Is.EqualTo(tableName));
         }
 
         [Test]
@@ -126,7 +127,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
         }
 
         [Test]
@@ -137,7 +138,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
         }
 
         [Test]
@@ -148,7 +149,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
         }
 
         [Test]
@@ -158,7 +159,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(tableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(tableName));
         }
 
         [Test]
@@ -169,7 +170,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
         }
 
         [Test]
@@ -180,7 +181,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
         }
 
         [Test]
@@ -191,14 +192,14 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
         }
 
         [Test]
         public async Task GetTableComments_WhenTableMissing_ReturnsNone()
         {
             var tableIsNone = await TableCommentProvider.GetTableComments("table_that_doesnt_exist").IsNone.ConfigureAwait(false);
-            Assert.IsTrue(tableIsNone);
+            Assert.That(tableIsNone, Is.True);
         }
 
         [Test]
@@ -208,7 +209,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(hasTableComments);
+            Assert.That(hasTableComments, Is.True);
         }
 
         [Test]
@@ -218,7 +219,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
                 .AnyAsync(t => t.TableName.LocalName == "table_comment_table_1")
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(containsTestTable);
+            Assert.That(containsTestTable, Is.True);
         }
 
         [Test]
@@ -226,7 +227,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
         {
             var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
 
-            Assert.IsTrue(comments.Comment.IsNone);
+            Assert.That(comments.Comment.IsNone, Is.True);
         }
 
         [Test]
@@ -234,7 +235,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
         {
             var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
 
-            Assert.IsTrue(comments.PrimaryKeyComment.IsNone);
+            Assert.That(comments.PrimaryKeyComment, OptionIs.None);
         }
 
         [Test]
@@ -245,7 +246,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
             var columnComments = comments.ColumnComments;
             var hasColumns = columnComments.Count == 1 && columnComments.Keys.Single().LocalName == "test_column_1";
 
-            Assert.IsTrue(hasColumns);
+            Assert.That(hasColumns, Is.True);
         }
 
         [Test]
@@ -256,7 +257,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
             var columnComments = comments.ColumnComments;
             var hasOnlyNones = columnComments.Count == 1 && columnComments.Values.Single().IsNone;
 
-            Assert.IsTrue(hasOnlyNones);
+            Assert.That(hasOnlyNones, Is.True);
         }
 
         [Test]
@@ -264,9 +265,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
         {
             var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
 
-            var checkCommentsCount = comments.CheckComments.Count;
-
-            Assert.Zero(checkCommentsCount);
+            Assert.That(comments.CheckComments, Is.Empty);
         }
 
         [Test]
@@ -274,9 +273,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
         {
             var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
 
-            var uniqueKeyCommentsCount = comments.UniqueKeyComments.Count;
-
-            Assert.Zero(uniqueKeyCommentsCount);
+            Assert.That(comments.UniqueKeyComments, Is.Empty);
         }
 
         [Test]
@@ -284,9 +281,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
         {
             var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
 
-            var indexCommentsCount = comments.IndexComments.Count;
-
-            Assert.Zero(indexCommentsCount);
+            Assert.That(comments.IndexComments, Is.Empty);
         }
 
         [Test]
@@ -294,9 +289,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
         {
             var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
 
-            var triggerCommentsCount = comments.TriggerComments.Count;
-
-            Assert.Zero(triggerCommentsCount);
+            Assert.That(comments.TriggerComments, Is.Empty);
         }
 
         [Test]
@@ -304,9 +297,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
         {
             var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
 
-            var foreignKeyCommentsCount = comments.ForeignKeyComments.Count;
-
-            Assert.Zero(foreignKeyCommentsCount);
+            Assert.That(comments.ForeignKeyComments, Is.Empty);
         }
 
         [Test]
@@ -317,7 +308,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
 
             var tableComment = comments.Comment.UnwrapSome();
 
-            Assert.AreEqual(expectedComment, tableComment);
+            Assert.That(tableComment, Is.EqualTo(expectedComment));
         }
 
         [Test]
@@ -327,7 +318,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
 
             var pkComment = comments.PrimaryKeyComment;
 
-            Assert.IsTrue(pkComment.IsNone);
+            Assert.That(pkComment, OptionIs.None);
         }
 
         [Test]
@@ -338,7 +329,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
 
             var pkComment = comments.PrimaryKeyComment.UnwrapSome();
 
-            Assert.AreEqual(expectedComment, pkComment);
+            Assert.That(pkComment, Is.EqualTo(expectedComment));
         }
 
         [Test]
@@ -352,10 +343,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
             };
             var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
-            var columnComments = comments.ColumnComments;
-            var allKeysPresent = columnNames.All(columnComments.ContainsKey);
-
-            Assert.IsTrue(allKeysPresent);
+            Assert.That(comments.ColumnComments.Keys.OrderBy(x => x), Is.EqualTo(columnNames));
         }
 
         [Test]
@@ -377,9 +365,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
                 columnComments["test_column_3"].IsNone,
             };
 
-            var seqEqual = expectedNoneStates.SequenceEqual(noneStates);
-
-            Assert.IsTrue(seqEqual);
+            Assert.That(noneStates, Is.EqualTo(expectedNoneStates));
         }
 
         [Test]
@@ -390,7 +376,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
 
             var comment = comments.ColumnComments["test_column_2"].UnwrapSome();
 
-            Assert.AreEqual(expectedComment, comment);
+            Assert.That(comment, Is.EqualTo(expectedComment));
         }
 
         [Test]
@@ -403,10 +389,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
             };
             var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
-            var indexComments = comments.IndexComments;
-            var allKeysPresent = indexNames.All(indexComments.ContainsKey);
-
-            Assert.IsTrue(allKeysPresent);
+            Assert.That(comments.IndexComments.Keys.OrderBy(x => x), Is.EqualTo(indexNames));
         }
 
         [Test]
@@ -422,9 +405,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
                 indexComments["table_comment_table_3_ix_2"].IsNone,
             };
 
-            var seqEqual = expectedNoneStates.SequenceEqual(noneStates);
-
-            Assert.IsTrue(seqEqual);
+            Assert.That(noneStates, Is.EqualTo(expectedNoneStates));
         }
 
         [Test]
@@ -435,7 +416,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
 
             var comment = comments.IndexComments["table_comment_table_3_ix_2"].UnwrapSome();
 
-            Assert.AreEqual(expectedComment, comment);
+            Assert.That(comment, Is.EqualTo(expectedComment));
         }
 
         [Test]
@@ -448,10 +429,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
             };
             var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
-            var triggerComments = comments.TriggerComments;
-            var allKeysPresent = triggerNames.All(triggerComments.ContainsKey);
-
-            Assert.IsTrue(allKeysPresent);
+            Assert.That(comments.TriggerComments.Keys.OrderBy(x => x), Is.EqualTo(triggerNames));
         }
 
         [Test]
@@ -467,9 +445,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
                 triggerComments["table_comment_table_3_trigger_2"].IsNone,
             };
 
-            var seqEqual = expectedNoneStates.SequenceEqual(noneStates);
-
-            Assert.IsTrue(seqEqual);
+            Assert.That(noneStates, Is.EqualTo(expectedNoneStates));
         }
 
         [Test]
@@ -480,7 +456,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
 
             var comment = comments.TriggerComments["table_comment_table_3_trigger_2"].UnwrapSome();
 
-            Assert.AreEqual(expectedComment, comment);
+            Assert.That(comment, Is.EqualTo(expectedComment));
         }
 
         [Test]
@@ -493,10 +469,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
             };
             var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
-            var checkComments = comments.CheckComments;
-            var allKeysPresent = checkNames.All(checkComments.ContainsKey);
-
-            Assert.IsTrue(allKeysPresent);
+            Assert.That(comments.CheckComments.Keys.OrderBy(x => x), Is.EqualTo(checkNames));
         }
 
         [Test]
@@ -512,9 +485,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
                 checkComments["table_comment_table_3_ck_2"].IsNone,
             };
 
-            var seqEqual = expectedNoneStates.SequenceEqual(noneStates);
-
-            Assert.IsTrue(seqEqual);
+            Assert.That(noneStates, Is.EqualTo(expectedNoneStates));
         }
 
         [Test]
@@ -525,7 +496,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
 
             var comment = comments.CheckComments["table_comment_table_3_ck_2"].UnwrapSome();
 
-            Assert.AreEqual(expectedComment, comment);
+            Assert.That(comment, Is.EqualTo(expectedComment));
         }
 
         [Test]
@@ -538,10 +509,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
             };
             var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
-            var uniqueKeyComments = comments.UniqueKeyComments;
-            var allKeysPresent = uniqueKeyNames.All(uniqueKeyComments.ContainsKey);
-
-            Assert.IsTrue(allKeysPresent);
+            Assert.That(comments.UniqueKeyComments.Keys.OrderBy(x => x), Is.EqualTo(uniqueKeyNames));
         }
 
         [Test]
@@ -557,9 +525,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
                 uniqueKeyComments["table_comment_table_3_uk_2"].IsNone,
             };
 
-            var seqEqual = expectedNoneStates.SequenceEqual(noneStates);
-
-            Assert.IsTrue(seqEqual);
+            Assert.That(noneStates, Is.EqualTo(expectedNoneStates));
         }
 
         [Test]
@@ -570,7 +536,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
 
             var comment = comments.UniqueKeyComments["table_comment_table_3_uk_2"].UnwrapSome();
 
-            Assert.AreEqual(expectedComment, comment);
+            Assert.That(comment, Is.EqualTo(expectedComment));
         }
 
         [Test]
@@ -583,10 +549,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
             };
             var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
-            var foreignKeyComments = comments.ForeignKeyComments;
-            var allKeysPresent = foreignKeyNames.All(foreignKeyComments.ContainsKey);
-
-            Assert.IsTrue(allKeysPresent);
+            Assert.That(comments.ForeignKeyComments.Keys.OrderBy(x => x), Is.EqualTo(foreignKeyNames));
         }
 
         [Test]
@@ -602,9 +565,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
                 foreignKeyComments["table_comment_table_3_fk_2"].IsNone,
             };
 
-            var seqEqual = expectedNoneStates.SequenceEqual(noneStates);
-
-            Assert.IsTrue(seqEqual);
+            Assert.That(noneStates, Is.EqualTo(expectedNoneStates));
         }
 
         [Test]
@@ -615,7 +576,7 @@ execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
 
             var comment = comments.ForeignKeyComments["table_comment_table_3_fk_2"].UnwrapSome();
 
-            Assert.AreEqual(expectedComment, comment);
+            Assert.That(comment, Is.EqualTo(expectedComment));
         }
     }
 }

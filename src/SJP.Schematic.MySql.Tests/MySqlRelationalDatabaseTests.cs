@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using System.Data;
 using SJP.Schematic.Core;
@@ -17,7 +16,7 @@ namespace SJP.Schematic.MySql.Tests
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalDatabase(null, connection, identifierDefaults));
+            Assert.That(() => new MySqlRelationalDatabase(null, connection, identifierDefaults), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -26,7 +25,7 @@ namespace SJP.Schematic.MySql.Tests
             var dialect = Mock.Of<IDatabaseDialect>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalDatabase(dialect, null, identifierDefaults));
+            Assert.That(() => new MySqlRelationalDatabase(dialect, null, identifierDefaults), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -35,7 +34,7 @@ namespace SJP.Schematic.MySql.Tests
             var connection = Mock.Of<IDbConnection>();
             var dialect = new MySqlDialect(connection);
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlRelationalDatabase(dialect, connection, null));
+            Assert.That(() => new MySqlRelationalDatabase(dialect, connection, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -47,7 +46,7 @@ namespace SJP.Schematic.MySql.Tests
 
             var database = new MySqlRelationalDatabase(dialect, connection, identifierDefaults);
 
-            Assert.Throws<ArgumentNullException>(() => database.GetTable(null));
+            Assert.That(() => database.GetTable(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -59,7 +58,7 @@ namespace SJP.Schematic.MySql.Tests
 
             var database = new MySqlRelationalDatabase(dialect, connection, identifierDefaults);
 
-            Assert.Throws<ArgumentNullException>(() => database.GetView(null));
+            Assert.That(() => database.GetView(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -71,7 +70,7 @@ namespace SJP.Schematic.MySql.Tests
 
             var database = new MySqlRelationalDatabase(dialect, connection, identifierDefaults);
 
-            Assert.Throws<ArgumentNullException>(() => database.GetRoutine(null));
+            Assert.That(() => database.GetRoutine(null), Throws.ArgumentNullException);
         }
 
         // testing that the behaviour is equivalent to an empty sequence provider
@@ -93,7 +92,7 @@ namespace SJP.Schematic.MySql.Tests
             [Test]
             public static void GetSequence_GivenNullSequenceName_ThrowsArgumentNullException()
             {
-                Assert.Throws<ArgumentNullException>(() => Database.GetSequence(null));
+                Assert.That(() => Database.GetSequence(null), Throws.ArgumentNullException);
             }
 
             [Test]
@@ -102,7 +101,7 @@ namespace SJP.Schematic.MySql.Tests
                 var sequenceName = new Identifier("test");
                 var sequenceIsNone = await Database.GetSequence(sequenceName).IsNone.ConfigureAwait(false);
 
-                Assert.IsTrue(sequenceIsNone);
+                Assert.That(sequenceIsNone, Is.True);
             }
 
             [Test]
@@ -112,7 +111,7 @@ namespace SJP.Schematic.MySql.Tests
                     .AnyAsync()
                     .ConfigureAwait(false);
 
-                Assert.IsFalse(hasSequences);
+                Assert.That(hasSequences, Is.False);
             }
         }
 
@@ -135,7 +134,7 @@ namespace SJP.Schematic.MySql.Tests
             [Test]
             public static void GetSynonym_GivenNullSynonymName_ThrowsArgumentNullException()
             {
-                Assert.Throws<ArgumentNullException>(() => Database.GetSynonym(null));
+                Assert.That(() => Database.GetSynonym(null), Throws.ArgumentNullException);
             }
 
             [Test]
@@ -144,7 +143,7 @@ namespace SJP.Schematic.MySql.Tests
                 var synonymName = new Identifier("test");
                 var synonymIsNone = await Database.GetSynonym(synonymName).IsNone.ConfigureAwait(false);
 
-                Assert.IsTrue(synonymIsNone);
+                Assert.That(synonymIsNone, Is.True);
             }
 
             [Test]
@@ -152,7 +151,7 @@ namespace SJP.Schematic.MySql.Tests
             {
                 var synonyms = await Database.GetAllSynonyms().ToListAsync().ConfigureAwait(false);
 
-                Assert.Zero(synonyms.Count);
+                Assert.That(synonyms, Is.Empty);
             }
         }
     }

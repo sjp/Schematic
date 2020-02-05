@@ -1,5 +1,4 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 using Moq;
 using NUnit.Framework;
 
@@ -11,19 +10,19 @@ namespace SJP.Schematic.Oracle.Tests
         [Test]
         public static void CreateConnectionAsync_GivenNull_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => OracleDialect.CreateConnectionAsync(null));
+            Assert.That(() => OracleDialect.CreateConnectionAsync(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void CreateConnectionAsync_GivenEmptyString_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => OracleDialect.CreateConnectionAsync(string.Empty));
+            Assert.That(() => OracleDialect.CreateConnectionAsync(string.Empty), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void CreateConnectionAsync_GivenWhiteSpaceString_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => OracleDialect.CreateConnectionAsync("   "));
+            Assert.That(() => OracleDialect.CreateConnectionAsync("   "), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -32,7 +31,7 @@ namespace SJP.Schematic.Oracle.Tests
             var connection = Mock.Of<IDbConnection>();
             var dialect = new OracleDialect(connection);
 
-            Assert.Throws<ArgumentNullException>(() => dialect.QuoteIdentifier(null));
+            Assert.That(() => dialect.QuoteIdentifier(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -41,7 +40,7 @@ namespace SJP.Schematic.Oracle.Tests
             var connection = Mock.Of<IDbConnection>();
             var dialect = new OracleDialect(connection);
 
-            Assert.Throws<ArgumentNullException>(() => dialect.QuoteIdentifier(string.Empty));
+            Assert.That(() => dialect.QuoteIdentifier(string.Empty), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -50,7 +49,7 @@ namespace SJP.Schematic.Oracle.Tests
             var connection = Mock.Of<IDbConnection>();
             var dialect = new OracleDialect(connection);
 
-            Assert.Throws<ArgumentNullException>(() => dialect.QuoteIdentifier("    "));
+            Assert.That(() => dialect.QuoteIdentifier("    "), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -59,7 +58,7 @@ namespace SJP.Schematic.Oracle.Tests
             var connection = Mock.Of<IDbConnection>();
             var dialect = new OracleDialect(connection);
 
-            Assert.Throws<ArgumentNullException>(() => dialect.QuoteName(null));
+            Assert.That(() => dialect.QuoteName(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -68,7 +67,7 @@ namespace SJP.Schematic.Oracle.Tests
             var connection = Mock.Of<IDbConnection>();
             var dialect = new OracleDialect(connection);
 
-            Assert.Throws<ArgumentNullException>(() => dialect.QuoteName(string.Empty));
+            Assert.That(() => dialect.QuoteName(string.Empty), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -77,7 +76,7 @@ namespace SJP.Schematic.Oracle.Tests
             var connection = Mock.Of<IDbConnection>();
             var dialect = new OracleDialect(connection);
 
-            Assert.Throws<ArgumentNullException>(() => dialect.QuoteName("    "));
+            Assert.That(() => dialect.QuoteName("    "), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -91,7 +90,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var result = dialect.QuoteIdentifier(input);
 
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -105,7 +104,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var result = dialect.QuoteIdentifier(input);
 
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -119,7 +118,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var result = dialect.QuoteIdentifier(input);
 
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
@@ -130,7 +129,7 @@ namespace SJP.Schematic.Oracle.Tests
             var connection = Mock.Of<IDbConnection>();
             var dialect = new OracleDialect(connection);
 
-            Assert.Throws<ArgumentException>(() => dialect.QuoteIdentifier(input));
+            Assert.That(() => dialect.QuoteIdentifier(input), Throws.ArgumentException);
         }
 
         [Test]
@@ -141,7 +140,7 @@ namespace SJP.Schematic.Oracle.Tests
             var connection = Mock.Of<IDbConnection>();
             var dialect = new OracleDialect(connection);
 
-            Assert.Throws<ArgumentException>(() => dialect.QuoteIdentifier(input));
+            Assert.That(() => dialect.QuoteIdentifier(input), Throws.ArgumentException);
         }
     }
 }

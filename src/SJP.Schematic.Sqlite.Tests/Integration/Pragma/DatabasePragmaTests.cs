@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using NUnit.Framework;
 using Dapper;
 using SJP.Schematic.Core;
@@ -32,7 +31,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await dbPragma.ApplicationIdAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await dbPragma.ApplicationIdAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -46,7 +45,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await dbPragma.AutoVacuumAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await dbPragma.AutoVacuumAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -56,7 +55,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
             const AutoVacuumMode newValue = (AutoVacuumMode)55;
-            Assert.Throws<ArgumentException>(() => dbPragma.AutoVacuumAsync(newValue));
+            Assert.That(() => dbPragma.AutoVacuumAsync(newValue), Throws.ArgumentException);
         }
 
         [Test]
@@ -70,7 +69,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await dbPragma.CacheSizeInPagesAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await dbPragma.CacheSizeInPagesAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -84,7 +83,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await dbPragma.CacheSizeInKibibytesAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await dbPragma.CacheSizeInKibibytesAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -98,7 +97,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await dbPragma.CacheSpillAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await dbPragma.CacheSpillAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -107,7 +106,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             using var connection = CreateConnection();
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-            Assert.DoesNotThrowAsync(() => dbPragma.DataVersionAsync());
+            Assert.That(async () => await dbPragma.DataVersionAsync().ConfigureAwait(false), Throws.Nothing);
         }
 
         [Test]
@@ -125,9 +124,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 2)").ConfigureAwait(false);
 
             var fkCheck = await dbPragma.ForeignKeyCheckDatabaseAsync().ConfigureAwait(false);
-            var fkCheckCount = fkCheck.Count();
 
-            Assert.NotZero(fkCheckCount);
+            Assert.That(fkCheck, Is.Not.Empty);
         }
 
         [Test]
@@ -145,9 +143,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 2)").ConfigureAwait(false);
 
             var fkCheck = await dbPragma.ForeignKeyCheckTableAsync("test_child").ConfigureAwait(false);
-            var fkCheckCount = fkCheck.Count();
 
-            Assert.NotZero(fkCheckCount);
+            Assert.That(fkCheck, Is.Not.Empty);
         }
 
         [Test]
@@ -156,7 +153,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             using var connection = CreateConnection();
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-            Assert.Throws<ArgumentNullException>(() => dbPragma.ForeignKeyCheckTableAsync(null));
+            Assert.That(() => dbPragma.ForeignKeyCheckTableAsync(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -166,7 +163,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
             var name = new Identifier("test", "test");
-            Assert.Throws<ArgumentException>(() => dbPragma.ForeignKeyCheckTableAsync(name));
+            Assert.That(() => dbPragma.ForeignKeyCheckTableAsync(name), Throws.ArgumentException);
         }
 
         [Test]
@@ -181,9 +178,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 1)").ConfigureAwait(false);
 
             var fkList = await dbPragma.ForeignKeyListAsync("test_child").ConfigureAwait(false);
-            var fkListCount = fkList.Count();
 
-            Assert.NotZero(fkListCount);
+            Assert.That(fkList, Is.Not.Empty);
         }
 
         [Test]
@@ -192,7 +188,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             using var connection = CreateConnection();
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-            Assert.Throws<ArgumentNullException>(() => dbPragma.ForeignKeyListAsync(null));
+            Assert.That(() => dbPragma.ForeignKeyListAsync(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -202,7 +198,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
             var name = new Identifier("test", "test");
-            Assert.Throws<ArgumentException>(() => dbPragma.ForeignKeyListAsync(name));
+            Assert.That(() => dbPragma.ForeignKeyListAsync(name), Throws.ArgumentException);
         }
 
         [Test]
@@ -211,7 +207,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             using var connection = CreateConnection();
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-            Assert.DoesNotThrowAsync(() => dbPragma.FreeListCountAsync());
+            Assert.That(async () => await dbPragma.FreeListCountAsync().ConfigureAwait(false), Throws.Nothing);
         }
 
         [Test]
@@ -248,8 +244,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 
             Assert.Multiple(() =>
             {
-                Assert.IsNotNull(indexInfo);
-                Assert.AreEqual("val", indexInfo.name); // first column
+                Assert.That(indexInfo, Is.Not.Null);
+                Assert.That(indexInfo.name, Is.EqualTo("val")); // first column
             });
         }
 
@@ -267,8 +263,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 
             Assert.Multiple(() =>
             {
-                Assert.IsNotNull(firstIndex);
-                Assert.AreEqual("ix_test_index", firstIndex.name);
+                Assert.That(firstIndex, Is.Not.Null);
+                Assert.That(firstIndex.name, Is.EqualTo("ix_test_index"));
             });
         }
 
@@ -278,7 +274,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             using var connection = CreateConnection();
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-            Assert.Throws<ArgumentNullException>(() => dbPragma.IndexListAsync(null));
+            Assert.That(() => dbPragma.IndexListAsync(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -288,7 +284,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
             var name = new Identifier("test", "test");
-            Assert.Throws<ArgumentException>(() => dbPragma.IndexListAsync(name));
+            Assert.That(() => dbPragma.IndexListAsync(name), Throws.ArgumentException);
         }
 
         [Test]
@@ -305,8 +301,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 
             Assert.Multiple(() =>
             {
-                Assert.IsNotNull(indexXInfo);
-                Assert.AreEqual("val", indexXInfo.name); // first column
+                Assert.That(indexXInfo, Is.Not.Null);
+                Assert.That(indexXInfo.name, Is.EqualTo("val")); // first column
             });
         }
 
@@ -317,9 +313,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
             var errors = await dbPragma.IntegrityCheckAsync().ConfigureAwait(false);
-            var errorCount = errors.Count();
 
-            Assert.Zero(errorCount);
+            Assert.That(errors, Is.Empty);
         }
 
         [Test]
@@ -329,9 +324,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
             var errors = await dbPragma.IntegrityCheckAsync(10).ConfigureAwait(false);
-            var errorCount = errors.Count();
 
-            Assert.Zero(errorCount);
+            Assert.That(errors, Is.Empty);
         }
 
         public async Task JournalModeAsync_WhenGetInvoked_ReadsCorrectly()
@@ -341,7 +335,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 
             var journalMode = await dbPragma.JournalModeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(JournalMode.Memory, journalMode);
+            Assert.That(journalMode, Is.EqualTo(JournalMode.Memory));
         }
 
         [Test]
@@ -356,7 +350,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await dbPragma.JournalModeAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await dbPragma.JournalModeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -366,7 +360,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
             const JournalMode newValue = (JournalMode)55;
-            Assert.Throws<ArgumentException>(() => dbPragma.JournalModeAsync(newValue));
+            Assert.That(() => dbPragma.JournalModeAsync(newValue), Throws.ArgumentException);
         }
 
         [Test]
@@ -380,7 +374,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await dbPragma.JournalSizeLimitAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await dbPragma.JournalSizeLimitAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -404,7 +398,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
             const LockingMode newValue = (LockingMode)55;
-            Assert.Throws<ArgumentException>(() => dbPragma.LockingModeAsync(newValue));
+            Assert.That(() => dbPragma.LockingModeAsync(newValue), Throws.ArgumentException);
         }
 
         [Test]
@@ -418,7 +412,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await dbPragma.MaxPageCountAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await dbPragma.MaxPageCountAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -433,7 +427,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await dbPragma.MmapSizeAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await dbPragma.MmapSizeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -453,7 +447,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
             const OptimizeFeatures newValue = (OptimizeFeatures)55;
-            Assert.Throws<ArgumentException>(() => dbPragma.OptimizeAsync(newValue));
+            Assert.That(() => dbPragma.OptimizeAsync(newValue), Throws.ArgumentException);
         }
 
         [Test]
@@ -462,7 +456,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             using var connection = CreateConnection();
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-            Assert.DoesNotThrowAsync(() => dbPragma.PageCountAsync());
+            Assert.That(async () => await dbPragma.PageCountAsync().ConfigureAwait(false), Throws.Nothing);
         }
 
         [Test]
@@ -476,7 +470,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await dbPragma.PageSizeAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await dbPragma.PageSizeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -486,7 +480,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
             const ushort newValue = 300;
-            Assert.Throws<ArgumentException>(() => dbPragma.PageSizeAsync(newValue));
+            Assert.That(() => dbPragma.PageSizeAsync(newValue), Throws.ArgumentException);
         }
 
         [Test]
@@ -496,7 +490,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
             const ushort newValue = 600;
-            Assert.Throws<ArgumentException>(() => dbPragma.PageSizeAsync(newValue));
+            Assert.That(() => dbPragma.PageSizeAsync(newValue), Throws.ArgumentException);
         }
 
         [Test]
@@ -506,9 +500,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
             var errors = await dbPragma.QuickCheckAsync().ConfigureAwait(false);
-            var errorCount = errors.Count();
 
-            Assert.Zero(errorCount);
+            Assert.That(errors, Is.Empty);
         }
 
         [Test]
@@ -518,9 +511,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
             var errors = await dbPragma.QuickCheckAsync(10).ConfigureAwait(false);
-            var errorCount = errors.Count();
 
-            Assert.Zero(errorCount);
+            Assert.That(errors, Is.Empty);
         }
 
         [Test]
@@ -534,7 +526,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await dbPragma.SchemaVersionAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await dbPragma.SchemaVersionAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -548,7 +540,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await dbPragma.SecureDeleteAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await dbPragma.SecureDeleteAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -558,7 +550,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
             const SecureDeleteMode newValue = (SecureDeleteMode)55;
-            Assert.Throws<ArgumentException>(() => dbPragma.SecureDeleteAsync(newValue));
+            Assert.That(() => dbPragma.SecureDeleteAsync(newValue), Throws.ArgumentException);
         }
 
         [Test]
@@ -572,7 +564,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await dbPragma.SynchronousAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await dbPragma.SynchronousAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -582,7 +574,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
             const SynchronousLevel newValue = (SynchronousLevel)55;
-            Assert.Throws<ArgumentException>(() => dbPragma.SynchronousAsync(newValue));
+            Assert.That(() => dbPragma.SynchronousAsync(newValue), Throws.ArgumentException);
         }
 
         [Test]
@@ -594,9 +586,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             connection.Execute("create table test_table ( id int primary key, val text )");
 
             var tableInfo = await dbPragma.TableInfoAsync("test_table").ConfigureAwait(false);
-            var tableInfoCount = tableInfo.Count();
 
-            Assert.NotZero(tableInfoCount);
+            Assert.That(tableInfo, Is.Not.Empty);
         }
 
         [Test]
@@ -605,7 +596,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             using var connection = CreateConnection();
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-            Assert.Throws<ArgumentNullException>(() => dbPragma.TableInfoAsync(null));
+            Assert.That(() => dbPragma.TableInfoAsync(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -615,7 +606,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
             var name = new Identifier("test", "test");
-            Assert.Throws<ArgumentException>(() => dbPragma.TableInfoAsync(name));
+            Assert.That(() => dbPragma.TableInfoAsync(name), Throws.ArgumentException);
         }
 
         [Test]
@@ -627,9 +618,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             connection.Execute("create table test_table ( id int primary key, val text )");
 
             var tableInfo = await dbPragma.TableXInfoAsync("test_table").ConfigureAwait(false);
-            var tableInfoCount = tableInfo.Count();
 
-            Assert.NotZero(tableInfoCount);
+            Assert.That(tableInfo, Is.Not.Empty);
         }
 
         [Test]
@@ -638,7 +628,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             using var connection = CreateConnection();
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-            Assert.Throws<ArgumentNullException>(() => dbPragma.TableXInfoAsync(null));
+            Assert.That(() => dbPragma.TableXInfoAsync(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -648,7 +638,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
             var name = new Identifier("test", "test");
-            Assert.Throws<ArgumentException>(() => dbPragma.TableXInfoAsync(name));
+            Assert.That(() => dbPragma.TableXInfoAsync(name), Throws.ArgumentException);
         }
 
         [Test]
@@ -662,7 +652,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await dbPragma.UserVersionAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await dbPragma.UserVersionAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -672,7 +662,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
             var results = await dbPragma.WalCheckpointAsync().ConfigureAwait(false);
 
-            Assert.IsNotNull(results);
+            Assert.That(results, Is.Not.Null);
         }
 
         [Test]
@@ -682,7 +672,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
             const WalCheckpointMode newValue = (WalCheckpointMode)55;
-            Assert.Throws<ArgumentException>(() => dbPragma.WalCheckpointAsync(newValue));
+            Assert.That(() => dbPragma.WalCheckpointAsync(newValue), Throws.ArgumentException);
         }
     }
 }

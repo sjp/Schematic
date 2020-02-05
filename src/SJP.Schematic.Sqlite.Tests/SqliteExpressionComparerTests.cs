@@ -10,20 +10,20 @@ namespace SJP.Schematic.Sqlite.Tests
         public static void Ctor_GivenNullComparer_CreatesWithoutError()
         {
             var argComparer = StringComparer.Ordinal;
-            Assert.DoesNotThrow(() => new SqliteExpressionComparer(sqlStringComparer: argComparer));
+            Assert.That(() => new SqliteExpressionComparer(sqlStringComparer: argComparer), Throws.Nothing);
         }
 
         [Test]
         public static void Ctor_GivenNullSqlStringComparer_CreatesWithoutError()
         {
             var argComparer = StringComparer.Ordinal;
-            Assert.DoesNotThrow(() => new SqliteExpressionComparer(argComparer));
+            Assert.That(() => new SqliteExpressionComparer(argComparer), Throws.Nothing);
         }
 
         [Test]
         public static void Ctor_GivenNoComparers_CreatesWithoutError()
         {
-            Assert.DoesNotThrow(() => new SqliteExpressionComparer());
+            Assert.That(() => new SqliteExpressionComparer(), Throws.Nothing);
         }
 
         [Test]
@@ -34,7 +34,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var equals = comparer.Equals(input, input);
 
-            Assert.IsTrue(equals);
+            Assert.That(equals, Is.True);
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsFalse(equals);
+            Assert.That(equals, Is.False);
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var equals = comparer.Equals(input, input);
 
-            Assert.IsTrue(equals);
+            Assert.That(equals, Is.True);
         }
 
         [Test]
@@ -69,7 +69,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsFalse(equals);
+            Assert.That(equals, Is.False);
         }
 
         [Test]
@@ -80,7 +80,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var equals = comparer.Equals(input, input);
 
-            Assert.IsTrue(equals);
+            Assert.That(equals, Is.True);
         }
 
         [Test]
@@ -92,7 +92,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsFalse(equals);
+            Assert.That(equals, Is.False);
         }
 
         [Test]
@@ -103,7 +103,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var equals = comparer.Equals(input, input);
 
-            Assert.IsTrue(equals);
+            Assert.That(equals, Is.True);
         }
 
         [Test]
@@ -115,7 +115,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsFalse(equals);
+            Assert.That(equals, Is.False);
         }
 
         [Test]
@@ -127,7 +127,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsFalse(equals);
+            Assert.That(equals, Is.False);
         }
 
         [Test]
@@ -139,7 +139,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsTrue(equals);
+            Assert.That(equals, Is.True);
         }
 
         [Test]
@@ -151,7 +151,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsFalse(equals);
+            Assert.That(equals, Is.False);
         }
 
         [Test]
@@ -163,7 +163,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var equals = comparer.Equals(inputX, inputY);
 
-            Assert.IsTrue(equals);
+            Assert.That(equals, Is.True);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -14,14 +13,14 @@ namespace SJP.Schematic.Sqlite.Tests.Pragma
         public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            Assert.Throws<ArgumentNullException>(() => new DatabasePragma(null, connection, "main"));
+            Assert.That(() => new DatabasePragma(null, connection, "main"), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
             var dialect = Mock.Of<IDatabaseDialect>();
-            Assert.Throws<ArgumentNullException>(() => new DatabasePragma(dialect, null, "main"));
+            Assert.That(() => new DatabasePragma(dialect, null, "main"), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -29,7 +28,7 @@ namespace SJP.Schematic.Sqlite.Tests.Pragma
         {
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = Mock.Of<IDbConnection>();
-            Assert.Throws<ArgumentNullException>(() => new DatabasePragma(dialect, connection, null));
+            Assert.That(() => new DatabasePragma(dialect, connection, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -37,7 +36,7 @@ namespace SJP.Schematic.Sqlite.Tests.Pragma
         {
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = Mock.Of<IDbConnection>();
-            Assert.Throws<ArgumentNullException>(() => new DatabasePragma(dialect, connection, string.Empty));
+            Assert.That(() => new DatabasePragma(dialect, connection, string.Empty), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -45,7 +44,7 @@ namespace SJP.Schematic.Sqlite.Tests.Pragma
         {
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = Mock.Of<IDbConnection>();
-            Assert.Throws<ArgumentNullException>(() => new DatabasePragma(dialect, connection, "      "));
+            Assert.That(() => new DatabasePragma(dialect, connection, "      "), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -57,7 +56,7 @@ namespace SJP.Schematic.Sqlite.Tests.Pragma
             const string schemaName = "test";
             var dbPragma = new DatabasePragma(dialect, connection, schemaName);
 
-            Assert.AreEqual(schemaName, dbPragma.SchemaName);
+            Assert.That(dbPragma.SchemaName, Is.EqualTo(schemaName));
         }
     }
 }

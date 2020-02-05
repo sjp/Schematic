@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 using System.Data;
@@ -15,7 +14,7 @@ namespace SJP.Schematic.Oracle.Tests
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
-            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseSynonymProvider(null, identifierDefaults, identifierResolver));
+            Assert.That(() => new OracleDatabaseSynonymProvider(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -24,7 +23,7 @@ namespace SJP.Schematic.Oracle.Tests
             var connection = Mock.Of<IDbConnection>();
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
-            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseSynonymProvider(connection, null, identifierResolver));
+            Assert.That(() => new OracleDatabaseSynonymProvider(connection, null, identifierResolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -33,7 +32,7 @@ namespace SJP.Schematic.Oracle.Tests
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new OracleDatabaseSynonymProvider(connection, identifierDefaults, null));
+            Assert.That(() => new OracleDatabaseSynonymProvider(connection, identifierDefaults, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -45,7 +44,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var synonymProvider = new OracleDatabaseSynonymProvider(connection, identifierDefaults, identifierResolver);
 
-            Assert.Throws<ArgumentNullException>(() => synonymProvider.GetSynonym(null));
+            Assert.That(() => synonymProvider.GetSynonym(null), Throws.ArgumentNullException);
         }
     }
 }

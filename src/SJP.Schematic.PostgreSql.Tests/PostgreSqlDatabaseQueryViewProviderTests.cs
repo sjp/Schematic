@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 using System.Data;
@@ -16,7 +15,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseQueryViewProvider(null, identifierDefaults, identifierResolver, typeProvider));
+            Assert.That(() => new PostgreSqlDatabaseQueryViewProvider(null, identifierDefaults, identifierResolver, typeProvider), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -26,7 +25,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseQueryViewProvider(connection, null, identifierResolver, typeProvider));
+            Assert.That(() => new PostgreSqlDatabaseQueryViewProvider(connection, null, identifierResolver, typeProvider), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -36,7 +35,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseQueryViewProvider(connection, identifierDefaults, null, typeProvider));
+            Assert.That(() => new PostgreSqlDatabaseQueryViewProvider(connection, identifierDefaults, null, typeProvider), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -46,7 +45,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseQueryViewProvider(connection, identifierDefaults, identifierResolver, null));
+            Assert.That(() => new PostgreSqlDatabaseQueryViewProvider(connection, identifierDefaults, identifierResolver, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -59,7 +58,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var viewProvider = new PostgreSqlDatabaseQueryViewProvider(connection, identifierDefaults, identifierResolver, typeProvider);
 
-            Assert.Throws<ArgumentNullException>(() => viewProvider.GetView(null));
+            Assert.That(() => viewProvider.GetView(null), Throws.ArgumentNullException);
         }
     }
 }

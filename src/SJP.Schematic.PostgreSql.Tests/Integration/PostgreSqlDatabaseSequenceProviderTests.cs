@@ -27,7 +27,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         public async Task GetSequence_WhenSequencePresent_ReturnsSequence()
         {
             var sequenceIsSome = await SequenceProvider.GetSequence("db_test_sequence_1").IsSome.ConfigureAwait(false);
-            Assert.IsTrue(sequenceIsSome);
+            Assert.That(sequenceIsSome, Is.True);
         }
 
         [Test]
@@ -36,7 +36,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             const string sequenceName = "db_test_sequence_1";
             var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(sequenceName, sequence.Name.LocalName);
+            Assert.That(sequence.Name.LocalName, Is.EqualTo(sequenceName));
         }
 
         [Test]
@@ -47,7 +47,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
 
             var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
+            Assert.That(sequence.Name, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
@@ -58,7 +58,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
 
             var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
+            Assert.That(sequence.Name, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
@@ -69,7 +69,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
 
             var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
+            Assert.That(sequence.Name, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
@@ -79,7 +79,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
 
             var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(sequenceName, sequence.Name);
+            Assert.That(sequence.Name, Is.EqualTo(sequenceName));
         }
 
         [Test]
@@ -90,7 +90,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
 
             var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
+            Assert.That(sequence.Name, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
@@ -101,14 +101,14 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
 
             var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
+            Assert.That(sequence.Name, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
         public async Task GetSequence_WhenSequenceMissing_ReturnsNone()
         {
             var sequenceIsNone = await SequenceProvider.GetSequence("sequence_that_doesnt_exist").IsNone.ConfigureAwait(false);
-            Assert.IsTrue(sequenceIsNone);
+            Assert.That(sequenceIsNone, Is.True);
         }
 
         [Test]
@@ -118,7 +118,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(hasSequences);
+            Assert.That(hasSequences, Is.True);
         }
 
         [Test]
@@ -128,7 +128,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
                 .AnyAsync(s => s.Name.LocalName == "db_test_sequence_1")
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(containsTestSequence);
+            Assert.That(containsTestSequence, Is.True);
         }
     }
 }

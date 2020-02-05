@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 using System.Data;
@@ -16,7 +15,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseTableProvider(null, identifierDefaults, identifierResolver, typeProvider));
+            Assert.That(() => new PostgreSqlRelationalDatabaseTableProvider(null, identifierDefaults, identifierResolver, typeProvider), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -26,7 +25,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseTableProvider(connection, null, identifierResolver, typeProvider));
+            Assert.That(() => new PostgreSqlRelationalDatabaseTableProvider(connection, null, identifierResolver, typeProvider), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -36,7 +35,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseTableProvider(connection, identifierDefaults, null, typeProvider));
+            Assert.That(() => new PostgreSqlRelationalDatabaseTableProvider(connection, identifierDefaults, null, typeProvider), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -46,7 +45,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlRelationalDatabaseTableProvider(connection, identifierDefaults, identifierResolver, null));
+            Assert.That(() => new PostgreSqlRelationalDatabaseTableProvider(connection, identifierDefaults, identifierResolver, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -59,7 +58,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var tableProvider = new PostgreSqlRelationalDatabaseTableProvider(connection, identifierDefaults, identifierResolver, typeProvider);
 
-            Assert.Throws<ArgumentNullException>(() => tableProvider.GetTable(null));
+            Assert.That(() => tableProvider.GetTable(null), Throws.ArgumentNullException);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 using System.Data;
@@ -17,7 +16,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var dialect = Mock.Of<IDatabaseDialect>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabaseTableProvider(null, pragma, dialect, identifierDefaults));
+            Assert.That(() => new SqliteRelationalDatabaseTableProvider(null, pragma, dialect, identifierDefaults), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -27,7 +26,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var dialect = Mock.Of<IDatabaseDialect>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabaseTableProvider(connection, null, dialect, identifierDefaults));
+            Assert.That(() => new SqliteRelationalDatabaseTableProvider(connection, null, dialect, identifierDefaults), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -37,7 +36,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var pragma = Mock.Of<ISqliteConnectionPragma>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabaseTableProvider(connection, pragma, null, identifierDefaults));
+            Assert.That(() => new SqliteRelationalDatabaseTableProvider(connection, pragma, null, identifierDefaults), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -47,7 +46,7 @@ namespace SJP.Schematic.Sqlite.Tests
             var pragma = Mock.Of<ISqliteConnectionPragma>();
             var dialect = Mock.Of<IDatabaseDialect>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqliteRelationalDatabaseTableProvider(connection, pragma, dialect, null));
+            Assert.That(() => new SqliteRelationalDatabaseTableProvider(connection, pragma, dialect, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -60,7 +59,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var tableProvider = new SqliteRelationalDatabaseTableProvider(connection, pragma, dialect, identifierDefaults);
 
-            Assert.Throws<ArgumentNullException>(() => tableProvider.GetTable(null));
+            Assert.That(() => tableProvider.GetTable(null), Throws.ArgumentNullException);
         }
     }
 }

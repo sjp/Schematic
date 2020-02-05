@@ -73,7 +73,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         public async Task GetSequenceComments_WhenSequencePresent_ReturnsSequenceComment()
         {
             var sequenceIsSome = await SequenceCommentProvider.GetSequenceComments("sequence_comment_sequence_1").IsSome.ConfigureAwait(false);
-            Assert.IsTrue(sequenceIsSome);
+            Assert.That(sequenceIsSome, Is.True);
         }
 
         [Test]
@@ -82,7 +82,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             const string sequenceName = "sequence_comment_sequence_1";
             var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(sequenceName, sequenceComments.SequenceName.LocalName);
+            Assert.That(sequenceComments.SequenceName.LocalName, Is.EqualTo(sequenceName));
         }
 
         [Test]
@@ -93,7 +93,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequenceComments.SequenceName);
+            Assert.That(sequenceComments.SequenceName, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
@@ -104,7 +104,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequenceComments.SequenceName);
+            Assert.That(sequenceComments.SequenceName, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
@@ -115,7 +115,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequenceComments.SequenceName);
+            Assert.That(sequenceComments.SequenceName, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
@@ -125,7 +125,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(sequenceName, sequenceComments.SequenceName);
+            Assert.That(sequenceComments.SequenceName, Is.EqualTo(sequenceName));
         }
 
         [Test]
@@ -136,7 +136,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequenceComments.SequenceName);
+            Assert.That(sequenceComments.SequenceName, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
@@ -147,14 +147,14 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequenceComments.SequenceName);
+            Assert.That(sequenceComments.SequenceName, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
         public async Task GetSequenceComments_WhenSequenceMissing_ReturnsNone()
         {
             var sequenceIsNone = await SequenceCommentProvider.GetSequenceComments("sequence_that_doesnt_exist").IsNone.ConfigureAwait(false);
-            Assert.IsTrue(sequenceIsNone);
+            Assert.That(sequenceIsNone, Is.True);
         }
 
         [Test]
@@ -164,7 +164,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             var sequenceComments = await SequenceCommentProvider.GetSequenceComments(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
             var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, sequenceComments.SequenceName.LocalName);
-            Assert.IsTrue(equalNames);
+            Assert.That(equalNames, Is.True);
         }
 
         [Test]
@@ -175,7 +175,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, sequenceComments.SequenceName.Schema)
                 && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, sequenceComments.SequenceName.LocalName);
-            Assert.IsTrue(equalNames);
+            Assert.That(equalNames, Is.True);
         }
 
         [Test]
@@ -185,7 +185,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(hasSequenceComments);
+            Assert.That(hasSequenceComments, Is.True);
         }
 
         [Test]
@@ -195,7 +195,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                 .AnyAsync(t => t.SequenceName.LocalName == "sequence_comment_sequence_1")
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(containsTestSequence);
+            Assert.That(containsTestSequence, Is.True);
         }
 
         [Test]
@@ -203,7 +203,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         {
             var comments = await GetSequenceCommentsAsync("sequence_comment_sequence_1").ConfigureAwait(false);
 
-            Assert.IsTrue(comments.Comment.IsNone);
+            Assert.That(comments.Comment.IsNone, Is.True);
         }
 
         [Test]
@@ -214,7 +214,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
             var sequenceComment = comments.Comment.UnwrapSome();
 
-            Assert.AreEqual(expectedComment, sequenceComment);
+            Assert.That(sequenceComment, Is.EqualTo(expectedComment));
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
 {
@@ -11,9 +12,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
         public async Task Columns_WhenGivenTableWithOneColumn_ReturnsColumnCollectionWithOneValue()
         {
             var table = await GetTableAsync("v95_table_test_table_1").ConfigureAwait(false);
-            var count = table.Columns.Count;
 
-            Assert.AreEqual(1, count);
+            Assert.That(table.Columns, Has.Exactly(1).Items);
         }
 
         [Test]
@@ -23,7 +23,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
             var column = table.Columns.Single();
             const string columnName = "test_column";
 
-            Assert.AreEqual(columnName, column.Name.LocalName);
+            Assert.That(column.Name.LocalName, Is.EqualTo(columnName));
         }
 
         [Test]
@@ -34,7 +34,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
             var columns = table.Columns;
             var columnNames = columns.Select(c => c.Name.LocalName);
 
-            Assert.IsTrue(expectedColumnNames.SequenceEqual(columnNames));
+            Assert.That(columnNames, Is.EqualTo(expectedColumnNames));
         }
 
         [Test]
@@ -44,7 +44,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
-            Assert.IsTrue(column.IsNullable);
+            Assert.That(column.IsNullable, Is.True);
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
-            Assert.IsFalse(column.IsNullable);
+            Assert.That(column.IsNullable, Is.False);
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
-            Assert.IsTrue(column.DefaultValue.IsNone);
+            Assert.That(column.DefaultValue, OptionIs.None);
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
-            Assert.IsFalse(column.IsComputed);
+            Assert.That(column.IsComputed, Is.False);
         }
 
         [Test]
@@ -84,7 +84,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Single();
 
-            Assert.IsTrue(column.AutoIncrement.IsNone);
+            Assert.That(column.AutoIncrement, OptionIs.None);
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Last();
 
-            Assert.IsTrue(column.AutoIncrement.IsSome);
+            Assert.That(column.AutoIncrement, OptionIs.Some);
         }
 
         [Test]
@@ -104,7 +104,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Last();
 
-            Assert.AreEqual(1, column.AutoIncrement.UnwrapSome().InitialValue);
+            Assert.That(column.AutoIncrement.UnwrapSome().InitialValue, Is.EqualTo(1));
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Last();
 
-            Assert.AreEqual(1, column.AutoIncrement.UnwrapSome().Increment);
+            Assert.That(column.AutoIncrement.UnwrapSome().Increment, Is.EqualTo(1));
         }
     }
 }

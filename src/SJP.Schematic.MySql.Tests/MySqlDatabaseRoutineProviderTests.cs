@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 using System.Data;
@@ -14,7 +13,7 @@ namespace SJP.Schematic.MySql.Tests
         {
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlDatabaseRoutineProvider(null, identifierDefaults));
+            Assert.That(() => new MySqlDatabaseRoutineProvider(null, identifierDefaults), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -22,7 +21,7 @@ namespace SJP.Schematic.MySql.Tests
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlDatabaseRoutineProvider(connection, null));
+            Assert.That(() => new MySqlDatabaseRoutineProvider(connection, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -33,7 +32,7 @@ namespace SJP.Schematic.MySql.Tests
 
             var routineProvider = new MySqlDatabaseRoutineProvider(connection, identifierDefaults);
 
-            Assert.Throws<ArgumentNullException>(() => routineProvider.GetRoutine(null));
+            Assert.That(() => routineProvider.GetRoutine(null), Throws.ArgumentNullException);
         }
     }
 }

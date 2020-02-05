@@ -12,9 +12,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
         public async Task UniqueKeys_WhenGivenTableWithNoUniqueKeys_ReturnsEmptyCollection()
         {
             var table = await GetTableAsync("v95_table_test_table_1").ConfigureAwait(false);
-            var count = table.UniqueKeys.Count;
 
-            Assert.AreEqual(0, count);
+            Assert.That(table.UniqueKeys, Is.Empty);
         }
 
         [Test]
@@ -23,7 +22,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
             var table = await GetTableAsync("v95_table_test_table_5").ConfigureAwait(false);
             var uk = table.UniqueKeys.Single();
 
-            Assert.AreEqual(DatabaseKeyType.Unique, uk.KeyType);
+            Assert.That(uk.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
         }
 
         [Test]
@@ -31,12 +30,11 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
         {
             var table = await GetTableAsync("v95_table_test_table_5").ConfigureAwait(false);
             var uk = table.UniqueKeys.Single();
-            var ukColumns = uk.Columns.ToList();
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(1, ukColumns.Count);
-                Assert.AreEqual("test_column", ukColumns.Single().Name.LocalName);
+                Assert.That(uk.Columns, Has.Exactly(1).Items);
+                Assert.That(uk.Columns.Single().Name.LocalName, Is.EqualTo("test_column"));
             });
         }
 
@@ -45,12 +43,11 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
         {
             var table = await GetTableAsync("v95_table_test_table_6").ConfigureAwait(false);
             var uk = table.UniqueKeys.Single();
-            var ukColumns = uk.Columns.ToList();
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(1, ukColumns.Count);
-                Assert.AreEqual("test_column", ukColumns.Single().Name.LocalName);
+                Assert.That(uk.Columns, Has.Exactly(1).Items);
+                Assert.That(uk.Columns.Single().Name.LocalName, Is.EqualTo("test_column"));
             });
         }
 
@@ -60,7 +57,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
             var table = await GetTableAsync("v95_table_test_table_6").ConfigureAwait(false);
             var uk = table.UniqueKeys.Single();
 
-            Assert.AreEqual("uk_test_table_6", uk.Name.UnwrapSome().LocalName);
+            Assert.That(uk.Name.UnwrapSome().LocalName, Is.EqualTo("uk_test_table_6"));
         }
 
         [Test]
@@ -71,13 +68,12 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
             var table = await GetTableAsync("v95_table_test_table_7").ConfigureAwait(false);
             var uk = table.UniqueKeys.Single();
             var ukColumns = uk.Columns.ToList();
-
-            var columnsEqual = ukColumns.Select(c => c.Name.LocalName).SequenceEqual(expectedColumnNames);
+            var ukColumnNames = ukColumns.Select(c => c.Name.LocalName).ToList();
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(3, ukColumns.Count);
-                Assert.IsTrue(columnsEqual);
+                Assert.That(ukColumns, Has.Exactly(3).Items);
+                Assert.That(ukColumnNames, Is.EqualTo(expectedColumnNames));
             });
         }
 
@@ -87,7 +83,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
             var table = await GetTableAsync("v95_table_test_table_7").ConfigureAwait(false);
             var uk = table.UniqueKeys.Single();
 
-            Assert.AreEqual("uk_test_table_7", uk.Name.UnwrapSome().LocalName);
+            Assert.That(uk.Name.UnwrapSome().LocalName, Is.EqualTo("uk_test_table_7"));
         }
     }
 }

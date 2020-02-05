@@ -16,7 +16,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var column = Mock.Of<IDatabaseColumn>();
             var columns = new[] { column };
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseKey(null, keyType, columns));
+            Assert.That(() => new PostgreSqlDatabaseKey(null, keyType, columns), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -27,7 +27,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             var column = Mock.Of<IDatabaseColumn>();
             var columns = new[] { column };
 
-            Assert.Throws<ArgumentException>(() => new PostgreSqlDatabaseKey(keyName, keyType, columns));
+            Assert.That(() => new PostgreSqlDatabaseKey(keyName, keyType, columns), Throws.ArgumentException);
         }
 
         [Test]
@@ -36,7 +36,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             Identifier keyName = "test_key";
             const DatabaseKeyType keyType = DatabaseKeyType.Primary;
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseKey(keyName, keyType, null));
+            Assert.That(() => new PostgreSqlDatabaseKey(keyName, keyType, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             const DatabaseKeyType keyType = DatabaseKeyType.Primary;
             var columns = Array.Empty<IDatabaseColumn>();
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseKey(keyName, keyType, columns));
+            Assert.That(() => new PostgreSqlDatabaseKey(keyName, keyType, columns), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -56,7 +56,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             const DatabaseKeyType keyType = DatabaseKeyType.Primary;
             var columns = new IDatabaseColumn[] { null };
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseKey(keyName, keyType, columns));
+            Assert.That(() => new PostgreSqlDatabaseKey(keyName, keyType, columns), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -69,7 +69,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var key = new PostgreSqlDatabaseKey(keyName, keyType, columns);
 
-            Assert.AreEqual(keyName, key.Name.UnwrapSome());
+            Assert.That(key.Name.UnwrapSome(), Is.EqualTo(keyName));
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var key = new PostgreSqlDatabaseKey(keyName, keyType, columns);
 
-            Assert.AreEqual(keyType, key.KeyType);
+            Assert.That(key.KeyType, Is.EqualTo(keyType));
         }
 
         [Test]
@@ -95,7 +95,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var key = new PostgreSqlDatabaseKey(keyName, keyType, columns);
 
-            Assert.AreEqual(columns, key.Columns);
+            Assert.That(key.Columns, Is.EqualTo(columns));
         }
 
         [Test]
@@ -108,7 +108,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var key = new PostgreSqlDatabaseKey(keyName, keyType, columns);
 
-            Assert.IsTrue(key.IsEnabled);
+            Assert.That(key.IsEnabled, Is.True);
         }
     }
 }

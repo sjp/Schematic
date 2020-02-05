@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 using System.Data;
@@ -15,7 +14,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseTableProvider(null, identifierDefaults, typeProvider));
+            Assert.That(() => new SqlServerRelationalDatabaseTableProvider(null, identifierDefaults, typeProvider), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -24,7 +23,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var connection = Mock.Of<IDbConnection>();
             var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseTableProvider(connection, null, typeProvider));
+            Assert.That(() => new SqlServerRelationalDatabaseTableProvider(connection, null, typeProvider), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -33,7 +32,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new SqlServerRelationalDatabaseTableProvider(connection, identifierDefaults, null));
+            Assert.That(() => new SqlServerRelationalDatabaseTableProvider(connection, identifierDefaults, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -45,7 +44,7 @@ namespace SJP.Schematic.SqlServer.Tests
 
             var tableProvider = new SqlServerRelationalDatabaseTableProvider(connection, identifierDefaults, typeProvider);
 
-            Assert.Throws<ArgumentNullException>(() => tableProvider.GetTable(null));
+            Assert.That(() => tableProvider.GetTable(null), Throws.ArgumentNullException);
         }
     }
 }

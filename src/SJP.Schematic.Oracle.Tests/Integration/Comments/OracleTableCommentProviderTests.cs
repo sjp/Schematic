@@ -62,7 +62,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         public async Task GetTableComments_WhenTablePresent_ReturnsTableComment()
         {
             var tableIsSome = await TableCommentProvider.GetTableComments("table_comment_table_1").IsSome.ConfigureAwait(false);
-            Assert.IsTrue(tableIsSome);
+            Assert.That(tableIsSome, Is.True);
         }
 
         [Test]
@@ -71,7 +71,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
             const string tableName = "TABLE_COMMENT_TABLE_1";
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(tableName, tableComments.TableName.LocalName);
+            Assert.That(tableComments.TableName.LocalName, Is.EqualTo(tableName));
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
         }
 
         [Test]
@@ -104,7 +104,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(tableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(tableName));
         }
 
         [Test]
@@ -125,7 +125,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
         }
 
         [Test]
@@ -136,14 +136,14 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
         }
 
         [Test]
         public async Task GetTableComments_WhenTableMissing_ReturnsNone()
         {
             var tableIsNone = await TableCommentProvider.GetTableComments("table_that_doesnt_exist").IsNone.ConfigureAwait(false);
-            Assert.IsTrue(tableIsNone);
+            Assert.That(tableIsNone, Is.True);
         }
 
         [Test]
@@ -153,7 +153,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(hasTableComments);
+            Assert.That(hasTableComments, Is.True);
         }
 
         [Test]
@@ -163,7 +163,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
                 .AnyAsync(t => t.TableName.LocalName == "TABLE_COMMENT_TABLE_1")
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(containsTestTable);
+            Assert.That(containsTestTable, Is.True);
         }
 
         [Test]
@@ -171,7 +171,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         {
             var comments = await GetTableCommentsAsync("TABLE_COMMENT_TABLE_1").ConfigureAwait(false);
 
-            Assert.IsTrue(comments.Comment.IsNone);
+            Assert.That(comments.Comment.IsNone, Is.True);
         }
 
         [Test]
@@ -182,7 +182,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
             var columnComments = comments.ColumnComments;
             var hasColumns = columnComments.Count == 1 && columnComments.Keys.Single().LocalName == "TEST_COLUMN_1";
 
-            Assert.IsTrue(hasColumns);
+            Assert.That(hasColumns, Is.True);
         }
 
         [Test]
@@ -193,7 +193,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
             var columnComments = comments.ColumnComments;
             var hasOnlyNones = columnComments.Count == 1 && columnComments.Values.Single().IsNone;
 
-            Assert.IsTrue(hasOnlyNones);
+            Assert.That(hasOnlyNones, Is.True);
         }
 
         [Test]
@@ -204,7 +204,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
 
             var tableComment = comments.Comment.UnwrapSome();
 
-            Assert.AreEqual(expectedComment, tableComment);
+            Assert.That(tableComment, Is.EqualTo(expectedComment));
         }
 
         [Test]
@@ -218,10 +218,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
             };
             var comments = await GetTableCommentsAsync("TABLE_COMMENT_TABLE_2").ConfigureAwait(false);
 
-            var columnComments = comments.ColumnComments;
-            var allKeysPresent = columnNames.All(columnComments.ContainsKey);
-
-            Assert.IsTrue(allKeysPresent);
+            Assert.That(comments.ColumnComments.Keys, Is.EqualTo(columnNames));
         }
 
         [Test]
@@ -243,9 +240,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
                 columnComments["TEST_COLUMN_3"].IsNone,
             };
 
-            var seqEqual = expectedNoneStates.SequenceEqual(noneStates);
-
-            Assert.IsTrue(seqEqual);
+            Assert.That(noneStates, Is.EqualTo(expectedNoneStates));
         }
 
         [Test]
@@ -256,7 +251,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
 
             var comment = comments.ColumnComments["TEST_COLUMN_2"].UnwrapSome();
 
-            Assert.AreEqual(expectedComment, comment);
+            Assert.That(comment, Is.EqualTo(expectedComment));
         }
     }
 }

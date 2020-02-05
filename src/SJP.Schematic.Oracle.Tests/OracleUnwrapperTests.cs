@@ -13,7 +13,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             var result = OracleUnwrapper.TryUnwrap(null, out _);
 
-            Assert.IsFalse(result);
+            Assert.That(result, Is.False);
         }
 
         [Test]
@@ -21,7 +21,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             _ = OracleUnwrapper.TryUnwrap(null, out var unwrapped);
 
-            Assert.IsNull(unwrapped);
+            Assert.That(unwrapped, Is.Null);
         }
 
         [Test]
@@ -29,7 +29,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             var result = OracleUnwrapper.TryUnwrap(WrappedExample, out _);
 
-            Assert.IsTrue(result);
+            Assert.That(result, Is.True);
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace SJP.Schematic.Oracle.Tests
             var cleanExpected = TrimNewlines(ExpectedUnwrappedExample);
             var cleanResult = TrimNewlines(unwrapped);
 
-            Assert.AreEqual(cleanExpected, cleanResult);
+            Assert.That(cleanResult, Is.EqualTo(cleanExpected));
         }
 
         [Test]
@@ -48,7 +48,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             var result = OracleUnwrapper.TryUnwrap(MissingMagicPrefixExample, out _);
 
-            Assert.IsFalse(result);
+            Assert.That(result, Is.False);
         }
 
         [Test]
@@ -56,7 +56,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             _ = OracleUnwrapper.TryUnwrap(MissingMagicPrefixExample, out var unwrapped);
 
-            Assert.IsNull(unwrapped);
+            Assert.That(unwrapped, Is.Null);
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             var result = OracleUnwrapper.Unwrap(null);
 
-            Assert.IsNull(result);
+            Assert.That(result, Is.Null);
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace SJP.Schematic.Oracle.Tests
             var cleanExpected = TrimNewlines(ExpectedUnwrappedExample);
             var cleanResult = TrimNewlines(result);
 
-            Assert.AreEqual(cleanExpected, cleanResult);
+            Assert.That(cleanResult, Is.EqualTo(cleanExpected));
         }
 
         [Test]
@@ -83,13 +83,13 @@ namespace SJP.Schematic.Oracle.Tests
         {
             var result = OracleUnwrapper.Unwrap(MissingMagicPrefixExample);
 
-            Assert.AreEqual(MissingMagicPrefixExample, result);
+            Assert.That(result, Is.EqualTo(MissingMagicPrefixExample));
         }
 
         [Test]
         public static void UnwrapUnsafe_GivenNullInput_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => OracleUnwrapper.UnwrapUnsafe(null));
+            Assert.That(() => OracleUnwrapper.UnwrapUnsafe(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -100,25 +100,25 @@ namespace SJP.Schematic.Oracle.Tests
             var cleanExpected = TrimNewlines(ExpectedUnwrappedExample);
             var cleanResult = TrimNewlines(result);
 
-            Assert.AreEqual(cleanExpected, cleanResult);
+            Assert.That(cleanResult, Is.EqualTo(cleanExpected));
         }
 
         [Test]
         public static void UnwrapUnsafe_GivenInvalidInput_ThrowsInvalidDataException()
         {
-            Assert.Throws<InvalidDataException>(() => OracleUnwrapper.UnwrapUnsafe(MissingMagicPrefixExample));
+            Assert.That(() => OracleUnwrapper.UnwrapUnsafe(MissingMagicPrefixExample), Throws.TypeOf<InvalidDataException>());
         }
 
         [Test]
         public static void UnwrapUnsafe_GivenInputWithIncorrectHash_ThrowsInvalidDataException()
         {
-            Assert.Throws<InvalidDataException>(() => OracleUnwrapper.UnwrapUnsafe(InvalidHashExample));
+            Assert.That(() => OracleUnwrapper.UnwrapUnsafe(InvalidHashExample), Throws.TypeOf<InvalidDataException>());
         }
 
         [Test]
         public static void IsWrappedDefinition_GivenNullInput_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => OracleUnwrapper.IsWrappedDefinition(null));
+            Assert.That(() => OracleUnwrapper.IsWrappedDefinition(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -126,7 +126,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             var isWrapped = OracleUnwrapper.IsWrappedDefinition(WrappedExample);
 
-            Assert.IsTrue(isWrapped);
+            Assert.That(isWrapped, Is.True);
         }
 
         [Test]
@@ -134,7 +134,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             var isWrapped = OracleUnwrapper.IsWrappedDefinition(MissingWrappedKeywordExample);
 
-            Assert.IsFalse(isWrapped);
+            Assert.That(isWrapped, Is.False);
         }
 
         [Test]
@@ -142,7 +142,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             var isWrapped = OracleUnwrapper.IsWrappedDefinition(EndsBeforeMagicPrefixExample);
 
-            Assert.IsFalse(isWrapped);
+            Assert.That(isWrapped, Is.False);
         }
 
         [Test]
@@ -150,7 +150,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             var isWrapped = OracleUnwrapper.IsWrappedDefinition(MissingMagicPrefixExample);
 
-            Assert.IsFalse(isWrapped);
+            Assert.That(isWrapped, Is.False);
         }
 
         [Test]
@@ -158,7 +158,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             var isWrapped = OracleUnwrapper.IsWrappedDefinition(EndsBeforeHexPrefixExample);
 
-            Assert.IsFalse(isWrapped);
+            Assert.That(isWrapped, Is.False);
         }
 
         [Test]
@@ -166,7 +166,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             var isWrapped = OracleUnwrapper.IsWrappedDefinition(NonHexPrefixExample);
 
-            Assert.IsFalse(isWrapped);
+            Assert.That(isWrapped, Is.False);
         }
 
         [Test]
@@ -174,7 +174,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             var isWrapped = OracleUnwrapper.IsWrappedDefinition(MissingHexPrefixExample);
 
-            Assert.IsFalse(isWrapped);
+            Assert.That(isWrapped, Is.False);
         }
 
         [Test]
@@ -182,7 +182,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             var isWrapped = OracleUnwrapper.IsWrappedDefinition(MissingAbcdExample);
 
-            Assert.IsFalse(isWrapped);
+            Assert.That(isWrapped, Is.False);
         }
 
         [Test]
@@ -190,7 +190,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             var isWrapped = OracleUnwrapper.IsWrappedDefinition(EndsBeforeHexSuffixExample);
 
-            Assert.IsFalse(isWrapped);
+            Assert.That(isWrapped, Is.False);
         }
 
         [Test]
@@ -198,7 +198,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             var isWrapped = OracleUnwrapper.IsWrappedDefinition(MissingHexSuffixExample);
 
-            Assert.IsFalse(isWrapped);
+            Assert.That(isWrapped, Is.False);
         }
 
         [Test]
@@ -206,7 +206,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             var isWrapped = OracleUnwrapper.IsWrappedDefinition(EndsBeforeLengthHexNumberExample);
 
-            Assert.IsFalse(isWrapped);
+            Assert.That(isWrapped, Is.False);
         }
 
         [Test]
@@ -214,7 +214,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             var isWrapped = OracleUnwrapper.IsWrappedDefinition(MissingOneHexNumberExample);
 
-            Assert.IsFalse(isWrapped);
+            Assert.That(isWrapped, Is.False);
         }
 
         [Test]
@@ -222,7 +222,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             var isWrapped = OracleUnwrapper.IsWrappedDefinition(MissingLengthHexExample);
 
-            Assert.IsFalse(isWrapped);
+            Assert.That(isWrapped, Is.False);
         }
 
         [Test]
@@ -230,7 +230,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             var isWrapped = OracleUnwrapper.IsWrappedDefinition(LengthHexNumberInvalidExample);
 
-            Assert.IsFalse(isWrapped);
+            Assert.That(isWrapped, Is.False);
         }
 
         [Test]
@@ -238,7 +238,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             var isWrapped = OracleUnwrapper.IsWrappedDefinition(MissingBase64Example);
 
-            Assert.IsFalse(isWrapped);
+            Assert.That(isWrapped, Is.False);
         }
 
         [Test]
@@ -246,7 +246,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             var isWrapped = OracleUnwrapper.IsWrappedDefinition(InvalidBase64Example);
 
-            Assert.IsFalse(isWrapped);
+            Assert.That(isWrapped, Is.False);
         }
 
         private static string TrimNewlines(string input)

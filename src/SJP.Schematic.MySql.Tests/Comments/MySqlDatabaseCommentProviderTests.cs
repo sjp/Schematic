@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 using System.Data;
@@ -15,7 +14,7 @@ namespace SJP.Schematic.MySql.Tests.Comments
         {
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlDatabaseCommentProvider(null, identifierDefaults));
+            Assert.That(() => new MySqlDatabaseCommentProvider(null, identifierDefaults), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -23,7 +22,7 @@ namespace SJP.Schematic.MySql.Tests.Comments
         {
             var connection = Mock.Of<IDbConnection>();
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlDatabaseCommentProvider(connection, null));
+            Assert.That(() => new MySqlDatabaseCommentProvider(connection, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -34,7 +33,7 @@ namespace SJP.Schematic.MySql.Tests.Comments
 
             var commentProvider = new MySqlDatabaseCommentProvider(connection, identifierDefaults);
 
-            Assert.Throws<ArgumentNullException>(() => commentProvider.GetTableComments(null));
+            Assert.That(() => commentProvider.GetTableComments(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -45,7 +44,7 @@ namespace SJP.Schematic.MySql.Tests.Comments
 
             var commentProvider = new MySqlDatabaseCommentProvider(connection, identifierDefaults);
 
-            Assert.Throws<ArgumentNullException>(() => commentProvider.GetViewComments(null));
+            Assert.That(() => commentProvider.GetViewComments(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -56,7 +55,7 @@ namespace SJP.Schematic.MySql.Tests.Comments
 
             var commentProvider = new MySqlDatabaseCommentProvider(connection, identifierDefaults);
 
-            Assert.Throws<ArgumentNullException>(() => commentProvider.GetSequenceComments(null));
+            Assert.That(() => commentProvider.GetSequenceComments(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -67,7 +66,7 @@ namespace SJP.Schematic.MySql.Tests.Comments
 
             var commentProvider = new MySqlDatabaseCommentProvider(connection, identifierDefaults);
 
-            Assert.Throws<ArgumentNullException>(() => commentProvider.GetSynonymComments(null));
+            Assert.That(() => commentProvider.GetSynonymComments(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -78,7 +77,7 @@ namespace SJP.Schematic.MySql.Tests.Comments
 
             var commentProvider = new MySqlDatabaseCommentProvider(connection, identifierDefaults);
 
-            Assert.Throws<ArgumentNullException>(() => commentProvider.GetRoutineComments(null));
+            Assert.That(() => commentProvider.GetRoutineComments(null), Throws.ArgumentNullException);
         }
     }
 }

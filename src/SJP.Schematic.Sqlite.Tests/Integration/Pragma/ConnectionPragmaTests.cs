@@ -34,7 +34,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragmaNames = dbPragmas.Select(d => d.SchemaName).ToList();
             var onlyExpectedPresent = dbPragmaNames.All(name => expectedSchemas.Contains(name));
 
-            Assert.IsTrue(onlyExpectedPresent);
+            Assert.That(onlyExpectedPresent, Is.True);
         }
 
         [Test]
@@ -50,7 +50,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbNames = dbLists.Select(d => d.name).ToList();
             var onlyExpectedPresent = dbNames.All(name => expectedSchemas.Contains(name));
 
-            Assert.IsTrue(onlyExpectedPresent);
+            Assert.That(onlyExpectedPresent, Is.True);
         }
 
         [Test]
@@ -65,7 +65,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await connPragma.AutomaticIndexAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await connPragma.AutomaticIndexAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var busyTimeout = await connPragma.BusyTimeoutAsync().ConfigureAwait(false);
             var defaultValue = new TimeSpan(0, 0, 0);
 
-            Assert.AreEqual(defaultValue, busyTimeout);
+            Assert.That(busyTimeout, Is.EqualTo(defaultValue));
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await connPragma.BusyTimeoutAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await connPragma.BusyTimeoutAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -121,8 +121,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(expectedInsensitive, insensitiveResult);
-                Assert.AreEqual(expectedSensitive, sensitiveResult);
+                Assert.That(insensitiveResult, Is.EqualTo(expectedInsensitive));
+                Assert.That(sensitiveResult, Is.EqualTo(expectedSensitive));
             });
         }
 
@@ -138,7 +138,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await connPragma.CellSizeCheckAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await connPragma.CellSizeCheckAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -153,7 +153,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await connPragma.CheckpointFullFsyncAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await connPragma.CheckpointFullFsyncAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -164,9 +164,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var connPragma = new ConnectionPragma(dialect, connection);
 
             var collations = await connPragma.CollationListAsync().ConfigureAwait(false);
-            var collationList = collations.ToList();
 
-            Assert.NotZero(collationList.Count);
+            Assert.That(collations, Is.Not.Empty);
         }
 
         [Test]
@@ -177,9 +176,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var connPragma = new ConnectionPragma(dialect, connection);
 
             var options = await connPragma.CompileOptionsAsync().ConfigureAwait(false);
-            var optionsList = options.ToList();
 
-            Assert.NotZero(optionsList.Count);
+            Assert.That(options, Is.Not.Empty);
         }
 
         [Test]
@@ -191,7 +189,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 
             var dataVersion = await connPragma.DataVersionAsync().ConfigureAwait(false);
 
-            Assert.NotZero(dataVersion);
+            Assert.That(dataVersion, Is.Not.Zero);
         }
 
         [Test]
@@ -206,7 +204,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await connPragma.DeferForeignKeysAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await connPragma.DeferForeignKeysAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -221,7 +219,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await connPragma.EncodingAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await connPragma.EncodingAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -232,7 +230,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var connPragma = new ConnectionPragma(dialect, connection);
 
             const Encoding newValue = (Encoding)55;
-            Assert.Throws<ArgumentException>(() => connPragma.EncodingAsync(newValue));
+            Assert.That(() => connPragma.EncodingAsync(newValue), Throws.ArgumentException);
         }
 
         [Test]
@@ -247,7 +245,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await connPragma.ForeignKeysAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await connPragma.ForeignKeysAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -262,7 +260,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await connPragma.FullFsyncAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await connPragma.FullFsyncAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -278,7 +276,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await connection.ExecuteAsync("insert into test (col) values ('test')").ConfigureAwait(false);
 
             await connPragma.IgnoreCheckConstraintsAsync(false).ConfigureAwait(false);
-            Assert.ThrowsAsync<SqliteException>(() => connection.ExecuteAsync("insert into test (col) values ('test')"));
+            Assert.That(async () => await connection.ExecuteAsync("insert into test (col) values ('test')").ConfigureAwait(false), Throws.TypeOf<SqliteException>());
         }
 
         [Test]
@@ -293,7 +291,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await connPragma.LegacyAlterTableAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await connPragma.LegacyAlterTableAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -308,7 +306,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await connPragma.LegacyFileFormatAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await connPragma.LegacyFileFormatAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -330,7 +328,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var connPragma = new ConnectionPragma(dialect, connection);
 
             const OptimizeFeatures newValue = (OptimizeFeatures)55;
-            Assert.Throws<ArgumentException>(() => connPragma.OptimizeAsync(newValue));
+            Assert.That(() => connPragma.OptimizeAsync(newValue), Throws.ArgumentException);
         }
 
         [Test]
@@ -345,7 +343,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await connPragma.QueryOnlyAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await connPragma.QueryOnlyAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -360,7 +358,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await connPragma.ReadUncommittedAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await connPragma.ReadUncommittedAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -375,7 +373,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await connPragma.RecursiveTriggersAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await connPragma.RecursiveTriggersAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -390,7 +388,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await connPragma.ReverseUnorderedSelectsAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await connPragma.ReverseUnorderedSelectsAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -416,7 +414,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await connPragma.SoftHeapLimitAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await connPragma.SoftHeapLimitAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -431,7 +429,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await connPragma.TemporaryStoreAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await connPragma.TemporaryStoreAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -442,7 +440,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var connPragma = new ConnectionPragma(dialect, connection);
 
             const TemporaryStoreLocation tempStore = (TemporaryStoreLocation)55;
-            Assert.Throws<ArgumentException>(() => connPragma.TemporaryStoreAsync(tempStore));
+            Assert.That(() => connPragma.TemporaryStoreAsync(tempStore), Throws.ArgumentException);
         }
 
         [Test]
@@ -457,7 +455,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await connPragma.ThreadsAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await connPragma.ThreadsAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -472,7 +470,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await connPragma.WalAutoCheckpointAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await connPragma.WalAutoCheckpointAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
 
         [Test]
@@ -487,7 +485,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             await connPragma.WritableSchemaAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await connPragma.WritableSchemaAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(newValue, readOfNewValue);
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
         }
     }
 }

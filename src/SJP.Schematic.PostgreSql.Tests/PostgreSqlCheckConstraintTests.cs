@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -11,25 +10,25 @@ namespace SJP.Schematic.PostgreSql.Tests
         [Test]
         public static void Ctor_GivenNullName_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlCheckConstraint(null, "test_check"));
+            Assert.That(() => new PostgreSqlCheckConstraint(null, "test_check"), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlCheckConstraint("test_check", null));
+            Assert.That(() => new PostgreSqlCheckConstraint("test_check", null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenEmptyDefinition_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlCheckConstraint("test_check", string.Empty));
+            Assert.That(() => new PostgreSqlCheckConstraint("test_check", string.Empty), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenWhiteSpaceDefinition_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlCheckConstraint("test_check", "      "));
+            Assert.That(() => new PostgreSqlCheckConstraint("test_check", "      "), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -38,7 +37,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             Identifier checkName = "test_check";
             var check = new PostgreSqlCheckConstraint(checkName, "test_check");
 
-            Assert.AreEqual(checkName, check.Name.UnwrapSome());
+            Assert.That(check.Name.UnwrapSome(), Is.EqualTo(checkName));
         }
 
         [Test]
@@ -47,7 +46,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             const string checkDefinition = "test_check_definition";
             var check = new PostgreSqlCheckConstraint("test_check", checkDefinition);
 
-            Assert.AreEqual(checkDefinition, check.Definition);
+            Assert.That(check.Definition, Is.EqualTo(checkDefinition));
         }
 
         [Test]
@@ -55,7 +54,7 @@ namespace SJP.Schematic.PostgreSql.Tests
         {
             var check = new PostgreSqlCheckConstraint("test_check", "test_check_definition");
 
-            Assert.IsTrue(check.IsEnabled);
+            Assert.That(check.IsEnabled, Is.True);
         }
     }
 }

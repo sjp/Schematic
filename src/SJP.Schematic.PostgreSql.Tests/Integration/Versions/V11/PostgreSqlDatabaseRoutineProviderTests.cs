@@ -69,7 +69,7 @@ END $$").ConfigureAwait(false);
         public async Task GetRoutine_WhenRoutinePresent_ReturnsRoutine()
         {
             var routineIsSome = await RoutineProvider.GetRoutine("v11_db_test_routine_1").IsSome.ConfigureAwait(false);
-            Assert.IsTrue(routineIsSome);
+            Assert.That(routineIsSome, Is.True);
         }
 
         [Test]
@@ -78,7 +78,7 @@ END $$").ConfigureAwait(false);
             const string routineName = "v11_db_test_routine_1";
             var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(routineName, routine.Name.LocalName);
+            Assert.That(routine.Name.LocalName, Is.EqualTo(routineName));
         }
 
         [Test]
@@ -89,7 +89,7 @@ END $$").ConfigureAwait(false);
 
             var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedRoutineName, routine.Name);
+            Assert.That(routine.Name, Is.EqualTo(expectedRoutineName));
         }
 
         [Test]
@@ -100,7 +100,7 @@ END $$").ConfigureAwait(false);
 
             var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedRoutineName, routine.Name);
+            Assert.That(routine.Name, Is.EqualTo(expectedRoutineName));
         }
 
         [Test]
@@ -111,7 +111,7 @@ END $$").ConfigureAwait(false);
 
             var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedRoutineName, routine.Name);
+            Assert.That(routine.Name, Is.EqualTo(expectedRoutineName));
         }
 
         [Test]
@@ -121,7 +121,7 @@ END $$").ConfigureAwait(false);
 
             var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(routineName, routine.Name);
+            Assert.That(routine.Name, Is.EqualTo(routineName));
         }
 
         [Test]
@@ -132,7 +132,7 @@ END $$").ConfigureAwait(false);
 
             var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedRoutineName, routine.Name);
+            Assert.That(routine.Name, Is.EqualTo(expectedRoutineName));
         }
 
         [Test]
@@ -143,14 +143,14 @@ END $$").ConfigureAwait(false);
 
             var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedRoutineName, routine.Name);
+            Assert.That(routine.Name, Is.EqualTo(expectedRoutineName));
         }
 
         [Test]
         public async Task GetRoutine_WhenRoutineMissing_ReturnsNone()
         {
             var routineIsNone = await RoutineProvider.GetRoutine("routine_that_doesnt_exist").IsNone.ConfigureAwait(false);
-            Assert.IsTrue(routineIsNone);
+            Assert.That(routineIsNone, Is.True);
         }
 
         [Test]
@@ -160,7 +160,7 @@ END $$").ConfigureAwait(false);
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(hasRoutines);
+            Assert.That(hasRoutines, Is.True);
         }
 
         [Test]
@@ -170,7 +170,7 @@ END $$").ConfigureAwait(false);
                 .AnyAsync(r => r.Name.LocalName == "v11_db_test_routine_1")
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(containsTestRoutine);
+            Assert.That(containsTestRoutine, Is.True);
         }
 
         [Test]
@@ -183,7 +183,7 @@ BEGIN
     RETURN val + 1;
 END; ";
 
-            Assert.AreEqual(expectedDefinition, routine.Definition);
+            Assert.That(routine.Definition, Is.EqualTo(expectedDefinition));
         }
 
         [Test]
@@ -196,7 +196,7 @@ BEGIN
     COMMIT;
 END ";
 
-            Assert.AreEqual(expectedDefinition, routine.Definition);
+            Assert.That(routine.Definition, Is.EqualTo(expectedDefinition));
         }
     }
 }

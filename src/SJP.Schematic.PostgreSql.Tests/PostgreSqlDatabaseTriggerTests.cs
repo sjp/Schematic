@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.PostgreSql.Tests
@@ -15,7 +14,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             const TriggerEvent events = TriggerEvent.Update;
             const bool enabled = true;
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseTrigger(null, definition, timing, events, enabled));
+            Assert.That(() => new PostgreSqlDatabaseTrigger(null, definition, timing, events, enabled), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -26,7 +25,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             const TriggerEvent events = TriggerEvent.Update;
             const bool enabled = true;
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseTrigger(triggerName, null, timing, events, enabled));
+            Assert.That(() => new PostgreSqlDatabaseTrigger(triggerName, null, timing, events, enabled), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -38,7 +37,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             const TriggerEvent events = TriggerEvent.Update;
             const bool enabled = true;
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled));
+            Assert.That(() => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -50,7 +49,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             const TriggerEvent events = TriggerEvent.Update;
             const bool enabled = true;
 
-            Assert.Throws<ArgumentNullException>(() => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled));
+            Assert.That(() => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -62,7 +61,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             const TriggerEvent events = TriggerEvent.Update;
             const bool enabled = true;
 
-            Assert.Throws<ArgumentException>(() => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled));
+            Assert.That(() => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled), Throws.ArgumentException);
         }
 
         [Test]
@@ -74,7 +73,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             const TriggerEvent events = (TriggerEvent)55;
             const bool enabled = true;
 
-            Assert.Throws<ArgumentException>(() => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled));
+            Assert.That(() => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled), Throws.ArgumentException);
         }
 
         [Test]
@@ -86,7 +85,7 @@ namespace SJP.Schematic.PostgreSql.Tests
             const TriggerEvent events = TriggerEvent.None;
             const bool enabled = true;
 
-            Assert.Throws<ArgumentException>(() => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled));
+            Assert.That(() => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled), Throws.ArgumentException);
         }
 
         [Test]
@@ -100,7 +99,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var trigger = new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled);
 
-            Assert.AreEqual(triggerName, trigger.Name);
+            Assert.That(trigger.Name, Is.EqualTo(triggerName));
         }
 
         [Test]
@@ -114,7 +113,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var trigger = new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled);
 
-            Assert.AreEqual(definition, trigger.Definition);
+            Assert.That(trigger.Definition, Is.EqualTo(definition));
         }
 
         [Test]
@@ -128,7 +127,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var trigger = new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled);
 
-            Assert.AreEqual(timing, trigger.QueryTiming);
+            Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
         }
 
         [Test]
@@ -142,7 +141,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var trigger = new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled);
 
-            Assert.AreEqual(events, trigger.TriggerEvent);
+            Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
         }
 
         [Test]
@@ -156,7 +155,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var trigger = new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled);
 
-            Assert.AreEqual(enabled, trigger.IsEnabled);
+            Assert.That(trigger.IsEnabled, Is.EqualTo(enabled));
         }
 
         [Test]
@@ -170,7 +169,7 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             var trigger = new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled);
 
-            Assert.AreEqual(enabled, trigger.IsEnabled);
+            Assert.That(trigger.IsEnabled, Is.EqualTo(enabled));
         }
     }
 }

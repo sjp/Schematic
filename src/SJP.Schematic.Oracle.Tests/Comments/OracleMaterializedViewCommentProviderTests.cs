@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 using System.Data;
@@ -16,7 +15,7 @@ namespace SJP.Schematic.Oracle.Tests.Comments
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => new OracleMaterializedViewCommentProvider(null, identifierDefaults, identifierResolver));
+            Assert.That(() => new OracleMaterializedViewCommentProvider(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -25,7 +24,7 @@ namespace SJP.Schematic.Oracle.Tests.Comments
             var connection = Mock.Of<IDbConnection>();
             var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => new OracleMaterializedViewCommentProvider(connection, null, identifierResolver));
+            Assert.That(() => new OracleMaterializedViewCommentProvider(connection, null, identifierResolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -34,7 +33,7 @@ namespace SJP.Schematic.Oracle.Tests.Comments
             var connection = Mock.Of<IDbConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new OracleMaterializedViewCommentProvider(connection, identifierDefaults, null));
+            Assert.That(() => new OracleMaterializedViewCommentProvider(connection, identifierDefaults, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -46,7 +45,7 @@ namespace SJP.Schematic.Oracle.Tests.Comments
 
             var commentProvider = new OracleMaterializedViewCommentProvider(connection, identifierDefaults, identifierResolver);
 
-            Assert.Throws<ArgumentNullException>(() => commentProvider.GetViewComments(null));
+            Assert.That(() => commentProvider.GetViewComments(null), Throws.ArgumentNullException);
         }
     }
 }

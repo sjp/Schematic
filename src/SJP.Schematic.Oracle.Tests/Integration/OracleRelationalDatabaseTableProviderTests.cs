@@ -272,7 +272,7 @@ end;
         public async Task GetTable_WhenTablePresent_ReturnsTable()
         {
             var tableIsSome = await TableProvider.GetTable("db_test_table_1").IsSome.ConfigureAwait(false);
-            Assert.IsTrue(tableIsSome);
+            Assert.That(tableIsSome, Is.True);
         }
 
         [Test]
@@ -282,7 +282,7 @@ end;
             const string expectedTableName = "DB_TEST_TABLE_1";
             var table = await TableProvider.GetTable(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, table.Name.LocalName);
+            Assert.That(table.Name.LocalName, Is.EqualTo(expectedTableName));
         }
 
         [Test]
@@ -293,7 +293,7 @@ end;
 
             var table = await TableProvider.GetTable(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, table.Name);
+            Assert.That(table.Name, Is.EqualTo(expectedTableName));
         }
 
         [Test]
@@ -304,7 +304,7 @@ end;
 
             var table = await TableProvider.GetTable(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, table.Name);
+            Assert.That(table.Name, Is.EqualTo(expectedTableName));
         }
 
         [Test]
@@ -315,7 +315,7 @@ end;
 
             var table = await TableProvider.GetTable(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, table.Name);
+            Assert.That(table.Name, Is.EqualTo(expectedTableName));
         }
 
         [Test]
@@ -325,7 +325,7 @@ end;
 
             var table = await TableProvider.GetTable(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(tableName, table.Name);
+            Assert.That(table.Name, Is.EqualTo(tableName));
         }
 
         [Test]
@@ -336,7 +336,7 @@ end;
 
             var table = await TableProvider.GetTable(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, table.Name);
+            Assert.That(table.Name, Is.EqualTo(expectedTableName));
         }
 
         [Test]
@@ -347,14 +347,14 @@ end;
 
             var table = await TableProvider.GetTable(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, table.Name);
+            Assert.That(table.Name, Is.EqualTo(expectedTableName));
         }
 
         [Test]
         public async Task GetTable_WhenTableMissing_ReturnsNone()
         {
             var tableIsNone = await TableProvider.GetTable("table_that_doesnt_exist").IsNone.ConfigureAwait(false);
-            Assert.IsTrue(tableIsNone);
+            Assert.That(tableIsNone, Is.True);
         }
 
         [Test]
@@ -362,7 +362,7 @@ end;
         {
             var tables = await GetAllTables().ConfigureAwait(false);
 
-            Assert.NotZero(tables.Count);
+            Assert.That(tables, Is.Not.Empty);
         }
 
         [Test]
@@ -372,7 +372,7 @@ end;
             var tables = await GetAllTables().ConfigureAwait(false);
             var containsTestTable = tables.Any(t => t.Name.LocalName == expectedTableName);
 
-            Assert.IsTrue(containsTestTable);
+            Assert.That(containsTestTable, Is.True);
         }
     }
 }

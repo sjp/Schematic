@@ -75,7 +75,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public async Task GetSequence_WhenSequencePresent_ReturnsSequence()
         {
             var sequenceIsSome = await SequenceProvider.GetSequence("db_test_sequence_1").IsSome.ConfigureAwait(false);
-            Assert.IsTrue(sequenceIsSome);
+            Assert.That(sequenceIsSome, Is.True);
         }
 
         [Test]
@@ -84,7 +84,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             const string sequenceName = "db_test_sequence_1";
             var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(sequenceName, sequence.Name.LocalName);
+            Assert.That(sequence.Name.LocalName, Is.EqualTo(sequenceName));
         }
 
         [Test]
@@ -95,7 +95,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
 
             var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
+            Assert.That(sequence.Name, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
@@ -106,7 +106,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
 
             var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
+            Assert.That(sequence.Name, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
@@ -117,7 +117,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
 
             var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
+            Assert.That(sequence.Name, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
@@ -127,7 +127,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
 
             var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(sequenceName, sequence.Name);
+            Assert.That(sequence.Name, Is.EqualTo(sequenceName));
         }
 
         [Test]
@@ -138,7 +138,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
 
             var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
+            Assert.That(sequence.Name, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
@@ -149,14 +149,14 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
 
             var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
+            Assert.That(sequence.Name, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
         public async Task GetSequence_WhenSequenceMissing_ReturnsNone()
         {
             var sequenceIsNone = await SequenceProvider.GetSequence("sequence_that_doesnt_exist").IsNone.ConfigureAwait(false);
-            Assert.IsTrue(sequenceIsNone);
+            Assert.That(sequenceIsNone, Is.True);
         }
 
         [Test]
@@ -166,7 +166,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var sequence = await SequenceProvider.GetSequence(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
             var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, sequence.Name.LocalName);
-            Assert.IsTrue(equalNames);
+            Assert.That(equalNames, Is.True);
         }
 
         [Test]
@@ -177,7 +177,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
 
             var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, sequence.Name.Schema)
                 && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, sequence.Name.LocalName);
-            Assert.IsTrue(equalNames);
+            Assert.That(equalNames, Is.True);
         }
 
         [Test]
@@ -187,7 +187,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(hasSequences);
+            Assert.That(hasSequences, Is.True);
         }
 
         [Test]
@@ -197,7 +197,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 .AnyAsync(s => s.Name.LocalName == "db_test_sequence_1")
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(containsTestSequence);
+            Assert.That(containsTestSequence, Is.True);
         }
 
         [Test]
@@ -205,7 +205,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
 
-            Assert.AreEqual(long.MinValue, sequence.Start);
+            Assert.That(sequence.Start, Is.EqualTo(long.MinValue));
         }
 
         [Test]
@@ -213,7 +213,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var sequence = await GetSequenceAsync("db_test_sequence_2").ConfigureAwait(false);
 
-            Assert.AreEqual(20, sequence.Start);
+            Assert.That(sequence.Start, Is.EqualTo(20));
         }
 
         [Test]
@@ -221,7 +221,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
 
-            Assert.AreEqual(1, sequence.Increment);
+            Assert.That(sequence.Increment, Is.EqualTo(1));
         }
 
         [Test]
@@ -229,7 +229,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var sequence = await GetSequenceAsync("db_test_sequence_3").ConfigureAwait(false);
 
-            Assert.AreEqual(100, sequence.Increment);
+            Assert.That(sequence.Increment, Is.EqualTo(100));
         }
 
         [Test]
@@ -237,7 +237,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
 
-            Assert.AreEqual(long.MinValue, sequence.MinValue.UnwrapSome());
+            Assert.That(sequence.MinValue.UnwrapSome(), Is.EqualTo(long.MinValue));
         }
 
         [Test]
@@ -245,7 +245,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var sequence = await GetSequenceAsync("db_test_sequence_4").ConfigureAwait(false);
 
-            Assert.AreEqual(-99, sequence.MinValue.UnwrapSome());
+            Assert.That(sequence.MinValue.UnwrapSome(), Is.EqualTo(-99));
         }
 
         [Test]
@@ -253,7 +253,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var sequence = await GetSequenceAsync("db_test_sequence_5").ConfigureAwait(false);
 
-            Assert.AreEqual(long.MinValue, sequence.MinValue.UnwrapSome());
+            Assert.That(sequence.MinValue.UnwrapSome(), Is.EqualTo(long.MinValue));
         }
 
         [Test]
@@ -261,7 +261,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
 
-            Assert.AreEqual(long.MaxValue, sequence.MaxValue.UnwrapSome());
+            Assert.That(sequence.MaxValue.UnwrapSome(), Is.EqualTo(long.MaxValue));
         }
 
         [Test]
@@ -269,7 +269,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var sequence = await GetSequenceAsync("db_test_sequence_6").ConfigureAwait(false);
 
-            Assert.AreEqual(333, sequence.MaxValue.UnwrapSome());
+            Assert.That(sequence.MaxValue.UnwrapSome(), Is.EqualTo(333));
         }
 
         [Test]
@@ -277,7 +277,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var sequence = await GetSequenceAsync("db_test_sequence_7").ConfigureAwait(false);
 
-            Assert.AreEqual(long.MaxValue, sequence.MaxValue.UnwrapSome());
+            Assert.That(sequence.MaxValue.UnwrapSome(), Is.EqualTo(long.MaxValue));
         }
 
         [Test]
@@ -285,7 +285,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
 
-            Assert.IsFalse(sequence.Cycle);
+            Assert.That(sequence.Cycle, Is.False);
         }
 
         [Test]
@@ -293,7 +293,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var sequence = await GetSequenceAsync("db_test_sequence_8").ConfigureAwait(false);
 
-            Assert.IsTrue(sequence.Cycle);
+            Assert.That(sequence.Cycle, Is.True);
         }
 
         [Test]
@@ -301,7 +301,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var sequence = await GetSequenceAsync("db_test_sequence_9").ConfigureAwait(false);
 
-            Assert.IsFalse(sequence.Cycle);
+            Assert.That(sequence.Cycle, Is.False);
         }
 
         [Test]
@@ -309,7 +309,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
 
-            Assert.AreEqual(-1, sequence.Cache);
+            Assert.That(sequence.Cache, Is.EqualTo(-1));
         }
 
         [Test]
@@ -317,7 +317,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var sequence = await GetSequenceAsync("db_test_sequence_10").ConfigureAwait(false);
 
-            Assert.AreEqual(10, sequence.Cache);
+            Assert.That(sequence.Cache, Is.EqualTo(10));
         }
 
         [Test]
@@ -325,7 +325,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             var sequence = await GetSequenceAsync("db_test_sequence_11").ConfigureAwait(false);
 
-            Assert.AreEqual(0, sequence.Cache);
+            Assert.That(sequence.Cache, Is.EqualTo(0));
         }
     }
 }

@@ -9,7 +9,7 @@ namespace SJP.Schematic.SqlServer.Tests
         [Test]
         public static void Ctor_GivenNoComparers_CreatesWithoutError()
         {
-            Assert.DoesNotThrow(() => new SqlServerDbTypeProvider());
+            Assert.That(() => new SqlServerDbTypeProvider(), Throws.Nothing);
         }
     }
 }

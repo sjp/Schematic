@@ -39,7 +39,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public async Task GetSynonym_WhenSynonymPresent_ReturnsSynonym()
         {
             var synonymIsSome = await SynonymProvider.GetSynonym("db_test_synonym_1").IsSome.ConfigureAwait(false);
-            Assert.IsTrue(synonymIsSome);
+            Assert.That(synonymIsSome, Is.True);
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             const string expectedSynonymName = "DB_TEST_SYNONYM_1";
             var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSynonymName, synonym.Name.LocalName);
+            Assert.That(synonym.Name.LocalName, Is.EqualTo(expectedSynonymName));
         }
 
         [Test]
@@ -60,7 +60,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSynonymName, synonym.Name);
+            Assert.That(synonym.Name, Is.EqualTo(expectedSynonymName));
         }
 
         [Test]
@@ -71,7 +71,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSynonymName, synonym.Name);
+            Assert.That(synonym.Name, Is.EqualTo(expectedSynonymName));
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSynonymName, synonym.Name);
+            Assert.That(synonym.Name, Is.EqualTo(expectedSynonymName));
         }
 
         [Test]
@@ -92,7 +92,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(synonymName, synonym.Name);
+            Assert.That(synonym.Name, Is.EqualTo(synonymName));
         }
 
         [Test]
@@ -103,7 +103,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSynonymName, synonym.Name);
+            Assert.That(synonym.Name, Is.EqualTo(expectedSynonymName));
         }
 
         [Test]
@@ -114,14 +114,14 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSynonymName, synonym.Name);
+            Assert.That(synonym.Name, Is.EqualTo(expectedSynonymName));
         }
 
         [Test]
         public async Task GetSynonym_WhenSynonymMissing_ReturnsNone()
         {
             var synonymIsNone = await SynonymProvider.GetSynonym("synonym_that_doesnt_exist").IsNone.ConfigureAwait(false);
-            Assert.IsTrue(synonymIsNone);
+            Assert.That(synonymIsNone, Is.True);
         }
 
         [Test]
@@ -131,7 +131,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(hasSynonyms);
+            Assert.That(hasSynonyms, Is.True);
         }
 
         [Test]
@@ -142,7 +142,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 .AnyAsync(s => s.Name.LocalName == expectedSynonymName)
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(containsTestSynonym);
+            Assert.That(containsTestSynonym, Is.True);
         }
 
         [Test]
@@ -151,7 +151,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var expectedTarget = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "SYNONYM_TEST_VIEW_1");
             var synonym = await SynonymProvider.GetSynonym("SYNONYM_TEST_SYNONYM_1").UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTarget, synonym.Target);
+            Assert.That(synonym.Target, Is.EqualTo(expectedTarget));
         }
 
         [Test]
@@ -160,7 +160,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var expectedTarget = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "SYNONYM_TEST_TABLE_1");
             var synonym = await SynonymProvider.GetSynonym("SYNONYM_TEST_SYNONYM_2").UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTarget, synonym.Target);
+            Assert.That(synonym.Target, Is.EqualTo(expectedTarget));
         }
 
         [Test]
@@ -169,7 +169,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var expectedTarget = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "NON_EXISTENT_TARGET");
             var synonym = await SynonymProvider.GetSynonym("SYNONYM_TEST_SYNONYM_3").UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTarget, synonym.Target);
+            Assert.That(synonym.Target, Is.EqualTo(expectedTarget));
         }
     }
 }

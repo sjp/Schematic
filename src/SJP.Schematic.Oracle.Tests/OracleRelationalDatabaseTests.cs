@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using System.Data;
 using SJP.Schematic.Core;
@@ -16,7 +15,7 @@ namespace SJP.Schematic.Oracle.Tests
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => new OracleRelationalDatabase(null, connection, identifierDefaults, identifierResolver));
+            Assert.That(() => new OracleRelationalDatabase(null, connection, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -27,7 +26,7 @@ namespace SJP.Schematic.Oracle.Tests
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => new OracleRelationalDatabase(dialect, null, identifierDefaults, identifierResolver));
+            Assert.That(() => new OracleRelationalDatabase(dialect, null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -37,7 +36,7 @@ namespace SJP.Schematic.Oracle.Tests
             var dialect = new OracleDialect(connection);
             var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
-            Assert.Throws<ArgumentNullException>(() => new OracleRelationalDatabase(dialect, connection, null, identifierResolver));
+            Assert.That(() => new OracleRelationalDatabase(dialect, connection, null, identifierResolver), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -47,7 +46,7 @@ namespace SJP.Schematic.Oracle.Tests
             var dialect = new OracleDialect(connection);
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.Throws<ArgumentNullException>(() => new OracleRelationalDatabase(dialect, connection, identifierDefaults, null));
+            Assert.That(() => new OracleRelationalDatabase(dialect, connection, identifierDefaults, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -60,7 +59,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var database = new OracleRelationalDatabase(dialect, connection, identifierDefaults, identifierResolver);
 
-            Assert.Throws<ArgumentNullException>(() => database.GetTable(null));
+            Assert.That(() => database.GetTable(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -73,7 +72,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var database = new OracleRelationalDatabase(dialect, connection, identifierDefaults, identifierResolver);
 
-            Assert.Throws<ArgumentNullException>(() => database.GetView(null));
+            Assert.That(() => database.GetView(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -86,7 +85,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var database = new OracleRelationalDatabase(dialect, connection, identifierDefaults, identifierResolver);
 
-            Assert.Throws<ArgumentNullException>(() => database.GetSequence(null));
+            Assert.That(() => database.GetSequence(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -99,7 +98,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var database = new OracleRelationalDatabase(dialect, connection, identifierDefaults, identifierResolver);
 
-            Assert.Throws<ArgumentNullException>(() => database.GetSynonym(null));
+            Assert.That(() => database.GetSynonym(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -112,7 +111,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var database = new OracleRelationalDatabase(dialect, connection, identifierDefaults, identifierResolver);
 
-            Assert.Throws<ArgumentNullException>(() => database.GetRoutine(null));
+            Assert.That(() => database.GetRoutine(null), Throws.ArgumentNullException);
         }
     }
 }

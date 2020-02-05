@@ -12,18 +12,16 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         public async Task Triggers_GivenTableWithNoTriggers_ReturnsEmptyCollection()
         {
             var table = await GetTableAsync("trigger_test_table_2").ConfigureAwait(false);
-            var count = table.Triggers.Count;
 
-            Assert.Zero(count);
+            Assert.That(table.Triggers, Is.Empty);
         }
 
         [Test]
         public async Task Triggers_GivenTableWithTrigger_ReturnsNonEmptyCollection()
         {
             var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var count = table.Triggers.Count;
 
-            Assert.NotZero(count);
+            Assert.That(table.Triggers, Is.Not.Empty);
         }
 
         [Test]
@@ -34,7 +32,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
             var trigger = table.Triggers.First(t => t.Name == triggerName);
 
-            Assert.AreEqual(triggerName, trigger.Name);
+            Assert.That(trigger.Name, Is.EqualTo(triggerName));
         }
 
         [Test]
@@ -51,7 +49,7 @@ begin
 end";
 
             var comparer = new SqliteExpressionComparer(StringComparer.OrdinalIgnoreCase);
-            Assert.IsTrue(comparer.Equals(expectedDefinition, trigger.Definition));
+            Assert.That(comparer.Equals(expectedDefinition, trigger.Definition), Is.True);
         }
 
         [Test]
@@ -65,8 +63,8 @@ end";
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(timing, trigger.QueryTiming);
-                Assert.AreEqual(events, trigger.TriggerEvent);
+                Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
+                Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
             });
         }
 
@@ -81,8 +79,8 @@ end";
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(timing, trigger.QueryTiming);
-                Assert.AreEqual(events, trigger.TriggerEvent);
+                Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
+                Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
             });
         }
 
@@ -97,8 +95,8 @@ end";
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(timing, trigger.QueryTiming);
-                Assert.AreEqual(events, trigger.TriggerEvent);
+                Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
+                Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
             });
         }
 
@@ -113,8 +111,8 @@ end";
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(timing, trigger.QueryTiming);
-                Assert.AreEqual(events, trigger.TriggerEvent);
+                Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
+                Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
             });
         }
 
@@ -129,8 +127,8 @@ end";
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(timing, trigger.QueryTiming);
-                Assert.AreEqual(events, trigger.TriggerEvent);
+                Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
+                Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
             });
         }
 
@@ -145,8 +143,8 @@ end";
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(timing, trigger.QueryTiming);
-                Assert.AreEqual(events, trigger.TriggerEvent);
+                Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
+                Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
             });
         }
     }

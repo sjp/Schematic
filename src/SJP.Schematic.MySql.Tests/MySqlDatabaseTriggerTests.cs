@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.MySql.Tests
@@ -14,7 +13,7 @@ namespace SJP.Schematic.MySql.Tests
             const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
             const TriggerEvent events = TriggerEvent.Update;
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlDatabaseTrigger(null, definition, timing, events));
+            Assert.That(() => new MySqlDatabaseTrigger(null, definition, timing, events), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -24,7 +23,7 @@ namespace SJP.Schematic.MySql.Tests
             const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
             const TriggerEvent events = TriggerEvent.Update;
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlDatabaseTrigger(triggerName, null, timing, events));
+            Assert.That(() => new MySqlDatabaseTrigger(triggerName, null, timing, events), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -35,7 +34,7 @@ namespace SJP.Schematic.MySql.Tests
             const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
             const TriggerEvent events = TriggerEvent.Update;
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlDatabaseTrigger(triggerName, definition, timing, events));
+            Assert.That(() => new MySqlDatabaseTrigger(triggerName, definition, timing, events), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -46,7 +45,7 @@ namespace SJP.Schematic.MySql.Tests
             const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
             const TriggerEvent events = TriggerEvent.Update;
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlDatabaseTrigger(triggerName, definition, timing, events));
+            Assert.That(() => new MySqlDatabaseTrigger(triggerName, definition, timing, events), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -57,7 +56,7 @@ namespace SJP.Schematic.MySql.Tests
             const TriggerQueryTiming timing = (TriggerQueryTiming)55;
             const TriggerEvent events = TriggerEvent.Update;
 
-            Assert.Throws<ArgumentException>(() => new MySqlDatabaseTrigger(triggerName, definition, timing, events));
+            Assert.That(() => new MySqlDatabaseTrigger(triggerName, definition, timing, events), Throws.ArgumentException);
         }
 
         [Test]
@@ -68,7 +67,7 @@ namespace SJP.Schematic.MySql.Tests
             const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
             const TriggerEvent events = (TriggerEvent)55;
 
-            Assert.Throws<ArgumentException>(() => new MySqlDatabaseTrigger(triggerName, definition, timing, events));
+            Assert.That(() => new MySqlDatabaseTrigger(triggerName, definition, timing, events), Throws.ArgumentException);
         }
 
         [Test]
@@ -79,7 +78,7 @@ namespace SJP.Schematic.MySql.Tests
             const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
             const TriggerEvent events = TriggerEvent.None;
 
-            Assert.Throws<ArgumentException>(() => new MySqlDatabaseTrigger(triggerName, definition, timing, events));
+            Assert.That(() => new MySqlDatabaseTrigger(triggerName, definition, timing, events), Throws.ArgumentException);
         }
 
         [Test]
@@ -92,7 +91,7 @@ namespace SJP.Schematic.MySql.Tests
 
             var trigger = new MySqlDatabaseTrigger(triggerName, definition, timing, events);
 
-            Assert.AreEqual(triggerName, trigger.Name);
+            Assert.That(trigger.Name, Is.EqualTo(triggerName));
         }
 
         [Test]
@@ -105,7 +104,7 @@ namespace SJP.Schematic.MySql.Tests
 
             var trigger = new MySqlDatabaseTrigger(triggerName, definition, timing, events);
 
-            Assert.AreEqual(definition, trigger.Definition);
+            Assert.That(trigger.Definition, Is.EqualTo(definition));
         }
 
         [Test]
@@ -118,7 +117,7 @@ namespace SJP.Schematic.MySql.Tests
 
             var trigger = new MySqlDatabaseTrigger(triggerName, definition, timing, events);
 
-            Assert.AreEqual(timing, trigger.QueryTiming);
+            Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
         }
 
         [Test]
@@ -131,7 +130,7 @@ namespace SJP.Schematic.MySql.Tests
 
             var trigger = new MySqlDatabaseTrigger(triggerName, definition, timing, events);
 
-            Assert.AreEqual(events, trigger.TriggerEvent);
+            Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
         }
     }
 }

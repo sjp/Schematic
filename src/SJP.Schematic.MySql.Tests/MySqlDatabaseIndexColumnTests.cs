@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
 
@@ -13,7 +12,7 @@ namespace SJP.Schematic.MySql.Tests
         {
             var column = Mock.Of<IDatabaseColumn>();
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlDatabaseIndexColumn(null, column));
+            Assert.That(() => new MySqlDatabaseIndexColumn(null, column), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -21,7 +20,7 @@ namespace SJP.Schematic.MySql.Tests
         {
             var column = Mock.Of<IDatabaseColumn>();
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlDatabaseIndexColumn(string.Empty, column));
+            Assert.That(() => new MySqlDatabaseIndexColumn(string.Empty, column), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -29,7 +28,7 @@ namespace SJP.Schematic.MySql.Tests
         {
             var column = Mock.Of<IDatabaseColumn>();
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlDatabaseIndexColumn("   ", column));
+            Assert.That(() => new MySqlDatabaseIndexColumn("   ", column), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -37,7 +36,7 @@ namespace SJP.Schematic.MySql.Tests
         {
             const string expression = "`test`";
 
-            Assert.Throws<ArgumentNullException>(() => new MySqlDatabaseIndexColumn(expression, null));
+            Assert.That(() => new MySqlDatabaseIndexColumn(expression, null) ,Throws.ArgumentNullException);
         }
 
         [Test]
@@ -49,8 +48,8 @@ namespace SJP.Schematic.MySql.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(1, indexColumn.DependentColumns.Count);
-                Assert.AreEqual(column, indexColumn.DependentColumns[0]);
+                Assert.That(indexColumn.DependentColumns, Has.Exactly(1).Items);
+                Assert.That(indexColumn.DependentColumns[0], Is.EqualTo(column));
             });
         }
 
@@ -61,7 +60,7 @@ namespace SJP.Schematic.MySql.Tests
             var column = Mock.Of<IDatabaseColumn>();
             var indexColumn = new MySqlDatabaseIndexColumn(expression, column);
 
-            Assert.AreEqual(expression, indexColumn.Expression);
+            Assert.That(indexColumn.Expression, Is.EqualTo(expression));
         }
 
         [Test]
@@ -72,7 +71,7 @@ namespace SJP.Schematic.MySql.Tests
             var column = Mock.Of<IDatabaseColumn>();
             var indexColumn = new MySqlDatabaseIndexColumn(expression, column);
 
-            Assert.AreEqual(IndexColumnOrder.Ascending, indexColumn.Order);
+            Assert.That(indexColumn.Order, Is.EqualTo(IndexColumnOrder.Ascending));
         }
     }
 }

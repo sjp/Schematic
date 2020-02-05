@@ -10,9 +10,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public async Task Indexes_WhenGivenTableWithNoIndexes_ReturnsEmptyCollection()
         {
             var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
-            var count = table.Indexes.Count;
 
-            Assert.AreEqual(0, count);
+            Assert.That(table.Indexes, Is.Empty);
         }
 
         [Test]
@@ -26,8 +25,8 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(1, indexColumns.Count);
-                Assert.AreEqual("TEST_COLUMN", indexColumns.Single().Name.LocalName);
+                Assert.That(indexColumns, Has.Exactly(1).Items);
+                Assert.That(indexColumns.Single().Name.LocalName, Is.EqualTo("TEST_COLUMN"));
             });
         }
 
@@ -37,7 +36,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var table = await GetTableAsync("table_test_table_8").ConfigureAwait(false);
             var index = table.Indexes.Single();
 
-            Assert.AreEqual("IX_TEST_TABLE_8", index.Name.LocalName);
+            Assert.That(index.Name.LocalName, Is.EqualTo("IX_TEST_TABLE_8"));
         }
 
         [Test]
@@ -52,12 +51,10 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 .Select(c => c.Name.LocalName)
                 .ToList();
 
-            var columnsEqual = indexColumns.SequenceEqual(expectedColumnNames);
-
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(3, indexColumns.Count);
-                Assert.IsTrue(columnsEqual);
+                Assert.That(indexColumns, Has.Exactly(3).Items);
+                Assert.That(indexColumns, Is.EqualTo(expectedColumnNames));
             });
         }
 
@@ -67,7 +64,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
             var index = table.Indexes.Single();
 
-            Assert.AreEqual("IX_TEST_TABLE_9", index.Name.LocalName);
+            Assert.That(index.Name.LocalName, Is.EqualTo("IX_TEST_TABLE_9"));
         }
 
         [Test]
@@ -76,7 +73,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
             var index = table.Indexes.Single();
 
-            Assert.AreEqual(0, index.IncludedColumns.Count);
+            Assert.That(index.IncludedColumns, Is.Empty);
         }
 
         [Test]
@@ -85,7 +82,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
             var index = table.Indexes.Single();
 
-            Assert.IsTrue(index.IsEnabled);
+            Assert.That(index.IsEnabled, Is.True);
         }
 
         [Test]
@@ -94,7 +91,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
             var index = table.Indexes.Single();
 
-            Assert.IsFalse(index.IsUnique);
+            Assert.That(index.IsUnique, Is.False);
         }
 
         [Test]
@@ -103,7 +100,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var table = await GetTableAsync("table_test_table_13").ConfigureAwait(false);
             var index = table.Indexes.Single();
 
-            Assert.IsTrue(index.IsUnique);
+            Assert.That(index.IsUnique, Is.True);
         }
     }
 }

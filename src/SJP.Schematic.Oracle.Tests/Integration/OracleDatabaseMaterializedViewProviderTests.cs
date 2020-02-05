@@ -63,7 +63,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public async Task GetView_WhenViewPresent_ReturnsView()
         {
             var viewIsSome = await ViewProvider.GetView("mview_view_test_view_2").IsSome.ConfigureAwait(false);
-            Assert.IsTrue(viewIsSome);
+            Assert.That(viewIsSome, Is.True);
         }
 
         [Test]
@@ -73,7 +73,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "MVIEW_VIEW_TEST_VIEW_2");
             var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, view.Name);
+            Assert.That(view.Name, Is.EqualTo(expectedViewName));
         }
 
         [Test]
@@ -84,7 +84,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, view.Name);
+            Assert.That(view.Name, Is.EqualTo(expectedViewName));
         }
 
         [Test]
@@ -95,7 +95,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, view.Name);
+            Assert.That(view.Name, Is.EqualTo(expectedViewName));
         }
 
         [Test]
@@ -106,7 +106,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, view.Name);
+            Assert.That(view.Name, Is.EqualTo(expectedViewName));
         }
 
         [Test]
@@ -116,7 +116,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(viewName, view.Name);
+            Assert.That(view.Name, Is.EqualTo(viewName));
         }
 
         [Test]
@@ -127,7 +127,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, view.Name);
+            Assert.That(view.Name, Is.EqualTo(expectedViewName));
         }
 
         [Test]
@@ -138,21 +138,21 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedViewName, view.Name);
+            Assert.That(view.Name, Is.EqualTo(expectedViewName));
         }
 
         [Test]
         public async Task GetView_WhenViewMissing_ReturnsNone()
         {
             var viewIsNone = await ViewProvider.GetView("view_that_doesnt_exist").IsNone.ConfigureAwait(false);
-            Assert.IsTrue(viewIsNone);
+            Assert.That(viewIsNone, Is.True);
         }
 
         [Test]
         public async Task GetView_WhenGivenQueryViewName_ReturnsNone()
         {
             var viewIsNone = await ViewProvider.GetView("mview_view_test_view_1").IsNone.ConfigureAwait(false);
-            Assert.IsTrue(viewIsNone);
+            Assert.That(viewIsNone, Is.True);
         }
 
         [Test]
@@ -162,7 +162,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(hasViews);
+            Assert.That(hasViews, Is.True);
         }
 
         [Test]
@@ -173,7 +173,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 .AnyAsync(v => v.Name.LocalName == viewName)
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(containsTestView);
+            Assert.That(containsTestView, Is.True);
         }
 
         [Test]
@@ -184,7 +184,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 .AnyAsync(v => v.Name.LocalName == viewName)
                 .ConfigureAwait(false);
 
-            Assert.IsFalse(containsTestView);
+            Assert.That(containsTestView, Is.False);
         }
 
         [Test]
@@ -195,7 +195,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var definition = view.Definition;
             const string expected = "select table_id as test from mview_view_test_table_1";
 
-            Assert.AreEqual(expected, definition);
+            Assert.That(definition, Is.EqualTo(expected));
         }
 
         [Test]
@@ -203,16 +203,15 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var view = await GetViewAsync("mview_view_test_view_2").ConfigureAwait(false);
 
-            Assert.IsTrue(view.IsMaterialized);
+            Assert.That(view.IsMaterialized, Is.True);
         }
 
         [Test]
         public async Task Columns_WhenViewContainsSingleColumn_ContainsOneValueOnly()
         {
             var view = await GetViewAsync("mview_view_test_view_2").ConfigureAwait(false);
-            var columnCount = view.Columns.Count;
 
-            Assert.AreEqual(1, columnCount);
+            Assert.That(view.Columns, Has.Exactly(1).Items);
         }
 
         [Test]
@@ -222,7 +221,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             var view = await GetViewAsync("mview_view_test_view_2").ConfigureAwait(false);
             var containsColumn = view.Columns.Any(c => c.Name == expectedColumnName);
 
-            Assert.IsTrue(containsColumn);
+            Assert.That(containsColumn, Is.True);
         }
     }
 }

@@ -9,7 +9,7 @@ namespace SJP.Schematic.Sqlite.Tests
         [Test]
         public static void Ctor_GivenNoComparers_CreatesWithoutError()
         {
-            Assert.DoesNotThrow(() => new SqliteDbTypeProvider());
+            Assert.That(() => new SqliteDbTypeProvider(), Throws.Nothing);
         }
     }
 }

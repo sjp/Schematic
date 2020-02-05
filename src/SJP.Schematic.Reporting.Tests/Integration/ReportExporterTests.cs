@@ -10,7 +10,7 @@ namespace SJP.Schematic.Reporting.Tests.Integration
         [Test]
         public async Task ExportAsync_GivenValidSqliteDatabase_GeneratesReportsWithoutError()
         {
-            Assert.IsTrue(File.Exists(Config.SakilaDbPath), "Expected to find a database at: " + Config.SakilaDbPath);
+            Assert.That(File.Exists(Config.SakilaDbPath), Is.True, "Expected to find a database at: " + Config.SakilaDbPath);
 
             var database = GetDatabase();
 

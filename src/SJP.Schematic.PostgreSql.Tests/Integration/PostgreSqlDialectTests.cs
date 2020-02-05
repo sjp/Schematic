@@ -12,7 +12,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             var versionStr = await Dialect.GetDatabaseDisplayVersionAsync().ConfigureAwait(false);
             var validStr = !versionStr.IsNullOrWhiteSpace();
 
-            Assert.IsTrue(validStr);
+            Assert.That(validStr, Is.True);
         }
 
         [Test]
@@ -20,7 +20,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             var version = await Dialect.GetDatabaseVersionAsync().ConfigureAwait(false);
 
-            Assert.IsNotNull(version);
+            Assert.That(version, Is.Not.Null);
         }
     }
 }

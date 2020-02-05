@@ -51,7 +51,6 @@ namespace SJP.Schematic.Graphviz.Tests
         public void RenderToSvg_GivenNullDotDiagram_ThrowsArgumentNullException()
         {
             Assert.That(() => Renderer.RenderToSvg(null), Throws.ArgumentNullException);
-
         }
 
         [Test]

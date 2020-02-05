@@ -9,6 +9,7 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.MySql.Comments;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.MySql.Tests.Integration.Comments
 {
@@ -67,7 +68,7 @@ CREATE TABLE table_comment_table_2
         public async Task GetTableComments_WhenTablePresent_ReturnsTableComment()
         {
             var tableIsSome = await TableCommentProvider.GetTableComments("table_comment_table_1").IsSome.ConfigureAwait(false);
-            Assert.IsTrue(tableIsSome);
+            Assert.That(tableIsSome, Is.True);
         }
 
         [Test]
@@ -76,7 +77,7 @@ CREATE TABLE table_comment_table_2
             const string tableName = "table_comment_table_1";
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(tableName, tableComments.TableName.LocalName);
+            Assert.That(tableComments.TableName.LocalName, Is.EqualTo(tableName));
         }
 
         [Test]
@@ -87,7 +88,7 @@ CREATE TABLE table_comment_table_2
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
         }
 
         [Test]
@@ -98,7 +99,7 @@ CREATE TABLE table_comment_table_2
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
         }
 
         [Test]
@@ -109,7 +110,7 @@ CREATE TABLE table_comment_table_2
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
         }
 
         [Test]
@@ -119,7 +120,7 @@ CREATE TABLE table_comment_table_2
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(tableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(tableName));
         }
 
         [Test]
@@ -130,7 +131,7 @@ CREATE TABLE table_comment_table_2
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
         }
 
         [Test]
@@ -141,14 +142,14 @@ CREATE TABLE table_comment_table_2
 
             var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedTableName, tableComments.TableName);
+            Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
         }
 
         [Test]
         public async Task GetTableComments_WhenTableMissing_ReturnsNone()
         {
             var tableIsNone = await TableCommentProvider.GetTableComments("table_that_doesnt_exist").IsNone.ConfigureAwait(false);
-            Assert.IsTrue(tableIsNone);
+            Assert.That(tableIsNone, Is.True);
         }
 
         [Test]
@@ -158,7 +159,7 @@ CREATE TABLE table_comment_table_2
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(hasTableComments);
+            Assert.That(hasTableComments, Is.True);
         }
 
         [Test]
@@ -168,7 +169,7 @@ CREATE TABLE table_comment_table_2
                 .AnyAsync(t => t.TableName.LocalName == "table_comment_table_1")
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(containsTestTable);
+            Assert.That(containsTestTable, Is.True);
         }
 
         [Test]
@@ -176,7 +177,7 @@ CREATE TABLE table_comment_table_2
         {
             var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
 
-            Assert.IsTrue(comments.Comment.IsNone);
+            Assert.That(comments.Comment.IsNone, Is.True);
         }
 
         [Test]
@@ -184,7 +185,7 @@ CREATE TABLE table_comment_table_2
         {
             var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
 
-            Assert.IsTrue(comments.PrimaryKeyComment.IsNone);
+            Assert.That(comments.PrimaryKeyComment, OptionIs.None);
         }
 
         [Test]
@@ -195,7 +196,7 @@ CREATE TABLE table_comment_table_2
             var columnComments = comments.ColumnComments;
             var hasColumns = columnComments.Count == 1 && columnComments.Keys.Single().LocalName == "test_column_1";
 
-            Assert.IsTrue(hasColumns);
+            Assert.That(hasColumns, Is.True);
         }
 
         [Test]
@@ -206,7 +207,7 @@ CREATE TABLE table_comment_table_2
             var columnComments = comments.ColumnComments;
             var hasOnlyNones = columnComments.Count == 1 && columnComments.Values.Single().IsNone;
 
-            Assert.IsTrue(hasOnlyNones);
+            Assert.That(hasOnlyNones, Is.True);
         }
 
         [Test]
@@ -214,9 +215,7 @@ CREATE TABLE table_comment_table_2
         {
             var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
 
-            var checkCommentsCount = comments.CheckComments.Count;
-
-            Assert.Zero(checkCommentsCount);
+            Assert.That(comments.CheckComments, Is.Empty);
         }
 
         [Test]
@@ -224,9 +223,7 @@ CREATE TABLE table_comment_table_2
         {
             var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
 
-            var uniqueKeyCommentsCount = comments.UniqueKeyComments.Count;
-
-            Assert.Zero(uniqueKeyCommentsCount);
+            Assert.That(comments.UniqueKeyComments, Is.Empty);
         }
 
         [Test]
@@ -234,9 +231,7 @@ CREATE TABLE table_comment_table_2
         {
             var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
 
-            var indexCommentsCount = comments.IndexComments.Count;
-
-            Assert.Zero(indexCommentsCount);
+            Assert.That(comments.IndexComments, Is.Empty);
         }
 
         [Test]
@@ -244,9 +239,7 @@ CREATE TABLE table_comment_table_2
         {
             var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
 
-            var triggerCommentsCount = comments.TriggerComments.Count;
-
-            Assert.Zero(triggerCommentsCount);
+            Assert.That(comments.TriggerComments, Is.Empty);
         }
 
         [Test]
@@ -254,9 +247,7 @@ CREATE TABLE table_comment_table_2
         {
             var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
 
-            var foreignKeyCommentsCount = comments.ForeignKeyComments.Count;
-
-            Assert.Zero(foreignKeyCommentsCount);
+            Assert.That(comments.ForeignKeyComments, Is.Empty);
         }
 
         [Test]
@@ -267,7 +258,7 @@ CREATE TABLE table_comment_table_2
 
             var tableComment = comments.Comment.UnwrapSome();
 
-            Assert.AreEqual(expectedComment, tableComment);
+            Assert.That(tableComment, Is.EqualTo(expectedComment));
         }
 
         [Test]
@@ -284,7 +275,7 @@ CREATE TABLE table_comment_table_2
             var columnComments = comments.ColumnComments;
             var allKeysPresent = columnNames.All(columnComments.ContainsKey);
 
-            Assert.IsTrue(allKeysPresent);
+            Assert.That(allKeysPresent, Is.True);
         }
 
         [Test]
@@ -306,9 +297,7 @@ CREATE TABLE table_comment_table_2
                 columnComments["test_column_3"].IsNone,
             };
 
-            var seqEqual = expectedNoneStates.SequenceEqual(noneStates);
-
-            Assert.IsTrue(seqEqual);
+            Assert.That(noneStates, Is.EqualTo(expectedNoneStates));
         }
 
         [Test]
@@ -319,7 +308,7 @@ CREATE TABLE table_comment_table_2
 
             var comment = comments.ColumnComments["test_column_2"].UnwrapSome();
 
-            Assert.AreEqual(expectedComment, comment);
+            Assert.That(comment, Is.EqualTo(expectedComment));
         }
 
         [Test]
@@ -335,7 +324,7 @@ CREATE TABLE table_comment_table_2
             var indexComments = comments.IndexComments;
             var allKeysPresent = indexNames.All(indexComments.ContainsKey);
 
-            Assert.IsTrue(allKeysPresent);
+            Assert.That(allKeysPresent, Is.True);
         }
 
         [Test]
@@ -351,9 +340,7 @@ CREATE TABLE table_comment_table_2
                 indexComments["table_comment_table_2_ix_2"].IsNone,
             };
 
-            var seqEqual = expectedNoneStates.SequenceEqual(noneStates);
-
-            Assert.IsTrue(seqEqual);
+            Assert.That(noneStates, Is.EqualTo(expectedNoneStates));
         }
 
         [Test]
@@ -364,7 +351,7 @@ CREATE TABLE table_comment_table_2
 
             var comment = comments.IndexComments["table_comment_table_2_ix_2"].UnwrapSome();
 
-            Assert.AreEqual(expectedComment, comment);
+            Assert.That(comment, Is.EqualTo(expectedComment));
         }
     }
 }

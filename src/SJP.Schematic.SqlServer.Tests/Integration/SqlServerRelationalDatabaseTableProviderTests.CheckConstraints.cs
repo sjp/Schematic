@@ -11,9 +11,8 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public async Task Checks_WhenGivenTableWithNoChecks_ReturnsEmptyCollection()
         {
             var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
-            var count = table.Checks.Count;
 
-            Assert.AreEqual(0, count);
+            Assert.That(table.Checks, Is.Empty);
         }
 
         [Test]
@@ -22,7 +21,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var table = await GetTableAsync("table_test_table_14").ConfigureAwait(false);
             var check = table.Checks.Single();
 
-            Assert.AreEqual("ck_test_table_14", check.Name.UnwrapSome().LocalName);
+            Assert.That(check.Name.UnwrapSome().LocalName, Is.EqualTo("ck_test_table_14"));
         }
 
         [Test]
@@ -31,7 +30,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var table = await GetTableAsync("table_test_table_14").ConfigureAwait(false);
             var check = table.Checks.Single();
 
-            Assert.AreEqual("([test_column]>(1))", check.Definition);
+            Assert.That(check.Definition, Is.EqualTo("([test_column]>(1))"));
         }
 
         [Test]
@@ -40,7 +39,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var table = await GetTableAsync("table_test_table_14").ConfigureAwait(false);
             var check = table.Checks.Single();
 
-            Assert.IsTrue(check.IsEnabled);
+            Assert.That(check.IsEnabled, Is.True);
         }
 
         [Test]
@@ -49,7 +48,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var table = await GetTableAsync("table_test_table_32").ConfigureAwait(false);
             var check = table.Checks.Single();
 
-            Assert.IsFalse(check.IsEnabled);
+            Assert.That(check.IsEnabled, Is.False);
         }
     }
 }

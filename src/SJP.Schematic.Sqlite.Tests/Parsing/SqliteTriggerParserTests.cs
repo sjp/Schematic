@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using SJP.Schematic.Sqlite.Parsing;
 
 namespace SJP.Schematic.Sqlite.Tests.Parsing
@@ -12,7 +11,7 @@ namespace SJP.Schematic.Sqlite.Tests.Parsing
         {
             var parser = new SqliteTriggerParser();
 
-            Assert.Throws<ArgumentNullException>(() => parser.ParseTokens(default));
+            Assert.That(() => parser.ParseTokens(default), Throws.ArgumentNullException);
         }
     }
 }

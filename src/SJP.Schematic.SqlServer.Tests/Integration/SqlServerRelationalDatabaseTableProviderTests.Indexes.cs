@@ -10,9 +10,8 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public async Task Indexes_WhenGivenTableWithNoIndexes_ReturnsEmptyCollection()
         {
             var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
-            var count = table.Indexes.Count;
 
-            Assert.AreEqual(0, count);
+            Assert.That(table.Indexes, Is.Empty);
         }
 
         [Test]
@@ -26,8 +25,8 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(1, indexColumns.Count);
-                Assert.AreEqual("test_column", indexColumns.Single().Name.LocalName);
+                Assert.That(indexColumns, Has.Exactly(1).Items);
+                Assert.That(indexColumns.Single().Name.LocalName, Is.EqualTo("test_column"));
             });
         }
 
@@ -37,7 +36,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var table = await GetTableAsync("table_test_table_8").ConfigureAwait(false);
             var index = table.Indexes.Single();
 
-            Assert.AreEqual("ix_test_table_8", index.Name.LocalName);
+            Assert.That(index.Name.LocalName, Is.EqualTo("ix_test_table_8"));
         }
 
         [Test]
@@ -52,12 +51,10 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 .Select(c => c.Name.LocalName)
                 .ToList();
 
-            var columnsEqual = indexColumns.SequenceEqual(expectedColumnNames);
-
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(3, indexColumns.Count);
-                Assert.IsTrue(columnsEqual);
+                Assert.That(indexColumns, Has.Exactly(3).Items);
+                Assert.That(indexColumns, Is.EqualTo(expectedColumnNames));
             });
         }
 
@@ -67,7 +64,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
             var index = table.Indexes.Single();
 
-            Assert.AreEqual("ix_test_table_9", index.Name.LocalName);
+            Assert.That(index.Name.LocalName, Is.EqualTo("ix_test_table_9"));
         }
 
         [Test]
@@ -79,7 +76,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 .Select(c => c.Name.LocalName)
                 .ToList();
 
-            Assert.AreEqual(0, includedColumns.Count);
+            Assert.That(includedColumns, Is.Empty);
         }
 
         [Test]
@@ -98,15 +95,12 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 .Select(c => c.Name.LocalName)
                 .ToList();
 
-            var columnsEqual = indexColumns.SequenceEqual(expectedColumnNames);
-            var includedColumnsEqual = includedColumns.SequenceEqual(expectedIncludedColumnNames);
-
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(1, indexColumns.Count);
-                Assert.IsTrue(columnsEqual);
-                Assert.AreEqual(1, includedColumns.Count);
-                Assert.IsTrue(includedColumnsEqual);
+                Assert.That(indexColumns, Has.Exactly(1).Items);
+                Assert.That(indexColumns, Is.EqualTo(expectedColumnNames));
+                Assert.That(includedColumns, Has.Exactly(1).Items);
+                Assert.That(includedColumns, Is.EqualTo(expectedIncludedColumnNames));
             });
         }
 
@@ -126,15 +120,12 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
                 .Select(c => c.Name.LocalName)
                 .ToList();
 
-            var columnsEqual = indexColumns.SequenceEqual(expectedColumnNames);
-            var includedColumnsEqual = includedColumns.SequenceEqual(expectedIncludedColumnNames);
-
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(1, indexColumns.Count);
-                Assert.IsTrue(columnsEqual);
-                Assert.AreEqual(2, includedColumns.Count);
-                Assert.IsTrue(includedColumnsEqual);
+                Assert.That(indexColumns, Has.Exactly(1).Items);
+                Assert.That(indexColumns, Is.EqualTo(expectedColumnNames));
+                Assert.That(includedColumns, Has.Exactly(2).Items);
+                Assert.That(includedColumns, Is.EqualTo(expectedIncludedColumnNames));
             });
         }
 
@@ -144,7 +135,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var table = await GetTableAsync("table_test_table_11").ConfigureAwait(false);
             var index = table.Indexes.Single();
 
-            Assert.IsTrue(index.IsEnabled);
+            Assert.That(index.IsEnabled, Is.True);
         }
 
         [Test]
@@ -153,7 +144,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var table = await GetTableAsync("table_test_table_12").ConfigureAwait(false);
             var index = table.Indexes.Single();
 
-            Assert.IsFalse(index.IsEnabled);
+            Assert.That(index.IsEnabled, Is.False);
         }
 
         [Test]
@@ -162,7 +153,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
             var index = table.Indexes.Single();
 
-            Assert.IsFalse(index.IsUnique);
+            Assert.That(index.IsUnique, Is.False);
         }
 
         [Test]
@@ -171,7 +162,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var table = await GetTableAsync("table_test_table_13").ConfigureAwait(false);
             var index = table.Indexes.Single();
 
-            Assert.IsTrue(index.IsUnique);
+            Assert.That(index.IsUnique, Is.True);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Sqlite.Tests
@@ -14,7 +13,7 @@ namespace SJP.Schematic.Sqlite.Tests
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.Update;
 
-            Assert.Throws<ArgumentNullException>(() => new SqliteDatabaseTrigger(null, definition, timing, events));
+            Assert.That(() => new SqliteDatabaseTrigger(null, definition, timing, events), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -24,7 +23,7 @@ namespace SJP.Schematic.Sqlite.Tests
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.Update;
 
-            Assert.Throws<ArgumentNullException>(() => new SqliteDatabaseTrigger(triggerName, null, timing, events));
+            Assert.That(() => new SqliteDatabaseTrigger(triggerName, null, timing, events), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -35,7 +34,7 @@ namespace SJP.Schematic.Sqlite.Tests
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.Update;
 
-            Assert.Throws<ArgumentNullException>(() => new SqliteDatabaseTrigger(triggerName, definition, timing, events));
+            Assert.That(() => new SqliteDatabaseTrigger(triggerName, definition, timing, events), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -46,7 +45,7 @@ namespace SJP.Schematic.Sqlite.Tests
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.Update;
 
-            Assert.Throws<ArgumentNullException>(() => new SqliteDatabaseTrigger(triggerName, definition, timing, events));
+            Assert.That(() => new SqliteDatabaseTrigger(triggerName, definition, timing, events), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -57,7 +56,7 @@ namespace SJP.Schematic.Sqlite.Tests
             const TriggerQueryTiming timing = (TriggerQueryTiming)55;
             const TriggerEvent events = TriggerEvent.Update;
 
-            Assert.Throws<ArgumentException>(() => new SqliteDatabaseTrigger(triggerName, definition, timing, events));
+            Assert.That(() => new SqliteDatabaseTrigger(triggerName, definition, timing, events), Throws.ArgumentException);
         }
 
         [Test]
@@ -68,7 +67,7 @@ namespace SJP.Schematic.Sqlite.Tests
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = (TriggerEvent)55;
 
-            Assert.Throws<ArgumentException>(() => new SqliteDatabaseTrigger(triggerName, definition, timing, events));
+            Assert.That(() => new SqliteDatabaseTrigger(triggerName, definition, timing, events), Throws.ArgumentException);
         }
 
         [Test]
@@ -79,7 +78,7 @@ namespace SJP.Schematic.Sqlite.Tests
             const TriggerQueryTiming timing = TriggerQueryTiming.Before;
             const TriggerEvent events = TriggerEvent.None;
 
-            Assert.Throws<ArgumentException>(() => new SqliteDatabaseTrigger(triggerName, definition, timing, events));
+            Assert.That(() => new SqliteDatabaseTrigger(triggerName, definition, timing, events), Throws.ArgumentException);
         }
 
         [Test]
@@ -92,7 +91,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var trigger = new SqliteDatabaseTrigger(triggerName, definition, timing, events);
 
-            Assert.AreEqual(triggerName, trigger.Name);
+            Assert.That(trigger.Name, Is.EqualTo(triggerName));
         }
 
         [Test]
@@ -105,7 +104,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var trigger = new SqliteDatabaseTrigger(triggerName, definition, timing, events);
 
-            Assert.AreEqual(definition, trigger.Definition);
+            Assert.That(trigger.Definition, Is.EqualTo(definition));
         }
 
         [Test]
@@ -118,7 +117,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var trigger = new SqliteDatabaseTrigger(triggerName, definition, timing, events);
 
-            Assert.AreEqual(timing, trigger.QueryTiming);
+            Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
         }
 
         [Test]
@@ -131,7 +130,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var trigger = new SqliteDatabaseTrigger(triggerName, definition, timing, events);
 
-            Assert.AreEqual(events, trigger.TriggerEvent);
+            Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
         }
 
         [Test]
@@ -144,7 +143,7 @@ namespace SJP.Schematic.Sqlite.Tests
 
             var trigger = new SqliteDatabaseTrigger(triggerName, definition, timing, events);
 
-            Assert.IsTrue(trigger.IsEnabled);
+            Assert.That(trigger.IsEnabled, Is.True);
         }
     }
 }

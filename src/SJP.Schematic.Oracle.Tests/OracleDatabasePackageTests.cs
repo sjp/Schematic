@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
 using LanguageExt;
 
@@ -14,7 +13,7 @@ namespace SJP.Schematic.Oracle.Tests
             const string specification = "spec";
             var body = Option<string>.Some("body");
 
-            Assert.Throws<ArgumentNullException>(() => new OracleDatabasePackage(null, specification, body));
+            Assert.That(() => new OracleDatabasePackage(null, specification, body), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -23,7 +22,7 @@ namespace SJP.Schematic.Oracle.Tests
             const string packageName = "test_package";
             var body = Option<string>.Some("body");
 
-            Assert.Throws<ArgumentNullException>(() => new OracleDatabasePackage(packageName, null, body));
+            Assert.That(() => new OracleDatabasePackage(packageName, null, body), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -32,7 +31,7 @@ namespace SJP.Schematic.Oracle.Tests
             const string packageName = "test_package";
             var body = Option<string>.Some("body");
 
-            Assert.Throws<ArgumentNullException>(() => new OracleDatabasePackage(packageName, string.Empty, body));
+            Assert.That(() => new OracleDatabasePackage(packageName, string.Empty, body), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -42,7 +41,7 @@ namespace SJP.Schematic.Oracle.Tests
             const string specification = "    ";
             var body = Option<string>.Some("body");
 
-            Assert.Throws<ArgumentNullException>(() => new OracleDatabasePackage(packageName, specification, body));
+            Assert.That(() => new OracleDatabasePackage(packageName, specification, body), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -54,7 +53,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var package = new OracleDatabasePackage(packageName, specification, body);
 
-            Assert.AreEqual(packageName, package.Name.LocalName);
+            Assert.That(package.Name.LocalName, Is.EqualTo(packageName));
         }
 
         [Test]
@@ -66,7 +65,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var package = new OracleDatabasePackage(packageName, specification, body);
 
-            Assert.AreEqual(specification, package.Specification);
+            Assert.That(package.Specification, Is.EqualTo(specification));
         }
 
         [Test]
@@ -78,7 +77,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var package = new OracleDatabasePackage(packageName, specification, body);
 
-            Assert.AreEqual(body, package.Body);
+            Assert.That(package.Body, Is.EqualTo(body));
         }
 
         [Test]
@@ -90,7 +89,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var package = new OracleDatabasePackage(packageName, specification, body);
 
-            Assert.AreEqual(body.UnwrapSome(), package.Body.UnwrapSome());
+            Assert.That(package.Body.UnwrapSome(), Is.EqualTo(body.UnwrapSome()));
         }
     }
 }

@@ -61,7 +61,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
         public async Task GetSequenceComments_WhenSequencePresent_ReturnsSequenceComment()
         {
             var sequenceIsSome = await SequenceCommentProvider.GetSequenceComments("comment_test_sequence_1").IsSome.ConfigureAwait(false);
-            Assert.IsTrue(sequenceIsSome);
+            Assert.That(sequenceIsSome, Is.True);
         }
 
         [Test]
@@ -70,7 +70,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
             const string sequenceName = "comment_test_sequence_1";
             var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(sequenceName, sequenceComments.SequenceName.LocalName);
+            Assert.That(sequenceComments.SequenceName.LocalName, Is.EqualTo(sequenceName));
         }
 
         [Test]
@@ -81,7 +81,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
 
             var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequenceComments.SequenceName);
+            Assert.That(sequenceComments.SequenceName, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
@@ -92,7 +92,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
 
             var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequenceComments.SequenceName);
+            Assert.That(sequenceComments.SequenceName, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
@@ -103,7 +103,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
 
             var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequenceComments.SequenceName);
+            Assert.That(sequenceComments.SequenceName, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
@@ -113,7 +113,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
 
             var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(sequenceName, sequenceComments.SequenceName);
+            Assert.That(sequenceComments.SequenceName, Is.EqualTo(sequenceName));
         }
 
         [Test]
@@ -124,7 +124,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
 
             var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequenceComments.SequenceName);
+            Assert.That(sequenceComments.SequenceName, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
@@ -135,7 +135,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
 
             var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequenceComments.SequenceName);
+            Assert.That(sequenceComments.SequenceName, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
@@ -146,14 +146,14 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
 
             var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequenceComments.SequenceName);
+            Assert.That(sequenceComments.SequenceName, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
         public async Task GetSequenceComments_WhenSequenceMissing_ReturnsNone()
         {
             var sequenceIsNone = await SequenceCommentProvider.GetSequenceComments("sequence_that_doesnt_exist").IsNone.ConfigureAwait(false);
-            Assert.IsTrue(sequenceIsNone);
+            Assert.That(sequenceIsNone, Is.True);
         }
 
         [Test]
@@ -163,7 +163,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(hasSequenceComments);
+            Assert.That(hasSequenceComments, Is.True);
         }
 
         [Test]
@@ -173,7 +173,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
                 .AnyAsync(t => t.SequenceName.LocalName == "comment_test_sequence_1")
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(containsTestSequence);
+            Assert.That(containsTestSequence, Is.True);
         }
 
         [Test]
@@ -181,7 +181,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
         {
             var comments = await GetSequenceCommentsAsync("comment_test_sequence_1").ConfigureAwait(false);
 
-            Assert.IsTrue(comments.Comment.IsNone);
+            Assert.That(comments.Comment.IsNone, Is.True);
         }
 
         [Test]
@@ -192,7 +192,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
 
             var sequenceComment = comments.Comment.UnwrapSome();
 
-            Assert.AreEqual(expectedComment, sequenceComment);
+            Assert.That(sequenceComment, Is.EqualTo(expectedComment));
         }
     }
 }

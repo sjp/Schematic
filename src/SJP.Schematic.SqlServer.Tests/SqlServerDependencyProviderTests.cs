@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -11,7 +10,7 @@ namespace SJP.Schematic.SqlServer.Tests
         [Test]
         public static void Ctor_GivenNullComparer_CreatesWithoutError()
         {
-            Assert.DoesNotThrow(() => new SqlServerDependencyProvider(null));
+            Assert.That(() => new SqlServerDependencyProvider(null), Throws.Nothing);
         }
 
         [Test]
@@ -19,7 +18,7 @@ namespace SJP.Schematic.SqlServer.Tests
         {
             var provider = new SqlServerDependencyProvider();
 
-            Assert.Throws<ArgumentNullException>(() => provider.GetDependencies(null, "test"));
+            Assert.That(() => provider.GetDependencies(null, "test"), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -28,7 +27,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var provider = new SqlServerDependencyProvider();
             Identifier objectName = "test";
 
-            Assert.Throws<ArgumentNullException>(() => provider.GetDependencies(objectName, null));
+            Assert.That(() => provider.GetDependencies(objectName, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -37,7 +36,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var provider = new SqlServerDependencyProvider();
             Identifier objectName = "test";
 
-            Assert.Throws<ArgumentNullException>(() => provider.GetDependencies(objectName, string.Empty));
+            Assert.That(() => provider.GetDependencies(objectName, string.Empty), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -46,7 +45,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var provider = new SqlServerDependencyProvider();
             Identifier objectName = "test";
 
-            Assert.Throws<ArgumentNullException>(() => provider.GetDependencies(objectName, "    "));
+            Assert.That(() => provider.GetDependencies(objectName, "    "), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -57,9 +56,8 @@ namespace SJP.Schematic.SqlServer.Tests
             const string expression = "select * from test";
 
             var dependencies = provider.GetDependencies(objectName, expression);
-            var count = dependencies.Count;
 
-            Assert.Zero(count);
+            Assert.That(dependencies, Is.Empty);
         }
 
         [Test]
@@ -70,9 +68,8 @@ namespace SJP.Schematic.SqlServer.Tests
             const string expression = "select test(1)";
 
             var dependencies = provider.GetDependencies(objectName, expression);
-            var count = dependencies.Count;
 
-            Assert.Zero(count);
+            Assert.That(dependencies, Is.Empty);
         }
 
         [Test]
@@ -85,7 +82,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var dependencies = provider.GetDependencies(objectName, expression);
             var dependency = dependencies.Single();
 
-            Assert.AreEqual("other_table", dependency.LocalName);
+            Assert.That(dependency.LocalName, Is.EqualTo("other_table"));
         }
 
         [Test]
@@ -98,7 +95,7 @@ namespace SJP.Schematic.SqlServer.Tests
             var dependencies = provider.GetDependencies(objectName, expression);
             var dependency = dependencies.Single();
 
-            Assert.AreEqual("other_function", dependency.LocalName);
+            Assert.That(dependency.LocalName, Is.EqualTo("other_function"));
         }
 
         [Test]
@@ -110,9 +107,8 @@ namespace SJP.Schematic.SqlServer.Tests
 
             var dependencies = provider.GetDependencies(objectName, expression);
             var expectedNames = new[] { new Identifier("first_name"), new Identifier("last_name") };
-            var equal = dependencies.SequenceEqual(expectedNames);
 
-            Assert.IsTrue(equal);
+            Assert.That(dependencies, Is.EqualTo(expectedNames));
         }
 
         [Test]
@@ -136,9 +132,8 @@ SELECT * from client.FunctionName('test')
                 new Identifier("FIRST_TABLE"),
                 new Identifier("client", "FunctionName")
             };
-            var equal = dependencies.SequenceEqual(expectedNames);
 
-            Assert.IsTrue(equal);
+            Assert.That(dependencies, Is.EqualTo(expectedNames));
         }
 
         [Test]
@@ -162,9 +157,8 @@ SELECT FIRST_COL, SECOND_COL from client.FunctionName('test')
                 new Identifier("FIRST_TABLE"),
                 new Identifier("client", "FunctionName")
             };
-            var equal = dependencies.SequenceEqual(expectedNames);
 
-            Assert.IsTrue(equal);
+            Assert.That(dependencies, Is.EqualTo(expectedNames));
         }
     }
 }

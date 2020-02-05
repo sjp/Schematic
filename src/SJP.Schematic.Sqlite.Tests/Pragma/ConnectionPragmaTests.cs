@@ -1,5 +1,4 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -14,14 +13,14 @@ namespace SJP.Schematic.Sqlite.Tests.Pragma
         public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            Assert.Throws<ArgumentNullException>(() => new ConnectionPragma(null, connection));
+            Assert.That(() => new ConnectionPragma(null, connection), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
             var dialect = Mock.Of<IDatabaseDialect>();
-            Assert.Throws<ArgumentNullException>(() => new ConnectionPragma(dialect, null));
+            Assert.That(() => new ConnectionPragma(dialect, null), Throws.ArgumentNullException);
         }
     }
 }

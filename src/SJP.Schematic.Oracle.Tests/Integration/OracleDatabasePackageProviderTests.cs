@@ -7,6 +7,7 @@ using Nito.AsyncEx;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
@@ -71,7 +72,7 @@ END db_test_package_2").ConfigureAwait(false);
         public async Task GetPackage_WhenPackagePresent_ReturnsPackage()
         {
             var packageIsSome = await PackageProvider.GetPackage("db_test_package_1").IsSome.ConfigureAwait(false);
-            Assert.IsTrue(packageIsSome);
+            Assert.That(packageIsSome, Is.True);
         }
 
         [Test]
@@ -82,7 +83,7 @@ END db_test_package_2").ConfigureAwait(false);
 
             var package = await PackageProvider.GetPackage(packageName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedPackageName, package.Name.LocalName);
+            Assert.That(package.Name.LocalName, Is.EqualTo(expectedPackageName));
         }
 
         [Test]
@@ -93,7 +94,7 @@ END db_test_package_2").ConfigureAwait(false);
 
             var package = await PackageProvider.GetPackage(packageName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedPackageName, package.Name);
+            Assert.That(package.Name, Is.EqualTo(expectedPackageName));
         }
 
         [Test]
@@ -104,7 +105,7 @@ END db_test_package_2").ConfigureAwait(false);
 
             var package = await PackageProvider.GetPackage(packageName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedPackageName, package.Name);
+            Assert.That(package.Name, Is.EqualTo(expectedPackageName));
         }
 
         [Test]
@@ -115,7 +116,7 @@ END db_test_package_2").ConfigureAwait(false);
 
             var package = await PackageProvider.GetPackage(packageName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedPackageName, package.Name);
+            Assert.That(package.Name, Is.EqualTo(expectedPackageName));
         }
 
         [Test]
@@ -125,7 +126,7 @@ END db_test_package_2").ConfigureAwait(false);
 
             var package = await PackageProvider.GetPackage(packageName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(packageName, package.Name);
+            Assert.That(package.Name, Is.EqualTo(packageName));
         }
 
         [Test]
@@ -136,7 +137,7 @@ END db_test_package_2").ConfigureAwait(false);
 
             var package = await PackageProvider.GetPackage(packageName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedPackageName, package.Name);
+            Assert.That(package.Name, Is.EqualTo(expectedPackageName));
         }
 
         [Test]
@@ -147,14 +148,14 @@ END db_test_package_2").ConfigureAwait(false);
 
             var package = await PackageProvider.GetPackage(packageName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedPackageName, package.Name);
+            Assert.That(package.Name, Is.EqualTo(expectedPackageName));
         }
 
         [Test]
         public async Task GetPackage_WhenPackageMissing_ReturnsNone()
         {
             var packageIsNone = await PackageProvider.GetPackage("package_that_doesnt_exist").IsNone.ConfigureAwait(false);
-            Assert.IsTrue(packageIsNone);
+            Assert.That(packageIsNone, Is.True);
         }
 
         [Test]
@@ -162,7 +163,7 @@ END db_test_package_2").ConfigureAwait(false);
         {
             var packages = await GetAllPackages().ConfigureAwait(false);
 
-            Assert.NotZero(packages.Count);
+            Assert.That(packages, Is.Not.Empty);
         }
 
         [Test]
@@ -173,7 +174,7 @@ END db_test_package_2").ConfigureAwait(false);
             var packages = await GetAllPackages().ConfigureAwait(false);
             var containsTestPackage = packages.Any(s => s.Name.LocalName == expectedPackageName);
 
-            Assert.IsTrue(containsTestPackage);
+            Assert.That(containsTestPackage, Is.True);
         }
 
         [Test]
@@ -185,7 +186,7 @@ END db_test_package_2").ConfigureAwait(false);
     PROCEDURE test_proc();
 END db_test_package_1";
 
-            Assert.AreEqual(expectedSpecification, package.Specification);
+            Assert.That(package.Specification, Is.EqualTo(expectedSpecification));
         }
 
         [Test]
@@ -197,7 +198,7 @@ END db_test_package_1";
     PROCEDURE test_proc();
 END db_test_package_2";
 
-            Assert.AreEqual(expectedSpecification, package.Specification);
+            Assert.That(package.Specification, Is.EqualTo(expectedSpecification));
         }
 
         [Test]
@@ -213,16 +214,15 @@ END db_test_package_2";
 END db_test_package_1";
             var packageBody = package.Body.UnwrapSome();
 
-            Assert.AreEqual(expectedBody, packageBody);
+            Assert.That(packageBody, Is.EqualTo(expectedBody));
         }
 
         [Test]
         public async Task Body_GivenPackageWithoutBody_ReturnsNone()
         {
             var package = await GetPackageAsync("DB_TEST_PACKAGE_2").ConfigureAwait(false);
-            var bodyIsNone = package.Body.IsNone;
 
-            Assert.IsTrue(bodyIsNone);
+            Assert.That(package.Body, OptionIs.None);
         }
     }
 }

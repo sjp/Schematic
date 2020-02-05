@@ -79,7 +79,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public async Task GetSequence_WhenSequencePresent_ReturnsSequence()
         {
             var sequenceIsSome = await SequenceProvider.GetSequence("db_test_sequence_1").IsSome.ConfigureAwait(false);
-            Assert.IsTrue(sequenceIsSome);
+            Assert.That(sequenceIsSome, Is.True);
         }
 
         [Test]
@@ -90,7 +90,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequence.Name.LocalName);
+            Assert.That(sequence.Name.LocalName, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
@@ -101,7 +101,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
+            Assert.That(sequence.Name, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
@@ -112,7 +112,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
+            Assert.That(sequence.Name, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
@@ -123,7 +123,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
+            Assert.That(sequence.Name, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
@@ -133,7 +133,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(sequenceName, sequence.Name);
+            Assert.That(sequence.Name, Is.EqualTo(sequenceName));
         }
 
         [Test]
@@ -144,7 +144,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
+            Assert.That(sequence.Name, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
@@ -155,14 +155,14 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedSequenceName, sequence.Name);
+            Assert.That(sequence.Name, Is.EqualTo(expectedSequenceName));
         }
 
         [Test]
         public async Task GetSequence_WhenSequenceMissing_ReturnsNone()
         {
             var sequenceIsNone = await SequenceProvider.GetSequence("sequence_that_doesnt_exist").IsNone.ConfigureAwait(false);
-            Assert.IsTrue(sequenceIsNone);
+            Assert.That(sequenceIsNone, Is.True);
         }
 
         [Test]
@@ -172,7 +172,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(hasSequences);
+            Assert.That(hasSequences, Is.True);
         }
 
         [Test]
@@ -184,7 +184,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                 .AnyAsync(s => s.Name.LocalName == expectedSequenceName)
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(containsTestSequence);
+            Assert.That(containsTestSequence, Is.True);
         }
 
         [Test]
@@ -192,7 +192,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_1").ConfigureAwait(false);
 
-            Assert.AreEqual(1, sequence.Start);
+            Assert.That(sequence.Start, Is.EqualTo(1));
         }
 
         [Test]
@@ -200,7 +200,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_2").ConfigureAwait(false);
 
-            Assert.AreEqual(1, sequence.Start);
+            Assert.That(sequence.Start, Is.EqualTo(1));
         }
 
         [Test]
@@ -208,7 +208,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_1").ConfigureAwait(false);
 
-            Assert.AreEqual(1, sequence.Increment);
+            Assert.That(sequence.Increment, Is.EqualTo(1));
         }
 
         [Test]
@@ -216,7 +216,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_3").ConfigureAwait(false);
 
-            Assert.AreEqual(100, sequence.Increment);
+            Assert.That(sequence.Increment, Is.EqualTo(100));
         }
 
         [Test]
@@ -224,7 +224,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_1").ConfigureAwait(false);
 
-            Assert.AreEqual(SequenceDefaultMinValue, sequence.MinValue.UnwrapSome());
+            Assert.That(sequence.MinValue.UnwrapSome(), Is.EqualTo(SequenceDefaultMinValue));
         }
 
         [Test]
@@ -232,7 +232,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_4").ConfigureAwait(false);
 
-            Assert.AreEqual(-99, sequence.MinValue.UnwrapSome());
+            Assert.That(sequence.MinValue.UnwrapSome(), Is.EqualTo(-99));
         }
 
         [Test]
@@ -240,7 +240,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_5").ConfigureAwait(false);
 
-            Assert.AreEqual(1, sequence.MinValue.UnwrapSome());
+            Assert.That(sequence.MinValue.UnwrapSome(), Is.EqualTo(1));
         }
 
         [Test]
@@ -248,7 +248,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_1").ConfigureAwait(false);
 
-            Assert.AreEqual(OracleNumberMaxValue, sequence.MaxValue.UnwrapSome());
+            Assert.That(sequence.MaxValue.UnwrapSome(), Is.EqualTo(OracleNumberMaxValue));
         }
 
         [Test]
@@ -256,7 +256,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_6").ConfigureAwait(false);
 
-            Assert.AreEqual(333, sequence.MaxValue.UnwrapSome());
+            Assert.That(sequence.MaxValue.UnwrapSome(), Is.EqualTo(333));
         }
 
         [Test]
@@ -264,7 +264,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_7").ConfigureAwait(false);
 
-            Assert.AreEqual(OracleNumberMaxValue, sequence.MaxValue.UnwrapSome());
+            Assert.That(sequence.MaxValue.UnwrapSome(), Is.EqualTo(OracleNumberMaxValue));
         }
 
         [Test]
@@ -272,7 +272,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_1").ConfigureAwait(false);
 
-            Assert.IsFalse(sequence.Cycle);
+            Assert.That(sequence.Cycle, Is.False);
         }
 
         [Test]
@@ -280,7 +280,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_8").ConfigureAwait(false);
 
-            Assert.IsTrue(sequence.Cycle);
+            Assert.That(sequence.Cycle, Is.True);
         }
 
         [Test]
@@ -288,7 +288,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_9").ConfigureAwait(false);
 
-            Assert.IsFalse(sequence.Cycle);
+            Assert.That(sequence.Cycle, Is.False);
         }
 
         [Test]
@@ -296,7 +296,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_1").ConfigureAwait(false);
 
-            Assert.AreEqual(SequenceDefaultCache, sequence.Cache);
+            Assert.That(sequence.Cache, Is.EqualTo(SequenceDefaultCache));
         }
 
         [Test]
@@ -304,7 +304,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_10").ConfigureAwait(false);
 
-            Assert.AreEqual(10, sequence.Cache);
+            Assert.That(sequence.Cache, Is.EqualTo(10));
         }
 
         [Test]
@@ -312,7 +312,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_11").ConfigureAwait(false);
 
-            Assert.AreEqual(0, sequence.Cache);
+            Assert.That(sequence.Cache, Is.Zero);
         }
     }
 }

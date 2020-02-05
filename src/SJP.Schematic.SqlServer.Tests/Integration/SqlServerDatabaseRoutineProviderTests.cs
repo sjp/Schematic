@@ -91,7 +91,7 @@ SELECT DB_NAME() AS ThisDB").ConfigureAwait(false);
         public async Task GetRoutine_WhenRoutinePresent_ReturnsRoutine()
         {
             var routineIsSome = await RoutineProvider.GetRoutine("db_test_routine_1").IsSome.ConfigureAwait(false);
-            Assert.IsTrue(routineIsSome);
+            Assert.That(routineIsSome, Is.True);
         }
 
         [Test]
@@ -100,7 +100,7 @@ SELECT DB_NAME() AS ThisDB").ConfigureAwait(false);
             const string routineName = "db_test_routine_1";
             var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(routineName, routine.Name.LocalName);
+            Assert.That(routine.Name.LocalName, Is.EqualTo(routineName));
         }
 
         [Test]
@@ -111,7 +111,7 @@ SELECT DB_NAME() AS ThisDB").ConfigureAwait(false);
 
             var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedRoutineName, routine.Name);
+            Assert.That(routine.Name, Is.EqualTo(expectedRoutineName));
         }
 
         [Test]
@@ -122,7 +122,7 @@ SELECT DB_NAME() AS ThisDB").ConfigureAwait(false);
 
             var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedRoutineName, routine.Name);
+            Assert.That(routine.Name, Is.EqualTo(expectedRoutineName));
         }
 
         [Test]
@@ -133,7 +133,7 @@ SELECT DB_NAME() AS ThisDB").ConfigureAwait(false);
 
             var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedRoutineName, routine.Name);
+            Assert.That(routine.Name, Is.EqualTo(expectedRoutineName));
         }
 
         [Test]
@@ -143,7 +143,7 @@ SELECT DB_NAME() AS ThisDB").ConfigureAwait(false);
 
             var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(routineName, routine.Name);
+            Assert.That(routine.Name, Is.EqualTo(routineName));
         }
 
         [Test]
@@ -154,7 +154,7 @@ SELECT DB_NAME() AS ThisDB").ConfigureAwait(false);
 
             var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedRoutineName, routine.Name);
+            Assert.That(routine.Name, Is.EqualTo(expectedRoutineName));
         }
 
         [Test]
@@ -165,14 +165,14 @@ SELECT DB_NAME() AS ThisDB").ConfigureAwait(false);
 
             var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedRoutineName, routine.Name);
+            Assert.That(routine.Name, Is.EqualTo(expectedRoutineName));
         }
 
         [Test]
         public async Task GetRoutine_WhenRoutineMissing_ReturnsNone()
         {
             var routineIsNone = await RoutineProvider.GetRoutine("routine_that_doesnt_exist").IsNone.ConfigureAwait(false);
-            Assert.IsTrue(routineIsNone);
+            Assert.That(routineIsNone, Is.True);
         }
 
         [Test]
@@ -182,7 +182,7 @@ SELECT DB_NAME() AS ThisDB").ConfigureAwait(false);
             var routine = await RoutineProvider.GetRoutine(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
             var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, routine.Name.LocalName);
-            Assert.IsTrue(equalNames);
+            Assert.That(equalNames, Is.True);
         }
 
         [Test]
@@ -193,7 +193,7 @@ SELECT DB_NAME() AS ThisDB").ConfigureAwait(false);
 
             var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, routine.Name.Schema)
                 && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, routine.Name.LocalName);
-            Assert.IsTrue(equalNames);
+            Assert.That(equalNames, Is.True);
         }
 
         [Test]
@@ -203,7 +203,7 @@ SELECT DB_NAME() AS ThisDB").ConfigureAwait(false);
                 .AnyAsync()
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(hasRoutines);
+            Assert.That(hasRoutines, Is.True);
         }
 
         [Test]
@@ -213,7 +213,7 @@ SELECT DB_NAME() AS ThisDB").ConfigureAwait(false);
                 .AnyAsync(r => r.Name.LocalName == "db_test_routine_1")
                 .ConfigureAwait(false);
 
-            Assert.IsTrue(containsTestRoutine);
+            Assert.That(containsTestRoutine, Is.True);
         }
 
         [Test]
@@ -229,7 +229,7 @@ BEGIN
      RETURN(@tmp);
 END";
 
-            Assert.AreEqual(expectedDefinition, routine.Definition);
+            Assert.That(routine.Definition, Is.EqualTo(expectedDefinition));
         }
 
         [Test]
@@ -245,7 +245,7 @@ RETURN
     SELECT TOP 10 1 AS test_col
 )";
 
-            Assert.AreEqual(expectedDefinition, routine.Definition);
+            Assert.That(routine.Definition, Is.EqualTo(expectedDefinition));
         }
 
         [Test]
@@ -264,7 +264,7 @@ BEGIN
    RETURN
 END";
 
-            Assert.AreEqual(expectedDefinition, routine.Definition);
+            Assert.That(routine.Definition, Is.EqualTo(expectedDefinition));
         }
 
         [Test]
@@ -275,7 +275,7 @@ END";
 AS
 SELECT DB_NAME() AS ThisDB";
 
-            Assert.AreEqual(expectedDefinition, routine.Definition);
+            Assert.That(routine.Definition, Is.EqualTo(expectedDefinition));
         }
     }
 }

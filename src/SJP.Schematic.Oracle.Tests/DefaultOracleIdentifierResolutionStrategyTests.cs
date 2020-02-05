@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using SJP.Schematic.Core;
 using System.Linq;
 
@@ -12,7 +11,7 @@ namespace SJP.Schematic.Oracle.Tests
         public static void GetResolutionOrder_GivenNullIdentifier_ThrowsArgumentNullException()
         {
             var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
-            Assert.Throws<ArgumentNullException>(() => identifierResolver.GetResolutionOrder(null));
+            Assert.That(() => identifierResolver.GetResolutionOrder(null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -23,7 +22,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var result = identifierResolver.GetResolutionOrder(input).ToList();
 
-            Assert.AreEqual(1, result.Count);
+            Assert.That(result, Has.Exactly(1).Items);
         }
 
         [Test]
@@ -34,7 +33,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var result = identifierResolver.GetResolutionOrder(input).ToList();
 
-            Assert.AreEqual(input, result[0]);
+            Assert.That(result[0], Is.EqualTo(input));
         }
 
         [Test]
@@ -45,7 +44,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var result = identifierResolver.GetResolutionOrder(input).ToList();
 
-            Assert.AreEqual(1, result.Count);
+            Assert.That(result, Has.Exactly(1).Items);
         }
 
         [Test]
@@ -56,7 +55,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var result = identifierResolver.GetResolutionOrder(input).ToList();
 
-            Assert.AreEqual(input, result[0]);
+            Assert.That(result[0], Is.EqualTo(input));
         }
 
         [Test]
@@ -67,7 +66,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var result = identifierResolver.GetResolutionOrder(input).ToList();
 
-            Assert.AreEqual(1, result.Count);
+            Assert.That(result, Has.Exactly(1).Items);
         }
 
         [Test]
@@ -78,9 +77,8 @@ namespace SJP.Schematic.Oracle.Tests
             var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
             var result = identifierResolver.GetResolutionOrder(input).ToList();
-            var equalResults = expectedResults.SequenceEqual(result);
 
-            Assert.IsTrue(equalResults);
+            Assert.That(result, Is.EqualTo(expectedResults));
         }
 
         [Test]
@@ -91,7 +89,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var result = identifierResolver.GetResolutionOrder(input).ToList();
 
-            Assert.AreEqual(2, result.Count);
+            Assert.That(result, Has.Exactly(2).Items);
         }
 
         [Test]
@@ -106,9 +104,8 @@ namespace SJP.Schematic.Oracle.Tests
             var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
             var result = identifierResolver.GetResolutionOrder(input).ToList();
-            var equalResults = expectedResults.SequenceEqual(result);
 
-            Assert.IsTrue(equalResults);
+            Assert.That(result, Is.EqualTo(expectedResults));
         }
 
         [Test]
@@ -119,7 +116,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var result = identifierResolver.GetResolutionOrder(input).ToList();
 
-            Assert.AreEqual(2, result.Count);
+            Assert.That(result, Has.Exactly(2).Items);
         }
 
         [Test]
@@ -134,9 +131,8 @@ namespace SJP.Schematic.Oracle.Tests
             var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
             var result = identifierResolver.GetResolutionOrder(input).ToList();
-            var equalResults = expectedResults.SequenceEqual(result);
 
-            Assert.IsTrue(equalResults);
+            Assert.That(result, Is.EqualTo(expectedResults));
         }
 
         [Test]
@@ -147,7 +143,7 @@ namespace SJP.Schematic.Oracle.Tests
 
             var result = identifierResolver.GetResolutionOrder(input).ToList();
 
-            Assert.AreEqual(4, result.Count);
+            Assert.That(result, Has.Exactly(4).Items);
         }
 
         [Test]
@@ -164,9 +160,8 @@ namespace SJP.Schematic.Oracle.Tests
             var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
             var result = identifierResolver.GetResolutionOrder(input).ToList();
-            var equalResults = expectedResults.SequenceEqual(result);
 
-            Assert.IsTrue(equalResults);
+            Assert.That(result, Is.EqualTo(expectedResults));
         }
     }
 }
