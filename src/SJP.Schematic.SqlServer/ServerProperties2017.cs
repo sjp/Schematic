@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt;
 
 namespace SJP.Schematic.SqlServer
 {
@@ -22,14 +23,14 @@ namespace SJP.Schematic.SqlServer
             InstanceDefaultLogPath = query.InstanceDefaultLogPath;
             InstanceName = query.InstanceName;
             IsAdvancedAnalyticsInstalled = query.IsAdvancedAnalyticsInstalled;
-            IsClustered = query.IsClustered.HasValue ? Convert.ToBoolean(query.IsClustered.Value) : (bool?)null;
-            IsFullTextInstalled = query.IsFullTextInstalled.HasValue ? Convert.ToBoolean(query.IsFullTextInstalled.Value) : (bool?)null;
-            IsHadrEnabled = query.IsHadrEnabled.HasValue ? Convert.ToBoolean(query.IsHadrEnabled.Value) : (bool?)null;
-            IsIntegratedSecurityOnly = query.IsIntegratedSecurityOnly.HasValue ? Convert.ToBoolean(query.IsIntegratedSecurityOnly.Value) : (bool?)null;
-            IsLocalDB = query.IsLocalDB.HasValue ? Convert.ToBoolean(query.IsLocalDB.Value) : (bool?)null;
+            IsClustered = query.IsClustered.Match(isClustered => Convert.ToBoolean(isClustered), () => (bool?)null);
+            IsFullTextInstalled = query.IsFullTextInstalled.Match(isFullTextInstalled => Convert.ToBoolean(isFullTextInstalled), () => (bool?)null);
+            IsHadrEnabled = query.IsHadrEnabled.Match(isHadrEnabled => Convert.ToBoolean(isHadrEnabled), () => (bool?)null);
+            IsIntegratedSecurityOnly = query.IsIntegratedSecurityOnly.Match(isIntegratedSecurityOnly => Convert.ToBoolean(isIntegratedSecurityOnly), () => (bool?)null);
+            IsLocalDB = query.IsLocalDB.Match(isLocalDb => Convert.ToBoolean(isLocalDb), () => (bool?)null);
             IsPolyBaseInstalled = query.IsPolyBaseInstalled;
-            IsSingleUser = query.IsSingleUser.HasValue ? Convert.ToBoolean(query.IsSingleUser.Value) : (bool?)null;
-            IsXTPSupported = query.IsXTPSupported.HasValue ? Convert.ToBoolean(query.IsXTPSupported.Value) : (bool?)null;
+            IsSingleUser = query.IsSingleUser.Match(isSingleUser => Convert.ToBoolean(isSingleUser), () => (bool?)null);
+            IsXTPSupported = query.IsXTPSupported.Match(isXtpSupported => Convert.ToBoolean(isXtpSupported), () => (bool?)null);
             LCID = query.LCID;
             LicenseType = query.LicenseType;
             MachineName = query.MachineName;

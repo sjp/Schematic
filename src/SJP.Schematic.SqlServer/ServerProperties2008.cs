@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt;
 
 namespace SJP.Schematic.SqlServer
 {
@@ -19,10 +20,10 @@ namespace SJP.Schematic.SqlServer
             EngineEdition = query.EngineEdition;
             InstanceName = query.InstanceName;
             IsAdvancedAnalyticsInstalled = query.IsAdvancedAnalyticsInstalled;
-            IsClustered = query.IsClustered.HasValue ? Convert.ToBoolean(query.IsClustered.Value) : (bool?)null;
-            IsFullTextInstalled = query.IsFullTextInstalled.HasValue ? Convert.ToBoolean(query.IsFullTextInstalled.Value) : (bool?)null;
-            IsIntegratedSecurityOnly = query.IsIntegratedSecurityOnly.HasValue ? Convert.ToBoolean(query.IsIntegratedSecurityOnly.Value) : (bool?)null;
-            IsSingleUser = query.IsSingleUser.HasValue ? Convert.ToBoolean(query.IsSingleUser.Value) : (bool?)null;
+            IsClustered = query.IsClustered.Match(isClustered => Convert.ToBoolean(isClustered), () => (bool?)null);
+            IsFullTextInstalled = query.IsFullTextInstalled.Match(isFullTextInstalled => Convert.ToBoolean(isFullTextInstalled), () => (bool?)null);
+            IsIntegratedSecurityOnly = query.IsIntegratedSecurityOnly.Match(isIntegratedSecurityOnly => Convert.ToBoolean(isIntegratedSecurityOnly), () => (bool?)null);
+            IsSingleUser = query.IsSingleUser.Match(isSingleUser => Convert.ToBoolean(isSingleUser), () => (bool?)null);
             LCID = query.LCID;
             LicenseType = query.LicenseType;
             MachineName = query.MachineName;

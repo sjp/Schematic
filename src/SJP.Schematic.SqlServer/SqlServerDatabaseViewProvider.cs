@@ -175,9 +175,11 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName and v.is_ms_
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-                var autoIncrement = row.IdentitySeed.HasValue && row.IdentityIncrement.HasValue
-                    ? Option<IAutoIncrement>.Some(new AutoIncrement(row.IdentitySeed.Value, row.IdentityIncrement.Value))
-                    : Option<IAutoIncrement>.None;
+                var autoIncrement = row.IdentityIncrement
+                    .Match(
+                        incr => row.IdentitySeed.Match(seed => new AutoIncrement(seed, incr), () => Option<IAutoIncrement>.None),
+                        () => Option<IAutoIncrement>.None
+                    );
                 var defaultValue = row.HasDefaultValue && row.DefaultValue != null
                     ? Option<string>.Some(row.DefaultValue)
                     : Option<string>.None;
