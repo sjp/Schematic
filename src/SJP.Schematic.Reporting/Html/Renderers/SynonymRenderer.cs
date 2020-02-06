@@ -23,15 +23,13 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         {
             if (synonyms == null || synonyms.AnyNull())
                 throw new ArgumentNullException(nameof(synonyms));
-
-            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
-            Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
-            Synonyms = synonyms ?? throw new ArgumentNullException(nameof(synonyms));
-            SynonymTargets = synonymTargets ?? throw new ArgumentNullException(nameof(synonymTargets));
-
             if (exportDirectory == null)
                 throw new ArgumentNullException(nameof(exportDirectory));
 
+            Synonyms = synonyms;
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+            Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
+            SynonymTargets = synonymTargets ?? throw new ArgumentNullException(nameof(synonymTargets));
             ExportDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "synonyms"));
         }
 

@@ -34,7 +34,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 AutoIncrement = new AutoIncrement(autoIncrAttr.InitialValue, autoIncrAttr.Increment);
             }
 
-            Type = columnType ?? throw new ArgumentNullException(nameof(declaredColumnType));
+            Type = columnType;
             IsNullable = isNullable;
         }
 

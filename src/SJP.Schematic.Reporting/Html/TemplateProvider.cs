@@ -42,9 +42,18 @@ namespace SJP.Schematic.Reporting.Html
             if (fileInfo == null)
                 throw new ArgumentNullException(nameof(fileInfo));
 
-            using var stream = fileInfo.CreateReadStream();
-            using var reader = new StreamReader(stream);
-            return reader.ReadToEnd();
+            Stream? stream = null;
+            try
+            {
+                stream = fileInfo.CreateReadStream();
+                using var reader = new StreamReader(stream);
+                stream = null;
+                return reader.ReadToEnd();
+            }
+            finally
+            {
+                stream?.Dispose();
+            }
         }
 
         private static readonly ConcurrentDictionary<ReportTemplate, string> Cache = new ConcurrentDictionary<ReportTemplate, string>();
