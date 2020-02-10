@@ -46,8 +46,7 @@ namespace SJP.Schematic.Core.Extensions
         {
             foreach (var option in input)
             {
-                if (cancellationToken.IsCancellationRequested)
-                    throw new OperationCanceledException(cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
 
                 var resolvedOption = await option.ToOption().ConfigureAwait(false);
                 if (resolvedOption.IsSome)
