@@ -41,25 +41,37 @@
     <!-- File with mtime of last successful npm install -->
     <NpmInstallStampFile>node_modules/.install-stamp</NpmInstallStampFile>
     <GulpBuildStampFile>node_modules/.gulp-build-stamp</GulpBuildStampFile>
+
+    <NpmExitCode></NpmExitCode>
+    <NpmExpectedExitCode>1</NpmExpectedExitCode>
   </PropertyGroup>
 
   <ItemGroup>
     <GulpSourceFiles Include="package.json;gulpfile.babel.js;Source/**/*.*" />
   </ItemGroup>
 
-  <Target Name="NpmClean" BeforeTargets="BeforeClean">
-    <Exec Command="npm install" WorkingDirectory="$(MSBuildThisFileDirectory)" />
-    <Exec Command="npm run clean" WorkingDirectory="$(MSBuildThisFileDirectory)" />
+  <Target Name="CheckNpmExists">
+    <Exec Command="npm" ContinueOnError="true" IgnoreExitCode="true" ConsoleToMsBuild="true">
+      <Output TaskParameter="ExitCode" PropertyName="NpmExitCode"/>
+    </Exec>
   </Target>
 
-  <Target Name="NpmBuild" BeforeTargets="GulpBuild" Inputs="package.json" Outputs="$(NpmInstallStampFile)">
-    <Exec Command="npm install" WorkingDirectory="$(MSBuildThisFileDirectory)" />
-    <Touch Files="$(NpmInstallStampFile)" AlwaysCreate="true" />
+  <Target Name="NpmClean" BeforeTargets="BeforeClean" DependsOnTargets="CheckNpmExists">
+    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm install" WorkingDirectory="$(MSBuildThisFileDirectory)" />
+    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm run clean" WorkingDirectory="$(MSBuildThisFileDirectory)" />
+    <Message Condition="'$(NpmExitCode)' != '$(NpmExpectedExitCode)'" Text="npm is not available. Cleaning of front-end code will not occur." />
+  </Target>
+
+  <Target Name="NpmBuild" BeforeTargets="GulpBuild" DependsOnTargets="CheckNpmExists" Inputs="package.json" Outputs="$(NpmInstallStampFile)">
+    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm install" WorkingDirectory="$(MSBuildThisFileDirectory)" />
+    <Touch Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Files="$(NpmInstallStampFile)" AlwaysCreate="true" />
+    <Message Condition="'$(NpmExitCode)' != '$(NpmExpectedExitCode)'" Text="npm is not available. Building of front-end code will not occur." />
   </Target>
 
   <Target Name="GulpBuild" BeforeTargets="BeforeBuild" Inputs="@(GulpSourceFiles)" Outputs="$(GulpBuildStampFile)">
-    <Exec Command="npm run build" WorkingDirectory="$(MSBuildThisFileDirectory)" />
-    <Touch Files="$(GulpBuildStampFile)" AlwaysCreate="true" />
+    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm run build" WorkingDirectory="$(MSBuildThisFileDirectory)" />
+    <Touch Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Files="$(GulpBuildStampFile)" AlwaysCreate="true" />
+    <Message Condition="'$(NpmExitCode)' != '$(NpmExpectedExitCode)'" Text="npm and gulp are not available. A gulp build will not occur." />
   </Target>
 
 </Project>
