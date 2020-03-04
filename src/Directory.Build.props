@@ -5,7 +5,7 @@
         <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
         <TreatSpecificWarningsAsErrors />
         <Copyright>Copyright © Simon Potter 2019</Copyright>
-        <RepositoryUrl>https://github.com/sjp/Schematic</RepositoryUrl>
+        <RepositoryUrl>https://github.com/sjp/Schematic.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <NeutralLanguage>en-US</NeutralLanguage>
         <PackageLicenseUrl>https://raw.github.com/sjp/Schematic/master/LICENSE</PackageLicenseUrl>
