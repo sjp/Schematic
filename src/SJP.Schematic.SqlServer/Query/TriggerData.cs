@@ -2,13 +2,13 @@
 {
     internal class TriggerData
     {
-        public string? TriggerName { get; set; }
+        public string TriggerName { get; set; } = default!;
 
-        public string? Definition { get; set; }
+        public string Definition { get; set; } = default!;
 
         public bool IsInsteadOfTrigger { get; set; }
 
-        public string? TriggerEvent { get; set; }
+        public string TriggerEvent { get; set; } = default!;
 
         public bool IsDisabled { get; set; }
     }

@@ -2,11 +2,11 @@
 {
     internal class ColumnData
     {
-        public string? ColumnName { get; set; }
+        public string ColumnName { get; set; } = default!;
 
         public string? ColumnTypeSchema { get; set; }
 
-        public string? ColumnTypeName { get; set; }
+        public string ColumnTypeName { get; set; } = default!;
 
         public int MaxLength { get; set; }
 

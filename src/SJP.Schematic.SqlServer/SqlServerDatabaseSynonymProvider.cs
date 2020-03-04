@@ -33,7 +33,7 @@ namespace SJP.Schematic.SqlServer
                 var serverName = !row.TargetServerName.IsNullOrWhiteSpace() ? row.TargetServerName : null;
                 var databaseName = !row.TargetDatabaseName.IsNullOrWhiteSpace() ? row.TargetDatabaseName : null;
                 var schemaName = !row.TargetSchemaName.IsNullOrWhiteSpace() ? row.TargetSchemaName : null;
-                var localName = !row.TargetObjectName.IsNullOrWhiteSpace() ? row.TargetObjectName : null;
+                var localName = row.TargetObjectName;
 
                 var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
                 var qualifiedTargetName = QualifySynonymTargetName(targetName);
@@ -105,7 +105,7 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipp
                         var serverName = !synonymData.TargetServerName.IsNullOrWhiteSpace() ? synonymData.TargetServerName : null;
                         var databaseName = !synonymData.TargetDatabaseName.IsNullOrWhiteSpace() ? synonymData.TargetDatabaseName : null;
                         var schemaName = !synonymData.TargetSchemaName.IsNullOrWhiteSpace() ? synonymData.TargetSchemaName : null;
-                        var localName = !synonymData.TargetObjectName.IsNullOrWhiteSpace() ? synonymData.TargetObjectName : null;
+                        var localName = synonymData.TargetObjectName;
 
                         var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
                         var qualifiedTargetName = QualifySynonymTargetName(targetName);

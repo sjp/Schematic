@@ -166,8 +166,8 @@ where schema_id = schema_id(@SchemaName) and name = @TableName and is_ms_shipped
             var keyColumns = groupedByName
                 .Where(row => row.Key.ConstraintName == constraintName)
                 .SelectMany(g => g
-                    .Where(row => row.ColumnName != null && columns.ContainsKey(row.ColumnName))
-                    .Select(row => columns[row.ColumnName!]))
+                    .Where(row => columns.ContainsKey(row.ColumnName))
+                    .Select(row => columns[row.ColumnName]))
                 .ToList();
 
             var primaryKey = new SqlServerDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns, isEnabled);
@@ -224,10 +224,10 @@ order by ic.key_ordinal";
                 var isEnabled = !indexInfo.Key.IsDisabled;
 
                 var indexCols = indexInfo
-                    .Where(row => !row.IsIncludedColumn && row.ColumnName != null && columns.ContainsKey(row.ColumnName))
+                    .Where(row => !row.IsIncludedColumn && columns.ContainsKey(row.ColumnName))
                     .OrderBy(row => row.KeyOrdinal)
                     .ThenBy(row => row.IndexColumnId)
-                    .Select(row => new { row.IsDescending, Column = columns[row.ColumnName!] })
+                    .Select(row => new { row.IsDescending, Column = columns[row.ColumnName] })
                     .Select(row =>
                     {
                         var order = row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
@@ -238,10 +238,10 @@ order by ic.key_ordinal";
                     .ToList();
 
                 var includedCols = indexInfo
-                    .Where(row => row.IsIncludedColumn && row.ColumnName != null && columns.ContainsKey(row.ColumnName))
+                    .Where(row => row.IsIncludedColumn && columns.ContainsKey(row.ColumnName))
                     .OrderBy(row => row.KeyOrdinal)
                     .ThenBy(row => row.ColumnName) // matches SSMS behaviour
-                    .Select(row => columns[row.ColumnName!])
+                    .Select(row => columns[row.ColumnName])
                     .ToList();
 
                 var index = new DatabaseIndex(indexName, isUnique, indexCols, includedCols, isEnabled);
@@ -299,8 +299,8 @@ order by ic.index_id, ic.key_ordinal, ic.index_column_id";
                 {
                     g.Key.ConstraintName,
                     Columns = g
-                        .Where(row => row.ColumnName != null && columns.ContainsKey(row.ColumnName))
-                        .Select(row => columns[row.ColumnName!])
+                        .Where(row => columns.ContainsKey(row.ColumnName))
+                        .Select(row => columns[row.ColumnName])
                         .ToList(),
                     IsEnabled = !g.Key.IsDisabled
                 })
@@ -591,9 +591,9 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
                         var parentTableName = tableNameCache[candidateParentTableName];
                         var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ChildKeyName);
                         var childKeyColumns = fkey
-                            .Where(row => row.ColumnName != null && columns.ContainsKey(row.ColumnName))
+                            .Where(row => columns.ContainsKey(row.ColumnName))
                             .OrderBy(row => row.ConstraintColumnId)
-                            .Select(row => columns[row.ColumnName!])
+                            .Select(row => columns[row.ColumnName])
                             .ToList();
 
                         var isEnabled = !fkey.Key.IsDisabled;
@@ -762,7 +762,7 @@ order by c.column_id";
                     else if (trigEvent.TriggerEvent == Constants.Delete)
                         events |= TriggerEvent.Delete;
                     else
-                        throw new UnsupportedTriggerEventException(tableName, trigEvent.TriggerEvent ?? string.Empty);
+                        throw new UnsupportedTriggerEventException(tableName, trigEvent.TriggerEvent);
                 }
 
                 var trigger = new DatabaseTrigger(triggerName, definition, queryTiming, events, isEnabled);

@@ -32,7 +32,7 @@ namespace SJP.Schematic.SqlServer
                 .Select(row =>
                 {
                     var routineName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.ObjectName));
-                    return new DatabaseRoutine(routineName, row.Definition!);
+                    return new DatabaseRoutine(routineName, row.Definition);
                 });
 
             foreach (var routine in routines)

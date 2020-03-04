@@ -50,7 +50,7 @@ namespace SJP.Schematic.SqlServer.Query
         /// <item>'SQL Azure' indicates SQL Database or SQL Data Warehouse</item>
         /// </list>
         /// </summary>
-        public string? Edition { get; set; }
+        public string Edition { get; set; } = default!;
 
         /// <summary>
         /// <para>Installed product edition of the instance of SQL Server. Use the value of this property to determine the features and the limits, such as Compute Capacity Limits by Edition of SQL Server. 64-bit versions of the Database Engine append (64-bit) to the version.</para>

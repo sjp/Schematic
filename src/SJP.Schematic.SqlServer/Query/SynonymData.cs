@@ -2,9 +2,9 @@
 {
     internal class SynonymData
     {
-        public string? SchemaName { get; set; }
+        public string SchemaName { get; set; } = default!;
 
-        public string? ObjectName { get; set; }
+        public string ObjectName { get; set; } = default!;
 
         public string? TargetServerName { get; set; }
 
@@ -12,6 +12,6 @@
 
         public string? TargetSchemaName { get; set; }
 
-        public string? TargetObjectName { get; set; }
+        public string TargetObjectName { get; set; } = default!;
     }
 }

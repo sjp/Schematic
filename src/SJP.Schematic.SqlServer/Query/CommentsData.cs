@@ -2,13 +2,13 @@
 {
     internal class CommentsData
     {
-        public string? SchemaName { get; set; }
+        public string SchemaName { get; set; } = default!;
 
-        public string? TableName { get; set; }
+        public string TableName { get; set; } = default!;
 
-        public string? ObjectType { get; set; }
+        public string ObjectType { get; set; } = default!;
 
-        public string? ObjectName { get; set; }
+        public string ObjectName { get; set; } = default!;
 
         public string? Comment { get; set; }
     }
