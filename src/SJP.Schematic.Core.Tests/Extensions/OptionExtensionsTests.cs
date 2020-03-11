@@ -11,38 +11,6 @@ namespace SJP.Schematic.Core.Tests.Extensions
     internal static class OptionExtensionsTests
     {
         [Test]
-        public static void UnwrapSome_GivenNoneInput_ThrowsArgumentException()
-        {
-            Assert.That(() => Option<string>.None.UnwrapSome(), Throws.ArgumentException);
-        }
-
-        [Test]
-        public static void UnwrapSome_GivenSomeInput_ReturnsCorrectSomeValue()
-        {
-            const string expected = "expected";
-            var option = Option<string>.Some(expected);
-            var unwrapped = option.UnwrapSome();
-
-            Assert.That(unwrapped, Is.EqualTo(expected));
-        }
-
-        [Test]
-        public static void UnwrapSomeAsync_GivenNoneInput_ThrowsArgumentException()
-        {
-            Assert.That(async () => await OptionAsync<string>.None.UnwrapSomeAsync().ConfigureAwait(false), Throws.ArgumentException);
-        }
-
-        [Test]
-        public static async Task UnwrapSomeAsync_GivenSomeInput_ReturnsCorrectSomeValue()
-        {
-            const string expected = "expected";
-            var option = OptionAsync<string>.Some(expected);
-            var unwrapped = await option.UnwrapSomeAsync().ConfigureAwait(false);
-
-            Assert.That(unwrapped, Is.EqualTo(expected));
-        }
-
-        [Test]
         public static void FirstSome_GivenNoneInput_ThrowsArgumentNullException()
         {
             Assert.That(() => ((IEnumerable<Option<string>>)null).FirstSome(), Throws.ArgumentNullException);

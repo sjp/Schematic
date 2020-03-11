@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SJP.Schematic.Dot\SJP.Schematic.Dot.csproj" />
     <ProjectReference Include="..\SJP.Schematic.Sqlite\SJP.Schematic.Sqlite.csproj" />
+    <ProjectReference Include="..\SJP.Schematic.Tests.Utilities\SJP.Schematic.Tests.Utilities.csproj" />
   </ItemGroup>
 
   <ItemGroup>

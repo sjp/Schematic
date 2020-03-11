@@ -2,8 +2,8 @@
 using System.Threading.Tasks;
 using Dapper;
 using NUnit.Framework;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Lint.Tests.Integration
 {

@@ -6,7 +6,7 @@ using Dapper;
 using Nito.AsyncEx;
 using NUnit.Framework;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Tests.Utilities;
 using PgSequenceProvider = SJP.Schematic.PostgreSql.Versions.V9_4.PostgreSqlDatabaseSequenceProvider;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_4

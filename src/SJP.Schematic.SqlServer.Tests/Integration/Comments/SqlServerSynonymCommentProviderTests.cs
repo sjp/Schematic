@@ -7,8 +7,8 @@ using Nito.AsyncEx;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.SqlServer.Comments;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration.Comments
 {

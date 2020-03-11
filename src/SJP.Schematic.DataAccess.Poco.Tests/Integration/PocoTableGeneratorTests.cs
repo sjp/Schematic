@@ -6,9 +6,9 @@ using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Sqlite;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
 {
