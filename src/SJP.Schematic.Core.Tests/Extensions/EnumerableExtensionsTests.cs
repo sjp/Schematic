@@ -30,6 +30,15 @@ namespace SJP.Schematic.Core.Tests.Extensions
         }
 
         [Test]
+        public static void Empty_GivenNullCollectionWithValidPredicate_ThrowsArgumentNullException()
+        {
+            IEnumerable<string> input = null;
+            bool predicate(string _) => true;
+
+            Assert.That(() => input.Empty(predicate), Throws.ArgumentNullException);
+        }
+
+        [Test]
         public static void Empty_GivenNullPredicate_ThrowsArgumentNullException()
         {
             IEnumerable<string> input = Array.Empty<string>();
