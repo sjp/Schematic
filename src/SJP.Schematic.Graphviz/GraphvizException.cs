@@ -4,6 +4,7 @@ using System.Runtime.Serialization;
 
 namespace SJP.Schematic.Graphviz
 {
+    [Serializable]
     public class GraphvizException : Exception
     {
         public GraphvizException(int exitCode, string errorMessage)

@@ -1,25 +1,30 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Exceptions;
 
-namespace SJP.Schematic.Sqlite
+namespace SJP.Schematic.Sqlite.Exceptions
 {
     [Serializable]
     public class SqliteTriggerParsingException : SchematicException
     {
-        public SqliteTriggerParsingException() : base()
+        [ExcludeFromCodeCoverage]
+        public SqliteTriggerParsingException()
         {
         }
 
+        [ExcludeFromCodeCoverage]
         public SqliteTriggerParsingException(string message) : base(message)
         {
         }
 
+        [ExcludeFromCodeCoverage]
         public SqliteTriggerParsingException(string message, Exception innerException) : base(message, innerException)
         {
         }
 
+        [ExcludeFromCodeCoverage]
         protected SqliteTriggerParsingException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }

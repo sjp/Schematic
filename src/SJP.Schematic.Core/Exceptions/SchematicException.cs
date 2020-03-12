@@ -8,7 +8,7 @@ namespace SJP.Schematic.Core.Exceptions
     [ExcludeFromCodeCoverage]
     public class SchematicException : Exception
     {
-        public SchematicException() : base()
+        public SchematicException()
         {
         }
 

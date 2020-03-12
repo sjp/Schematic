@@ -15,5 +15,26 @@ namespace SJP.Schematic.Core.Tests.Exceptions
 
             Assert.That(ex.Message, Is.EqualTo(expectedOutput));
         }
+
+        [Test]
+        public static void TableName_PropertyGet_MatchesCtorArg()
+        {
+            const string tableName = "TEST_TABLE";
+            const string triggerEvent = "UNKNOWN_EVENT";
+            var ex = new UnsupportedTriggerEventException(tableName, triggerEvent);
+            const string expected = "LocalName = TEST_TABLE";
+
+            Assert.That(ex.TableName, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public static void TriggerEvent_PropertyGet_MatchesCtorArg()
+        {
+            const string tableName = "TEST_TABLE";
+            const string triggerEvent = "UNKNOWN_EVENT";
+            var ex = new UnsupportedTriggerEventException(tableName, triggerEvent);
+
+            Assert.That(ex.TriggerEvent, Is.EqualTo(triggerEvent));
+        }
     }
 }
