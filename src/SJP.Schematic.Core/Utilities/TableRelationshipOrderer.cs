@@ -53,7 +53,7 @@ namespace SJP.Schematic.Core.Utilities
         public TopologicalSortingAlgorithm(IVertexListGraph<TVertex, TEdge> graph, IList<TVertex> vertices)
             : base(graph)
         {
-            SortedVertices = vertices;
+            SortedVertices = vertices ?? throw new ArgumentNullException(nameof(vertices));
         }
 
         public IList<TVertex> SortedVertices { get; }

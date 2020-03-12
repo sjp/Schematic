@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 
 namespace SJP.Schematic.Core.Exceptions
 {
     [Serializable]
+    [ExcludeFromCodeCoverage]
     public class SchematicException : Exception
     {
         public SchematicException() : base()

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 
 namespace SJP.Schematic.Core.Exceptions
@@ -6,18 +7,22 @@ namespace SJP.Schematic.Core.Exceptions
     [Serializable]
     public class UnsupportedTriggerEventException : SchematicException
     {
+        [ExcludeFromCodeCoverage]
         public UnsupportedTriggerEventException()
         {
         }
 
+        [ExcludeFromCodeCoverage]
         public UnsupportedTriggerEventException(string message) : base(message)
         {
         }
 
+        [ExcludeFromCodeCoverage]
         public UnsupportedTriggerEventException(string message, Exception innerException) : base(message, innerException)
         {
         }
 
+        [ExcludeFromCodeCoverage]
         protected UnsupportedTriggerEventException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
