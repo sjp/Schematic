@@ -31,5 +31,16 @@ namespace SJP.Schematic.Graphviz.Tests
         {
             Assert.That(GraphvizExe.DotExecutablePath, Does.Exist);
         }
+
+        [Test]
+        public void Dispose_WhenInvokedMoreThanOnce_DoesNotThrowError()
+        {
+            Assert.That(() =>
+            {
+                GraphvizExe.Dispose();
+                GraphvizExe.Dispose();
+                GraphvizExe.Dispose();
+            }, Throws.Nothing);
+        }
     }
 }
