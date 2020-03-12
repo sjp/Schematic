@@ -103,5 +103,20 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.That(view.IsMaterialized, Is.True);
         }
+
+        [TestCase("", "test_view", "Materialized View: test_view")]
+        [TestCase("test_schema", "test_view", "Materialized View: test_schema.test_view")]
+        public static void ToString_WhenInvoked_ReturnsExpectedString(string schema, string localName, string expectedOutput)
+        {
+            var viewName = Identifier.CreateQualifiedIdentifier(schema, localName);
+            const string definition = "select * from test";
+            var columns = new[] { Mock.Of<IDatabaseColumn>() };
+
+            var view = new DatabaseMaterializedView(viewName, definition, columns);
+
+            var result = view.ToString();
+
+            Assert.That(result, Is.EqualTo(expectedOutput));
+        }
     }
 }

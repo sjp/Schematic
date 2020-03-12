@@ -58,5 +58,18 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.That(routine.Definition, Is.EqualTo(definition));
         }
+
+        [TestCase("", "test_routine", "Routine: test_routine")]
+        [TestCase("test_schema", "test_routine", "Routine: test_schema.test_routine")]
+        public static void ToString_WhenInvoked_ReturnsExpectedString(string schema, string localName, string expectedOutput)
+        {
+            var routineName = Identifier.CreateQualifiedIdentifier(schema, localName);
+            const string definition = "create function test_function...";
+            var routine = new DatabaseRoutine(routineName, definition);
+
+            var result = routine.ToString();
+
+            Assert.That(result, Is.EqualTo(expectedOutput));
+        }
     }
 }

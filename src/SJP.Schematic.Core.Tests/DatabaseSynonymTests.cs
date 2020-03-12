@@ -34,5 +34,22 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.That(synonym.Target.LocalName, Is.EqualTo(synonymName));
         }
+
+        [TestCase("", "test_synonym", "", "test_target", "Synonym: test_synonym -> test_target")]
+        [TestCase("test_schema", "test_synonym", "", "test_target", "Synonym: test_schema.test_synonym -> test_target")]
+        [TestCase("", "test_synonym", "target_schema", "test_target", "Synonym: test_synonym -> target_schema.test_target")]
+        [TestCase("test_schema", "test_synonym", "", "test_target", "Synonym: test_schema.test_synonym -> test_target")]
+        [TestCase("test_schema", "test_synonym", "target_schema", "test_target", "Synonym: test_schema.test_synonym -> target_schema.test_target")]
+        public static void ToString_WhenInvoked_ReturnsExpectedString(string synonymSchema, string synonymLocalName, string targetSchema, string targetLocalName, string expectedOutput)
+        {
+            var synonymName = Identifier.CreateQualifiedIdentifier(synonymSchema, synonymLocalName);
+            var targetName = Identifier.CreateQualifiedIdentifier(targetSchema, targetLocalName);
+
+            var synonym = new DatabaseSynonym(synonymName, targetName);
+
+            var result = synonym.ToString();
+
+            Assert.That(result, Is.EqualTo(expectedOutput));
+        }
     }
 }

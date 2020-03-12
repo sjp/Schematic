@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using LanguageExt;
 using SJP.Schematic.Tests.Utilities;
+using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Oracle.Tests
 {
@@ -90,6 +91,21 @@ namespace SJP.Schematic.Oracle.Tests
             var package = new OracleDatabasePackage(packageName, specification, body);
 
             Assert.That(package.Body.UnwrapSome(), Is.EqualTo(body.UnwrapSome()));
+        }
+
+        [TestCase("", "test_package", "Package: test_package")]
+        [TestCase("test_schema", "test_package", "Package: test_schema.test_package")]
+        public static void ToString_WhenInvoked_ReturnsExpectedString(string schema, string localName, string expectedOutput)
+        {
+            var packageName = Identifier.CreateQualifiedIdentifier(schema, localName);
+            const string specification = "spec";
+            var body = Option<string>.Some("body");
+
+            var package = new OracleDatabasePackage(packageName, specification, body);
+
+            var result = package.ToString();
+
+            Assert.That(result, Is.EqualTo(expectedOutput));
         }
     }
 }

@@ -7,7 +7,6 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core
 {
-#pragma warning disable S3928 // Parameter names used into ArgumentException constructors should match an existing one
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class DatabaseSequence : IDatabaseSequence
     {
@@ -28,6 +27,7 @@ namespace SJP.Schematic.Core
                 throw new ArgumentException("A non-zero increment is required", nameof(increment));
             Increment = increment;
 
+#pragma warning disable S3928 // Parameter names used into ArgumentException constructors should match an existing one
             if (increment > 0)
             {
                 minValue
@@ -48,6 +48,7 @@ namespace SJP.Schematic.Core
                     .Where(mv => mv > start)
                     .IfSome(_ => throw new ArgumentException("When a maximum value and negative increment is provided, the maximum value must not be larger than the starting value.", nameof(maxValue)));
             }
+#pragma warning restore S3928 // Parameter names used into ArgumentException constructors should match an existing one
 
             if (cacheSize < 0)
                 cacheSize = UnknownCacheSize;
@@ -94,5 +95,4 @@ namespace SJP.Schematic.Core
             }
         }
     }
-#pragma warning restore S3928 // Parameter names used into ArgumentException constructors should match an existing one
 }

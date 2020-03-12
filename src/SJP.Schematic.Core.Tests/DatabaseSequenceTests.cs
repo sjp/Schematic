@@ -112,5 +112,17 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.That(sequence.Start, Is.EqualTo(start));
         }
+
+        [TestCase("", "test_sequence", "Sequence: test_sequence")]
+        [TestCase("test_schema", "test_sequence", "Sequence: test_schema.test_sequence")]
+        public static void ToString_WhenInvoked_ReturnsExpectedString(string schema, string localName, string expectedOutput)
+        {
+            var sequenceName = Identifier.CreateQualifiedIdentifier(schema, localName);
+            var sequence = new DatabaseSequence(sequenceName, 1, 1, Option<decimal>.None, Option<decimal>.None, true, 1);
+
+            var result = sequence.ToString();
+
+            Assert.That(result, Is.EqualTo(expectedOutput));
+        }
     }
 }

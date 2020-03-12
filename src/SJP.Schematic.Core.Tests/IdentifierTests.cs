@@ -581,5 +581,17 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.That(isLte, Is.True);
         }
+
+        [TestCase("", "", "", "localName", "LocalName = localName")]
+        [TestCase("", "", "schemaName", "localName", "Schema = schemaName, LocalName = localName")]
+        [TestCase("", "databaseName", "schemaName", "localName", "Database = databaseName, Schema = schemaName, LocalName = localName")]
+        [TestCase("serverName", "databaseName", "schemaName", "localName", "Server = serverName, Database = databaseName, Schema = schemaName, LocalName = localName")]
+        public static void ToString_WhenInvoked_ReturnsExpectedOutput(string server, string database, string schema, string localName, string expectedOutput)
+        {
+            var identifier = Identifier.CreateQualifiedIdentifier(server, database, schema, localName);
+            var result = identifier.ToString();
+
+            Assert.That(result, Is.EqualTo(expectedOutput));
+        }
     }
 }

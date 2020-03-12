@@ -273,5 +273,26 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentException);
         }
+
+        [TestCase("", "test_table", "Table: test_table")]
+        [TestCase("test_schema", "test_table", "Table: test_schema.test_table")]
+        public static void ToString_WhenInvoked_ReturnsExpectedString(string schema, string localName, string expectedOutput)
+        {
+            var tableName = Identifier.CreateQualifiedIdentifier(schema, localName);
+            var columns = new[] { Mock.Of<IDatabaseColumn>() };
+            var primaryKey = Option<IDatabaseKey>.None;
+            var uniqueKeys = Array.Empty<IDatabaseKey>();
+            var parentKeys = Array.Empty<IDatabaseRelationalKey>();
+            var childKeys = Array.Empty<IDatabaseRelationalKey>();
+            var indexes = Array.Empty<IDatabaseIndex>();
+            var checks = Array.Empty<IDatabaseCheckConstraint>();
+            var triggers = Array.Empty<IDatabaseTrigger>();
+
+            var table = new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers);
+
+            var result = table.ToString();
+
+            Assert.That(result, Is.EqualTo(expectedOutput));
+        }
     }
 }
