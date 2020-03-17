@@ -2,44 +2,34 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.Graphviz.Tests
 {
-    public class GraphvizTemporaryExecutableTests
+    [TestFixture]
+    internal static class GraphvizTemporaryExecutableTests
     {
-        private GraphvizTemporaryExecutable GraphvizExe { get; set; }
-
-        [OneTimeSetUp]
-        public void Init()
-        {
-            GraphvizExe = new GraphvizTemporaryExecutable();
-        }
-
-        [OneTimeTearDown]
-        public void CleanUp()
-        {
-            GraphvizExe.Dispose();
-        }
-
         [Test]
-        public void DotExecutablePath_PropertyGet_IsNonEmptyOrWhiteSpace()
+        public static void DotExecutablePath_PropertyGet_IsNonEmptyOrWhiteSpace()
         {
-            var nonWhiteSpace = !string.IsNullOrWhiteSpace(GraphvizExe.DotExecutablePath);
+            using var graphviz = new GraphvizTemporaryExecutable();
+            var nonWhiteSpace = !string.IsNullOrWhiteSpace(graphviz.DotExecutablePath);
 
             Assert.That(nonWhiteSpace, Is.True);
         }
 
         [Test]
-        public void DotExecutablePath_PropertyGet_FileExists()
+        public static void DotExecutablePath_PropertyGet_FileExists()
         {
-            Assert.That(GraphvizExe.DotExecutablePath, Does.Exist);
+            using var graphviz = new GraphvizTemporaryExecutable();
+            Assert.That(graphviz.DotExecutablePath, Does.Exist);
         }
 
         [Test]
-        public void Dispose_WhenInvokedMoreThanOnce_DoesNotThrowError()
+        public static void Dispose_WhenInvokedMoreThanOnce_DoesNotThrowError()
         {
+            using var graphviz = new GraphvizTemporaryExecutable();
             Assert.That(() =>
             {
-                GraphvizExe.Dispose();
-                GraphvizExe.Dispose();
-                GraphvizExe.Dispose();
+                graphviz.Dispose();
+                graphviz.Dispose();
+                graphviz.Dispose();
             }, Throws.Nothing);
         }
     }
