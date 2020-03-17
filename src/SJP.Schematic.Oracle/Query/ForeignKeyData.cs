@@ -2,21 +2,21 @@
 {
     internal class ForeignKeyData
     {
-        public string? ConstraintName { get; set; }
+        public string ConstraintName { get; set; } = default!;
 
-        public string? EnabledStatus { get; set; }
+        public string EnabledStatus { get; set; } = default!;
 
-        public string? DeleteAction { get; set; }
+        public string DeleteAction { get; set; } = default!;
 
-        public string? ParentTableSchema { get; set; }
+        public string? ParentTableSchema { get; set; } = default!;
 
-        public string? ParentTableName { get; set; }
+        public string? ParentTableName { get; set; } = default!;
 
-        public string? ParentConstraintName { get; set; }
+        public string? ParentConstraintName { get; set; } = default!;
 
-        public string? ParentKeyType { get; set; }
+        public string ParentKeyType { get; set; } = default!;
 
-        public string? ColumnName { get; set; }
+        public string ColumnName { get; set; } = default!;
 
         public int ColumnPosition { get; set; }
     }

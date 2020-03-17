@@ -594,8 +594,8 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
                         var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ConstraintName);
                         var childKeyColumns = fkey
                             .OrderBy(row => row.ColumnPosition)
-                            .Where(row => row.ColumnName != null && columns.ContainsKey(row.ColumnName))
-                            .Select(row => columns[row.ColumnName!])
+                            .Where(row => columns.ContainsKey(row.ColumnName))
+                            .Select(row => columns[row.ColumnName])
                             .ToList();
 
                         var isEnabled = fkey.Key.EnabledStatus == Constants.Enabled;

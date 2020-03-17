@@ -2,8 +2,8 @@
 {
     internal class ConstraintColumnMapping
     {
-        public string? ConstraintName { get; set; }
+        public string ConstraintName { get; set; } = default!;
 
-        public string? ColumnName { get; set; }
+        public string ColumnName { get; set; } = default!;
     }
 }

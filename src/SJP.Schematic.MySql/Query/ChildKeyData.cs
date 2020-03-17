@@ -2,18 +2,18 @@
 {
     internal class ChildKeyData
     {
-        public string? ChildTableSchema { get; set; }
+        public string ChildTableSchema { get; set; } = default!;
 
-        public string? ChildTableName { get; set; }
+        public string ChildTableName { get; set; } = default!;
 
-        public string? ChildKeyName { get; set; }
+        public string ChildKeyName { get; set; } = default!;
 
-        public string? ParentKeyName { get; set; }
+        public string ParentKeyName { get; set; } = default!;
 
-        public string? ParentKeyType { get; set; }
+        public string ParentKeyType { get; set; } = default!;
 
-        public string? DeleteAction { get; set; }
+        public string DeleteAction { get; set; } = default!;
 
-        public string? UpdateAction { get; set; }
+        public string UpdateAction { get; set; } = default!;
     }
 }
