@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using Nito.AsyncEx;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.PostgreSql.Comments;
 using SJP.Schematic.Tests.Utilities;
 
@@ -24,22 +25,22 @@ RETURNS integer AS $$
 BEGIN
     RETURN val + 1;
 END; $$
-LANGUAGE PLPGSQL").ConfigureAwait(false);
+LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"CREATE FUNCTION v95_comment_test_routine_2(val integer)
 RETURNS integer AS $$
 BEGIN
     RETURN val + 1;
 END; $$
-LANGUAGE PLPGSQL").ConfigureAwait(false);
+LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("comment on function v95_comment_test_routine_2 (integer) is 'This is a test function.'").ConfigureAwait(false);
+            await Connection.ExecuteAsync("comment on function v95_comment_test_routine_2 (integer) is 'This is a test function.'", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop function v95_comment_test_routine_1(integer)").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop function v95_comment_test_routine_2(integer)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop function v95_comment_test_routine_1(integer)", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop function v95_comment_test_routine_2(integer)", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IDatabaseRoutineComments> GetRoutineCommentsAsync(Identifier routineName)

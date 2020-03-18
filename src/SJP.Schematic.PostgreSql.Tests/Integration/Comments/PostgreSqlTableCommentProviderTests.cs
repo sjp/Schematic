@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using Nito.AsyncEx;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.PostgreSql.Comments;
 using SJP.Schematic.Tests.Utilities;
 
@@ -19,8 +20,8 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create table table_comment_table_1 ( test_column_1 int )").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create table table_comment_table_2 ( test_column_1 int, constraint test_comment_table_2_pk primary key (test_column_1) )").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table table_comment_table_1 ( test_column_1 int )", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table table_comment_table_2 ( test_column_1 int, constraint test_comment_table_2_pk primary key (test_column_1) )", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 CREATE TABLE table_comment_table_3
 (
@@ -34,9 +35,9 @@ CREATE TABLE table_comment_table_3
     CONSTRAINT table_comment_table_3_ck_2 CHECK (test_column_1 < 1000),
     CONSTRAINT table_comment_table_3_fk_1 FOREIGN KEY (test_column_3) REFERENCES table_comment_table_3 (test_column_1),
     CONSTRAINT table_comment_table_3_fk_2 FOREIGN KEY (test_column_2) REFERENCES table_comment_table_3 (test_column_1)
-)").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create index table_comment_table_3_ix_1 on table_comment_table_3 (test_column_2)").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create index table_comment_table_3_ix_2 on table_comment_table_3 (test_column_3)").ConfigureAwait(false);
+)", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create index table_comment_table_3_ix_1 on table_comment_table_3 (test_column_2)", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create index table_comment_table_3_ix_2 on table_comment_table_3 (test_column_3)", CancellationToken.None).ConfigureAwait(false);
 
             await Connection.ExecuteAsync(@"create function table_comment_table_3_trigger_fn_1()
 returns trigger as
@@ -45,36 +46,36 @@ BEGIN
     RETURN null;
 END;
 $BODY$
-LANGUAGE PLPGSQL").ConfigureAwait(false);
+LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 create trigger table_comment_table_3_trigger_1
 before insert
 on table_comment_table_3
-execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
+execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 create trigger table_comment_table_3_trigger_2
 after insert
 on table_comment_table_3
-execute procedure table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
+execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("comment on table table_comment_table_3 is 'This is a test table comment.'").ConfigureAwait(false);
-            await Connection.ExecuteAsync("comment on column table_comment_table_3.test_column_2 is 'This is a column comment.'").ConfigureAwait(false);
-            await Connection.ExecuteAsync("comment on constraint table_comment_table_3_pk on table_comment_table_3 is 'This is a primary key comment.'").ConfigureAwait(false);
-            await Connection.ExecuteAsync("comment on constraint table_comment_table_3_uk_2 on table_comment_table_3 is 'This is a unique key comment.'").ConfigureAwait(false);
-            await Connection.ExecuteAsync("comment on constraint table_comment_table_3_ck_2 on table_comment_table_3 is 'This is a check comment.'").ConfigureAwait(false);
-            await Connection.ExecuteAsync("comment on constraint table_comment_table_3_fk_2 on table_comment_table_3 is 'This is a foreign key comment.'").ConfigureAwait(false);
+            await Connection.ExecuteAsync("comment on table table_comment_table_3 is 'This is a test table comment.'", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("comment on column table_comment_table_3.test_column_2 is 'This is a column comment.'", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("comment on constraint table_comment_table_3_pk on table_comment_table_3 is 'This is a primary key comment.'", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("comment on constraint table_comment_table_3_uk_2 on table_comment_table_3 is 'This is a unique key comment.'", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("comment on constraint table_comment_table_3_ck_2 on table_comment_table_3 is 'This is a check comment.'", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("comment on constraint table_comment_table_3_fk_2 on table_comment_table_3 is 'This is a foreign key comment.'", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("comment on index table_comment_table_3_ix_2 is 'This is an index comment.'").ConfigureAwait(false);
-            await Connection.ExecuteAsync("comment on trigger table_comment_table_3_trigger_2 on table_comment_table_3 is 'This is a trigger comment.'").ConfigureAwait(false);
+            await Connection.ExecuteAsync("comment on index table_comment_table_3_ix_2 is 'This is an index comment.'", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("comment on trigger table_comment_table_3_trigger_2 on table_comment_table_3 is 'This is a trigger comment.'", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop table table_comment_table_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_comment_table_2").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_comment_table_3").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop function table_comment_table_3_trigger_fn_1()").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_comment_table_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_comment_table_2", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_comment_table_3", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop function table_comment_table_3_trigger_fn_1()", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IRelationalDatabaseTableComments> GetTableCommentsAsync(Identifier tableName)

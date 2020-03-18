@@ -1,10 +1,11 @@
 ﻿using System.Data;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
 using SJP.Schematic.Tests.Utilities;
 
@@ -15,18 +16,18 @@ namespace SJP.Schematic.Lint.Tests.Integration
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create table table_without_nullable_columns_1 ( column_1 integer not null )").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create table table_for_nullable_columns_1 ( column_1 integer not null, column_2 integer null )").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create table table_for_nullable_columns_2 ( column_1 integer not null, column_2 integer null )").ConfigureAwait(false);
-            await Connection.ExecuteAsync("insert into table_for_nullable_columns_2 ( column_1 ) values (1)").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table table_without_nullable_columns_1 ( column_1 integer not null )", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table table_for_nullable_columns_1 ( column_1 integer not null, column_2 integer null )", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table table_for_nullable_columns_2 ( column_1 integer not null, column_2 integer null )", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("insert into table_for_nullable_columns_2 ( column_1 ) values (1)", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop table table_without_nullable_columns_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_for_nullable_columns_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_for_nullable_columns_2").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_without_nullable_columns_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_for_nullable_columns_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_for_nullable_columns_2", CancellationToken.None).ConfigureAwait(false);
         }
 
         [Test]

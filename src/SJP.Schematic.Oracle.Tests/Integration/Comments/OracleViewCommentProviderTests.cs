@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using Nito.AsyncEx;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Oracle.Comments;
 using SJP.Schematic.Tests.Utilities;
 
@@ -19,30 +20,30 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create table wrapper_view_comment_table_1 ( test_column_1 number, test_column_2 number, test_column_3 number )").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table wrapper_view_comment_table_1 ( test_column_1 number, test_column_2 number, test_column_3 number )", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("create view wrapper_view_comment_view_1 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create view wrapper_view_comment_view_2 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create view wrapper_view_comment_view_1 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create view wrapper_view_comment_view_2 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("create materialized view wrapper_view_comment_mview_1 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create materialized view wrapper_view_comment_mview_2 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create materialized view wrapper_view_comment_mview_1 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create materialized view wrapper_view_comment_mview_2 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("comment on table wrapper_view_comment_view_2 is 'This is a test view comment.'").ConfigureAwait(false);
-            await Connection.ExecuteAsync("comment on column wrapper_view_comment_view_2.test_column_2 is 'This is a column comment.'").ConfigureAwait(false);
-            await Connection.ExecuteAsync("comment on materialized view wrapper_view_comment_mview_2 is 'This is a test materialized view comment.'").ConfigureAwait(false);
-            await Connection.ExecuteAsync("comment on column wrapper_view_comment_mview_2.test_column_2 is 'This is an mview column comment.'").ConfigureAwait(false);
+            await Connection.ExecuteAsync("comment on table wrapper_view_comment_view_2 is 'This is a test view comment.'", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("comment on column wrapper_view_comment_view_2.test_column_2 is 'This is a column comment.'", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("comment on materialized view wrapper_view_comment_mview_2 is 'This is a test materialized view comment.'", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("comment on column wrapper_view_comment_mview_2.test_column_2 is 'This is an mview column comment.'", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop view wrapper_view_comment_view_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop view wrapper_view_comment_view_2").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop view wrapper_view_comment_view_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop view wrapper_view_comment_view_2", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("drop materialized view wrapper_view_comment_mview_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop materialized view wrapper_view_comment_mview_2").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop materialized view wrapper_view_comment_mview_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop materialized view wrapper_view_comment_mview_2", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("drop table wrapper_view_comment_table_1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table wrapper_view_comment_table_1", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IDatabaseViewComments> GetViewCommentsAsync(Identifier viewName)

@@ -1,8 +1,9 @@
 ﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
@@ -27,7 +28,7 @@ create table test_table_1 (
     test_datetime datetime default CURRENT_TIMESTAMP,
     test_string text,
     test_string_with_default default 'test'
-)").ConfigureAwait(false);
+)", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 create table test_table_2 (
     test_pk_1 integer not null,
@@ -38,11 +39,11 @@ create table test_table_2 (
     comment text null,
     constraint test_table_2_pk primary key (test_pk_1, test_pk_2),
     constraint test_table_2_multi_uk unique (first_name, middle_name, last_name)
-)").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create index ix_test_table_2_first_name on test_table_2 (first_name, last_name)").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create index ix_test_table_2_comment on test_table_2 (comment)").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create unique index ux_test_table_2_first_name_middle_name on test_table_2 (first_name, middle_name)").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create unique index ux_test_table_2_last_name on test_table_2 (last_name)").ConfigureAwait(false);
+)", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create index ix_test_table_2_first_name on test_table_2 (first_name, last_name)", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create index ix_test_table_2_comment on test_table_2 (comment)", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create unique index ux_test_table_2_first_name_middle_name on test_table_2 (first_name, middle_name)", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create unique index ux_test_table_2_last_name on test_table_2 (last_name)", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 create table test_table_3 (
     test_pk integer not null primary key autoincrement,
@@ -54,7 +55,7 @@ create table test_table_3 (
     test_datetime datetime default CURRENT_TIMESTAMP,
     test_string text,
     test_string_with_default default 'test'
-)").ConfigureAwait(false);
+)", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 create table test_table_4 (
     test_pk integer not null primary key autoincrement,
@@ -74,16 +75,16 @@ create table test_table_4 (
     constraint fk_test_table_4_test_table_3_fk2 foreign key (test_table_3_fk2) references test_table_3 (test_pk) on update cascade,
     constraint fk_test_table_4_test_table_3_fk3 foreign key (test_table_3_fk3) references test_table_3 (test_pk) on delete set null,
     constraint fk_test_table_4_test_table_3_fk4 foreign key (test_table_3_fk4) references test_table_3 (test_pk) on update set null on delete cascade
-)").ConfigureAwait(false);
+)", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop table test_table_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table test_table_2").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table test_table_4").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table test_table_3").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table test_table_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table test_table_2", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table test_table_4", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table test_table_3", CancellationToken.None).ConfigureAwait(false);
         }
 
         [Test]

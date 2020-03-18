@@ -1,14 +1,15 @@
 ﻿using System;
-using System.Threading.Tasks;
-using NUnit.Framework;
-using Dapper;
-using SJP.Schematic.Core;
-using System.Linq;
-using System.Data;
-using Microsoft.Data.Sqlite;
-using SJP.Schematic.Sqlite.Pragma;
-using Moq;
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Data.Sqlite;
+using Moq;
+using NUnit.Framework;
+using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Sqlite.Pragma;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 {
@@ -104,20 +105,20 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dialect = Mock.Of<IDatabaseDialect>();
             var connPragma = new ConnectionPragma(dialect, connection);
 
-            await connection.ExecuteAsync("create table test ( col text )").ConfigureAwait(false);
-            await connection.ExecuteAsync("insert into test (col) values ('dummy')").ConfigureAwait(false);
-            await connection.ExecuteAsync("insert into test (col) values ('DUMMY_DUMMY')").ConfigureAwait(false);
-            await connection.ExecuteAsync("insert into test (col) values ('DUMMY')").ConfigureAwait(false);
+            await connection.ExecuteAsync("create table test ( col text )", CancellationToken.None).ConfigureAwait(false);
+            await connection.ExecuteAsync("insert into test (col) values ('dummy')", CancellationToken.None).ConfigureAwait(false);
+            await connection.ExecuteAsync("insert into test (col) values ('DUMMY_DUMMY')", CancellationToken.None).ConfigureAwait(false);
+            await connection.ExecuteAsync("insert into test (col) values ('DUMMY')", CancellationToken.None).ConfigureAwait(false);
 
             const string query = "select count(*) from test where col like 'DUMMY%'";
             const int expectedInsensitive = 3;
             const int expectedSensitive = 2;
 
             await connPragma.CaseSensitiveLikeAsync(false).ConfigureAwait(false);
-            var insensitiveResult = connection.ExecuteScalar<int>(query);
+            var insensitiveResult = await connection.ExecuteScalarAsync<int>(query, CancellationToken.None);
 
             await connPragma.CaseSensitiveLikeAsync(true).ConfigureAwait(false);
-            var sensitiveResult = connection.ExecuteScalar<int>(query);
+            var sensitiveResult = await connection.ExecuteScalarAsync<int>(query, CancellationToken.None);
 
             Assert.Multiple(() =>
             {
@@ -270,13 +271,13 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dialect = Mock.Of<IDatabaseDialect>();
             var connPragma = new ConnectionPragma(dialect, connection);
 
-            await connection.ExecuteAsync("create table test ( col text, constraint col_ck check (col <> 'test') )").ConfigureAwait(false);
+            await connection.ExecuteAsync("create table test ( col text, constraint col_ck check (col <> 'test') )", CancellationToken.None).ConfigureAwait(false);
 
             await connPragma.IgnoreCheckConstraintsAsync(true).ConfigureAwait(false);
-            await connection.ExecuteAsync("insert into test (col) values ('test')").ConfigureAwait(false);
+            await connection.ExecuteAsync("insert into test (col) values ('test')", CancellationToken.None).ConfigureAwait(false);
 
             await connPragma.IgnoreCheckConstraintsAsync(false).ConfigureAwait(false);
-            Assert.That(async () => await connection.ExecuteAsync("insert into test (col) values ('test')").ConfigureAwait(false), Throws.TypeOf<SqliteException>());
+            Assert.That(async () => await connection.ExecuteAsync("insert into test (col) values ('test')", CancellationToken.None).ConfigureAwait(false), Throws.TypeOf<SqliteException>());
         }
 
         [Test]

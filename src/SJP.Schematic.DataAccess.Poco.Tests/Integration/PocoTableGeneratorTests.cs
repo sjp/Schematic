@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Sqlite;
 using SJP.Schematic.Tests.Utilities;
@@ -29,15 +30,15 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
     testblob blob default X'DEADBEEF',
     testdatetime datetime default CURRENT_TIMESTAMP,
     teststring text default 'test'
-)").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create table test_table_2 ( test_column_1 integer )").ConfigureAwait(false);
+)", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table test_table_2 ( test_column_1 integer )", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop table test_table_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table test_table_2").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table test_table_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table test_table_2", CancellationToken.None).ConfigureAwait(false);
         }
 
         [Test]

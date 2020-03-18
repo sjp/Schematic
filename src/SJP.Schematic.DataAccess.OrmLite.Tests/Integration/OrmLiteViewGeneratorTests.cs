@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite;
 using SJP.Schematic.Tests.Utilities;
 
@@ -29,25 +30,25 @@ select
     X'DEADBEEF' as testblob,
     CURRENT_TIMESTAMP as testdatetime,
     'test' as teststring
-").ConfigureAwait(false);
+", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"create table view_test_table_1 (
     testint integer not null primary key autoincrement,
     testdecimal numeric default 2.45,
     testblob blob default X'DEADBEEF',
     testdatetime datetime default CURRENT_TIMESTAMP,
     teststring text default 'test'
-)").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create view test_view_2 as select * from view_test_table_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create view test_view_3 as select 1 as test_column_1").ConfigureAwait(false);
+)", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create view test_view_2 as select * from view_test_table_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create view test_view_3 as select 1 as test_column_1", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop view test_view_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop view test_view_2").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table view_test_table_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop view test_view_3").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop view test_view_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop view test_view_2", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table view_test_table_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop view test_view_3", CancellationToken.None).ConfigureAwait(false);
         }
 
         [Test]

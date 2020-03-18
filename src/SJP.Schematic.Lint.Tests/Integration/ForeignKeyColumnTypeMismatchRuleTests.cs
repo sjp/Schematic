@@ -1,7 +1,8 @@
 ﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using NUnit.Framework;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
 using SJP.Schematic.Tests.Utilities;
 
@@ -12,27 +13,27 @@ namespace SJP.Schematic.Lint.Tests.Integration
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create table parent_table_with_int_key_column_1 ( column_1 integer not null primary key autoincrement )").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table parent_table_with_int_key_column_1 ( column_1 integer not null primary key autoincrement )", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 create table child_table_with_int_key_column_1 (
     column_1 integer,
     column_2 integer,
     constraint test_valid_fk foreign key (column_2) references parent_table_with_int_key_column_1 (column_1)
-)").ConfigureAwait(false);
+)", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 create table child_table_with_text_key_column_1 (
     column_1 integer,
     column_2 text,
     constraint test_valid_fk foreign key (column_2) references parent_table_with_int_key_column_1 (column_1)
-)").ConfigureAwait(false);
+)", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop table parent_table_with_int_key_column_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table child_table_with_int_key_column_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table child_table_with_text_key_column_1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table parent_table_with_int_key_column_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table child_table_with_int_key_column_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table child_table_with_text_key_column_1", CancellationToken.None).ConfigureAwait(false);
         }
 
         [Test]

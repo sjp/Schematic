@@ -1,7 +1,8 @@
 ﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using NUnit.Framework;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
 using SJP.Schematic.Tests.Utilities;
 
@@ -12,41 +13,41 @@ namespace SJP.Schematic.Lint.Tests.Integration
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create table no_foreign_key_parent_1 ( column_1 integer not null primary key autoincrement )").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create table NoForeignKeyParent1 ( Column1 integer not null primary key autoincrement )").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table no_foreign_key_parent_1 ( column_1 integer not null primary key autoincrement )", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table NoForeignKeyParent1 ( Column1 integer not null primary key autoincrement )", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 create table no_foreign_key_child_with_key (
     column_1 integer,
     no_foreign_key_parent_1_id integer,
     constraint no_foreign_key_child_with_key_fk1 foreign key (no_foreign_key_parent_1_id) references no_foreign_key_parent_1 (column_1)
-)").ConfigureAwait(false);
+)", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 create table no_foreign_key_child_without_key (
     column_1 integer,
     no_foreign_key_parent_1_id integer
-)").ConfigureAwait(false);
+)", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 create table NoForeignKeyChildWithKey (
     Column1 integer,
     NoForeignKeyParent1Id integer,
     constraint NoForeignKeyChildWithKeyFk1 foreign key (NoForeignKeyParent1Id) references NoForeignKeyParent1 (Column1)
-)").ConfigureAwait(false);
+)", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 create table NoForeignKeyChildWithoutKey (
     Column1 integer,
     NoForeignKeyParent1Id integer
-)").ConfigureAwait(false);
+)", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop table no_foreign_key_child_with_key").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table no_foreign_key_child_without_key").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table NoForeignKeyChildWithKey").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table NoForeignKeyChildWithoutKey").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table no_foreign_key_parent_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table NoForeignKeyParent1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table no_foreign_key_child_with_key", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table no_foreign_key_child_without_key", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table NoForeignKeyChildWithKey", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table NoForeignKeyChildWithoutKey", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table no_foreign_key_parent_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table NoForeignKeyParent1", CancellationToken.None).ConfigureAwait(false);
         }
 
         [Test]

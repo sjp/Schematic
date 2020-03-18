@@ -1,7 +1,8 @@
 ﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using NUnit.Framework;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
 using SJP.Schematic.Tests.Utilities;
 
@@ -12,20 +13,20 @@ namespace SJP.Schematic.Lint.Tests.Integration
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create table valid_table_1 ( column_1 integer )").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create table valid_table_2 ( column_1 integer, column_2 integer, column_3 integer )").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create index ix_valid_table_1 on valid_table_2 ( column_2, column_3 )").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create table valid_table_3 ( column_1 integer, column_2 integer, column_3 integer )").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create index ix_valid_table_3_1 on valid_table_3 ( column_2 )").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create index ix_valid_table_3_2 on valid_table_3 ( column_2, column_3 )").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table valid_table_1 ( column_1 integer )", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table valid_table_2 ( column_1 integer, column_2 integer, column_3 integer )", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create index ix_valid_table_1 on valid_table_2 ( column_2, column_3 )", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table valid_table_3 ( column_1 integer, column_2 integer, column_3 integer )", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create index ix_valid_table_3_1 on valid_table_3 ( column_2 )", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create index ix_valid_table_3_2 on valid_table_3 ( column_2, column_3 )", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop table valid_table_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table valid_table_2").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table valid_table_3").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table valid_table_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table valid_table_2", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table valid_table_3", CancellationToken.None).ConfigureAwait(false);
         }
 
         [Test]

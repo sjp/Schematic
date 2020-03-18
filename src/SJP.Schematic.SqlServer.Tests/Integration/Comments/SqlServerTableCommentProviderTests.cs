@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using Nito.AsyncEx;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.SqlServer.Comments;
 using SJP.Schematic.Tests.Utilities;
 
@@ -19,8 +20,8 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Comments
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create table table_comment_table_1 ( test_column_1 int )").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create table table_comment_table_2 ( test_column_1 int, constraint test_comment_table_2_pk primary key (test_column_1) )").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table table_comment_table_1 ( test_column_1 int )", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table table_comment_table_2 ( test_column_1 int, constraint test_comment_table_2_pk primary key (test_column_1) )", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 CREATE TABLE table_comment_table_3
 (
@@ -34,9 +35,9 @@ CREATE TABLE table_comment_table_3
     CONSTRAINT table_comment_table_3_ck_2 CHECK (test_column_1 < 1000),
     CONSTRAINT table_comment_table_3_fk_1 FOREIGN KEY (test_column_3) REFERENCES table_comment_table_3 (test_column_1),
     CONSTRAINT table_comment_table_3_fk_2 FOREIGN KEY (test_column_2) REFERENCES table_comment_table_3 (test_column_1)
-)").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create index table_comment_table_3_ix_1 on table_comment_table_3 (test_column_2)").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create index table_comment_table_3_ix_2 on table_comment_table_3 (test_column_3)").ConfigureAwait(false);
+)", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create index table_comment_table_3_ix_1 on table_comment_table_3 (test_column_2)", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create index table_comment_table_3_ix_2 on table_comment_table_3 (test_column_3)", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 create trigger table_comment_table_3_trigger_1
 on table_comment_table_3
@@ -45,7 +46,7 @@ as
 begin
     declare @test int
 end
-").ConfigureAwait(false);
+", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 create trigger table_comment_table_3_trigger_2
 on table_comment_table_3
@@ -54,7 +55,7 @@ as
 begin
     declare @test int
 end
-").ConfigureAwait(false);
+", CancellationToken.None).ConfigureAwait(false);
 
             await AddCommentForTable("This is a test table comment.", "dbo", "table_comment_table_3").ConfigureAwait(false);
             await AddCommentForTableObject("This is a column comment.", "dbo", "table_comment_table_3", "COLUMN", "test_column_2").ConfigureAwait(false);
@@ -69,9 +70,9 @@ end
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop table table_comment_table_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_comment_table_2").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_comment_table_3").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_comment_table_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_comment_table_2", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table table_comment_table_3", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task AddCommentForTable(string comment, string schemaName, string tableName)
@@ -83,7 +84,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
   @level0name = @SchemaName,
   @level1type = N'TABLE',
   @level1name = @TableName";
-            return Connection.ExecuteAsync(querySql, new { Comment = comment, SchemaName = schemaName, TableName = tableName });
+            return Connection.ExecuteAsync(querySql, new { Comment = comment, SchemaName = schemaName, TableName = tableName }, CancellationToken.None);
         }
 
         private Task AddCommentForTableObject(string comment, string schemaName, string tableName, string objectType, string objectName)
@@ -107,7 +108,8 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                     TableName = tableName,
                     ObjectType = objectType,
                     ObjectName = objectName
-                }
+                },
+                CancellationToken.None
             );
         }
 

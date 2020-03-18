@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using Nito.AsyncEx;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.PostgreSql.Comments;
 using SJP.Schematic.Tests.Utilities;
 
@@ -19,17 +20,17 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create sequence comment_test_sequence_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create sequence comment_test_sequence_2").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create sequence comment_test_sequence_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create sequence comment_test_sequence_2", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("comment on sequence comment_test_sequence_2 is 'This is a test sequence.'").ConfigureAwait(false);
+            await Connection.ExecuteAsync("comment on sequence comment_test_sequence_2 is 'This is a test sequence.'", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop sequence comment_test_sequence_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop sequence comment_test_sequence_2").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop sequence comment_test_sequence_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop sequence comment_test_sequence_2", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IDatabaseSequenceComments> GetSequenceCommentsAsync(Identifier sequenceName)

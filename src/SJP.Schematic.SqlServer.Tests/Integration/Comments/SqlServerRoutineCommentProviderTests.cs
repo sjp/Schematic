@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using Nito.AsyncEx;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.SqlServer.Comments;
 using SJP.Schematic.Tests.Utilities;
 
@@ -29,7 +30,7 @@ AS
 BEGIN
    INSERT INTO @ret (test_col) VALUES (1);
    RETURN
-END").ConfigureAwait(false);
+END", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 CREATE FUNCTION dbo.routine_comment_tf_2()
 RETURNS @ret TABLE
@@ -40,13 +41,13 @@ AS
 BEGIN
    INSERT INTO @ret (test_col) VALUES (1);
    RETURN
-END").ConfigureAwait(false);
+END", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"CREATE PROCEDURE routine_comment_sp_1
 AS
-SELECT DB_NAME() AS ThisDB").ConfigureAwait(false);
+SELECT DB_NAME() AS ThisDB", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"CREATE PROCEDURE routine_comment_sp_2
 AS
-SELECT DB_NAME() AS ThisDB").ConfigureAwait(false);
+SELECT DB_NAME() AS ThisDB", CancellationToken.None).ConfigureAwait(false);
 
             await AddCommentForFunction("This is a test function comment.", "dbo", "routine_comment_tf_2").ConfigureAwait(false);
             await AddCommentForStoredProcedure("This is a test stored procedure comment.", "dbo", "routine_comment_sp_2").ConfigureAwait(false);
@@ -55,10 +56,10 @@ SELECT DB_NAME() AS ThisDB").ConfigureAwait(false);
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop function routine_comment_tf_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop function routine_comment_tf_2").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop procedure routine_comment_sp_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop procedure routine_comment_sp_2").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop function routine_comment_tf_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop function routine_comment_tf_2", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop procedure routine_comment_sp_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop procedure routine_comment_sp_2", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task AddCommentForFunction(string comment, string schemaName, string functionName)
@@ -70,7 +71,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
   @level0name = @SchemaName,
   @level1type = N'FUNCTION',
   @level1name = @FunctionName";
-            return Connection.ExecuteAsync(querySql, new { Comment = comment, SchemaName = schemaName, FunctionName = functionName });
+            return Connection.ExecuteAsync(querySql, new { Comment = comment, SchemaName = schemaName, FunctionName = functionName }, CancellationToken.None);
         }
 
         private Task AddCommentForStoredProcedure(string comment, string schemaName, string procedureName)
@@ -82,7 +83,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
   @level0name = @SchemaName,
   @level1type = N'PROCEDURE',
   @level1name = @StoredProcName";
-            return Connection.ExecuteAsync(querySql, new { Comment = comment, SchemaName = schemaName, StoredProcName = procedureName });
+            return Connection.ExecuteAsync(querySql, new { Comment = comment, SchemaName = schemaName, StoredProcName = procedureName }, CancellationToken.None);
         }
 
         private Task<IDatabaseRoutineComments> GetRoutineCommentsAsync(Identifier routineName)

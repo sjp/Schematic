@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using Nito.AsyncEx;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
@@ -17,25 +18,25 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create view db_test_view_1 as select 1 as dummy").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create view db_test_view_1 as select 1 as dummy", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("create view view_test_view_1 as select 1 as test").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create table view_test_table_1 (table_id int primary key not null)").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create view view_test_view_2 as select 1, 2.345, 'test', X'DEADBEEF'").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create view view_test_view_3 as select 1, 2.345, 'test', X'DEADBEEF', table_id from view_test_table_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create view view_test_view_4 as select 1, 1, 1, 1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create view view_test_view_1 as select 1 as test", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table view_test_table_1 (table_id int primary key not null)", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create view view_test_view_2 as select 1, 2.345, 'test', X'DEADBEEF'", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create view view_test_view_3 as select 1, 2.345, 'test', X'DEADBEEF', table_id from view_test_table_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create view view_test_view_4 as select 1, 1, 1, 1", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop view db_test_view_1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop view db_test_view_1", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("drop view view_test_view_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop view view_test_view_3").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table view_test_table_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop view view_test_view_2").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop view view_test_view_4").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop view view_test_view_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop view view_test_view_3", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table view_test_table_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop view view_test_view_2", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop view view_test_view_4", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IDatabaseView> GetViewAsync(Identifier viewName)

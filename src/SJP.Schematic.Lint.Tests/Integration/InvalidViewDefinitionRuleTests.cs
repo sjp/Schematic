@@ -1,10 +1,11 @@
 ﻿using System.Data;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
 using SJP.Schematic.Tests.Utilities;
 
@@ -15,15 +16,15 @@ namespace SJP.Schematic.Lint.Tests.Integration
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create view valid_view_1 as select 1 as dummy").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create view invalid_view_1 as select x from unknown_table").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create view valid_view_1 as select 1 as dummy", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create view invalid_view_1 as select x from unknown_table", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop view valid_view_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop view invalid_view_1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop view valid_view_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop view invalid_view_1", CancellationToken.None).ConfigureAwait(false);
         }
 
         [Test]

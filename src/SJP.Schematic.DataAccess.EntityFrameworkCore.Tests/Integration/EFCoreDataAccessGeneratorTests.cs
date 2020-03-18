@@ -4,8 +4,8 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
@@ -28,13 +28,13 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
     testblob blob default X'DEADBEEF',
     testdatetime datetime default CURRENT_TIMESTAMP,
     teststring text default 'test'
-)");
+)", CancellationToken.None);
         }
 
         [OneTimeTearDown]
         public Task CleanUp()
         {
-            return Connection.ExecuteAsync("drop table dal_test_table_1");
+            return Connection.ExecuteAsync("drop table dal_test_table_1", CancellationToken.None);
         }
 
         [Test]

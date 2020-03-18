@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using Nito.AsyncEx;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
@@ -26,19 +27,19 @@ create or replace FUNCTION db_test_routine_1()
       INTO test_col
       FROM dual;
       RETURN(test_col);
-END db_test_routine_1").ConfigureAwait(false);
+END db_test_routine_1", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"CREATE PROCEDURE db_test_routine_2
 IS
 BEGIN
     DBMS_OUTPUT.PUT_LINE('test');
-END;").ConfigureAwait(false);
+END;", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop function db_test_routine_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop procedure db_test_routine_2").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop function db_test_routine_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop procedure db_test_routine_2", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using Nito.AsyncEx;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
@@ -23,23 +24,23 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
             await Connection.ExecuteAsync(@"CREATE PACKAGE db_test_package_1 AS
     PROCEDURE test_proc();
-END db_test_package_1").ConfigureAwait(false);
+END db_test_package_1", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"CREATE PACKAGE BODY db_test_package_1 AS
     PROCEDURE test_proc() AS
     BEGIN
         SELECT 1 AS TEST_COL FROM DUAL;
     END test_proc;
-END db_test_package_1").ConfigureAwait(false);
+END db_test_package_1", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"CREATE PACKAGE db_test_package_2 AS
     PROCEDURE test_proc();
-END db_test_package_2").ConfigureAwait(false);
+END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop package db_test_package_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop package db_test_package_2").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop package db_test_package_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop package db_test_package_2", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IOracleDatabasePackage> GetPackageAsync(Identifier packageName)

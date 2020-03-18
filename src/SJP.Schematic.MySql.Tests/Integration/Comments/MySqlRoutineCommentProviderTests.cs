@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using Nito.AsyncEx;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.MySql.Comments;
 using SJP.Schematic.Tests.Utilities;
 
@@ -25,12 +26,12 @@ CREATE FUNCTION comment_test_routine_1()
   LANGUAGE SQL
 BEGIN
   RETURN 'test';
-END").ConfigureAwait(false);
+END", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 CREATE PROCEDURE comment_test_routine_2()
 BEGIN
    COMMIT;
-END").ConfigureAwait(false);
+END", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 CREATE FUNCTION comment_test_routine_3()
   RETURNS TEXT
@@ -39,23 +40,23 @@ CREATE FUNCTION comment_test_routine_3()
 BEGIN
   RETURN 'test';
 END
-").ConfigureAwait(false);
+", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 CREATE PROCEDURE comment_test_routine_4()
   COMMENT 'This is a test stored procedure comment.'
 BEGIN
    COMMIT;
 END
-").ConfigureAwait(false);
+", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop function comment_test_routine_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop function comment_test_routine_3").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop procedure comment_test_routine_2").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop procedure comment_test_routine_4").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop function comment_test_routine_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop function comment_test_routine_3", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop procedure comment_test_routine_2", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop procedure comment_test_routine_4", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IDatabaseRoutineComments> GetRoutineCommentsAsync(Identifier routineName)

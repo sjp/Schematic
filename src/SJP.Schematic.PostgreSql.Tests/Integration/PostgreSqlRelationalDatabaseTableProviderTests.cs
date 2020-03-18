@@ -1,8 +1,9 @@
 ﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration
@@ -14,13 +15,13 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create table db_test_table_1 ( title varchar(200) )").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table db_test_table_1 ( title varchar(200) )", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop table db_test_table_1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table db_test_table_1", CancellationToken.None).ConfigureAwait(false);
         }
 
         [Test]

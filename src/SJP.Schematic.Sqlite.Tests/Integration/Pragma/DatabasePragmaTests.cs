@@ -1,10 +1,11 @@
-﻿using System.Threading.Tasks;
-using NUnit.Framework;
-using Dapper;
-using SJP.Schematic.Core;
+﻿using System.Data;
 using System.Linq;
-using System.Data;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
+using NUnit.Framework;
+using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite.Pragma;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
@@ -118,10 +119,10 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-            await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )").ConfigureAwait(false);
-            await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )").ConfigureAwait(false);
-            await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'test')").ConfigureAwait(false);
-            await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 2)").ConfigureAwait(false);
+            await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
+            await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )", CancellationToken.None).ConfigureAwait(false);
+            await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'test')", CancellationToken.None).ConfigureAwait(false);
+            await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 2)", CancellationToken.None).ConfigureAwait(false);
 
             var fkCheck = await dbPragma.ForeignKeyCheckDatabaseAsync().ConfigureAwait(false);
 
@@ -137,10 +138,10 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-            await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )").ConfigureAwait(false);
-            await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )").ConfigureAwait(false);
-            await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'test')").ConfigureAwait(false);
-            await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 2)").ConfigureAwait(false);
+            await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
+            await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )", CancellationToken.None).ConfigureAwait(false);
+            await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'test')", CancellationToken.None).ConfigureAwait(false);
+            await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 2)", CancellationToken.None).ConfigureAwait(false);
 
             var fkCheck = await dbPragma.ForeignKeyCheckTableAsync("test_child").ConfigureAwait(false);
 
@@ -172,10 +173,10 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             using var connection = CreateConnection();
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-            await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )").ConfigureAwait(false);
-            await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )").ConfigureAwait(false);
-            await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'test')").ConfigureAwait(false);
-            await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 1)").ConfigureAwait(false);
+            await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
+            await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )", CancellationToken.None).ConfigureAwait(false);
+            await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'test')", CancellationToken.None).ConfigureAwait(false);
+            await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 1)", CancellationToken.None).ConfigureAwait(false);
 
             var fkList = await dbPragma.ForeignKeyListAsync("test_child").ConfigureAwait(false);
 
@@ -236,8 +237,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             using var connection = CreateConnection();
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-            await connection.ExecuteAsync("create table test_table ( id int primary key, val text )").ConfigureAwait(false);
-            await connection.ExecuteAsync("create index ix_test_index on test_table (val)").ConfigureAwait(false);
+            await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
+            await connection.ExecuteAsync("create index ix_test_index on test_table (val)", CancellationToken.None).ConfigureAwait(false);
 
             var indexInfos = await dbPragma.IndexInfoAsync("ix_test_index").ConfigureAwait(false);
             var indexInfo = indexInfos.Single();
@@ -255,8 +256,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             using var connection = CreateConnection();
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-            await connection.ExecuteAsync("create table test_table ( id int primary key, val text )").ConfigureAwait(false);
-            await connection.ExecuteAsync("create index ix_test_index on test_table (val)").ConfigureAwait(false);
+            await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
+            await connection.ExecuteAsync("create index ix_test_index on test_table (val)", CancellationToken.None).ConfigureAwait(false);
 
             var indexList = await dbPragma.IndexListAsync("test_table").ConfigureAwait(false);
             var firstIndex = indexList.First();
@@ -293,8 +294,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             using var connection = CreateConnection();
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-            await connection.ExecuteAsync("create table test_table ( id int primary key, val text )").ConfigureAwait(false);
-            await connection.ExecuteAsync("create index ix_test_index on test_table (val)").ConfigureAwait(false);
+            await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
+            await connection.ExecuteAsync("create index ix_test_index on test_table (val)", CancellationToken.None).ConfigureAwait(false);
 
             var indexXInfos = await dbPragma.IndexXInfoAsync("ix_test_index").ConfigureAwait(false);
             var indexXInfo = indexXInfos.First(info => info.cid >= 0);
@@ -583,7 +584,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             using var connection = CreateConnection();
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-            connection.Execute("create table test_table ( id int primary key, val text )");
+            await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
 
             var tableInfo = await dbPragma.TableInfoAsync("test_table").ConfigureAwait(false);
 
@@ -615,7 +616,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             using var connection = CreateConnection();
             var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
 
-            connection.Execute("create table test_table ( id int primary key, val text )");
+            await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None);
 
             var tableInfo = await dbPragma.TableXInfoAsync("test_table").ConfigureAwait(false);
 

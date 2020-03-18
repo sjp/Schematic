@@ -1,7 +1,8 @@
 ﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using NUnit.Framework;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
 using SJP.Schematic.Tests.Utilities;
 
@@ -17,19 +18,19 @@ create table parent_table_with_different_column_to_pk_column_1 (
     column_1 integer not null primary key autoincrement,
     column_2 integer,
     constraint test_fk_1 foreign key (column_2) references parent_table_with_different_column_to_pk_column_1 (column_1)
-)").ConfigureAwait(false);
+)", CancellationToken.None).ConfigureAwait(false);
             await Connection.ExecuteAsync(@"
 create table parent_table_with_pk_column_to_pk_column_1 (
     column_1 integer not null primary key autoincrement,
     constraint test_fk_1 foreign key (column_1) references parent_table_with_pk_column_to_pk_column_1 (column_1)
-)").ConfigureAwait(false);
+)", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop table parent_table_with_different_column_to_pk_column_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table parent_table_with_pk_column_to_pk_column_1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table parent_table_with_different_column_to_pk_column_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table parent_table_with_pk_column_to_pk_column_1", CancellationToken.None).ConfigureAwait(false);
         }
 
         [Test]

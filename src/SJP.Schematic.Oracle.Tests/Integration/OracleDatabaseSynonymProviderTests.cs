@@ -1,8 +1,9 @@
 ﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
@@ -14,25 +15,25 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create synonym db_test_synonym_1 for sys.user_tables").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create synonym db_test_synonym_1 for sys.user_tables", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("create view synonym_test_view_1 as select 1 as test from dual").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create table synonym_test_table_1 (table_id number primary key not null)").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create synonym synonym_test_synonym_1 for synonym_test_view_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create synonym synonym_test_synonym_2 for synonym_test_table_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("create synonym synonym_test_synonym_3 for non_existent_target").ConfigureAwait(false);
+            await Connection.ExecuteAsync("create view synonym_test_view_1 as select 1 as test from dual", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create table synonym_test_table_1 (table_id number primary key not null)", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create synonym synonym_test_synonym_1 for synonym_test_view_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create synonym synonym_test_synonym_2 for synonym_test_table_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("create synonym synonym_test_synonym_3 for non_existent_target", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop synonym db_test_synonym_1").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop synonym db_test_synonym_1", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("drop view synonym_test_view_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table synonym_test_table_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop synonym synonym_test_synonym_1").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop synonym synonym_test_synonym_2").ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop synonym synonym_test_synonym_3").ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop view synonym_test_view_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop table synonym_test_table_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop synonym synonym_test_synonym_1", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop synonym synonym_test_synonym_2", CancellationToken.None).ConfigureAwait(false);
+            await Connection.ExecuteAsync("drop synonym synonym_test_synonym_3", CancellationToken.None).ConfigureAwait(false);
         }
 
         [Test]
