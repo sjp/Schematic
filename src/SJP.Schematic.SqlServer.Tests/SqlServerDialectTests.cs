@@ -1,6 +1,4 @@
-﻿using System.Data;
-using Moq;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace SJP.Schematic.SqlServer.Tests
 {
@@ -28,8 +26,7 @@ namespace SJP.Schematic.SqlServer.Tests
         [Test]
         public static void QuoteIdentifier_GivenNull_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqlServerDialect(connection);
+            var dialect = new SqlServerDialect();
 
             Assert.That(() => dialect.QuoteIdentifier(null), Throws.ArgumentNullException);
         }
@@ -37,8 +34,7 @@ namespace SJP.Schematic.SqlServer.Tests
         [Test]
         public static void QuoteIdentifier_GivenEmptyString_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqlServerDialect(connection);
+            var dialect = new SqlServerDialect();
 
             Assert.That(() => dialect.QuoteIdentifier(string.Empty), Throws.ArgumentNullException);
         }
@@ -46,8 +42,7 @@ namespace SJP.Schematic.SqlServer.Tests
         [Test]
         public static void QuoteIdentifier_GivenWhiteSpace_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqlServerDialect(connection);
+            var dialect = new SqlServerDialect();
 
             Assert.That(() => dialect.QuoteIdentifier("    "), Throws.ArgumentNullException);
         }
@@ -55,8 +50,7 @@ namespace SJP.Schematic.SqlServer.Tests
         [Test]
         public static void QuoteName_GivenNull_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqlServerDialect(connection);
+            var dialect = new SqlServerDialect();
 
             Assert.That(() => dialect.QuoteName(null), Throws.ArgumentNullException);
         }
@@ -64,8 +58,7 @@ namespace SJP.Schematic.SqlServer.Tests
         [Test]
         public static void QuoteName_GivenEmptyString_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqlServerDialect(connection);
+            var dialect = new SqlServerDialect();
 
             Assert.That(() => dialect.QuoteName(string.Empty), Throws.ArgumentNullException);
         }
@@ -73,8 +66,7 @@ namespace SJP.Schematic.SqlServer.Tests
         [Test]
         public static void QuoteName_GivenWhiteSpace_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqlServerDialect(connection);
+            var dialect = new SqlServerDialect();
 
             Assert.That(() => dialect.QuoteName("    "), Throws.ArgumentNullException);
         }
@@ -85,8 +77,7 @@ namespace SJP.Schematic.SqlServer.Tests
             const string input = "test_table";
             const string expected = "[test_table]";
 
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqlServerDialect(connection);
+            var dialect = new SqlServerDialect();
 
             var result = dialect.QuoteIdentifier(input);
 
@@ -99,8 +90,7 @@ namespace SJP.Schematic.SqlServer.Tests
             const string input = "test table name";
             const string expected = "[test table name]";
 
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqlServerDialect(connection);
+            var dialect = new SqlServerDialect();
 
             var result = dialect.QuoteIdentifier(input);
 
@@ -113,8 +103,7 @@ namespace SJP.Schematic.SqlServer.Tests
             const string input = "test.table.name";
             const string expected = "[test.table.name]";
 
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqlServerDialect(connection);
+            var dialect = new SqlServerDialect();
 
             var result = dialect.QuoteIdentifier(input);
 
@@ -127,8 +116,7 @@ namespace SJP.Schematic.SqlServer.Tests
             const string input = "[test_table";
             const string expected = "[[test_table]";
 
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqlServerDialect(connection);
+            var dialect = new SqlServerDialect();
 
             var result = dialect.QuoteIdentifier(input);
 
@@ -141,8 +129,7 @@ namespace SJP.Schematic.SqlServer.Tests
             const string input = "test]table";
             const string expected = "[test]]table]";
 
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqlServerDialect(connection);
+            var dialect = new SqlServerDialect();
 
             var result = dialect.QuoteIdentifier(input);
 
@@ -155,8 +142,7 @@ namespace SJP.Schematic.SqlServer.Tests
             const string input = "[test]table";
             const string expected = "[[test]]table]";
 
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqlServerDialect(connection);
+            var dialect = new SqlServerDialect();
 
             var result = dialect.QuoteIdentifier(input);
 

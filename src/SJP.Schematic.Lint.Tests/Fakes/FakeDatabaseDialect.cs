@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,11 +20,11 @@ namespace SJP.Schematic.Lint.Tests.Fakes
 
         public IEnumerable<string> ReservedKeywords { get; set; } = new List<string>();
 
-        public Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default) => Task.FromResult<IIdentifierDefaults>(null);
+        public Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default) => Task.FromResult<IIdentifierDefaults>(null);
 
-        public Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default) => Task.FromResult<string>(null);
+        public Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default) => Task.FromResult<string>(null);
 
-        public Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default) => Task.FromResult<Version>(null);
+        public Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default) => Task.FromResult<Version>(null);
 
         public string QuoteName(Identifier name)
         {
@@ -52,10 +53,10 @@ namespace SJP.Schematic.Lint.Tests.Fakes
             return $"\"{ identifier.Replace("\"", "\"\"") }\"";
         }
 
-        public Task<IRelationalDatabase> GetRelationalDatabaseAsync(CancellationToken cancellationToken = default)
+        public Task<IRelationalDatabase> GetRelationalDatabaseAsync(IDbConnection connection, CancellationToken cancellationToken = default)
             => Task.FromResult<IRelationalDatabase>(null);
 
-        public Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default)
+        public Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(IDbConnection connection, CancellationToken cancellationToken = default)
             => Task.FromResult<IRelationalDatabaseCommentProvider>(new EmptyRelationalDatabaseCommentProvider());
     }
 }

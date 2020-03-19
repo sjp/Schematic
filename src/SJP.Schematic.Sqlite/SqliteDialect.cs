@@ -13,11 +13,6 @@ namespace SJP.Schematic.Sqlite
 {
     public class SqliteDialect : DatabaseDialect
     {
-        public SqliteDialect(IDbConnection connection)
-            : base(connection)
-        {
-        }
-
         public static Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default)
         {
             if (connectionString.IsNullOrWhiteSpace())
@@ -33,35 +28,47 @@ namespace SJP.Schematic.Sqlite
             return connection;
         }
 
-        public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default)
+        public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default)
         {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
             var identifierDefaults = new IdentifierDefaults(null, null, DefaultSchema);
             return Task.FromResult<IIdentifierDefaults>(identifierDefaults);
         }
 
         private const string DefaultSchema = "main";
 
-        public override async Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default)
+        public override async Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default)
         {
-            var versionStr = await Connection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken).ConfigureAwait(false);
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken).ConfigureAwait(false);
             return "SQLite " + versionStr;
         }
 
-        public override async Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default)
+        public override async Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default)
         {
-            var versionStr = await Connection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken).ConfigureAwait(false);
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken).ConfigureAwait(false);
             return Version.Parse(versionStr);
         }
 
         private const string DatabaseDisplayVersionQuerySql = "select sqlite_version()";
 
-        public override async Task<IRelationalDatabase> GetRelationalDatabaseAsync(CancellationToken cancellationToken = default)
+        public override async Task<IRelationalDatabase> GetRelationalDatabaseAsync(IDbConnection connection, CancellationToken cancellationToken = default)
         {
-            var identifierDefaults = await GetIdentifierDefaultsAsync(cancellationToken).ConfigureAwait(false);
-            return new SqliteRelationalDatabase(this, Connection, identifierDefaults);
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var identifierDefaults = await GetIdentifierDefaultsAsync(connection, cancellationToken).ConfigureAwait(false);
+            return new SqliteRelationalDatabase(this, connection, identifierDefaults);
         }
 
-        public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default)
+        public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(IDbConnection connection, CancellationToken cancellationToken = default)
             => Task.FromResult<IRelationalDatabaseCommentProvider>(new EmptyRelationalDatabaseCommentProvider());
 
         public override IDependencyProvider GetDependencyProvider() => new SqliteDependencyProvider();

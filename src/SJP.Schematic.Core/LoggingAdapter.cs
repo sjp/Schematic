@@ -9,27 +9,27 @@ namespace SJP.Schematic.Core
     {
         public LoggingAdapter(IDbConnection connection, string sql, object? param)
         {
-            _connection = connection ?? throw new ArgumentNullException(nameof(connection));
             if (sql.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(sql));
 
+            _connection = connection ?? throw new ArgumentNullException(nameof(connection));
             _sql = sql;
             _param = param;
 
-            if (Logging.IsCommandExecutedLogged(_connection))
+            if (Logging.IsLoggingConfigured(_connection))
                 _stopWatch = new Stopwatch();
 
-            if (Logging.IsCommandExecutingLogged(_connection))
-                Logging.SchematicLogCommandExecuting(_connection, _id, _sql, _param);
+            if (Logging.IsLoggingConfigured(_connection))
+                Logging.LogCommandExecuting(_connection, _id, _sql, _param);
         }
 
         public void Dispose()
         {
-            if (!Logging.IsCommandExecutedLogged(_connection))
+            if (!Logging.IsLoggingConfigured(_connection))
                 return;
 
             _stopWatch!.Stop();
-            Logging.SchematicLogCommandExecuted(_connection, _id, _sql, _param, _stopWatch.Elapsed);
+            Logging.LogCommandExecuted(_connection, _id, _sql, _param, _stopWatch.Elapsed);
         }
 
         private readonly IDbConnection _connection;

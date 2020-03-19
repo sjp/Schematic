@@ -22,6 +22,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             IReadOnlyCollection<IDatabaseSynonym> synonyms,
             IReadOnlyCollection<IDatabaseRoutine> routines,
             IReadOnlyDictionary<Identifier, ulong> rowCounts,
+            string dbVersion,
             DirectoryInfo exportDirectory)
         {
             if (tables == null || tables.AnyNull())
@@ -44,6 +45,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             Database = database ?? throw new ArgumentNullException(nameof(database));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
             RowCounts = rowCounts ?? throw new ArgumentNullException(nameof(rowCounts));
+            DatabaseDisplayVersion = dbVersion;
             ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
         }
 
@@ -62,6 +64,8 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         private IReadOnlyCollection<IDatabaseRoutine> Routines { get; }
 
         private IReadOnlyDictionary<Identifier, ulong> RowCounts { get; }
+
+        private string DatabaseDisplayVersion { get; }
 
         private DirectoryInfo ExportDirectory { get; }
 
@@ -124,10 +128,9 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 .OrderBy(n => n)
                 .ToList();
 
-            var dbVersion = await Database.Dialect.GetDatabaseDisplayVersionAsync(cancellationToken).ConfigureAwait(false);
             var templateParameter = new Main(
                 Database.IdentifierDefaults.Database,
-                dbVersion,
+                DatabaseDisplayVersion ?? string.Empty,
                 columns,
                 constraints,
                 indexesCount,

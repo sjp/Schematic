@@ -22,7 +22,7 @@ namespace SJP.Schematic.PostgreSql.Versions.V9_4
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
             TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
-            Dialect = new PostgreSqlDialect(connection);
+            Dialect = new PostgreSqlDialect();
         }
 
         protected IDbConnection Connection { get; }

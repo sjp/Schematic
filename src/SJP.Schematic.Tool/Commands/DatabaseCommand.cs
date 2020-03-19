@@ -105,12 +105,12 @@ namespace SJP.Schematic.Tool
             return null;
         }
 
-        public IDatabaseDialect GetDatabaseDialect(IDbConnection connection)
+        public IDatabaseDialect GetDatabaseDialect()
         {
             if (!_dialectFactories.TryGetValue(DatabaseDialect, out var dialect))
                 throw new NotSupportedException("Unsupported dialect: " + DatabaseDialect);
 
-            return dialect.Invoke(connection);
+            return dialect.Invoke();
         }
 
         private static readonly IReadOnlyDictionary<string, Func<string, Task<IDbConnection>>> _connectionFactories = new Dictionary<string, Func<string, Task<IDbConnection>>>(StringComparer.OrdinalIgnoreCase)
@@ -122,13 +122,13 @@ namespace SJP.Schematic.Tool
             ["postgresql"] = cs => PostgreSqlDialect.CreateConnectionAsync(cs)
         };
 
-        private static readonly IReadOnlyDictionary<string, Func<IDbConnection, IDatabaseDialect>> _dialectFactories = new Dictionary<string, Func<IDbConnection, IDatabaseDialect>>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IReadOnlyDictionary<string, Func<IDatabaseDialect>> _dialectFactories = new Dictionary<string, Func<IDatabaseDialect>>(StringComparer.OrdinalIgnoreCase)
         {
-            ["sqlite"] = c => new SqliteDialect(c),
-            ["sqlserver"] = c => new SqlServerDialect(c),
-            ["mysql"] = c => new MySqlDialect(c),
-            ["oracle"] = c => new OracleDialect(c),
-            ["postgresql"] = c => new PostgreSqlDialect(c)
+            ["sqlite"] = () => new SqliteDialect(),
+            ["sqlserver"] = () => new SqlServerDialect(),
+            ["mysql"] = () => new MySqlDialect(),
+            ["oracle"] = () => new OracleDialect(),
+            ["postgresql"] = () => new PostgreSqlDialect()
         };
 
         public sealed class ConnectionStatus

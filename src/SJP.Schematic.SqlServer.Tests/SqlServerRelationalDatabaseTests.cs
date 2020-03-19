@@ -20,8 +20,7 @@ namespace SJP.Schematic.SqlServer.Tests
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqlServerDialect(connection);
+            var dialect = new SqlServerDialect();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             Assert.That(() => new SqlServerRelationalDatabase(dialect, null, identifierDefaults), Throws.ArgumentNullException);
@@ -31,7 +30,7 @@ namespace SJP.Schematic.SqlServer.Tests
         public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqlServerDialect(connection);
+            var dialect = new SqlServerDialect();
 
             Assert.That(() => new SqlServerRelationalDatabase(dialect, connection, null), Throws.ArgumentNullException);
         }
@@ -40,7 +39,7 @@ namespace SJP.Schematic.SqlServer.Tests
         public static void GetTable_GivenNullIdentifier_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqlServerDialect(connection);
+            var dialect = new SqlServerDialect();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             var database = new SqlServerRelationalDatabase(dialect, connection, identifierDefaults);
@@ -52,7 +51,7 @@ namespace SJP.Schematic.SqlServer.Tests
         public static void GetView_GivenNullIdentifier_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqlServerDialect(connection);
+            var dialect = new SqlServerDialect();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             var database = new SqlServerRelationalDatabase(dialect, connection, identifierDefaults);
@@ -64,7 +63,7 @@ namespace SJP.Schematic.SqlServer.Tests
         public static void GetSequence_GivenNullIdentifier_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqlServerDialect(connection);
+            var dialect = new SqlServerDialect();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             var database = new SqlServerRelationalDatabase(dialect, connection, identifierDefaults);
@@ -76,7 +75,7 @@ namespace SJP.Schematic.SqlServer.Tests
         public static void GetSynonym_GivenNullIdentifier_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqlServerDialect(connection);
+            var dialect = new SqlServerDialect();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             var database = new SqlServerRelationalDatabase(dialect, connection, identifierDefaults);
@@ -88,7 +87,7 @@ namespace SJP.Schematic.SqlServer.Tests
         public static void GetRoutine_GivenNullIdentifier_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqlServerDialect(connection);
+            var dialect = new SqlServerDialect();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             var database = new SqlServerRelationalDatabase(dialect, connection, identifierDefaults);

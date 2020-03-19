@@ -49,9 +49,9 @@ namespace SJP.Schematic.Tool
 
             try
             {
-                var dialect = DatabaseParent.GetDatabaseDialect(status.Connection);
-                var database = await dialect.GetRelationalDatabaseAsync().ConfigureAwait(false);
-                var commentProvider = await dialect.GetRelationalDatabaseCommentProviderAsync().ConfigureAwait(false);
+                var dialect = DatabaseParent.GetDatabaseDialect();
+                var database = await dialect.GetRelationalDatabaseAsync(status.Connection).ConfigureAwait(false);
+                var commentProvider = await dialect.GetRelationalDatabaseCommentProviderAsync(status.Connection).ConfigureAwait(false);
 
                 var fileSystem = new FileSystem();
                 var generator = new OrmLiteDataAccessGenerator(fileSystem, database, commentProvider, nameProvider);

@@ -15,11 +15,6 @@ namespace SJP.Schematic.SqlServer
 {
     public class SqlServerDialect : DatabaseDialect, ISqlServerDialect
     {
-        public SqlServerDialect(IDbConnection connection)
-            : base(connection)
-        {
-        }
-
         public static Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default)
         {
             if (connectionString.IsNullOrWhiteSpace())
@@ -38,9 +33,12 @@ namespace SJP.Schematic.SqlServer
             return connection;
         }
 
-        public override async Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default)
+        public override async Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default)
         {
-            return await Connection.QuerySingleAsync<SqlIdentifierDefaults>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return await connection.QuerySingleAsync<SqlIdentifierDefaults>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
         }
 
         private const string IdentifierDefaultsQuerySql = @"
@@ -49,61 +47,85 @@ select
     db_name() as [Database],
     schema_name() as [Schema]";
 
-        public override Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default)
+        public override Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default)
         {
-            return Connection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken);
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return connection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken);
         }
 
         private const string DatabaseDisplayVersionQuerySql = "select @@version as DatabaseVersion";
 
-        public override async Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default)
+        public override async Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default)
         {
-            var versionStr = await Connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
             return Version.Parse(versionStr);
         }
 
         private const string DatabaseVersionQuerySql = "select SERVERPROPERTY('ProductVersion') as DatabaseVersion";
 
-        public override async Task<IRelationalDatabase> GetRelationalDatabaseAsync(CancellationToken cancellationToken = default)
+        public override async Task<IRelationalDatabase> GetRelationalDatabaseAsync(IDbConnection connection, CancellationToken cancellationToken = default)
         {
-            var identifierDefaults = await GetIdentifierDefaultsAsync(cancellationToken).ConfigureAwait(false);
-            return new SqlServerRelationalDatabase(this, Connection, identifierDefaults);
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var identifierDefaults = await GetIdentifierDefaultsAsync(connection, cancellationToken).ConfigureAwait(false);
+            return new SqlServerRelationalDatabase(this, connection, identifierDefaults);
         }
 
-        public override async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default)
+        public override async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(IDbConnection connection, CancellationToken cancellationToken = default)
         {
-            var identifierDefaults = await GetIdentifierDefaultsAsync(cancellationToken).ConfigureAwait(false);
-            return new SqlServerDatabaseCommentProvider(Connection, identifierDefaults);
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var identifierDefaults = await GetIdentifierDefaultsAsync(connection, cancellationToken).ConfigureAwait(false);
+            return new SqlServerDatabaseCommentProvider(connection, identifierDefaults);
         }
 
-        public Task<IServerProperties2008?> GetServerProperties2008(CancellationToken cancellationToken = default)
+        public Task<IServerProperties2008?> GetServerProperties2008(IDbConnection connection, CancellationToken cancellationToken = default)
         {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
             var query = BuildServerPropertiesQuery<Query.ServerProperties2008>();
-            return Connection.QueryFirstOrNone<Query.ServerProperties2008>(query, cancellationToken)
+            return connection.QueryFirstOrNone<Query.ServerProperties2008>(query, cancellationToken)
                 .Map<IServerProperties2008?>(row => new ServerProperties2008(row))
                 .IfNoneUnsafe(() => null);
         }
 
-        public Task<IServerProperties2012?> GetServerProperties2012(CancellationToken cancellationToken = default)
+        public Task<IServerProperties2012?> GetServerProperties2012(IDbConnection connection, CancellationToken cancellationToken = default)
         {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
             var query = BuildServerPropertiesQuery<Query.ServerProperties2012>();
-            return Connection.QueryFirstOrNone<Query.ServerProperties2012>(query, cancellationToken)
+            return connection.QueryFirstOrNone<Query.ServerProperties2012>(query, cancellationToken)
                 .Map<IServerProperties2012?>(row => new ServerProperties2012(row))
                 .IfNoneUnsafe(() => null);
         }
 
-        public Task<IServerProperties2014?> GetServerProperties2014(CancellationToken cancellationToken = default)
+        public Task<IServerProperties2014?> GetServerProperties2014(IDbConnection connection, CancellationToken cancellationToken = default)
         {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
             var query = BuildServerPropertiesQuery<Query.ServerProperties2014>();
-            return Connection.QueryFirstOrNone<Query.ServerProperties2014>(query, cancellationToken)
+            return connection.QueryFirstOrNone<Query.ServerProperties2014>(query, cancellationToken)
                 .Map<IServerProperties2014?>(row => new ServerProperties2014(row))
                 .IfNoneUnsafe(() => null);
         }
 
-        public Task<IServerProperties2017?> GetServerProperties2017(CancellationToken cancellationToken = default)
+        public Task<IServerProperties2017?> GetServerProperties2017(IDbConnection connection, CancellationToken cancellationToken = default)
         {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
             var query = BuildServerPropertiesQuery<Query.ServerProperties2017>();
-            return Connection.QueryFirstOrNone<Query.ServerProperties2017>(query, cancellationToken)
+            return connection.QueryFirstOrNone<Query.ServerProperties2017>(query, cancellationToken)
                 .Map<IServerProperties2017?>(row => new ServerProperties2017(row))
                 .IfNoneUnsafe(() => null);
         }

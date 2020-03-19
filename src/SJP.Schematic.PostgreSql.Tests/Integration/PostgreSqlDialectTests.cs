@@ -9,7 +9,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task GetDatabaseDisplayVersionAsync_WhenInvoked_ReturnsNonEmptyString()
         {
-            var versionStr = await Dialect.GetDatabaseDisplayVersionAsync().ConfigureAwait(false);
+            var versionStr = await Dialect.GetDatabaseDisplayVersionAsync(Connection).ConfigureAwait(false);
             var validStr = !versionStr.IsNullOrWhiteSpace();
 
             Assert.That(validStr, Is.True);
@@ -18,7 +18,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         [Test]
         public async Task GetDatabaseVersionAsync_WhenInvoked_ReturnsNonNullVersion()
         {
-            var version = await Dialect.GetDatabaseVersionAsync().ConfigureAwait(false);
+            var version = await Dialect.GetDatabaseVersionAsync(Connection).ConfigureAwait(false);
 
             Assert.That(version, Is.Not.Null);
         }

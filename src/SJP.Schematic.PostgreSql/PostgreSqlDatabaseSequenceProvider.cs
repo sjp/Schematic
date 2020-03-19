@@ -56,7 +56,7 @@ namespace SJP.Schematic.PostgreSql
 
         private async Task<Option<IDatabaseSequenceProvider>> LoadVersionedSequenceProvider()
         {
-            var version = await Dialect.GetDatabaseVersionAsync(CancellationToken.None).ConfigureAwait(false);
+            var version = await Dialect.GetDatabaseVersionAsync(Connection, CancellationToken.None).ConfigureAwait(false);
 
             var factories = new Dictionary<Version, Func<IDatabaseSequenceProvider>>
             {

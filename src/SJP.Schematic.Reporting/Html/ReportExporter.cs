@@ -50,7 +50,9 @@ namespace SJP.Schematic.Reporting.Html
                 rowCounts[table.Name] = count;
             }
 
-            var renderers = GetRenderers(tables, views, sequences, synonyms, routines, rowCounts);
+            var dbVersion = await Database.Dialect.GetDatabaseDisplayVersionAsync(Connection, CancellationToken.None);
+
+            var renderers = GetRenderers(tables, views, sequences, synonyms, routines, rowCounts, dbVersion);
             var renderTasks = renderers.Select(r => r.RenderAsync(cancellationToken)).ToArray();
             await Task.WhenAll(renderTasks).ConfigureAwait(false);
 
@@ -64,7 +66,8 @@ namespace SJP.Schematic.Reporting.Html
             IReadOnlyCollection<IDatabaseSequence> sequences,
             IReadOnlyCollection<IDatabaseSynonym> synonyms,
             IReadOnlyCollection<IDatabaseRoutine> routines,
-            IReadOnlyDictionary<Identifier, ulong> rowCounts
+            IReadOnlyDictionary<Identifier, ulong> rowCounts,
+            string databaseVersion
         )
         {
             if (tables == null || tables.AnyNull())
@@ -92,7 +95,7 @@ namespace SJP.Schematic.Reporting.Html
                 new ConstraintsRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, ExportDirectory),
                 new IndexesRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, ExportDirectory),
                 new LintRenderer(linter, Database.IdentifierDefaults, TemplateFormatter, tables, views, sequences, synonyms, routines, ExportDirectory),
-                new MainRenderer(Database, TemplateFormatter, tables, views, sequences, synonyms, routines, rowCounts, ExportDirectory),
+                new MainRenderer(Database, TemplateFormatter, tables, views, sequences, synonyms, routines, rowCounts, databaseVersion, ExportDirectory),
                 new OrphansRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, rowCounts, ExportDirectory),
                 new RelationshipsRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, rowCounts, ExportDirectory),
                 new TableRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, rowCounts, ExportDirectory),

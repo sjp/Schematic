@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core.Comments;
@@ -17,14 +18,14 @@ namespace SJP.Schematic.Core
 
         IDependencyProvider GetDependencyProvider();
 
-        Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default);
+        Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default);
 
-        Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default);
+        Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default);
 
-        Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default);
+        Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default);
 
-        Task<IRelationalDatabase> GetRelationalDatabaseAsync(CancellationToken cancellationToken = default);
+        Task<IRelationalDatabase> GetRelationalDatabaseAsync(IDbConnection connection, CancellationToken cancellationToken = default);
 
-        Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default);
+        Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(IDbConnection connection, CancellationToken cancellationToken = default);
     }
 }

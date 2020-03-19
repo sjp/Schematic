@@ -32,7 +32,7 @@ namespace SJP.Schematic.MySql.Tests
         public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new MySqlDialect(connection);
+            var dialect = new MySqlDialect();
 
             Assert.That(() => new MySqlRelationalDatabase(dialect, connection, null), Throws.ArgumentNullException);
         }
@@ -41,7 +41,7 @@ namespace SJP.Schematic.MySql.Tests
         public static void GetTable_GivenNullIdentifier_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new MySqlDialect(connection);
+            var dialect = new MySqlDialect();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             var database = new MySqlRelationalDatabase(dialect, connection, identifierDefaults);
@@ -53,7 +53,7 @@ namespace SJP.Schematic.MySql.Tests
         public static void GetView_GivenNullIdentifier_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new MySqlDialect(connection);
+            var dialect = new MySqlDialect();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             var database = new MySqlRelationalDatabase(dialect, connection, identifierDefaults);
@@ -65,7 +65,7 @@ namespace SJP.Schematic.MySql.Tests
         public static void GetRoutine_GivenNullIdentifier_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new MySqlDialect(connection);
+            var dialect = new MySqlDialect();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             var database = new MySqlRelationalDatabase(dialect, connection, identifierDefaults);
@@ -82,7 +82,7 @@ namespace SJP.Schematic.MySql.Tests
                 get
                 {
                     var connection = Mock.Of<IDbConnection>();
-                    var dialect = new MySqlDialect(connection);
+                    var dialect = new MySqlDialect();
                     var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
                     return new MySqlRelationalDatabase(dialect, connection, identifierDefaults);
@@ -124,7 +124,7 @@ namespace SJP.Schematic.MySql.Tests
                 get
                 {
                     var connection = Mock.Of<IDbConnection>();
-                    var dialect = new MySqlDialect(connection);
+                    var dialect = new MySqlDialect();
                     var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
                     return new MySqlRelationalDatabase(dialect, connection, identifierDefaults);

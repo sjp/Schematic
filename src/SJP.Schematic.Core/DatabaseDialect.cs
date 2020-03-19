@@ -10,13 +10,6 @@ namespace SJP.Schematic.Core
 {
     public abstract class DatabaseDialect : IDatabaseDialect
     {
-        protected DatabaseDialect(IDbConnection connection)
-        {
-            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-        }
-
-        protected IDbConnection Connection { get; }
-
         public virtual string QuoteName(Identifier name)
         {
             if (name == null)
@@ -51,14 +44,14 @@ namespace SJP.Schematic.Core
         public virtual IDependencyProvider GetDependencyProvider() => _emptyDependencyProvider;
         private static readonly IDependencyProvider _emptyDependencyProvider = new EmptyDependencyProvider();
 
-        public abstract Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default);
+        public abstract Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default);
 
-        public abstract Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default);
+        public abstract Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default);
 
-        public abstract Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default);
+        public abstract Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default);
 
-        public abstract Task<IRelationalDatabase> GetRelationalDatabaseAsync(CancellationToken cancellationToken = default);
+        public abstract Task<IRelationalDatabase> GetRelationalDatabaseAsync(IDbConnection connection, CancellationToken cancellationToken = default);
 
-        public abstract Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default);
+        public abstract Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(IDbConnection connection, CancellationToken cancellationToken = default);
     }
 }

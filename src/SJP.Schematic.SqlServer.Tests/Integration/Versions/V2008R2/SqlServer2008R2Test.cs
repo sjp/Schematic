@@ -29,8 +29,8 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2008R2
     {
         protected IDbConnection Connection { get; } = Config2008R2.Connection;
 
-        protected ISqlServerDialect Dialect { get; } = new SqlServerDialect(Config2008R2.Connection);
+        protected ISqlServerDialect Dialect { get; } = new SqlServerDialect();
 
-        protected IIdentifierDefaults IdentifierDefaults { get; } = new SqlServerDialect(Config2008R2.Connection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
+        protected IIdentifierDefaults IdentifierDefaults { get; } = new SqlServerDialect().GetIdentifierDefaultsAsync(Config2008R2.Connection).GetAwaiter().GetResult();
     }
 }

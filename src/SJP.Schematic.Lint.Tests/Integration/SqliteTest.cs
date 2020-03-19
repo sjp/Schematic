@@ -23,9 +23,9 @@ namespace SJP.Schematic.Lint.Tests.Integration
     {
         protected IDbConnection Connection { get; } = Config.Connection;
 
-        protected IDatabaseDialect Dialect { get; } = new SqliteDialect(Config.Connection);
+        protected IDatabaseDialect Dialect { get; } = new SqliteDialect();
 
-        protected IIdentifierDefaults IdentifierDefaults { get; } = new SqliteDialect(Config.Connection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
+        protected IIdentifierDefaults IdentifierDefaults { get; } = new SqliteDialect().GetIdentifierDefaultsAsync(Config.Connection).GetAwaiter().GetResult();
 
         protected IRelationalDatabase GetSqliteDatabase() => new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
     }

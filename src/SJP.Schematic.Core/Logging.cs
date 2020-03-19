@@ -1,97 +1,91 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Logging;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core
 {
+    internal class LoggingConfig
+    {
+        public LoggingConfig(ILogger logger, LogLevel level)
+        {
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            Level = level; // TODO validate enum
+        }
+
+        public ILogger Logger { get; }
+
+        public LogLevel Level { get; }
+    }
+
     /// <summary>
     /// Provides an access/integration point for logging within Schematic.
     /// </summary>
     public static class Logging
     {
-        public delegate void LogCommandExecuting(Guid commandId, string sql, IReadOnlyDictionary<string, object> parameters);
+        private static readonly IReadOnlyDictionary<string, object> EmptyParams = new Dictionary<string, object>();
+        private static readonly ConditionalWeakTable<IDbConnection, LoggingConfig> ConnectionLoggerLookup = new ConditionalWeakTable<IDbConnection, LoggingConfig>();
 
-        public delegate void LogCommandExecuted(Guid commandId, string sql, IReadOnlyDictionary<string, object> parameters, TimeSpan duration);
+        public static bool IsLoggingConfigured(IDbConnection connection) => ConnectionLoggerLookup.TryGetValue(connection, out var config) && config != null;
 
-        public static void OnCommandExecuting(this IDbConnection connection, LogCommandExecuting handler)
+        public static void AddLogging(ISchematicConnection connection, ILogger logger, LogLevel level)
         {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-            if (handler == null)
-                throw new ArgumentNullException(nameof(handler));
-
-            _ = CommandExecutingLookup.AddOrUpdate(connection, handler, (_, __) => handler);
+            var loggingConfig = new LoggingConfig(logger, level);
+            ConnectionLoggerLookup.AddOrUpdate(connection.DbConnection, loggingConfig);
         }
 
-        public static void ClearCommandExecuting(this IDbConnection connection)
+        public static void RemoveLogging(ISchematicConnection connection)
         {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            _ = CommandExecutingLookup.TryRemove(connection, out _);
+            if (ConnectionLoggerLookup.TryGetValue(connection.DbConnection, out _))
+                ConnectionLoggerLookup.Remove(connection.DbConnection);
         }
 
-        public static void OnCommandExecuted(this IDbConnection connection, LogCommandExecuted handler)
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-            if (handler == null)
-                throw new ArgumentNullException(nameof(handler));
-
-            _ = CommandExecutedLookup.AddOrUpdate(connection, handler, (_, __) => handler);
-        }
-
-        public static void ClearCommandExecuted(this IDbConnection connection)
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            _ = CommandExecutedLookup.TryRemove(connection, out _);
-        }
-
-        internal static bool IsCommandExecutingLogged(IDbConnection connection)
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            return CommandExecutingLookup.ContainsKey(connection);
-        }
-
-        internal static bool IsCommandExecutedLogged(IDbConnection connection)
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            return CommandExecutedLookup.ContainsKey(connection);
-        }
-
-        internal static void SchematicLogCommandExecuting(IDbConnection connection, Guid commandId, string sql, object? param)
+        internal static void LogCommandExecuting(IDbConnection connection, Guid commandId, string sql, object? param)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
             if (sql.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(sql));
-            if (!CommandExecutingLookup.TryGetValue(connection, out var handler))
+            if (!ConnectionLoggerLookup.TryGetValue(connection, out var loggingConfig))
                 return;
+            if (!ConnectionRegistry.TryGetConnectionId(connection, out var connectionId))
+                connectionId = Guid.Empty;
 
-            var lookup = ToDictionary(param);
-            handler.Invoke(commandId, sql, lookup);
+            var parameters = ToDictionary(param);
+            loggingConfig.Logger.Log(
+                loggingConfig.Level,
+                "[SCHEMATIC] Connection {connectionId} is executing query {commandId}. Attempting to execute {sql} with parameters {@parameters}.",
+                connectionId,
+                commandId,
+                sql,
+                parameters
+            );
         }
 
-        internal static void SchematicLogCommandExecuted(IDbConnection connection, Guid commandId, string sql, object? param, TimeSpan duration)
+        internal static void LogCommandExecuted(IDbConnection connection, Guid commandId, string sql, object? param, TimeSpan duration)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
             if (sql.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(sql));
-            if (!CommandExecutedLookup.TryGetValue(connection, out var handler))
+            if (!ConnectionLoggerLookup.TryGetValue(connection, out var loggingConfig))
                 return;
+            if (!ConnectionRegistry.TryGetConnectionId(connection, out var connectionId))
+                connectionId = Guid.Empty;
 
-            var lookup = ToDictionary(param);
-            handler.Invoke(commandId, sql, lookup, duration);
+            var parameters = ToDictionary(param);
+            loggingConfig.Logger.Log(
+                loggingConfig.Level,
+                "[SCHEMATIC] Connection {connectionId} completed executing query {commandId}. Query {sql} with parameters {@parameters} took {duration} to execute.",
+                connectionId,
+                commandId,
+                sql,
+                parameters,
+                duration
+            );
         }
 
         private static IReadOnlyDictionary<string, object> ToDictionary(object? param)
@@ -114,9 +108,5 @@ namespace SJP.Schematic.Core
 
             return result;
         }
-
-        private static readonly IReadOnlyDictionary<string, object> EmptyParams = new Dictionary<string, object>();
-        private static readonly ConcurrentDictionary<IDbConnection, LogCommandExecuting> CommandExecutingLookup = new ConcurrentDictionary<IDbConnection, LogCommandExecuting>();
-        private static readonly ConcurrentDictionary<IDbConnection, LogCommandExecuted> CommandExecutedLookup = new ConcurrentDictionary<IDbConnection, LogCommandExecuted>();
     }
 }

@@ -46,11 +46,11 @@ namespace SJP.Schematic.Reporting.Tests.Integration
     {
         protected IDbConnection Connection { get; } = Config.Connection;
 
-        protected IDatabaseDialect Dialect { get; } = new SqliteDialect(Config.Connection);
+        protected IDatabaseDialect Dialect { get; } = new SqliteDialect();
 
-        protected ISqliteConnectionPragma Pragma { get; } = new ConnectionPragma(new SqliteDialect(Config.Connection), Config.Connection);
+        protected ISqliteConnectionPragma Pragma { get; } = new ConnectionPragma(new SqliteDialect(), Config.Connection);
 
-        protected IIdentifierDefaults IdentifierDefaults { get; } = new SqliteDialect(Config.Connection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
+        protected IIdentifierDefaults IdentifierDefaults { get; } = new SqliteDialect().GetIdentifierDefaultsAsync(Config.Connection).GetAwaiter().GetResult();
 
         protected IRelationalDatabase GetDatabase() => new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
     }

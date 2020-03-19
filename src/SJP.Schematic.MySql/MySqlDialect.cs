@@ -16,11 +16,6 @@ namespace SJP.Schematic.MySql
 {
     public class MySqlDialect : DatabaseDialect
     {
-        public MySqlDialect(IDbConnection connection)
-            : base(connection)
-        {
-        }
-
         public static Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default)
         {
             if (connectionString.IsNullOrWhiteSpace())
@@ -44,9 +39,12 @@ namespace SJP.Schematic.MySql
             return Keywords.Contains(text);
         }
 
-        public override async Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default)
+        public override async Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default)
         {
-            return await Connection.QuerySingleAsync<MySqlIdentifierDefaults>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return await connection.QuerySingleAsync<MySqlIdentifierDefaults>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
         }
 
         private const string IdentifierDefaultsQuerySql = @"
@@ -55,28 +53,40 @@ select
     database() as `Database`,
     schema() as `Schema`";
 
-        public override async Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default)
+        public override async Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default)
         {
-            var versionStr = await Connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
             return "MySQL " + versionStr;
         }
 
-        public override async Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default)
+        public override async Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default)
         {
-            var versionStr = await Connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
             return ParseMySqlVersion(versionStr);
         }
 
-        public override async Task<IRelationalDatabase> GetRelationalDatabaseAsync(CancellationToken cancellationToken = default)
+        public override async Task<IRelationalDatabase> GetRelationalDatabaseAsync(IDbConnection connection, CancellationToken cancellationToken = default)
         {
-            var identifierDefaults = await GetIdentifierDefaultsAsync(cancellationToken).ConfigureAwait(false);
-            return new MySqlRelationalDatabase(this, Connection, identifierDefaults);
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var identifierDefaults = await GetIdentifierDefaultsAsync(connection, cancellationToken).ConfigureAwait(false);
+            return new MySqlRelationalDatabase(this, connection, identifierDefaults);
         }
 
-        public override async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default)
+        public override async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(IDbConnection connection, CancellationToken cancellationToken = default)
         {
-            var identifierDefaults = await GetIdentifierDefaultsAsync(cancellationToken).ConfigureAwait(false);
-            return new MySqlDatabaseCommentProvider(Connection, identifierDefaults);
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var identifierDefaults = await GetIdentifierDefaultsAsync(connection, cancellationToken).ConfigureAwait(false);
+            return new MySqlDatabaseCommentProvider(connection, identifierDefaults);
         }
 
         private static Version ParseMySqlVersion(string versionStr)

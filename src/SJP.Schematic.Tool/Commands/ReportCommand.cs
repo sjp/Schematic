@@ -38,8 +38,8 @@ namespace SJP.Schematic.Tool
             {
                 try
                 {
-                    var dialect = Parent.GetDatabaseDialect(status.Connection);
-                    var database = await dialect.GetRelationalDatabaseAsync().ConfigureAwait(false);
+                    var dialect = Parent.GetDatabaseDialect();
+                    var database = await dialect.GetRelationalDatabaseAsync(status.Connection).ConfigureAwait(false);
 
                     var reportExporter = new ReportExporter(status.Connection, database, ReportDirectory);
                     await reportExporter.ExportAsync().ConfigureAwait(false);

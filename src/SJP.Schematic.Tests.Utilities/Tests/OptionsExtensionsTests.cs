@@ -38,6 +38,5 @@ namespace SJP.Schematic.Tests.Utilities.Tests
 
             Assert.That(unwrapped, Is.EqualTo(expected));
         }
-
     }
 }

@@ -29,7 +29,7 @@ namespace SJP.Schematic.Sqlite.Tests
         public static void QuoteIdentifier_GivenNull_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqliteDialect(connection);
+            var dialect = new SqliteDialect();
 
             Assert.That(() => dialect.QuoteIdentifier(null), Throws.ArgumentNullException);
         }
@@ -38,7 +38,7 @@ namespace SJP.Schematic.Sqlite.Tests
         public static void QuoteIdentifier_GivenEmptyString_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqliteDialect(connection);
+            var dialect = new SqliteDialect();
 
             Assert.That(() => dialect.QuoteIdentifier(string.Empty), Throws.ArgumentNullException);
         }
@@ -47,7 +47,7 @@ namespace SJP.Schematic.Sqlite.Tests
         public static void QuoteIdentifier_GivenWhiteSpcae_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqliteDialect(connection);
+            var dialect = new SqliteDialect();
 
             Assert.That(() => dialect.QuoteIdentifier("    "), Throws.ArgumentNullException);
         }
@@ -56,7 +56,7 @@ namespace SJP.Schematic.Sqlite.Tests
         public static void QuoteName_GivenNull_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqliteDialect(connection);
+            var dialect = new SqliteDialect();
 
             Assert.That(() => dialect.QuoteName(null), Throws.ArgumentNullException);
         }
@@ -65,7 +65,7 @@ namespace SJP.Schematic.Sqlite.Tests
         public static void QuoteName_GivenEmptyString_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqliteDialect(connection);
+            var dialect = new SqliteDialect();
 
             Assert.That(() => dialect.QuoteName(string.Empty), Throws.ArgumentNullException);
         }
@@ -74,7 +74,7 @@ namespace SJP.Schematic.Sqlite.Tests
         public static void QuoteName_GivenWhiteSpace_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqliteDialect(connection);
+            var dialect = new SqliteDialect();
 
             Assert.That(() => dialect.QuoteName("    "), Throws.ArgumentNullException);
         }

@@ -9,7 +9,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2016
         [Test]
         public async Task GetDatabaseDisplayVersionAsync_WhenInvoked_ReturnsNonEmptyString()
         {
-            var versionStr = await Dialect.GetDatabaseDisplayVersionAsync().ConfigureAwait(false);
+            var versionStr = await Dialect.GetDatabaseDisplayVersionAsync(Connection).ConfigureAwait(false);
             var validStr = !versionStr.IsNullOrWhiteSpace();
 
             Assert.That(validStr, Is.True);
@@ -18,7 +18,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2016
         [Test]
         public async Task GetDatabaseVersionAsync_WhenInvoked_ReturnsNonNullVersion()
         {
-            var version = await Dialect.GetDatabaseVersionAsync().ConfigureAwait(false);
+            var version = await Dialect.GetDatabaseVersionAsync(Connection).ConfigureAwait(false);
 
             Assert.That(version, Is.Not.Null);
         }
@@ -26,7 +26,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2016
         [Test]
         public async Task GetServerProperties2014_WhenInvoked_ReturnsNonNullObject()
         {
-            var properties = await Dialect.GetServerProperties2014().ConfigureAwait(false);
+            var properties = await Dialect.GetServerProperties2014(Connection).ConfigureAwait(false);
 
             Assert.That(properties, Is.Not.Null);
         }

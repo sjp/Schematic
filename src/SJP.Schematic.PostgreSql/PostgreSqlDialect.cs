@@ -15,11 +15,6 @@ namespace SJP.Schematic.PostgreSql
 {
     public class PostgreSqlDialect : DatabaseDialect
     {
-        public PostgreSqlDialect(IDbConnection connection)
-            : base(connection)
-        {
-        }
-
         public static Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default)
         {
             if (connectionString.IsNullOrWhiteSpace())
@@ -35,9 +30,12 @@ namespace SJP.Schematic.PostgreSql
             return connection;
         }
 
-        public override async Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(CancellationToken cancellationToken = default)
+        public override async Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default)
         {
-            var result = await Connection.QuerySingleAsync<PgIdentifierDefaults>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var result = await connection.QuerySingleAsync<PgIdentifierDefaults>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
 
             if (result.Server.IsNullOrWhiteSpace())
                 result.Server = "127.0.0.1";
@@ -51,16 +49,22 @@ select
     pg_catalog.current_database() as Database,
     pg_catalog.current_schema() as Schema";
 
-        public override Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default)
+        public override Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default)
         {
-            return Connection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken);
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            return connection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken);
         }
 
         private const string DatabaseDisplayVersionQuerySql = "select pg_catalog.version() as DatabaseVersion";
 
-        public override async Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default)
+        public override async Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default)
         {
-            var versionStr = await Connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
             return ParsePostgresVersionString(versionStr) ?? new Version(0, 0);
         }
 
@@ -114,18 +118,24 @@ select
                 : null;
         }
 
-        public override async Task<IRelationalDatabase> GetRelationalDatabaseAsync(CancellationToken cancellationToken = default)
+        public override async Task<IRelationalDatabase> GetRelationalDatabaseAsync(IDbConnection connection, CancellationToken cancellationToken = default)
         {
-            var identifierDefaults = await GetIdentifierDefaultsAsync(cancellationToken).ConfigureAwait(false);
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var identifierDefaults = await GetIdentifierDefaultsAsync(connection, cancellationToken).ConfigureAwait(false);
             var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
-            return new PostgreSqlRelationalDatabase(this, Connection, identifierDefaults, identifierResolver);
+            return new PostgreSqlRelationalDatabase(this, connection, identifierDefaults, identifierResolver);
         }
 
-        public override async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default)
+        public override async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(IDbConnection connection, CancellationToken cancellationToken = default)
         {
-            var identifierDefaults = await GetIdentifierDefaultsAsync(cancellationToken).ConfigureAwait(false);
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var identifierDefaults = await GetIdentifierDefaultsAsync(connection, cancellationToken).ConfigureAwait(false);
             var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
-            return new PostgreSqlDatabaseCommentProvider(Connection, identifierDefaults, identifierResolver);
+            return new PostgreSqlDatabaseCommentProvider(connection, identifierDefaults, identifierResolver);
         }
 
         public override bool IsReservedKeyword(string text)

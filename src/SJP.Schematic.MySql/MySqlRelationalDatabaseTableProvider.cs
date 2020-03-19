@@ -21,7 +21,7 @@ namespace SJP.Schematic.MySql
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
-            Dialect = new MySqlDialect(connection);
+            Dialect = new MySqlDialect();
 
             _supportsChecks = new AsyncLazy<bool>(LoadHasCheckSupport);
         }

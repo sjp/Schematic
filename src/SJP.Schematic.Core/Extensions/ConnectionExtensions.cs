@@ -6,59 +6,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
 using LanguageExt;
+using Nito.AsyncEx;
 
 namespace SJP.Schematic.Core.Extensions
 {
     public static class ConnectionExtensions
     {
-        public static void ConfigureSchematicCommand(this IDbConnection connection, Func<CommandDefinition> configure)
+        private static readonly ConditionalWeakTable<IDbConnection, AsyncSemaphore?> SemaphoreLookup = new ConditionalWeakTable<IDbConnection, AsyncSemaphore?>();
+
+        public static void SetMaxConcurrentQueries(IDbConnection connection, AsyncSemaphore? semaphore)
         {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-            if (configure == null)
-                throw new ArgumentNullException(nameof(configure));
-
-            CommandDefinition wrapper(CommandDefinition _) => configure.Invoke();
-
-            lock (_lock)
-                CommandConfigurationLookup.AddOrUpdate(connection, wrapper);
+            SemaphoreLookup.AddOrUpdate(connection, semaphore);
         }
-
-        public static void ConfigureSchematicCommand(this IDbConnection connection, Func<CommandDefinition, CommandDefinition> configure)
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-            if (configure == null)
-                throw new ArgumentNullException(nameof(configure));
-
-            lock (_lock)
-                CommandConfigurationLookup.AddOrUpdate(connection, configure);
-        }
-
-        public static void ClearSchematicCommandConfiguration(this IDbConnection connection)
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            lock (_lock)
-                CommandConfigurationLookup.Remove(connection);
-        }
-
-        private static CommandDefinition ConfigureCommand(IDbConnection connection, CommandDefinition command)
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            lock (_lock)
-            {
-                return CommandConfigurationLookup.TryGetValue(connection, out var configure)
-                   ? configure.Invoke(command)
-                   : command;
-            }
-        }
-
-        private static readonly object _lock = new object();
-        private static readonly ConditionalWeakTable<IDbConnection, Func<CommandDefinition, CommandDefinition>> CommandConfigurationLookup = new ConditionalWeakTable<IDbConnection, Func<CommandDefinition, CommandDefinition>>();
 
         public static Task<IEnumerable<T>> QueryAsync<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
             where T : class
@@ -74,10 +33,19 @@ namespace SJP.Schematic.Core.Extensions
         private static async Task<IEnumerable<T>> QueryAsyncCore<T>(IDbConnection connection, string sql, CancellationToken cancellationToken)
         {
             var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
-            var configuredCommand = ConfigureCommand(connection, command);
 
             using (var logger = new LoggingAdapter(connection, sql, null))
-                return await connection.QueryAsync<T>(configuredCommand).ConfigureAwait(false);
+            {
+                if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
+                {
+                    using var _ = await semaphore.LockAsync();
+                    return await connection.QueryAsync<T>(command).ConfigureAwait(false);
+                }
+                else
+                {
+                    return await connection.QueryAsync<T>(command).ConfigureAwait(false);
+                }
+            }
         }
 
         public static Task<IEnumerable<T>> QueryAsync<T>(this IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
@@ -96,10 +64,19 @@ namespace SJP.Schematic.Core.Extensions
         private static async Task<IEnumerable<T>> QueryAsyncCore<T>(IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
         {
             var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
-            var configuredCommand = ConfigureCommand(connection, command);
 
             using (var logger = new LoggingAdapter(connection, sql, parameters))
-                return await connection.QueryAsync<T>(configuredCommand).ConfigureAwait(false);
+            {
+                if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
+                {
+                    using var _ = await semaphore.LockAsync();
+                    return await connection.QueryAsync<T>(command).ConfigureAwait(false);
+                }
+                else
+                {
+                    return await connection.QueryAsync<T>(command).ConfigureAwait(false);
+                }
+            }
         }
 
         public static Task<T> ExecuteScalarAsync<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
@@ -115,10 +92,19 @@ namespace SJP.Schematic.Core.Extensions
         private static async Task<T> ExecuteScalarAsyncCore<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
         {
             var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
-            var configuredCommand = ConfigureCommand(connection, command);
 
             using (var logger = new LoggingAdapter(connection, sql, null))
-                return await connection.ExecuteScalarAsync<T>(configuredCommand).ConfigureAwait(false);
+            {
+                if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
+                {
+                    using var _ = await semaphore.LockAsync();
+                    return await connection.ExecuteScalarAsync<T>(command).ConfigureAwait(false);
+                }
+                else
+                {
+                    return await connection.ExecuteScalarAsync<T>(command).ConfigureAwait(false);
+                }
+            }
         }
 
         public static Task<T> ExecuteScalarAsync<T>(this IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
@@ -136,10 +122,19 @@ namespace SJP.Schematic.Core.Extensions
         private static async Task<T> ExecuteScalarAsyncCore<T>(IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
         {
             var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
-            var configuredCommand = ConfigureCommand(connection, command);
 
             using (var logger = new LoggingAdapter(connection, sql, parameters))
-                return await connection.ExecuteScalarAsync<T>(configuredCommand).ConfigureAwait(false);
+            {
+                if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
+                {
+                    using var _ = await semaphore.LockAsync();
+                    return await connection.ExecuteScalarAsync<T>(command).ConfigureAwait(false);
+                }
+                else
+                {
+                    return await connection.ExecuteScalarAsync<T>(command).ConfigureAwait(false);
+                }
+            }
         }
 
         public static Task<int> ExecuteAsync(this IDbConnection connection, string sql, CancellationToken cancellationToken)
@@ -155,10 +150,19 @@ namespace SJP.Schematic.Core.Extensions
         private static async Task<int> ExecuteAsyncCore(IDbConnection connection, string sql, CancellationToken cancellationToken)
         {
             var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
-            var configuredCommand = ConfigureCommand(connection, command);
 
             using (var logger = new LoggingAdapter(connection, sql, null))
-                return await connection.ExecuteAsync(configuredCommand).ConfigureAwait(false);
+            {
+                if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
+                {
+                    using var _ = await semaphore.LockAsync();
+                    return await connection.ExecuteAsync(command).ConfigureAwait(false);
+                }
+                else
+                {
+                    return await connection.ExecuteAsync(command).ConfigureAwait(false);
+                }
+            }
         }
 
         public static Task<int> ExecuteAsync(this IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
@@ -176,10 +180,19 @@ namespace SJP.Schematic.Core.Extensions
         private static async Task<int> ExecuteAsyncCore(IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
         {
             var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
-            var configuredCommand = ConfigureCommand(connection, command);
 
             using (var logger = new LoggingAdapter(connection, sql, parameters))
-                return await connection.ExecuteAsync(configuredCommand).ConfigureAwait(false);
+            {
+                if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
+                {
+                    using var _ = await semaphore.LockAsync();
+                    return await connection.ExecuteAsync(command).ConfigureAwait(false);
+                }
+                else
+                {
+                    return await connection.ExecuteAsync(command).ConfigureAwait(false);
+                }
+            }
         }
 
         public static OptionAsync<T> QueryFirstOrNone<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
@@ -197,14 +210,24 @@ namespace SJP.Schematic.Core.Extensions
             where T : class
         {
             var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
-            var configuredCommand = ConfigureCommand(connection, command);
 
             using (var logger = new LoggingAdapter(connection, sql, null))
             {
-                var result = await connection.QueryFirstOrDefaultAsync<T>(configuredCommand).ConfigureAwait(false);
-                return result != null
-                    ? Option<T>.Some(result)
-                    : Option<T>.None;
+                if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
+                {
+                    using var _ = await semaphore.LockAsync();
+                    var result = await connection.QueryFirstOrDefaultAsync<T>(command).ConfigureAwait(false);
+                    return result != null
+                        ? Option<T>.Some(result)
+                        : Option<T>.None;
+                }
+                else
+                {
+                    var result = await connection.QueryFirstOrDefaultAsync<T>(command).ConfigureAwait(false);
+                    return result != null
+                        ? Option<T>.Some(result)
+                        : Option<T>.None;
+                }
             }
         }
 
@@ -225,14 +248,24 @@ namespace SJP.Schematic.Core.Extensions
             where T : class
         {
             var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
-            var configuredCommand = ConfigureCommand(connection, command);
 
             using (var logger = new LoggingAdapter(connection, sql, parameters))
             {
-                var result = await connection.QueryFirstOrDefaultAsync<T>(configuredCommand).ConfigureAwait(false);
-                return result != null
-                    ? Option<T>.Some(result)
-                    : Option<T>.None;
+                if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
+                {
+                    using var _ = await semaphore.LockAsync();
+                    var result = await connection.QueryFirstOrDefaultAsync<T>(command).ConfigureAwait(false);
+                    return result != null
+                        ? Option<T>.Some(result)
+                        : Option<T>.None;
+                }
+                else
+                {
+                    var result = await connection.QueryFirstOrDefaultAsync<T>(command).ConfigureAwait(false);
+                    return result != null
+                        ? Option<T>.Some(result)
+                        : Option<T>.None;
+                }
             }
         }
 
@@ -251,10 +284,19 @@ namespace SJP.Schematic.Core.Extensions
             where T : class
         {
             var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
-            var configuredCommand = ConfigureCommand(connection, command);
 
             using (var logger = new LoggingAdapter(connection, sql, null))
-                return await connection.QuerySingleAsync<T>(configuredCommand).ConfigureAwait(false);
+            {
+                if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
+                {
+                    using var _ = await semaphore.LockAsync();
+                    return await connection.QuerySingleAsync<T>(command).ConfigureAwait(false);
+                }
+                else
+                {
+                    return await connection.QuerySingleAsync<T>(command).ConfigureAwait(false);
+                }
+            }
         }
 
         public static Task<T> QuerySingleAsync<T>(this IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
@@ -274,10 +316,19 @@ namespace SJP.Schematic.Core.Extensions
             where T : class
         {
             var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
-            var configuredCommand = ConfigureCommand(connection, command);
 
             using (var logger = new LoggingAdapter(connection, sql, parameters))
-                return await connection.QuerySingleAsync<T>(configuredCommand).ConfigureAwait(false);
+            {
+                if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
+                {
+                    using var _ = await semaphore.LockAsync();
+                    return await connection.QuerySingleAsync<T>(command).ConfigureAwait(false);
+                }
+                else
+                {
+                    return await connection.QuerySingleAsync<T>(command).ConfigureAwait(false);
+                }
+            }
         }
 
         public static OptionAsync<T> QuerySingleOrNone<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
@@ -297,14 +348,24 @@ namespace SJP.Schematic.Core.Extensions
             try
             {
                 var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
-                var configuredCommand = ConfigureCommand(connection, command);
 
                 using (var logger = new LoggingAdapter(connection, sql, null))
                 {
-                    var result = await connection.QuerySingleOrDefaultAsync<T>(configuredCommand).ConfigureAwait(false);
-                    return result != null
-                        ? Option<T>.Some(result)
-                        : Option<T>.None;
+                    if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
+                    {
+                        using var _ = await semaphore.LockAsync();
+                        var result = await connection.QuerySingleOrDefaultAsync<T>(command).ConfigureAwait(false);
+                        return result != null
+                            ? Option<T>.Some(result)
+                            : Option<T>.None;
+                    }
+                    else
+                    {
+                        var result = await connection.QuerySingleOrDefaultAsync<T>(command).ConfigureAwait(false);
+                        return result != null
+                            ? Option<T>.Some(result)
+                            : Option<T>.None;
+                    }
                 }
             }
             catch (InvalidOperationException) // for > 1 case
@@ -332,14 +393,24 @@ namespace SJP.Schematic.Core.Extensions
             try
             {
                 var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
-                var configuredCommand = ConfigureCommand(connection, command);
 
                 using (var logger = new LoggingAdapter(connection, sql, parameters))
                 {
-                    var result = await connection.QuerySingleOrDefaultAsync<T>(configuredCommand).ConfigureAwait(false);
-                    return result != null
-                        ? Option<T>.Some(result)
-                        : Option<T>.None;
+                    if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
+                    {
+                        using var _ = await semaphore.LockAsync();
+                        var result = await connection.QuerySingleOrDefaultAsync<T>(command).ConfigureAwait(false);
+                        return result != null
+                            ? Option<T>.Some(result)
+                            : Option<T>.None;
+                    }
+                    else
+                    {
+                        var result = await connection.QuerySingleOrDefaultAsync<T>(command).ConfigureAwait(false);
+                        return result != null
+                            ? Option<T>.Some(result)
+                            : Option<T>.None;
+                    }
                 }
             }
             catch (InvalidOperationException) // for > 1 case

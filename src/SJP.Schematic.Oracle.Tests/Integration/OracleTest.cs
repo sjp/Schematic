@@ -29,9 +29,9 @@ namespace SJP.Schematic.Oracle.Tests.Integration
     {
         protected IDbConnection Connection { get; } = Config.Connection;
 
-        protected IDatabaseDialect Dialect { get; } = new OracleDialect(Config.Connection);
+        protected IDatabaseDialect Dialect { get; } = new OracleDialect();
 
-        protected IIdentifierDefaults IdentifierDefaults { get; } = new OracleDialect(Config.Connection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
+        protected IIdentifierDefaults IdentifierDefaults { get; } = new OracleDialect().GetIdentifierDefaultsAsync(Config.Connection).GetAwaiter().GetResult();
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; } = new DefaultOracleIdentifierResolutionStrategy();
     }

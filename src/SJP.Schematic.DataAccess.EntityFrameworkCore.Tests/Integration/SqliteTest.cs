@@ -23,8 +23,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
     {
         protected IDbConnection Connection { get; } = Config.Connection;
 
-        protected IDatabaseDialect Dialect { get; } = new SqliteDialect(Config.Connection);
+        protected IDatabaseDialect Dialect { get; } = new SqliteDialect();
 
-        protected IIdentifierDefaults IdentifierDefaults { get; } = new SqliteDialect(Config.Connection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
+        protected IIdentifierDefaults IdentifierDefaults { get; } = new SqliteDialect().GetIdentifierDefaultsAsync(Config.Connection).GetAwaiter().GetResult();
     }
 }

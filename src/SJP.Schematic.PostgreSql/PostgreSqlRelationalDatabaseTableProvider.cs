@@ -20,7 +20,7 @@ namespace SJP.Schematic.PostgreSql
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
             TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
-            Dialect = new PostgreSqlDialect(connection);
+            Dialect = new PostgreSqlDialect();
 
             _tableProvider = new AsyncLazy<Option<IRelationalDatabaseTableProvider>>(LoadVersionedTableProvider);
         }
@@ -59,7 +59,7 @@ namespace SJP.Schematic.PostgreSql
 
         private async Task<Option<IRelationalDatabaseTableProvider>> LoadVersionedTableProvider()
         {
-            var version = await Dialect.GetDatabaseVersionAsync(CancellationToken.None).ConfigureAwait(false);
+            var version = await Dialect.GetDatabaseVersionAsync(Connection, CancellationToken.None).ConfigureAwait(false);
 
             var factories = new Dictionary<Version, Func<IRelationalDatabaseTableProvider>>
             {

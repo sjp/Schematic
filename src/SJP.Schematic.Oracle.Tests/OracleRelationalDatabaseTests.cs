@@ -21,8 +21,7 @@ namespace SJP.Schematic.Oracle.Tests
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new OracleDialect(connection);
+            var dialect = new OracleDialect();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
@@ -33,7 +32,7 @@ namespace SJP.Schematic.Oracle.Tests
         public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new OracleDialect(connection);
+            var dialect = new OracleDialect();
             var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
             Assert.That(() => new OracleRelationalDatabase(dialect, connection, null, identifierResolver), Throws.ArgumentNullException);
@@ -43,7 +42,7 @@ namespace SJP.Schematic.Oracle.Tests
         public static void Ctor_GivenNullIdentifierResolver_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new OracleDialect(connection);
+            var dialect = new OracleDialect();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             Assert.That(() => new OracleRelationalDatabase(dialect, connection, identifierDefaults, null), Throws.ArgumentNullException);
@@ -53,7 +52,7 @@ namespace SJP.Schematic.Oracle.Tests
         public static void GetTable_GivenNullIdentifier_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new OracleDialect(connection);
+            var dialect = new OracleDialect();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
@@ -66,7 +65,7 @@ namespace SJP.Schematic.Oracle.Tests
         public static void GetView_GivenNullIdentifier_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new OracleDialect(connection);
+            var dialect = new OracleDialect();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
@@ -79,7 +78,7 @@ namespace SJP.Schematic.Oracle.Tests
         public static void GetSequence_GivenNullIdentifier_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new OracleDialect(connection);
+            var dialect = new OracleDialect();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
@@ -92,7 +91,7 @@ namespace SJP.Schematic.Oracle.Tests
         public static void GetSynonym_GivenNullIdentifier_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new OracleDialect(connection);
+            var dialect = new OracleDialect();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
@@ -105,7 +104,7 @@ namespace SJP.Schematic.Oracle.Tests
         public static void GetRoutine_GivenNullIdentifier_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new OracleDialect(connection);
+            var dialect = new OracleDialect();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 

@@ -22,8 +22,7 @@ namespace SJP.Schematic.Sqlite.Tests
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqliteDialect(connection);
+            var dialect = new SqliteDialect();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             Assert.That(() => new SqliteRelationalDatabase(dialect, null, identifierDefaults), Throws.ArgumentNullException);
@@ -33,7 +32,7 @@ namespace SJP.Schematic.Sqlite.Tests
         public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqliteDialect(connection);
+            var dialect = new SqliteDialect();
 
             Assert.That(() => new SqliteRelationalDatabase(dialect, connection, null), Throws.ArgumentNullException);
         }
@@ -42,7 +41,7 @@ namespace SJP.Schematic.Sqlite.Tests
         public static void GetTable_GivenNullIdentifier_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqliteDialect(connection);
+            var dialect = new SqliteDialect();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             var database = new SqliteRelationalDatabase(dialect, connection, identifierDefaults);
@@ -54,7 +53,7 @@ namespace SJP.Schematic.Sqlite.Tests
         public static void GetView_GivenNullIdentifier_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqliteDialect(connection);
+            var dialect = new SqliteDialect();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             var database = new SqliteRelationalDatabase(dialect, connection, identifierDefaults);
@@ -71,7 +70,7 @@ namespace SJP.Schematic.Sqlite.Tests
                 get
                 {
                     var connection = Mock.Of<IDbConnection>();
-                    var dialect = new SqliteDialect(connection);
+                    var dialect = new SqliteDialect();
                     var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
                     return new SqliteRelationalDatabase(dialect, connection, identifierDefaults);
@@ -113,7 +112,7 @@ namespace SJP.Schematic.Sqlite.Tests
                 get
                 {
                     var connection = Mock.Of<IDbConnection>();
-                    var dialect = new SqliteDialect(connection);
+                    var dialect = new SqliteDialect();
                     var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
                     return new SqliteRelationalDatabase(dialect, connection, identifierDefaults);
@@ -155,7 +154,7 @@ namespace SJP.Schematic.Sqlite.Tests
                 get
                 {
                     var connection = Mock.Of<IDbConnection>();
-                    var dialect = new SqliteDialect(connection);
+                    var dialect = new SqliteDialect();
                     var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
                     return new SqliteRelationalDatabase(dialect, connection, identifierDefaults);
@@ -193,7 +192,7 @@ namespace SJP.Schematic.Sqlite.Tests
             get
             {
                 var connection = Mock.Of<IDbConnection>();
-                var dialect = new SqliteDialect(connection);
+                var dialect = new SqliteDialect();
                 var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
                 return new SqliteRelationalDatabase(dialect, connection, identifierDefaults);

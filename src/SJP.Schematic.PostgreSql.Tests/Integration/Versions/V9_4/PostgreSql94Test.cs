@@ -29,9 +29,9 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_4
     {
         protected IDbConnection Connection { get; } = Config94.Connection;
 
-        protected IDatabaseDialect Dialect { get; } = new PostgreSqlDialect(Config94.Connection);
+        protected IDatabaseDialect Dialect { get; } = new PostgreSqlDialect();
 
-        protected IIdentifierDefaults IdentifierDefaults { get; } = new PostgreSqlDialect(Config94.Connection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
+        protected IIdentifierDefaults IdentifierDefaults { get; } = new PostgreSqlDialect().GetIdentifierDefaultsAsync(Config94.Connection).GetAwaiter().GetResult();
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; } = new DefaultPostgreSqlIdentifierResolutionStrategy();
     }
