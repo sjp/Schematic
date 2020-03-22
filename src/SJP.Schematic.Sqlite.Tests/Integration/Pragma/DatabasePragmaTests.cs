@@ -629,7 +629,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             using var connection = CreateConnection();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-            await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None);
+            await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
 
             var tableInfo = await dbPragma.TableXInfoAsync("test_table").ConfigureAwait(false);
 

@@ -45,7 +45,7 @@ namespace SJP.Schematic.Lint.Rules
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            var messageText = $"The table { tableName } has too many columns. It has { columnCount.ToString() } columns.";
+            var messageText = $"The table { tableName } has too many columns. It has { columnCount } columns.";
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 

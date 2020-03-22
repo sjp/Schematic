@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -50,7 +49,7 @@ namespace SJP.Schematic.Reporting.Html
                 rowCounts[table.Name] = count;
             }
 
-            var dbVersion = await Connection.Dialect.GetDatabaseDisplayVersionAsync(Connection, CancellationToken.None);
+            var dbVersion = await Connection.Dialect.GetDatabaseDisplayVersionAsync(Connection, CancellationToken.None).ConfigureAwait(false);
 
             var renderers = GetRenderers(tables, views, sequences, synonyms, routines, rowCounts, dbVersion);
             var renderTasks = renderers.Select(r => r.RenderAsync(cancellationToken)).ToArray();

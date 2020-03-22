@@ -221,7 +221,7 @@ namespace SJP.Schematic.Sqlite.Pragma
         {
             var location = await DbConnection.ExecuteScalarAsync<int>(TemporaryStoreReadQuery, cancellationToken).ConfigureAwait(false);
             if (!Enums.TryToObject(location, out TemporaryStoreLocation tempLocation))
-                throw new InvalidOperationException($"Unable to map the value '{ location.ToString() }' to a member of { nameof(TemporaryStoreLocation) }.");
+                throw new InvalidOperationException($"Unable to map the value '{ location }' to a member of { nameof(TemporaryStoreLocation) }.");
 
             return tempLocation;
         }

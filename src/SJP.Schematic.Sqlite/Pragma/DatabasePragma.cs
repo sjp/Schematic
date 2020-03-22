@@ -351,7 +351,7 @@ namespace SJP.Schematic.Sqlite.Pragma
         {
             var secureDeleteValue = await DbConnection.ExecuteScalarAsync<int>(SecureDeleteReadQuery, cancellationToken).ConfigureAwait(false);
             if (!Enums.TryToObject(secureDeleteValue, out SecureDeleteMode deleteMode))
-                throw new InvalidOperationException($"Unable to map the value '{ secureDeleteValue.ToString() }' to a member of { nameof(SecureDeleteMode) }.");
+                throw new InvalidOperationException($"Unable to map the value '{ secureDeleteValue }' to a member of { nameof(SecureDeleteMode) }.");
 
             return deleteMode;
         }
@@ -373,7 +373,7 @@ namespace SJP.Schematic.Sqlite.Pragma
         {
             var level = await DbConnection.ExecuteScalarAsync<int>(SynchronousReadQuery, cancellationToken).ConfigureAwait(false);
             if (!Enums.TryToObject(level, out SynchronousLevel syncLevel))
-                throw new InvalidOperationException($"Unable to map the value '{ level.ToString() }' to a member of { nameof(SynchronousLevel) }.");
+                throw new InvalidOperationException($"Unable to map the value '{ level}' to a member of { nameof(SynchronousLevel) }.");
 
             return syncLevel;
         }

@@ -19,7 +19,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
 
             var tableUrl = UrlRouter.GetTableUrl(tableName);
             var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
-            var messageText = $"The table { tableLink } has too many columns. It has { columnCount.ToString() } columns.";
+            var messageText = $"The table { tableLink } has too many columns. It has { columnCount } columns.";
 
             return new RuleMessage(RuleTitle, Level, messageText);
         }

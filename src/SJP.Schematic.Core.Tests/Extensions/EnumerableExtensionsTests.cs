@@ -33,7 +33,8 @@ namespace SJP.Schematic.Core.Tests.Extensions
         public static void Empty_GivenNullCollectionWithValidPredicate_ThrowsArgumentNullException()
         {
             IEnumerable<string> input = null;
-            bool predicate(string _) => true;
+
+            static bool predicate(string _) => true;
 
             Assert.That(() => input.Empty(predicate), Throws.ArgumentNullException);
         }

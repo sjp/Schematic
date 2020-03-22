@@ -23,9 +23,9 @@ namespace SJP.Schematic.MySql
             ParentKey = parentKey ?? throw new ArgumentNullException(nameof(parentKey));
 
             if (ChildKey.KeyType != DatabaseKeyType.Foreign)
-                throw new ArgumentException($"The child key must be a foreign key, instead given a key of type '{ childKey.KeyType.ToString() }'.", nameof(childKey));
+                throw new ArgumentException($"The child key must be a foreign key, instead given a key of type '{ childKey.KeyType }'.", nameof(childKey));
             if (ParentKey.KeyType != DatabaseKeyType.Primary && ParentKey.KeyType != DatabaseKeyType.Unique)
-                throw new ArgumentException($"The parent key must be a primary or unique key, instead given a key of type '{ parentKey.KeyType.ToString() }'.", nameof(parentKey));
+                throw new ArgumentException($"The parent key must be a primary or unique key, instead given a key of type '{ parentKey.KeyType }'.", nameof(parentKey));
 
             DeleteAction = deleteAction;
             UpdateAction = updateAction;

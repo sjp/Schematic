@@ -114,10 +114,10 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             const int expectedSensitive = 2;
 
             await connPragma.CaseSensitiveLikeAsync(false).ConfigureAwait(false);
-            var insensitiveResult = await connection.ExecuteScalarAsync<int>(query, CancellationToken.None);
+            var insensitiveResult = await connection.ExecuteScalarAsync<int>(query, CancellationToken.None).ConfigureAwait(false);
 
             await connPragma.CaseSensitiveLikeAsync(true).ConfigureAwait(false);
-            var sensitiveResult = await connection.ExecuteScalarAsync<int>(query, CancellationToken.None);
+            var sensitiveResult = await connection.ExecuteScalarAsync<int>(query, CancellationToken.None).ConfigureAwait(false);
 
             Assert.Multiple(() =>
             {

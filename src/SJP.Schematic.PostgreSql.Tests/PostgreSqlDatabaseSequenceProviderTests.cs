@@ -19,7 +19,6 @@ namespace SJP.Schematic.PostgreSql.Tests
         [Test]
         public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgNullException()
         {
-            var dialect = Mock.Of<IDatabaseDialect>();
             var connection = Mock.Of<ISchematicConnection>();
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
