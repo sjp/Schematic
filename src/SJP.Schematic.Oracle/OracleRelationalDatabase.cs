@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Threading;
 using SJP.Schematic.Core;
 using LanguageExt;
@@ -9,14 +8,14 @@ namespace SJP.Schematic.Oracle
 {
     public class OracleRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
-        public OracleRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
-            : base(dialect, connection, identifierDefaults)
+        public OracleRelationalDatabase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
+            : base(identifierDefaults)
         {
-            _tableProvider = new OracleRelationalDatabaseTableProvider(connection, identifierDefaults, identifierResolver, dialect.TypeProvider);
-            _viewProvider = new OracleDatabaseViewProvider(connection, identifierDefaults, identifierResolver, dialect.TypeProvider);
-            _sequenceProvider = new OracleDatabaseSequenceProvider(connection, identifierDefaults, identifierResolver);
-            _synonymProvider = new OracleDatabaseSynonymProvider(connection, identifierDefaults, identifierResolver);
-            _routineProvider = new OracleDatabaseRoutineProvider(connection, identifierDefaults, identifierResolver);
+            _tableProvider = new OracleRelationalDatabaseTableProvider(connection, identifierDefaults, identifierResolver);
+            _viewProvider = new OracleDatabaseViewProvider(connection, identifierDefaults, identifierResolver);
+            _sequenceProvider = new OracleDatabaseSequenceProvider(connection.DbConnection, identifierDefaults, identifierResolver);
+            _synonymProvider = new OracleDatabaseSynonymProvider(connection.DbConnection, identifierDefaults, identifierResolver);
+            _routineProvider = new OracleDatabaseRoutineProvider(connection.DbConnection, identifierDefaults, identifierResolver);
         }
 
         public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)

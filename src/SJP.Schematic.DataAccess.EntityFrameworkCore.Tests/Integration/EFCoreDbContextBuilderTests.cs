@@ -10,14 +10,14 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
 {
     internal sealed class EFCoreDbContextBuilderTests : SqliteTest
     {
-        private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
+        private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults);
 
         private EFCoreDbContextBuilder Builder => new EFCoreDbContextBuilder(new PascalCaseNameTranslator(), "EFCoreTestNamespace");
 
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create table test_table_1 (
     test_pk integer not null primary key autoincrement,
     test_int integer not null,
@@ -29,7 +29,7 @@ create table test_table_1 (
     test_string text,
     test_string_with_default default 'test'
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create table test_table_2 (
     test_pk_1 integer not null,
     test_pk_2 integer not null,
@@ -40,11 +40,11 @@ create table test_table_2 (
     constraint test_table_2_pk primary key (test_pk_1, test_pk_2),
     constraint test_table_2_multi_uk unique (first_name, middle_name, last_name)
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create index ix_test_table_2_first_name on test_table_2 (first_name, last_name)", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create index ix_test_table_2_comment on test_table_2 (comment)", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create unique index ux_test_table_2_first_name_middle_name on test_table_2 (first_name, middle_name)", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create unique index ux_test_table_2_last_name on test_table_2 (last_name)", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync("create index ix_test_table_2_first_name on test_table_2 (first_name, last_name)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create index ix_test_table_2_comment on test_table_2 (comment)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create unique index ux_test_table_2_first_name_middle_name on test_table_2 (first_name, middle_name)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create unique index ux_test_table_2_last_name on test_table_2 (last_name)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync(@"
 create table test_table_3 (
     test_pk integer not null primary key autoincrement,
     test_int integer not null,
@@ -56,7 +56,7 @@ create table test_table_3 (
     test_string text,
     test_string_with_default default 'test'
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create table test_table_4 (
     test_pk integer not null primary key autoincrement,
     test_int integer not null,
@@ -81,10 +81,10 @@ create table test_table_4 (
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop table test_table_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table test_table_2", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table test_table_4", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table test_table_3", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table test_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table test_table_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table test_table_4", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table test_table_3", CancellationToken.None).ConfigureAwait(false);
         }
 
         [Test]

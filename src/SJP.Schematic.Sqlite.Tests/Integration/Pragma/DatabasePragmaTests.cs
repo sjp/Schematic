@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,13 +20,25 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             return connection;
         }
 
+        private static ISqliteConnectionPragma CreateConnectionPragma(IDbConnection connection)
+        {
+            var conn = new SchematicConnection(Guid.NewGuid(), connection, new SqliteDialect());
+            return new ConnectionPragma(conn);
+        }
+
+        private static ISqliteDatabasePragma CreateDatabasePragma(IDbConnection connection, string schemaName)
+        {
+            var conn = new SchematicConnection(Guid.NewGuid(), connection, new SqliteDialect());
+            return new DatabasePragma(conn, schemaName);
+        }
+
         private const string MainSchema = "main";
 
         [Test]
         public async Task ApplicationIdAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var applicationId = await dbPragma.ApplicationIdAsync().ConfigureAwait(false);
             var newValue = applicationId == 123u ? 456u : 123u;
@@ -39,7 +52,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task AutoVacuumAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var autoVacuum = await dbPragma.AutoVacuumAsync().ConfigureAwait(false);
             var newValue = autoVacuum == AutoVacuumMode.None ? AutoVacuumMode.Incremental : AutoVacuumMode.None;
@@ -53,7 +66,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public void AutoVacuumAsync_GivenInvalidAutoVacuumModeValue_ThrowsArgumentException()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             const AutoVacuumMode newValue = (AutoVacuumMode)55;
             Assert.That(() => dbPragma.AutoVacuumAsync(newValue), Throws.ArgumentException);
@@ -63,7 +76,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task CacheSizeInPagesAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var cacheSizeInPages = await dbPragma.CacheSizeInPagesAsync().ConfigureAwait(false);
             var newValue = cacheSizeInPages == 1000u ? 2000u : 1000u;
@@ -77,7 +90,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task CacheSizeInKibibytesAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var cacheSizeInKibibytes = await dbPragma.CacheSizeInKibibytesAsync().ConfigureAwait(false);
             var newValue = cacheSizeInKibibytes == 1000u ? 2000u : 1000u;
@@ -91,7 +104,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task CacheSpillAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var cacheSpill = await dbPragma.CacheSpillAsync().ConfigureAwait(false);
             var newValue = !cacheSpill;
@@ -105,7 +118,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public void DataVersionAsync_WhenGetInvoked_ReadsCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             Assert.That(async () => await dbPragma.DataVersionAsync().ConfigureAwait(false), Throws.Nothing);
         }
@@ -114,10 +127,10 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task ForeignKeyCheckDatabaseAsync_WhenBrokenRelationshipsExist_ReadsValuesCorrectly()
         {
             using var connection = CreateConnection();
-            var connPragma = new ConnectionPragma(Dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
             await connPragma.ForeignKeysAsync(false).ConfigureAwait(false); // must disable enforcement to allow delayed check
 
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
             await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )", CancellationToken.None).ConfigureAwait(false);
@@ -133,10 +146,10 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task ForeignKeyCheckTableAsync_WhenBrokenRelationshipsExist_ReadsValuesCorrectly()
         {
             using var connection = CreateConnection();
-            var connPragma = new ConnectionPragma(Dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
             await connPragma.ForeignKeysAsync(false).ConfigureAwait(false); // must disable enforcement to allow delayed check
 
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
             await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )", CancellationToken.None).ConfigureAwait(false);
@@ -152,7 +165,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public void ForeignKeyCheckTableAsync_WhenGivenNullLocalName_ThrowsArgumentNullException()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             Assert.That(() => dbPragma.ForeignKeyCheckTableAsync(null), Throws.ArgumentNullException);
         }
@@ -161,7 +174,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public void ForeignKeyCheckTableAsync_WhenGivenMismatchingSchemaName_ThrowsArgumentException()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var name = new Identifier("test", "test");
             Assert.That(() => dbPragma.ForeignKeyCheckTableAsync(name), Throws.ArgumentException);
@@ -171,7 +184,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task ForeignKeyListAsync_WhenTableExists_ReadsKeysCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
             await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )", CancellationToken.None).ConfigureAwait(false);
@@ -187,7 +200,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public void ForeignKeyListAsync_WhenGivenNullLocalName_ThrowsArgumentNullException()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             Assert.That(() => dbPragma.ForeignKeyListAsync(null), Throws.ArgumentNullException);
         }
@@ -196,7 +209,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public void ForeignKeyListAsync_WhenGivenMismatchingSchemaName_ThrowsArgumentException()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var name = new Identifier("test", "test");
             Assert.That(() => dbPragma.ForeignKeyListAsync(name), Throws.ArgumentException);
@@ -206,7 +219,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public void FreeListCountAsync_WhenGetInvoked_ReadsCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             Assert.That(async () => await dbPragma.FreeListCountAsync().ConfigureAwait(false), Throws.Nothing);
         }
@@ -215,7 +228,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task IncrementalVacuumAsync_GivenNonZeroValue_SetsCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             await dbPragma.IncrementalVacuumAsync(1000).ConfigureAwait(false);
             Assert.Pass();
@@ -225,7 +238,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task IncrementalVacuumAsync_GivenZeroValue_SetsCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             await dbPragma.IncrementalVacuumAsync(0).ConfigureAwait(false);
             Assert.Pass();
@@ -235,7 +248,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task IndexInfoAsync_WhenIndexOnTableExists_ReadsIndexCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
             await connection.ExecuteAsync("create index ix_test_index on test_table (val)", CancellationToken.None).ConfigureAwait(false);
@@ -254,7 +267,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task IndexListAsync_WhenIndexOnTableExists_ReadsIndexCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
             await connection.ExecuteAsync("create index ix_test_index on test_table (val)", CancellationToken.None).ConfigureAwait(false);
@@ -273,7 +286,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public void IndexListAsync_WhenGivenNullLocalName_ThrowsArgumentNullException()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             Assert.That(() => dbPragma.IndexListAsync(null), Throws.ArgumentNullException);
         }
@@ -282,7 +295,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public void IndexListAsync_WhenGivenMismatchingSchemaName_ThrowsArgumentException()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var name = new Identifier("test", "test");
             Assert.That(() => dbPragma.IndexListAsync(name), Throws.ArgumentException);
@@ -292,7 +305,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task IndexXInfoAsync_WhenIndexOnTableExists_ReadsIndexCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
             await connection.ExecuteAsync("create index ix_test_index on test_table (val)", CancellationToken.None).ConfigureAwait(false);
@@ -311,7 +324,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task IntegrityCheckAsync_GivenNoMaxErrorsOnCorrectDb_ReturnsEmptyCollection()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var errors = await dbPragma.IntegrityCheckAsync().ConfigureAwait(false);
 
@@ -322,7 +335,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task IntegrityCheckAsync_GivenMaxErrorsLimitOnCorrectDb_ReturnsEmptyCollection()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var errors = await dbPragma.IntegrityCheckAsync(10).ConfigureAwait(false);
 
@@ -332,7 +345,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task JournalModeAsync_WhenGetInvoked_ReadsCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var journalMode = await dbPragma.JournalModeAsync().ConfigureAwait(false);
 
@@ -344,7 +357,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task JournalModeAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var journalMode = await dbPragma.JournalModeAsync().ConfigureAwait(false);
             var newValue = journalMode == JournalMode.Persist ? JournalMode.Memory : JournalMode.Persist;
@@ -358,7 +371,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public void JournalModeAsync_GivenInvalidJournalModeValue_ThrowsArgumentException()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             const JournalMode newValue = (JournalMode)55;
             Assert.That(() => dbPragma.JournalModeAsync(newValue), Throws.ArgumentException);
@@ -368,7 +381,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task JournalSizeLimitAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var journalSizeLimit = await dbPragma.JournalSizeLimitAsync().ConfigureAwait(false);
             var newValue = journalSizeLimit == 123u ? 456u : 123u;
@@ -382,7 +395,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task LockingModeAsync_GetAndSet_InvokesProperly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             _ = await dbPragma.LockingModeAsync().ConfigureAwait(false); // should be normal
             const LockingMode newValue = LockingMode.Exclusive;
@@ -396,7 +409,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public void LockingModeAsync_GivenInvalidLockingModeValue_ThrowsArgumentException()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             const LockingMode newValue = (LockingMode)55;
             Assert.That(() => dbPragma.LockingModeAsync(newValue), Throws.ArgumentException);
@@ -406,7 +419,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task MaxPageCountAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var maxPageCount = await dbPragma.MaxPageCountAsync().ConfigureAwait(false);
             var newValue = maxPageCount == 123u ? 456u : 123u;
@@ -421,7 +434,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task MmapSizeAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var mmapSize = await dbPragma.MmapSizeAsync().ConfigureAwait(false);
             var newValue = mmapSize == 123u ? 456u : 123u;
@@ -435,7 +448,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task OptimizeAsync_WhenInvoked_PerformsOperationSuccessfully()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             await dbPragma.OptimizeAsync().ConfigureAwait(false);
             Assert.Pass();
@@ -445,7 +458,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public void OptimizeAsync_GivenInvalidOptimizeFeaturesValue_ThrowsArgumentException()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             const OptimizeFeatures newValue = (OptimizeFeatures)55;
             Assert.That(() => dbPragma.OptimizeAsync(newValue), Throws.ArgumentException);
@@ -455,7 +468,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public void PageCountAsync_WhenGetInvoked_ReadsCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             Assert.That(async () => await dbPragma.PageCountAsync().ConfigureAwait(false), Throws.Nothing);
         }
@@ -464,7 +477,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task PageSize_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var pageSize = await dbPragma.PageSizeAsync().ConfigureAwait(false);
             var newValue = pageSize == (ushort)512u ? (ushort)1024u : (ushort)512u;
@@ -478,7 +491,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public void PageSizeAsync_WhenSetValueLessThan512_ThrowsArgumentException()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             const ushort newValue = 300;
             Assert.That(() => dbPragma.PageSizeAsync(newValue), Throws.ArgumentException);
@@ -488,7 +501,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public void PageSizeAsync_WhenSetValueNotPowerOfTwo_ThrowsArgumentException()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             const ushort newValue = 600;
             Assert.That(() => dbPragma.PageSizeAsync(newValue), Throws.ArgumentException);
@@ -498,7 +511,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task QuickCheckAsync_GivenNoMaxErrorsOnCorrectDb_ReturnsEmptyCollection()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var errors = await dbPragma.QuickCheckAsync().ConfigureAwait(false);
 
@@ -509,7 +522,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task QuickCheckAsync_GivenMaxErrorsLimitOnCorrectDb_ReturnsEmptyCollection()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var errors = await dbPragma.QuickCheckAsync(10).ConfigureAwait(false);
 
@@ -520,7 +533,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task SchemaVersionAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var schemaVersion = await dbPragma.SchemaVersionAsync().ConfigureAwait(false);
             var newValue = schemaVersion == 123 ? 456 : 123;
@@ -534,7 +547,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task SecureDeleteAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var secureDelete = await dbPragma.SecureDeleteAsync().ConfigureAwait(false);
             var newValue = secureDelete == SecureDeleteMode.On ? SecureDeleteMode.Off : SecureDeleteMode.On;
@@ -548,7 +561,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public void SecureDeleteAsync_GivenInvalidSecureDeleteModeValue_ThrowsArgumentException()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             const SecureDeleteMode newValue = (SecureDeleteMode)55;
             Assert.That(() => dbPragma.SecureDeleteAsync(newValue), Throws.ArgumentException);
@@ -558,7 +571,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task SynchronousAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var synchronous = await dbPragma.SynchronousAsync().ConfigureAwait(false);
             var newValue = synchronous == SynchronousLevel.Normal ? SynchronousLevel.Full : SynchronousLevel.Normal;
@@ -572,7 +585,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public void SynchronousAsync_GivenInvalidSynchronousLevelValue_ThrowsArgumentException()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             const SynchronousLevel newValue = (SynchronousLevel)55;
             Assert.That(() => dbPragma.SynchronousAsync(newValue), Throws.ArgumentException);
@@ -582,7 +595,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task TableInfoAsync_WhenTableExists_ReadsValuesCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
 
@@ -595,7 +608,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public void TableInfoAsync_WhenGivenNullLocalName_ThrowsArgumentNullException()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             Assert.That(() => dbPragma.TableInfoAsync(null), Throws.ArgumentNullException);
         }
@@ -604,7 +617,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public void TableInfoAsync_WhenGivenMismatchingSchemaName_ThrowsArgumentException()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var name = new Identifier("test", "test");
             Assert.That(() => dbPragma.TableInfoAsync(name), Throws.ArgumentException);
@@ -614,7 +627,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task TableXInfoAsync_WhenTableExists_ReadsValuesCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None);
 
@@ -627,7 +640,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public void TableXInfoAsync_WhenGivenNullLocalName_ThrowsArgumentNullException()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             Assert.That(() => dbPragma.TableXInfoAsync(null), Throws.ArgumentNullException);
         }
@@ -636,7 +649,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public void TableXInfoAsync_WhenGivenMismatchingSchemaName_ThrowsArgumentException()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var name = new Identifier("test", "test");
             Assert.That(() => dbPragma.TableXInfoAsync(name), Throws.ArgumentException);
@@ -646,7 +659,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task UserVersionAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var userVersion = await dbPragma.UserVersionAsync().ConfigureAwait(false);
             var newValue = userVersion == 123 ? 456 : 123;
@@ -660,7 +673,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public async Task WalCheckpointAsync_WhenInvoked_ReadsCorrectly()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
             var results = await dbPragma.WalCheckpointAsync().ConfigureAwait(false);
 
             Assert.That(results, Is.Not.Null);
@@ -670,7 +683,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public void WalCheckpointAsync_GivenInvalidWalCheckpointModeValue_ThrowsArgumentException()
         {
             using var connection = CreateConnection();
-            var dbPragma = new DatabasePragma(Dialect, connection, MainSchema);
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             const WalCheckpointMode newValue = (WalCheckpointMode)55;
             Assert.That(() => dbPragma.WalCheckpointAsync(newValue), Throws.ArgumentException);

@@ -13,16 +13,16 @@ namespace SJP.Schematic.Modelled.Reflection.Tests.Fakes
     {
         public bool IsReservedKeyword(string text) => false;
 
-        public Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default) => Task.FromResult<IIdentifierDefaults>(null);
+        public Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(ISchematicConnection connection, CancellationToken cancellationToken = default) => Task.FromResult<IIdentifierDefaults>(null);
 
-        public Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default) => Task.FromResult<string>(null);
+        public Task<string> GetDatabaseDisplayVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default) => Task.FromResult<string>(null);
 
-        public Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default) => Task.FromResult<Version>(null);
+        public Task<Version> GetDatabaseVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default) => Task.FromResult<Version>(null);
 
-        public Task<IRelationalDatabase> GetRelationalDatabaseAsync(IDbConnection connection, CancellationToken cancellationToken = default)
+        public Task<IRelationalDatabase> GetRelationalDatabaseAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
             => Task.FromResult<IRelationalDatabase>(null);
 
-        public Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(IDbConnection connection, CancellationToken cancellationToken = default)
+        public Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
             => Task.FromResult<IRelationalDatabaseCommentProvider>(new EmptyRelationalDatabaseCommentProvider());
 
         public string QuoteName(Identifier name)

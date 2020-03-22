@@ -22,14 +22,19 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             return connection;
         }
 
+        private static ISqliteConnectionPragma CreateConnectionPragma(IDbConnection connection)
+        {
+            var conn = new SchematicConnection(Guid.NewGuid(), connection, new SqliteDialect());
+            return new ConnectionPragma(conn);
+        }
+
         [Test]
         public static async Task DatabasePragmasAsync_ForNewDatabase_ShouldBeMainAndTempSchemasOnly()
         {
             var expectedSchemas = new HashSet<string>(new[] { "main", "temp" }, StringComparer.OrdinalIgnoreCase);
 
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var dbPragmas = await connPragma.DatabasePragmasAsync().ConfigureAwait(false);
             var dbPragmaNames = dbPragmas.Select(d => d.SchemaName).ToList();
@@ -44,8 +49,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var expectedSchemas = new HashSet<string>(new[] { "main", "temp" }, StringComparer.OrdinalIgnoreCase);
 
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var dbLists = await connPragma.DatabaseListAsync().ConfigureAwait(false);
             var dbNames = dbLists.Select(d => d.name).ToList();
@@ -58,8 +62,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task AutomaticIndexAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var automaticIndex = await connPragma.AutomaticIndexAsync().ConfigureAwait(false);
             var newValue = !automaticIndex;
@@ -73,8 +76,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task BusyTimeoutAsync_Get_ReadsCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var busyTimeout = await connPragma.BusyTimeoutAsync().ConfigureAwait(false);
             var defaultValue = new TimeSpan(0, 0, 0);
@@ -87,8 +89,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task BusyTimeoutAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             _ = await connPragma.BusyTimeoutAsync().ConfigureAwait(false);
             var newValue = new TimeSpan(0, 0, 23);
@@ -102,8 +103,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task CaseSensitiveLikeAsync_WhenSet_WritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             await connection.ExecuteAsync("create table test ( col text )", CancellationToken.None).ConfigureAwait(false);
             await connection.ExecuteAsync("insert into test (col) values ('dummy')", CancellationToken.None).ConfigureAwait(false);
@@ -131,8 +131,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task CellSizeCheckAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var cellSizeCheck = await connPragma.CellSizeCheckAsync().ConfigureAwait(false);
             var newValue = !cellSizeCheck;
@@ -146,8 +145,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task CheckpointFullFsyncAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var checkpointFullFsync = await connPragma.CheckpointFullFsyncAsync().ConfigureAwait(false);
             var newValue = !checkpointFullFsync;
@@ -161,8 +159,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task CollationListAsync_GetInvoked_ReadsCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var collations = await connPragma.CollationListAsync().ConfigureAwait(false);
 
@@ -173,8 +170,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task CompileOptionsAsync_GetInvoked_ReadsCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var options = await connPragma.CompileOptionsAsync().ConfigureAwait(false);
 
@@ -185,8 +181,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task DataVersionAsync_GetInvoked_ReadsCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var dataVersion = await connPragma.DataVersionAsync().ConfigureAwait(false);
 
@@ -197,8 +192,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task DeferForeignKeysAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var deferForeignKeys = await connPragma.DeferForeignKeysAsync().ConfigureAwait(false);
             var newValue = !deferForeignKeys;
@@ -212,8 +206,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task EncodingAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var textEncoding = await connPragma.EncodingAsync().ConfigureAwait(false);
             var newValue = textEncoding == Encoding.Utf8 ? Encoding.Utf16le : Encoding.Utf8;
@@ -227,8 +220,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static void EncodingAsync_GivenInvalidEncodingValue_ThrowsArgumentException()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             const Encoding newValue = (Encoding)55;
             Assert.That(() => connPragma.EncodingAsync(newValue), Throws.ArgumentException);
@@ -238,8 +230,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task ForeignKeysAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var foreignKeys = await connPragma.ForeignKeysAsync().ConfigureAwait(false);
             var newValue = !foreignKeys;
@@ -253,8 +244,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task FullFsyncAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var fullFsync = await connPragma.FullFsyncAsync().ConfigureAwait(false);
             var newValue = !fullFsync;
@@ -268,8 +258,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task IgnoreCheckConstraintsAsync_WhenSet_WritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             await connection.ExecuteAsync("create table test ( col text, constraint col_ck check (col <> 'test') )", CancellationToken.None).ConfigureAwait(false);
 
@@ -284,8 +273,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task LegacyAlterTableAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var legacyAlterTable = await connPragma.LegacyAlterTableAsync().ConfigureAwait(false);
             var newValue = !legacyAlterTable;
@@ -299,8 +287,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task LegacyFileFormatAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var legacyFileFormat = await connPragma.LegacyFileFormatAsync().ConfigureAwait(false);
             var newValue = !legacyFileFormat;
@@ -314,8 +301,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task OptimizeAsync_WhenInvoked_PerformsOperationSuccessfully()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             await connPragma.OptimizeAsync().ConfigureAwait(false);
             Assert.Pass();
@@ -325,8 +311,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static void OptimizeAsync_GivenInvalidOptimizeFeaturesValue_ThrowsArgumentException()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             const OptimizeFeatures newValue = (OptimizeFeatures)55;
             Assert.That(() => connPragma.OptimizeAsync(newValue), Throws.ArgumentException);
@@ -336,8 +321,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task QueryOnlyAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var queryOnly = await connPragma.QueryOnlyAsync().ConfigureAwait(false);
             var newValue = !queryOnly;
@@ -351,8 +335,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task ReadUncommittedAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var readUncommitted = await connPragma.ReadUncommittedAsync().ConfigureAwait(false);
             var newValue = !readUncommitted;
@@ -366,8 +349,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task RecursiveTriggersAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var recursiveTriggers = await connPragma.RecursiveTriggersAsync().ConfigureAwait(false);
             var newValue = !recursiveTriggers;
@@ -381,8 +363,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task ReverseUnorderedSelectsAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var recursiveTriggers = await connPragma.ReverseUnorderedSelectsAsync().ConfigureAwait(false);
             var newValue = !recursiveTriggers;
@@ -396,8 +377,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task ShrinkMemoryAsync_WhenInvoked_PerformsOperationSuccessfully()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             await connPragma.ShrinkMemoryAsync().ConfigureAwait(false);
             Assert.Pass();
@@ -407,8 +387,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task SoftHeapLimitAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var softHeapLimit = await connPragma.SoftHeapLimitAsync().ConfigureAwait(false);
             var newValue = softHeapLimit == 0 ? 9000 : 0;
@@ -422,8 +401,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task TemporaryStoreAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var tempStore = await connPragma.TemporaryStoreAsync().ConfigureAwait(false);
             var newValue = tempStore == TemporaryStoreLocation.Default ? TemporaryStoreLocation.File : TemporaryStoreLocation.Default;
@@ -437,8 +415,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static void TemporaryStoreAsync_GivenInvalidTemporaryStoreLocationValue_ThrowsArgumentException()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             const TemporaryStoreLocation tempStore = (TemporaryStoreLocation)55;
             Assert.That(() => connPragma.TemporaryStoreAsync(tempStore), Throws.ArgumentException);
@@ -448,8 +425,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task ThreadsAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var threads = await connPragma.ThreadsAsync().ConfigureAwait(false);
             var newValue = threads == 0 ? 8 : 0;
@@ -463,8 +439,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task WalAutoCheckpointAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var autoCheckpoint = await connPragma.WalAutoCheckpointAsync().ConfigureAwait(false);
             var newValue = autoCheckpoint == 50 ? 100 : 50;
@@ -478,8 +453,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         public static async Task WritableSchemaAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             using var connection = CreateConnection();
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connPragma = new ConnectionPragma(dialect, connection);
+            var connPragma = CreateConnectionPragma(connection);
 
             var writableSchema = await connPragma.WritableSchemaAsync().ConfigureAwait(false);
             var newValue = !writableSchema;

@@ -28,7 +28,7 @@ namespace SJP.Schematic.Sqlite
             return connection;
         }
 
-        public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default)
+        public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -39,36 +39,36 @@ namespace SJP.Schematic.Sqlite
 
         private const string DefaultSchema = "main";
 
-        public override async Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default)
+        public override async Task<string> GetDatabaseDisplayVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken).ConfigureAwait(false);
+            var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken).ConfigureAwait(false);
             return "SQLite " + versionStr;
         }
 
-        public override async Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default)
+        public override async Task<Version> GetDatabaseVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken).ConfigureAwait(false);
+            var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken).ConfigureAwait(false);
             return Version.Parse(versionStr);
         }
 
         private const string DatabaseDisplayVersionQuerySql = "select sqlite_version()";
 
-        public override async Task<IRelationalDatabase> GetRelationalDatabaseAsync(IDbConnection connection, CancellationToken cancellationToken = default)
+        public override async Task<IRelationalDatabase> GetRelationalDatabaseAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
             var identifierDefaults = await GetIdentifierDefaultsAsync(connection, cancellationToken).ConfigureAwait(false);
-            return new SqliteRelationalDatabase(this, connection, identifierDefaults);
+            return new SqliteRelationalDatabase(connection, identifierDefaults);
         }
 
-        public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(IDbConnection connection, CancellationToken cancellationToken = default)
+        public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
             => Task.FromResult<IRelationalDatabaseCommentProvider>(new EmptyRelationalDatabaseCommentProvider());
 
         public override IDependencyProvider GetDependencyProvider() => new SqliteDependencyProvider();

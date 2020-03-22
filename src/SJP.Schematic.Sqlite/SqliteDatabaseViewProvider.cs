@@ -16,21 +16,22 @@ namespace SJP.Schematic.Sqlite
 {
     public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     {
-        public SqliteDatabaseViewProvider(IDbConnection connection, ISqliteConnectionPragma pragma, IDatabaseDialect dialect, IIdentifierDefaults identifierDefaults)
+        public SqliteDatabaseViewProvider(ISchematicConnection connection, ISqliteConnectionPragma pragma, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             ConnectionPragma = pragma ?? throw new ArgumentNullException(nameof(pragma));
-            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         }
 
-        protected IDbConnection Connection { get; }
+        protected ISchematicConnection Connection { get; }
 
         protected ISqliteConnectionPragma ConnectionPragma { get; }
 
-        protected IDatabaseDialect Dialect { get; }
-
         protected IIdentifierDefaults IdentifierDefaults { get; }
+
+        protected IDbConnection DbConnection => Connection.DbConnection;
+
+        protected IDatabaseDialect Dialect => Connection.Dialect;
 
         public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
@@ -45,7 +46,7 @@ namespace SJP.Schematic.Sqlite
             foreach (var dbName in dbNames)
             {
                 var sql = ViewsQuery(dbName);
-                var queryResult = await Connection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
+                var queryResult = await DbConnection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
                 var viewNames = queryResult
                     .Where(name => !IsReservedTableName(name))
                     .Select(name => Identifier.CreateQualifiedIdentifier(dbName, name));
@@ -114,7 +115,7 @@ namespace SJP.Schematic.Sqlite
             if (viewName.Schema != null)
             {
                 var sql = ViewNameQuery(viewName.Schema);
-                var viewLocalName = await Connection.ExecuteScalarAsync<string>(
+                var viewLocalName = await DbConnection.ExecuteScalarAsync<string>(
                     sql,
                     new { ViewName = viewName.LocalName },
                     cancellationToken
@@ -142,7 +143,7 @@ namespace SJP.Schematic.Sqlite
             foreach (var dbName in dbNames)
             {
                 var sql = ViewNameQuery(dbName);
-                var viewLocalName = await Connection.ExecuteScalarAsync<string>(
+                var viewLocalName = await DbConnection.ExecuteScalarAsync<string>(
                     sql,
                     new { ViewName = viewName.LocalName },
                     cancellationToken
@@ -193,7 +194,7 @@ namespace SJP.Schematic.Sqlite
                 throw new ArgumentNullException(nameof(viewName));
 
             var sql = DefinitionQuery(viewName.Schema!);
-            return Connection.ExecuteScalarAsync<string>(
+            return DbConnection.ExecuteScalarAsync<string>(
                 sql,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
                 cancellationToken
@@ -269,7 +270,7 @@ namespace SJP.Schematic.Sqlite
                 throw new ArgumentNullException(nameof(columnName));
 
             var sql = GetTypeofQuery(viewName, columnName.LocalName);
-            return Connection.ExecuteScalarAsync<string>(sql, cancellationToken);
+            return DbConnection.ExecuteScalarAsync<string>(sql, cancellationToken);
         }
 
         protected virtual string GetTypeofQuery(Identifier viewName, string columnName)
@@ -296,7 +297,7 @@ namespace SJP.Schematic.Sqlite
             if (schema.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(schema));
 
-            var loader = _dbPragmaCache.GetOrAdd(schema, new Lazy<ISqliteDatabasePragma>(() => new DatabasePragma(Dialect, Connection, schema)));
+            var loader = _dbPragmaCache.GetOrAdd(schema, new Lazy<ISqliteDatabasePragma>(() => new DatabasePragma(Connection, schema)));
             return loader.Value;
         }
 

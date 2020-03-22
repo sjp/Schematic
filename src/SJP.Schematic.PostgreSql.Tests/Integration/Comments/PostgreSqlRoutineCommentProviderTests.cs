@@ -12,13 +12,13 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
 {
     internal sealed class PostgreSqlRoutineCommentProviderTests : PostgreSqlTest
     {
-        private IDatabaseRoutineCommentProvider RoutineCommentProvider => new PostgreSqlRoutineCommentProvider(Connection, IdentifierDefaults, IdentifierResolver);
+        private IDatabaseRoutineCommentProvider RoutineCommentProvider => new PostgreSqlRoutineCommentProvider(DbConnection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
         {
             // func
-            await Connection.ExecuteAsync(@"CREATE FUNCTION db_comment_test_routine_1(val integer)
+            await DbConnection.ExecuteAsync(@"CREATE FUNCTION db_comment_test_routine_1(val integer)
 RETURNS integer AS $$
 BEGIN
     RETURN val + 1;
@@ -29,7 +29,7 @@ LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop function db_comment_test_routine_1(integer)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop function db_comment_test_routine_1(integer)", CancellationToken.None).ConfigureAwait(false);
         }
 
         [Test]

@@ -64,12 +64,12 @@ namespace SJP.Schematic.Oracle
             return pieces.Join(".");
         }
 
-        public override async Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default)
+        public override async Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            var hostInfoOption = connection.QueryFirstOrNone<DatabaseHost>(IdentifierDefaultsQuerySql, cancellationToken);
+            var hostInfoOption = connection.DbConnection.QueryFirstOrNone<DatabaseHost>(IdentifierDefaultsQuerySql, cancellationToken);
             var qualifiedServerName = await hostInfoOption
                 .Bind(dbHost => dbHost.ServerHost != null && dbHost.ServerSid != null
                     ? OptionAsync<DatabaseHost>.Some(dbHost)
@@ -93,24 +93,24 @@ select
     SYS_CONTEXT('USERENV', 'CURRENT_USER') as DefaultSchema
 from DUAL";
 
-        public override Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default)
+        public override Task<string> GetDatabaseDisplayVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            var versionInfoOption = connection.QueryFirstOrNone<DatabaseVersion>(DatabaseVersionQuerySql, cancellationToken);
+            var versionInfoOption = connection.DbConnection.QueryFirstOrNone<DatabaseVersion>(DatabaseVersionQuerySql, cancellationToken);
             return versionInfoOption.MatchUnsafe(
                 vInfo => vInfo.ProductName + vInfo.VersionNumber,
                 () => string.Empty
             );
         }
 
-        public override Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default)
+        public override Task<Version> GetDatabaseVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            var versionInfoOption = connection.QueryFirstOrNone<DatabaseVersion>(DatabaseVersionQuerySql, cancellationToken);
+            var versionInfoOption = connection.DbConnection.QueryFirstOrNone<DatabaseVersion>(DatabaseVersionQuerySql, cancellationToken);
             return versionInfoOption
                 .Bind(dbv => TryParseLongVersionString(dbv.VersionNumber).ToAsync())
                 .MatchUnsafeAsync(
@@ -149,24 +149,24 @@ select
 from PRODUCT_COMPONENT_VERSION
 where PRODUCT like 'Oracle Database%'";
 
-        public override async Task<IRelationalDatabase> GetRelationalDatabaseAsync(IDbConnection connection, CancellationToken cancellationToken = default)
+        public override async Task<IRelationalDatabase> GetRelationalDatabaseAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
             var identifierDefaults = await GetIdentifierDefaultsAsync(connection, cancellationToken).ConfigureAwait(false);
             var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
-            return new OracleRelationalDatabase(this, connection, identifierDefaults, identifierResolver);
+            return new OracleRelationalDatabase(connection, identifierDefaults, identifierResolver);
         }
 
-        public override async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(IDbConnection connection, CancellationToken cancellationToken = default)
+        public override async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
             var identifierDefaults = await GetIdentifierDefaultsAsync(connection, cancellationToken).ConfigureAwait(false);
             var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
-            return new OracleDatabaseCommentProvider(connection, identifierDefaults, identifierResolver);
+            return new OracleDatabaseCommentProvider(connection.DbConnection, identifierDefaults, identifierResolver);
         }
 
         public override bool IsReservedKeyword(string text)

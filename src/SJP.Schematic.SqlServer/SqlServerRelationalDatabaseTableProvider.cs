@@ -15,25 +15,23 @@ namespace SJP.Schematic.SqlServer
 {
     public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTableProvider
     {
-        public SqlServerRelationalDatabaseTableProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IDbTypeProvider typeProvider)
+        public SqlServerRelationalDatabaseTableProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
-            TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
-            Dialect = new SqlServerDialect();
         }
 
-        protected IDbConnection Connection { get; }
+        protected ISchematicConnection Connection { get; }
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
-        protected IDbTypeProvider TypeProvider { get; }
+        protected IDbConnection DbConnection => Connection.DbConnection;
 
-        protected IDatabaseDialect Dialect { get; }
+        protected IDatabaseDialect Dialect => Connection.Dialect;
 
         public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResults = await Connection.QueryAsync<QualifiedName>(TablesQuery, cancellationToken).ConfigureAwait(false);
+            var queryResults = await DbConnection.QueryAsync<QualifiedName>(TablesQuery, cancellationToken).ConfigureAwait(false);
             var tableNames = queryResults
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .Select(QualifyTableName);
@@ -65,7 +63,7 @@ order by schema_name(schema_id), name";
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = QualifyTableName(tableName);
-            var qualifiedTableName = Connection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedTableName = DbConnection.QueryFirstOrNone<QualifiedName>(
                 TableNameQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
                 cancellationToken
@@ -146,7 +144,7 @@ where schema_id = schema_id(@SchemaName) and name = @TableName and is_ms_shipped
 
         private async Task<Option<IDatabaseKey>> LoadPrimaryKeyAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
-            var primaryKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(
+            var primaryKeyColumns = await DbConnection.QueryAsync<ConstraintColumnMapping>(
                 PrimaryKeyQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
                 cancellationToken
@@ -203,7 +201,7 @@ order by ic.key_ordinal";
 
         private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
-            var queryResult = await Connection.QueryAsync<IndexColumns>(
+            var queryResult = await DbConnection.QueryAsync<IndexColumns>(
                 IndexesQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
                 cancellationToken
@@ -284,7 +282,7 @@ order by ic.index_id, ic.key_ordinal, ic.index_column_id";
 
         private async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
-            var uniqueKeyColumns = await Connection.QueryAsync<ConstraintColumnMapping>(
+            var uniqueKeyColumns = await DbConnection.QueryAsync<ConstraintColumnMapping>(
                 UniqueKeysQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
                 cancellationToken
@@ -350,7 +348,7 @@ order by ic.key_ordinal";
 
         private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, Option<IDatabaseKey> primaryKey, IReadOnlyDictionary<Identifier, IDatabaseKey> uniqueKeys, CancellationToken cancellationToken)
         {
-            var queryResult = await Connection.QueryAsync<ChildKeyData>(
+            var queryResult = await DbConnection.QueryAsync<ChildKeyData>(
                 ChildKeysQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
                 cancellationToken
@@ -451,7 +449,7 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
 
         protected virtual async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, CancellationToken cancellationToken)
         {
-            var checks = await Connection.QueryAsync<CheckConstraintData>(
+            var checks = await DbConnection.QueryAsync<CheckConstraintData>(
                 ChecksQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
                 cancellationToken
@@ -501,7 +499,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
 
         private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
-            var queryResult = await Connection.QueryAsync<ForeignKeyData>(
+            var queryResult = await DbConnection.QueryAsync<ForeignKeyData>(
                 ParentKeysQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
                 cancellationToken
@@ -644,7 +642,7 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
 
         private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var query = await Connection.QueryAsync<ColumnData>(
+            var query = await DbConnection.QueryAsync<ColumnData>(
                 ColumnsQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
                 cancellationToken
@@ -663,7 +661,7 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                     MaxLength = row.MaxLength,
                     NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
                 };
-                var columnType = TypeProvider.CreateColumnType(typeMetadata);
+                var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
                 var autoIncrement = row.IdentityIncrement
@@ -725,7 +723,7 @@ order by c.column_id";
 
         private async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var queryResult = await Connection.QueryAsync<TriggerData>(
+            var queryResult = await DbConnection.QueryAsync<TriggerData>(
                 TriggersQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
                 cancellationToken

@@ -10,18 +10,18 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
     internal sealed class PostgreSqlDatabaseSequenceProviderTests : PostgreSqlTest
     {
-        private IDatabaseSequenceProvider SequenceProvider => new PostgreSqlDatabaseSequenceProvider(Dialect, Connection, IdentifierDefaults, IdentifierResolver);
+        private IDatabaseSequenceProvider SequenceProvider => new PostgreSqlDatabaseSequenceProvider(Connection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create sequence db_test_sequence_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create sequence db_test_sequence_1", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop sequence db_test_sequence_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop sequence db_test_sequence_1", CancellationToken.None).ConfigureAwait(false);
         }
 
         [Test]

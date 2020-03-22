@@ -10,51 +10,41 @@ namespace SJP.Schematic.Sqlite.Tests.Pragma
     internal static class DatabasePragmaTests
     {
         [Test]
-        public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            Assert.That(() => new DatabasePragma(null, connection, "main"), Throws.ArgumentNullException);
-        }
-
-        [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
-            var dialect = Mock.Of<IDatabaseDialect>();
-            Assert.That(() => new DatabasePragma(dialect, null, "main"), Throws.ArgumentNullException);
+            Assert.That(() => new DatabasePragma(null, "main"), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullSchemaName_ThrowsArgumentNullException()
         {
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connection = Mock.Of<IDbConnection>();
-            Assert.That(() => new DatabasePragma(dialect, connection, null), Throws.ArgumentNullException);
+            var connection = Mock.Of<ISchematicConnection>();
+            Assert.That(() => new DatabasePragma(connection, null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenEmptySchemaName_ThrowsArgumentNullException()
         {
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connection = Mock.Of<IDbConnection>();
-            Assert.That(() => new DatabasePragma(dialect, connection, string.Empty), Throws.ArgumentNullException);
+            var connection = Mock.Of<ISchematicConnection>();
+            Assert.That(() => new DatabasePragma(connection, string.Empty), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
         {
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connection = Mock.Of<IDbConnection>();
-            Assert.That(() => new DatabasePragma(dialect, connection, "      "), Throws.ArgumentNullException);
+            var connection = Mock.Of<ISchematicConnection>();
+            Assert.That(() => new DatabasePragma(connection, "      "), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void SchemaName_PropertyGet_MatchesCtorArg()
         {
-            var dialect = Mock.Of<IDatabaseDialect>();
-            var connection = Mock.Of<IDbConnection>();
+            var dialectMock = new Mock<IDatabaseDialect>();
+            dialectMock.Setup(dialect => dialect.QuoteIdentifier(It.IsAny<string>())).Returns("test");
+            var connection = new SchematicConnection(Mock.Of<IDbConnection>(), dialectMock.Object);
 
             const string schemaName = "test";
-            var dbPragma = new DatabasePragma(dialect, connection, schemaName);
+            var dbPragma = new DatabasePragma(connection, schemaName);
 
             Assert.That(dbPragma.SchemaName, Is.EqualTo(schemaName));
         }

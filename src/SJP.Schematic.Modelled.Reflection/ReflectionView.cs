@@ -6,10 +6,15 @@ namespace SJP.Schematic.Modelled.Reflection
 {
     public class ReflectionView : IDatabaseView
     {
-        public ReflectionView(IRelationalDatabase database, Type viewType)
+        public ReflectionView(IRelationalDatabase database, IDatabaseDialect dialect, Type viewType)
         {
+            if (database == null)
+                throw new ArgumentNullException(nameof(database));
+            if (dialect == null)
+                throw new ArgumentNullException(nameof(dialect));
+
             ViewType = viewType ?? throw new ArgumentNullException(nameof(viewType));
-            Name = database.Dialect.GetQualifiedNameOrDefault(database, ViewType);
+            Name = dialect.GetQualifiedNameOrDefault(database, ViewType);
         }
 
         protected Type ViewType { get; }

@@ -10,18 +10,18 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
     internal class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSqlTest
     {
-        private IRelationalDatabaseTableProvider TableProvider => new PostgreSqlRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver, Dialect.TypeProvider);
+        private IRelationalDatabaseTableProvider TableProvider => new PostgreSqlRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create table db_test_table_1 ( title varchar(200) )", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create table db_test_table_1 ( title varchar(200) )", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop table db_test_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table db_test_table_1", CancellationToken.None).ConfigureAwait(false);
         }
 
         [Test]

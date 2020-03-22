@@ -14,22 +14,23 @@ namespace SJP.Schematic.SqlServer
 {
     public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
     {
-        public SqlServerDatabaseViewProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IDbTypeProvider typeProvider)
+        public SqlServerDatabaseViewProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
-            TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
         }
 
-        protected IDbConnection Connection { get; }
+        protected ISchematicConnection Connection { get; }
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
-        protected IDbTypeProvider TypeProvider { get; }
+        protected IDbConnection DbConnection => Connection.DbConnection;
+
+        protected IDatabaseDialect Dialect => Connection.Dialect;
 
         public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
+            var queryResult = await DbConnection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
             var viewNames = queryResult
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .Select(QualifyViewName);
@@ -61,7 +62,7 @@ order by schema_name(schema_id), name";
                 throw new ArgumentNullException(nameof(viewName));
 
             var candidateViewName = QualifyViewName(viewName);
-            var qualifiedViewName = Connection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedViewName = DbConnection.QueryFirstOrNone<QualifiedName>(
                 ViewNameQuery,
                 new { SchemaName = candidateViewName.Schema, ViewName = candidateViewName.LocalName },
                 cancellationToken
@@ -107,7 +108,7 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName and is_ms_shipped 
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            return Connection.ExecuteScalarAsync<string>(
+            return DbConnection.ExecuteScalarAsync<string>(
                 DefinitionQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
                 cancellationToken
@@ -127,7 +128,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName and v.is_ms_
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            return Connection.ExecuteScalarAsync<bool>(
+            return DbConnection.ExecuteScalarAsync<bool>(
                 IndexExistsQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
                 cancellationToken
@@ -153,7 +154,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName and v.is_ms_
 
         private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
-            var query = await Connection.QueryAsync<ColumnData>(
+            var query = await DbConnection.QueryAsync<ColumnData>(
                 ColumnsQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
                 cancellationToken
@@ -172,7 +173,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName and v.is_ms_
                     MaxLength = row.MaxLength,
                     NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
                 };
-                var columnType = TypeProvider.CreateColumnType(typeMetadata);
+                var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
                 var autoIncrement = row.IdentityIncrement

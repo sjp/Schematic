@@ -14,19 +14,16 @@ namespace SJP.Schematic.Reporting.Html.Lint
 {
     internal sealed class DatabaseLinter
     {
-        public DatabaseLinter(IDbConnection connection, IDatabaseDialect dialect, RuleLevel level = RuleLevel.Warning)
+        public DatabaseLinter(ISchematicConnection connection, RuleLevel level = RuleLevel.Warning)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
 
             if (!level.IsValid())
                 throw new ArgumentException($"The { nameof(RuleLevel) } provided must be a valid enum.", nameof(level));
             Level = level;
         }
 
-        private IDbConnection Connection { get; }
-
-        private IDatabaseDialect Dialect { get; }
+        private ISchematicConnection Connection { get; }
 
         private RuleLevel Level { get; }
 
@@ -125,17 +122,17 @@ namespace SJP.Schematic.Reporting.Html.Lint
             new ForeignKeyIsPrimaryKeyRule(Level),
             new ForeignKeyMissingRule(Level),
             new ForeignKeyRelationshipCycleRule(Level),
-            new InvalidViewDefinitionRule(Connection, Dialect, Level),
+            new InvalidViewDefinitionRule(Connection, Level),
             new NoIndexesPresentOnTableRule(Level),
             new NoNonNullableColumnsPresentRule(Level),
             new NoSurrogatePrimaryKeyRule(Level),
-            new NoValueForNullableColumnRule(Connection, Dialect, Level),
+            new NoValueForNullableColumnRule(Connection, Level),
             new OnlyOneColumnPresentRule(Level),
             new OrphanedTableRule(Level),
             new PrimaryKeyColumnNotFirstColumnRule(Level),
             new PrimaryKeyNotIntegerRule(Level),
             new RedundantIndexesRule(Level),
-            new ReservedKeywordNameRule(Dialect, Level),
+            new ReservedKeywordNameRule(Connection.Dialect, Level),
             new TooManyColumnsRule(Level),
             new UniqueIndexWithNullableColumnsRule(Level),
             new WhitespaceNameRule(Level)

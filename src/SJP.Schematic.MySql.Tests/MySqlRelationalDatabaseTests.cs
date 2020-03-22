@@ -1,6 +1,5 @@
 ﻿using NUnit.Framework;
 using Moq;
-using System.Data;
 using SJP.Schematic.Core;
 using System.Threading.Tasks;
 using System.Linq;
@@ -10,85 +9,55 @@ namespace SJP.Schematic.MySql.Tests
     [TestFixture]
     internal static class MySqlRelationalDatabaseTests
     {
-        [Test]
-        public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
+        private static IRelationalDatabase Database
         {
-            var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+            get
+            {
+                var connection = Mock.Of<ISchematicConnection>();
+                var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.That(() => new MySqlRelationalDatabase(null, connection, identifierDefaults), Throws.ArgumentNullException);
+                return new MySqlRelationalDatabase(connection, identifierDefaults);
+            }
         }
 
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
-            var dialect = Mock.Of<IDatabaseDialect>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.That(() => new MySqlRelationalDatabase(dialect, null, identifierDefaults), Throws.ArgumentNullException);
+            Assert.That(() => new MySqlRelationalDatabase(null, identifierDefaults), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new MySqlDialect();
+            var connection = Mock.Of<ISchematicConnection>();
 
-            Assert.That(() => new MySqlRelationalDatabase(dialect, connection, null), Throws.ArgumentNullException);
+            Assert.That(() => new MySqlRelationalDatabase(connection, null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetTable_GivenNullIdentifier_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new MySqlDialect();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-
-            var database = new MySqlRelationalDatabase(dialect, connection, identifierDefaults);
-
-            Assert.That(() => database.GetTable(null), Throws.ArgumentNullException);
+            Assert.That(() => Database.GetTable(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetView_GivenNullIdentifier_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new MySqlDialect();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-
-            var database = new MySqlRelationalDatabase(dialect, connection, identifierDefaults);
-
-            Assert.That(() => database.GetView(null), Throws.ArgumentNullException);
+            Assert.That(() => Database.GetView(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetRoutine_GivenNullIdentifier_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new MySqlDialect();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-
-            var database = new MySqlRelationalDatabase(dialect, connection, identifierDefaults);
-
-            Assert.That(() => database.GetRoutine(null), Throws.ArgumentNullException);
+            Assert.That(() => Database.GetRoutine(null), Throws.ArgumentNullException);
         }
 
         // testing that the behaviour is equivalent to an empty sequence provider
         [TestFixture]
         internal static class SequenceTests
         {
-            private static IRelationalDatabase Database
-            {
-                get
-                {
-                    var connection = Mock.Of<IDbConnection>();
-                    var dialect = new MySqlDialect();
-                    var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-
-                    return new MySqlRelationalDatabase(dialect, connection, identifierDefaults);
-                }
-            }
-
             [Test]
             public static void GetSequence_GivenNullSequenceName_ThrowsArgumentNullException()
             {
@@ -119,18 +88,6 @@ namespace SJP.Schematic.MySql.Tests
         [TestFixture]
         internal static class SynonymTests
         {
-            private static IRelationalDatabase Database
-            {
-                get
-                {
-                    var connection = Mock.Of<IDbConnection>();
-                    var dialect = new MySqlDialect();
-                    var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-
-                    return new MySqlRelationalDatabase(dialect, connection, identifierDefaults);
-                }
-            }
-
             [Test]
             public static void GetSynonym_GivenNullSynonymName_ThrowsArgumentNullException()
             {

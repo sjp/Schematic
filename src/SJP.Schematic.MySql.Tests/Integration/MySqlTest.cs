@@ -10,10 +10,17 @@ namespace SJP.Schematic.MySql.Tests.Integration
 {
     internal static class Config
     {
+        public static IDbConnectionFactory ConnectionFactory { get; } = new MySqlConnectionFactory();
+
         public static IDbConnection Connection { get; } = Prelude.Try(() => !ConnectionString.IsNullOrWhiteSpace()
-            ? MySqlDialect.CreateConnectionAsync(ConnectionString).GetAwaiter().GetResult()
+            ? ConnectionFactory.CreateConnection(ConnectionString)
             : null)
             .Match(c => c, _ => null);
+
+        public static ISchematicConnection SchematicConnection => new SchematicConnection(
+            Connection,
+            new MySqlDialect()
+        );
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
@@ -27,10 +34,12 @@ namespace SJP.Schematic.MySql.Tests.Integration
     [DatabaseTestFixture(typeof(Config), nameof(Config.Connection), "No MySQL DB available")]
     internal abstract class MySqlTest
     {
-        protected IDbConnection Connection { get; } = Config.Connection;
+        protected ISchematicConnection Connection { get; } = Config.SchematicConnection;
 
-        protected IDatabaseDialect Dialect { get; } = new MySqlDialect();
+        protected IDbConnection DbConnection => Connection.DbConnection;
 
-        protected IIdentifierDefaults IdentifierDefaults { get; } = new MySqlDialect().GetIdentifierDefaultsAsync(Config.Connection).GetAwaiter().GetResult();
+        protected IDatabaseDialect Dialect => Connection.Dialect;
+
+        protected IIdentifierDefaults IdentifierDefaults { get; } = Config.SchematicConnection.Dialect.GetIdentifierDefaultsAsync(Config.SchematicConnection).GetAwaiter().GetResult();
     }
 }

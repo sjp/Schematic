@@ -15,24 +15,24 @@ namespace SJP.Schematic.MySql.Tests.Integration.Comments
 {
     internal sealed class MySqlRoutineCommentProviderTests : MySqlTest
     {
-        private IDatabaseRoutineCommentProvider RoutineCommentProvider => new MySqlRoutineCommentProvider(Connection, IdentifierDefaults);
+        private IDatabaseRoutineCommentProvider RoutineCommentProvider => new MySqlRoutineCommentProvider(DbConnection, IdentifierDefaults);
 
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 CREATE FUNCTION comment_test_routine_1()
   RETURNS TEXT
   LANGUAGE SQL
 BEGIN
   RETURN 'test';
 END", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 CREATE PROCEDURE comment_test_routine_2()
 BEGIN
    COMMIT;
 END", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 CREATE FUNCTION comment_test_routine_3()
   RETURNS TEXT
   LANGUAGE SQL
@@ -41,7 +41,7 @@ BEGIN
   RETURN 'test';
 END
 ", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 CREATE PROCEDURE comment_test_routine_4()
   COMMENT 'This is a test stored procedure comment.'
 BEGIN
@@ -53,10 +53,10 @@ END
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop function comment_test_routine_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop function comment_test_routine_3", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop procedure comment_test_routine_2", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop procedure comment_test_routine_4", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop function comment_test_routine_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop function comment_test_routine_3", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop procedure comment_test_routine_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop procedure comment_test_routine_4", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IDatabaseRoutineComments> GetRoutineCommentsAsync(Identifier routineName)

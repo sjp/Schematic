@@ -14,25 +14,26 @@ namespace SJP.Schematic.PostgreSql
 {
     public class PostgreSqlDatabaseQueryViewProvider : IDatabaseViewProvider
     {
-        public PostgreSqlDatabaseQueryViewProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver, IDbTypeProvider typeProvider)
+        public PostgreSqlDatabaseQueryViewProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
-            TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
         }
 
-        protected IDbConnection Connection { get; }
+        protected ISchematicConnection Connection { get; }
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
-        protected IDbTypeProvider TypeProvider { get; }
+        protected IDbConnection DbConnection => Connection.DbConnection;
+
+        protected IDatabaseDialect Dialect => Connection.Dialect;
 
         public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
+            var queryResult = await DbConnection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
             var viewNames = queryResult
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .Select(QualifyViewName);
@@ -78,7 +79,7 @@ order by schemaname, viewname";
                 throw new ArgumentNullException(nameof(viewName));
 
             var candidateViewName = QualifyViewName(viewName);
-            var qualifiedViewName = Connection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedViewName = DbConnection.QueryFirstOrNone<QualifiedName>(
                 ViewNameQuery,
                 new { SchemaName = candidateViewName.Schema, ViewName = candidateViewName.LocalName },
                 cancellationToken
@@ -119,7 +120,7 @@ limit 1";
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            return Connection.ExecuteScalarAsync<string>(
+            return DbConnection.ExecuteScalarAsync<string>(
                 DefinitionQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
                 cancellationToken
@@ -143,7 +144,7 @@ where table_schema = @SchemaName and table_name = @ViewName";
 
         private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
-            var query = await Connection.QueryAsync<ColumnData>(
+            var query = await DbConnection.QueryAsync<ColumnData>(
                 ColumnsQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
                 cancellationToken
@@ -165,7 +166,7 @@ where table_schema = @SchemaName and table_name = @ViewName";
                     NumericPrecision = new NumericPrecision(row.numeric_precision, row.numeric_scale)
                 };
 
-                var columnType = TypeProvider.CreateColumnType(typeMetadata);
+                var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
                 var columnName = Identifier.CreateQualifiedIdentifier(row.column_name);
                 var autoIncrement = Option<IAutoIncrement>.None;
                 var defaultValue = !row.column_default.IsNullOrWhiteSpace()

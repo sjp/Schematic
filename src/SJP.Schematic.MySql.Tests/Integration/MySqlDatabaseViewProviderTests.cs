@@ -13,26 +13,26 @@ namespace SJP.Schematic.MySql.Tests.Integration
 {
     internal sealed class MySqlDatabaseViewProviderTests : MySqlTest
     {
-        private IDatabaseViewProvider ViewProvider => new MySqlDatabaseViewProvider(Connection, IdentifierDefaults, Dialect.TypeProvider);
+        private IDatabaseViewProvider ViewProvider => new MySqlDatabaseViewProvider(Connection, IdentifierDefaults);
 
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create view db_test_view_1 as select 1 as dummy", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create view db_test_view_1 as select 1 as dummy", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("create view view_test_view_1 as select 1 as test", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create table view_test_table_1 (table_id int primary key not null)", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create view view_test_view_2 as select table_id as test from view_test_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create view view_test_view_1 as select 1 as test", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create table view_test_table_1 (table_id int primary key not null)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create view view_test_view_2 as select table_id as test from view_test_table_1", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop view db_test_view_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop view db_test_view_1", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("drop view view_test_view_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop view view_test_view_2", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table view_test_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop view view_test_view_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop view view_test_view_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table view_test_table_1", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IDatabaseView> GetViewAsync(Identifier viewName)

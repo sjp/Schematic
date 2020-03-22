@@ -44,14 +44,14 @@ namespace SJP.Schematic.Core
         public virtual IDependencyProvider GetDependencyProvider() => _emptyDependencyProvider;
         private static readonly IDependencyProvider _emptyDependencyProvider = new EmptyDependencyProvider();
 
-        public abstract Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default);
+        public abstract Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(ISchematicConnection connection, CancellationToken cancellationToken = default);
 
-        public abstract Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default);
+        public abstract Task<Version> GetDatabaseVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default);
 
-        public abstract Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default);
+        public abstract Task<string> GetDatabaseDisplayVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default);
 
-        public abstract Task<IRelationalDatabase> GetRelationalDatabaseAsync(IDbConnection connection, CancellationToken cancellationToken = default);
+        public abstract Task<IRelationalDatabase> GetRelationalDatabaseAsync(ISchematicConnection connection, CancellationToken cancellationToken = default);
 
-        public abstract Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(IDbConnection connection, CancellationToken cancellationToken = default);
+        public abstract Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(ISchematicConnection connection, CancellationToken cancellationToken = default);
     }
 }

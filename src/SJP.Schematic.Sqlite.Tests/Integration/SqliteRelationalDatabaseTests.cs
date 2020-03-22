@@ -8,50 +8,46 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
     internal sealed class SqliteRelationalDatabaseTests : SqliteTest
     {
         [Test]
-        public async Task VacuumAsync_WhenInvoked_RunsWithoutError()
+        public void VacuumAsync_WhenInvoked_RunsWithoutError()
         {
-            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
-            await sqliteDb.VacuumAsync().ConfigureAwait(false);
-            Assert.Pass();
+            var sqliteDb = GetSqliteDatabase();
+            Assert.That(async () => await sqliteDb.VacuumAsync().ConfigureAwait(false), Throws.Nothing);
         }
 
         [Test]
-        public async Task VacuumAsync_WhenGivenValidSchemaName_RunsWithoutError()
+        public void VacuumAsync_WhenGivenValidSchemaName_RunsWithoutError()
         {
-            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
-            await sqliteDb.VacuumAsync("main").ConfigureAwait(false);
-            Assert.Pass();
+            var sqliteDb = GetSqliteDatabase();
+            Assert.That(async () => await sqliteDb.VacuumAsync("main").ConfigureAwait(false), Throws.Nothing);
         }
 
         [Test]
         public void VacuumAsync_WhenGivenUnknownSchemaName_ThrowsSqliteException()
         {
-            var sqliteDb = new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
-            Assert.That(async () => await sqliteDb.VacuumAsync("test").ConfigureAwait(false), Throws.TypeOf<SqliteException>());
+            var sqliteDb = GetSqliteDatabase();
+            Assert.That(async () => await sqliteDb.VacuumAsync("this_database_should_not_exist").ConfigureAwait(false), Throws.TypeOf<SqliteException>());
         }
 
         [Test]
-        public async Task AttachDatabaseAsync_WhenGivenValidSchemaAndFileNames_RunsWithoutError()
+        public void AttachDatabaseAsync_WhenGivenValidSchemaAndFileNames_RunsWithoutError()
         {
-            var sqliteDb = new SqliteRelationalDatabase(Dialect, Config.Connection, IdentifierDefaults);
-            await sqliteDb.AttachDatabaseAsync("test", ":memory:").ConfigureAwait(false);
-            Assert.Pass();
+            var sqliteDb = GetSqliteDatabase();
+            Assert.That(async () => await sqliteDb.AttachDatabaseAsync("test", ":memory:").ConfigureAwait(false), Throws.Nothing);
         }
 
         [Test]
         public async Task DetachDatabaseAsync_WhenGivenValidSchemaName_RunsWithoutError()
         {
-            var sqliteDb = new SqliteRelationalDatabase(Dialect, Config.Connection, IdentifierDefaults);
-            await sqliteDb.AttachDatabaseAsync("test", ":memory:").ConfigureAwait(false);
-            await sqliteDb.DetachDatabaseAsync("test").ConfigureAwait(false);
-            Assert.Pass();
+            var sqliteDb = GetSqliteDatabase();
+            await sqliteDb.AttachDatabaseAsync("test_detach", ":memory:").ConfigureAwait(false);
+            Assert.That(async () => await sqliteDb.DetachDatabaseAsync("test_detach").ConfigureAwait(false), Throws.Nothing);
         }
 
         [Test]
         public void DetachDatabaseAsync_WhenGivenUnknownSchemaName_ThrowsSqliteException()
         {
-            var sqliteDb = new SqliteRelationalDatabase(Dialect, Config.Connection, IdentifierDefaults);
-            Assert.That(async () => await sqliteDb.DetachDatabaseAsync("test").ConfigureAwait(false), Throws.TypeOf<SqliteException>());
+            var sqliteDb = GetSqliteDatabase();
+            Assert.That(async () => await sqliteDb.DetachDatabaseAsync("this_database_should_not_exist").ConfigureAwait(false), Throws.TypeOf<SqliteException>());
         }
     }
 }

@@ -15,38 +15,38 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
 {
     internal sealed class PostgreSqlViewCommentProviderTests : PostgreSqlTest
     {
-        private IDatabaseViewCommentProvider ViewCommentProvider => new PostgreSqlViewCommentProvider(Connection, IdentifierDefaults, IdentifierResolver);
+        private IDatabaseViewCommentProvider ViewCommentProvider => new PostgreSqlViewCommentProvider(DbConnection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
         {
             // regular views
-            await Connection.ExecuteAsync("create table wrapper_view_comment_table_1 (test_column_1 int primary key not null, test_column_2 int, test_column_3 int)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create table wrapper_view_comment_table_1 (test_column_1 int primary key not null, test_column_2 int, test_column_3 int)", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("create view wrapper_view_comment_view_1 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create view wrapper_view_comment_view_2 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create view wrapper_view_comment_view_1 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create view wrapper_view_comment_view_2 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("comment on view wrapper_view_comment_view_2 is 'This is a test view.'", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("comment on column wrapper_view_comment_view_2.test_column_2 is 'This is a test view column.'", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("comment on view wrapper_view_comment_view_2 is 'This is a test view.'", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("comment on column wrapper_view_comment_view_2.test_column_2 is 'This is a test view column.'", CancellationToken.None).ConfigureAwait(false);
 
             // matviews
-            await Connection.ExecuteAsync("create materialized view wrapper_view_comment_matview_1 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create materialized view wrapper_view_comment_matview_2 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create materialized view wrapper_view_comment_matview_1 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create materialized view wrapper_view_comment_matview_2 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("comment on materialized view wrapper_view_comment_matview_2 is 'This is a test materialized view.'", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("comment on column wrapper_view_comment_matview_2.test_column_2 is 'This is a test materialized view column.'", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("comment on materialized view wrapper_view_comment_matview_2 is 'This is a test materialized view.'", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("comment on column wrapper_view_comment_matview_2.test_column_2 is 'This is a test materialized view column.'", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop view wrapper_view_comment_view_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop view wrapper_view_comment_view_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop view wrapper_view_comment_view_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop view wrapper_view_comment_view_2", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("drop materialized view wrapper_view_comment_matview_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop materialized view wrapper_view_comment_matview_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop materialized view wrapper_view_comment_matview_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop materialized view wrapper_view_comment_matview_2", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("drop table wrapper_view_comment_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table wrapper_view_comment_table_1", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IDatabaseViewComments> GetViewCommentsAsync(Identifier viewName)

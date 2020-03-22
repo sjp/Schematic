@@ -12,7 +12,7 @@ namespace SJP.Schematic.PostgreSql
 {
     public class PostgreSqlDatabaseViewProvider : IDatabaseViewProvider
     {
-        public PostgreSqlDatabaseViewProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver, IDbTypeProvider typeProvider)
+        public PostgreSqlDatabaseViewProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -20,11 +20,9 @@ namespace SJP.Schematic.PostgreSql
                 throw new ArgumentNullException(nameof(identifierDefaults));
             if (identifierResolver == null)
                 throw new ArgumentNullException(nameof(identifierResolver));
-            if (typeProvider == null)
-                throw new ArgumentNullException(nameof(typeProvider));
 
-            QueryViewProvider = new PostgreSqlDatabaseQueryViewProvider(connection, identifierDefaults, identifierResolver, typeProvider);
-            MaterializedViewProvider = new PostgreSqlDatabaseMaterializedViewProvider(connection, identifierDefaults, identifierResolver, typeProvider);
+            QueryViewProvider = new PostgreSqlDatabaseQueryViewProvider(connection, identifierDefaults, identifierResolver);
+            MaterializedViewProvider = new PostgreSqlDatabaseMaterializedViewProvider(connection, identifierDefaults, identifierResolver);
         }
 
         protected IDatabaseViewProvider QueryViewProvider { get; }

@@ -13,7 +13,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 {
     internal partial class OracleRelationalDatabaseTableProviderTests : OracleTest
     {
-        private IRelationalDatabaseTableProvider TableProvider => new OracleRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver, Dialect.TypeProvider);
+        private IRelationalDatabaseTableProvider TableProvider => new OracleRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver);
         private AsyncLazy<List<IRelationalDatabaseTable>> _tables;
         private Task<List<IRelationalDatabaseTable>> GetAllTables() => _tables.Task;
 
@@ -22,57 +22,57 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             _tables = new AsyncLazy<List<IRelationalDatabaseTable>>(() => TableProvider.GetAllTables().ToListAsync().AsTask());
 
-            await Connection.ExecuteAsync("create table db_test_table_1 ( title varchar2(200) )", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create table db_test_table_1 ( title varchar2(200) )", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("create table table_test_table_1 ( test_column number )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create table table_test_table_2 ( test_column number not null primary key )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync("create table table_test_table_1 ( test_column number )", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create table table_test_table_2 ( test_column number not null primary key )", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync(@"
 create table table_test_table_3 (
     test_column number,
     constraint pk_test_table_3 primary key (test_column)
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create table table_test_table_4 (
     first_name varchar2(50),
     middle_name varchar2(50),
     last_name varchar2(50),
     constraint pk_test_table_4 primary key (first_name, last_name, middle_name)
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create table table_test_table_5 ( test_column number not null unique )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync("create table table_test_table_5 ( test_column number not null unique )", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync(@"
 create table table_test_table_6 (
     test_column number,
     constraint uk_test_table_6 unique (test_column)
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create table table_test_table_7 (
     first_name varchar2(50),
     middle_name varchar2(50),
     last_name varchar2(50),
     constraint uk_test_table_7 unique (first_name, last_name, middle_name)
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create table table_test_table_8 (test_column number)", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create index ix_test_table_8 on table_test_table_8 (test_column)", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync("create table table_test_table_8 (test_column number)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create index ix_test_table_8 on table_test_table_8 (test_column)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync(@"
 create table table_test_table_9 (
     first_name varchar2(50),
     middle_name varchar2(50),
     last_name varchar2(50)
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create index ix_test_table_9 on table_test_table_9 (first_name, last_name, middle_name)", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync("create index ix_test_table_9 on table_test_table_9 (first_name, last_name, middle_name)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync(@"
 create table table_test_table_13 (
     first_name varchar2(50),
     middle_name varchar2(50),
     last_name varchar2(50)
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create unique index ix_test_table_13 on table_test_table_13 (first_name, last_name, middle_name)", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync("create unique index ix_test_table_13 on table_test_table_13 (first_name, last_name, middle_name)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync(@"
 create table table_test_table_14 (
     test_column number not null,
     constraint ck_test_table_14 check (test_column > 1)
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create table table_test_table_15 (
     first_name_parent varchar2(50),
     middle_name_parent varchar2(50),
@@ -80,80 +80,80 @@ create table table_test_table_15 (
     constraint pk_test_table_15 primary key (first_name_parent),
     constraint uk_test_table_15 unique (last_name_parent, middle_name_parent)
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create table table_test_table_16 (
     first_name_child varchar2(50),
     middle_name varchar2(50),
     last_name varchar2(50),
     constraint fk_test_table_16 foreign key (first_name_child) references table_test_table_15 (first_name_parent)
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create table table_test_table_17 (
     first_name varchar2(50),
     middle_name_child varchar2(50),
     last_name_child varchar2(50),
     constraint fk_test_table_17 foreign key (last_name_child, middle_name_child) references table_test_table_15 (last_name_parent, middle_name_parent)
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create table table_test_table_24 (
     first_name_child varchar2(50),
     middle_name_child varchar2(50),
     last_name_child varchar2(50),
     constraint fk_test_table_24 foreign key (first_name_child) references table_test_table_15 (first_name_parent) on delete cascade
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create table table_test_table_25 (
     first_name_child varchar2(50),
     middle_name_child varchar2(50),
     last_name_child varchar2(50),
     constraint fk_test_table_25 foreign key (first_name_child) references table_test_table_15 (first_name_parent) on delete set null
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create table table_test_table_27 (
     first_name_child varchar2(50),
     middle_name_child varchar2(50),
     last_name_child varchar2(50),
     constraint fk_test_table_27 foreign key (last_name_child, middle_name_child) references table_test_table_15 (last_name_parent, middle_name_parent) on delete cascade
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create table table_test_table_28 (
     first_name_child varchar2(50),
     middle_name_child varchar2(50),
     last_name_child varchar2(50),
     constraint fk_test_table_28 foreign key (last_name_child, middle_name_child) references table_test_table_15 (last_name_parent, middle_name_parent) on delete set null
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create table table_test_table_30 (
     first_name_child varchar2(50),
     middle_name_child varchar2(50),
     last_name_child varchar2(50),
     constraint fk_test_table_30 foreign key (first_name_child) references table_test_table_15 (first_name_parent)
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("alter table table_test_table_30 disable constraint fk_test_table_30", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync("alter table table_test_table_30 disable constraint fk_test_table_30", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync(@"
 create table table_test_table_31 (
     first_name_child varchar2(50),
     middle_name_child varchar2(50),
     last_name_child varchar2(50),
     constraint fk_test_table_31 foreign key (last_name_child, middle_name_child) references table_test_table_15 (last_name_parent, middle_name_parent)
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("alter table table_test_table_31 disable constraint fk_test_table_31", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync("alter table table_test_table_31 disable constraint fk_test_table_31", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync(@"
 create table table_test_table_32 (
     test_column number not null,
     constraint ck_test_table_32 check (test_column > 1)
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("alter table table_test_table_32 disable constraint ck_test_table_32", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create table table_test_table_33 ( test_column number default 1 not null )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"create table table_test_table_34 (
+            await DbConnection.ExecuteAsync("alter table table_test_table_32 disable constraint ck_test_table_32", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create table table_test_table_33 ( test_column number default 1 not null )", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync(@"create table table_test_table_34 (
     test_column_1 number,
     test_column_2 number,
     test_column_3 as (test_column_1 + test_column_2)
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create table table_test_table_35 ( test_column number primary key )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create table trigger_test_table_1 (table_id number primary key not null)", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create table trigger_test_table_2 (table_id number primary key not null)", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync("create table table_test_table_35 ( test_column number primary key )", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create table trigger_test_table_1 (table_id number primary key not null)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create table trigger_test_table_2 (table_id number primary key not null)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync(@"
 create trigger trigger_test_table_1_trigger_1
 before insert on trigger_test_table_1
 for each row
@@ -161,7 +161,7 @@ begin
     null;
 end;
 ", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create trigger trigger_test_table_1_trigger_2
 before update on trigger_test_table_1
 for each row
@@ -169,7 +169,7 @@ begin
     null;
 end;
 ", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create trigger trigger_test_table_1_trigger_3
 before delete on trigger_test_table_1
 for each row
@@ -177,7 +177,7 @@ begin
     null;
 end;
 ", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create trigger trigger_test_table_1_trigger_4
 after insert on trigger_test_table_1
 for each row
@@ -185,7 +185,7 @@ begin
     null;
 end;
 ", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create trigger trigger_test_table_1_trigger_5
 after update on trigger_test_table_1
 for each row
@@ -193,7 +193,7 @@ begin
     null;
 end;
 ", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create trigger trigger_test_table_1_trigger_6
 after delete on trigger_test_table_1
 for each row
@@ -201,7 +201,7 @@ begin
     null;
 end;
 ", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create trigger trigger_test_table_1_trigger_7
 after insert or update or delete on trigger_test_table_1
 for each row
@@ -214,34 +214,34 @@ end;
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop table db_test_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table db_test_table_1", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("drop table table_test_table_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_test_table_2", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_test_table_3", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_test_table_4", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_test_table_5", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_test_table_6", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_test_table_7", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_test_table_8", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_test_table_9", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_test_table_13", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_test_table_14", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_test_table_16", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_test_table_17", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_test_table_24", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_test_table_25", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_test_table_27", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_test_table_28", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_test_table_30", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_test_table_31", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_test_table_15", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_test_table_32", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_test_table_33", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_test_table_34", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_test_table_35", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table trigger_test_table_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table trigger_test_table_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_3", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_4", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_5", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_6", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_7", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_8", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_9", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_13", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_14", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_16", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_17", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_24", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_25", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_27", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_28", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_30", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_31", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_15", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_32", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_33", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_34", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_35", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table trigger_test_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table trigger_test_table_2", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)

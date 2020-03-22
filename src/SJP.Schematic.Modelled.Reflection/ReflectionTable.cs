@@ -11,11 +11,11 @@ namespace SJP.Schematic.Modelled.Reflection
 {
     public class ReflectionTable : IRelationalDatabaseTable
     {
-        public ReflectionTable(IRelationalDatabase database, Type tableType)
+        public ReflectionTable(IRelationalDatabase database, IDatabaseDialect dialect, Type tableType)
         {
             Database = database ?? throw new ArgumentNullException(nameof(database));
+            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
             InstanceType = tableType ?? throw new ArgumentNullException(nameof(tableType));
-            Dialect = Database.Dialect;
             Name = Dialect.GetQualifiedNameOrDefault(database, InstanceType);
             TypeProvider = new ReflectionTableTypeProvider(Dialect, InstanceType);
 
@@ -138,10 +138,9 @@ namespace SJP.Schematic.Modelled.Reflection
             if (primaryKey == null)
                 return Option<IDatabaseKey>.None;
 
-            var dialect = Database.Dialect;
             var pkColumns = primaryKey.Columns.Select(GetColumn).ToList();
 
-            var keyName = dialect.GetAliasOrDefault(primaryKey.Property!);
+            var keyName = Dialect.GetAliasOrDefault(primaryKey.Property!);
             var dbKey = new ReflectionKey(keyName, primaryKey.KeyType, pkColumns);
             return Option<IDatabaseKey>.Some(dbKey);
         }
@@ -152,7 +151,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
             foreach (var index in TypeProvider.Indexes)
             {
-                var refIndex = new ReflectionDatabaseTableIndex(Database.Dialect, this, index);
+                var refIndex = new ReflectionDatabaseTableIndex(Dialect, this, index);
                 result[refIndex.Name.LocalName] = refIndex;
             }
 
@@ -182,11 +181,10 @@ namespace SJP.Schematic.Modelled.Reflection
         {
             var result = new Dictionary<Identifier, IDatabaseCheckConstraint>();
 
-            var dialect = Database.Dialect;
             foreach (var modelledCheck in TypeProvider.Checks)
             {
-                var definition = modelledCheck.Expression.ToSql(dialect);
-                var checkName = dialect.GetAliasOrDefault(modelledCheck.Property!);
+                var definition = modelledCheck.Expression.ToSql(Dialect);
+                var checkName = Dialect.GetAliasOrDefault(modelledCheck.Property!);
                 var check = new ReflectionCheckConstraint(checkName, definition);
                 check.Name.IfSome(name => result[name.LocalName] = check);
             }

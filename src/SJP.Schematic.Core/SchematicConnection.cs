@@ -5,6 +5,11 @@ namespace SJP.Schematic.Core
 {
     public class SchematicConnection : ISchematicConnection
     {
+        public SchematicConnection(IDbConnection connection, IDatabaseDialect dialect)
+            : this(Guid.NewGuid(), connection, dialect)
+        {
+        }
+
         public SchematicConnection(Guid connectionId, IDbConnection connection, IDatabaseDialect dialect)
         {
             if (connectionId == Guid.Empty)
@@ -13,6 +18,8 @@ namespace SJP.Schematic.Core
             ConnectionId = connectionId;
             DbConnection = connection ?? throw new ArgumentNullException(nameof(connection));
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
+
+            ConnectionRegistry.RegisterConnection(connectionId, connection);
         }
 
         public Guid ConnectionId { get; }

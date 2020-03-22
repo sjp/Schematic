@@ -13,26 +13,26 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 {
     internal sealed class OracleDatabaseMaterializedViewProviderTests : OracleTest
     {
-        private IDatabaseViewProvider ViewProvider => new OracleDatabaseMaterializedViewProvider(Connection, IdentifierDefaults, IdentifierResolver, Dialect.TypeProvider);
+        private IDatabaseViewProvider ViewProvider => new OracleDatabaseMaterializedViewProvider(Connection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create view mview_db_test_view_1 as select 1 as dummy from dual", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create view mview_db_test_view_1 as select 1 as dummy from dual", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("create view mview_view_test_view_1 as select 1 as test from dual", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create table mview_view_test_table_1 (table_id number)", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create materialized view mview_view_test_view_2 as select table_id as test from mview_view_test_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create view mview_view_test_view_1 as select 1 as test from dual", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create table mview_view_test_table_1 (table_id number)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create materialized view mview_view_test_view_2 as select table_id as test from mview_view_test_table_1", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop view mview_db_test_view_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop view mview_db_test_view_1", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("drop view mview_view_test_view_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop materialized view mview_view_test_view_2", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table mview_view_test_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop view mview_view_test_view_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop materialized view mview_view_test_view_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table mview_view_test_table_1", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IDatabaseView> GetViewAsync(Identifier viewName)

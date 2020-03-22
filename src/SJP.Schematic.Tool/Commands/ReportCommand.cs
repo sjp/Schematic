@@ -39,9 +39,10 @@ namespace SJP.Schematic.Tool
                 try
                 {
                     var dialect = Parent.GetDatabaseDialect();
-                    var database = await dialect.GetRelationalDatabaseAsync(status.Connection).ConfigureAwait(false);
+                    var database = await dialect.GetRelationalDatabaseAsync(null!).ConfigureAwait(false);
 
-                    var reportExporter = new ReportExporter(status.Connection, database, ReportDirectory);
+                    // TODO re-handle how this is init-d
+                    var reportExporter = new ReportExporter(null!, database, ReportDirectory);
                     await reportExporter.ExportAsync().ConfigureAwait(false);
 
                     await application.Out.WriteLineAsync("The database report has been exported to: " + ReportDirectory).ConfigureAwait(false);

@@ -59,7 +59,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(tableType));
 
             // TODO: check whether this even exists...
-            var table = new ReflectionTable(this, tableType);
+            var table = new ReflectionTable(this, Dialect, tableType);
             return Option<IRelationalDatabaseTable>.Some(table);
         }
 
@@ -69,7 +69,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(tableType));
 
             // TODO: check whether this even exists...
-            var table = new ReflectionTable(this, tableType);
+            var table = new ReflectionTable(this, Dialect, tableType);
             return OptionAsync<IRelationalDatabaseTable>.Some(table);
         }
 
@@ -114,7 +114,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(viewType));
 
             // TODO: check whether this even exists...
-            var view = new ReflectionView(this, viewType);
+            var view = new ReflectionView(this, Dialect, viewType);
             return Option<IDatabaseView>.Some(view);
         }
 
@@ -124,7 +124,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(viewType));
 
             // TODO: check whether this even exists...
-            var view = new ReflectionView(this, viewType);
+            var view = new ReflectionView(this, Dialect, viewType);
             return OptionAsync<IDatabaseView>.Some(view);
         }
 
@@ -169,7 +169,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(sequenceType));
 
             // TODO: check whether this even exists...
-            var sequence = new ReflectionSequence(this, sequenceType);
+            var sequence = new ReflectionSequence(this, Dialect, sequenceType);
             return Option<IDatabaseSequence>.Some(sequence);
         }
 
@@ -179,7 +179,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(sequenceType));
 
             // TODO: check whether this even exists...
-            var sequence = new ReflectionSequence(this, sequenceType);
+            var sequence = new ReflectionSequence(this, Dialect, sequenceType);
             return OptionAsync<IDatabaseSequence>.Some(sequence);
         }
 
@@ -224,7 +224,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(synonymType));
 
             // TODO: check whether this even exists...
-            var synonym = new ReflectionSynonym(this, synonymType);
+            var synonym = new ReflectionSynonym(this, Dialect, synonymType);
             return Option<IDatabaseSynonym>.Some(synonym);
         }
 
@@ -234,7 +234,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(synonymType));
 
             // TODO: check whether this even exists...
-            var synonym = new ReflectionSynonym(this, synonymType);
+            var synonym = new ReflectionSynonym(this, Dialect, synonymType);
             return OptionAsync<IDatabaseSynonym>.Some(synonym);
         }
 

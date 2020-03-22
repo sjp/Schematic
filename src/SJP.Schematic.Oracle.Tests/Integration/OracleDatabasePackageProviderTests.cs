@@ -13,7 +13,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 {
     internal sealed class OracleDatabasePackageProviderTests : OracleTest
     {
-        private IOracleDatabasePackageProvider PackageProvider => new OracleDatabasePackageProvider(Connection, IdentifierDefaults, IdentifierResolver);
+        private IOracleDatabasePackageProvider PackageProvider => new OracleDatabasePackageProvider(DbConnection, IdentifierDefaults, IdentifierResolver);
         private AsyncLazy<List<IOracleDatabasePackage>> _packages;
         private Task<List<IOracleDatabasePackage>> GetAllPackages() => _packages.Task;
 
@@ -22,16 +22,16 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             _packages = new AsyncLazy<List<IOracleDatabasePackage>>(() => PackageProvider.GetAllPackages().ToListAsync().AsTask());
 
-            await Connection.ExecuteAsync(@"CREATE PACKAGE db_test_package_1 AS
+            await DbConnection.ExecuteAsync(@"CREATE PACKAGE db_test_package_1 AS
     PROCEDURE test_proc();
 END db_test_package_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"CREATE PACKAGE BODY db_test_package_1 AS
+            await DbConnection.ExecuteAsync(@"CREATE PACKAGE BODY db_test_package_1 AS
     PROCEDURE test_proc() AS
     BEGIN
         SELECT 1 AS TEST_COL FROM DUAL;
     END test_proc;
 END db_test_package_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"CREATE PACKAGE db_test_package_2 AS
+            await DbConnection.ExecuteAsync(@"CREATE PACKAGE db_test_package_2 AS
     PROCEDURE test_proc();
 END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
         }
@@ -39,8 +39,8 @@ END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop package db_test_package_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop package db_test_package_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop package db_test_package_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop package db_test_package_2", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IOracleDatabasePackage> GetPackageAsync(Identifier packageName)

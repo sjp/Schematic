@@ -18,21 +18,22 @@ namespace SJP.Schematic.Sqlite
 {
     public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTableProvider
     {
-        public SqliteRelationalDatabaseTableProvider(IDbConnection connection, ISqliteConnectionPragma pragma, IDatabaseDialect dialect, IIdentifierDefaults identifierDefaults)
+        public SqliteRelationalDatabaseTableProvider(ISchematicConnection connection, ISqliteConnectionPragma pragma, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             ConnectionPragma = pragma ?? throw new ArgumentNullException(nameof(pragma));
-            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         }
 
-        protected IDbConnection Connection { get; }
+        protected ISchematicConnection Connection { get; }
 
         protected ISqliteConnectionPragma ConnectionPragma { get; }
 
-        protected IDatabaseDialect Dialect { get; }
-
         protected IIdentifierDefaults IdentifierDefaults { get; }
+
+        protected IDbConnection DbConnection => Connection.DbConnection;
+
+        protected IDatabaseDialect Dialect => Connection.Dialect;
 
         public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
@@ -47,7 +48,7 @@ namespace SJP.Schematic.Sqlite
             foreach (var dbName in dbNames)
             {
                 var sql = TablesQuery(dbName);
-                var queryResult = await Connection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
+                var queryResult = await DbConnection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
                 var names = queryResult
                     .Where(name => !IsReservedTableName(name))
                     .Select(name => Identifier.CreateQualifiedIdentifier(dbName, name));
@@ -122,7 +123,7 @@ namespace SJP.Schematic.Sqlite
             if (tableName.Schema != null)
             {
                 var sql = TableNameQuery(tableName.Schema);
-                var tableLocalName = await Connection.ExecuteScalarAsync<string>(
+                var tableLocalName = await DbConnection.ExecuteScalarAsync<string>(
                     sql,
                     new { TableName = tableName.LocalName },
                     cancellationToken
@@ -150,7 +151,7 @@ namespace SJP.Schematic.Sqlite
             foreach (var dbName in dbNames)
             {
                 var sql = TableNameQuery(dbName);
-                var tableLocalName = await Connection.ExecuteScalarAsync<string>(
+                var tableLocalName = await DbConnection.ExecuteScalarAsync<string>(
                     sql,
                     new { TableName = tableName.LocalName },
                     cancellationToken
@@ -419,7 +420,7 @@ namespace SJP.Schematic.Sqlite
             foreach (var dbName in dbNames)
             {
                 var sql = TablesQuery(dbName);
-                var queryResult = await Connection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
+                var queryResult = await DbConnection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
                 var tableNames = queryResult
                     .Where(name => !IsReservedTableName(name))
                     .Select(name => Identifier.CreateQualifiedIdentifier(dbName, name));
@@ -678,7 +679,7 @@ namespace SJP.Schematic.Sqlite
             }
 
             var triggerQuery = TriggerDefinitionQuery(tableName.Schema!);
-            var triggerInfos = await Connection.QueryAsync<SqliteMaster>(
+            var triggerInfos = await DbConnection.QueryAsync<SqliteMaster>(
                 triggerQuery,
                 new { TableName = tableName.LocalName },
                 cancellationToken
@@ -750,7 +751,7 @@ namespace SJP.Schematic.Sqlite
             }
 
             var definitionQuery = TableDefinitionQuery(tableName.Schema!);
-            var tableSql = await Connection.ExecuteScalarAsync<string>(
+            var tableSql = await DbConnection.ExecuteScalarAsync<string>(
                 definitionQuery,
                 new { TableName = tableName.LocalName },
                 cancellationToken
@@ -780,7 +781,7 @@ namespace SJP.Schematic.Sqlite
             if (schema.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(schema));
 
-            var loader = _dbPragmaCache.GetOrAdd(schema, new Lazy<ISqliteDatabasePragma>(() => new DatabasePragma(Dialect, Connection, schema)));
+            var loader = _dbPragmaCache.GetOrAdd(schema, new Lazy<ISqliteDatabasePragma>(() => new DatabasePragma(Connection, schema)));
             return loader.Value;
         }
 

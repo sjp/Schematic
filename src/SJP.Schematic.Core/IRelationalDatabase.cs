@@ -7,8 +7,6 @@
           IDatabaseSynonymProvider,
           IDatabaseRoutineProvider
     {
-        IDatabaseDialect Dialect { get; }
-
         IIdentifierDefaults IdentifierDefaults { get; }
     }
 }

@@ -14,9 +14,8 @@ namespace SJP.Schematic.PostgreSql
 {
     public class PostgreSqlDatabaseSequenceProvider : IDatabaseSequenceProvider
     {
-        public PostgreSqlDatabaseSequenceProvider(IDatabaseDialect dialect, IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
+        public PostgreSqlDatabaseSequenceProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
-            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
@@ -24,13 +23,15 @@ namespace SJP.Schematic.PostgreSql
             _sequenceProvider = new AsyncLazy<Option<IDatabaseSequenceProvider>>(LoadVersionedSequenceProvider);
         }
 
-        protected IDatabaseDialect Dialect { get; }
-
-        protected IDbConnection Connection { get; }
+        protected ISchematicConnection Connection { get; }
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
+
+        protected IDbConnection DbConnection => Connection.DbConnection;
+
+        protected IDatabaseDialect Dialect => Connection.Dialect;
 
         public async IAsyncEnumerable<IDatabaseSequence> GetAllSequences([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
@@ -60,8 +61,8 @@ namespace SJP.Schematic.PostgreSql
 
             var factories = new Dictionary<Version, Func<IDatabaseSequenceProvider>>
             {
-                [new Version(9, 4)] = () => new Versions.V9_4.PostgreSqlDatabaseSequenceProvider(Connection, IdentifierDefaults, IdentifierResolver),
-                [new Version(10, 0)] = () => new Versions.V10.PostgreSqlDatabaseSequenceProvider(Connection, IdentifierDefaults, IdentifierResolver)
+                [new Version(9, 4)] = () => new Versions.V9_4.PostgreSqlDatabaseSequenceProvider(DbConnection, IdentifierDefaults, IdentifierResolver),
+                [new Version(10, 0)] = () => new Versions.V10.PostgreSqlDatabaseSequenceProvider(DbConnection, IdentifierDefaults, IdentifierResolver)
             };
             var versionLookup = new VersionResolvingFactory<IDatabaseSequenceProvider>(factories);
             var result = versionLookup.GetValue(version);

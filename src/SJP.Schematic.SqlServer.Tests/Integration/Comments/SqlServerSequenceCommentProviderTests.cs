@@ -15,13 +15,13 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Comments
 {
     internal sealed class SqlServerSequenceCommentProviderTests : SqlServerTest
     {
-        private IDatabaseSequenceCommentProvider SequenceCommentProvider => new SqlServerSequenceCommentProvider(Connection, IdentifierDefaults);
+        private IDatabaseSequenceCommentProvider SequenceCommentProvider => new SqlServerSequenceCommentProvider(DbConnection, IdentifierDefaults);
 
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create sequence sequence_comment_sequence_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create sequence sequence_comment_sequence_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create sequence sequence_comment_sequence_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create sequence sequence_comment_sequence_2", CancellationToken.None).ConfigureAwait(false);
 
             await AddCommentForSequence("This is a test sequence comment.", "dbo", "sequence_comment_sequence_2").ConfigureAwait(false);
         }
@@ -29,8 +29,8 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Comments
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop sequence sequence_comment_sequence_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop sequence sequence_comment_sequence_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop sequence sequence_comment_sequence_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop sequence sequence_comment_sequence_2", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task AddCommentForSequence(string comment, string schemaName, string sequenceName)
@@ -42,7 +42,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
   @level0name = @SchemaName,
   @level1type = N'SEQUENCE',
   @level1name = @SequenceName";
-            return Connection.ExecuteAsync(querySql, new { Comment = comment, SchemaName = schemaName, SequenceName = sequenceName }, CancellationToken.None);
+            return DbConnection.ExecuteAsync(querySql, new { Comment = comment, SchemaName = schemaName, SequenceName = sequenceName }, CancellationToken.None);
         }
 
         private Task<IDatabaseSequenceComments> GetSequenceCommentsAsync(Identifier sequenceName)

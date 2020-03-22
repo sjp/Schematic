@@ -18,14 +18,14 @@ namespace SJP.Schematic.MySql.Tests.Integration
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 CREATE FUNCTION db_test_routine_1()
   RETURNS TEXT
   LANGUAGE SQL
 BEGIN
   RETURN 'test';
 END;", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 CREATE PROCEDURE db_test_routine_2()
 BEGIN
    COMMIT;
@@ -35,8 +35,8 @@ END", CancellationToken.None).ConfigureAwait(false);
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop function db_test_routine_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop procedure db_test_routine_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop function db_test_routine_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop procedure db_test_routine_2", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)

@@ -12,37 +12,25 @@ namespace SJP.Schematic.MySql.Tests
         public static void Ctor_GivenNullConnection_ThrowsArgNullException()
         {
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.That(() => new MySqlDatabaseViewProvider(null, identifierDefaults, typeProvider), Throws.ArgumentNullException);
+            Assert.That(() => new MySqlDatabaseViewProvider(null, identifierDefaults), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var typeProvider = Mock.Of<IDbTypeProvider>();
+            var connection = Mock.Of<ISchematicConnection>();
 
-            Assert.That(() => new MySqlDatabaseViewProvider(connection, null, typeProvider), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenNullTypeProvider_ThrowsArgNullException()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-
-            Assert.That(() => new MySqlDatabaseViewProvider(connection, identifierDefaults, null), Throws.ArgumentNullException);
+            Assert.That(() => new MySqlDatabaseViewProvider(connection, null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetView_GivenNullViewName_ThrowsArgNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<ISchematicConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            var viewProvider = new MySqlDatabaseViewProvider(connection, identifierDefaults, typeProvider);
+            var viewProvider = new MySqlDatabaseViewProvider(connection, identifierDefaults);
 
             Assert.That(() => viewProvider.GetView(null), Throws.ArgumentNullException);
         }

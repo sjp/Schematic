@@ -15,23 +15,23 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
 {
     internal sealed class OracleTableCommentProviderTests : OracleTest
     {
-        private IRelationalDatabaseTableCommentProvider TableCommentProvider => new OracleTableCommentProvider(Connection, IdentifierDefaults, IdentifierResolver);
+        private IRelationalDatabaseTableCommentProvider TableCommentProvider => new OracleTableCommentProvider(DbConnection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create table table_comment_table_1 ( test_column_1 number )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create table table_comment_table_2 ( test_column_1 number, test_column_2 number, test_column_3 number )", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create table table_comment_table_1 ( test_column_1 number )", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create table table_comment_table_2 ( test_column_1 number, test_column_2 number, test_column_3 number )", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("comment on table table_comment_table_2 is 'This is a test table comment.'", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("comment on column table_comment_table_2.test_column_2 is 'This is a column comment.'", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("comment on table table_comment_table_2 is 'This is a test table comment.'", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("comment on column table_comment_table_2.test_column_2 is 'This is a column comment.'", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop table table_comment_table_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table table_comment_table_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_comment_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_comment_table_2", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IRelationalDatabaseTableComments> GetTableCommentsAsync(Identifier tableName)

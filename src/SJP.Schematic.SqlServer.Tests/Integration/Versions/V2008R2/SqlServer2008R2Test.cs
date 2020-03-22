@@ -10,10 +10,17 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2008R2
 {
     internal static class Config2008R2
     {
+        public static IDbConnectionFactory ConnectionFactory { get; } = new SqlServerConnectionFactory();
+
         public static IDbConnection Connection { get; } = Prelude.Try(() => !ConnectionString.IsNullOrWhiteSpace()
-            ? SqlServerDialect.CreateConnectionAsync(ConnectionString).GetAwaiter().GetResult()
+            ? ConnectionFactory.CreateConnection(ConnectionString)
             : null)
             .Match(c => c, _ => null);
+
+        public static ISchematicConnection SchematicConnection => new SchematicConnection(
+            Connection,
+            new SqlServerDialect()
+        );
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
@@ -27,10 +34,12 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2008R2
     [DatabaseTestFixture(typeof(Config2008R2), nameof(Config2008R2.Connection), "No SQL Server 2008R2 DB available")]
     internal abstract class SqlServer2008R2Test
     {
-        protected IDbConnection Connection { get; } = Config2008R2.Connection;
+        protected ISchematicConnection Connection { get; } = Config2008R2.SchematicConnection;
 
-        protected ISqlServerDialect Dialect { get; } = new SqlServerDialect();
+        protected IDbConnection DbConnection => Connection.DbConnection;
 
-        protected IIdentifierDefaults IdentifierDefaults { get; } = new SqlServerDialect().GetIdentifierDefaultsAsync(Config2008R2.Connection).GetAwaiter().GetResult();
+        protected ISqlServerDialect Dialect => Connection.Dialect as ISqlServerDialect;
+
+        protected IIdentifierDefaults IdentifierDefaults { get; } = Config2008R2.SchematicConnection.Dialect.GetIdentifierDefaultsAsync(Config.SchematicConnection).GetAwaiter().GetResult();
     }
 }

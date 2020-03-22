@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading;
 using LanguageExt;
@@ -8,8 +7,8 @@ namespace SJP.Schematic.Core.Tests.Fakes
 {
     internal class FakeRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
-        public FakeRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierDefaults identifierDefaults)
-            : base(dialect, connection, identifierDefaults)
+        public FakeRelationalDatabase(IIdentifierDefaults identifierDefaults)
+            : base(identifierDefaults)
         {
         }
 

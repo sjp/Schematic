@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite.Pragma;
 using SJP.Schematic.Core.Extensions;
 using LanguageExt;
+using System.Data;
 
 namespace SJP.Schematic.Sqlite
 {
@@ -18,17 +18,23 @@ namespace SJP.Schematic.Sqlite
         /// <summary>
         /// Constructs a new <see cref="SqliteRelationalDatabase"/>.
         /// </summary>
-        /// <param name="dialect">A database dialect for SQLite.</param>
         /// <param name="connection">The connection to a SQLite database.</param>
         /// <param name="identifierDefaults">Default values for identifier components.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="dialect"/>, <paramref name="connection"/>, or <paramref name="identifierDefaults"/> are <code>null</code>.</exception>
-        public SqliteRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierDefaults identifierDefaults)
-            : base(dialect, connection, identifierDefaults)
+        public SqliteRelationalDatabase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults)
+            : base(identifierDefaults)
         {
-            var pragma = new ConnectionPragma(Dialect, Connection);
-            _tableProvider = new SqliteRelationalDatabaseTableProvider(connection, pragma, dialect, identifierDefaults);
-            _viewProvider = new SqliteDatabaseViewProvider(connection, pragma, dialect, identifierDefaults);
+            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
+            var pragma = new ConnectionPragma(connection);
+            _tableProvider = new SqliteRelationalDatabaseTableProvider(connection, pragma, identifierDefaults);
+            _viewProvider = new SqliteDatabaseViewProvider(connection, pragma, identifierDefaults);
         }
+
+        protected ISchematicConnection Connection { get; }
+
+        protected IDbConnection DbConnection => Connection.DbConnection;
+
+        protected IDatabaseDialect Dialect => Connection.Dialect;
 
         public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)
         {
@@ -114,7 +120,7 @@ namespace SJP.Schematic.Sqlite
                 throw new ArgumentException("'main' is not a valid name to assign to an attached database. It will always be present.", nameof(schemaName));
 
             var sql = AttachDatabaseQuery(schemaName, fileName);
-            return Connection.ExecuteAsync(sql, cancellationToken);
+            return DbConnection.ExecuteAsync(sql, cancellationToken);
         }
 
         /// <summary>
@@ -156,7 +162,7 @@ namespace SJP.Schematic.Sqlite
                 throw new ArgumentException("'main' is not a valid database name to remove. It must always be present.", nameof(schemaName));
 
             var sql = DetachDatabaseQuery(schemaName);
-            return Connection.ExecuteAsync(sql, cancellationToken);
+            return DbConnection.ExecuteAsync(sql, cancellationToken);
         }
 
         /// <summary>
@@ -184,7 +190,7 @@ namespace SJP.Schematic.Sqlite
         public Task VacuumAsync(CancellationToken cancellationToken = default)
         {
             const string sql = "VACUUM";
-            return Connection.ExecuteAsync(sql, cancellationToken);
+            return DbConnection.ExecuteAsync(sql, cancellationToken);
         }
 
         /// <summary>
@@ -200,7 +206,7 @@ namespace SJP.Schematic.Sqlite
                 throw new ArgumentNullException(nameof(schemaName));
 
             var sql = VacuumQuery(schemaName);
-            return Connection.ExecuteAsync(sql, cancellationToken);
+            return DbConnection.ExecuteAsync(sql, cancellationToken);
         }
 
         /// <summary>

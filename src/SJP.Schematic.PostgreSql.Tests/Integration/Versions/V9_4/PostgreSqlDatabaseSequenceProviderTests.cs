@@ -14,38 +14,38 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_4
 {
     internal sealed class PostgreSqlDatabaseSequenceProviderTests : PostgreSql94Test
     {
-        private IDatabaseSequenceProvider SequenceProvider => new PgSequenceProvider(Connection, IdentifierDefaults, IdentifierResolver);
+        private IDatabaseSequenceProvider SequenceProvider => new PgSequenceProvider(DbConnection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create sequence v94_db_test_sequence_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create sequence v94_db_test_sequence_2 start with 20", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create sequence v94_db_test_sequence_3 start with 100 increment by 100", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create sequence v94_db_test_sequence_4 start with 1000 minvalue -99", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create sequence v94_db_test_sequence_5 start with 1000 no minvalue", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create sequence v94_db_test_sequence_6 start with 1 maxvalue 333", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create sequence v94_db_test_sequence_7 start with 1 no maxvalue", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create sequence v94_db_test_sequence_8 cycle", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create sequence v94_db_test_sequence_9 no cycle", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create sequence v94_db_test_sequence_10 cache 10", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create sequence v94_db_test_sequence_11 cache 1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create sequence v94_db_test_sequence_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create sequence v94_db_test_sequence_2 start with 20", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create sequence v94_db_test_sequence_3 start with 100 increment by 100", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create sequence v94_db_test_sequence_4 start with 1000 minvalue -99", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create sequence v94_db_test_sequence_5 start with 1000 no minvalue", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create sequence v94_db_test_sequence_6 start with 1 maxvalue 333", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create sequence v94_db_test_sequence_7 start with 1 no maxvalue", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create sequence v94_db_test_sequence_8 cycle", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create sequence v94_db_test_sequence_9 no cycle", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create sequence v94_db_test_sequence_10 cache 10", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create sequence v94_db_test_sequence_11 cache 1", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop sequence v94_db_test_sequence_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop sequence v94_db_test_sequence_2", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop sequence v94_db_test_sequence_3", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop sequence v94_db_test_sequence_4", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop sequence v94_db_test_sequence_5", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop sequence v94_db_test_sequence_6", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop sequence v94_db_test_sequence_7", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop sequence v94_db_test_sequence_8", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop sequence v94_db_test_sequence_9", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop sequence v94_db_test_sequence_10", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop sequence v94_db_test_sequence_11", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop sequence v94_db_test_sequence_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop sequence v94_db_test_sequence_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop sequence v94_db_test_sequence_3", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop sequence v94_db_test_sequence_4", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop sequence v94_db_test_sequence_5", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop sequence v94_db_test_sequence_6", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop sequence v94_db_test_sequence_7", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop sequence v94_db_test_sequence_8", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop sequence v94_db_test_sequence_9", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop sequence v94_db_test_sequence_10", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop sequence v94_db_test_sequence_11", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)

@@ -7,13 +7,10 @@ namespace SJP.Schematic.Core
 {
     public sealed class EmptyRelationalDatabase : IRelationalDatabase
     {
-        public EmptyRelationalDatabase(IDatabaseDialect dialect, IIdentifierDefaults identifierDefaults)
+        public EmptyRelationalDatabase(IIdentifierDefaults identifierDefaults)
         {
-            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         }
-
-        public IDatabaseDialect Dialect { get; }
 
         public IIdentifierDefaults IdentifierDefaults { get; }
 

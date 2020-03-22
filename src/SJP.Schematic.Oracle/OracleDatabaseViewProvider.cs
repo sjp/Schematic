@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -12,7 +11,7 @@ namespace SJP.Schematic.Oracle
 {
     public class OracleDatabaseViewProvider : IDatabaseViewProvider
     {
-        public OracleDatabaseViewProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver, IDbTypeProvider typeProvider)
+        public OracleDatabaseViewProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -20,11 +19,9 @@ namespace SJP.Schematic.Oracle
                 throw new ArgumentNullException(nameof(identifierDefaults));
             if (identifierResolver == null)
                 throw new ArgumentNullException(nameof(identifierResolver));
-            if (typeProvider == null)
-                throw new ArgumentNullException(nameof(typeProvider));
 
-            QueryViewProvider = new OracleDatabaseQueryViewProvider(connection, identifierDefaults, identifierResolver, typeProvider);
-            MaterializedViewProvider = new OracleDatabaseMaterializedViewProvider(connection, identifierDefaults, identifierResolver, typeProvider);
+            QueryViewProvider = new OracleDatabaseQueryViewProvider(connection, identifierDefaults, identifierResolver);
+            MaterializedViewProvider = new OracleDatabaseMaterializedViewProvider(connection, identifierDefaults, identifierResolver);
         }
 
         protected IDatabaseViewProvider QueryViewProvider { get; }

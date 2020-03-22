@@ -8,22 +8,12 @@ namespace SJP.Schematic.Core.Tests
     [TestFixture]
     internal static class EmptyRelationalDatabaseTests
     {
-        private static IRelationalDatabase Database => new EmptyRelationalDatabase(Mock.Of<IDatabaseDialect>(), Mock.Of<IIdentifierDefaults>());
-
-        [Test]
-        public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
-        {
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-
-            Assert.That(() => new EmptyRelationalDatabase(null, identifierDefaults), Throws.ArgumentNullException);
-        }
+        private static IRelationalDatabase Database => new EmptyRelationalDatabase(Mock.Of<IIdentifierDefaults>());
 
         [Test]
         public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgumentNullException()
         {
-            var dialect = Mock.Of<IDatabaseDialect>();
-
-            Assert.That(() => new EmptyRelationalDatabase(dialect, null), Throws.ArgumentNullException);
+            Assert.That(() => new EmptyRelationalDatabase(null), Throws.ArgumentNullException);
         }
 
         [Test]

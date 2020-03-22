@@ -10,10 +10,17 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
 {
     internal static class Config95
     {
+        public static IDbConnectionFactory ConnectionFactory { get; } = new PostgreSqlConnectionFactory();
+
         public static IDbConnection Connection { get; } = Prelude.Try(() => !ConnectionString.IsNullOrWhiteSpace()
-            ? PostgreSqlDialect.CreateConnectionAsync(ConnectionString).GetAwaiter().GetResult()
+            ? ConnectionFactory.CreateConnection(ConnectionString)
             : null)
             .Match(c => c, _ => null);
+
+        public static ISchematicConnection SchematicConnection => new SchematicConnection(
+            Connection,
+            new PostgreSqlDialect()
+        );
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
@@ -27,11 +34,11 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_5
     [DatabaseTestFixture(typeof(Config95), nameof(Config95.Connection), "No PostgreSQL v9.5 DB available")]
     internal abstract class PostgreSql95Test
     {
-        protected IDbConnection Connection { get; } = Config95.Connection;
+        protected ISchematicConnection Connection { get; } = Config95.SchematicConnection;
 
-        protected IDatabaseDialect Dialect { get; } = new PostgreSqlDialect();
+        protected IDbConnection DbConnection => Connection.DbConnection;
 
-        protected IIdentifierDefaults IdentifierDefaults { get; } = new PostgreSqlDialect().GetIdentifierDefaultsAsync(Config95.Connection).GetAwaiter().GetResult();
+        protected IIdentifierDefaults IdentifierDefaults { get; } = Config.SchematicConnection.Dialect.GetIdentifierDefaultsAsync(Config95.SchematicConnection).GetAwaiter().GetResult();
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; } = new DefaultPostgreSqlIdentifierResolutionStrategy();
     }

@@ -13,50 +13,36 @@ namespace SJP.Schematic.PostgreSql.Tests
         {
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
-            var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.That(() => new PostgreSqlRelationalDatabaseTableProvider(null, identifierDefaults, identifierResolver, typeProvider), Throws.ArgumentNullException);
+            Assert.That(() => new PostgreSqlRelationalDatabaseTableProvider(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<ISchematicConnection>();
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
-            var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.That(() => new PostgreSqlRelationalDatabaseTableProvider(connection, null, identifierResolver, typeProvider), Throws.ArgumentNullException);
+            Assert.That(() => new PostgreSqlRelationalDatabaseTableProvider(connection, null, identifierResolver), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullIdentifierResolver_ThrowsArgNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<ISchematicConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.That(() => new PostgreSqlRelationalDatabaseTableProvider(connection, identifierDefaults, null, typeProvider), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenNullTypeProvider_ThrowsArgNullException()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
-
-            Assert.That(() => new PostgreSqlRelationalDatabaseTableProvider(connection, identifierDefaults, identifierResolver, null), Throws.ArgumentNullException);
+            Assert.That(() => new PostgreSqlRelationalDatabaseTableProvider(connection, identifierDefaults, null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetTable_GivenNullTableName_ThrowsArgNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<ISchematicConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
-            var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            var tableProvider = new PostgreSqlRelationalDatabaseTableProvider(connection, identifierDefaults, identifierResolver, typeProvider);
+            var tableProvider = new PostgreSqlRelationalDatabaseTableProvider(connection, identifierDefaults, identifierResolver);
 
             Assert.That(() => tableProvider.GetTable(null), Throws.ArgumentNullException);
         }

@@ -10,128 +10,79 @@ namespace SJP.Schematic.PostgreSql.Tests
     [TestFixture]
     internal static class PostgreSqlRelationalDatabaseTests
     {
-        [Test]
-        public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
+        private static IRelationalDatabase Database
         {
-            var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
+            get
+            {
+                var connection = new SchematicConnection(Mock.Of<IDbConnection>(), Mock.Of<IDatabaseDialect>());
+                var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+                var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            Assert.That(() => new PostgreSqlRelationalDatabase(null, connection, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
+                return new PostgreSqlRelationalDatabase(connection, identifierDefaults, identifierResolver);
+            }
         }
 
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
-            var dialect = new PostgreSqlDialect();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            Assert.That(() => new PostgreSqlRelationalDatabase(dialect, null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
+            Assert.That(() => new PostgreSqlRelationalDatabase(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new PostgreSqlDialect();
+            var connection = Mock.Of<ISchematicConnection>();
             var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            Assert.That(() => new PostgreSqlRelationalDatabase(dialect, connection, null, identifierResolver), Throws.ArgumentNullException);
+            Assert.That(() => new PostgreSqlRelationalDatabase(connection, null, identifierResolver), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullIdentifierResolver_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new PostgreSqlDialect();
+            var connection = Mock.Of<ISchematicConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.That(() => new PostgreSqlRelationalDatabase(dialect, connection, identifierDefaults, null), Throws.ArgumentNullException);
+            Assert.That(() => new PostgreSqlRelationalDatabase(connection, identifierDefaults, null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetTable_GivenNullIdentifier_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new PostgreSqlDialect();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
-
-            var database = new PostgreSqlRelationalDatabase(dialect, connection, identifierDefaults, identifierResolver);
-
-            Assert.That(() => database.GetTable(null), Throws.ArgumentNullException);
+            Assert.That(() => Database.GetTable(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetView_GivenNullIdentifier_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new PostgreSqlDialect();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
-
-            var database = new PostgreSqlRelationalDatabase(dialect, connection, identifierDefaults, identifierResolver);
-
-            Assert.That(() => database.GetView(null), Throws.ArgumentNullException);
+            Assert.That(() => Database.GetView(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetSequence_GivenNullIdentifier_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new PostgreSqlDialect();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
-
-            var database = new PostgreSqlRelationalDatabase(dialect, connection, identifierDefaults, identifierResolver);
-
-            Assert.That(() => database.GetSequence(null), Throws.ArgumentNullException);
+            Assert.That(() => Database.GetSequence(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetSynonym_GivenNullIdentifier_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new PostgreSqlDialect();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
-
-            var database = new PostgreSqlRelationalDatabase(dialect, connection, identifierDefaults, identifierResolver);
-
-            Assert.That(() => database.GetSynonym(null), Throws.ArgumentNullException);
+            Assert.That(() => Database.GetSynonym(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetRoutine_GivenNullIdentifier_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new PostgreSqlDialect();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
-
-            var database = new PostgreSqlRelationalDatabase(dialect, connection, identifierDefaults, identifierResolver);
-
-            Assert.That(() => database.GetRoutine(null), Throws.ArgumentNullException);
+            Assert.That(() => Database.GetRoutine(null), Throws.ArgumentNullException);
         }
 
         // testing that the behaviour is equivalent to an empty synonym provider
         [TestFixture]
         internal static class SynonymTests
         {
-            private static IRelationalDatabase Database
-            {
-                get
-                {
-                    var connection = Mock.Of<IDbConnection>();
-                    var dialect = new PostgreSqlDialect();
-                    var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-                    var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
-
-                    return new PostgreSqlRelationalDatabase(dialect, connection, identifierDefaults, identifierResolver);
-                }
-            }
-
             [Test]
             public static void GetSynonym_GivenNullSynonymName_ThrowsArgumentNullException()
             {

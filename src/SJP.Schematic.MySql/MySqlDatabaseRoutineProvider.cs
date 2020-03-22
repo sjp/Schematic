@@ -14,19 +14,21 @@ namespace SJP.Schematic.MySql
 {
     public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     {
-        public MySqlDatabaseRoutineProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults)
+        public MySqlDatabaseRoutineProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         }
 
-        protected IDbConnection Connection { get; }
+        protected ISchematicConnection Connection { get; }
+
+        protected IDbConnection DbConnection => Connection.DbConnection;
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
         public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResult = await Connection.QueryAsync<RoutineData>(
+            var queryResult = await DbConnection.QueryAsync<RoutineData>(
                 RoutinesQuery,
                 new { SchemaName = IdentifierDefaults.Schema },
                 cancellationToken
@@ -70,7 +72,7 @@ order by ROUTINE_SCHEMA, ROUTINE_NAME";
                 throw new ArgumentNullException(nameof(routineName));
 
             var candidateRoutineName = QualifyRoutineName(routineName);
-            var qualifiedRoutineName = Connection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedRoutineName = DbConnection.QueryFirstOrNone<QualifiedName>(
                 RoutineNameQuery,
                 new { SchemaName = candidateRoutineName.Schema, RoutineName = candidateRoutineName.LocalName },
                 cancellationToken
@@ -110,7 +112,7 @@ limit 1";
             if (routineName == null)
                 throw new ArgumentNullException(nameof(routineName));
 
-            return Connection.ExecuteScalarAsync<string>(
+            return DbConnection.ExecuteScalarAsync<string>(
                 DefinitionQuery,
                 new { SchemaName = routineName.Schema, RoutineName = routineName.LocalName },
                 cancellationToken

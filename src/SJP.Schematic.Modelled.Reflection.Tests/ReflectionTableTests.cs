@@ -18,41 +18,47 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         [Test]
         public static void Ctor_GivenNullDatabase_ThrowsArgumentNullException()
         {
-            Assert.That(() => new ReflectionTable(null, typeof(object)), Throws.ArgumentNullException);
+            Assert.That(() => new ReflectionTable(null, new FakeDialect(), typeof(object)), Throws.ArgumentNullException);
+        }
+
+        [Test]
+        public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
+        {
+            var database = Mock.Of<IRelationalDatabase>();
+
+            Assert.That(() => new ReflectionTable(database, null, typeof(object)), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullTableType_ThrowsArgumentNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();
-            Assert.That(() => new ReflectionTable(database, null), Throws.ArgumentNullException);
+            Assert.That(() => new ReflectionTable(database, new FakeDialect(), null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenTableTypeWithNoDefaultCtor_ThrowsArgumentException()
         {
             var databaseMock = new Mock<IRelationalDatabase>();
-            databaseMock.Setup(db => db.Dialect).Returns(new FakeDialect());
             databaseMock.Setup(db => db.IdentifierDefaults).Returns(new IdentifierDefaultsBuilder().Build());
 
-            Assert.That(() => new ReflectionTable(databaseMock.Object, typeof(TableTypeWithBadCtor)), Throws.ArgumentException);
+            Assert.That(() => new ReflectionTable(databaseMock.Object, new FakeDialect(), typeof(TableTypeWithBadCtor)), Throws.ArgumentException);
         }
 
         [Test]
         public static void Ctor_GivenTableTypeWithNotAutoProperty_ThrowsArgumentException()
         {
             var databaseMock = new Mock<IRelationalDatabase>();
-            databaseMock.Setup(db => db.Dialect).Returns(new FakeDialect());
             databaseMock.Setup(db => db.IdentifierDefaults).Returns(new IdentifierDefaultsBuilder().Build());
 
-            Assert.That(() => new ReflectionTable(databaseMock.Object, typeof(TableTypeWithBadColumns)), Throws.ArgumentException);
+            Assert.That(() => new ReflectionTable(databaseMock.Object, new FakeDialect(), typeof(TableTypeWithBadColumns)), Throws.ArgumentException);
         }
 
         [Test]
         public static void Name_PropertyGetOnSimpleClass_ReturnsSameNameAsClass()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect(), IdentifierDefaults);
-            var table = new ReflectionTable(database, typeof(TestTable1));
+            var table = new ReflectionTable(database, new FakeDialect(), typeof(TestTable1));
             const string expectedName = nameof(TestTable1);
 
             Assert.That(table.Name.LocalName, Is.EqualTo(expectedName));
@@ -62,7 +68,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         public static void Columns_GivenTableWithNoColumns_ReturnsEmptyResult()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase2>(new FakeDialect(), IdentifierDefaults);
-            var table = new ReflectionTable(database, typeof(TestTable2));
+            var table = new ReflectionTable(database, new FakeDialect(), typeof(TestTable2));
             var columns = table.Columns;
 
             Assert.That(columns, Is.Empty);
@@ -72,7 +78,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         public static void Columns_GivenTableWithOneColumn_ReturnsOneResult()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect(), IdentifierDefaults);
-            var table = new ReflectionTable(database, typeof(TestTable1));
+            var table = new ReflectionTable(database, new FakeDialect(), typeof(TestTable1));
             var columns = table.Columns;
 
             Assert.That(columns, Has.Exactly(1).Items);
@@ -82,7 +88,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         public static void Columns_GivenTableWithOneColumn_ReturnsColumnWithCorrectName()
         {
             var database = new ReflectionRelationalDatabase<TestDatabase1>(new FakeDialect(), IdentifierDefaults);
-            var table = new ReflectionTable(database, typeof(TestTable1));
+            var table = new ReflectionTable(database, new FakeDialect(), typeof(TestTable1));
             var columns = table.Columns;
             var column = columns.Single();
             Identifier expectedName = "TEST_COLUMN_1";

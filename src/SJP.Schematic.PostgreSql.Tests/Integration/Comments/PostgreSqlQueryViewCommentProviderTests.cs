@@ -15,26 +15,26 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
 {
     internal sealed class PostgreSqlQueryViewCommentProviderTests : PostgreSqlTest
     {
-        private IDatabaseViewCommentProvider ViewCommentProvider => new PostgreSqlQueryViewCommentProvider(Connection, IdentifierDefaults, IdentifierResolver);
+        private IDatabaseViewCommentProvider ViewCommentProvider => new PostgreSqlQueryViewCommentProvider(DbConnection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create table view_comment_table_1 (test_column_1 int primary key not null, test_column_2 int, test_column_3 int)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create table view_comment_table_1 (test_column_1 int primary key not null, test_column_2 int, test_column_3 int)", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("create view view_comment_view_1 as select test_column_1, test_column_2, test_column_3 from view_comment_table_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create view view_comment_view_2 as select test_column_1, test_column_2, test_column_3 from view_comment_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create view view_comment_view_1 as select test_column_1, test_column_2, test_column_3 from view_comment_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create view view_comment_view_2 as select test_column_1, test_column_2, test_column_3 from view_comment_table_1", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("comment on view view_comment_view_2 is 'This is a test view.'", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("comment on column view_comment_view_2.test_column_2 is 'This is a test view column.'", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("comment on view view_comment_view_2 is 'This is a test view.'", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("comment on column view_comment_view_2.test_column_2 is 'This is a test view column.'", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop view view_comment_view_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop view view_comment_view_2", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table view_comment_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop view view_comment_view_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop view view_comment_view_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table view_comment_table_1", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IDatabaseViewComments> GetViewCommentsAsync(Identifier viewName)

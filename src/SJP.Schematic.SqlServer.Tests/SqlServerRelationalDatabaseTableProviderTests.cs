@@ -12,37 +12,25 @@ namespace SJP.Schematic.SqlServer.Tests
         public static void Ctor_GivenNullConnection_ThrowsArgNullException()
         {
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            Assert.That(() => new SqlServerRelationalDatabaseTableProvider(null, identifierDefaults, typeProvider), Throws.ArgumentNullException);
+            Assert.That(() => new SqlServerRelationalDatabaseTableProvider(null, identifierDefaults), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var typeProvider = Mock.Of<IDbTypeProvider>();
+            var connection = Mock.Of<ISchematicConnection>();
 
-            Assert.That(() => new SqlServerRelationalDatabaseTableProvider(connection, null, typeProvider), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenNullTypeProvider_ThrowsArgNullException()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-
-            Assert.That(() => new SqlServerRelationalDatabaseTableProvider(connection, identifierDefaults, null), Throws.ArgumentNullException);
+            Assert.That(() => new SqlServerRelationalDatabaseTableProvider(connection, null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetTable_GivenNullTableName_ThrowsArgNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<ISchematicConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var typeProvider = Mock.Of<IDbTypeProvider>();
 
-            var tableProvider = new SqlServerRelationalDatabaseTableProvider(connection, identifierDefaults, typeProvider);
+            var tableProvider = new SqlServerRelationalDatabaseTableProvider(connection, identifierDefaults);
 
             Assert.That(() => tableProvider.GetTable(null), Throws.ArgumentNullException);
         }

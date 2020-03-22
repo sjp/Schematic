@@ -13,12 +13,12 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
     internal sealed class PostgreSqlDatabaseRoutineProviderTests : PostgreSqlTest
     {
-        private IDatabaseRoutineProvider RoutineProvider => new PostgreSqlDatabaseRoutineProvider(Connection, IdentifierDefaults, IdentifierResolver);
+        private IDatabaseRoutineProvider RoutineProvider => new PostgreSqlDatabaseRoutineProvider(DbConnection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync(@"CREATE FUNCTION db_test_routine_1(val integer)
+            await DbConnection.ExecuteAsync(@"CREATE FUNCTION db_test_routine_1(val integer)
 RETURNS integer AS $$
 BEGIN
     RETURN val + 1;
@@ -29,7 +29,7 @@ LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop function db_test_routine_1(integer)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop function db_test_routine_1(integer)", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)

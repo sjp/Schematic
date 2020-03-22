@@ -24,8 +24,6 @@ namespace SJP.Schematic.Modelled
             BaseDatabase = Databases.Last();
         }
 
-        public IDatabaseDialect Dialect => BaseDatabase.Dialect;
-
         public IIdentifierDefaults IdentifierDefaults => BaseDatabase.IdentifierDefaults;
 
         protected IRelationalDatabase BaseDatabase { get; }

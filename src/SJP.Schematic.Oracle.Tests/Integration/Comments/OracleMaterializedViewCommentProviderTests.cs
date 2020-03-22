@@ -15,26 +15,26 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
 {
     internal sealed class OracleMaterializedViewCommentProviderTests : OracleTest
     {
-        private IDatabaseViewCommentProvider ViewCommentProvider => new OracleMaterializedViewCommentProvider(Connection, IdentifierDefaults, IdentifierResolver);
+        private IDatabaseViewCommentProvider ViewCommentProvider => new OracleMaterializedViewCommentProvider(DbConnection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create table mview_comment_table_1 ( test_column_1 number, test_column_2 number, test_column_3 number )", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create table mview_comment_table_1 ( test_column_1 number, test_column_2 number, test_column_3 number )", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("create materialized view mview_comment_mview_1 as select test_column_1, test_column_2, test_column_3 from mview_comment_table_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create materialized view mview_comment_mview_2 as select test_column_1, test_column_2, test_column_3 from mview_comment_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create materialized view mview_comment_mview_1 as select test_column_1, test_column_2, test_column_3 from mview_comment_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create materialized view mview_comment_mview_2 as select test_column_1, test_column_2, test_column_3 from mview_comment_table_1", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("comment on materialized view mview_comment_mview_2 is 'This is a test view comment.'", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("comment on column mview_comment_mview_2.test_column_2 is 'This is a column comment.'", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("comment on materialized view mview_comment_mview_2 is 'This is a test view comment.'", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("comment on column mview_comment_mview_2.test_column_2 is 'This is a column comment.'", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop materialized view mview_comment_mview_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop materialized view mview_comment_mview_2", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table mview_comment_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop materialized view mview_comment_mview_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop materialized view mview_comment_mview_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table mview_comment_table_1", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IDatabaseViewComments> GetViewCommentsAsync(Identifier viewName)

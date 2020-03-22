@@ -13,7 +13,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
 {
     internal sealed class PocoViewGeneratorTests : SqliteTest
     {
-        private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
+        private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults);
 
         private Task<IDatabaseView> GetView(Identifier viewName) => Database.GetView(viewName).UnwrapSomeAsync();
 
@@ -22,7 +22,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create view test_view_1 as
 select
     1 as testint,
@@ -31,24 +31,24 @@ select
     CURRENT_TIMESTAMP as testdatetime,
     'test' as teststring
 ", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"create table view_test_table_1 (
+            await DbConnection.ExecuteAsync(@"create table view_test_table_1 (
     testint integer not null primary key autoincrement,
     testdecimal numeric default 2.45,
     testblob blob default X'DEADBEEF',
     testdatetime datetime default CURRENT_TIMESTAMP,
     teststring text default 'test'
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create view test_view_2 as select * from view_test_table_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create view test_view_3 as select 1 as test_column_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create view test_view_2 as select * from view_test_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create view test_view_3 as select 1 as test_column_1", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop view test_view_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop view test_view_2", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table view_test_table_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop view test_view_3", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop view test_view_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop view test_view_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table view_test_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop view test_view_3", CancellationToken.None).ConfigureAwait(false);
         }
 
         [Test]

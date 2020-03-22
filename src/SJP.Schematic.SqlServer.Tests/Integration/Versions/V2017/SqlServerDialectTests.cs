@@ -26,7 +26,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2017
         [Test]
         public async Task GetServerProperties2017_WhenInvoked_ReturnsNonNullObject()
         {
-            var properties = await Dialect.GetServerProperties2017(Connection).ConfigureAwait(false);
+            var properties = await Dialect.GetServerProperties2017(DbConnection).ConfigureAwait(false);
 
             Assert.That(properties, Is.Not.Null);
         }

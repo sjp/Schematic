@@ -15,32 +15,32 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_6.Comments
 {
     internal sealed class PostgreSqlRoutineCommentProviderTests : PostgreSql96Test
     {
-        private IDatabaseRoutineCommentProvider RoutineCommentProvider => new PostgreSqlRoutineCommentProvider(Connection, IdentifierDefaults, IdentifierResolver);
+        private IDatabaseRoutineCommentProvider RoutineCommentProvider => new PostgreSqlRoutineCommentProvider(DbConnection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync(@"CREATE FUNCTION v96_comment_test_routine_1(val integer)
+            await DbConnection.ExecuteAsync(@"CREATE FUNCTION v96_comment_test_routine_1(val integer)
 RETURNS integer AS $$
 BEGIN
     RETURN val + 1;
 END; $$
 LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"CREATE FUNCTION v96_comment_test_routine_2(val integer)
+            await DbConnection.ExecuteAsync(@"CREATE FUNCTION v96_comment_test_routine_2(val integer)
 RETURNS integer AS $$
 BEGIN
     RETURN val + 1;
 END; $$
 LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("comment on function v96_comment_test_routine_2 (integer) is 'This is a test function.'", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("comment on function v96_comment_test_routine_2 (integer) is 'This is a test function.'", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop function v96_comment_test_routine_1(integer)", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop function v96_comment_test_routine_2(integer)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop function v96_comment_test_routine_1(integer)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop function v96_comment_test_routine_2(integer)", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IDatabaseRoutineComments> GetRoutineCommentsAsync(Identifier routineName)

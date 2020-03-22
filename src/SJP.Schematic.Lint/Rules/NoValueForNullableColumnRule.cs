@@ -13,18 +13,19 @@ namespace SJP.Schematic.Lint.Rules
 {
     public class NoValueForNullableColumnRule : Rule, ITableRule
     {
-        public NoValueForNullableColumnRule(IDbConnection connection, IDatabaseDialect dialect, RuleLevel level)
+        public NoValueForNullableColumnRule(ISchematicConnection connection, RuleLevel level)
             : base(RuleTitle, level)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
 
             _fromQuerySuffixAsync = new AsyncLazy<string>(GetFromQuerySuffixAsync);
         }
 
-        protected IDbConnection Connection { get; }
+        protected ISchematicConnection Connection { get; }
 
-        protected IDatabaseDialect Dialect { get; }
+        protected IDbConnection DbConnection => Connection.DbConnection;
+
+        protected IDatabaseDialect Dialect => Connection.Dialect;
 
         public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
         {
@@ -88,7 +89,7 @@ namespace SJP.Schematic.Lint.Rules
         private async Task<bool> TableHasRowsAsyncCore(IRelationalDatabaseTable table, CancellationToken cancellationToken)
         {
             var sql = await GetTableHasRowsQueryAsync(table.Name).ConfigureAwait(false);
-            return await Connection.ExecuteScalarAsync<bool>(sql, cancellationToken).ConfigureAwait(false);
+            return await DbConnection.ExecuteScalarAsync<bool>(sql, cancellationToken).ConfigureAwait(false);
         }
 
         protected Task<bool> NullableColumnHasValueAsync(IRelationalDatabaseTable table, IDatabaseColumn column,
@@ -106,7 +107,7 @@ namespace SJP.Schematic.Lint.Rules
             CancellationToken cancellationToken)
         {
             var sql = await GetNullableColumnHasValueQueryAsync(table.Name, column.Name).ConfigureAwait(false);
-            return await Connection.ExecuteScalarAsync<bool>(sql, cancellationToken).ConfigureAwait(false);
+            return await DbConnection.ExecuteScalarAsync<bool>(sql, cancellationToken).ConfigureAwait(false);
         }
 
         protected virtual IRuleMessage BuildMessage(Identifier tableName, string columnName)
@@ -167,7 +168,7 @@ namespace SJP.Schematic.Lint.Rules
         {
             try
             {
-                _ = await Connection.ExecuteScalarAsync<bool>(TestQueryNoTable, CancellationToken.None).ConfigureAwait(false);
+                _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryNoTable, CancellationToken.None).ConfigureAwait(false);
                 return string.Empty;
             }
             catch
@@ -177,7 +178,7 @@ namespace SJP.Schematic.Lint.Rules
 
             try
             {
-                _ = await Connection.ExecuteScalarAsync<bool>(TestQueryFromSysDual, CancellationToken.None).ConfigureAwait(false);
+                _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryFromSysDual, CancellationToken.None).ConfigureAwait(false);
                 return "SYS.DUAL";
             }
             catch
@@ -185,7 +186,7 @@ namespace SJP.Schematic.Lint.Rules
                 // Deliberately ignoring because we are testing functionality
             }
 
-            _ = await Connection.ExecuteScalarAsync<bool>(TestQueryFromDual, CancellationToken.None).ConfigureAwait(false);
+            _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryFromDual, CancellationToken.None).ConfigureAwait(false);
             return "DUAL";
         }
 

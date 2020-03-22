@@ -12,14 +12,18 @@ namespace SJP.Schematic.Reporting.Tests.Integration
 {
     internal static class Config
     {
+        public static IDbConnectionFactory ConnectionFactory { get; } = new SqliteConnectionFactory();
+
         public static IDbConnection Connection
         {
             get
             {
                 EnsureUnzipped();
-                return SqliteDialect.CreateConnectionAsync(ConnectionString).GetAwaiter().GetResult();
+                return ConnectionFactory.CreateConnection(ConnectionString);
             }
         }
+
+        public static ISchematicConnection SchematicConnection { get; } = new SchematicConnection(Connection, new SqliteDialect());
 
         private static string ConnectionString => "Data Source=" + SakilaDbPath;
 
@@ -44,14 +48,12 @@ namespace SJP.Schematic.Reporting.Tests.Integration
     [DatabaseTestFixture(typeof(Config), nameof(Config.Connection), "No Reporting DB available")]
     internal abstract class SakilaTest
     {
-        protected IDbConnection Connection { get; } = Config.Connection;
+        protected ISchematicConnection Connection { get; } = Config.SchematicConnection;
 
-        protected IDatabaseDialect Dialect { get; } = new SqliteDialect();
+        protected IDbConnection DbConnection => Connection.DbConnection;
 
-        protected ISqliteConnectionPragma Pragma { get; } = new ConnectionPragma(new SqliteDialect(), Config.Connection);
+        protected IIdentifierDefaults IdentifierDefaults { get; } = Config.SchematicConnection.Dialect.GetIdentifierDefaultsAsync(Config.SchematicConnection).GetAwaiter().GetResult();
 
-        protected IIdentifierDefaults IdentifierDefaults { get; } = new SqliteDialect().GetIdentifierDefaultsAsync(Config.Connection).GetAwaiter().GetResult();
-
-        protected IRelationalDatabase GetDatabase() => new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
+        protected ISqliteDatabase GetDatabase() => new SqliteRelationalDatabase(Config.SchematicConnection, IdentifierDefaults);
     }
 }

@@ -13,20 +13,20 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V11
 {
     internal sealed class PostgreSqlDatabaseRoutineProviderTests : PostgreSql11Test
     {
-        private IDatabaseRoutineProvider RoutineProvider => new PostgreSqlDatabaseRoutineProvider(Connection, IdentifierDefaults, IdentifierResolver);
+        private IDatabaseRoutineProvider RoutineProvider => new PostgreSqlDatabaseRoutineProvider(DbConnection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
         {
             // func
-            await Connection.ExecuteAsync(@"CREATE FUNCTION v11_db_test_routine_1(val integer)
+            await DbConnection.ExecuteAsync(@"CREATE FUNCTION v11_db_test_routine_1(val integer)
 RETURNS integer AS $$
 BEGIN
     RETURN val + 1;
 END; $$
 LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
             // stored proc
-            await Connection.ExecuteAsync(@"CREATE PROCEDURE v11_db_test_routine_2()
+            await DbConnection.ExecuteAsync(@"CREATE PROCEDURE v11_db_test_routine_2()
 LANGUAGE PLPGSQL
 AS $$
 BEGIN
@@ -37,8 +37,8 @@ END $$", CancellationToken.None).ConfigureAwait(false);
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop function v11_db_test_routine_1(integer)", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop procedure v11_db_test_routine_2()", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop function v11_db_test_routine_1(integer)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop procedure v11_db_test_routine_2()", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)

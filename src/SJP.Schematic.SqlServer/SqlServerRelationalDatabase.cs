@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Threading;
 using SJP.Schematic.Core;
 using LanguageExt;
@@ -9,14 +8,17 @@ namespace SJP.Schematic.SqlServer
 {
     public class SqlServerRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
-        public SqlServerRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierDefaults identifierDefaults)
-            : base(dialect, connection, identifierDefaults)
+        public SqlServerRelationalDatabase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults)
+            : base(identifierDefaults)
         {
-            _tableProvider = new SqlServerRelationalDatabaseTableProvider(connection, identifierDefaults, dialect.TypeProvider);
-            _viewProvider = new SqlServerDatabaseViewProvider(connection, identifierDefaults, dialect.TypeProvider);
-            _sequenceProvider = new SqlServerDatabaseSequenceProvider(connection, identifierDefaults);
-            _synonymProvider = new SqlServerDatabaseSynonymProvider(connection, identifierDefaults);
-            _routineProvider = new SqlServerDatabaseRoutineProvider(connection, identifierDefaults);
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            _tableProvider = new SqlServerRelationalDatabaseTableProvider(connection, identifierDefaults);
+            _viewProvider = new SqlServerDatabaseViewProvider(connection, identifierDefaults);
+            _sequenceProvider = new SqlServerDatabaseSequenceProvider(connection.DbConnection, identifierDefaults);
+            _synonymProvider = new SqlServerDatabaseSynonymProvider(connection.DbConnection, identifierDefaults);
+            _routineProvider = new SqlServerDatabaseRoutineProvider(connection.DbConnection, identifierDefaults);
         }
 
         public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)

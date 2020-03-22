@@ -9,13 +9,13 @@ namespace SJP.Schematic.PostgreSql
 {
     public class PostgreSqlRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
-        public PostgreSqlRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
-            : base(dialect, connection, identifierDefaults)
+        public PostgreSqlRelationalDatabase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
+            : base(identifierDefaults)
         {
-            _tableProvider = new PostgreSqlRelationalDatabaseTableProvider(connection, identifierDefaults, identifierResolver, dialect.TypeProvider);
-            _viewProvider = new PostgreSqlDatabaseViewProvider(connection, identifierDefaults, identifierResolver, dialect.TypeProvider);
-            _sequenceProvider = new PostgreSqlDatabaseSequenceProvider(dialect, connection, identifierDefaults, identifierResolver);
-            _routineProvider = new PostgreSqlDatabaseRoutineProvider(connection, identifierDefaults, identifierResolver);
+            _tableProvider = new PostgreSqlRelationalDatabaseTableProvider(connection, identifierDefaults, identifierResolver);
+            _viewProvider = new PostgreSqlDatabaseViewProvider(connection, identifierDefaults, identifierResolver);
+            _sequenceProvider = new PostgreSqlDatabaseSequenceProvider(connection, identifierDefaults, identifierResolver);
+            _routineProvider = new PostgreSqlDatabaseRoutineProvider(connection.DbConnection, identifierDefaults, identifierResolver);
         }
 
         public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)

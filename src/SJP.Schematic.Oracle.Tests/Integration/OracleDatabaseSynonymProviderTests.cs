@@ -10,30 +10,30 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 {
     internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
     {
-        private IDatabaseSynonymProvider SynonymProvider => new OracleDatabaseSynonymProvider(Connection, IdentifierDefaults, IdentifierResolver);
+        private IDatabaseSynonymProvider SynonymProvider => new OracleDatabaseSynonymProvider(DbConnection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create synonym db_test_synonym_1 for sys.user_tables", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create synonym db_test_synonym_1 for sys.user_tables", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("create view synonym_test_view_1 as select 1 as test from dual", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create table synonym_test_table_1 (table_id number primary key not null)", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create synonym synonym_test_synonym_1 for synonym_test_view_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create synonym synonym_test_synonym_2 for synonym_test_table_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create synonym synonym_test_synonym_3 for non_existent_target", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create view synonym_test_view_1 as select 1 as test from dual", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create table synonym_test_table_1 (table_id number primary key not null)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create synonym synonym_test_synonym_1 for synonym_test_view_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create synonym synonym_test_synonym_2 for synonym_test_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create synonym synonym_test_synonym_3 for non_existent_target", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop synonym db_test_synonym_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop synonym db_test_synonym_1", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("drop view synonym_test_view_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table synonym_test_table_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop synonym synonym_test_synonym_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop synonym synonym_test_synonym_2", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop synonym synonym_test_synonym_3", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop view synonym_test_view_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table synonym_test_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop synonym synonym_test_synonym_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop synonym synonym_test_synonym_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop synonym synonym_test_synonym_3", CancellationToken.None).ConfigureAwait(false);
         }
 
         [Test]

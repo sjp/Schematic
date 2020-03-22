@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -12,8 +11,8 @@ namespace SJP.Schematic.PostgreSql.Versions.V10
 {
     public class PostgreSqlRelationalDatabaseTableProvider : V9_4.PostgreSqlRelationalDatabaseTableProvider
     {
-        public PostgreSqlRelationalDatabaseTableProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver, IDbTypeProvider typeProvider)
-            : base(connection, identifierDefaults, identifierResolver, typeProvider)
+        public PostgreSqlRelationalDatabaseTableProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
+            : base(connection, identifierDefaults, identifierResolver)
         {
         }
 
@@ -27,7 +26,7 @@ namespace SJP.Schematic.PostgreSql.Versions.V10
 
         private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var query = await Connection.QueryAsync<ColumnDataWithIdentity>(
+            var query = await DbConnection.QueryAsync<ColumnDataWithIdentity>(
                 ColumnsQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
                 cancellationToken

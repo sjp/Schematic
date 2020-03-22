@@ -15,7 +15,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
 {
     internal sealed class PocoTableGeneratorTests : SqliteTest
     {
-        private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
+        private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults);
 
         private Task<IRelationalDatabaseTable> GetTable(Identifier tableName) => Database.GetTable(tableName).UnwrapSomeAsync();
 
@@ -24,21 +24,21 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync(@"create table test_table_1 (
+            await DbConnection.ExecuteAsync(@"create table test_table_1 (
     testint integer not null primary key autoincrement,
     testdecimal numeric default 2.45,
     testblob blob default X'DEADBEEF',
     testdatetime datetime default CURRENT_TIMESTAMP,
     teststring text default 'test'
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create table test_table_2 ( test_column_1 integer )", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create table test_table_2 ( test_column_1 integer )", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop table test_table_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table test_table_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table test_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table test_table_2", CancellationToken.None).ConfigureAwait(false);
         }
 
         [Test]

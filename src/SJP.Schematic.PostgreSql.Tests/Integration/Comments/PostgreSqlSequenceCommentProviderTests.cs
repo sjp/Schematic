@@ -15,22 +15,22 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
 {
     internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
     {
-        private IDatabaseSequenceCommentProvider SequenceCommentProvider => new PostgreSqlSequenceCommentProvider(Connection, IdentifierDefaults, IdentifierResolver);
+        private IDatabaseSequenceCommentProvider SequenceCommentProvider => new PostgreSqlSequenceCommentProvider(DbConnection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create sequence comment_test_sequence_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create sequence comment_test_sequence_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create sequence comment_test_sequence_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create sequence comment_test_sequence_2", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("comment on sequence comment_test_sequence_2 is 'This is a test sequence.'", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("comment on sequence comment_test_sequence_2 is 'This is a test sequence.'", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop sequence comment_test_sequence_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop sequence comment_test_sequence_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop sequence comment_test_sequence_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop sequence comment_test_sequence_2", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IDatabaseSequenceComments> GetSequenceCommentsAsync(Identifier sequenceName)

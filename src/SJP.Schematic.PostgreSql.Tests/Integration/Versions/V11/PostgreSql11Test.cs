@@ -10,10 +10,17 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V11
 {
     internal static class Config11
     {
+        public static IDbConnectionFactory ConnectionFactory { get; } = new PostgreSqlConnectionFactory();
+
         public static IDbConnection Connection { get; } = Prelude.Try(() => !ConnectionString.IsNullOrWhiteSpace()
-            ? PostgreSqlDialect.CreateConnectionAsync(ConnectionString).GetAwaiter().GetResult()
+            ? ConnectionFactory.CreateConnection(ConnectionString)
             : null)
             .Match(c => c, _ => null);
+
+        public static ISchematicConnection SchematicConnection => new SchematicConnection(
+            Connection,
+            new PostgreSqlDialect()
+        );
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
@@ -27,11 +34,11 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V11
     [DatabaseTestFixture(typeof(Config11), nameof(Config11.Connection), "No PostgreSQL v11 DB available")]
     internal abstract class PostgreSql11Test
     {
-        protected IDbConnection Connection { get; } = Config11.Connection;
+        protected ISchematicConnection Connection { get; } = Config11.SchematicConnection;
 
-        protected IDatabaseDialect Dialect { get; } = new PostgreSqlDialect();
+        protected IDbConnection DbConnection => Connection.DbConnection;
 
-        protected IIdentifierDefaults IdentifierDefaults { get; } = new PostgreSqlDialect().GetIdentifierDefaultsAsync(Config11.Connection).GetAwaiter().GetResult();
+        protected IIdentifierDefaults IdentifierDefaults { get; } = Config.SchematicConnection.Dialect.GetIdentifierDefaultsAsync(Config11.SchematicConnection).GetAwaiter().GetResult();
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; } = new DefaultPostgreSqlIdentifierResolutionStrategy();
     }

@@ -33,12 +33,12 @@ namespace SJP.Schematic.SqlServer
             return connection;
         }
 
-        public override async Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(IDbConnection connection, CancellationToken cancellationToken = default)
+        public override async Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            return await connection.QuerySingleAsync<SqlIdentifierDefaults>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
+            return await connection.DbConnection.QuerySingleAsync<SqlIdentifierDefaults>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
         }
 
         private const string IdentifierDefaultsQuerySql = @"
@@ -47,43 +47,43 @@ select
     db_name() as [Database],
     schema_name() as [Schema]";
 
-        public override Task<string> GetDatabaseDisplayVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default)
+        public override Task<string> GetDatabaseDisplayVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            return connection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken);
+            return connection.DbConnection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken);
         }
 
         private const string DatabaseDisplayVersionQuerySql = "select @@version as DatabaseVersion";
 
-        public override async Task<Version> GetDatabaseVersionAsync(IDbConnection connection, CancellationToken cancellationToken = default)
+        public override async Task<Version> GetDatabaseVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            var versionStr = await connection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
+            var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
             return Version.Parse(versionStr);
         }
 
         private const string DatabaseVersionQuerySql = "select SERVERPROPERTY('ProductVersion') as DatabaseVersion";
 
-        public override async Task<IRelationalDatabase> GetRelationalDatabaseAsync(IDbConnection connection, CancellationToken cancellationToken = default)
+        public override async Task<IRelationalDatabase> GetRelationalDatabaseAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
             var identifierDefaults = await GetIdentifierDefaultsAsync(connection, cancellationToken).ConfigureAwait(false);
-            return new SqlServerRelationalDatabase(this, connection, identifierDefaults);
+            return new SqlServerRelationalDatabase(connection, identifierDefaults);
         }
 
-        public override async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(IDbConnection connection, CancellationToken cancellationToken = default)
+        public override async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
             var identifierDefaults = await GetIdentifierDefaultsAsync(connection, cancellationToken).ConfigureAwait(false);
-            return new SqlServerDatabaseCommentProvider(connection, identifierDefaults);
+            return new SqlServerDatabaseCommentProvider(connection.DbConnection, identifierDefaults);
         }
 
         public Task<IServerProperties2008?> GetServerProperties2008(IDbConnection connection, CancellationToken cancellationToken = default)

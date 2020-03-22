@@ -8,7 +8,12 @@ namespace SJP.Schematic.Dbml.Tests.Integration
 {
     internal static class Config
     {
-        public static IDbConnection Connection { get; } = SqliteDialect.CreateConnectionAsync(ConnectionString).GetAwaiter().GetResult();
+        public static IDbConnectionFactory ConnectionFactory { get; } = new SqliteConnectionFactory();
+
+        public static ISchematicConnection Connection { get; } = new SchematicConnection(
+            ConnectionFactory.CreateConnection(ConnectionString),
+            new SqliteDialect()
+        );
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
@@ -21,9 +26,9 @@ namespace SJP.Schematic.Dbml.Tests.Integration
     [TestFixture]
     internal abstract class SqliteTest
     {
-        protected IDbConnection Connection { get; } = Config.Connection;
+        protected ISchematicConnection Connection { get; } = Config.Connection;
 
-        protected IDatabaseDialect Dialect { get; } = new SqliteDialect();
+        protected IDbConnection DbConnection => Connection.DbConnection;
 
         protected IIdentifierDefaults IdentifierDefaults { get; } = new SqliteDialect().GetIdentifierDefaultsAsync(Config.Connection).GetAwaiter().GetResult();
     }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,16 +10,13 @@ namespace SJP.Schematic.Lint.Rules
 {
     public class InvalidViewDefinitionRule : Rule, IViewRule
     {
-        public InvalidViewDefinitionRule(IDbConnection connection, IDatabaseDialect dialect, RuleLevel level)
+        public InvalidViewDefinitionRule(ISchematicConnection connection, RuleLevel level)
             : base(RuleTitle, level)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
         }
 
-        protected IDbConnection Connection { get; }
-
-        protected IDatabaseDialect Dialect { get; }
+        protected ISchematicConnection Connection { get; }
 
         public IAsyncEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default)
         {
@@ -53,9 +49,9 @@ namespace SJP.Schematic.Lint.Rules
             try
             {
                 var simpleViewName = Identifier.CreateQualifiedIdentifier(view.Name.Schema, view.Name.LocalName);
-                var quotedViewName = Dialect.QuoteName(simpleViewName);
+                var quotedViewName = Connection.Dialect.QuoteName(simpleViewName);
                 var query = "select 1 as dummy from " + quotedViewName;
-                await Connection.ExecuteScalarAsync<long>(query, cancellationToken).ConfigureAwait(false);
+                await Connection.DbConnection.ExecuteScalarAsync<long>(query, cancellationToken).ConfigureAwait(false);
 
                 return Array.Empty<IRuleMessage>();
             }

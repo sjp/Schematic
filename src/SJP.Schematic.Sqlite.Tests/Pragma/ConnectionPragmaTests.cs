@@ -10,17 +10,9 @@ namespace SJP.Schematic.Sqlite.Tests.Pragma
     internal static class ConnectionPragmaTests
     {
         [Test]
-        public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            Assert.That(() => new ConnectionPragma(null, connection), Throws.ArgumentNullException);
-        }
-
-        [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
-            var dialect = Mock.Of<IDatabaseDialect>();
-            Assert.That(() => new ConnectionPragma(dialect, null), Throws.ArgumentNullException);
+            Assert.That(() => new ConnectionPragma(null), Throws.ArgumentNullException);
         }
     }
 }

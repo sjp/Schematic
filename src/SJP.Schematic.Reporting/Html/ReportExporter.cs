@@ -15,19 +15,19 @@ namespace SJP.Schematic.Reporting.Html
 {
     public class ReportExporter
     {
-        public ReportExporter(IDbConnection connection, IRelationalDatabase database, string directory)
+        public ReportExporter(ISchematicConnection connection, IRelationalDatabase database, string directory)
             : this(connection, database, new DirectoryInfo(directory))
         {
         }
 
-        public ReportExporter(IDbConnection connection, IRelationalDatabase database, DirectoryInfo directory)
+        public ReportExporter(ISchematicConnection connection, IRelationalDatabase database, DirectoryInfo directory)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Database = database ?? throw new ArgumentNullException(nameof(database));
             ExportDirectory = directory ?? throw new ArgumentNullException(nameof(directory));
         }
 
-        protected IDbConnection Connection { get; }
+        protected ISchematicConnection Connection { get; }
 
         protected IRelationalDatabase Database { get; }
 
@@ -46,11 +46,11 @@ namespace SJP.Schematic.Reporting.Html
             var rowCounts = new Dictionary<Identifier, ulong>();
             foreach (var table in tables)
             {
-                var count = await Connection.GetRowCountAsync(Database.Dialect, table.Name, cancellationToken).ConfigureAwait(false);
+                var count = await Connection.DbConnection.GetRowCountAsync(Connection.Dialect, table.Name, cancellationToken).ConfigureAwait(false);
                 rowCounts[table.Name] = count;
             }
 
-            var dbVersion = await Database.Dialect.GetDatabaseDisplayVersionAsync(Connection, CancellationToken.None);
+            var dbVersion = await Connection.Dialect.GetDatabaseDisplayVersionAsync(Connection, CancellationToken.None);
 
             var renderers = GetRenderers(tables, views, sequences, synonyms, routines, rowCounts, dbVersion);
             var renderTasks = renderers.Select(r => r.RenderAsync(cancellationToken)).ToArray();
@@ -83,10 +83,10 @@ namespace SJP.Schematic.Reporting.Html
             if (rowCounts == null)
                 throw new ArgumentNullException(nameof(rowCounts));
 
-            var linter = new DatabaseLinter(Connection, Database.Dialect);
+            var linter = new DatabaseLinter(Connection);
             var synonymTargets = new SynonymTargets(tables, views, sequences, synonyms, routines);
 
-            var dependencyProvider = Database.Dialect.GetDependencyProvider();
+            var dependencyProvider = Connection.Dialect.GetDependencyProvider();
             var referencedObjectTargets = new ReferencedObjectTargets(dependencyProvider, tables, views, sequences, synonyms, routines);
 
             return new ITemplateRenderer[]
@@ -110,7 +110,7 @@ namespace SJP.Schematic.Reporting.Html
                 new SequencesRenderer(Database.IdentifierDefaults, TemplateFormatter, sequences, ExportDirectory),
                 new SynonymsRenderer(Database.IdentifierDefaults, TemplateFormatter, synonyms, synonymTargets, ExportDirectory),
                 new RoutinesRenderer(Database.IdentifierDefaults, TemplateFormatter, routines, ExportDirectory),
-                new TableOrderingRenderer(Database.Dialect, tables, ExportDirectory),
+                new TableOrderingRenderer(Connection.Dialect, tables, ExportDirectory),
                 new DbmlRenderer(tables, ExportDirectory)
             };
         }

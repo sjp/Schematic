@@ -9,11 +9,11 @@ namespace SJP.Schematic.MySql
 {
     public class MySqlRelationalDatabase : RelationalDatabase, IRelationalDatabase
     {
-        public MySqlRelationalDatabase(IDatabaseDialect dialect, IDbConnection connection, IIdentifierDefaults identifierDefaults)
-            : base(dialect, connection, identifierDefaults)
+        public MySqlRelationalDatabase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults)
+            : base(identifierDefaults)
         {
-            _tableProvider = new MySqlRelationalDatabaseTableProvider(connection, identifierDefaults, dialect.TypeProvider);
-            _viewProvider = new MySqlDatabaseViewProvider(connection, identifierDefaults, dialect.TypeProvider);
+            _tableProvider = new MySqlRelationalDatabaseTableProvider(connection, identifierDefaults);
+            _viewProvider = new MySqlDatabaseViewProvider(connection, identifierDefaults);
             _routineProvider = new MySqlDatabaseRoutineProvider(connection, identifierDefaults);
         }
 

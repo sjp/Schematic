@@ -13,13 +13,13 @@ namespace SJP.Schematic.Lint.Tests.Integration
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create table parent_table_with_different_column_to_pk_column_1 (
     column_1 integer not null primary key autoincrement,
     column_2 integer,
     constraint test_fk_1 foreign key (column_2) references parent_table_with_different_column_to_pk_column_1 (column_1)
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create table parent_table_with_pk_column_to_pk_column_1 (
     column_1 integer not null primary key autoincrement,
     constraint test_fk_1 foreign key (column_1) references parent_table_with_pk_column_to_pk_column_1 (column_1)
@@ -29,8 +29,8 @@ create table parent_table_with_pk_column_to_pk_column_1 (
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop table parent_table_with_different_column_to_pk_column_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table parent_table_with_pk_column_to_pk_column_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table parent_table_with_different_column_to_pk_column_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table parent_table_with_pk_column_to_pk_column_1", CancellationToken.None).ConfigureAwait(false);
         }
 
         [Test]

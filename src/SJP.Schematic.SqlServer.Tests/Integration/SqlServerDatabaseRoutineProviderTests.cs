@@ -13,13 +13,13 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
 {
     internal sealed class SqlServerDatabaseRoutineProviderTests : SqlServerTest
     {
-        private IDatabaseRoutineProvider RoutineProvider => new SqlServerDatabaseRoutineProvider(Connection, IdentifierDefaults);
+        private IDatabaseRoutineProvider RoutineProvider => new SqlServerDatabaseRoutineProvider(DbConnection, IdentifierDefaults);
 
         [OneTimeSetUp]
         public async Task Init()
         {
             // UDF
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 CREATE FUNCTION dbo.db_test_routine_1()
 RETURNS int
 AS
@@ -28,7 +28,7 @@ BEGIN
      RETURN(@tmp);
 END", CancellationToken.None).ConfigureAwait(false);
             // IF
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 CREATE FUNCTION dbo.db_test_routine_2()
 RETURNS TABLE
 AS
@@ -37,7 +37,7 @@ RETURN
     SELECT TOP 10 1 AS test_col
 )", CancellationToken.None).ConfigureAwait(false);
             // TF
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 CREATE FUNCTION dbo.db_test_routine_3()
 RETURNS @ret TABLE
 (
@@ -49,7 +49,7 @@ BEGIN
    RETURN
 END", CancellationToken.None).ConfigureAwait(false);
             // P
-            await Connection.ExecuteAsync(@"CREATE PROCEDURE db_test_routine_4
+            await DbConnection.ExecuteAsync(@"CREATE PROCEDURE db_test_routine_4
 AS
 SELECT DB_NAME() AS ThisDB", CancellationToken.None).ConfigureAwait(false);
         }
@@ -57,10 +57,10 @@ SELECT DB_NAME() AS ThisDB", CancellationToken.None).ConfigureAwait(false);
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop function db_test_routine_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop function db_test_routine_2", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop function db_test_routine_3", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop procedure db_test_routine_4", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop function db_test_routine_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop function db_test_routine_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop function db_test_routine_3", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop procedure db_test_routine_4", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)

@@ -13,7 +13,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
 {
     internal sealed class EFCoreViewGeneratorTests : SqliteTest
     {
-        private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
+        private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults);
 
         private Task<IDatabaseView> GetView(Identifier viewName) => Database.GetView(viewName).UnwrapSomeAsync();
 
@@ -22,7 +22,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create table test_view_table_1 (
     test_pk integer not null primary key autoincrement,
     test_int integer not null,
@@ -34,14 +34,14 @@ create table test_view_table_1 (
     test_string text,
     test_string_with_default default 'test'
 )", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create view test_view_1 as select * from test_view_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create view test_view_1 as select * from test_view_table_1", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop view test_view_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop table test_view_table_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop view test_view_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table test_view_table_1", CancellationToken.None).ConfigureAwait(false);
         }
 
         [Test]

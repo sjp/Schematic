@@ -10,10 +10,17 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 {
     internal static class Config
     {
+        public static IDbConnectionFactory ConnectionFactory { get; } = new OracleConnectionFactory();
+
         public static IDbConnection Connection { get; } = Prelude.Try(() => !ConnectionString.IsNullOrWhiteSpace()
-            ? OracleDialect.CreateConnectionAsync(ConnectionString).GetAwaiter().GetResult()
+            ? ConnectionFactory.CreateConnection(ConnectionString)
             : null)
             .Match(c => c, _ => null);
+
+        public static ISchematicConnection SchematicConnection => new SchematicConnection(
+            Connection,
+            new OracleDialect()
+        );
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
@@ -27,11 +34,13 @@ namespace SJP.Schematic.Oracle.Tests.Integration
     [DatabaseTestFixture(typeof(Config), nameof(Config.Connection), "No Oracle DB available")]
     internal abstract class OracleTest
     {
-        protected IDbConnection Connection { get; } = Config.Connection;
+        protected ISchematicConnection Connection { get; } = Config.SchematicConnection;
 
-        protected IDatabaseDialect Dialect { get; } = new OracleDialect();
+        protected IDbConnection DbConnection => Connection.DbConnection;
 
-        protected IIdentifierDefaults IdentifierDefaults { get; } = new OracleDialect().GetIdentifierDefaultsAsync(Config.Connection).GetAwaiter().GetResult();
+        protected IDatabaseDialect Dialect => Connection.Dialect;
+
+        protected IIdentifierDefaults IdentifierDefaults { get; } = Config.SchematicConnection.Dialect.GetIdentifierDefaultsAsync(Config.SchematicConnection).GetAwaiter().GetResult();
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; } = new DefaultOracleIdentifierResolutionStrategy();
     }

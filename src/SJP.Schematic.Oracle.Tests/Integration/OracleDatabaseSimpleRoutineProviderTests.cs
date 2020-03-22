@@ -13,12 +13,12 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 {
     internal sealed class OracleDatabaseSimpleRoutineProviderTests : OracleTest
     {
-        private IDatabaseRoutineProvider RoutineProvider => new OracleDatabaseSimpleRoutineProvider(Connection, IdentifierDefaults, IdentifierResolver);
+        private IDatabaseRoutineProvider RoutineProvider => new OracleDatabaseSimpleRoutineProvider(DbConnection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync(@"
+            await DbConnection.ExecuteAsync(@"
 create or replace FUNCTION db_test_routine_1()
    RETURN NUMBER(1)
    IS test_col NUMBER(1);
@@ -28,7 +28,7 @@ create or replace FUNCTION db_test_routine_1()
       FROM dual;
       RETURN(test_col);
 END db_test_routine_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync(@"CREATE PROCEDURE db_test_routine_2
+            await DbConnection.ExecuteAsync(@"CREATE PROCEDURE db_test_routine_2
 IS
 BEGIN
     DBMS_OUTPUT.PUT_LINE('test');
@@ -38,8 +38,8 @@ END;", CancellationToken.None).ConfigureAwait(false);
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop function db_test_routine_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop procedure db_test_routine_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop function db_test_routine_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop procedure db_test_routine_2", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)

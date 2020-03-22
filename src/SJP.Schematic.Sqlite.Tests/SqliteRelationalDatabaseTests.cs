@@ -10,73 +10,49 @@ namespace SJP.Schematic.Sqlite.Tests
     [TestFixture]
     internal static class SqliteRelationalDatabaseTests
     {
-        [Test]
-        public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
+        private static ISqliteDatabase Database
         {
-            var connection = Mock.Of<IDbConnection>();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+            get
+            {
+                var connection = Mock.Of<ISchematicConnection>();
+                var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.That(() => new SqliteRelationalDatabase(null, connection, identifierDefaults), Throws.ArgumentNullException);
+                return new SqliteRelationalDatabase(connection, identifierDefaults);
+            }
         }
 
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
-            var dialect = new SqliteDialect();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.That(() => new SqliteRelationalDatabase(dialect, null, identifierDefaults), Throws.ArgumentNullException);
+            Assert.That(() => new SqliteRelationalDatabase(null, identifierDefaults), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqliteDialect();
+            var connection = Mock.Of<ISchematicConnection>();
 
-            Assert.That(() => new SqliteRelationalDatabase(dialect, connection, null), Throws.ArgumentNullException);
+            Assert.That(() => new SqliteRelationalDatabase(connection, null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetTable_GivenNullIdentifier_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqliteDialect();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-
-            var database = new SqliteRelationalDatabase(dialect, connection, identifierDefaults);
-
-            Assert.That(() => database.GetTable(null), Throws.ArgumentNullException);
+            Assert.That(() => Database.GetTable(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetView_GivenNullIdentifier_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqliteDialect();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-
-            var database = new SqliteRelationalDatabase(dialect, connection, identifierDefaults);
-
-            Assert.That(() => database.GetView(null), Throws.ArgumentNullException);
+            Assert.That(() => Database.GetView(null), Throws.ArgumentNullException);
         }
 
         // testing that the behaviour is equivalent to an empty sequence provider
         [TestFixture]
         internal static class SequenceTests
         {
-            private static IRelationalDatabase Database
-            {
-                get
-                {
-                    var connection = Mock.Of<IDbConnection>();
-                    var dialect = new SqliteDialect();
-                    var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-
-                    return new SqliteRelationalDatabase(dialect, connection, identifierDefaults);
-                }
-            }
-
             [Test]
             public static void GetSequence_GivenNullSequenceName_ThrowsArgumentNullException()
             {
@@ -107,18 +83,6 @@ namespace SJP.Schematic.Sqlite.Tests
         [TestFixture]
         internal static class SynonymTests
         {
-            private static IRelationalDatabase Database
-            {
-                get
-                {
-                    var connection = Mock.Of<IDbConnection>();
-                    var dialect = new SqliteDialect();
-                    var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-
-                    return new SqliteRelationalDatabase(dialect, connection, identifierDefaults);
-                }
-            }
-
             [Test]
             public static void GetSynonym_GivenNullSynonymName_ThrowsArgumentNullException()
             {
@@ -149,18 +113,6 @@ namespace SJP.Schematic.Sqlite.Tests
         [TestFixture]
         internal static class RoutineTests
         {
-            private static IRelationalDatabase Database
-            {
-                get
-                {
-                    var connection = Mock.Of<IDbConnection>();
-                    var dialect = new SqliteDialect();
-                    var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-
-                    return new SqliteRelationalDatabase(dialect, connection, identifierDefaults);
-                }
-            }
-
             [Test]
             public static void GetRoutine_GivenNullRoutineName_ThrowsArgumentNullException()
             {
@@ -187,100 +139,88 @@ namespace SJP.Schematic.Sqlite.Tests
             }
         }
 
-        private static ISqliteDatabase SqliteDatabase
-        {
-            get
-            {
-                var connection = Mock.Of<IDbConnection>();
-                var dialect = new SqliteDialect();
-                var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-
-                return new SqliteRelationalDatabase(dialect, connection, identifierDefaults);
-            }
-        }
-
         [Test]
         public static void VacuumAsync_WhenGivenNullSchemaName_ThrowsArgumentNullException()
         {
-            Assert.That(() => SqliteDatabase.VacuumAsync(null), Throws.ArgumentNullException);
+            Assert.That(() => Database.VacuumAsync(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void VacuumAsync_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
         {
-            Assert.That(() => SqliteDatabase.VacuumAsync(string.Empty), Throws.ArgumentNullException);
+            Assert.That(() => Database.VacuumAsync(string.Empty), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void VacuumAsync_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
         {
-            Assert.That(() => SqliteDatabase.VacuumAsync("   "), Throws.ArgumentNullException);
+            Assert.That(() => Database.VacuumAsync("   "), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void AttachDatabaseAsync_WhenGivenNullSchemaName_ThrowsArgumentNullException()
         {
-            Assert.That(() => SqliteDatabase.AttachDatabaseAsync(null, ":memory:"), Throws.ArgumentNullException);
+            Assert.That(() => Database.AttachDatabaseAsync(null, ":memory:"), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void AttachDatabaseAsync_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
         {
-            Assert.That(() => SqliteDatabase.AttachDatabaseAsync(string.Empty, ":memory:"), Throws.ArgumentNullException);
+            Assert.That(() => Database.AttachDatabaseAsync(string.Empty, ":memory:"), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void AttachDatabaseAsync_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
         {
-            Assert.That(() => SqliteDatabase.AttachDatabaseAsync("   ", ":memory:"), Throws.ArgumentNullException);
+            Assert.That(() => Database.AttachDatabaseAsync("   ", ":memory:"), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void AttachDatabaseAsync_WhenGivenNullFileName_ThrowsArgumentNullException()
         {
-            Assert.That(() => SqliteDatabase.AttachDatabaseAsync("test", null), Throws.ArgumentNullException);
+            Assert.That(() => Database.AttachDatabaseAsync("test", null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void AttachDatabaseAsync_WhenGivenEmptyFileName_ThrowsArgumentNullException()
         {
-            Assert.That(() => SqliteDatabase.AttachDatabaseAsync("test", string.Empty), Throws.ArgumentNullException);
+            Assert.That(() => Database.AttachDatabaseAsync("test", string.Empty), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void AttachDatabaseAsync_WhenGivenWhiteSpaceFileName_ThrowsArgumentNullException()
         {
-            Assert.That(() => SqliteDatabase.AttachDatabaseAsync("test", "   "), Throws.ArgumentNullException);
+            Assert.That(() => Database.AttachDatabaseAsync("test", "   "), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void AttachDatabaseAsync_WhenGivenMainSchemaName_ThrowsArgumentException()
         {
-            Assert.That(() => SqliteDatabase.AttachDatabaseAsync("main", ":memory:"), Throws.ArgumentException);
+            Assert.That(() => Database.AttachDatabaseAsync("main", ":memory:"), Throws.ArgumentException);
         }
 
         [Test]
         public static void DetachDatabaseAsync_WhenGivenNullSchemaName_ThrowsArgumentNullException()
         {
-            Assert.That(() => SqliteDatabase.DetachDatabaseAsync(null), Throws.ArgumentNullException);
+            Assert.That(() => Database.DetachDatabaseAsync(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void DetachDatabaseAsync_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
         {
-            Assert.That(() => SqliteDatabase.DetachDatabaseAsync(string.Empty), Throws.ArgumentNullException);
+            Assert.That(() => Database.DetachDatabaseAsync(string.Empty), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void DetachDatabaseAsync_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
         {
-            Assert.That(() => SqliteDatabase.DetachDatabaseAsync("   "), Throws.ArgumentNullException);
+            Assert.That(() => Database.DetachDatabaseAsync("   "), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void DetachDatabaseAsync_WhenGivenMainSchemaName_ThrowsArgumentException()
         {
-            Assert.That(() => SqliteDatabase.DetachDatabaseAsync("main"), Throws.ArgumentException);
+            Assert.That(() => Database.DetachDatabaseAsync("main"), Throws.ArgumentException);
         }
     }
 }

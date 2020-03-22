@@ -17,12 +17,12 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
 {
     internal sealed class EFCoreDataAccessGeneratorTests : SqliteTest
     {
-        private IRelationalDatabase Database => new SqliteRelationalDatabase(Dialect, Connection, IdentifierDefaults);
+        private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults);
 
         [OneTimeSetUp]
         public Task Init()
         {
-            return Connection.ExecuteAsync(@"create table dal_test_table_1 (
+            return DbConnection.ExecuteAsync(@"create table dal_test_table_1 (
     testint integer not null primary key autoincrement,
     testdecimal numeric default 2.45,
     testblob blob default X'DEADBEEF',
@@ -34,7 +34,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
         [OneTimeTearDown]
         public Task CleanUp()
         {
-            return Connection.ExecuteAsync("drop table dal_test_table_1", CancellationToken.None);
+            return DbConnection.ExecuteAsync("drop table dal_test_table_1", CancellationToken.None);
         }
 
         [Test]
@@ -73,7 +73,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
             using var tempDir = new TemporaryDirectory();
             var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFilename);
 
-            var database = new EmptyRelationalDatabase(Database.Dialect, Database.IdentifierDefaults);
+            var database = new EmptyRelationalDatabase(Database.IdentifierDefaults);
 
             var fileSystem = new FileSystem();
             var commentProvider = new EmptyRelationalDatabaseCommentProvider();

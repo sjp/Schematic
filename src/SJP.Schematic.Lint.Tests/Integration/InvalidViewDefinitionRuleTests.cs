@@ -1,5 +1,4 @@
-﻿using System.Data;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Moq;
@@ -16,55 +15,44 @@ namespace SJP.Schematic.Lint.Tests.Integration
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create view valid_view_1 as select 1 as dummy", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create view invalid_view_1 as select x from unknown_table", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create view valid_view_1 as select 1 as dummy", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create view invalid_view_1 as select x from unknown_table", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop view valid_view_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop view invalid_view_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop view valid_view_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop view invalid_view_1", CancellationToken.None).ConfigureAwait(false);
         }
 
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
-            IDbConnection connection = null;
-            var dialect = Mock.Of<IDatabaseDialect>();
+            ISchematicConnection connection = null;
             const RuleLevel level = RuleLevel.Error;
-            Assert.That(() => new InvalidViewDefinitionRule(connection, dialect, level), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            IDatabaseDialect dialect = null;
-            const RuleLevel level = RuleLevel.Error;
-            Assert.That(() => new InvalidViewDefinitionRule(connection, dialect, level), Throws.ArgumentNullException);
+            Assert.That(() => new InvalidViewDefinitionRule(connection, level), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
         {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = Mock.Of<IDatabaseDialect>();
+            var connection = Mock.Of<ISchematicConnection>();
             const RuleLevel level = (RuleLevel)999;
-            Assert.That(() => new InvalidViewDefinitionRule(connection, dialect, level), Throws.ArgumentException);
+            Assert.That(() => new InvalidViewDefinitionRule(connection, level), Throws.ArgumentException);
         }
 
         [Test]
         public void AnalyseViews_GivenNullViews_ThrowsArgumentNullException()
         {
-            var rule = new InvalidViewDefinitionRule(Connection, Dialect, RuleLevel.Error);
+            var rule = new InvalidViewDefinitionRule(Connection, RuleLevel.Error);
             Assert.That(() => rule.AnalyseViews(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public async Task AnalyseViews_GivenDatabaseWithOnlyValidViews_ProducesNoMessages()
         {
-            var rule = new InvalidViewDefinitionRule(Connection, Dialect, RuleLevel.Error);
+            var rule = new InvalidViewDefinitionRule(Connection, RuleLevel.Error);
             var database = GetSqliteDatabase();
 
             var views = new[]
@@ -80,7 +68,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
         [Test]
         public async Task AnalyseViews_GivenViewsWithOnlyInvalidViews_ProducesMessages()
         {
-            var rule = new InvalidViewDefinitionRule(Connection, Dialect, RuleLevel.Error);
+            var rule = new InvalidViewDefinitionRule(Connection, RuleLevel.Error);
             var database = GetSqliteDatabase();
 
             var views = new[]
@@ -96,7 +84,7 @@ namespace SJP.Schematic.Lint.Tests.Integration
         [Test]
         public async Task AnalyseViews_GivenViewsWithValidAndInvalidViews_ProducesMessages()
         {
-            var rule = new InvalidViewDefinitionRule(Connection, Dialect, RuleLevel.Error);
+            var rule = new InvalidViewDefinitionRule(Connection, RuleLevel.Error);
             var database = GetSqliteDatabase();
 
             var views = new[]

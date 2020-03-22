@@ -15,51 +15,51 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V11.Comments
 {
     internal sealed class PostgreSqlRoutineCommentProviderTests : PostgreSql11Test
     {
-        private IDatabaseRoutineCommentProvider RoutineCommentProvider => new PostgreSqlRoutineCommentProvider(Connection, IdentifierDefaults, IdentifierResolver);
+        private IDatabaseRoutineCommentProvider RoutineCommentProvider => new PostgreSqlRoutineCommentProvider(DbConnection, IdentifierDefaults, IdentifierResolver);
 
         [OneTimeSetUp]
         public async Task Init()
         {
             // func
-            await Connection.ExecuteAsync(@"CREATE FUNCTION v11_comment_test_routine_1(val integer)
+            await DbConnection.ExecuteAsync(@"CREATE FUNCTION v11_comment_test_routine_1(val integer)
 RETURNS integer AS $$
 BEGIN
     RETURN val + 1;
 END; $$
 LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
             // stored proc
-            await Connection.ExecuteAsync(@"CREATE PROCEDURE v11_comment_test_routine_2()
+            await DbConnection.ExecuteAsync(@"CREATE PROCEDURE v11_comment_test_routine_2()
 LANGUAGE PLPGSQL
 AS $$
 BEGIN
     COMMIT;
 END $$", CancellationToken.None).ConfigureAwait(false);
             // func
-            await Connection.ExecuteAsync(@"CREATE FUNCTION v11_comment_test_routine_3(val integer)
+            await DbConnection.ExecuteAsync(@"CREATE FUNCTION v11_comment_test_routine_3(val integer)
 RETURNS integer AS $$
 BEGIN
     RETURN val + 1;
 END; $$
 LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
             // stored proc
-            await Connection.ExecuteAsync(@"CREATE PROCEDURE v11_comment_test_routine_4()
+            await DbConnection.ExecuteAsync(@"CREATE PROCEDURE v11_comment_test_routine_4()
 LANGUAGE PLPGSQL
 AS $$
 BEGIN
     COMMIT;
 END $$", CancellationToken.None).ConfigureAwait(false);
 
-            await Connection.ExecuteAsync("comment on function v11_comment_test_routine_3 (integer) is 'This is a test function.'", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("comment on procedure v11_comment_test_routine_4 () is 'This is a test procedure.'", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("comment on function v11_comment_test_routine_3 (integer) is 'This is a test function.'", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("comment on procedure v11_comment_test_routine_4 () is 'This is a test procedure.'", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop function v11_comment_test_routine_1(integer)", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop procedure v11_comment_test_routine_2()", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop function v11_comment_test_routine_3(integer)", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop procedure v11_comment_test_routine_4()", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop function v11_comment_test_routine_1(integer)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop procedure v11_comment_test_routine_2()", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop function v11_comment_test_routine_3(integer)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop procedure v11_comment_test_routine_4()", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IDatabaseRoutineComments> GetRoutineCommentsAsync(Identifier routineName)

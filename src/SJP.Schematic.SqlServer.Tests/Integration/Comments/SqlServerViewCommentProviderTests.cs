@@ -15,13 +15,13 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Comments
 {
     internal sealed class SqlServerViewCommentProviderTests : SqlServerTest
     {
-        private IDatabaseViewCommentProvider ViewCommentProvider => new SqlServerViewCommentProvider(Connection, IdentifierDefaults);
+        private IDatabaseViewCommentProvider ViewCommentProvider => new SqlServerViewCommentProvider(DbConnection, IdentifierDefaults);
 
         [OneTimeSetUp]
         public async Task Init()
         {
-            await Connection.ExecuteAsync("create view view_comment_view_1 as select 1 as test_column_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("create view view_comment_view_2 as select 1 as test_column_1, 'test' as test_column_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create view view_comment_view_1 as select 1 as test_column_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("create view view_comment_view_2 as select 1 as test_column_1, 'test' as test_column_2", CancellationToken.None).ConfigureAwait(false);
 
             await AddCommentForView("This is a test view comment.", "dbo", "view_comment_view_2").ConfigureAwait(false);
             await AddCommentForViewColumn("This is a column comment.", "dbo", "view_comment_view_2", "test_column_2").ConfigureAwait(false);
@@ -30,8 +30,8 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Comments
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await Connection.ExecuteAsync("drop view view_comment_view_1", CancellationToken.None).ConfigureAwait(false);
-            await Connection.ExecuteAsync("drop view view_comment_view_2", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop view view_comment_view_1", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop view view_comment_view_2", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task AddCommentForView(string comment, string schemaName, string viewName)
@@ -43,7 +43,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
   @level0name = @SchemaName,
   @level1type = N'VIEW',
   @level1name = @ViewName";
-            return Connection.ExecuteAsync(querySql, new { Comment = comment, SchemaName = schemaName, ViewName = viewName }, CancellationToken.None);
+            return DbConnection.ExecuteAsync(querySql, new { Comment = comment, SchemaName = schemaName, ViewName = viewName }, CancellationToken.None);
         }
 
         private Task AddCommentForViewColumn(string comment, string schemaName, string viewName, string columnName)
@@ -58,7 +58,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
   @level2type = N'COLUMN',
   @level2name = @ColumnName";
 
-            return Connection.ExecuteAsync(
+            return DbConnection.ExecuteAsync(
                 querySql,
                 new
                 {

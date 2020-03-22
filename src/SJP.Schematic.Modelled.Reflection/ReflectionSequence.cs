@@ -8,10 +8,12 @@ namespace SJP.Schematic.Modelled.Reflection
 {
     public class ReflectionSequence : IDatabaseSequence
     {
-        public ReflectionSequence(IRelationalDatabase database, Type sequenceType)
+        public ReflectionSequence(IRelationalDatabase database, IDatabaseDialect dialect, Type sequenceType)
         {
             if (database == null)
                 throw new ArgumentNullException(nameof(database));
+            if (dialect == null)
+                throw new ArgumentNullException(nameof(dialect));
             if (sequenceType == null)
                 throw new ArgumentNullException(nameof(sequenceType));
 
@@ -23,7 +25,6 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentException($"The sequence type { typeInfo.FullName } does not contain a default constructor.", nameof(sequenceType));
 
             var instance = ctor.Invoke(Array.Empty<object>()) as ISequence;
-            var dialect = database.Dialect;
             var sequenceName = dialect.GetQualifiedNameOrDefault(database, sequenceType);
 
             var minValue = instance!.MinValue.ToOption();

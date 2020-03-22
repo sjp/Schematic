@@ -19,7 +19,7 @@ namespace SJP.Schematic.MySql.Tests
         [Test]
         public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<ISchematicConnection>();
 
             Assert.That(() => new MySqlDatabaseRoutineProvider(connection, null), Throws.ArgumentNullException);
         }
@@ -27,7 +27,7 @@ namespace SJP.Schematic.MySql.Tests
         [Test]
         public static void GetRoutine_GivenNullRoutineName_ThrowsArgNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<ISchematicConnection>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             var routineProvider = new MySqlDatabaseRoutineProvider(connection, identifierDefaults);

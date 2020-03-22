@@ -14,26 +14,26 @@ namespace SJP.Schematic.PostgreSql
 {
     public class PostgreSqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProvider
     {
-        public PostgreSqlRelationalDatabaseTableProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver, IDbTypeProvider typeProvider)
+        public PostgreSqlRelationalDatabaseTableProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
-            TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
-            Dialect = new PostgreSqlDialect();
 
             _tableProvider = new AsyncLazy<Option<IRelationalDatabaseTableProvider>>(LoadVersionedTableProvider);
         }
 
-        protected IDbConnection Connection { get; }
+        protected ISchematicConnection Connection { get; }
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
-        protected IDbTypeProvider TypeProvider { get; }
+        protected IDbConnection DbConnection => Connection.DbConnection;
 
-        protected IDatabaseDialect Dialect { get; }
+        protected IDatabaseDialect Dialect => Connection.Dialect;
+
+        protected IDbTypeProvider TypeProvider => Dialect.TypeProvider;
 
         public async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
@@ -63,8 +63,8 @@ namespace SJP.Schematic.PostgreSql
 
             var factories = new Dictionary<Version, Func<IRelationalDatabaseTableProvider>>
             {
-                [new Version(9, 4)] = () => new Versions.V9_4.PostgreSqlRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver, TypeProvider),
-                [new Version(11, 0)] = () => new Versions.V11.PostgreSqlRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver, TypeProvider)
+                [new Version(9, 4)] = () => new Versions.V9_4.PostgreSqlRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver),
+                [new Version(11, 0)] = () => new Versions.V11.PostgreSqlRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver)
             };
             var versionLookup = new VersionResolvingFactory<IRelationalDatabaseTableProvider>(factories);
             var result = versionLookup.GetValue(version);

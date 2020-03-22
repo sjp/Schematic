@@ -10,10 +10,17 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2014
 {
     internal static class Config2014
     {
+        public static IDbConnectionFactory ConnectionFactory { get; } = new SqlServerConnectionFactory();
+
         public static IDbConnection Connection { get; } = Prelude.Try(() => !ConnectionString.IsNullOrWhiteSpace()
-            ? SqlServerDialect.CreateConnectionAsync(ConnectionString).GetAwaiter().GetResult()
+            ? ConnectionFactory.CreateConnection(ConnectionString)
             : null)
             .Match(c => c, _ => null);
+
+        public static ISchematicConnection SchematicConnection => new SchematicConnection(
+            Connection,
+            new SqlServerDialect()
+        );
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
@@ -27,10 +34,12 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2014
     [DatabaseTestFixture(typeof(Config2014), nameof(Config2014.Connection), "No SQL Server 2014 DB available")]
     internal abstract class SqlServer2014Test
     {
-        protected IDbConnection Connection { get; } = Config2014.Connection;
+        protected ISchematicConnection Connection { get; } = Config2014.SchematicConnection;
 
-        protected ISqlServerDialect Dialect { get; } = new SqlServerDialect();
+        protected IDbConnection DbConnection => Connection.DbConnection;
 
-        protected IIdentifierDefaults IdentifierDefaults { get; } = new SqlServerDialect().GetIdentifierDefaultsAsync(Config2014.Connection).GetAwaiter().GetResult();
+        protected ISqlServerDialect Dialect => Connection.Dialect as ISqlServerDialect;
+
+        protected IIdentifierDefaults IdentifierDefaults { get; } = Config2014.SchematicConnection.Dialect.GetIdentifierDefaultsAsync(Config.SchematicConnection).GetAwaiter().GetResult();
     }
 }

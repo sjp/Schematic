@@ -7,16 +7,16 @@ namespace SJP.Schematic.Modelled.Reflection
 {
     public class ReflectionSynonym : IDatabaseSynonym
     {
-        public ReflectionSynonym(IRelationalDatabase database, Type synonymType)
+        public ReflectionSynonym(IRelationalDatabase database, IDatabaseDialect dialect, Type synonymType)
         {
             if (database == null)
                 throw new ArgumentException(nameof(database));
+            if (dialect == null)
+                throw new ArgumentNullException(nameof(dialect));
             if (synonymType == null)
                 throw new ArgumentNullException(nameof(synonymType));
 
-            var dialect = database.Dialect;
             Name = dialect.GetQualifiedNameOrDefault(database, synonymType);
-
             var targetType = GetBaseGenericTypeArg(synonymType);
             Target = dialect.GetQualifiedNameOrDefault(database, targetType);
         }

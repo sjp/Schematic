@@ -15,25 +15,26 @@ namespace SJP.Schematic.Oracle
 {
     public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
     {
-        public OracleDatabaseMaterializedViewProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver, IDbTypeProvider typeProvider)
+        public OracleDatabaseMaterializedViewProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
-            TypeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
         }
 
-        protected IDbConnection Connection { get; }
+        protected ISchematicConnection Connection { get; }
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
-        protected IDbTypeProvider TypeProvider { get; }
+        protected IDbConnection DbConnection => Connection.DbConnection;
+
+        protected IDatabaseDialect Dialect => Connection.Dialect;
 
         public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResult = await Connection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
+            var queryResult = await DbConnection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
             var viewNames = queryResult
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .Select(QualifyViewName);
@@ -82,7 +83,7 @@ order by mv.OWNER, mv.MVIEW_NAME";
                 throw new ArgumentNullException(nameof(viewName));
 
             var candidateViewName = QualifyViewName(viewName);
-            var qualifiedViewName = Connection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedViewName = DbConnection.QueryFirstOrNone<QualifiedName>(
                 ViewNameQuery,
                 new { SchemaName = candidateViewName.Schema, ViewName = candidateViewName.LocalName },
                 cancellationToken
@@ -127,7 +128,7 @@ where mv.OWNER = :SchemaName and mv.MVIEW_NAME = :ViewName
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            return Connection.ExecuteScalarAsync<string>(
+            return DbConnection.ExecuteScalarAsync<string>(
                 DefinitionQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
                 cancellationToken
@@ -151,7 +152,7 @@ where OWNER = :SchemaName and MVIEW_NAME = :ViewName";
 
         private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
-            var query = await Connection.QueryAsync<ColumnData>(
+            var query = await DbConnection.QueryAsync<ColumnData>(
                 ColumnsQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
                 cancellationToken
@@ -177,7 +178,7 @@ where OWNER = :SchemaName and MVIEW_NAME = :ViewName";
                         ? Option<INumericPrecision>.Some(new NumericPrecision(row.Precision, row.Scale))
                         : Option<INumericPrecision>.None
                 };
-                var columnType = TypeProvider.CreateColumnType(typeMetadata);
+                var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
                 var isNullable = !notNullableColumnNames.Contains(row.ColumnName);
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
@@ -224,7 +225,7 @@ order by atc.COLUMN_ID";
 
         private async Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsyncCore(Identifier viewName, IEnumerable<string> columnNames, CancellationToken cancellationToken)
         {
-            var checks = await Connection.QueryAsync<CheckConstraintData>(
+            var checks = await DbConnection.QueryAsync<CheckConstraintData>(
                 ChecksQuery,
                 new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
                 cancellationToken
