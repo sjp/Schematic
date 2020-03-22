@@ -17,10 +17,15 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V10
             : null)
             .Match(c => c, _ => null);
 
-        public static ISchematicConnection SchematicConnection => new SchematicConnection(
-            Connection,
-            new PostgreSqlDialect()
-        );
+        public static ISchematicConnection SchematicConnection
+        {
+            get
+            {
+                var connection = new SchematicConnection(Connection, new PostgreSqlDialect());
+                connection.SetMaxConcurrentQueries(1);
+                return connection;
+            }
+        }
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 

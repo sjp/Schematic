@@ -109,8 +109,13 @@ limit 1";
 
         private async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
-            var columns = await LoadColumnsAsync(viewName, cancellationToken).ConfigureAwait(false);
-            var definition = await LoadDefinitionAsync(viewName, cancellationToken).ConfigureAwait(false);
+            var columnsTask = LoadColumnsAsync(viewName, cancellationToken);
+            var definitionTask = LoadDefinitionAsync(viewName, cancellationToken);
+
+            await Task.WhenAll(columnsTask, definitionTask);
+
+            var columns = await columnsTask;
+            var definition = await definitionTask;
 
             return new DatabaseView(viewName, definition, columns);
         }

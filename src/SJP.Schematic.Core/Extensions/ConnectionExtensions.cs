@@ -12,9 +12,9 @@ namespace SJP.Schematic.Core.Extensions
 {
     public static class ConnectionExtensions
     {
-        private static readonly ConditionalWeakTable<IDbConnection, AsyncSemaphore?> SemaphoreLookup = new ConditionalWeakTable<IDbConnection, AsyncSemaphore?>();
+        private static readonly ConditionalWeakTable<IDbConnection, AsyncSemaphore> SemaphoreLookup = new ConditionalWeakTable<IDbConnection, AsyncSemaphore>();
 
-        public static void SetMaxConcurrentQueries(IDbConnection connection, AsyncSemaphore? semaphore)
+        public static void SetMaxConcurrentQueries(IDbConnection connection, AsyncSemaphore semaphore)
         {
             SemaphoreLookup.AddOrUpdate(connection, semaphore);
         }
@@ -34,17 +34,16 @@ namespace SJP.Schematic.Core.Extensions
         {
             var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
 
-            using (var logger = new LoggingAdapter(connection, sql, null))
+            if (SemaphoreLookup.TryGetValue(connection, out var semaphore))
             {
-                if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
-                {
-                    using var _ = await semaphore.LockAsync();
-                    return await connection.QueryAsync<T>(command).ConfigureAwait(false);
-                }
-                else
-                {
-                    return await connection.QueryAsync<T>(command).ConfigureAwait(false);
-                }
+                using var _ = await semaphore.LockAsync();
+                using var logger = new QueryLoggingContext(connection, sql, null);
+                return await connection.QueryAsync<T>(command).ConfigureAwait(false);
+            }
+            else
+            {
+                using var logger = new QueryLoggingContext(connection, sql, null);
+                return await connection.QueryAsync<T>(command).ConfigureAwait(false);
             }
         }
 
@@ -65,17 +64,17 @@ namespace SJP.Schematic.Core.Extensions
         {
             var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
 
-            using (var logger = new LoggingAdapter(connection, sql, parameters))
+            if (SemaphoreLookup.TryGetValue(connection, out var semaphore))
             {
-                if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
-                {
-                    using var _ = await semaphore.LockAsync();
-                    return await connection.QueryAsync<T>(command).ConfigureAwait(false);
-                }
-                else
-                {
-                    return await connection.QueryAsync<T>(command).ConfigureAwait(false);
-                }
+                using var _ = await semaphore.LockAsync();
+                using var logger = new QueryLoggingContext(connection, sql, null);
+
+                return await connection.QueryAsync<T>(command).ConfigureAwait(false);
+            }
+            else
+            {
+                using var logger = new QueryLoggingContext(connection, sql, null);
+                return await connection.QueryAsync<T>(command).ConfigureAwait(false);
             }
         }
 
@@ -93,17 +92,18 @@ namespace SJP.Schematic.Core.Extensions
         {
             var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
 
-            using (var logger = new LoggingAdapter(connection, sql, null))
+            if (SemaphoreLookup.TryGetValue(connection, out var semaphore))
             {
-                if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
-                {
-                    using var _ = await semaphore.LockAsync();
-                    return await connection.ExecuteScalarAsync<T>(command).ConfigureAwait(false);
-                }
-                else
-                {
-                    return await connection.ExecuteScalarAsync<T>(command).ConfigureAwait(false);
-                }
+                using var _ = await semaphore.LockAsync();
+                using var logger = new QueryLoggingContext(connection, sql, null);
+
+                return await connection.ExecuteScalarAsync<T>(command).ConfigureAwait(false);
+            }
+            else
+            {
+                using var logger = new QueryLoggingContext(connection, sql, null);
+
+                return await connection.ExecuteScalarAsync<T>(command).ConfigureAwait(false);
             }
         }
 
@@ -123,17 +123,18 @@ namespace SJP.Schematic.Core.Extensions
         {
             var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
 
-            using (var logger = new LoggingAdapter(connection, sql, parameters))
+            if (SemaphoreLookup.TryGetValue(connection, out var semaphore))
             {
-                if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
-                {
-                    using var _ = await semaphore.LockAsync();
-                    return await connection.ExecuteScalarAsync<T>(command).ConfigureAwait(false);
-                }
-                else
-                {
-                    return await connection.ExecuteScalarAsync<T>(command).ConfigureAwait(false);
-                }
+                using var _ = await semaphore.LockAsync();
+                using var logger = new QueryLoggingContext(connection, sql, null);
+
+                return await connection.ExecuteScalarAsync<T>(command).ConfigureAwait(false);
+            }
+            else
+            {
+                using var logger = new QueryLoggingContext(connection, sql, null);
+
+                return await connection.ExecuteScalarAsync<T>(command).ConfigureAwait(false);
             }
         }
 
@@ -151,17 +152,18 @@ namespace SJP.Schematic.Core.Extensions
         {
             var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
 
-            using (var logger = new LoggingAdapter(connection, sql, null))
+            if (SemaphoreLookup.TryGetValue(connection, out var semaphore))
             {
-                if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
-                {
-                    using var _ = await semaphore.LockAsync();
-                    return await connection.ExecuteAsync(command).ConfigureAwait(false);
-                }
-                else
-                {
-                    return await connection.ExecuteAsync(command).ConfigureAwait(false);
-                }
+                using var _ = await semaphore.LockAsync();
+                using var logger = new QueryLoggingContext(connection, sql, null);
+
+                return await connection.ExecuteAsync(command).ConfigureAwait(false);
+            }
+            else
+            {
+                using var logger = new QueryLoggingContext(connection, sql, null);
+
+                return await connection.ExecuteAsync(command).ConfigureAwait(false);
             }
         }
 
@@ -181,17 +183,18 @@ namespace SJP.Schematic.Core.Extensions
         {
             var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
 
-            using (var logger = new LoggingAdapter(connection, sql, parameters))
+            if (SemaphoreLookup.TryGetValue(connection, out var semaphore))
             {
-                if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
-                {
-                    using var _ = await semaphore.LockAsync();
-                    return await connection.ExecuteAsync(command).ConfigureAwait(false);
-                }
-                else
-                {
-                    return await connection.ExecuteAsync(command).ConfigureAwait(false);
-                }
+                using var _ = await semaphore.LockAsync();
+                using var logger = new QueryLoggingContext(connection, sql, null);
+
+                return await connection.ExecuteAsync(command).ConfigureAwait(false);
+            }
+            else
+            {
+                using var logger = new QueryLoggingContext(connection, sql, null);
+
+                return await connection.ExecuteAsync(command).ConfigureAwait(false);
             }
         }
 
@@ -211,23 +214,24 @@ namespace SJP.Schematic.Core.Extensions
         {
             var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
 
-            using (var logger = new LoggingAdapter(connection, sql, null))
+            if (SemaphoreLookup.TryGetValue(connection, out var semaphore))
             {
-                if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
-                {
-                    using var _ = await semaphore.LockAsync();
-                    var result = await connection.QueryFirstOrDefaultAsync<T>(command).ConfigureAwait(false);
-                    return result != null
-                        ? Option<T>.Some(result)
-                        : Option<T>.None;
-                }
-                else
-                {
-                    var result = await connection.QueryFirstOrDefaultAsync<T>(command).ConfigureAwait(false);
-                    return result != null
-                        ? Option<T>.Some(result)
-                        : Option<T>.None;
-                }
+                using var _ = await semaphore.LockAsync();
+                using var logger = new QueryLoggingContext(connection, sql, null);
+
+                var result = await connection.QueryFirstOrDefaultAsync<T>(command).ConfigureAwait(false);
+                return result != null
+                    ? Option<T>.Some(result)
+                    : Option<T>.None;
+            }
+            else
+            {
+                using var logger = new QueryLoggingContext(connection, sql, null);
+
+                var result = await connection.QueryFirstOrDefaultAsync<T>(command).ConfigureAwait(false);
+                return result != null
+                    ? Option<T>.Some(result)
+                    : Option<T>.None;
             }
         }
 
@@ -249,23 +253,24 @@ namespace SJP.Schematic.Core.Extensions
         {
             var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
 
-            using (var logger = new LoggingAdapter(connection, sql, parameters))
+            if (SemaphoreLookup.TryGetValue(connection, out var semaphore))
             {
-                if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
-                {
-                    using var _ = await semaphore.LockAsync();
-                    var result = await connection.QueryFirstOrDefaultAsync<T>(command).ConfigureAwait(false);
-                    return result != null
-                        ? Option<T>.Some(result)
-                        : Option<T>.None;
-                }
-                else
-                {
-                    var result = await connection.QueryFirstOrDefaultAsync<T>(command).ConfigureAwait(false);
-                    return result != null
-                        ? Option<T>.Some(result)
-                        : Option<T>.None;
-                }
+                using var _ = await semaphore.LockAsync();
+                using var logger = new QueryLoggingContext(connection, sql, null);
+
+                var result = await connection.QueryFirstOrDefaultAsync<T>(command).ConfigureAwait(false);
+                return result != null
+                    ? Option<T>.Some(result)
+                    : Option<T>.None;
+            }
+            else
+            {
+                using var logger = new QueryLoggingContext(connection, sql, null);
+
+                var result = await connection.QueryFirstOrDefaultAsync<T>(command).ConfigureAwait(false);
+                return result != null
+                    ? Option<T>.Some(result)
+                    : Option<T>.None;
             }
         }
 
@@ -285,17 +290,16 @@ namespace SJP.Schematic.Core.Extensions
         {
             var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
 
-            using (var logger = new LoggingAdapter(connection, sql, null))
+            if (SemaphoreLookup.TryGetValue(connection, out var semaphore))
             {
-                if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
-                {
-                    using var _ = await semaphore.LockAsync();
-                    return await connection.QuerySingleAsync<T>(command).ConfigureAwait(false);
-                }
-                else
-                {
-                    return await connection.QuerySingleAsync<T>(command).ConfigureAwait(false);
-                }
+                using var _ = await semaphore.LockAsync();
+                using var logger = new QueryLoggingContext(connection, sql, null);
+                return await connection.QuerySingleAsync<T>(command).ConfigureAwait(false);
+            }
+            else
+            {
+                using var logger = new QueryLoggingContext(connection, sql, null);
+                return await connection.QuerySingleAsync<T>(command).ConfigureAwait(false);
             }
         }
 
@@ -317,17 +321,17 @@ namespace SJP.Schematic.Core.Extensions
         {
             var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
 
-            using (var logger = new LoggingAdapter(connection, sql, parameters))
+            if (SemaphoreLookup.TryGetValue(connection, out var semaphore))
             {
-                if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
-                {
-                    using var _ = await semaphore.LockAsync();
-                    return await connection.QuerySingleAsync<T>(command).ConfigureAwait(false);
-                }
-                else
-                {
-                    return await connection.QuerySingleAsync<T>(command).ConfigureAwait(false);
-                }
+                using var _ = await semaphore.LockAsync();
+                using var logger = new QueryLoggingContext(connection, sql, null);
+                return await connection.QuerySingleAsync<T>(command).ConfigureAwait(false);
+            }
+            else
+            {
+                using var logger = new QueryLoggingContext(connection, sql, null);
+
+                return await connection.QuerySingleAsync<T>(command).ConfigureAwait(false);
             }
         }
 
@@ -349,23 +353,24 @@ namespace SJP.Schematic.Core.Extensions
             {
                 var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
 
-                using (var logger = new LoggingAdapter(connection, sql, null))
+                if (SemaphoreLookup.TryGetValue(connection, out var semaphore))
                 {
-                    if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
-                    {
-                        using var _ = await semaphore.LockAsync();
-                        var result = await connection.QuerySingleOrDefaultAsync<T>(command).ConfigureAwait(false);
-                        return result != null
-                            ? Option<T>.Some(result)
-                            : Option<T>.None;
-                    }
-                    else
-                    {
-                        var result = await connection.QuerySingleOrDefaultAsync<T>(command).ConfigureAwait(false);
-                        return result != null
-                            ? Option<T>.Some(result)
-                            : Option<T>.None;
-                    }
+                    using var _ = await semaphore.LockAsync();
+                    using var logger = new QueryLoggingContext(connection, sql, null);
+
+                    var result = await connection.QuerySingleOrDefaultAsync<T>(command).ConfigureAwait(false);
+                    return result != null
+                        ? Option<T>.Some(result)
+                        : Option<T>.None;
+                }
+                else
+                {
+                    using var logger = new QueryLoggingContext(connection, sql, null);
+
+                    var result = await connection.QuerySingleOrDefaultAsync<T>(command).ConfigureAwait(false);
+                    return result != null
+                        ? Option<T>.Some(result)
+                        : Option<T>.None;
                 }
             }
             catch (InvalidOperationException) // for > 1 case
@@ -394,23 +399,22 @@ namespace SJP.Schematic.Core.Extensions
             {
                 var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
 
-                using (var logger = new LoggingAdapter(connection, sql, parameters))
+                if (SemaphoreLookup.TryGetValue(connection, out var semaphore))
                 {
-                    if (SemaphoreLookup.TryGetValue(connection, out var semaphore) && semaphore != null)
-                    {
-                        using var _ = await semaphore.LockAsync();
-                        var result = await connection.QuerySingleOrDefaultAsync<T>(command).ConfigureAwait(false);
-                        return result != null
-                            ? Option<T>.Some(result)
-                            : Option<T>.None;
-                    }
-                    else
-                    {
-                        var result = await connection.QuerySingleOrDefaultAsync<T>(command).ConfigureAwait(false);
-                        return result != null
-                            ? Option<T>.Some(result)
-                            : Option<T>.None;
-                    }
+                    using var _ = await semaphore.LockAsync();
+                    using var logger = new QueryLoggingContext(connection, sql, null);
+                    var result = await connection.QuerySingleOrDefaultAsync<T>(command).ConfigureAwait(false);
+                    return result != null
+                        ? Option<T>.Some(result)
+                        : Option<T>.None;
+                }
+                else
+                {
+                    using var logger = new QueryLoggingContext(connection, sql, null);
+                    var result = await connection.QuerySingleOrDefaultAsync<T>(command).ConfigureAwait(false);
+                    return result != null
+                        ? Option<T>.Some(result)
+                        : Option<T>.None;
                 }
             }
             catch (InvalidOperationException) // for > 1 case

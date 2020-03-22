@@ -7,15 +7,16 @@ namespace SJP.Schematic.Core
 {
     public static class SchematicConnectionExtensions
     {
-        public static void AddLogging(this ISchematicConnection connection, ILogger logger, LogLevel level)
+        public static void AddLogging(this ISchematicConnection connection, ILoggerFactory loggerFactory, LogLevel level)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
+            if (loggerFactory == null)
+                throw new ArgumentNullException(nameof(loggerFactory));
             if (!level.IsValid())
                 throw new ArgumentException($"The { nameof(LogLevel) } provided must be a valid enum.", nameof(level));
 
+            var logger = loggerFactory.CreateLogger("Schematic");
             Logging.AddLogging(connection, logger, level);
         }
 
@@ -36,7 +37,8 @@ namespace SJP.Schematic.Core
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            var semaphore = maxQueries > 0 ? new AsyncSemaphore(maxQueries) : null;
+            var maxQueryCount = maxQueries > 0 ? maxQueries : long.MaxValue;
+            var semaphore = new AsyncSemaphore(maxQueryCount);
             Extensions.ConnectionExtensions.SetMaxConcurrentQueries(connection.DbConnection, semaphore);
         }
     }

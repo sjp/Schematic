@@ -8,32 +8,19 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core
 {
-    internal class LoggingConfig
-    {
-        public LoggingConfig(ILogger logger, LogLevel level)
-        {
-            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            Level = level; // TODO validate enum
-        }
-
-        public ILogger Logger { get; }
-
-        public LogLevel Level { get; }
-    }
-
     /// <summary>
     /// Provides an access/integration point for logging within Schematic.
     /// </summary>
     public static class Logging
     {
         private static readonly IReadOnlyDictionary<string, object> EmptyParams = new Dictionary<string, object>();
-        private static readonly ConditionalWeakTable<IDbConnection, LoggingConfig> ConnectionLoggerLookup = new ConditionalWeakTable<IDbConnection, LoggingConfig>();
+        private static readonly ConditionalWeakTable<IDbConnection, LoggingConfiguration> ConnectionLoggerLookup = new ConditionalWeakTable<IDbConnection, LoggingConfiguration>();
 
         public static bool IsLoggingConfigured(IDbConnection connection) => ConnectionLoggerLookup.TryGetValue(connection, out var config) && config != null;
 
         public static void AddLogging(ISchematicConnection connection, ILogger logger, LogLevel level)
         {
-            var loggingConfig = new LoggingConfig(logger, level);
+            var loggingConfig = new LoggingConfiguration(logger, level);
             ConnectionLoggerLookup.AddOrUpdate(connection.DbConnection, loggingConfig);
         }
 
@@ -57,7 +44,7 @@ namespace SJP.Schematic.Core
             var parameters = ToDictionary(param);
             loggingConfig.Logger.Log(
                 loggingConfig.Level,
-                "[SCHEMATIC] Connection {connectionId} is executing query {commandId}. Attempting to execute {sql} with parameters {@parameters}.",
+                "Connection {connectionId} is executing query {commandId}. Attempting to execute {sql} with parameters {@parameters}.",
                 connectionId,
                 commandId,
                 sql,
@@ -79,12 +66,12 @@ namespace SJP.Schematic.Core
             var parameters = ToDictionary(param);
             loggingConfig.Logger.Log(
                 loggingConfig.Level,
-                "[SCHEMATIC] Connection {connectionId} completed executing query {commandId}. Query {sql} with parameters {@parameters} took {duration} to execute.",
+                "Connection {connectionId} completed executing query {commandId}. Query {sql} with parameters {@parameters} took {duration}ms to execute.",
                 connectionId,
                 commandId,
                 sql,
                 parameters,
-                duration
+                (ulong)duration.TotalMilliseconds
             );
         }
 

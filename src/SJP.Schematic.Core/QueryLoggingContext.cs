@@ -5,9 +5,9 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core
 {
-    internal sealed class LoggingAdapter : IDisposable
+    internal sealed class QueryLoggingContext : IDisposable
     {
-        public LoggingAdapter(IDbConnection connection, string sql, object? param)
+        public QueryLoggingContext(IDbConnection connection, string sql, object? param)
         {
             if (sql.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(sql));
@@ -17,7 +17,7 @@ namespace SJP.Schematic.Core
             _param = param;
 
             if (Logging.IsLoggingConfigured(_connection))
-                _stopWatch = new Stopwatch();
+                _stopWatch = Stopwatch.StartNew();
 
             if (Logging.IsLoggingConfigured(_connection))
                 Logging.LogCommandExecuting(_connection, _id, _sql, _param);
