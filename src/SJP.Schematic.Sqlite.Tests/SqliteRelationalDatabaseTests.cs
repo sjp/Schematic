@@ -1,6 +1,5 @@
 ﻿using NUnit.Framework;
 using Moq;
-using System.Data;
 using SJP.Schematic.Core;
 using System.Threading.Tasks;
 using System.Linq;

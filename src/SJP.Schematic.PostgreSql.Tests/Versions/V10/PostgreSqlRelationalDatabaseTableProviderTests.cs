@@ -1,7 +1,6 @@
 ﻿using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
-using System.Data;
 using TableProvider = SJP.Schematic.PostgreSql.Versions.V10.PostgreSqlRelationalDatabaseTableProvider;
 
 namespace SJP.Schematic.PostgreSql.Tests.Versions.V10

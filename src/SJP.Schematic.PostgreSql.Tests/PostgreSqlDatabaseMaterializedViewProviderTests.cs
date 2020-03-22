@@ -1,7 +1,6 @@
 ﻿using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
-using System.Data;
 
 namespace SJP.Schematic.PostgreSql.Tests
 {

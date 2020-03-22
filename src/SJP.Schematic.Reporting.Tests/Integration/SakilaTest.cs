@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite;
-using SJP.Schematic.Sqlite.Pragma;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Reporting.Tests.Integration

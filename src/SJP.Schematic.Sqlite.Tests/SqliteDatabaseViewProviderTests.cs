@@ -1,7 +1,6 @@
 ﻿using NUnit.Framework;
 using Moq;
 using SJP.Schematic.Core;
-using System.Data;
 using SJP.Schematic.Sqlite.Pragma;
 
 namespace SJP.Schematic.Sqlite.Tests
