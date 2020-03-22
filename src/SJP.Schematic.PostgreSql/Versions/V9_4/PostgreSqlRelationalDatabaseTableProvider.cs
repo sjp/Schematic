@@ -119,11 +119,11 @@ limit 1";
             var triggersTask = LoadTriggersAsync(tableName, cancellationToken);
             var columnsTask = LoadColumnsAsync(tableName, cancellationToken);
 
-            await Task.WhenAll(checksTask, triggersTask, columnsTask);
+            await Task.WhenAll(checksTask, triggersTask, columnsTask).ConfigureAwait(false);
 
-            var checks = await checksTask;
-            var triggers = await triggersTask;
-            var columns = await columnsTask;
+            var checks = await checksTask.ConfigureAwait(false);
+            var triggers = await triggersTask.ConfigureAwait(false);
+            var columns = await columnsTask.ConfigureAwait(false);
             var columnLookup = GetColumnLookup(columns);
 
             var primaryKeyTask = LoadPrimaryKeyAsync(tableName, columnLookup, cancellationToken);
@@ -131,12 +131,12 @@ limit 1";
             var indexesTask = LoadIndexesAsync(tableName, columnLookup, cancellationToken);
             var parentKeysTask = LoadParentKeysAsync(tableName, columnLookup, cancellationToken);
 
-            await Task.WhenAll(primaryKeyTask, uniqueKeysTask, indexesTask, parentKeysTask);
+            await Task.WhenAll(primaryKeyTask, uniqueKeysTask, indexesTask, parentKeysTask).ConfigureAwait(false);
 
-            var primaryKey = await primaryKeyTask;
-            var parentKeys = await parentKeysTask;
-            var indexes = await indexesTask;
-            var uniqueKeys = await uniqueKeysTask;
+            var primaryKey = await primaryKeyTask.ConfigureAwait(false);
+            var parentKeys = await parentKeysTask.ConfigureAwait(false);
+            var indexes = await indexesTask.ConfigureAwait(false);
+            var uniqueKeys = await uniqueKeysTask.ConfigureAwait(false);
             var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
 
             var childKeys = await LoadChildKeysAsync(tableName, columnLookup, primaryKey, uniqueKeyLookup, cancellationToken).ConfigureAwait(false);

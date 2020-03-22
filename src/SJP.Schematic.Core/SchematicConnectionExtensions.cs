@@ -39,7 +39,7 @@ namespace SJP.Schematic.Core
 
             var maxQueryCount = maxQueries > 0 ? maxQueries : long.MaxValue;
             var semaphore = new AsyncSemaphore(maxQueryCount);
-            Extensions.ConnectionExtensions.SetMaxConcurrentQueries(connection.DbConnection, semaphore);
+            QueryContext.SetMaxConcurrentQueries(connection.DbConnection, semaphore);
         }
     }
 }
