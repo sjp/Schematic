@@ -2,10 +2,11 @@ using NUnit.Framework;
 
 namespace Tests
 {
-    public class Tests
+    [TestFixture]
+    internal static class Tests
     {
         [Test]
-        public void Test1()
+        public static void Test1()
         {
             Assert.Pass();
         }

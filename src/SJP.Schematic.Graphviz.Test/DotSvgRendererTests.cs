@@ -5,7 +5,8 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.Graphviz.Tests
 {
-    public class DotSvgRendererTests
+    [TestFixture]
+    internal sealed class DotSvgRendererTests
     {
         private GraphvizTemporaryExecutable GraphvizExe { get; set; }
 

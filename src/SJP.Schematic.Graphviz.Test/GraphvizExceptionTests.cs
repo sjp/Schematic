@@ -2,10 +2,11 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.Graphviz.Tests
 {
-    public class GraphvizExceptionTests
+    [TestFixture]
+    internal static class GraphvizExceptionTests
     {
         [Test]
-        public void ExitCode_PropertyGet_MatchesCtorArg()
+        public static void ExitCode_PropertyGet_MatchesCtorArg()
         {
             const int exitCode = 123;
             var ex = new GraphvizException(exitCode, "Test");
@@ -14,7 +15,7 @@ namespace SJP.Schematic.Graphviz.Tests
         }
 
         [Test]
-        public void Message_PropertyGet_MatchesCtorArg()
+        public static void Message_PropertyGet_MatchesCtorArg()
         {
             const string message = "Test error message";
             var ex = new GraphvizException(123, message);
