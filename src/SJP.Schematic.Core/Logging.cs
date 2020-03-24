@@ -10,13 +10,19 @@ using SJP.Schematic.Core.Extensions;
 namespace SJP.Schematic.Core
 {
     /// <summary>
-    /// Provides an access/integration point for logging within Schematic.
+    /// Provides an access/integration point for logging within Schematic. Not intended be used directly.
     /// </summary>
     public static class Logging
     {
         private static readonly IReadOnlyDictionary<string, object> EmptyParams = new Dictionary<string, object>();
         private static readonly ConditionalWeakTable<IDbConnection, LoggingConfiguration> ConnectionLoggerLookup = new ConditionalWeakTable<IDbConnection, LoggingConfiguration>();
 
+        /// <summary>
+        /// Determines whether logging is currently configured on the given connection.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <returns><c>true</c> if logging is configured on the connection; otherwise, <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public static bool IsLoggingConfigured(IDbConnection connection)
         {
             if (connection == null)
@@ -25,6 +31,14 @@ namespace SJP.Schematic.Core
             return ConnectionLoggerLookup.TryGetValue(connection, out var config) && config != null;
         }
 
+        /// <summary>
+        /// Enables query logging on a database connection for Schematic queries.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="logger">A logger.</param>
+        /// <param name="logLevel">The log level that should be applied to query logs.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="logger"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="logLevel"/> is an invalid value.</exception>
         public static void AddLogging(ISchematicConnection connection, ILogger logger, LogLevel logLevel)
         {
             if (connection == null)
@@ -38,6 +52,11 @@ namespace SJP.Schematic.Core
             ConnectionLoggerLookup.AddOrUpdate(connection.DbConnection, loggingConfig);
         }
 
+        /// <summary>
+        /// Removes logging from a database connection.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public static void RemoveLogging(ISchematicConnection connection)
         {
             if (connection == null)

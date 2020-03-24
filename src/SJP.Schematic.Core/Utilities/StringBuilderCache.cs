@@ -3,6 +3,10 @@ using System.Text;
 
 namespace SJP.Schematic.Core.Utilities
 {
+    /// <summary>
+    /// For internal use only. A cache of <see cref="StringBuilder"/> instances. Reduces allocation across Schematic operations.
+    /// </summary>
+    /// <remarks>This is largely taken from Roslyn and netfx internals.</remarks>
     public static class StringBuilderCache
     {
         // The value 360 was chosen in discussion with performance experts as a compromise between using
@@ -14,6 +18,11 @@ namespace SJP.Schematic.Core.Utilities
         [ThreadStatic]
         private static StringBuilder? _cachedInstance;
 
+        /// <summary>
+        /// Acquires a <see cref="StringBuilder"/> instance.
+        /// </summary>
+        /// <param name="capacity">The capacity that should be pre-allocated when a <see cref="StringBuilder"/> is available.</param>
+        /// <returns>A <see cref="StringBuilder"/> instance.</returns>
         public static StringBuilder Acquire(int capacity = DefaultCapacity)
         {
             if (capacity <= MaxBuilderSize)
@@ -31,6 +40,12 @@ namespace SJP.Schematic.Core.Utilities
             return new StringBuilder(capacity);
         }
 
+        /// <summary>
+        /// Allocates a <see cref="string"/> and returns the <see cref="StringBuilder"/> instance to the pool.
+        /// </summary>
+        /// <param name="builder">The <see cref="StringBuilder"/> instance.</param>
+        /// <returns>The <see cref="string"/> contents of the <see cref="StringBuilder"/> instance.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="builder"/> is <c>null</c>.</exception>
         public static string GetStringAndRelease(this StringBuilder builder)
         {
             if (builder == null)

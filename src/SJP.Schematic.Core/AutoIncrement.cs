@@ -34,12 +34,22 @@ namespace SJP.Schematic.Core
         /// </summary>
         public decimal Increment { get; }
 
+        /// <summary>
+        /// Indicates whether the current <see cref="AutoIncrement"/> object is equal to another <see cref="AutoIncrement"/> instance.
+        /// </summary>
+        /// <param name="other">An object to compare with this object.</param>
+        /// <returns><see langword="true" /> if the current <see cref="AutoIncrement"/> object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.</returns>
         public bool Equals(AutoIncrement other)
         {
             return InitialValue == other.InitialValue
                 && Increment == other.Increment;
         }
 
+        /// <summary>
+        /// Indicates whether the current <see cref="AutoIncrement"/> object is equal to an <see cref="IAutoIncrement"/> instance.
+        /// </summary>
+        /// <param name="other">An <see cref="IAutoIncrement"/> instance.</param>
+        /// <returns><see langword="true" /> <see langword="null"/> if the current <see cref="AutoIncrement"/> object is equal to <paramref name="other" /> parameter; otherwise, <see langword="false" />.</returns>
         public bool Equals(IAutoIncrement other)
         {
             if (other == null)
@@ -49,6 +59,11 @@ namespace SJP.Schematic.Core
                 && Increment == other.Increment;
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="object" />, is equal to this <see cref="AutoIncrement"/> instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="object" /> to compare with this instance.</param>
+        /// <returns><c>true</c> if the specified <see cref="object" /> is equal to this instance; otherwise, <c>false</c>.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj)
         {
@@ -60,19 +75,41 @@ namespace SJP.Schematic.Core
             return false;
         }
 
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() => HashCode.Combine(InitialValue, Increment);
 
+        /// <summary>
+        /// Implements the operator ==.
+        /// </summary>
+        /// <param name="left">The left <see cref="AutoIncrement"/> instance.</param>
+        /// <param name="right">The right <see cref="AutoIncrement"/> instance.</param>
+        /// <returns><see langword="true" /> if the <paramref name="left"/> object is equal to the <paramref name="right"/> parameter; otherwise, <see langword="false" />.</returns>
         public static bool operator ==(in AutoIncrement left, in AutoIncrement right)
         {
             return left.Equals(right);
         }
 
+        /// <summary>
+        /// Implements the operator !=.
+        /// </summary>
+        /// <param name="left">The left <see cref="AutoIncrement"/> instance.</param>
+        /// <param name="right">The right <see cref="AutoIncrement"/> instance.</param>
+        /// <returns><see langword="true" /> if the <paramref name="left"/> object is not equal to the <paramref name="right"/> parameter; otherwise, <see langword="false" />.</returns>
         public static bool operator !=(in AutoIncrement left, in AutoIncrement right)
         {
             return !(left == right);
         }
 
+        /// <summary>
+        /// Implements the operator ==.
+        /// </summary>
+        /// <param name="left">The left <see cref="IAutoIncrement"/> instance.</param>
+        /// <param name="right">The right <see cref="AutoIncrement"/> instance.</param>
+        /// <returns><see langword="true" /> if the <paramref name="left"/> object is equal to the <paramref name="right"/> parameter; otherwise, <see langword="false" />.</returns>
         public static bool operator ==(IAutoIncrement left, in AutoIncrement right)
         {
             if (left == null)
@@ -81,6 +118,12 @@ namespace SJP.Schematic.Core
             return right.Equals(left);
         }
 
+        /// <summary>
+        /// Implements the operator !=.
+        /// </summary>
+        /// <param name="left">The left <see cref="IAutoIncrement"/> instance.</param>
+        /// <param name="right">The right <see cref="AutoIncrement"/> instance.</param>
+        /// <returns><see langword="true" /> if the <paramref name="left"/> object is not equal to the <paramref name="right"/> parameter; otherwise, <see langword="false" />.</returns>
         public static bool operator !=(IAutoIncrement left, in AutoIncrement right)
         {
             if (left == null)
@@ -89,6 +132,12 @@ namespace SJP.Schematic.Core
             return !(left == right);
         }
 
+        /// <summary>
+        /// Implements the operator ==.
+        /// </summary>
+        /// <param name="left">The left <see cref="AutoIncrement"/> instance.</param>
+        /// <param name="right">The right <see cref="IAutoIncrement"/> instance.</param>
+        /// <returns><see langword="true" /> if the <paramref name="left"/> object is equal to the <paramref name="right"/> parameter; otherwise, <see langword="false" />.</returns>
         public static bool operator ==(in AutoIncrement left, IAutoIncrement right)
         {
             if (right == null)
@@ -97,6 +146,12 @@ namespace SJP.Schematic.Core
             return left.Equals(right);
         }
 
+        /// <summary>
+        /// Implements the operator !=.
+        /// </summary>
+        /// <param name="left">The left <see cref="AutoIncrement"/> instance.</param>
+        /// <param name="right">The right <see cref="IAutoIncrement"/> instance.</param>
+        /// <returns><see langword="true" /> if the <paramref name="left"/> object is not equal to the <paramref name="right"/> parameter; otherwise, <see langword="false" />.</returns>
         public static bool operator !=(in AutoIncrement left, IAutoIncrement right)
         {
             if (right == null)

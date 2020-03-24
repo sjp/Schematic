@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 
 namespace SJP.Schematic.Core.Extensions
 {
-    // largely taken from Microsoft.VisualStudio.Threading.AwaitExtensions
+    /// <summary>
+    /// For internal use only. Largely taken from Microsoft.VisualStudio.Threading.AwaitExtensions
+    /// </summary>
     public static class ProcessExtensions
     {
         /// <summary>

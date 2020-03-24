@@ -10,6 +10,14 @@ namespace SJP.Schematic.Core
     /// </summary>
     public sealed class IdentifierComparer : IEqualityComparer<Identifier>, IComparer<Identifier>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IdentifierComparer"/> class.
+        /// </summary>
+        /// <param name="comparison">The string comparison method to use.</param>
+        /// <param name="defaultServer">The default server to use when missing in an <see cref="Identifier"/>.</param>
+        /// <param name="defaultDatabase">The default database to use when missing in an <see cref="Identifier"/>.</param>
+        /// <param name="defaultSchema">The default schema to use when missing in an <see cref="Identifier"/>.</param>
+        /// <exception cref="ArgumentException"><paramref name="comparison"/> is an invalid value.</exception>
         public IdentifierComparer(StringComparison comparison = StringComparison.OrdinalIgnoreCase, string? defaultServer = null, string? defaultDatabase = null, string? defaultSchema = null)
         {
             if (!comparison.IsValid())
@@ -26,6 +34,14 @@ namespace SJP.Schematic.Core
             _defaultSchemaHash = _defaultSchema != null ? _comparer.GetHashCode(_defaultSchema) : 0;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IdentifierComparer"/> class.
+        /// </summary>
+        /// <param name="comparer">A string comparer to apply to each component of an <see cref="Identifier"/>.</param>
+        /// <param name="defaultServer">The default server to use when missing in an <see cref="Identifier"/>.</param>
+        /// <param name="defaultDatabase">The default database to use when missing in an <see cref="Identifier"/>.</param>
+        /// <param name="defaultSchema">The default schema to use when missing in an <see cref="Identifier"/>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="comparer"/> is <c>null</c>.</exception>
         public IdentifierComparer(StringComparer comparer, string? defaultServer = null, string? defaultDatabase = null, string? defaultSchema = null) // can't use IComparer or IEqualityComparer because we need both
         {
             _comparer = comparer ?? throw new ArgumentNullException(nameof(comparer));
@@ -39,6 +55,12 @@ namespace SJP.Schematic.Core
             _defaultSchemaHash = _defaultSchema != null ? _comparer.GetHashCode(_defaultSchema) : 0;
         }
 
+        /// <summary>
+        /// Determines whether two <see cref="Identifier"/> instances are equal.
+        /// </summary>
+        /// <param name="x">The first <see cref="Identifier"/> instance to compare.</param>
+        /// <param name="y">The second <see cref="Identifier"/> instance to compare.</param>
+        /// <returns><see langword="true" /> if the <paramref name="x"/> and <paramref name="y"/> are equal; otherwise, <see langword="false" />.</returns>
         public bool Equals(Identifier x, Identifier y)
         {
             if (x is null && y is null)
@@ -53,6 +75,11 @@ namespace SJP.Schematic.Core
                 && _comparer.Equals(x.LocalName, y.LocalName);
         }
 
+        /// <summary>
+        /// Returns a hash code for an <see cref="Identifier"/> instance.
+        /// </summary>
+        /// <param name="obj">An <see cref="Identifier"/>.</param>
+        /// <returns>A hash code for an <see cref="Identifier"/>, suitable for use in hashing algorithms and data structures like a hash table.</returns>
         public int GetHashCode(Identifier obj)
         {
             if (obj == null)
@@ -66,6 +93,22 @@ namespace SJP.Schematic.Core
             );
         }
 
+        /// <summary>
+        /// Compares two <see cref="Identifier"/> instances and returns a value indicating whether one is less than, equal to, or greater than the other.
+        /// </summary>
+        /// <param name="x">The first <see cref="Identifier"/> to compare.</param>
+        /// <param name="y">The second <see cref="Identifier"/> to compare.</param>
+        /// <returns>
+        /// A signed integer that indicates the relative values of <paramref name="x" /> and <paramref name="y" />, as shown in the following table.
+        /// Value
+        /// Meaning
+        /// Less than zero
+        /// <paramref name="x" /> is less than <paramref name="y" />.
+        /// Zero
+        /// <paramref name="x" /> equals <paramref name="y" />.
+        /// Greater than zero
+        /// <paramref name="x" /> is greater than <paramref name="y" />.
+        /// </returns>
         public int Compare(Identifier x, Identifier y)
         {
             if (ReferenceEquals(x, y))
@@ -90,16 +133,40 @@ namespace SJP.Schematic.Core
             return _comparer.Compare(x.LocalName, y.LocalName);
         }
 
+        /// <summary>
+        /// Gets a <see cref="IdentifierComparer"/> object that performs a case-sensitive identifier comparison using the word comparison rules of the current culture.
+        /// </summary>
+        /// <value>A <see cref="IdentifierComparer"/> object.</value>
         public static IdentifierComparer CurrentCulture { get; } = new IdentifierComparer(StringComparer.CurrentCulture);
 
+        /// <summary>
+        /// Gets a <see cref="IdentifierComparer"/> object that performs a case-insensitive identifier comparison using the word comparison rules of the current culture.
+        /// </summary>
+        /// <value>A <see cref="IdentifierComparer"/> object.</value>
         public static IdentifierComparer CurrentCultureIgnoreCase { get; } = new IdentifierComparer(StringComparer.CurrentCultureIgnoreCase);
 
+        /// <summary>
+        /// Gets a <see cref="IdentifierComparer"/> object that performs a case-sensitive identifier comparison.
+        /// </summary>
+        /// <value>A <see cref="IdentifierComparer"/> object.</value>
         public static IdentifierComparer Ordinal { get; } = new IdentifierComparer(StringComparer.Ordinal);
 
+        /// <summary>
+        /// Gets a <see cref="IdentifierComparer"/> object that performs a case-insensitive identifier comparison.
+        /// </summary>
+        /// <value>A <see cref="IdentifierComparer"/> object.</value>
         public static IdentifierComparer OrdinalIgnoreCase { get; } = new IdentifierComparer(StringComparer.OrdinalIgnoreCase);
 
+        /// <summary>
+        /// Gets a <see cref="IdentifierComparer"/> object that performs a case-sensitive identifier comparison using the word comparison rules of the invariant culture.
+        /// </summary>
+        /// <value>A <see cref="IdentifierComparer"/> object.</value>
         public static IdentifierComparer InvariantCulture { get; } = new IdentifierComparer(StringComparer.InvariantCulture);
 
+        /// <summary>
+        /// Gets a <see cref="IdentifierComparer"/> object that performs a case-insensitive identifier comparison using the word comparison rules of the invariant culture.
+        /// </summary>
+        /// <value>A <see cref="IdentifierComparer"/> object.</value>
         public static IdentifierComparer InvariantCultureIgnoreCase { get; } = new IdentifierComparer(StringComparer.InvariantCultureIgnoreCase);
 
         private readonly string? _defaultSchema;
