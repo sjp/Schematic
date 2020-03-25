@@ -1,7 +1,7 @@
-﻿using NUnit.Framework;
-using Moq;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using System.Linq;
+using Moq;
+using NUnit.Framework;
 
 namespace SJP.Schematic.Core.Tests
 {

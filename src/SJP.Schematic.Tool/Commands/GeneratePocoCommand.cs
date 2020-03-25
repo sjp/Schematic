@@ -1,6 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.IO.Abstractions;
-using System;
 using System.Threading.Tasks;
 using McMaster.Extensions.CommandLineUtils;
 using SJP.Schematic.Core.Extensions;

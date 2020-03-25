@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-using RazorLight.Razor;
+using System.Linq;
 using System.Threading.Tasks;
+using RazorLight.Razor;
 
 namespace SJP.Schematic.Reporting.Html
 {

@@ -1,5 +1,5 @@
-﻿using NUnit.Framework;
-using Moq;
+﻿using Moq;
+using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Tests.Utilities;
 
@@ -53,7 +53,7 @@ namespace SJP.Schematic.MySql.Tests
             const ReferentialAction deleteAction = ReferentialAction.NoAction;
             const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-            Assert.That(() => new MySqlRelationalKey(childTableName, childKey, parentTableName,  null, deleteAction, updateAction), Throws.ArgumentNullException);
+            Assert.That(() => new MySqlRelationalKey(childTableName, childKey, parentTableName, null, deleteAction, updateAction), Throws.ArgumentNullException);
         }
 
         [Test]

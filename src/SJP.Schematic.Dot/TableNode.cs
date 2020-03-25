@@ -1,9 +1,9 @@
-﻿using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Core.Utilities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Dot
 {

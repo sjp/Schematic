@@ -1,5 +1,5 @@
-﻿using SJP.Schematic.Core;
-using System;
+﻿using System;
+using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Modelled
 {

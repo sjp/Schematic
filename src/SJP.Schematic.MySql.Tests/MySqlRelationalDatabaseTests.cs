@@ -1,8 +1,8 @@
-﻿using NUnit.Framework;
-using Moq;
-using SJP.Schematic.Core;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using System.Linq;
+using Moq;
+using NUnit.Framework;
+using SJP.Schematic.Core;
 
 namespace SJP.Schematic.MySql.Tests
 {

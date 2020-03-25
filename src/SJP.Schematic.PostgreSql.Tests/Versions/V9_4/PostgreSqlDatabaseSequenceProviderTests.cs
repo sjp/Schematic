@@ -1,7 +1,7 @@
-﻿using NUnit.Framework;
+﻿using System.Data;
 using Moq;
+using NUnit.Framework;
 using SJP.Schematic.Core;
-using System.Data;
 using SequenceProvider = SJP.Schematic.PostgreSql.Versions.V9_4.PostgreSqlDatabaseSequenceProvider;
 
 namespace SJP.Schematic.PostgreSql.Tests.Versions.V9_4

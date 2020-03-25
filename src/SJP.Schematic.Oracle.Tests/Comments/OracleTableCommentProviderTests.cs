@@ -1,7 +1,7 @@
-﻿using NUnit.Framework;
+﻿using System.Data;
 using Moq;
+using NUnit.Framework;
 using SJP.Schematic.Core;
-using System.Data;
 using SJP.Schematic.Oracle.Comments;
 
 namespace SJP.Schematic.Oracle.Tests.Comments

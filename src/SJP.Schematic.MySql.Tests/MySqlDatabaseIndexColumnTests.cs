@@ -1,5 +1,5 @@
-﻿using NUnit.Framework;
-using Moq;
+﻿using Moq;
+using NUnit.Framework;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.MySql.Tests
@@ -36,7 +36,7 @@ namespace SJP.Schematic.MySql.Tests
         {
             const string expression = "`test`";
 
-            Assert.That(() => new MySqlDatabaseIndexColumn(expression, null) ,Throws.ArgumentNullException);
+            Assert.That(() => new MySqlDatabaseIndexColumn(expression, null), Throws.ArgumentNullException);
         }
 
         [Test]

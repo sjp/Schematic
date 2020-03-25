@@ -1,5 +1,4 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;

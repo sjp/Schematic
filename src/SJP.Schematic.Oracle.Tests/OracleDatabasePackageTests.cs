@@ -1,7 +1,7 @@
-﻿using NUnit.Framework;
-using LanguageExt;
-using SJP.Schematic.Tests.Utilities;
+﻿using LanguageExt;
+using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Oracle.Tests
 {

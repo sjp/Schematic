@@ -1,6 +1,6 @@
-﻿using NUnit.Framework;
+﻿using System.Data;
 using Moq;
-using System.Data;
+using NUnit.Framework;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SqlServer.Tests

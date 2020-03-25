@@ -1,6 +1,6 @@
 ﻿using System;
-using NUnit.Framework;
 using Moq;
+using NUnit.Framework;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.MySql.Tests

@@ -1,5 +1,5 @@
-﻿using SJP.Schematic.Core;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Dot
 {

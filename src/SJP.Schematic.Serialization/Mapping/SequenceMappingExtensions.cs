@@ -1,6 +1,6 @@
 ﻿using System;
-using SJP.Schematic.Core;
 using LanguageExt;
+using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping
 {

@@ -46,7 +46,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void Ctor_GivenNegativeCacheSize_SetsCacheSizeToUnknownValue()
         {
-            var sequence =  new DatabaseSequence("test", 1, -1, Option<decimal>.None, Option<decimal>.None, true, -3);
+            var sequence = new DatabaseSequence("test", 1, -1, Option<decimal>.None, Option<decimal>.None, true, -3);
 
             Assert.That(sequence.Cache, Is.EqualTo(DatabaseSequence.UnknownCacheSize));
         }

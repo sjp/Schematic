@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
-using SJP.Schematic.Core;
-using SJP.Schematic.Sqlite.Pragma;
-using SJP.Schematic.Core.Extensions;
 using LanguageExt;
-using System.Data;
+using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Sqlite.Pragma;
 
 namespace SJP.Schematic.Sqlite
 {

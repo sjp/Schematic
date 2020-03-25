@@ -90,7 +90,7 @@ namespace SJP.Schematic.DataAccess.CodeGeneration
 
             var summarySyntaxNode = XmlSummaryElement(commentsWithNewlines);
 
-            var lastParamIndex = paramNodes.Count -1;
+            var lastParamIndex = paramNodes.Count - 1;
             var paramSyntaxNodes = paramNodes
                 .SelectMany((kv, i) =>
                 {

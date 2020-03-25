@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using SJP.Schematic.Core.Extensions;
 using LanguageExt;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Sqlite.Parsing
 {

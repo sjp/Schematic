@@ -1,8 +1,8 @@
 ﻿using System;
-using SJP.Schematic.Core.Extensions;
-using RazorLight.Razor;
 using System.IO;
 using System.Text;
+using RazorLight.Razor;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html
 {

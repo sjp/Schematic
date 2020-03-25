@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Text;
+using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
+using System.Text.RegularExpressions;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using System.Linq;
-using System.Globalization;
-using System.Text.RegularExpressions;
-using System.IO;
 using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Reporting

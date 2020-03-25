@@ -1,5 +1,5 @@
-﻿using NUnit.Framework;
-using Moq;
+﻿using Moq;
+using NUnit.Framework;
 using SJP.Schematic.Core;
 using TableProvider = SJP.Schematic.PostgreSql.Versions.V9_4.PostgreSqlRelationalDatabaseTableProvider;
 

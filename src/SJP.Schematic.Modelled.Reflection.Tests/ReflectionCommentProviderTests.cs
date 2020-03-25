@@ -420,7 +420,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
                     : t1_1;
             }
 
-            public int Gg(short[] array1, int[,][][,,,][] array) { return array1[0] + array[0,0][0][0,0,0,0][0]; }
+            public int Gg(short[] array1, int[,][][,,,][] array) { return array1[0] + array[0, 0][0][0, 0, 0, 0][0]; }
 
             public TestClass op_Implicit(TestClass x) => x;
 

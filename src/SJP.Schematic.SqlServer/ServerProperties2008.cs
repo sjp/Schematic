@@ -251,5 +251,5 @@ namespace SJP.Schematic.SqlServer
         /// The effective level of FILESTREAM access. This value can be different than the FilestreamConfiguredLevel if the level has changed and either an instance restart or a computer restart is pending.
         /// </summary>
         public int FilestreamEffectiveLevel { get; }
-}
+    }
 }

@@ -60,7 +60,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         public static async Task GetTable_WhenTableMissing_ReturnsNone()
         {
             var db = new ReflectionRelationalDatabase<SampleDatabase>(new FakeDialect(), IdentifierDefaults);
-            var tableIsNone =  await db.GetTable("table_that_doesnt_exist").IsNone.ConfigureAwait(false);
+            var tableIsNone = await db.GetTable("table_that_doesnt_exist").IsNone.ConfigureAwait(false);
 
             Assert.That(tableIsNone, Is.True);
         }

@@ -1,5 +1,5 @@
-﻿using EnumsNET;
-using System;
+﻿using System;
+using EnumsNET;
 using SysTextEncoding = System.Text.Encoding;
 
 namespace SJP.Schematic.Sqlite.Pragma

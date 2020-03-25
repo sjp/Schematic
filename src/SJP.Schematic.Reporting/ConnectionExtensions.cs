@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Data;
+using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using System.Data;
-using System.Threading;
 
 namespace SJP.Schematic.Reporting
 {

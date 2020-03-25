@@ -4,15 +4,15 @@ using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using McMaster.Extensions.CommandLineUtils;
+using Microsoft.Extensions.Configuration;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.MySql;
+using SJP.Schematic.Oracle;
 using SJP.Schematic.PostgreSql;
 using SJP.Schematic.Sqlite;
 using SJP.Schematic.SqlServer;
-using SJP.Schematic.Oracle;
 
 namespace SJP.Schematic.Tool
 {

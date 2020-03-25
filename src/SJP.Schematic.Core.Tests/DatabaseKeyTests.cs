@@ -1,6 +1,6 @@
 ﻿using System;
-using NUnit.Framework;
 using Moq;
+using NUnit.Framework;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Core.Tests

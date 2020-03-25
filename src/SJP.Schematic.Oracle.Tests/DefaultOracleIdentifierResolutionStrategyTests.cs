@@ -1,6 +1,6 @@
-﻿using NUnit.Framework;
+﻿using System.Linq;
+using NUnit.Framework;
 using SJP.Schematic.Core;
-using System.Linq;
 
 namespace SJP.Schematic.Oracle.Tests
 {

@@ -104,7 +104,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                     }
 
                     using (var writer = File.CreateText(svgFilePath))
-                    doc.Save(writer, SaveOptions.DisableFormatting);
+                        doc.Save(writer, SaveOptions.DisableFormatting);
                 }
 
                 var renderedTable = await Formatter.RenderTemplateAsync(tableModel).ConfigureAwait(false);

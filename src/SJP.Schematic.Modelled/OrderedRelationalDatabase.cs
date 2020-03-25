@@ -1,12 +1,12 @@
-﻿using LanguageExt;
-using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt;
+using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Modelled
 {

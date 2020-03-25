@@ -1,6 +1,6 @@
-﻿using SJP.Schematic.Core.Extensions;
-using System;
+﻿using System;
 using System.ComponentModel;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Dot
 {

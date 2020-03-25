@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using SJP.Schematic.Core;
 using LanguageExt;
+using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Oracle
 {
