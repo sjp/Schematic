@@ -1,7 +1,7 @@
 #tool nuget:?package=Codecov
 #addin nuget:?package=Cake.Codecov
-#addin "Cake.DocFx"
-#tool "docfx.console"
+#tool nuget:?package=docfx.console
+#addin nuget:?package=Cake.DocFx
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -103,7 +103,9 @@ Task("Run-Unit-Tests")
 Task("Docs")
     .Does(() =>
 {
-    DocFxBuild("./docs/docfx.json");
+    var docConfigPath = "./docs/docfx.json";
+    DocFxMetadata(docConfigPath);
+    DocFxBuild(docConfigPath);
 });
 
 //////////////////////////////////////////////////////////////////////
