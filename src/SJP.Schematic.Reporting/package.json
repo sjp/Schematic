@@ -18,12 +18,12 @@
     "url": "https://github.com/sjp/Schematic/issues"
   },
   "devDependencies": {
-    "@babel/core": "7.8.6",
-    "@babel/preset-env": "^7.8.6",
-    "@babel/register": "^7.8.6",
+    "@babel/core": "7.9.0",
+    "@babel/preset-env": "^7.9.0",
+    "@babel/register": "^7.9.0",
     "admin-lte": "^3.0.2",
     "bootstrap": "^4.4.1",
-    "codemirror": "^5.52.0",
+    "codemirror": "^5.52.2",
     "datatables.net": "^1.10.20",
     "datatables.net-bs4": "^1.10.20",
     "del": "^5.1.0",
