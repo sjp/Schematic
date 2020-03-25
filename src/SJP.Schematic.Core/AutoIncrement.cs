@@ -49,7 +49,7 @@ namespace SJP.Schematic.Core
         /// Indicates whether the current <see cref="AutoIncrement"/> object is equal to an <see cref="IAutoIncrement"/> instance.
         /// </summary>
         /// <param name="other">An <see cref="IAutoIncrement"/> instance.</param>
-        /// <returns><see langword="true" /> <see langword="null"/> if the current <see cref="AutoIncrement"/> object is equal to <paramref name="other" /> parameter; otherwise, <see langword="false" />.</returns>
+        /// <returns><see langword="true" /> if the current <see cref="AutoIncrement"/> object is equal to <paramref name="other" /> parameter; otherwise, <see langword="false" />.</returns>
         public bool Equals(IAutoIncrement other)
         {
             if (other == null)
