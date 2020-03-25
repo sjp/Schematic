@@ -1,5 +1,7 @@
 #tool nuget:?package=Codecov
 #addin nuget:?package=Cake.Codecov
+#addin "Cake.DocFx"
+#tool "docfx.console"
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -98,12 +100,19 @@ Task("Run-Unit-Tests")
 })
 .DeferOnError();
 
+Task("Docs")
+    .Does(() =>
+{
+    DocFxBuild("./docs/docfx.json");
+});
+
 //////////////////////////////////////////////////////////////////////
 // TASK TARGETS
 //////////////////////////////////////////////////////////////////////
 
 Task("Default")
-    .IsDependentOn("Build");
+    .IsDependentOn("Build")
+    .IsDependentOn("Docs");
 
 //////////////////////////////////////////////////////////////////////
 // EXECUTION
