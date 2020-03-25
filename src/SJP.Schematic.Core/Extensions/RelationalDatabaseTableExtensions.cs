@@ -4,8 +4,17 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core.Extensions
 {
+    /// <summary>
+    /// Convenience extension methods used for working with <see cref="IRelationalDatabaseTable"/> instances.
+    /// </summary>
     public static class RelationalDatabaseTableExtensions
     {
+        /// <summary>
+        /// Gets a check constraint lookup.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <returns>A lookup keyed by check constraint names, whose values are the associated check constraints.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
         public static IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> GetCheckLookup(this IRelationalDatabaseTable table)
         {
             if (table == null)
@@ -22,6 +31,13 @@ namespace SJP.Schematic.Core.Extensions
             return result;
         }
 
+        /// <summary>
+        /// Gets a check constraint lookup.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <param name="identifierResolver">An identifier resolver.</param>
+        /// <returns>A lookup keyed by check constraint names, whose values are the associated check constraints.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
         public static IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> GetCheckLookup(this IRelationalDatabaseTable table, IIdentifierResolutionStrategy identifierResolver)
         {
             if (table == null)

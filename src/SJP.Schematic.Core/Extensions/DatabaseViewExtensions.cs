@@ -4,6 +4,9 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core.Extensions
 {
+    /// <summary>
+    /// Convenience extension methods used for working with <see cref="IDatabaseView"/> instances.
+    /// </summary>
     public static class DatabaseViewExtensions
     {
         public static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(this IDatabaseView view)
