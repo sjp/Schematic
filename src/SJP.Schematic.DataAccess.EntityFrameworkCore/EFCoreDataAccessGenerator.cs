@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
@@ -136,9 +137,15 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     new XElement(
                         "PackageReference",
                         new XAttribute("Include", "Microsoft.EntityFrameworkCore.Relational"),
-                        new XAttribute("Version", "3.1.2")
+                        new XAttribute("Version", GetEfCoreVersionString())
                     )
                 )
             ).ToString(SaveOptions.None);
+
+        private static string GetEfCoreVersionString()
+        {
+            var efCoreAssembly = typeof(Microsoft.EntityFrameworkCore.DbContext).Assembly;
+            return FileVersionInfo.GetVersionInfo(efCoreAssembly.Location).ProductVersion;
+        }
     }
 }

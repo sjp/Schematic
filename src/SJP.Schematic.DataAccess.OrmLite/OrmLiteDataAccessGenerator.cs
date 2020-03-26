@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
@@ -126,9 +127,17 @@ namespace SJP.Schematic.DataAccess.OrmLite
                     new XElement(
                         "PackageReference",
                         new XAttribute("Include", "ServiceStack.OrmLite"),
-                        new XAttribute("Version", "5.8.0")
+                        new XAttribute("Version", GetOrmLiteVersionString())
                     )
                 )
             ).ToString(SaveOptions.None);
+
+        private static string GetOrmLiteVersionString()
+        {
+            var ormliteAssembly = typeof(ServiceStack.OrmLite.OrmLiteConfig).Assembly;
+            var productVersion = FileVersionInfo.GetVersionInfo(ormliteAssembly.Location).ProductVersion;
+
+            return productVersion.Split('+', StringSplitOptions.RemoveEmptyEntries).First();
+        }
     }
 }
