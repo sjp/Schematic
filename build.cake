@@ -55,13 +55,16 @@ Task("Build")
 Task("Pack")
     .Does(() =>
 {
-    EnsureDirectoryExists("./artifacts");
+    var packageDirectory = "./artifacts/packages";
+    EnsureDirectoryExists(packageDirectory);
     DotNetCorePack(solutionFile.FullPath, new DotNetCorePackSettings
     {
         Configuration = configuration,
         Verbosity = DotNetCoreVerbosity.Minimal,
-        OutputDirectory = "./artifacts"
+        OutputDirectory = packageDirectory
     });
+    Zip(packageDirectory, "./artifacts/packages.zip");
+    DeleteDirectory(packageDirectory, new DeleteDirectorySettings { Recursive = true });
 });
 
 Task("Run-Unit-Tests")
