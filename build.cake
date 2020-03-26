@@ -52,6 +52,18 @@ Task("Build")
     });
 });
 
+Task("Pack")
+    .Does(() =>
+{
+    EnsureDirectoryExists("./artifacts");
+    DotNetCorePack(solutionFile.FullPath, new DotNetCorePackSettings
+    {
+        Configuration = configuration,
+        Verbosity = DotNetCoreVerbosity.Minimal,
+        OutputDirectory = "./artifacts"
+    });
+});
+
 Task("Run-Unit-Tests")
     .IsDependentOn("Build")
     .DoesForEach(testProjects.Value, testProject =>
@@ -100,7 +112,7 @@ Task("Run-Unit-Tests")
 })
 .DeferOnError();
 
-Task("Docs")
+Task("Build-Docs")
     .Does(() =>
 {
     var docConfigPath = "./docs/docfx.json";
@@ -108,13 +120,35 @@ Task("Docs")
     DocFxBuild(docConfigPath);
 });
 
+Task("Docs")
+    .IsDependentOn("Build-Docs")
+    .Does(() =>
+{
+    EnsureDirectoryExists("./artifacts");
+    Zip("./docs/_site", "./artifacts/docs.zip");
+});
+
+Task("Publish-Artifacts")
+    .IsDependentOn("Pack")
+    .IsDependentOn("Docs")
+    .Does(() =>
+{
+    if (AppVeyor.IsRunningOnAppVeyor)
+    {
+        var artifactFiles = GetFiles("./artifacts/*");
+        foreach (var artifactFile in artifactFiles)
+        {
+            AppVeyor.UploadArtifact(artifactFile);
+        }
+    }
+});
+
 //////////////////////////////////////////////////////////////////////
 // TASK TARGETS
 //////////////////////////////////////////////////////////////////////
 
 Task("Default")
-    .IsDependentOn("Build")
-    .IsDependentOn("Docs");
+    .IsDependentOn("Build");
 
 //////////////////////////////////////////////////////////////////////
 // EXECUTION

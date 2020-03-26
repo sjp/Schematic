@@ -46,6 +46,9 @@ build_script:
 test_script:
   - ps: ./build.ps1 -Target Run-Unit-Tests
 
+after_test:
+  - ps: ./build.ps1 -Target Publish-Artifacts
+
 notifications:
 - provider: Email
   to:
