@@ -11,7 +11,7 @@ namespace SJP.Schematic.Core.Extensions
     public static class ConnectionExtensions
     {
         public static Task<IEnumerable<T>> QueryAsync<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
-            where T : class
+            where T : notnull
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -30,7 +30,7 @@ namespace SJP.Schematic.Core.Extensions
         }
 
         public static Task<IEnumerable<T>> QueryAsync<T>(this IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
-            where T : class
+            where T : notnull
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -127,7 +127,7 @@ namespace SJP.Schematic.Core.Extensions
         }
 
         public static OptionAsync<T> QueryFirstOrNone<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
-            where T : class
+            where T : notnull
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -138,7 +138,7 @@ namespace SJP.Schematic.Core.Extensions
         }
 
         private static async Task<Option<T>> QueryFirstOrNoneAsyncCore<T>(IDbConnection connection, string sql, CancellationToken cancellationToken)
-            where T : class
+            where T : notnull
         {
             var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
 
@@ -150,7 +150,7 @@ namespace SJP.Schematic.Core.Extensions
         }
 
         public static OptionAsync<T> QueryFirstOrNone<T>(this IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
-            where T : class
+            where T : notnull
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -163,7 +163,7 @@ namespace SJP.Schematic.Core.Extensions
         }
 
         private static async Task<Option<T>> QueryFirstOrNoneAsyncCore<T>(IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
-            where T : class
+            where T : notnull
         {
             var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
 
@@ -175,7 +175,7 @@ namespace SJP.Schematic.Core.Extensions
         }
 
         public static Task<T> QuerySingleAsync<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
-            where T : class
+            where T : notnull
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -186,7 +186,7 @@ namespace SJP.Schematic.Core.Extensions
         }
 
         private static async Task<T> QuerySingleAsyncCore<T>(IDbConnection connection, string sql, CancellationToken cancellationToken)
-            where T : class
+            where T : notnull
         {
             var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
 
@@ -195,7 +195,7 @@ namespace SJP.Schematic.Core.Extensions
         }
 
         public static Task<T> QuerySingleAsync<T>(this IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
-            where T : class
+            where T : notnull
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -208,7 +208,7 @@ namespace SJP.Schematic.Core.Extensions
         }
 
         private static async Task<T> QuerySingleAsyncCore<T>(IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
-            where T : class
+            where T : notnull
         {
             var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
 
@@ -217,7 +217,7 @@ namespace SJP.Schematic.Core.Extensions
         }
 
         public static OptionAsync<T> QuerySingleOrNone<T>(this IDbConnection connection, string sql, CancellationToken cancellationToken)
-            where T : class
+            where T : notnull
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -228,7 +228,7 @@ namespace SJP.Schematic.Core.Extensions
         }
 
         private static async Task<Option<T>> QuerySingleOrNoneAsyncCore<T>(IDbConnection connection, string sql, CancellationToken cancellationToken)
-            where T : class
+            where T : notnull
         {
             try
             {
@@ -247,7 +247,7 @@ namespace SJP.Schematic.Core.Extensions
         }
 
         public static OptionAsync<T> QuerySingleOrNone<T>(this IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
-            where T : class
+            where T : notnull
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -260,7 +260,7 @@ namespace SJP.Schematic.Core.Extensions
         }
 
         private static async Task<Option<T>> QuerySingleOrNoneAsyncCore<T>(IDbConnection connection, string sql, object parameters, CancellationToken cancellationToken)
-            where T : class
+            where T : notnull
         {
             try
             {

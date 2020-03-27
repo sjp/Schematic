@@ -49,7 +49,7 @@ namespace SJP.Schematic.Core.Extensions
         /// <param name="source">The source collection.</param>
         /// <returns><c>true</c> if the collection has elements which are <c>null</c>; otherwise <c>false</c>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
-        public static bool AnyNull<T>(this IEnumerable<T> source) where T : class
+        public static bool AnyNull<T>(this IEnumerable<T> source) where T : notnull
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
