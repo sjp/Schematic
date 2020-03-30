@@ -17,7 +17,7 @@ namespace SJP.Schematic.Core
         /// <param name="loggerFactory">A logger factory.</param>
         /// <param name="level">A logging level.</param>
         /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="loggerFactory"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentException">The { nameof(LogLevel) } provided must be a valid enum. - level</exception>
+        /// <exception cref="ArgumentException"><paramref name="level"/> is not a valid enum value.</exception>
         public static void AddLogging(this ISchematicConnection connection, ILoggerFactory loggerFactory, LogLevel level)
         {
             if (connection == null)
