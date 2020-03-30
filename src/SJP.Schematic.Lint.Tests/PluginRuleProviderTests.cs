@@ -25,7 +25,7 @@ namespace SJP.Schematic.Lint.Tests
         }
 
         [Test]
-        public static void GetRules_WhenInvoked_RetrievesRulesFromTestClass()
+        public static void GetRules_WhenInvoked_RetrievesRulesFromTestRuleProvider()
         {
             var dbConnection = Mock.Of<IDbConnection>();
             var dialect = Mock.Of<IDatabaseDialect>();
@@ -33,7 +33,20 @@ namespace SJP.Schematic.Lint.Tests
 
             var rules = RuleProvider.GetRules(connection, RuleLevel.Error);
 
-            Assert.That(rules, Is.Not.Empty);
+            Assert.That(rules, Has.Exactly(TestRuleProvider.RuleCount).Items);
+        }
+
+        [Test]
+        public static void GetRules_WhenInvokedWithMatchingDialect_RetrievesRulesFromTestRuleProviderAndTestDialectProvider()
+        {
+            var dbConnection = Mock.Of<IDbConnection>();
+            var dialect = new Fakes.FakeDatabaseDialect();
+            var connection = new SchematicConnection(dbConnection, dialect);
+
+            var rules = RuleProvider.GetRules(connection, RuleLevel.Error);
+            const int expectedCount = TestRuleProvider.RuleCount + TestDialectRuleProvider.RuleCount;
+
+            Assert.That(rules, Has.Exactly(expectedCount).Items);
         }
 
         public class TestRuleProvider : IRuleProvider
@@ -42,9 +55,24 @@ namespace SJP.Schematic.Lint.Tests
             {
                 return new DefaultRuleProvider()
                     .GetRules(connection, level)
-                    .Take(3)
+                    .Take(RuleCount)
                     .ToList();
             }
+
+            public const int RuleCount = 3;
+        }
+
+        public class TestDialectRuleProvider : IDialectRuleProvider<Fakes.FakeDatabaseDialect>
+        {
+            public IEnumerable<IRule> GetRules(ISchematicConnection connection, RuleLevel level)
+            {
+                return new DefaultRuleProvider()
+                    .GetRules(connection, level)
+                    .Take(RuleCount)
+                    .ToList();
+            }
+
+            public const int RuleCount = 5;
         }
     }
 }
