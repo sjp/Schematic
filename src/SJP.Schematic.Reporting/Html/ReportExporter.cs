@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Lint;
 using SJP.Schematic.Reporting.Html.Lint;
 using SJP.Schematic.Reporting.Html.Renderers;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
@@ -82,7 +83,9 @@ namespace SJP.Schematic.Reporting.Html
             if (rowCounts == null)
                 throw new ArgumentNullException(nameof(rowCounts));
 
-            var linter = new DatabaseLinter(Connection);
+            var ruleProvider = new ReportingRuleProvider();
+            var rules = ruleProvider.GetRules(Connection, RuleLevel.Warning);
+            var linter = new RelationalDatabaseLinter(rules);
             var synonymTargets = new SynonymTargets(tables, views, sequences, synonyms, routines);
 
             var dependencyProvider = Connection.Dialect.GetDependencyProvider();

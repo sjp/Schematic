@@ -48,7 +48,7 @@ namespace SJP.Schematic.Core
         /// Sets the maximum number of concurrent queries to perform with the given connection.
         /// </summary>
         /// <param name="connection">A connection.</param>
-        /// <param name="maxQueries">The maximum number of queries.</param>
+        /// <param name="maxQueries">The maximum number of queries. Zero indicates no limitation on the number of concurrent queries.</param>
         /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public static void SetMaxConcurrentQueries(this ISchematicConnection connection, uint maxQueries)
         {

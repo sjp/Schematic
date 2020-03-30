@@ -4,28 +4,45 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using EnumsNET;
 using SJP.Schematic.Core;
-using SJP.Schematic.Lint;
-using SJP.Schematic.Reporting.Html.Lint.Rules;
 
-namespace SJP.Schematic.Reporting.Html.Lint
+namespace SJP.Schematic.Lint
 {
-    internal sealed class DatabaseLinter
+    /// <summary>
+    /// A linter that applies database linting rules to a set of database objects.
+    /// </summary>
+    /// <seealso cref="IRelationalDatabaseLinter" />
+    public class RelationalDatabaseLinter : IRelationalDatabaseLinter
     {
-        public DatabaseLinter(ISchematicConnection connection, RuleLevel level = RuleLevel.Warning)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RelationalDatabaseLinter"/> class.
+        /// </summary>
+        /// <param name="rules">A set of database linting rules.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="rules"/> is <c>null</c>.</exception>
+        public RelationalDatabaseLinter(IEnumerable<IRule> rules)
         {
-            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-
-            if (!level.IsValid())
-                throw new ArgumentException($"The { nameof(RuleLevel) } provided must be a valid enum.", nameof(level));
-            Level = level;
+            Rules = rules ?? throw new ArgumentNullException(nameof(rules));
         }
 
-        private ISchematicConnection Connection { get; }
+        /// <summary>
+        /// Database linting rules.
+        /// </summary>
+        /// <value>The set of rules used to analyse database objects.</value>
+        protected IEnumerable<IRule> Rules { get; }
 
-        private RuleLevel Level { get; }
+        private IEnumerable<ITableRule> TableRules => Rules.OfType<ITableRule>();
+        private IEnumerable<IViewRule> ViewRules => Rules.OfType<IViewRule>();
+        private IEnumerable<ISequenceRule> SequenceRules => Rules.OfType<ISequenceRule>();
+        private IEnumerable<ISynonymRule> SynonymRules => Rules.OfType<ISynonymRule>();
+        private IEnumerable<IRoutineRule> RoutineRules => Rules.OfType<IRoutineRule>();
 
+        /// <summary>
+        /// Analyses database tables.
+        /// </summary>
+        /// <param name="tables">A set of database tables.</param>
+        /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
+        /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
         public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken)
         {
             if (tables == null)
@@ -43,6 +60,13 @@ namespace SJP.Schematic.Reporting.Html.Lint
             }
         }
 
+        /// <summary>
+        /// Analyses database views.
+        /// </summary>
+        /// <param name="views">A set of database views.</param>
+        /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
+        /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="views"/> is <c>null</c>.</exception>
         public IAsyncEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken)
         {
             if (views == null)
@@ -60,6 +84,13 @@ namespace SJP.Schematic.Reporting.Html.Lint
             }
         }
 
+        /// <summary>
+        /// Analyses database sequences.
+        /// </summary>
+        /// <param name="sequences">A set of database sequences.</param>
+        /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
+        /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="sequences"/> is <c>null</c>.</exception>
         public IAsyncEnumerable<IRuleMessage> AnalyseSequences(IEnumerable<IDatabaseSequence> sequences, CancellationToken cancellationToken)
         {
             if (sequences == null)
@@ -77,6 +108,13 @@ namespace SJP.Schematic.Reporting.Html.Lint
             }
         }
 
+        /// <summary>
+        /// Analyses database synonyms.
+        /// </summary>
+        /// <param name="synonyms">A set of database synonyms.</param>
+        /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
+        /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="synonyms"/> is <c>null</c>.</exception>
         public IAsyncEnumerable<IRuleMessage> AnalyseSynonyms(IEnumerable<IDatabaseSynonym> synonyms, CancellationToken cancellationToken)
         {
             if (synonyms == null)
@@ -94,6 +132,13 @@ namespace SJP.Schematic.Reporting.Html.Lint
             }
         }
 
+        /// <summary>
+        /// Analyses database routines.
+        /// </summary>
+        /// <param name="routines">A set of database routines.</param>
+        /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
+        /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routines"/> is <c>null</c>.</exception>
         public IAsyncEnumerable<IRuleMessage> AnalyseRoutines(IEnumerable<IDatabaseRoutine> routines, CancellationToken cancellationToken)
         {
             if (routines == null)
@@ -110,37 +155,5 @@ namespace SJP.Schematic.Reporting.Html.Lint
                     yield return message;
             }
         }
-
-        private IEnumerable<IRule> Rules => new IRule[]
-        {
-            new CandidateKeyMissingRule(Level),
-            new ColumnWithNullDefaultValueRule(Level),
-            new DisabledObjectsRule(Level),
-            new ForeignKeyColumnTypeMismatchRule(Level),
-            new ForeignKeyIndexRule(Level),
-            new ForeignKeyIsPrimaryKeyRule(Level),
-            new ForeignKeyMissingRule(Level),
-            new ForeignKeyRelationshipCycleRule(Level),
-            new InvalidViewDefinitionRule(Connection, Level),
-            new NoIndexesPresentOnTableRule(Level),
-            new NoNonNullableColumnsPresentRule(Level),
-            new NoSurrogatePrimaryKeyRule(Level),
-            new NoValueForNullableColumnRule(Connection, Level),
-            new OnlyOneColumnPresentRule(Level),
-            new OrphanedTableRule(Level),
-            new PrimaryKeyColumnNotFirstColumnRule(Level),
-            new PrimaryKeyNotIntegerRule(Level),
-            new RedundantIndexesRule(Level),
-            new ReservedKeywordNameRule(Connection.Dialect, Level),
-            new TooManyColumnsRule(Level),
-            new UniqueIndexWithNullableColumnsRule(Level),
-            new WhitespaceNameRule(Level)
-        };
-
-        private IEnumerable<ITableRule> TableRules => Rules.OfType<ITableRule>();
-        private IEnumerable<IViewRule> ViewRules => Rules.OfType<IViewRule>();
-        private IEnumerable<ISequenceRule> SequenceRules => Rules.OfType<ISequenceRule>();
-        private IEnumerable<ISynonymRule> SynonymRules => Rules.OfType<ISynonymRule>();
-        private IEnumerable<IRoutineRule> RoutineRules => Rules.OfType<IRoutineRule>();
     }
 }

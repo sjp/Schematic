@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Reporting.Html.Lint;
+using SJP.Schematic.Lint;
 using SJP.Schematic.Reporting.Html.ViewModels;
 
 namespace SJP.Schematic.Reporting.Html.Renderers
@@ -14,7 +14,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
     internal sealed class LintRenderer : ITemplateRenderer
     {
         public LintRenderer(
-            DatabaseLinter linter,
+            IRelationalDatabaseLinter linter,
             IIdentifierDefaults identifierDefaults,
             IHtmlFormatter formatter,
             IReadOnlyCollection<IRelationalDatabaseTable> tables,
@@ -48,7 +48,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
         }
 
-        private DatabaseLinter Linter { get; }
+        private IRelationalDatabaseLinter Linter { get; }
 
         private IIdentifierDefaults IdentifierDefaults { get; }
 
