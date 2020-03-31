@@ -8,13 +8,29 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Lint.Rules
 {
+    /// <summary>
+    /// A linting rule which reports when disabled objects are present on tables in a database.
+    /// </summary>
+    /// <seealso cref="Rule" />
+    /// <seealso cref="ITableRule" />
     public class DisabledObjectsRule : Rule, ITableRule
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DisabledObjectsRule"/> class.
+        /// </summary>
+        /// <param name="level">The reporting level.</param>
         public DisabledObjectsRule(RuleLevel level)
             : base(RuleTitle, level)
         {
         }
 
+        /// <summary>
+        /// Analyses database tables. Reports messages when disabled database objects are discovered.
+        /// </summary>
+        /// <param name="tables">A set of database tables.</param>
+        /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
+        /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
         public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
         {
             if (tables == null)
@@ -23,6 +39,12 @@ namespace SJP.Schematic.Lint.Rules
             return tables.SelectMany(AnalyseTable).ToAsyncEnumerable();
         }
 
+        /// <summary>
+        /// Analyses a database table. Reports messages when disabled database objects are discovered.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
         protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
         {
             if (table == null)
@@ -76,6 +98,13 @@ namespace SJP.Schematic.Lint.Rules
             return result;
         }
 
+        /// <summary>
+        /// Builds a message used for reporting.
+        /// </summary>
+        /// <param name="tableName">The name of the table.</param>
+        /// <param name="foreignKeyName">The name of the foreign key, if available.</param>
+        /// <returns>A formatted linting message.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected virtual IRuleMessage BuildDisabledForeignKeyMessage(Identifier tableName, Option<Identifier> foreignKeyName)
         {
             if (tableName == null)
@@ -90,6 +119,13 @@ namespace SJP.Schematic.Lint.Rules
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
+        /// <summary>
+        /// Builds a message used for reporting.
+        /// </summary>
+        /// <param name="tableName">The name of the table.</param>
+        /// <param name="primaryKeyName">The name of the primary key, if available.</param>
+        /// <returns>A formatted linting message.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected virtual IRuleMessage BuildDisabledPrimaryKeyMessage(Identifier tableName, Option<Identifier> primaryKeyName)
         {
             if (tableName == null)
@@ -104,6 +140,13 @@ namespace SJP.Schematic.Lint.Rules
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
+        /// <summary>
+        /// Builds a message used for reporting.
+        /// </summary>
+        /// <param name="tableName">The name of the table.</param>
+        /// <param name="uniqueKeyName">The name of the unique key, if available.</param>
+        /// <returns>A formatted linting message.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected virtual IRuleMessage BuildDisabledUniqueKeyMessage(Identifier tableName, Option<Identifier> uniqueKeyName)
         {
             if (tableName == null)
@@ -118,6 +161,13 @@ namespace SJP.Schematic.Lint.Rules
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
+        /// <summary>
+        /// Builds a message used for reporting.
+        /// </summary>
+        /// <param name="tableName">The name of the table.</param>
+        /// <param name="checkName">The name of the check constraint, if available.</param>
+        /// <returns>A formatted linting message.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected virtual IRuleMessage BuildDisabledCheckConstraintMessage(Identifier tableName, Option<Identifier> checkName)
         {
             if (tableName == null)
@@ -132,6 +182,13 @@ namespace SJP.Schematic.Lint.Rules
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
+        /// <summary>
+        /// Builds a message used for reporting.
+        /// </summary>
+        /// <param name="tableName">The name of the table.</param>
+        /// <param name="indexName">The name of the index, if available.</param>
+        /// <returns>A formatted linting message.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected virtual IRuleMessage BuildDisabledIndexMessage(Identifier tableName, string? indexName)
         {
             if (tableName == null)
@@ -145,6 +202,13 @@ namespace SJP.Schematic.Lint.Rules
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
+        /// <summary>
+        /// Builds a message used for reporting.
+        /// </summary>
+        /// <param name="tableName">The name of the table.</param>
+        /// <param name="triggerName">The name of the trigger, if available.</param>
+        /// <returns>A formatted linting message.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected virtual IRuleMessage BuildDisabledTriggerMessage(Identifier tableName, string? triggerName)
         {
             if (tableName == null)
@@ -158,6 +222,10 @@ namespace SJP.Schematic.Lint.Rules
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
+        /// <summary>
+        /// Gets the rule title.
+        /// </summary>
+        /// <value>The rule title.</value>
         protected static string RuleTitle { get; } = "Disabled constraint, index or triggers present on a table.";
     }
 }

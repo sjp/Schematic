@@ -8,13 +8,29 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Lint.Rules
 {
+    /// <summary>
+    /// A linting rule which reports when tables contain unique indexes with nullable columns.
+    /// </summary>
+    /// <seealso cref="Rule" />
+    /// <seealso cref="ITableRule" />
     public class UniqueIndexWithNullableColumnsRule : Rule, ITableRule
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UniqueIndexWithNullableColumnsRule"/> class.
+        /// </summary>
+        /// <param name="level">The reporting level.</param>
         public UniqueIndexWithNullableColumnsRule(RuleLevel level)
             : base(RuleTitle, level)
         {
         }
 
+        /// <summary>
+        /// Analyses database tables. Reports messages when tables contain unique indexes with nullable columns.
+        /// </summary>
+        /// <param name="tables">A set of database tables.</param>
+        /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
+        /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
         public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
         {
             if (tables == null)
@@ -23,6 +39,12 @@ namespace SJP.Schematic.Lint.Rules
             return tables.SelectMany(AnalyseTable).ToAsyncEnumerable();
         }
 
+        /// <summary>
+        /// Analyses a database table. Reports messages when tables contain unique indexes with nullable columns.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
         protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
         {
             if (table == null)
@@ -52,6 +74,14 @@ namespace SJP.Schematic.Lint.Rules
             return result;
         }
 
+        /// <summary>
+        /// Builds the message used for reporting.
+        /// </summary>
+        /// <param name="tableName">The name of the table.</param>
+        /// <param name="indexName">The name of the index.</param>
+        /// <param name="columnNames">The column names present on the index.</param>
+        /// <returns>A formatted linting message.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>. Also thrown when <paramref name="columnNames"/> is <c>null</c> or empty.</exception>
         protected virtual IRuleMessage BuildMessage(Identifier tableName, string? indexName, IEnumerable<string> columnNames)
         {
             if (tableName == null)
@@ -81,6 +111,10 @@ namespace SJP.Schematic.Lint.Rules
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
+        /// <summary>
+        /// Gets the rule title.
+        /// </summary>
+        /// <value>The rule title.</value>
         protected static string RuleTitle { get; } = "Unique index contains nullable columns.";
     }
 }

@@ -9,13 +9,29 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Lint.Rules
 {
+    /// <summary>
+    /// A linting rule which reports when foreign keys are missing indexes.
+    /// </summary>
+    /// <seealso cref="Rule"/>
+    /// <seealso cref="ITableRule"/>
     public class ForeignKeyIndexRule : Rule, ITableRule
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ForeignKeyIndexRule"/> class.
+        /// </summary>
+        /// <param name="level">The reporting level.</param>
         public ForeignKeyIndexRule(RuleLevel level)
             : base(RuleTitle, level)
         {
         }
 
+        /// <summary>
+        /// Analyses database tables. Reports messages when foreign keys are missing indexes.
+        /// </summary>
+        /// <param name="tables">A set of database tables.</param>
+        /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
+        /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
         public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
         {
             if (tables == null)
@@ -24,6 +40,12 @@ namespace SJP.Schematic.Lint.Rules
             return tables.SelectMany(AnalyseTable).ToAsyncEnumerable();
         }
 
+        /// <summary>
+        /// Analyses a database table. Reports messages when foreign keys are missing indexes.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
         protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
         {
             if (table == null)
@@ -50,6 +72,13 @@ namespace SJP.Schematic.Lint.Rules
             return result;
         }
 
+        /// <summary>
+        /// Determines whether a column set is covered by an index.
+        /// </summary>
+        /// <param name="columns">A set of columns.</param>
+        /// <param name="indexColumns">The index columns.</param>
+        /// <returns><c>true</c> if <paramref name="columns"/> is covered by <paramref name="indexColumns"/>; otherwise <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="columns"/> or <paramref name="indexColumns"/> is <c>null</c>.</exception>
         protected static bool ColumnsHaveIndex(IEnumerable<IDatabaseColumn> columns, IEnumerable<IDatabaseIndexColumn> indexColumns)
         {
             if (columns == null)
@@ -70,6 +99,15 @@ namespace SJP.Schematic.Lint.Rules
             return IsPrefixOf(columnNames, indexColumnNames);
         }
 
+        /// <summary>
+        /// Determines whether one sequence is a prefix of another.
+        /// </summary>
+        /// <typeparam name="T">A set of database objects.</typeparam>
+        /// <param name="prefixSet">The set to test whether it is a prefix.</param>
+        /// <param name="otherSet">The alternate set.</param>
+        /// <returns><c>true</c> if <paramref name="prefixSet"/> is a prefix of <paramref name="otherSet"/>; otherwise, <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="prefixSet"/> or <paramref name="otherSet"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="prefixSet"/> or <paramref name="otherSet"/> is empty.</exception>
         protected static bool IsPrefixOf<T>(IEnumerable<T> prefixSet, IEnumerable<T> otherSet)
         {
             if (prefixSet == null)
@@ -94,6 +132,14 @@ namespace SJP.Schematic.Lint.Rules
             return prefixSetList.SequenceEqual(superSetList);
         }
 
+        /// <summary>
+        /// Builds the message used for reporting.
+        /// </summary>
+        /// <param name="foreignKeyName">The name of the foreign key constraint, if available.</param>
+        /// <param name="tableName">The name of the table.</param>
+        /// <param name="columnNames">The names of the columns in the foreign key.</param>
+        /// <returns>A formatted linting message.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="columnNames"/> is <c>null</c>. Also when <paramref name="columnNames"/> is empty.</exception>
         protected virtual IRuleMessage BuildMessage(Option<Identifier> foreignKeyName, Identifier tableName, IEnumerable<string> columnNames)
         {
             if (tableName == null)
@@ -126,6 +172,10 @@ namespace SJP.Schematic.Lint.Rules
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
+        /// <summary>
+        /// Gets the rule title.
+        /// </summary>
+        /// <value>The rule title.</value>
         protected static string RuleTitle { get; } = "Indexes missing on foreign key.";
     }
 }

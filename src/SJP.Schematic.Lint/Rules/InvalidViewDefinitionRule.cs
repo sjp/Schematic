@@ -8,16 +8,38 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Lint.Rules
 {
+    /// <summary>
+    /// A linting rule which reports when a view is declared with an invalid definition and cannot be used.
+    /// </summary>
+    /// <seealso cref="Rule"/>
+    /// <seealso cref="IViewRule"/>
     public class InvalidViewDefinitionRule : Rule, IViewRule
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidViewDefinitionRule"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="level">The reporting level.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public InvalidViewDefinitionRule(ISchematicConnection connection, RuleLevel level)
             : base(RuleTitle, level)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
         }
 
+        /// <summary>
+        /// A database connection.
+        /// </summary>
+        /// <value>The connection to the database.</value>
         protected ISchematicConnection Connection { get; }
 
+        /// <summary>
+        /// Analyses database views. Reports messages when invalid view definitions are discovered on views.
+        /// </summary>
+        /// <param name="views">A set of database views.</param>
+        /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
+        /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="views"/> is <c>null</c>.</exception>
         public IAsyncEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default)
         {
             if (views == null)
@@ -36,6 +58,13 @@ namespace SJP.Schematic.Lint.Rules
             }
         }
 
+        /// <summary>
+        /// Analyses a database view. Reports messages when the view definitions is invalid.
+        /// </summary>
+        /// <param name="view">A database view.</param>
+        /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
+        /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="view"/> is <c>null</c>.</exception>
         protected Task<IEnumerable<IRuleMessage>> AnalyseViewAsync(IDatabaseView view, CancellationToken cancellationToken)
         {
             if (view == null)
@@ -62,6 +91,12 @@ namespace SJP.Schematic.Lint.Rules
             }
         }
 
+        /// <summary>
+        /// Builds the message used for reporting.
+        /// </summary>
+        /// <param name="viewName">The name of the view.</param>
+        /// <returns>A formatted linting message.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected virtual IRuleMessage BuildMessage(Identifier viewName)
         {
             if (viewName == null)
@@ -71,6 +106,10 @@ namespace SJP.Schematic.Lint.Rules
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
+        /// <summary>
+        /// Gets the rule title.
+        /// </summary>
+        /// <value>The rule title.</value>
         protected static string RuleTitle { get; } = "Invalid view definition.";
     }
 }

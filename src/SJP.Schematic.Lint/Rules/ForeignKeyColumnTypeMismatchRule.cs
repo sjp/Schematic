@@ -8,13 +8,29 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Lint.Rules
 {
+    /// <summary>
+    /// A linting rule which reports when foreign key relationships have mismatching column types for their parent and child key columns.
+    /// </summary>
+    /// <seealso cref="Rule"/>
+    /// <seealso cref="ITableRule"/>
     public class ForeignKeyColumnTypeMismatchRule : Rule, ITableRule
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ForeignKeyColumnTypeMismatchRule"/> class.
+        /// </summary>
+        /// <param name="level">The reporting level.</param>
         public ForeignKeyColumnTypeMismatchRule(RuleLevel level)
             : base(RuleTitle, level)
         {
         }
 
+        /// <summary>
+        /// Analyses database tables. Reports messages when foreign key relationships have mismatching column types for their parent and child key columns.
+        /// </summary>
+        /// <param name="tables">A set of database tables.</param>
+        /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
+        /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
         public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
         {
             if (tables == null)
@@ -23,6 +39,12 @@ namespace SJP.Schematic.Lint.Rules
             return tables.SelectMany(AnalyseTable).ToAsyncEnumerable();
         }
 
+        /// <summary>
+        /// Analyses a database table. Reports messages when a table has foreign key relationships with mismatching column types for their parent and child key columns.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
         protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
         {
             if (table == null)
@@ -50,6 +72,14 @@ namespace SJP.Schematic.Lint.Rules
             return result;
         }
 
+        /// <summary>
+        /// Builds the message used for reporting.
+        /// </summary>
+        /// <param name="foreignKeyName">The name of the foreign key constraint, if available.</param>
+        /// <param name="childTableName">The name of the child table.</param>
+        /// <param name="parentTableName">The name of the parent table.</param>
+        /// <returns>A formatted linting message.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="childTableName"/> or <paramref name="parentTableName"/> is <c>null</c>.</exception>
         protected virtual IRuleMessage BuildMessage(Option<Identifier> foreignKeyName, Identifier childTableName, Identifier parentTableName)
         {
             if (childTableName == null)
@@ -76,6 +106,10 @@ namespace SJP.Schematic.Lint.Rules
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
+        /// <summary>
+        /// Gets the rule title.
+        /// </summary>
+        /// <value>The rule title.</value>
         protected static string RuleTitle { get; } = "Foreign key relationships contain mismatching types.";
     }
 }

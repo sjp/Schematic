@@ -11,8 +11,19 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Lint.Rules
 {
+    /// <summary>
+    /// A linting rule which reports when no non-null values exist for a nullable column in a table.
+    /// </summary>
+    /// <seealso cref="Rule"/>
+    /// <seealso cref="ITableRule"/>
     public class NoValueForNullableColumnRule : Rule, ITableRule
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NoValueForNullableColumnRule"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="level">The reporting level.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public NoValueForNullableColumnRule(ISchematicConnection connection, RuleLevel level)
             : base(RuleTitle, level)
         {
@@ -21,12 +32,31 @@ namespace SJP.Schematic.Lint.Rules
             _fromQuerySuffixAsync = new AsyncLazy<string>(GetFromQuerySuffixAsync);
         }
 
+        /// <summary>
+        /// A database connection, qualified with a dialect.
+        /// </summary>
+        /// <value>The connection.</value>
         protected ISchematicConnection Connection { get; }
 
+        /// <summary>
+        /// A database connection.
+        /// </summary>
+        /// <value>The database connection.</value>
         protected IDbConnection DbConnection => Connection.DbConnection;
 
+        /// <summary>
+        /// A database dialect.
+        /// </summary>
+        /// <value>The dialect associated with <see cref="DbConnection"/>.</value>
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
+        /// <summary>
+        /// Analyses database tables. Reports messages when no non-null values exist for a nullable column in a table.
+        /// </summary>
+        /// <param name="tables">A set of database tables.</param>
+        /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
+        /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
         public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
         {
             if (tables == null)
@@ -45,6 +75,13 @@ namespace SJP.Schematic.Lint.Rules
             }
         }
 
+        /// <summary>
+        /// Analyses a database table. Reports messages when no non-null values exist for a nullable column in a table.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
+        /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
         protected Task<IEnumerable<IRuleMessage>> AnalyseTableAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
         {
             if (table == null)
@@ -78,6 +115,13 @@ namespace SJP.Schematic.Lint.Rules
             return result;
         }
 
+        /// <summary>
+        /// Determines whether a table has any rows present.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns><c>true</c> if the table has any rows; otherwise <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
         protected Task<bool> TableHasRowsAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
         {
             if (table == null)
@@ -92,6 +136,14 @@ namespace SJP.Schematic.Lint.Rules
             return await DbConnection.ExecuteScalarAsync<bool>(sql, cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Determines whether a nullable column has any non-null values.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <param name="column">A column from the table provided by <paramref name="table"/>.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns><c>true</c> if the column has any non-null values; otherwise <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="column"/> is <c>null</c>.</exception>
         protected Task<bool> NullableColumnHasValueAsync(IRelationalDatabaseTable table, IDatabaseColumn column,
             CancellationToken cancellationToken)
         {
@@ -109,7 +161,13 @@ namespace SJP.Schematic.Lint.Rules
             var sql = await GetNullableColumnHasValueQueryAsync(table.Name, column.Name).ConfigureAwait(false);
             return await DbConnection.ExecuteScalarAsync<bool>(sql, cancellationToken).ConfigureAwait(false);
         }
-
+        /// <summary>
+        /// Builds the message used for reporting.
+        /// </summary>
+        /// <param name="tableName">The name of the table.</param>
+        /// <param name="columnName">A name of the nullable column.</param>
+        /// <returns>A formatted linting message.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>. Also thrown when <paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
         protected virtual IRuleMessage BuildMessage(Identifier tableName, string columnName)
         {
             if (tableName == null)
@@ -190,6 +248,10 @@ namespace SJP.Schematic.Lint.Rules
             return "DUAL";
         }
 
+        /// <summary>
+        /// Gets the rule title.
+        /// </summary>
+        /// <value>The rule title.</value>
         protected static string RuleTitle { get; } = "No not-null values exist for a nullable column.";
 
         private const string TestQueryNoTable = "select 1 as dummy";

@@ -8,13 +8,29 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Lint.Rules
 {
+    /// <summary>
+    /// A linting rule which reports when foreign key relationships are implied, but not enforced by a foreign key constraint.
+    /// </summary>
+    /// <seealso cref="Rule"/>
+    /// <seealso cref="ITableRule"/>
     public class ForeignKeyMissingRule : Rule, ITableRule
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ForeignKeyMissingRule"/> class.
+        /// </summary>
+        /// <param name="level">The reporting level.</param>
         public ForeignKeyMissingRule(RuleLevel level)
             : base(RuleTitle, level)
         {
         }
 
+        /// <summary>
+        /// Analyses database tables. Reports messages when a foreign key relationship is implied, but missing a foreign key constraint to enforce it.
+        /// </summary>
+        /// <param name="tables">A set of database tables.</param>
+        /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
+        /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
         public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
         {
             if (tables == null)
@@ -24,6 +40,13 @@ namespace SJP.Schematic.Lint.Rules
             return tables.SelectMany(t => AnalyseTable(t, tableNames)).ToAsyncEnumerable();
         }
 
+        /// <summary>
+        /// Analyses a database table. Reports messages when columns have numeric suffixes.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <param name="tableNames">Other table names in the database.</param>
+        /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="tableNames"/> is <c>null</c>.</exception>
         protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table, IEnumerable<Identifier> tableNames)
         {
             if (table == null)
@@ -59,7 +82,12 @@ namespace SJP.Schematic.Lint.Rules
             return result;
         }
 
-        // intended to parse out the table name from the column name
+        /// <summary>
+        /// Gets the name of the implied table.
+        /// </summary>
+        /// <param name="columnName">The name of the column that can imply a table name.</param>
+        /// <returns>The implied table name if found, otherwise the value of <paramref name="columnName"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
         protected static string GetImpliedTableName(string columnName)
         {
             if (columnName.IsNullOrWhiteSpace())
@@ -76,6 +104,14 @@ namespace SJP.Schematic.Lint.Rules
             return columnName;
         }
 
+        /// <summary>
+        /// Builds the message used for reporting.
+        /// </summary>
+        /// <param name="columnName">The name of the column that implies a foreign key relationship.</param>
+        /// <param name="tableName">The name of the table.</param>
+        /// <param name="targetTableName">The implied target table.</param>
+        /// <returns>A formatted linting message.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="targetTableName"/> is <c>null</c>. Also thrown when <paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
         protected virtual IRuleMessage BuildMessage(string columnName, Identifier tableName, Identifier targetTableName)
         {
             if (columnName.IsNullOrWhiteSpace())
@@ -99,6 +135,10 @@ namespace SJP.Schematic.Lint.Rules
             return new RuleMessage(RuleTitle, Level, messageText);
         }
 
+        /// <summary>
+        /// Gets the rule title.
+        /// </summary>
+        /// <value>The rule title.</value>
         protected static string RuleTitle { get; } = "Column name implies a relationship missing a foreign key constraint.";
     }
 }
