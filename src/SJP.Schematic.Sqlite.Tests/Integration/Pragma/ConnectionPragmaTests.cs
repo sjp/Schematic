@@ -254,6 +254,15 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
+        public static void FunctionListAsync_WhenInvoked_ThrowsNothing()
+        {
+            using var connection = CreateConnection();
+            var connPragma = CreateConnectionPragma(connection);
+
+            Assert.That(async () => await connPragma.FunctionListAsync().ConfigureAwait(false), Throws.Nothing);
+        }
+
+        [Test]
         public static async Task IgnoreCheckConstraintsAsync_WhenSet_WritesCorrectly()
         {
             using var connection = CreateConnection();
@@ -297,6 +306,15 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
+        public static void ModuleListAsync_WhenInvoked_ThrowsNothing()
+        {
+            using var connection = CreateConnection();
+            var connPragma = CreateConnectionPragma(connection);
+
+            Assert.That(async () => await connPragma.ModuleListAsync().ConfigureAwait(false), Throws.Nothing);
+        }
+
+        [Test]
         public static async Task OptimizeAsync_WhenInvoked_PerformsOperationSuccessfully()
         {
             using var connection = CreateConnection();
@@ -314,6 +332,15 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 
             const OptimizeFeatures newValue = (OptimizeFeatures)55;
             Assert.That(() => connPragma.OptimizeAsync(newValue), Throws.ArgumentException);
+        }
+
+        [Test]
+        public static void PragmaListAsync_WhenInvoked_ThrowsNothing()
+        {
+            using var connection = CreateConnection();
+            var connPragma = CreateConnectionPragma(connection);
+
+            Assert.That(async () => await connPragma.PragmaListAsync().ConfigureAwait(false), Throws.Nothing);
         }
 
         [Test]

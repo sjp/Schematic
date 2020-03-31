@@ -142,6 +142,10 @@ namespace SJP.Schematic.Sqlite.Pragma
 
         protected virtual string FullFsyncSetQuery(bool enable) => PragmaPrefix + "fullfsync = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
+        public Task<IEnumerable<pragma_function_list>> FunctionListAsync(CancellationToken cancellationToken = default) => DbConnection.QueryAsync<pragma_function_list>(FunctionListReadQuery, cancellationToken);
+
+        protected virtual string FunctionListReadQuery => PragmaPrefix + "function_list";
+
         public Task IgnoreCheckConstraintsAsync(bool enable, CancellationToken cancellationToken = default) => DbConnection.ExecuteAsync(IgnoreCheckConstraintsSetQuery(enable), cancellationToken);
 
         protected virtual string IgnoreCheckConstraintsSetQuery(bool enable) => PragmaPrefix + "ignore_check_constraints = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
@@ -162,6 +166,10 @@ namespace SJP.Schematic.Sqlite.Pragma
 
         protected virtual string LegacyFileFormatSetQuery(bool enable) => PragmaPrefix + "legacy_file_format = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
+        public Task<IEnumerable<string>> ModuleListAsync(CancellationToken cancellationToken = default) => DbConnection.QueryAsync<string>(ModuleListReadQuery, cancellationToken);
+
+        protected virtual string ModuleListReadQuery => PragmaPrefix + "module_list";
+
         public Task<IEnumerable<string>> OptimizeAsync(OptimizeFeatures features = OptimizeFeatures.Analyze, CancellationToken cancellationToken = default) => DbConnection.QueryAsync<string>(OptimizeSetQuery(features), cancellationToken);
 
         protected virtual string OptimizeSetQuery(OptimizeFeatures features)
@@ -172,6 +180,10 @@ namespace SJP.Schematic.Sqlite.Pragma
             var value = (int)features;
             return PragmaPrefix + "optimize = " + value;
         }
+
+        public Task<IEnumerable<string>> PragmaListAsync(CancellationToken cancellationToken = default) => DbConnection.QueryAsync<string>(PragmaListReadQuery, cancellationToken);
+
+        protected virtual string PragmaListReadQuery => PragmaPrefix + "pragma_list";
 
         public Task<bool> QueryOnlyAsync(CancellationToken cancellationToken = default) => DbConnection.ExecuteScalarAsync<bool>(QueryOnlyReadQuery, cancellationToken);
 

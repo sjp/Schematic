@@ -33,12 +33,15 @@ namespace SJP.Schematic.Sqlite.Pragma
         Task ForeignKeysAsync(bool enable, CancellationToken cancellationToken = default);
         Task<bool> FullFsyncAsync(CancellationToken cancellationToken = default);
         Task FullFsyncAsync(bool enable, CancellationToken cancellationToken = default);
+        Task<IEnumerable<pragma_function_list>> FunctionListAsync(CancellationToken cancellationToken = default);
         Task IgnoreCheckConstraintsAsync(bool enable, CancellationToken cancellationToken = default);
         Task<bool> LegacyAlterTableAsync(CancellationToken cancellationToken = default);
         Task LegacyAlterTableAsync(bool enable, CancellationToken cancellationToken = default);
         Task<bool> LegacyFileFormatAsync(CancellationToken cancellationToken = default);
         Task LegacyFileFormatAsync(bool enable, CancellationToken cancellationToken = default);
+        Task<IEnumerable<string>> ModuleListAsync(CancellationToken cancellationToken = default);
         Task<IEnumerable<string>> OptimizeAsync(OptimizeFeatures features = OptimizeFeatures.Analyze, CancellationToken cancellationToken = default);
+        Task<IEnumerable<string>> PragmaListAsync(CancellationToken cancellationToken = default);
         Task<bool> QueryOnlyAsync(CancellationToken cancellationToken = default);
         Task QueryOnlyAsync(bool enable, CancellationToken cancellationToken = default);
         Task<bool> ReadUncommittedAsync(CancellationToken cancellationToken = default);
