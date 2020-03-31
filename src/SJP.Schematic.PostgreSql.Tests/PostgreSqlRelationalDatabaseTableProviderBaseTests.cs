@@ -1,12 +1,12 @@
 ﻿using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
-using TableProvider = SJP.Schematic.PostgreSql.Versions.V9_4.PostgreSqlRelationalDatabaseTableProvider;
+using TableProvider = SJP.Schematic.PostgreSql.PostgreSqlRelationalDatabaseTableProviderBase;
 
-namespace SJP.Schematic.PostgreSql.Tests.Versions.V9_4
+namespace SJP.Schematic.PostgreSql.Tests
 {
     [TestFixture]
-    internal static class PostgreSqlRelationalDatabaseTableProviderTests
+    internal static class PostgreSqlRelationalDatabaseTableProviderBaseTests
     {
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgNullException()

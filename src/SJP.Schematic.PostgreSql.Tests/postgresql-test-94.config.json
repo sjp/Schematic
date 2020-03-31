@@ -1,5 +1,0 @@
-﻿{
-  "ConnectionStrings": {
-    "TestDb": "Server=localhost; Port=5432; Database=schematic; User Id=postgres; Password=Password12!; Timeout=2"
-  }
-}

@@ -12,11 +12,11 @@ using SJP.Schematic.Core.Exceptions;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.PostgreSql.Query;
 
-namespace SJP.Schematic.PostgreSql.Versions.V9_4
+namespace SJP.Schematic.PostgreSql
 {
-    public class PostgreSqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProvider
+    public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabaseTableProvider
     {
-        public PostgreSqlRelationalDatabaseTableProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
+        public PostgreSqlRelationalDatabaseTableProviderBase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));

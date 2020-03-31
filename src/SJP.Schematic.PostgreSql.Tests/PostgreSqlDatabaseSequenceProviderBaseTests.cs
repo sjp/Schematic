@@ -2,12 +2,12 @@
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
-using SequenceProvider = SJP.Schematic.PostgreSql.Versions.V9_4.PostgreSqlDatabaseSequenceProvider;
+using SequenceProvider = SJP.Schematic.PostgreSql.PostgreSqlDatabaseSequenceProviderBase;
 
-namespace SJP.Schematic.PostgreSql.Tests.Versions.V9_4
+namespace SJP.Schematic.PostgreSql.Tests
 {
     [TestFixture]
-    internal static class PostgreSqlDatabaseSequenceProviderTests
+    internal static class PostgreSqlDatabaseSequenceProviderBaseTests
     {
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgNullException()

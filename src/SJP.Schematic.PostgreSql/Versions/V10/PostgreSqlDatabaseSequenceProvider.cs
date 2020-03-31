@@ -3,7 +3,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.PostgreSql.Versions.V10
 {
-    public class PostgreSqlDatabaseSequenceProvider : V9_4.PostgreSqlDatabaseSequenceProvider
+    public class PostgreSqlDatabaseSequenceProvider : PostgreSqlDatabaseSequenceProviderBase
     {
         public PostgreSqlDatabaseSequenceProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
             : base(connection, identifierDefaults, identifierResolver)

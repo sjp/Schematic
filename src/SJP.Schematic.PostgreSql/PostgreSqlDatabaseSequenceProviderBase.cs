@@ -9,11 +9,11 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.PostgreSql.Query;
 
-namespace SJP.Schematic.PostgreSql.Versions.V9_4
+namespace SJP.Schematic.PostgreSql
 {
-    public class PostgreSqlDatabaseSequenceProvider : IDatabaseSequenceProvider
+    public class PostgreSqlDatabaseSequenceProviderBase : IDatabaseSequenceProvider
     {
-        public PostgreSqlDatabaseSequenceProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
+        public PostgreSqlDatabaseSequenceProviderBase(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));

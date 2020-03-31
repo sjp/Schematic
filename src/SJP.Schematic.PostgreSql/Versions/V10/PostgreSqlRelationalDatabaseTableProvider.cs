@@ -9,7 +9,7 @@ using SJP.Schematic.PostgreSql.Query;
 
 namespace SJP.Schematic.PostgreSql.Versions.V10
 {
-    public class PostgreSqlRelationalDatabaseTableProvider : V9_4.PostgreSqlRelationalDatabaseTableProvider
+    public class PostgreSqlRelationalDatabaseTableProvider : PostgreSqlRelationalDatabaseTableProviderBase
     {
         public PostgreSqlRelationalDatabaseTableProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
             : base(connection, identifierDefaults, identifierResolver)
