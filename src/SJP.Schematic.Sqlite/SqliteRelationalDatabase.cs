@@ -210,6 +210,41 @@ namespace SJP.Schematic.Sqlite
         }
 
         /// <summary>
+        /// The <code>VACUUM INTO</code> command rebuilds the database file, repacking it into a minimal amount of disk space in a separate file.
+        /// </summary>
+        /// <param name="filePath">A file path that will store the resulting vacuum'd database.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <exception cref="ArgumentNullException">Thrown when or <paramref name="schemaName"/> is null, empty or whitespace.</exception>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        public Task VacuumIntoAsync(string filePath, CancellationToken cancellationToken = default)
+        {
+            if (filePath.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(filePath));
+
+            var sql = VacuumIntoQuery(filePath);
+            return DbConnection.ExecuteAsync(sql, cancellationToken);
+        }
+
+        /// <summary>
+        /// The <code>VACUUM INTO</code> command rebuilds the database file, repacking it into a minimal amount of disk space in a separate file.
+        /// </summary>
+        /// <param name="filePath">A file path that will store the resulting vacuum'd database.</param>
+        /// <param name="schemaName">The name of an attached database.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <exception cref="ArgumentNullException">Thrown when or <paramref name="schemaName"/> is null, empty or whitespace.</exception>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        public Task VacuumIntoAsync(string filePath, string schemaName, CancellationToken cancellationToken = default)
+        {
+            if (filePath.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(filePath));
+            if (schemaName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(schemaName));
+
+            var sql = VacuumIntoQuery(filePath, schemaName);
+            return DbConnection.ExecuteAsync(sql, cancellationToken);
+        }
+
+        /// <summary>
         /// Constructs a SQL query that rebuild and repack a database file.
         /// </summary>
         /// <param name="schemaName">The name of an attached database.</param>
@@ -221,6 +256,35 @@ namespace SJP.Schematic.Sqlite
                 throw new ArgumentNullException(nameof(schemaName));
 
             return "VACUUM " + Dialect.QuoteIdentifier(schemaName);
+        }
+
+        /// <summary>
+        /// Constructs a SQL query that rebuild and repack a database into a separate file.
+        /// </summary>
+        /// <param name="filePath">A file path that will store the resulting vacuum'd database.</param>
+        /// <exception cref="ArgumentNullException">Thrown when or <paramref name="schemaName"/> is null, empty or whitespace.</exception>
+        /// <returns>A SQL query that can be used to rebuild and repack a database file.</returns>
+        protected virtual string VacuumIntoQuery(string filePath)
+        {
+            if (filePath.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(filePath));
+
+            return "VACUUM INTO '" + filePath.Replace("'", "''") + "'";
+        }
+
+        /// <summary>
+        /// Constructs a SQL query that rebuild and repack a database into a separate file.
+        /// </summary>
+        /// <param name="filePath">A file path that will store the resulting vacuum'd database.</param>
+        /// <param name="schemaName">The name of an attached database.</param>
+        /// <exception cref="ArgumentNullException">Thrown when or <paramref name="schemaName"/> is null, empty or whitespace.</exception>
+        /// <returns>A SQL query that can be used to rebuild and repack a database file.</returns>
+        protected virtual string VacuumIntoQuery(string filePath, string schemaName)
+        {
+            if (schemaName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(schemaName));
+
+            return "VACUUM " + Dialect.QuoteIdentifier(schemaName) + " INTO '" + filePath.Replace("'", "''") + "'";
         }
 
         private readonly IRelationalDatabaseTableProvider _tableProvider;

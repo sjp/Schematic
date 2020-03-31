@@ -157,6 +157,42 @@ namespace SJP.Schematic.Sqlite.Tests
         }
 
         [Test]
+        public static void VacuumIntoAsync_WhenGivenNullFileName_ThrowsArgumentNullException()
+        {
+            Assert.That(() => Database.VacuumIntoAsync(null), Throws.ArgumentNullException);
+        }
+
+        [Test]
+        public static void VacuumIntoAsync_WhenGivenEmptyFileName_ThrowsArgumentNullException()
+        {
+            Assert.That(() => Database.VacuumIntoAsync(string.Empty), Throws.ArgumentNullException);
+        }
+
+        [Test]
+        public static void VacuumIntoAsync_WhenGivenWhiteSpaceFileName_ThrowsArgumentNullException()
+        {
+            Assert.That(() => Database.VacuumIntoAsync("   "), Throws.ArgumentNullException);
+        }
+
+        [Test]
+        public static void VacuumIntoAsync_WhenGivenFileNameWithNullSchemaName_ThrowsArgumentNullException()
+        {
+            Assert.That(() => Database.VacuumIntoAsync("test_file", null), Throws.ArgumentNullException);
+        }
+
+        [Test]
+        public static void VacuumIntoAsync_WhenGivenFileNameWithEmptySchemaName_ThrowsArgumentNullException()
+        {
+            Assert.That(() => Database.VacuumIntoAsync("test_file", string.Empty), Throws.ArgumentNullException);
+        }
+
+        [Test]
+        public static void VacuumIntoAsync_WhenGivenFileNameWithWhiteSpaceSchemaName_ThrowsArgumentNullException()
+        {
+            Assert.That(() => Database.VacuumIntoAsync("test_file", "   "), Throws.ArgumentNullException);
+        }
+
+        [Test]
         public static void AttachDatabaseAsync_WhenGivenNullSchemaName_ThrowsArgumentNullException()
         {
             Assert.That(() => Database.AttachDatabaseAsync(null, ":memory:"), Throws.ArgumentNullException);

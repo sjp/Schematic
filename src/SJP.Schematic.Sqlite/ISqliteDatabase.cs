@@ -10,7 +10,7 @@ namespace SJP.Schematic.Sqlite
     public interface ISqliteDatabase : IRelationalDatabase
     {
         /// <summary>
-        /// <para>The <code>VACUUM</code> command rebuilds the database file, repacking it into a minimal amount of disk space.</para>
+        /// The <code>VACUUM</code> command rebuilds the database file, repacking it into a minimal amount of disk space.
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
         /// <remarks>This only applies to the main database and not to any attached database.</remarks>
@@ -24,6 +24,24 @@ namespace SJP.Schematic.Sqlite
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
         Task VacuumAsync(string schemaName, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// The <code>VACUUM INTO</code> command rebuilds the database file, repacking it into a minimal amount of disk space in a separate file.
+        /// </summary>
+        /// <param name="filePath">A file path that will store the resulting vacuum'd database.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <remarks>This only applies to the main database and not to any attached database.</remarks>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        Task VacuumIntoAsync(string filePath, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// The <code>VACUUM INTO</code> command rebuilds the database file, repacking it into a minimal amount of disk space in a separate file.
+        /// </summary>
+        /// <param name="filePath">A file path that will store the resulting vacuum'd database.</param>
+        /// <param name="schemaName">Either <code>main</code> or the name assigned to an attached database.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        Task VacuumIntoAsync(string filePath, string schemaName, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Adds another database file to the current database connection.
