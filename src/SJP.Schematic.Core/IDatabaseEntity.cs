@@ -1,7 +1,7 @@
 ﻿namespace SJP.Schematic.Core
 {
     /// <summary>
-    /// Defines behaviour for all objects within a database.
+    /// Defines behaviour for top-level objects within a database.
     /// </summary>
     public interface IDatabaseEntity
     {

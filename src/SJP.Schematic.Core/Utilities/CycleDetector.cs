@@ -7,10 +7,16 @@ using QuickGraph.Algorithms.Search;
 namespace SJP.Schematic.Core.Utilities
 {
     /// <summary>
-    /// Discovers cycles within a database
+    /// Discovers cyclical foreign key relationships within a database.
     /// </summary>
     public class CycleDetector
     {
+        /// <summary>
+        /// For a set of tables, determines any cycles and retrieves any cycles detected.
+        /// </summary>
+        /// <param name="tables">The tables which may contain a cycle.</param>
+        /// <returns>A set of cycles, each element contains the set of table names that form a cycle.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
         public IReadOnlyCollection<IReadOnlyCollection<Identifier>> GetCyclePaths(IReadOnlyCollection<IRelationalDatabaseTable> tables)
         {
             if (tables == null)
