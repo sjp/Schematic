@@ -198,6 +198,16 @@ create table table_test_table_32 (
     constraint ck_test_table_32 check ([test_column]>(1))
 )", CancellationToken.None).ConfigureAwait(false);
             await DbConnection.ExecuteAsync("create table table_test_table_33 ( test_column int not null default 1 )", CancellationToken.None).ConfigureAwait(false);
+
+            // TODO: uncomment when v3.31 is available
+//            await DbConnection.ExecuteAsync(@"c
+//reate table table_test_table_34 (
+//    test_column_1 int not null,
+//    test_column_2 int as (test_column_1 * test_column_1),
+//    test_column_3 int generated always as (test_column_1 * test_column_1 * test_column_1) stored,
+//    test_column_4 int constraint computed_col_constraint as (test_column_1 * test_column_1 * test_column_1 * test_column_1) virtual
+//)", CancellationToken.None).ConfigureAwait(false);
+
             await DbConnection.ExecuteAsync("create table trigger_test_table_1 (table_id integer primary key not null)", CancellationToken.None).ConfigureAwait(false);
             await DbConnection.ExecuteAsync("create table trigger_test_table_2 (table_id integer primary key not null)", CancellationToken.None).ConfigureAwait(false);
             await DbConnection.ExecuteAsync(@"create trigger trigger_test_table_1_trigger_1

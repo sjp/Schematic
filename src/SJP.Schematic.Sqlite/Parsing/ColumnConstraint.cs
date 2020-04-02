@@ -19,7 +19,8 @@ namespace SJP.Schematic.Sqlite.Parsing
             UniqueKey,
             ForeignKey,
             Check,
-            Nullable
+            Nullable,
+            GeneratedAlways
         }
 
         protected ColumnConstraint(ColumnConstraintType constraintType)
@@ -139,6 +140,28 @@ namespace SJP.Schematic.Sqlite.Parsing
             }
 
             public IReadOnlyCollection<Token<SqliteToken>> Definition { get; }
+        }
+
+        public class GeneratedAlways : ColumnConstraint
+        {
+            public GeneratedAlways(SqlExpression definition)
+                : this(definition, SqliteGeneratedColumnType.Virtual)
+            {
+            }
+
+            public GeneratedAlways(SqlExpression definition, SqliteGeneratedColumnType generatedColumnType)
+                : base(ColumnConstraintType.GeneratedAlways)
+            {
+                if (definition == null || definition.Tokens.Empty())
+                    throw new ArgumentNullException(nameof(definition));
+
+                Definition = definition.Tokens.ToList();
+                GeneratedColumnType = generatedColumnType;
+            }
+
+            public IReadOnlyCollection<Token<SqliteToken>> Definition { get; }
+
+            public SqliteGeneratedColumnType GeneratedColumnType { get; }
         }
     }
 }

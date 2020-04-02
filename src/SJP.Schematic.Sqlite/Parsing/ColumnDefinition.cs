@@ -35,6 +35,8 @@ namespace SJP.Schematic.Sqlite.Parsing
             UniqueKey? uniqueKey = null;
             var foreignKeys = new List<ForeignKey>();
             var checks = new List<Check>();
+            var generatedDefinition = new List<Token<SqliteToken>>();
+            var generatedColumnType = SqliteGeneratedColumnType.None;
 
             columnConstraints = columnConstraints?.ToList() ?? Enumerable.Empty<ColumnConstraint>();
             foreach (var constraint in columnConstraints)
@@ -72,6 +74,13 @@ namespace SJP.Schematic.Sqlite.Parsing
                         if (constraint is ColumnConstraint.UniqueKey uk)
                             uniqueKey = new UniqueKey(uk.Name, Name);
                         break;
+                    case ColumnConstraint.ColumnConstraintType.GeneratedAlways:
+                        if (constraint is ColumnConstraint.GeneratedAlways generated)
+                        {
+                            generatedDefinition.AddRange(generated.Definition);
+                            generatedColumnType = generated.GeneratedColumnType;
+                        }
+                        break;
                 }
             }
 
@@ -86,6 +95,8 @@ namespace SJP.Schematic.Sqlite.Parsing
             UniqueKey = uniqueKey != null ? Option<UniqueKey>.Some(uniqueKey) : Option<UniqueKey>.None;
             ForeignKeys = foreignKeys;
             Checks = checks;
+            GeneratedColumnDefinition = generatedDefinition;
+            GeneratedColumnType = generatedColumnType;
         }
 
         public string Name { get; }
@@ -107,5 +118,9 @@ namespace SJP.Schematic.Sqlite.Parsing
         public IEnumerable<ForeignKey> ForeignKeys { get; }
 
         public IEnumerable<Check> Checks { get; }
+
+        public IEnumerable<Token<SqliteToken>> GeneratedColumnDefinition { get; }
+
+        public SqliteGeneratedColumnType GeneratedColumnType { get; }
     }
 }

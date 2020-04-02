@@ -147,6 +147,9 @@ namespace SJP.Schematic.Sqlite.Parsing
         [Token(Category = "keyword", Example = "alter")]
         Alter,
 
+        [Token(Category = "keyword", Example = "always")]
+        Always,
+
         [Token(Category = "keyword", Example = "analyze")]
         Analyze,
 
@@ -160,7 +163,7 @@ namespace SJP.Schematic.Sqlite.Parsing
         Attach,
 
         [Token(Category = "keyword", Example = "autoincrement")]
-        Autoincrement,
+        AutoIncrement,
 
         [Token(Category = "keyword", Example = "before")]
         Before,
@@ -281,6 +284,9 @@ namespace SJP.Schematic.Sqlite.Parsing
 
         [Token(Category = "keyword", Example = "full")]
         Full,
+
+        [Token(Category = "keyword", Example = "generated")]
+        Generated,
 
         [Token(Category = "keyword", Example = "glob")]
         Glob,
@@ -425,6 +431,9 @@ namespace SJP.Schematic.Sqlite.Parsing
 
         [Token(Category = "keyword", Example = "set")]
         Set,
+
+        [Token(Category = "keyword", Example = "stored")]
+        Stored,
 
         [Token(Category = "keyword", Example = "table")]
         Table,

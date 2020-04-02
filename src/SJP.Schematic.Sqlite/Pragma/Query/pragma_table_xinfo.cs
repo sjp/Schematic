@@ -37,9 +37,9 @@ namespace SJP.Schematic.Sqlite.Pragma.Query
         public int pk { get; set; }
 
         /// <summary>
-        /// Whether the column is a hidden column as part of a virtual table.
+        /// Determines whether the column is a hidden column as part of a virtual table. Alternatively whether the column is a virtual column.
         /// </summary>
-        public int hidden { get; set; }
+        public HiddenColumnType hidden { get; set; }
     }
 }
 #pragma warning restore IDE1006, S101 // Naming Styles

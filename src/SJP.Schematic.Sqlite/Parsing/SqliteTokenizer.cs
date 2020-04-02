@@ -200,7 +200,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             new SqliteKeyword("as", SqliteToken.As),
             new SqliteKeyword("asc", SqliteToken.Ascending),
             new SqliteKeyword("attach", SqliteToken.Attach),
-            new SqliteKeyword("autoincrement", SqliteToken.Autoincrement),
+            new SqliteKeyword("autoincrement", SqliteToken.AutoIncrement),
             new SqliteKeyword("before", SqliteToken.Before),
             new SqliteKeyword("begin", SqliteToken.Before),
             new SqliteKeyword("between", SqliteToken.Between),

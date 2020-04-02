@@ -63,7 +63,9 @@ namespace SJP.Schematic.Sqlite.Parsing
                     parsedColumn.Nullable,
                     parsedColumn.IsAutoIncrement,
                     parsedColumn.Collation,
-                    parsedColumn.DefaultValue
+                    parsedColumn.DefaultValue,
+                    parsedColumn.GeneratedColumnDefinition,
+                    parsedColumn.GeneratedColumnType
                 );
 
                 columns.Add(column);

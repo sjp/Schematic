@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
+using Nito.AsyncEx;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite.Exceptions;
@@ -23,6 +24,8 @@ namespace SJP.Schematic.Sqlite
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             ConnectionPragma = pragma ?? throw new ArgumentNullException(nameof(pragma));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+
+            _dbVersion = new AsyncLazy<Version>(LoadDbVersionAsync);
         }
 
         protected ISchematicConnection Connection { get; }
@@ -626,6 +629,63 @@ namespace SJP.Schematic.Sqlite
 
         private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(ISqliteDatabasePragma pragma, ParsedTableData parsedTable, Identifier tableName, CancellationToken cancellationToken)
         {
+            var version = await _dbVersion.Task.ConfigureAwait(false);
+            return version >= new Version(3, 31, 0)
+                ? await LoadAllColumnsAsync(pragma, parsedTable, tableName, cancellationToken).ConfigureAwait(false)
+                : await LoadPhysicalColumnsAsync(pragma, parsedTable, tableName, cancellationToken).ConfigureAwait(false);
+        }
+
+        private async Task<IReadOnlyList<IDatabaseColumn>> LoadAllColumnsAsync(ISqliteDatabasePragma pragma, ParsedTableData parsedTable, Identifier tableName, CancellationToken cancellationToken)
+        {
+            var tableInfos = await pragma.TableXInfoAsync(tableName, cancellationToken).ConfigureAwait(false);
+            if (tableInfos.Empty())
+                return Array.Empty<IDatabaseColumn>();
+
+            var result = new List<IDatabaseColumn>();
+            var parsedColumns = parsedTable.Columns;
+
+            foreach (var tableInfo in tableInfos)
+            {
+                if (tableInfo.name == null)
+                    continue;
+
+                var parsedColumnInfo = parsedColumns.First(col => string.Equals(col.Name, tableInfo.name, StringComparison.OrdinalIgnoreCase));
+                var columnTypeName = tableInfo.type;
+
+                var affinity = AffinityParser.ParseTypeName(columnTypeName);
+                var columnType = new SqliteColumnType(affinity);
+
+                var isAutoIncrement = parsedColumnInfo.IsAutoIncrement;
+                var autoIncrement = isAutoIncrement
+                    ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
+                    : Option<IAutoIncrement>.None;
+                var defaultValue = !tableInfo.dflt_value.IsNullOrWhiteSpace()
+                    ? Option<string>.Some(tableInfo.dflt_value)
+                    : Option<string>.None;
+
+                if (parsedColumnInfo.ComputedColumnType == SqliteGeneratedColumnType.None)
+                {
+                    var column = new DatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, defaultValue, autoIncrement);
+                    result.Add(column);
+                }
+                else
+                {
+                    var startIndex = parsedColumnInfo.ComputedDefinition.First().Position.Absolute;
+                    var lastToken = parsedColumnInfo.ComputedDefinition.Last();
+                    var endIndex = lastToken.Position.Absolute + lastToken.ToStringValue().Length;
+
+                    var definition = parsedTable.Definition[startIndex..endIndex];
+
+                    var column = new DatabaseComputedColumn(tableInfo.name, columnType, !tableInfo.notnull, defaultValue, definition);
+                    result.Add(column);
+                }
+            }
+
+            return result;
+        }
+
+        private async Task<IReadOnlyList<IDatabaseColumn>> LoadPhysicalColumnsAsync(ISqliteDatabasePragma pragma, ParsedTableData parsedTable, Identifier tableName, CancellationToken cancellationToken)
+        {
             var tableInfos = await pragma.TableInfoAsync(tableName, cancellationToken).ConfigureAwait(false);
             if (tableInfos.Empty())
                 return Array.Empty<IDatabaseColumn>();
@@ -812,9 +872,13 @@ namespace SJP.Schematic.Sqlite
                 : ReferentialAction.NoAction;
         }
 
+        private Task<Version> LoadDbVersionAsync() => Dialect.GetDatabaseVersionAsync(Connection);
+
         private readonly ConcurrentDictionary<string, Lazy<ParsedTableData>> _tableParserCache = new ConcurrentDictionary<string, Lazy<ParsedTableData>>();
         private readonly ConcurrentDictionary<string, Lazy<ParsedTriggerData>> _triggerParserCache = new ConcurrentDictionary<string, Lazy<ParsedTriggerData>>();
         private readonly ConcurrentDictionary<string, Lazy<ISqliteDatabasePragma>> _dbPragmaCache = new ConcurrentDictionary<string, Lazy<ISqliteDatabasePragma>>();
+
+        private readonly AsyncLazy<Version> _dbVersion;
 
         private static readonly IReadOnlyDictionary<string, ReferentialAction> RelationalUpdateMapping = new Dictionary<string, ReferentialAction>(StringComparer.OrdinalIgnoreCase)
         {

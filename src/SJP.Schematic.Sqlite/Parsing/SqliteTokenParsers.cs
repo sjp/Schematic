@@ -172,12 +172,33 @@ namespace SJP.Schematic.Sqlite.Parsing
             Token.EqualTo(SqliteToken.Check)
                 .Then(_ => Expression.Select(expr => new ColumnConstraint.Check(expr)));
 
+        private static TokenListParser<SqliteToken, ColumnConstraint.GeneratedAlways> GeneratedAlwaysConstraint =>
+            GeneratedAlwaysConstraintNamed.Or(GeneratedAlwaysConstraintAs);
+
+        private static TokenListParser<SqliteToken, ColumnConstraint.GeneratedAlways> GeneratedAlwaysConstraintNamed =>
+            Token.EqualTo(SqliteToken.Generated)
+                .Then(_ => Token.EqualTo(SqliteToken.Always))
+                .Then(_ => Token.EqualTo(SqliteToken.As))
+                .Then(_ => Expression.Select(expr => new ColumnConstraint.GeneratedAlways(expr)))
+                .Then(prev => Token.EqualTo(SqliteToken.Stored)
+                    .Select(_ => new ColumnConstraint.GeneratedAlways(new SqlExpression(prev.Definition), SqliteGeneratedColumnType.Stored)).Try()
+                    .Or(Parse.Return<SqliteToken, ColumnConstraint.GeneratedAlways>(prev))
+                );
+
+        private static TokenListParser<SqliteToken, ColumnConstraint.GeneratedAlways> GeneratedAlwaysConstraintAs =>
+            Token.EqualTo(SqliteToken.As)
+                .Then(_ => Expression.Select(expr => new ColumnConstraint.GeneratedAlways(expr)))
+                .Then(prev => Token.EqualTo(SqliteToken.Stored)
+                    .Select(_ => new ColumnConstraint.GeneratedAlways(new SqlExpression(prev.Definition), SqliteGeneratedColumnType.Stored)).Try()
+                    .Or(Parse.Return<SqliteToken, ColumnConstraint.GeneratedAlways>(prev))
+                );
+
         private static TokenListParser<SqliteToken, ColumnConstraint.PrimaryKey> ColumnPrimaryKey =>
             Token.Sequence(SqliteToken.Primary, SqliteToken.Key)
                 .IgnoreThen(ColumnOrdering.Select(ordering => new ColumnConstraint.PrimaryKey(ordering)).Try().Or(Parse.Return<SqliteToken, ColumnConstraint.PrimaryKey>(new ColumnConstraint.PrimaryKey())))
                 .Then(prev => ConflictClause.Select(_ => prev).Try().Or(Parse.Return<SqliteToken, ColumnConstraint.PrimaryKey>(prev)))
                 .Then(prev =>
-                    Token.EqualTo(SqliteToken.Autoincrement)
+                    Token.EqualTo(SqliteToken.AutoIncrement)
                         .Select(_ => new ColumnConstraint.PrimaryKey(prev.ColumnOrder, true)).Try()
                         .Or(Parse.Return<SqliteToken, ColumnConstraint.PrimaryKey>(prev))
                 );
@@ -248,7 +269,8 @@ namespace SJP.Schematic.Sqlite.Parsing
                 .Or(ColumnCheckConstraint.Select(_ => _ as ColumnConstraint))
                 .Or(ColumnDefaultValue.Select(_ => _ as ColumnConstraint))
                 .Or(Collate.Select(_ => _ as ColumnConstraint))
-                .Or(ForeignKeyClause.Select(_ => _ as ColumnConstraint));
+                .Or(ForeignKeyClause.Select(_ => _ as ColumnConstraint))
+                .Or(GeneratedAlwaysConstraint.Select(_ => _ as ColumnConstraint));
 
         private static TokenListParser<SqliteToken, ColumnConstraint> ColumnConstraintDefinition =>
             ConstraintName.Then(name => ColumnConstraintParser.Select(cons => cons.WithName(name)))
