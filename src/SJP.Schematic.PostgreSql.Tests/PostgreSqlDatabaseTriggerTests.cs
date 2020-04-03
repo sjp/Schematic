@@ -17,34 +17,12 @@ namespace SJP.Schematic.PostgreSql.Tests
             Assert.That(() => new PostgreSqlDatabaseTrigger(null, definition, timing, events, enabled), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentNullException(string definition)
         {
             Identifier triggerName = "test_trigger";
-            const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
-            const TriggerEvent events = TriggerEvent.Update;
-            const bool enabled = true;
-
-            Assert.That(() => new PostgreSqlDatabaseTrigger(triggerName, null, timing, events, enabled), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptyDefinition_ThrowsArgumentNullException()
-        {
-            Identifier triggerName = "test_trigger";
-            var definition = string.Empty;
-            const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
-            const TriggerEvent events = TriggerEvent.Update;
-            const bool enabled = true;
-
-            Assert.That(() => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceDefinition_ThrowsArgumentNullException()
-        {
-            Identifier triggerName = "test_trigger";
-            const string definition = "          ";
             const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
             const TriggerEvent events = TriggerEvent.Update;
             const bool enabled = true;

@@ -24,22 +24,12 @@ namespace SJP.Schematic.Graphviz.Tests
             GraphvizExe.Dispose();
         }
 
-        [Test]
-        public void DotRenderer_GivenNullExecutablePath_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public void DotRenderer_GivenNullOrWhiteSpaceExecutablePath_ThrowsArgumentNullException(string exePath)
         {
-            Assert.That(() => new DotSvgRenderer(null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public void DotRenderer_GivenEmptyExecutablePath_ThrowsArgumentNullException()
-        {
-            Assert.That(() => new DotSvgRenderer(string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public void DotRenderer_GivenWhiteSpaceExecutablePath_ThrowsArgumentNullException()
-        {
-            Assert.That(() => new DotSvgRenderer("   "), Throws.ArgumentNullException);
+            Assert.That(() => new DotSvgRenderer(exePath), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -48,22 +38,12 @@ namespace SJP.Schematic.Graphviz.Tests
             Assert.That(() => new DotSvgRenderer("path_not_existing"), Throws.TypeOf<FileNotFoundException>());
         }
 
-        [Test]
-        public void RenderToSvg_GivenNullDotDiagram_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public void RenderToSvg_GivenNullOrWhiteSpaceDotDiagram_ThrowsArgumentNullException(string dot)
         {
-            Assert.That(() => Renderer.RenderToSvg(null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public void RenderToSvg_GivenEmptyDotDiagram_ThrowsArgumentNullException()
-        {
-            Assert.That(() => Renderer.RenderToSvg(string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public void RenderToSvg_GivenWhiteSpaceDotDiagram_ThrowsArgumentNullException()
-        {
-            Assert.That(() => Renderer.RenderToSvg("   "), Throws.ArgumentNullException);
+            Assert.That(() => Renderer.RenderToSvg(dot), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -98,22 +78,12 @@ namespace SJP.Schematic.Graphviz.Tests
             Assert.That(() => _ = XDocument.Parse(svg, LoadOptions.PreserveWhitespace), Throws.Nothing);
         }
 
-        [Test]
-        public void RenderToSvgAsync_GivenNullDotDiagram_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public void RenderToSvgAsync_GivenNullOrWhiteSpaceDotDiagram_ThrowsArgumentNullException(string dot)
         {
-            Assert.That(() => Renderer.RenderToSvgAsync(null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public void RenderToSvgAsync_GivenEmptyDotDiagram_ThrowsArgumentNullException()
-        {
-            Assert.That(() => Renderer.RenderToSvgAsync(string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public void RenderToSvgAsync_GivenWhiteSpaceDotDiagram_ThrowsArgumentNullException()
-        {
-            Assert.That(() => Renderer.RenderToSvgAsync("   "), Throws.ArgumentNullException);
+            Assert.That(() => Renderer.RenderToSvgAsync(dot), Throws.ArgumentNullException);
         }
 
         [Test]

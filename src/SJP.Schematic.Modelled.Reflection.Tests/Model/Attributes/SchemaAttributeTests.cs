@@ -5,22 +5,12 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
     [TestFixture]
     internal static class SchemaAttributeTests
     {
-        [Test]
-        public static void Ctor_GivenNullSchema_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullOrWhiteSpaceSchema_ThrowsArgumentNullException(string schemaName)
         {
-            Assert.That(() => new SchemaAttribute(null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptySchema_ThrowsArgumentNullException()
-        {
-            Assert.That(() => new SchemaAttribute(string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceSchema_ThrowsArgumentNullException()
-        {
-            Assert.That(() => new SchemaAttribute("   "), Throws.ArgumentNullException);
+            Assert.That(() => new SchemaAttribute(schemaName), Throws.ArgumentNullException);
         }
 
         [Test]

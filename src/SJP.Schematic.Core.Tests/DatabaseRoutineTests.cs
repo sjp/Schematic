@@ -13,28 +13,14 @@ namespace SJP.Schematic.Core.Tests
             Assert.That(() => new DatabaseRoutine(null, definition), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentNullException(string definition)
         {
             Identifier routineName = "test_routine";
 
-            Assert.That(() => new DatabaseRoutine(routineName, null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptyDefinition_ThrowsArgumentNullException()
-        {
-            Identifier routineName = "test_routine";
-
-            Assert.That(() => new DatabaseRoutine(routineName, string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceDefinition_ThrowsArgumentNullException()
-        {
-            Identifier routineName = "test_routine";
-
-            Assert.That(() => new DatabaseRoutine(routineName, "    "), Throws.ArgumentNullException);
+            Assert.That(() => new DatabaseRoutine(routineName, definition), Throws.ArgumentNullException);
         }
 
         [Test]

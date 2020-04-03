@@ -5,22 +5,12 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
     [TestFixture]
     internal static class AliasAttributeTests
     {
-        [Test]
-        public static void Ctor_GivenNullAlias_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullOrWhiteSpaceAlias_ThrowsArgumentNullException(string alias)
         {
-            Assert.That(() => new AliasAttribute(null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptyAlias_ThrowsArgumentNullException()
-        {
-            Assert.That(() => new AliasAttribute(string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceAlias_ThrowsArgumentNullException()
-        {
-            Assert.That(() => new AliasAttribute("   "), Throws.ArgumentNullException);
+            Assert.That(() => new AliasAttribute(alias), Throws.ArgumentNullException);
         }
 
         [Test]

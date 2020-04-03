@@ -5,70 +5,32 @@ namespace SJP.Schematic.PostgreSql.Tests
     [TestFixture]
     internal static class PostgreSqlDialectTests
     {
-        [Test]
-        public static void CreateConnectionAsync_GivenNull_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void CreateConnectionAsync_GivenNullOrWhiteSpaceConnectionString_ThrowsArgumentNullException(string connectionString)
         {
-            Assert.That(() => PostgreSqlDialect.CreateConnectionAsync(null), Throws.ArgumentNullException);
+            Assert.That(() => PostgreSqlDialect.CreateConnectionAsync(connectionString), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void CreateConnectionAsync_GivenEmptyString_ThrowsArgumentNullException()
-        {
-            Assert.That(() => PostgreSqlDialect.CreateConnectionAsync(string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void CreateConnectionAsync_GivenWhiteSpaceString_ThrowsArgumentNullException()
-        {
-            Assert.That(() => PostgreSqlDialect.CreateConnectionAsync("   "), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void QuoteIdentifier_GivenNull_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void QuoteIdentifier_GivenNullOrWhiteSpaceIdentifier_ThrowsArgumentNullException(string identifier)
         {
             var dialect = new PostgreSqlDialect();
 
-            Assert.That(() => dialect.QuoteIdentifier(null), Throws.ArgumentNullException);
+            Assert.That(() => dialect.QuoteIdentifier(identifier), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void QuoteIdentifier_GivenEmptyString_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void QuoteName_GivenNullOrWhiteSpaceName_ThrowsArgumentNullException(string name)
         {
             var dialect = new PostgreSqlDialect();
 
-            Assert.That(() => dialect.QuoteIdentifier(string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void QuoteIdentifier_GivenWhiteSpace_ThrowsArgumentNullException()
-        {
-            var dialect = new PostgreSqlDialect();
-
-            Assert.That(() => dialect.QuoteIdentifier("    "), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void QuoteName_GivenNull_ThrowsArgumentNullException()
-        {
-            var dialect = new PostgreSqlDialect();
-
-            Assert.That(() => dialect.QuoteName(null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void QuoteName_GivenEmptyString_ThrowsArgumentNullException()
-        {
-            var dialect = new PostgreSqlDialect();
-
-            Assert.That(() => dialect.QuoteName(string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void QuoteName_GivenWhiteSpace_ThrowsArgumentNullException()
-        {
-            var dialect = new PostgreSqlDialect();
-
-            Assert.That(() => dialect.QuoteName("    "), Throws.ArgumentNullException);
+            Assert.That(() => dialect.QuoteName(name), Throws.ArgumentNullException);
         }
 
         [Test]

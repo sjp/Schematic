@@ -138,118 +138,57 @@ namespace SJP.Schematic.Sqlite.Tests
             }
         }
 
-        [Test]
-        public static void VacuumAsync_WhenGivenNullSchemaName_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void VacuumAsync_WhenGivenNullOrWhiteSpaceSchemaName_ThrowsArgumentNullException(string schemaName)
         {
-            Assert.That(() => Database.VacuumAsync(null), Throws.ArgumentNullException);
+            Assert.That(() => Database.VacuumAsync(schemaName), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void VacuumAsync_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void VacuumIntoAsync_WhenGivenNullOrWhiteSpaceFileName_ThrowsArgumentNullException(string fileName)
         {
-            Assert.That(() => Database.VacuumAsync(string.Empty), Throws.ArgumentNullException);
+            Assert.That(() => Database.VacuumIntoAsync(fileName), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void VacuumAsync_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void VacuumIntoAsync_WhenGivenFileNameWithNullSchemaName_ThrowsArgumentNullException(string schemaName)
         {
-            Assert.That(() => Database.VacuumAsync("   "), Throws.ArgumentNullException);
+            Assert.That(() => Database.VacuumIntoAsync("test_file", schemaName), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void VacuumIntoAsync_WhenGivenNullFileName_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void AttachDatabaseAsync_WhenGivenNullOrWhiteSpaceSchemaName_ThrowsArgumentNullException(string schemaName)
         {
-            Assert.That(() => Database.VacuumIntoAsync(null), Throws.ArgumentNullException);
+            Assert.That(() => Database.AttachDatabaseAsync(schemaName, ":memory:"), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void VacuumIntoAsync_WhenGivenEmptyFileName_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void AttachDatabaseAsync_WhenGivenNullOrWhiteSpaceFileName_ThrowsArgumentNullException(string fileName)
         {
-            Assert.That(() => Database.VacuumIntoAsync(string.Empty), Throws.ArgumentNullException);
+            Assert.That(() => Database.AttachDatabaseAsync("test", fileName), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void VacuumIntoAsync_WhenGivenWhiteSpaceFileName_ThrowsArgumentNullException()
-        {
-            Assert.That(() => Database.VacuumIntoAsync("   "), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void VacuumIntoAsync_WhenGivenFileNameWithNullSchemaName_ThrowsArgumentNullException()
-        {
-            Assert.That(() => Database.VacuumIntoAsync("test_file", null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void VacuumIntoAsync_WhenGivenFileNameWithEmptySchemaName_ThrowsArgumentNullException()
-        {
-            Assert.That(() => Database.VacuumIntoAsync("test_file", string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void VacuumIntoAsync_WhenGivenFileNameWithWhiteSpaceSchemaName_ThrowsArgumentNullException()
-        {
-            Assert.That(() => Database.VacuumIntoAsync("test_file", "   "), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void AttachDatabaseAsync_WhenGivenNullSchemaName_ThrowsArgumentNullException()
-        {
-            Assert.That(() => Database.AttachDatabaseAsync(null, ":memory:"), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void AttachDatabaseAsync_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
-        {
-            Assert.That(() => Database.AttachDatabaseAsync(string.Empty, ":memory:"), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void AttachDatabaseAsync_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
-        {
-            Assert.That(() => Database.AttachDatabaseAsync("   ", ":memory:"), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void AttachDatabaseAsync_WhenGivenNullFileName_ThrowsArgumentNullException()
-        {
-            Assert.That(() => Database.AttachDatabaseAsync("test", null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void AttachDatabaseAsync_WhenGivenEmptyFileName_ThrowsArgumentNullException()
-        {
-            Assert.That(() => Database.AttachDatabaseAsync("test", string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void AttachDatabaseAsync_WhenGivenWhiteSpaceFileName_ThrowsArgumentNullException()
-        {
-            Assert.That(() => Database.AttachDatabaseAsync("test", "   "), Throws.ArgumentNullException);
-        }
-
-        [Test]
         public static void AttachDatabaseAsync_WhenGivenMainSchemaName_ThrowsArgumentException()
         {
             Assert.That(() => Database.AttachDatabaseAsync("main", ":memory:"), Throws.ArgumentException);
         }
 
-        [Test]
-        public static void DetachDatabaseAsync_WhenGivenNullSchemaName_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void DetachDatabaseAsync_WhenGivenNullOrWhiteSpaceSchemaName_ThrowsArgumentNullException(string schemaName)
         {
-            Assert.That(() => Database.DetachDatabaseAsync(null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void DetachDatabaseAsync_WhenGivenEmptySchemaName_ThrowsArgumentNullException()
-        {
-            Assert.That(() => Database.DetachDatabaseAsync(string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void DetachDatabaseAsync_WhenGivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
-        {
-            Assert.That(() => Database.DetachDatabaseAsync("   "), Throws.ArgumentNullException);
+            Assert.That(() => Database.DetachDatabaseAsync(schemaName), Throws.ArgumentNullException);
         }
 
         [Test]

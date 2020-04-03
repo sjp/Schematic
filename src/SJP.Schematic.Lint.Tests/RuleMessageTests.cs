@@ -5,28 +5,14 @@ namespace SJP.Schematic.Lint.Tests
     [TestFixture]
     internal static class RuleMessageTests
     {
-        [Test]
-        public static void Ctor_GivenNullTitle_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullOrWhiteSpaceTitle_ThrowsArgumentNullException(string title)
         {
             const RuleLevel level = RuleLevel.Error;
             const string message = "message";
-            Assert.That(() => new RuleMessage(null, level, message), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptyTitle_ThrowsArgumentNullException()
-        {
-            const RuleLevel level = RuleLevel.Error;
-            const string message = "message";
-            Assert.That(() => new RuleMessage(string.Empty, level, message), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceTitle_ThrowsArgumentNullException()
-        {
-            const RuleLevel level = RuleLevel.Error;
-            const string message = "message";
-            Assert.That(() => new RuleMessage("   ", level, message), Throws.ArgumentNullException);
+            Assert.That(() => new RuleMessage(title, level, message), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -38,28 +24,14 @@ namespace SJP.Schematic.Lint.Tests
             Assert.That(() => new RuleMessage(title, level, message), Throws.ArgumentException);
         }
 
-        [Test]
-        public static void Ctor_GivenNullMessage_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullOrWhiteSpaceMessage_ThrowsArgumentNullException(string message)
         {
             const string title = "title";
             const RuleLevel level = RuleLevel.Error;
-            Assert.That(() => new RuleMessage(title, level, null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptyMessage_ThrowsArgumentNullException()
-        {
-            const string title = "title";
-            const RuleLevel level = RuleLevel.Error;
-            Assert.That(() => new RuleMessage(title, level, string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceMessage_ThrowsArgumentNullException()
-        {
-            const string title = "title";
-            const RuleLevel level = RuleLevel.Error;
-            Assert.That(() => new RuleMessage(title, level, "   "), Throws.ArgumentNullException);
+            Assert.That(() => new RuleMessage(title, level, message), Throws.ArgumentNullException);
         }
 
         [Test]

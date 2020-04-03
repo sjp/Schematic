@@ -136,52 +136,24 @@ namespace SJP.Schematic.DataAccess.Tests
             Assert.That(result, Is.EqualTo(expected));
         }
 
-        [Test]
-        public static void ColumnToPropertyName_GivenNullClassName_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void ColumnToPropertyName_GivenNullOrWhiteSpaceClassName_ThrowsArgumentNullException(string className)
         {
             const string columnName = "test";
             var nameTranslator = new CamelCaseNameTranslator();
-            Assert.That(() => nameTranslator.ColumnToPropertyName(null, columnName), Throws.ArgumentNullException);
+            Assert.That(() => nameTranslator.ColumnToPropertyName(className, columnName), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void ColumnToPropertyName_GivenEmptyClassName_ThrowsArgumentNullException()
-        {
-            const string columnName = "test";
-            var nameTranslator = new CamelCaseNameTranslator();
-            Assert.That(() => nameTranslator.ColumnToPropertyName(string.Empty, columnName), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void ColumnToPropertyName_GivenWhiteSpaceClassName_ThrowsArgumentNullException()
-        {
-            const string columnName = "test";
-            var nameTranslator = new CamelCaseNameTranslator();
-            Assert.That(() => nameTranslator.ColumnToPropertyName("    ", columnName), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void ColumnToPropertyName_GivenNullColumnName_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void ColumnToPropertyName_GivenNullOrWhiteSpaceColumnName_ThrowsArgumentNullException(string columnName)
         {
             const string className = "test";
             var nameTranslator = new CamelCaseNameTranslator();
             Assert.That(() => nameTranslator.ColumnToPropertyName(className, null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void ColumnToPropertyName_GivenEmptyColumnName_ThrowsArgumentNullException()
-        {
-            const string className = "test";
-            var nameTranslator = new CamelCaseNameTranslator();
-            Assert.That(() => nameTranslator.ColumnToPropertyName(className, string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void ColumnToPropertyName_GivenWhiteSpaceColumnName_ThrowsArgumentNullException()
-        {
-            const string className = "test";
-            var nameTranslator = new CamelCaseNameTranslator();
-            Assert.That(() => nameTranslator.ColumnToPropertyName(className, "    "), Throws.ArgumentNullException);
         }
 
         [Test]

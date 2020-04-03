@@ -16,32 +16,12 @@ namespace SJP.Schematic.MySql.Tests
             Assert.That(() => new MySqlDatabaseTrigger(null, definition, timing, events), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentNullException(string definition)
         {
             Identifier triggerName = "test_trigger";
-            const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
-            const TriggerEvent events = TriggerEvent.Update;
-
-            Assert.That(() => new MySqlDatabaseTrigger(triggerName, null, timing, events), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptyDefinition_ThrowsArgumentNullException()
-        {
-            Identifier triggerName = "test_trigger";
-            var definition = string.Empty;
-            const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
-            const TriggerEvent events = TriggerEvent.Update;
-
-            Assert.That(() => new MySqlDatabaseTrigger(triggerName, definition, timing, events), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceDefinition_ThrowsArgumentNullException()
-        {
-            Identifier triggerName = "test_trigger";
-            const string definition = "          ";
             const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
             const TriggerEvent events = TriggerEvent.Update;
 

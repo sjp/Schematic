@@ -8,22 +8,12 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Attributes.Tests
     [TestFixture]
     internal static class CollationAttributeTests
     {
-        [Test]
-        public static void Ctor_GivenNullCollationName_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullOrWhiteSpaceCollationName_ThrowsArgumentNullException(string collationName)
         {
-            Assert.That(() => new CollationAttribute(null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptyCollationName_ThrowsArgumentNullException()
-        {
-            Assert.That(() => new CollationAttribute(string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceCollationName_ThrowsArgumentNullException()
-        {
-            Assert.That(() => new CollationAttribute("   "), Throws.ArgumentNullException);
+            Assert.That(() => new CollationAttribute(collationName), Throws.ArgumentNullException);
         }
 
         [Test]

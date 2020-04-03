@@ -19,25 +19,13 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             Assert.That(() => new OrmLiteTableGenerator(null, "test"), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void Ctor_GivenNullNamespace_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullOrWhiteSpaceNamespace_ThrowsArgumentNullException(string ns)
         {
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.That(() => new OrmLiteTableGenerator(nameTranslator, null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptyNamespace_ThrowsArgumentNullException()
-        {
-            var nameTranslator = new VerbatimNameTranslator();
-            Assert.That(() => new OrmLiteTableGenerator(nameTranslator, string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceNamespace_ThrowsArgumentNullException()
-        {
-            var nameTranslator = new VerbatimNameTranslator();
-            Assert.That(() => new OrmLiteTableGenerator(nameTranslator, "   "), Throws.ArgumentNullException);
+            Assert.That(() => new OrmLiteTableGenerator(nameTranslator, ns), Throws.ArgumentNullException);
         }
 
         [Test]

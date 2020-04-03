@@ -5,70 +5,32 @@ namespace SJP.Schematic.MySql.Tests
     [TestFixture]
     internal static class MySqlDialectTests
     {
-        [Test]
-        public static void CreateConnectionAsync_GivenNull_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void CreateConnectionAsync_GivenNullConnectionString_ThrowsArgumentNullException(string connectionString)
         {
-            Assert.That(() => MySqlDialect.CreateConnectionAsync(null), Throws.ArgumentNullException);
+            Assert.That(() => MySqlDialect.CreateConnectionAsync(connectionString), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void CreateConnectionAsync_GivenEmptyString_ThrowsArgumentNullException()
-        {
-            Assert.That(() => MySqlDialect.CreateConnectionAsync(string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void CreateConnectionAsync_GivenWhiteSpaceString_ThrowsArgumentNullException()
-        {
-            Assert.That(() => MySqlDialect.CreateConnectionAsync("   "), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void QuoteIdentifier_GivenNull_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void QuoteIdentifier_GivenNullOrWhiteSpaceIdentifier_ThrowsArgumentNullException(string identifier)
         {
             var dialect = new MySqlDialect();
 
-            Assert.That(() => dialect.QuoteIdentifier(null), Throws.ArgumentNullException);
+            Assert.That(() => dialect.QuoteIdentifier(identifier), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void QuoteIdentifier_GivenEmptyString_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void QuoteName_GivenNullOrWhiteSpaceName_ThrowsArgumentNullException(string name)
         {
             var dialect = new MySqlDialect();
 
-            Assert.That(() => dialect.QuoteIdentifier(string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void QuoteIdentifier_GivenWhiteSpace_ThrowsArgumentNullException()
-        {
-            var dialect = new MySqlDialect();
-
-            Assert.That(() => dialect.QuoteIdentifier("    "), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void QuoteName_GivenNull_ThrowsArgumentNullException()
-        {
-            var dialect = new MySqlDialect();
-
-            Assert.That(() => dialect.QuoteName(null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void QuoteName_GivenEmptyString_ThrowsArgumentNullException()
-        {
-            var dialect = new MySqlDialect();
-
-            Assert.That(() => dialect.QuoteName(string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void QuoteName_GivenWhiteSpace_ThrowsArgumentNullException()
-        {
-            var dialect = new MySqlDialect();
-
-            Assert.That(() => dialect.QuoteName("    "), Throws.ArgumentNullException);
+            Assert.That(() => dialect.QuoteName(name), Throws.ArgumentNullException);
         }
 
         [Test]

@@ -19,25 +19,13 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
             Assert.That(() => new PocoTableGenerator(null, "test"), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void Ctor_GivenNullNamespace_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullOrWhiteSpaceNamespace_ThrowsArgumentNullException(string ns)
         {
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.That(() => new PocoTableGenerator(nameTranslator, null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptyNamespace_ThrowsArgumentNullException()
-        {
-            var nameTranslator = new VerbatimNameTranslator();
-            Assert.That(() => new PocoTableGenerator(nameTranslator, string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceNamespace_ThrowsArgumentNullException()
-        {
-            var nameTranslator = new VerbatimNameTranslator();
-            Assert.That(() => new PocoTableGenerator(nameTranslator, "   "), Throws.ArgumentNullException);
+            Assert.That(() => new PocoTableGenerator(nameTranslator, ns), Throws.ArgumentNullException);
         }
 
         [Test]

@@ -13,28 +13,14 @@ namespace SJP.Schematic.MySql.Tests
             Assert.That(() => new MySqlCheckConstraint(null, "test", true), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentNullException(string definition)
         {
             Identifier checkName = "test_check";
 
-            Assert.That(() => new MySqlCheckConstraint(checkName, null, true), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptyDefinition_ThrowsArgumentNullException()
-        {
-            Identifier checkName = "test_check";
-
-            Assert.That(() => new MySqlCheckConstraint(checkName, string.Empty, true), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenWhitespaceDefinition_ThrowsArgumentNullException()
-        {
-            Identifier checkName = "test_check";
-
-            Assert.That(() => new MySqlCheckConstraint(checkName, "    ", true), Throws.ArgumentNullException);
+            Assert.That(() => new MySqlCheckConstraint(checkName, definition, true), Throws.ArgumentNullException);
         }
 
         [Test]

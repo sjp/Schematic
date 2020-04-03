@@ -5,25 +5,13 @@ namespace SJP.Schematic.Lint.Tests
     [TestFixture]
     internal static class RuleTests
     {
-        [Test]
-        public static void Ctor_GivenNullTitle_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullOrWhiteSpaceTitle_ThrowsArgumentNullException(string title)
         {
             const RuleLevel level = RuleLevel.Error;
-            Assert.That(() => new FakeRule(null, level), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptyTitle_ThrowsArgumentNullException()
-        {
-            const RuleLevel level = RuleLevel.Error;
-            Assert.That(() => new FakeRule(string.Empty, level), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceTitle_ThrowsArgumentNullException()
-        {
-            const RuleLevel level = RuleLevel.Error;
-            Assert.That(() => new FakeRule("   ", level), Throws.ArgumentNullException);
+            Assert.That(() => new FakeRule(title, level), Throws.ArgumentNullException);
         }
 
         [Test]

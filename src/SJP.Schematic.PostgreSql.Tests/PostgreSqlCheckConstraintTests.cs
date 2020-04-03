@@ -13,22 +13,12 @@ namespace SJP.Schematic.PostgreSql.Tests
             Assert.That(() => new PostgreSqlCheckConstraint(null, "test_check"), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentNullException(string definition)
         {
-            Assert.That(() => new PostgreSqlCheckConstraint("test_check", null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptyDefinition_ThrowsArgumentNullException()
-        {
-            Assert.That(() => new PostgreSqlCheckConstraint("test_check", string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceDefinition_ThrowsArgumentNullException()
-        {
-            Assert.That(() => new PostgreSqlCheckConstraint("test_check", "      "), Throws.ArgumentNullException);
+            Assert.That(() => new PostgreSqlCheckConstraint("test_check", definition), Throws.ArgumentNullException);
         }
 
         [Test]

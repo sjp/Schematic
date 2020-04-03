@@ -7,28 +7,14 @@ namespace SJP.Schematic.MySql.Tests
     [TestFixture]
     internal static class MySqlDatabaseIndexColumnTests
     {
-        [Test]
-        public static void Ctor_GivenNullExpression_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullOrWhiteSpaceExpression_ThrowsArgumentNullException(string expression)
         {
             var column = Mock.Of<IDatabaseColumn>();
 
-            Assert.That(() => new MySqlDatabaseIndexColumn(null, column), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptyExpression_ThrowsArgumentNullException()
-        {
-            var column = Mock.Of<IDatabaseColumn>();
-
-            Assert.That(() => new MySqlDatabaseIndexColumn(string.Empty, column), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceExpression_ThrowsArgumentNullException()
-        {
-            var column = Mock.Of<IDatabaseColumn>();
-
-            Assert.That(() => new MySqlDatabaseIndexColumn("   ", column), Throws.ArgumentNullException);
+            Assert.That(() => new MySqlDatabaseIndexColumn(expression, column), Throws.ArgumentNullException);
         }
 
         [Test]

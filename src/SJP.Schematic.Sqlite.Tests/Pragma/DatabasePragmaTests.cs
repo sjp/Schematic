@@ -15,25 +15,13 @@ namespace SJP.Schematic.Sqlite.Tests.Pragma
             Assert.That(() => new DatabasePragma(null, "main"), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void Ctor_GivenNullSchemaName_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullOrWhiteSpaceSchemaName_ThrowsArgumentNullException(string schemaName)
         {
             var connection = Mock.Of<ISchematicConnection>();
-            Assert.That(() => new DatabasePragma(connection, null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptySchemaName_ThrowsArgumentNullException()
-        {
-            var connection = Mock.Of<ISchematicConnection>();
-            Assert.That(() => new DatabasePragma(connection, string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceSchemaName_ThrowsArgumentNullException()
-        {
-            var connection = Mock.Of<ISchematicConnection>();
-            Assert.That(() => new DatabasePragma(connection, "      "), Throws.ArgumentNullException);
+            Assert.That(() => new DatabasePragma(connection, schemaName), Throws.ArgumentNullException);
         }
 
         [Test]

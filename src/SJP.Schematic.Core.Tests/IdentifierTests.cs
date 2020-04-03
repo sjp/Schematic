@@ -5,15 +5,12 @@ namespace SJP.Schematic.Core.Tests
     [TestFixture]
     internal static class IdentifierTests
     {
-        [Test]
-        public static void Ctor_GivenNullOrWhiteSpaceLocalName_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullOrWhiteSpaceLocalName_ThrowsArgumentNullException(string localName)
         {
-            Assert.Multiple(() =>
-            {
-                Assert.That(() => new Identifier(null), Throws.ArgumentNullException);
-                Assert.That(() => new Identifier(string.Empty), Throws.ArgumentNullException);
-                Assert.That(() => new Identifier("   "), Throws.ArgumentNullException);
-            });
+            Assert.That(() => new Identifier(localName), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -24,19 +21,13 @@ namespace SJP.Schematic.Core.Tests
             Assert.That(identifier.LocalName, Is.EqualTo(name));
         }
 
-        [Test]
-        public static void Ctor_GivenNullWhiteSpaceSchemaAndLocalNames_ThrowsArgumentNullException()
+        [Test, Combinatorial]
+        public static void Ctor_GivenNullWhiteSpaceSchemaAndLocalNames_ThrowsArgumentNullException(
+            [Values(null, "", "    ")] string schemaName,
+            [Values(null, "", "    ")] string localName
+        )
         {
-            Assert.Multiple(() =>
-            {
-                Assert.That(() => new Identifier("a", null), Throws.ArgumentNullException);
-                Assert.That(() => new Identifier("a", string.Empty), Throws.ArgumentNullException);
-                Assert.That(() => new Identifier("a", "   "), Throws.ArgumentNullException);
-
-                Assert.That(() => new Identifier(null, "a"), Throws.ArgumentNullException);
-                Assert.That(() => new Identifier(string.Empty, "a"), Throws.ArgumentNullException);
-                Assert.That(() => new Identifier("   ", "a"), Throws.ArgumentNullException);
-            });
+            Assert.That(() => new Identifier(schemaName, localName), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -53,23 +44,14 @@ namespace SJP.Schematic.Core.Tests
             });
         }
 
-        [Test]
-        public static void Ctor_GivenNullWhiteSpaceDatabaseAndSchemaAndLocalNames_ThrowsArgumentNullException()
+        [Test, Combinatorial]
+        public static void Ctor_GivenNullWhiteSpaceDatabaseAndSchemaAndLocalNames_ThrowsArgumentNullException(
+            [Values(null, "", "    ")] string databaseName,
+            [Values(null, "", "    ")] string schemaName,
+            [Values(null, "", "    ")] string localName
+        )
         {
-            Assert.Multiple(() =>
-            {
-                Assert.That(() => new Identifier("a", "a", null), Throws.ArgumentNullException);
-                Assert.That(() => new Identifier("a", "a", string.Empty), Throws.ArgumentNullException);
-                Assert.That(() => new Identifier("a", "a", "   "), Throws.ArgumentNullException);
-
-                Assert.That(() => new Identifier("a", null, "a"), Throws.ArgumentNullException);
-                Assert.That(() => new Identifier("a", string.Empty, "a"), Throws.ArgumentNullException);
-                Assert.That(() => new Identifier("a", "   ", "a"), Throws.ArgumentNullException);
-
-                Assert.That(() => new Identifier(null, "a", "a"), Throws.ArgumentNullException);
-                Assert.That(() => new Identifier(string.Empty, "a", "a"), Throws.ArgumentNullException);
-                Assert.That(() => new Identifier("   ", "a", "a"), Throws.ArgumentNullException);
-            });
+            Assert.That(() => new Identifier(databaseName, schemaName, localName), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -89,26 +71,15 @@ namespace SJP.Schematic.Core.Tests
         }
 
         [Test]
-        public static void Ctor_GivenNullWhiteSpaceServerAndDatabaseAndSchemaAndLocalNames_ThrowsArgumentNullException()
+        public static void Ctor_GivenNullWhiteSpaceServerAndDatabaseAndSchemaAndLocalNames_ThrowsArgumentNullException(
+            [Values(null, "", "    ")] string serverName,
+            [Values(null, "", "    ")] string databaseName,
+            [Values(null, "", "    ")] string schemaName,
+            [Values(null, "", "    ")] string localName
+        )
         {
-            Assert.Multiple(() =>
-            {
-                Assert.That(() => new Identifier("a", "a", "a", null), Throws.ArgumentNullException);
-                Assert.That(() => new Identifier("a", "a", "a", string.Empty), Throws.ArgumentNullException);
-                Assert.That(() => new Identifier("a", "a", "a", "   "), Throws.ArgumentNullException);
 
-                Assert.That(() => new Identifier("a", "a", null, "a"), Throws.ArgumentNullException);
-                Assert.That(() => new Identifier("a", "a", string.Empty, "a"), Throws.ArgumentNullException);
-                Assert.That(() => new Identifier("a", "a", "   ", "a"), Throws.ArgumentNullException);
-
-                Assert.That(() => new Identifier("a", null, "a", "a"), Throws.ArgumentNullException);
-                Assert.That(() => new Identifier("a", string.Empty, "a", "a"), Throws.ArgumentNullException);
-                Assert.That(() => new Identifier("a", "   ", "a", "a"), Throws.ArgumentNullException);
-
-                Assert.That(() => new Identifier(null, "a", "a", "a"), Throws.ArgumentNullException);
-                Assert.That(() => new Identifier(string.Empty, "a", "a", "a"), Throws.ArgumentNullException);
-                Assert.That(() => new Identifier("   ", "a", "a", "a"), Throws.ArgumentNullException);
-            });
+            Assert.That(() => new Identifier(serverName, databaseName, schemaName, localName), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -126,17 +97,6 @@ namespace SJP.Schematic.Core.Tests
                 Assert.That(identifier.Schema, Is.EqualTo(schema));
                 Assert.That(identifier.Database, Is.EqualTo(database));
                 Assert.That(identifier.Server, Is.EqualTo(server));
-            });
-        }
-
-        [Test]
-        public static void LocalIdentifierCtor_GivenNullWhiteSpaceLocalName_ThrowsArgumentNullException()
-        {
-            Assert.Multiple(() =>
-            {
-                Assert.That(() => new Identifier(null), Throws.ArgumentNullException);
-                Assert.That(() => new Identifier(string.Empty), Throws.ArgumentNullException);
-                Assert.That(() => new Identifier("   "), Throws.ArgumentNullException);
             });
         }
 
@@ -388,46 +348,18 @@ namespace SJP.Schematic.Core.Tests
             });
         }
 
-        [Test]
-        public static void CreateQualifiedIdentifier_GivenArgumentsWithoutServerAndDatabaseAndSchema_ThrowsArgumentNullException()
+        [TestCase(null, null, null, null)]
+        [TestCase("a", null, "c", "d")]
+        [TestCase("a", "b", null, "d")]
+        [TestCase("a", "b", "c", null)]
+        [TestCase(null, "b", null, "d")]
+        [TestCase(null, "b", null, null)]
+        [TestCase(null, null, "c", null)]
+        public static void CreateQualifiedIdentifier_GivenInvalidArguments_ThrowsArgumentNullException(string serverName, string databaseName, string schemaName, string localName)
         {
+            Assert.That(() => Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName), Throws.ArgumentNullException);
+
             Assert.That(() => Identifier.CreateQualifiedIdentifier(null, null, null, null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void CreateQualifiedIdentifier_GivenAllArgumentsExceptDatabase_ThrowsArgumentNullException()
-        {
-            Assert.That(() => Identifier.CreateQualifiedIdentifier("a", null, "c", "d"), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void CreateQualifiedIdentifier_GivenAllArgumentsExceptSchema_ThrowsArgumentNullException()
-        {
-            Assert.That(() => Identifier.CreateQualifiedIdentifier("a", "b", null, "d"), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void CreateQualifiedIdentifier_GivenAllArgumentsExceptLocalName_ThrowsArgumentNullException()
-        {
-            Assert.That(() => Identifier.CreateQualifiedIdentifier("a", "b", "c", null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void CreateQualifiedIdentifier_GivenAllArgumentsExceptServerAndSchema_ThrowsArgumentNullException()
-        {
-            Assert.That(() => Identifier.CreateQualifiedIdentifier(null, "b", null, "d"), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void CreateQualifiedIdentifier_GivenOnlyDatabase_ThrowsArgumentNullException()
-        {
-            Assert.That(() => Identifier.CreateQualifiedIdentifier(null, "b", null, null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void CreateQualifiedIdentifier_GivenOnlySchema_ThrowsArgumentNullException()
-        {
-            Assert.That(() => Identifier.CreateQualifiedIdentifier(null, null, "c", null), Throws.ArgumentNullException);
         }
 
         [Test]

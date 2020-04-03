@@ -7,22 +7,12 @@ namespace SJP.Schematic.Core.Tests
     [TestFixture]
     internal static class DatabaseCheckConstraintTests
     {
-        [Test]
-        public static void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentNullException(string definition)
         {
-            Assert.That(() => new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), null, true), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptyDefinition_ThrowsArgumentNullException()
-        {
-            Assert.That(() => new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), string.Empty, true), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceDefinition_ThrowsArgumentNullException()
-        {
-            Assert.That(() => new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), "      ", true), Throws.ArgumentNullException);
+            Assert.That(() => new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), definition, true), Throws.ArgumentNullException);
         }
 
         [Test]

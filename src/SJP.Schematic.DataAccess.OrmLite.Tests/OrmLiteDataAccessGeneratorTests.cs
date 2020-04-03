@@ -53,8 +53,10 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             Assert.That(() => new OrmLiteDataAccessGenerator(mockFs, database, commentProvider, null), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void Generate_GivenNullProjectPath_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Generate_GivenNullOrWhiteSpaceProjectPath_ThrowsArgumentNullException(string projectPath)
         {
             var mockFs = new MockFileSystem();
             var database = Mock.Of<IRelationalDatabase>();
@@ -62,35 +64,13 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             var nameTranslator = new VerbatimNameTranslator();
             var generator = new OrmLiteDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
 
-            Assert.That(() => generator.Generate(null, "test"), Throws.ArgumentNullException);
+            Assert.That(() => generator.Generate(projectPath, "test"), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void Generate_GivenEmptyProjectPath_ThrowsArgumentNullException()
-        {
-            var mockFs = new MockFileSystem();
-            var database = Mock.Of<IRelationalDatabase>();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
-            var nameTranslator = new VerbatimNameTranslator();
-            var generator = new OrmLiteDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
-
-            Assert.That(() => generator.Generate(string.Empty, "test"), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Generate_GivenWhiteSpaceProjectPath_ThrowsArgumentNullException()
-        {
-            var mockFs = new MockFileSystem();
-            var database = Mock.Of<IRelationalDatabase>();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
-            var nameTranslator = new VerbatimNameTranslator();
-            var generator = new OrmLiteDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
-
-            Assert.That(() => generator.Generate("    ", "test"), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Generate_GivenNullNamespace_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Generate_GivenNullOrWhiteSpaceNamespace_ThrowsArgumentNullException(string ns)
         {
             var mockFs = new MockFileSystem();
             var database = Mock.Of<IRelationalDatabase>();
@@ -100,35 +80,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
             using var tempDir = new TemporaryDirectory();
             var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFileName);
 
-            Assert.That(() => generator.Generate(projectPath, null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Generate_GivenEmptyNamespace_ThrowsArgumentNullException()
-        {
-            var mockFs = new MockFileSystem();
-            var database = Mock.Of<IRelationalDatabase>();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
-            var nameTranslator = new VerbatimNameTranslator();
-            var generator = new OrmLiteDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
-            using var tempDir = new TemporaryDirectory();
-            var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFileName);
-
-            Assert.That(() => generator.Generate(projectPath, string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Generate_GivenWhiteSpaceNamespace_ThrowsArgumentNullException()
-        {
-            var mockFs = new MockFileSystem();
-            var database = Mock.Of<IRelationalDatabase>();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
-            var nameTranslator = new VerbatimNameTranslator();
-            var generator = new OrmLiteDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
-            using var tempDir = new TemporaryDirectory();
-            var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFileName);
-
-            Assert.That(() => generator.Generate(projectPath, "    "), Throws.ArgumentNullException);
+            Assert.That(() => generator.Generate(projectPath, ns), Throws.ArgumentNullException);
         }
 
         [Test]

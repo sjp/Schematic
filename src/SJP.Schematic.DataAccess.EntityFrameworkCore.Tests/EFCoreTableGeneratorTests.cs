@@ -19,25 +19,13 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
             Assert.That(() => new EFCoreTableGenerator(null, "test"), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void Ctor_GivenNullNamespace_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullOrWhiteSpaceNamespace_ThrowsArgumentNullException(string ns)
         {
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.That(() => new EFCoreTableGenerator(nameTranslator, null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptyNamespace_ThrowsArgumentNullException()
-        {
-            var nameTranslator = new VerbatimNameTranslator();
-            Assert.That(() => new EFCoreTableGenerator(nameTranslator, string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceNamespace_ThrowsArgumentNullException()
-        {
-            var nameTranslator = new VerbatimNameTranslator();
-            Assert.That(() => new EFCoreTableGenerator(nameTranslator, "   "), Throws.ArgumentNullException);
+            Assert.That(() => new EFCoreTableGenerator(nameTranslator, ns), Throws.ArgumentNullException);
         }
 
         [Test]

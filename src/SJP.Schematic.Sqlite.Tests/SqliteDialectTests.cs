@@ -7,76 +7,34 @@ namespace SJP.Schematic.Sqlite.Tests
     [TestFixture]
     internal static class SqliteDialectTests
     {
-        [Test]
-        public static void CreateConnectionAsync_GivenNull_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void CreateConnectionAsync_GivenNullOrWhiteSpaceConnectionString_ThrowsArgumentNullException(string connectionString)
         {
-            Assert.That(() => SqliteDialect.CreateConnectionAsync(null), Throws.ArgumentNullException);
+            Assert.That(() => SqliteDialect.CreateConnectionAsync(connectionString), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void CreateConnectionAsync_GivenEmptyString_ThrowsArgumentNullException()
-        {
-            Assert.That(() => SqliteDialect.CreateConnectionAsync(string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void CreateConnectionAsync_GivenWhiteSpaceString_ThrowsArgumentNullException()
-        {
-            Assert.That(() => SqliteDialect.CreateConnectionAsync("   "), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void QuoteIdentifier_GivenNull_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void QuoteIdentifier_GivenNullOrWhiteSpaceIdentifier_ThrowsArgumentNullException(string identifier)
         {
             var connection = Mock.Of<IDbConnection>();
             var dialect = new SqliteDialect();
 
-            Assert.That(() => dialect.QuoteIdentifier(null), Throws.ArgumentNullException);
+            Assert.That(() => dialect.QuoteIdentifier(identifier), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void QuoteIdentifier_GivenEmptyString_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void QuoteName_GivenNullOrWhiteSpaceName_ThrowsArgumentNullException(string name)
         {
             var connection = Mock.Of<IDbConnection>();
             var dialect = new SqliteDialect();
 
-            Assert.That(() => dialect.QuoteIdentifier(string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void QuoteIdentifier_GivenWhiteSpcae_ThrowsArgumentNullException()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqliteDialect();
-
-            Assert.That(() => dialect.QuoteIdentifier("    "), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void QuoteName_GivenNull_ThrowsArgumentNullException()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqliteDialect();
-
-            Assert.That(() => dialect.QuoteName(null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void QuoteName_GivenEmptyString_ThrowsArgumentNullException()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqliteDialect();
-
-            Assert.That(() => dialect.QuoteName(string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void QuoteName_GivenWhiteSpace_ThrowsArgumentNullException()
-        {
-            var connection = Mock.Of<IDbConnection>();
-            var dialect = new SqliteDialect();
-
-            Assert.That(() => dialect.QuoteName("    "), Throws.ArgumentNullException);
+            Assert.That(() => dialect.QuoteName(name), Throws.ArgumentNullException);
         }
     }
 }

@@ -17,29 +17,12 @@ namespace SJP.Schematic.Oracle.Tests
             Assert.That(() => new OracleDatabasePackage(null, specification, body), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void Ctor_GivenNullSpecification_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullOrWhiteSpaceSpecification_ThrowsArgumentNullException(string specification)
         {
             const string packageName = "test_package";
-            var body = Option<string>.Some("body");
-
-            Assert.That(() => new OracleDatabasePackage(packageName, null, body), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptySpecification_ThrowsArgumentNullException()
-        {
-            const string packageName = "test_package";
-            var body = Option<string>.Some("body");
-
-            Assert.That(() => new OracleDatabasePackage(packageName, string.Empty, body), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceSpecification_ThrowsArgumentNullException()
-        {
-            const string packageName = "test_package";
-            const string specification = "    ";
             var body = Option<string>.Some("body");
 
             Assert.That(() => new OracleDatabasePackage(packageName, specification, body), Throws.ArgumentNullException);

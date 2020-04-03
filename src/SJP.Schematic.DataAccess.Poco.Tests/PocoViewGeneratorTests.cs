@@ -17,25 +17,13 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
             Assert.That(() => new PocoViewGenerator(null, "test"), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void Ctor_GivenNullNamespace_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullNamespace_ThrowsArgumentNullException(string ns)
         {
             var nameTranslator = new VerbatimNameTranslator();
             Assert.That(() => new PocoViewGenerator(nameTranslator, null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptyNamespace_ThrowsArgumentNullException()
-        {
-            var nameTranslator = new VerbatimNameTranslator();
-            Assert.That(() => new PocoViewGenerator(nameTranslator, string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceNamespace_ThrowsArgumentNullException()
-        {
-            var nameTranslator = new VerbatimNameTranslator();
-            Assert.That(() => new PocoViewGenerator(nameTranslator, "   "), Throws.ArgumentNullException);
         }
 
         [Test]

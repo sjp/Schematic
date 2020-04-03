@@ -8,28 +8,14 @@ namespace SJP.Schematic.Core.Tests
     [TestFixture]
     internal static class DatabaseIndexColumnTests
     {
-        [Test]
-        public static void Ctor_GivenNullExpression_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullOrWhiteSpaceExpression_ThrowsArgumentNullException(string expression)
         {
             var column = Mock.Of<IDatabaseColumn>();
 
-            Assert.That(() => new DatabaseIndexColumn(null, column, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptyExpression_ThrowsArgumentNullException()
-        {
-            var column = Mock.Of<IDatabaseColumn>();
-
-            Assert.That(() => new DatabaseIndexColumn(string.Empty, column, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceExpression_ThrowsArgumentNullException()
-        {
-            var column = Mock.Of<IDatabaseColumn>();
-
-            Assert.That(() => new DatabaseIndexColumn("   ", column, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
+            Assert.That(() => new DatabaseIndexColumn(expression, column, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
         }
 
         [Test]

@@ -21,31 +21,15 @@ namespace SJP.Schematic.SqlServer.Tests
             Assert.That(() => provider.GetDependencies(null, "test"), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void GetDependencies_GivenNullExpression_ThrowsArgumentsNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void GetDependencies_GivenNullOrWhiteSpaceExpression_ThrowsArgumentsNullException(string expression)
         {
             var provider = new SqlServerDependencyProvider();
             Identifier objectName = "test";
 
-            Assert.That(() => provider.GetDependencies(objectName, null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void GetDependencies_GivenEmptyExpression_ThrowsArgumentsNullException()
-        {
-            var provider = new SqlServerDependencyProvider();
-            Identifier objectName = "test";
-
-            Assert.That(() => provider.GetDependencies(objectName, string.Empty), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void GetDependencies_GivenWhiteSpaceExpression_ThrowsArgumentsNullException()
-        {
-            var provider = new SqlServerDependencyProvider();
-            Identifier objectName = "test";
-
-            Assert.That(() => provider.GetDependencies(objectName, "    "), Throws.ArgumentNullException);
+            Assert.That(() => provider.GetDependencies(objectName, expression), Throws.ArgumentNullException);
         }
 
         [Test]

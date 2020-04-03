@@ -15,31 +15,15 @@ namespace SJP.Schematic.Core.Tests
             Assert.That(() => new DatabaseMaterializedView(null, definition, columns), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentNullException(string definition)
         {
             Identifier viewName = "test_mat_view";
             var columns = new[] { Mock.Of<IDatabaseColumn>() };
 
-            Assert.That(() => new DatabaseMaterializedView(viewName, null, columns), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptyDefinition_ThrowsArgumentNullException()
-        {
-            Identifier viewName = "test_mat_view";
-            var columns = new[] { Mock.Of<IDatabaseColumn>() };
-
-            Assert.That(() => new DatabaseMaterializedView(viewName, string.Empty, columns), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceDefinition_ThrowsArgumentNullException()
-        {
-            Identifier viewName = "test_mat_view";
-            var columns = new[] { Mock.Of<IDatabaseColumn>() };
-
-            Assert.That(() => new DatabaseMaterializedView(viewName, "    ", columns), Throws.ArgumentNullException);
+            Assert.That(() => new DatabaseMaterializedView(viewName, definition, columns), Throws.ArgumentNullException);
         }
 
         [Test]

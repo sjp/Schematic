@@ -7,46 +7,22 @@ namespace SJP.Schematic.PostgreSql.Tests
     [TestFixture]
     internal static class PostgreSqlDatabaseIndexColumnTests
     {
-        [Test]
-        public static void Ctor_GivenNullExpression_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullOrWhiteSpaceExpression_ThrowsArgumentNullException(string expression)
         {
-            Assert.That(() => new PostgreSqlDatabaseIndexColumn(null, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
+            Assert.That(() => new PostgreSqlDatabaseIndexColumn(expression, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public static void Ctor_GivenEmptyExpression_ThrowsArgumentNullException()
-        {
-            Assert.That(() => new PostgreSqlDatabaseIndexColumn(string.Empty, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceExpression_ThrowsArgumentNullException()
-        {
-            Assert.That(() => new PostgreSqlDatabaseIndexColumn("    ", IndexColumnOrder.Ascending), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenNullExpressionWithColumn_ThrowsArgumentNullException()
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void Ctor_GivenNullOrWhiteSpaceExpressionWithColumn_ThrowsArgumentNullException(string expression)
         {
             var column = Mock.Of<IDatabaseColumn>();
 
-            Assert.That(() => new PostgreSqlDatabaseIndexColumn(null, column, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenEmptyExpressionWithColumn_ThrowsArgumentNullException()
-        {
-            var column = Mock.Of<IDatabaseColumn>();
-
-            Assert.That(() => new PostgreSqlDatabaseIndexColumn(string.Empty, column, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenWhiteSpaceExpressionWithColumn_ThrowsArgumentNullException()
-        {
-            var column = Mock.Of<IDatabaseColumn>();
-
-            Assert.That(() => new PostgreSqlDatabaseIndexColumn("    ", column, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
+            Assert.That(() => new PostgreSqlDatabaseIndexColumn(expression, column, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
         }
 
         [Test]
