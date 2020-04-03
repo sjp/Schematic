@@ -27,6 +27,8 @@ namespace SJP.Schematic.Modelled.Reflection.Model
         {
             if (index == null)
                 throw new ArgumentNullException(nameof(index));
+            if (includedColumns == null)
+                throw new ArgumentNullException(nameof(includedColumns));
             if (index.Columns == null || includedColumns.Empty() || includedColumns.AnyNull())
                 throw new ArgumentException("The index has no key columns. These are required in order to declare included columns on an index.", nameof(index));
             if (index.IncludedColumns.Any())

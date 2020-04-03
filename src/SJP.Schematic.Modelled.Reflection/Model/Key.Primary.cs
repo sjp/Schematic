@@ -19,6 +19,9 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 : base(columns, DatabaseKeyType.Primary)
 
             {
+                if (columns == null)
+                    throw new ArgumentNullException(nameof(columns));
+
                 var nullableColumns = columns
                     .Where(c => c.IsNullable)
                     .Select(c => c.Property!.Name)

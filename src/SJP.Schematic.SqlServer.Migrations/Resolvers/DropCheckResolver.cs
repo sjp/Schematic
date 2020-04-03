@@ -32,7 +32,7 @@ namespace SJP.Schematic.SqlServer.Migrations.Resolvers
             // TODO throw if hasCheckByName is false
             var result = !hasExistingDefinition && !hasCheckByName
                 ? Array.Empty<IMigrationOperation>()
-                : new[] { operation } as IReadOnlyCollection<IMigrationOperation>;
+                : new IMigrationOperation[] { operation };
 
             return result.ToAsyncEnumerable();
         }
