@@ -200,8 +200,8 @@ create table table_test_table_32 (
             await DbConnection.ExecuteAsync("create table table_test_table_33 ( test_column int not null default 1 )", CancellationToken.None).ConfigureAwait(false);
 
             // TODO: uncomment when v3.31 is available
-//            await DbConnection.ExecuteAsync(@"c
-//reate table table_test_table_34 (
+//            await DbConnection.ExecuteAsync(@"
+//create table table_test_table_34 (
 //    test_column_1 int not null,
 //    test_column_2 int as (test_column_1 * test_column_1),
 //    test_column_3 int generated always as (test_column_1 * test_column_1 * test_column_1) stored,
