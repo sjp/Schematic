@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
@@ -84,6 +85,126 @@ namespace SJP.Schematic.Core.Tests
 
             Logging.AddLogging(connectionMock.Object, logger, logLevel);
             Assert.That(() => Logging.RemoveLogging(connectionMock.Object), Throws.Nothing);
+        }
+
+        [Test]
+        public static void LogCommandExecuting_WhenNoConnectionProvided_ThrowsArgumentNullException()
+        {
+            var connectionMock = new Mock<ISchematicConnection>();
+            connectionMock.Setup(c => c.DbConnection).Returns(Mock.Of<IDbConnection>());
+            var logger = Mock.Of<ILogger>();
+            const LogLevel logLevel = LogLevel.Information;
+
+            Logging.AddLogging(connectionMock.Object, logger, logLevel);
+            Assert.That(() => Logging.LogCommandExecuting(null, Guid.NewGuid(), "test_query", null), Throws.ArgumentNullException);
+        }
+
+        [TestCase((string)null)]
+        [TestCase("")]
+        [TestCase("    ")]
+        public static void LogCommandExecuting_WhenNullOrWhiteSpaceSqlProvided_ThrowsArgumentNullException(string sql)
+        {
+            var connectionMock = new Mock<ISchematicConnection>();
+            connectionMock.Setup(c => c.DbConnection).Returns(Mock.Of<IDbConnection>());
+            var logger = Mock.Of<ILogger>();
+            const LogLevel logLevel = LogLevel.Information;
+
+            Logging.AddLogging(connectionMock.Object, logger, logLevel);
+            Assert.That(() => Logging.LogCommandExecuting(connectionMock.Object.DbConnection, Guid.NewGuid(), sql, null), Throws.ArgumentNullException);
+        }
+
+        [Test]
+        public static void LogCommandExecuting_WhenNoConfiguredConnectionProvided_ThrowsNothing()
+        {
+            var connection = Mock.Of<IDbConnection>();
+
+            Assert.That(() => Logging.LogCommandExecuting(connection, Guid.NewGuid(), "test_query", null), Throws.Nothing);
+        }
+
+        [Test]
+        public static void LogCommandExecuting_WhenValidConnectionProvided_PerformsLogging()
+        {
+            var connectionId = Guid.NewGuid();
+            var commandId = Guid.NewGuid();
+            const string sql = "test_query";
+            var parameters = new { ParamA = "test_param_1", ParamB = "test_param_2" };
+
+            var connectionMock = new Mock<ISchematicConnection>();
+            connectionMock.Setup(c => c.DbConnection).Returns(Mock.Of<IDbConnection>());
+            connectionMock.Setup(c => c.ConnectionId).Returns(connectionId);
+            var loggerMock = new Mock<ILogger>();
+            var logger = loggerMock.Object;
+            const LogLevel logLevel = LogLevel.Information;
+
+            Logging.AddLogging(connectionMock.Object, logger, logLevel);
+            Assert.That(() => Logging.LogCommandExecuting(connectionMock.Object.DbConnection, commandId, sql, parameters), Throws.Nothing);
+        }
+
+        [Test]
+        public static void LogCommandExecuting_WhenValidConnectionWithNoParamsProvided_PerformsLogging()
+        {
+            var connectionId = Guid.NewGuid();
+            var commandId = Guid.NewGuid();
+            const string sql = "test_query";
+
+            var connectionMock = new Mock<ISchematicConnection>();
+            connectionMock.Setup(c => c.DbConnection).Returns(Mock.Of<IDbConnection>());
+            connectionMock.Setup(c => c.ConnectionId).Returns(connectionId);
+            var loggerMock = new Mock<ILogger>();
+            var logger = loggerMock.Object;
+            const LogLevel logLevel = LogLevel.Information;
+
+            Logging.AddLogging(connectionMock.Object, logger, logLevel);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(() => Logging.LogCommandExecuting(connectionMock.Object.DbConnection, commandId, sql, null), Throws.Nothing);
+                Assert.That(() => Logging.LogCommandExecuting(connectionMock.Object.DbConnection, commandId, sql, new object()), Throws.Nothing);
+            });
+        }
+
+        [Test]
+        public static void LogCommandExecuted_WhenValidConnectionProvided_PerformsLogging()
+        {
+            var connectionId = Guid.NewGuid();
+            var commandId = Guid.NewGuid();
+            const string sql = "test_query";
+            var parameters = new { ParamA = "test_param_1", ParamB = "test_param_2" };
+            var duration = TimeSpan.FromMilliseconds(1234);
+
+            var connectionMock = new Mock<ISchematicConnection>();
+            connectionMock.Setup(c => c.DbConnection).Returns(Mock.Of<IDbConnection>());
+            connectionMock.Setup(c => c.ConnectionId).Returns(connectionId);
+            var loggerMock = new Mock<ILogger>();
+            var logger = loggerMock.Object;
+            const LogLevel logLevel = LogLevel.Information;
+
+            Logging.AddLogging(connectionMock.Object, logger, logLevel);
+            Assert.That(() => Logging.LogCommandExecuted(connectionMock.Object.DbConnection, commandId, sql, parameters, duration), Throws.Nothing);
+        }
+
+        [Test]
+        public static void LogCommandExecuted_WhenValidConnectionWithNoParamsProvided_PerformsLogging()
+        {
+            var connectionId = Guid.NewGuid();
+            var commandId = Guid.NewGuid();
+            const string sql = "test_query";
+            var duration = TimeSpan.FromMilliseconds(1234);
+
+            var connectionMock = new Mock<ISchematicConnection>();
+            connectionMock.Setup(c => c.DbConnection).Returns(Mock.Of<IDbConnection>());
+            connectionMock.Setup(c => c.ConnectionId).Returns(connectionId);
+            var loggerMock = new Mock<ILogger>();
+            var logger = loggerMock.Object;
+            const LogLevel logLevel = LogLevel.Information;
+
+            Logging.AddLogging(connectionMock.Object, logger, logLevel);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(() => Logging.LogCommandExecuted(connectionMock.Object.DbConnection, commandId, sql, null, duration), Throws.Nothing);
+                Assert.That(() => Logging.LogCommandExecuted(connectionMock.Object.DbConnection, commandId, sql, new object(), duration), Throws.Nothing);
+            });
         }
     }
 }

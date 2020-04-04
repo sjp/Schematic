@@ -78,6 +78,7 @@ namespace SJP.Schematic.Core
                 connectionId = Guid.Empty;
 
             var parameters = ToDictionary(param);
+
             loggingConfig.Logger.Log(
                 loggingConfig.LogLevel,
                 "Connection {connectionId} is executing query {commandId}. Attempting to execute {sql} with parameters {@parameters}.",
