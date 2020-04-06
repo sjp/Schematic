@@ -46,20 +46,6 @@ create table not_indexed_child_table_1 (
         }
 
         [Test]
-        public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
-        {
-            const RuleLevel level = (RuleLevel)999;
-            Assert.That(() => new ForeignKeyIndexRule(level), Throws.ArgumentException);
-        }
-
-        [Test]
-        public static void AnalyseTables_GivenNullTables_ThrowsArgumentNullException()
-        {
-            var rule = new ForeignKeyIndexRule(RuleLevel.Error);
-            Assert.That(() => rule.AnalyseTables(null), Throws.ArgumentNullException);
-        }
-
-        [Test]
         public async Task AnalyseTables_GivenTablesWithTableWithIndexOnForeignKey_ProducesNoMessages()
         {
             var rule = new ForeignKeyIndexRule(RuleLevel.Error);

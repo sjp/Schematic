@@ -60,7 +60,8 @@ namespace SJP.Schematic.Lint.Rules
             {
                 var columns = foreignKey.Columns;
 
-                var isIndexedKey = indexes.Select(i => i.Columns).Any(ic => ColumnsHaveIndex(columns, ic));
+                var isIndexedKey = indexes.Any(i =>
+                    ColumnsHaveIndex(columns, i.Columns) || ColumnsHaveIndexWithIncludedColumns(columns, i.Columns, i.IncludedColumns));
                 if (!isIndexedKey)
                 {
                     var columnNames = columns.Select(c => c.Name.LocalName).ToList();
@@ -87,16 +88,57 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(indexColumns));
 
             var columnList = columns.ToList();
-            var dependentColumns = indexColumns.SelectMany(ic => ic.DependentColumns).ToList();
+            var indexColumnList = indexColumns.ToList();
+            var dependentColumns = indexColumnList.SelectMany(ic => ic.DependentColumns).ToList();
 
             // can only check for regular indexes, not functional ones (functions may be composed of multiple columns)
-            if (columnList.Count != dependentColumns.Count)
+            if (indexColumnList.Count != dependentColumns.Count)
                 return false;
 
             var columnNames = columnList.Select(c => c.Name).ToList();
             var indexColumnNames = dependentColumns.Select(ic => ic.Name).ToList();
 
             return IsPrefixOf(columnNames, indexColumnNames);
+        }
+
+        /// <summary>
+        /// Determines whether a column set is covered by an index.
+        /// </summary>
+        /// <param name="columns">A set of columns.</param>
+        /// <param name="indexColumns">The index columns.</param>
+        /// <param name="indexIncludedColumns">The index columns.</param>
+        /// <returns><c>true</c> if <paramref name="columns"/> is covered by <paramref name="indexColumns"/>; otherwise <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="columns"/> or <paramref name="indexColumns"/> or <paramref name="indexIncludedColumns"/> is <c>null</c>.</exception>
+        protected static bool ColumnsHaveIndexWithIncludedColumns(IEnumerable<IDatabaseColumn> columns, IEnumerable<IDatabaseIndexColumn> indexColumns, IEnumerable<IDatabaseColumn> indexIncludedColumns)
+        {
+            if (columns == null)
+                throw new ArgumentNullException(nameof(columns));
+            if (indexColumns == null)
+                throw new ArgumentNullException(nameof(indexColumns));
+            if (indexIncludedColumns == null)
+                throw new ArgumentNullException(nameof(indexIncludedColumns));
+
+            if (indexIncludedColumns.Empty())
+                return false;
+
+            var columnList = columns.ToList();
+            var indexColumnList = indexColumns.ToList();
+            var dependentColumns = indexColumnList.SelectMany(ic => ic.DependentColumns).ToList();
+            var includedColumnList = indexIncludedColumns.ToList();
+
+            // can only check for regular indexes, not functional ones (functions may be composed of multiple columns)
+            if (indexColumnList.Count != dependentColumns.Count)
+                return false;
+
+            var columnNames = new System.Collections.Generic.HashSet<Identifier>(columnList.Select(c => c.Name));
+            var indexColumnNames = new System.Collections.Generic.HashSet<Identifier>(dependentColumns.Select(ic => ic.Name));
+
+            // index won't be completely used or there are extra columns in it
+            if (indexColumnNames.Count > columnNames.Count || indexColumnNames.Any(ic => !columnNames.Contains(ic)))
+                return false;
+
+            indexColumnNames.UnionWith(includedColumnList.Select(ic => ic.Name));
+            return columnNames.IsSubsetOf(indexColumnNames);
         }
 
         /// <summary>
@@ -129,7 +171,8 @@ namespace SJP.Schematic.Lint.Rules
             if (superSetList.Count > prefixSetList.Count)
                 superSetList = superSetList.Take(prefixSetList.Count).ToList();
 
-            return prefixSetList.SequenceEqual(superSetList);
+            return prefixSetList.OrderBy(c => c)
+                .SequenceEqual(superSetList.OrderBy(c => c));
         }
 
         /// <summary>
