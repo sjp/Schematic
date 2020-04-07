@@ -40,7 +40,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
             var table = await GetTableAsync("v12_trigger_test_table_1").ConfigureAwait(false);
             var trigger = table.Triggers.First(t => t.Name == "v12_trigger_test_table_1_trigger_1");
 
-            const string expectedDefinition = "EXECUTE PROCEDURE v12_test_trigger_fn()";
+            const string expectedDefinition = "EXECUTE FUNCTION v12_test_trigger_fn()";
 
             Assert.That(trigger.Definition, Is.EqualTo(expectedDefinition));
         }
