@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.PostgreSql.Query
 {
-    internal class ColumnDataWithIdentity : ColumnData
+    internal class ColumnDataV10 : ColumnData
     {
         /// <summary>
         /// If the column is an identity column, then <c>YES</c>, else <c>NO</c>.

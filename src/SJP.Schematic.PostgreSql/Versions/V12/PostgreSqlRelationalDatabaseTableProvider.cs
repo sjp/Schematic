@@ -7,9 +7,9 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.PostgreSql.Query;
 
-namespace SJP.Schematic.PostgreSql.Versions.V10
+namespace SJP.Schematic.PostgreSql.Versions.V12
 {
-    public class PostgreSqlRelationalDatabaseTableProvider : PostgreSqlRelationalDatabaseTableProviderBase
+    public class PostgreSqlRelationalDatabaseTableProvider : V11.PostgreSqlRelationalDatabaseTableProvider
     {
         public PostgreSqlRelationalDatabaseTableProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
             : base(connection, identifierDefaults, identifierResolver)
@@ -26,7 +26,7 @@ namespace SJP.Schematic.PostgreSql.Versions.V10
 
         private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var query = await DbConnection.QueryAsync<ColumnDataV10>(
+            var query = await DbConnection.QueryAsync<ColumnDataV12>(
                 ColumnsQuery,
                 new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
                 cancellationToken
@@ -69,7 +69,14 @@ namespace SJP.Schematic.PostgreSql.Versions.V10
                     : Option<string>.None;
                 var isNullable = row.is_nullable == Constants.Yes;
 
-                var column = new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement);
+                var isComputed = row.is_generated == Constants.Always;
+                var computedDefinition = isComputed
+                    ? Option<string>.Some(row.generation_expression ?? string.Empty)
+                    : Option<string>.None;
+
+                var column = isComputed
+                    ? new DatabaseComputedColumn(columnName, columnType, isNullable, defaultValue, computedDefinition)
+                    : new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement);
                 result.Add(column);
             }
 
@@ -113,9 +120,60 @@ select
     identity_increment,
     identity_maximum,
     identity_minimum,
-    identity_cycle
+    identity_cycle,
+    is_generated,
+    generation_expression
 from information_schema.columns
 where table_schema = @SchemaName and table_name = @TableName
 order by ordinal_position";
+
+        protected override async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, CancellationToken cancellationToken)
+        {
+            var checks = await DbConnection.QueryAsync<CheckConstraintData>(
+                ChecksQuery,
+                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
+            if (checks.Empty())
+                return Array.Empty<IDatabaseCheckConstraint>();
+
+            const string checkPrefix = "CHECK (";
+            const string checkSuffix = ")";
+            var result = new List<IDatabaseCheckConstraint>();
+
+            foreach (var checkRow in checks)
+            {
+                var definition = checkRow.Definition;
+                if (definition.IsNullOrWhiteSpace())
+                    continue;
+
+                if (definition.StartsWith(checkPrefix, StringComparison.OrdinalIgnoreCase))
+                    definition = definition.Substring(checkPrefix.Length);
+                if (definition.EndsWith(checkSuffix, StringComparison.Ordinal) && definition.Length > 0)
+                    definition = definition.Substring(0, definition.Length - checkSuffix.Length);
+
+                var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);
+
+                var check = new PostgreSqlCheckConstraint(constraintName, definition);
+                result.Add(check);
+            }
+
+            return result;
+        }
+
+        protected override string ChecksQuery => ChecksQuerySql;
+
+        private const string ChecksQuerySql = @"
+select
+    c.conname as ConstraintName,
+    pg_catalog.pg_get_constraintdef(c.oid) as Definition
+from pg_catalog.pg_namespace ns
+inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
+inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
+where
+    c.contype = 'c'
+    and t.relname = @TableName
+    and ns.nspname = @SchemaName";
     }
 }

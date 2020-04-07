@@ -931,6 +931,10 @@ where t.relkind = 'r'
             public const string Update = "UPDATE";
 
             public const string Yes = "YES";
+
+            public const string Always = "ALWAYS";
+
+            public const string Never = "NEVER";
         }
     }
 }
