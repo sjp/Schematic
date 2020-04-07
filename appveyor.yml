@@ -21,6 +21,7 @@ environment:
   POSTGRES_PATH: C:\Program Files\PostgreSQL\12
 
 init:
+  - net start MSSQL$SQL2019
   - SET PATH=%POSTGRES_PATH%\bin;%MYSQL_PATH%\bin;%PATH%
   - ps: >-
       Get-ChildItem -Path 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\' |
