@@ -150,6 +150,17 @@ select
                 .IfNoneUnsafe(() => null);
         }
 
+        public Task<IServerProperties2019?> GetServerProperties2019(IDbConnection connection, CancellationToken cancellationToken = default)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            var query = BuildServerPropertiesQuery<Query.ServerProperties2019>();
+            return connection.QueryFirstOrNone<Query.ServerProperties2019>(query, cancellationToken)
+                .Map<IServerProperties2019?>(row => new ServerProperties2019(row))
+                .IfNoneUnsafe(() => null);
+        }
+
         private static string BuildServerPropertiesQuery<T>()
         {
             var propNames = typeof(T).GetProperties()

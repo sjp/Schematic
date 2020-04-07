@@ -14,5 +14,7 @@ namespace SJP.Schematic.SqlServer
         Task<IServerProperties2014?> GetServerProperties2014(IDbConnection connection, CancellationToken cancellationToken = default);
 
         Task<IServerProperties2017?> GetServerProperties2017(IDbConnection connection, CancellationToken cancellationToken = default);
+
+        Task<IServerProperties2019?> GetServerProperties2019(IDbConnection connection, CancellationToken cancellationToken = default);
     }
 }
