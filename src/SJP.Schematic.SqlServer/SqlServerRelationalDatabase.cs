@@ -6,13 +6,14 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SqlServer
 {
-    public class SqlServerRelationalDatabase : RelationalDatabase, IRelationalDatabase
+    public class SqlServerRelationalDatabase : IRelationalDatabase
     {
         public SqlServerRelationalDatabase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults)
-            : base(identifierDefaults)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
+
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
 
             _tableProvider = new SqlServerRelationalDatabaseTableProvider(connection, identifierDefaults);
             _viewProvider = new SqlServerDatabaseViewProvider(connection, identifierDefaults);
@@ -20,6 +21,8 @@ namespace SJP.Schematic.SqlServer
             _synonymProvider = new SqlServerDatabaseSynonymProvider(connection.DbConnection, identifierDefaults);
             _routineProvider = new SqlServerDatabaseRoutineProvider(connection.DbConnection, identifierDefaults);
         }
+
+        public IIdentifierDefaults IdentifierDefaults { get; }
 
         public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)
         {

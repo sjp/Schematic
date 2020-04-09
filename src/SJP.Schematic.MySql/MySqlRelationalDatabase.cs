@@ -6,15 +6,18 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.MySql
 {
-    public class MySqlRelationalDatabase : RelationalDatabase, IRelationalDatabase
+    public class MySqlRelationalDatabase : IRelationalDatabase
     {
         public MySqlRelationalDatabase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults)
-            : base(identifierDefaults)
         {
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+
             _tableProvider = new MySqlRelationalDatabaseTableProvider(connection, identifierDefaults);
             _viewProvider = new MySqlDatabaseViewProvider(connection, identifierDefaults);
             _routineProvider = new MySqlDatabaseRoutineProvider(connection, identifierDefaults);
         }
+
+        public IIdentifierDefaults IdentifierDefaults { get; }
 
         public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)
         {

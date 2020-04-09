@@ -6,16 +6,19 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.PostgreSql
 {
-    public class PostgreSqlRelationalDatabase : RelationalDatabase, IRelationalDatabase
+    public class PostgreSqlRelationalDatabase : IRelationalDatabase
     {
         public PostgreSqlRelationalDatabase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
-            : base(identifierDefaults)
         {
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+
             _tableProvider = new PostgreSqlRelationalDatabaseTableProvider(connection, identifierDefaults, identifierResolver);
             _viewProvider = new PostgreSqlDatabaseViewProvider(connection, identifierDefaults, identifierResolver);
             _sequenceProvider = new PostgreSqlDatabaseSequenceProvider(connection, identifierDefaults, identifierResolver);
             _routineProvider = new PostgreSqlDatabaseRoutineProvider(connection.DbConnection, identifierDefaults, identifierResolver);
         }
+
+        public IIdentifierDefaults IdentifierDefaults { get; }
 
         public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)
         {

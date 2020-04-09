@@ -6,17 +6,20 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Oracle
 {
-    public class OracleRelationalDatabase : RelationalDatabase, IRelationalDatabase
+    public class OracleRelationalDatabase : IRelationalDatabase
     {
         public OracleRelationalDatabase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
-            : base(identifierDefaults)
         {
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+
             _tableProvider = new OracleRelationalDatabaseTableProvider(connection, identifierDefaults, identifierResolver);
             _viewProvider = new OracleDatabaseViewProvider(connection, identifierDefaults, identifierResolver);
             _sequenceProvider = new OracleDatabaseSequenceProvider(connection.DbConnection, identifierDefaults, identifierResolver);
             _synonymProvider = new OracleDatabaseSynonymProvider(connection.DbConnection, identifierDefaults, identifierResolver);
             _routineProvider = new OracleDatabaseRoutineProvider(connection.DbConnection, identifierDefaults, identifierResolver);
         }
+
+        public IIdentifierDefaults IdentifierDefaults { get; }
 
         public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)
         {

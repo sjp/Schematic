@@ -13,7 +13,7 @@ namespace SJP.Schematic.Sqlite
     /// <summary>
     /// A relational database used to access and manage a SQLite database.
     /// </summary>
-    public class SqliteRelationalDatabase : RelationalDatabase, ISqliteDatabase
+    public class SqliteRelationalDatabase : ISqliteDatabase
     {
         /// <summary>
         /// Constructs a new <see cref="SqliteRelationalDatabase"/>.
@@ -22,13 +22,15 @@ namespace SJP.Schematic.Sqlite
         /// <param name="identifierDefaults">Default values for identifier components.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="dialect"/>, <paramref name="connection"/>, or <paramref name="identifierDefaults"/> are <code>null</code>.</exception>
         public SqliteRelationalDatabase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults)
-            : base(identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             var pragma = new ConnectionPragma(connection);
             _tableProvider = new SqliteRelationalDatabaseTableProvider(connection, pragma, identifierDefaults);
             _viewProvider = new SqliteDatabaseViewProvider(connection, pragma, identifierDefaults);
         }
+
+        public IIdentifierDefaults IdentifierDefaults { get; }
 
         protected ISchematicConnection Connection { get; }
 

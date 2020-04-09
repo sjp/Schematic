@@ -1,5 +1,8 @@
 ﻿namespace SJP.Schematic.Core
 {
+    /// <summary>
+    /// Default values for identifiers in a database.
+    /// </summary>
     public interface IIdentifierDefaults
     {
         /// <summary>

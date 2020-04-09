@@ -1,16 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using LanguageExt;
 
 namespace SJP.Schematic.Core.Tests.Fakes
 {
-    internal class FakeRelationalDatabase : RelationalDatabase, IRelationalDatabase
+    internal class FakeRelationalDatabase : IRelationalDatabase
     {
         public FakeRelationalDatabase(IIdentifierDefaults identifierDefaults)
-            : base(identifierDefaults)
         {
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         }
+
+        public IIdentifierDefaults IdentifierDefaults { get; }
 
         public virtual IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; set; } = new List<IRelationalDatabaseTable>();
 
