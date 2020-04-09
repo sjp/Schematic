@@ -20,10 +20,4 @@
     <ProjectReference Include="..\SJP.Schematic.Tests.Utilities\SJP.Schematic.Tests.Utilities.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="sakila.sqlite.zip">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

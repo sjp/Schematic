@@ -5,9 +5,8 @@ using System.Linq;
 using System.Reflection;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite;
-using SJP.Schematic.Tests.Utilities;
 
-namespace SJP.Schematic.Reporting.Tests.Integration
+namespace SJP.Schematic.Tests.Utilities.Integration
 {
     internal static class Config
     {
@@ -41,11 +40,11 @@ namespace SJP.Schematic.Reporting.Tests.Integration
 
         public static string SakilaZipPath => Path.Combine(CurrentDirectory, "sakila.sqlite.zip");
 
-        private static string CurrentDirectory => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        private static string CurrentDirectory => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
     }
 
-    [DatabaseTestFixture(typeof(Config), nameof(Config.Connection), "No Reporting DB available")]
-    internal abstract class SakilaTest
+    [DatabaseTestFixture(typeof(Config), nameof(Config.Connection), "No Sakila DB available")]
+    public abstract class SakilaTest
     {
         protected ISchematicConnection Connection { get; } = Config.SchematicConnection;
 

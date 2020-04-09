@@ -7,9 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LanguageExt.Core" Version="3.4.13" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
     <PackageReference Include="NUnit" Version="3.12.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SJP.Schematic.Core\SJP.Schematic.Core.csproj" />
+    <ProjectReference Include="..\SJP.Schematic.Sqlite\SJP.Schematic.Sqlite.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="sakila.sqlite.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

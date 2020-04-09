@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using SJP.Schematic.Tests.Utilities.Integration;
 
 namespace SJP.Schematic.Reporting.Tests.Integration
 {
@@ -10,8 +11,6 @@ namespace SJP.Schematic.Reporting.Tests.Integration
         [Test]
         public async Task ExportAsync_GivenValidSqliteDatabase_GeneratesReportsWithoutError()
         {
-            Assert.That(File.Exists(Config.SakilaDbPath), Is.True, "Expected to find a database at: " + Config.SakilaDbPath);
-
             var database = GetDatabase();
 
             var outDir = string.Empty;
