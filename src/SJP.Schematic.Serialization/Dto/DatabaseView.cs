@@ -5,9 +5,9 @@ namespace SJP.Schematic.Serialization.Dto
 {
     public class DatabaseView
     {
-        public Identifier? Name { get; set; }
+        public Identifier Name { get; set; } = default!;
 
-        public string? Definition { get; set; }
+        public string Definition { get; set; } = default!;
 
         public IEnumerable<DatabaseColumn> Columns { get; set; } = Array.Empty<DatabaseColumn>();
 

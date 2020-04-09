@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
 using SJP.Schematic.Core;
 using SJP.Schematic.Serialization.Mapping;
 
@@ -10,13 +11,22 @@ namespace SJP.Schematic.Serialization
 {
     public class JsonRelationalDatabaseSerializer : IRelationalDatabaseSerializer
     {
+        public JsonRelationalDatabaseSerializer(IMapper mapper)
+        {
+            Mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        }
+
+        protected IMapper Mapper { get; }
+
         public Task<IRelationalDatabase> DeserializeAsync(string input, CancellationToken cancellationToken = default)
         {
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
             var dto = JsonSerializer.Deserialize<Dto.RelationalDatabase>(input, _settings.Value);
-            return Task.FromResult(dto.FromDto());
+            var db = Mapper.Map<Dto.RelationalDatabase, RelationalDatabase>(dto);
+
+            return Task.FromResult<IRelationalDatabase>(db);
         }
 
         public Task<string> SerializeAsync(IRelationalDatabase obj, CancellationToken cancellationToken = default)
@@ -27,9 +37,9 @@ namespace SJP.Schematic.Serialization
             return SerializeAsyncCore(obj, cancellationToken);
         }
 
-        private static async Task<string> SerializeAsyncCore(IRelationalDatabase obj, CancellationToken cancellationToken)
+        private async Task<string> SerializeAsyncCore(IRelationalDatabase obj, CancellationToken cancellationToken)
         {
-            var dto = await obj.ToDto(cancellationToken).ConfigureAwait(false);
+            var dto = await Mapper.ToDtoAsync(obj, cancellationToken).ConfigureAwait(false);
             return JsonSerializer.Serialize(dto, _settings.Value);
         }
 

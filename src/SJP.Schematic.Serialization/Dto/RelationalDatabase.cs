@@ -5,6 +5,8 @@ namespace SJP.Schematic.Serialization.Dto
 {
     public class RelationalDatabase
     {
+        public IdentifierDefaults IdentifierDefaults { get; set; } = default!;
+
         public IEnumerable<RelationalDatabaseTable> Tables { get; set; } = Array.Empty<RelationalDatabaseTable>();
 
         public IEnumerable<DatabaseView> Views { get; set; } = Array.Empty<DatabaseView>();
