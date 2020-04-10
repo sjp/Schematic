@@ -19,9 +19,9 @@
   },
   "devDependencies": {
     "@babel/core": "7.9.0",
-    "@babel/preset-env": "^7.9.0",
+    "@babel/preset-env": "^7.9.5",
     "@babel/register": "^7.9.0",
-    "admin-lte": "^3.0.2",
+    "admin-lte": "^3.0.4",
     "bootstrap": "^4.4.1",
     "codemirror": "^5.52.2",
     "datatables.net": "^1.10.20",
