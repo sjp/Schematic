@@ -19,11 +19,17 @@ namespace SJP.Schematic.Serialization
         protected IMapper Mapper { get; }
 
         public Task<IRelationalDatabase> DeserializeAsync(string input, CancellationToken cancellationToken = default)
+            => DeserializeAsync(input, new VerbatimIdentifierResolutionStrategy(), cancellationToken);
+
+        public Task<IRelationalDatabase> DeserializeAsync(string input, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken = default)
         {
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
+            if (identifierResolver == null)
+                throw new ArgumentNullException(nameof(identifierResolver));
 
             var dto = JsonSerializer.Deserialize<Dto.RelationalDatabase>(input, _settings.Value);
+            dto.IdentifierResolver = identifierResolver;
             var db = Mapper.Map<Dto.RelationalDatabase, RelationalDatabase>(dto);
 
             return Task.FromResult<IRelationalDatabase>(db);

@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Collections.Generic;
+using AutoMapper;
 using LanguageExt;
 using SJP.Schematic.Core;
 
@@ -8,7 +9,13 @@ namespace SJP.Schematic.Serialization.Mapping
     {
         public DatabaseKeyProfile()
         {
-            CreateMap<Dto.DatabaseKey, DatabaseKey>();
+            CreateMap<Dto.DatabaseKey, DatabaseKey>()
+                .ConstructUsing((dto, ctx) => new DatabaseKey(
+                    ctx.Mapper.Map<Dto.Identifier?, Option<Identifier>>(dto.Name),
+                    dto.KeyType,
+                    ctx.Mapper.Map<IEnumerable<Dto.DatabaseColumn>, List<DatabaseColumn>>(dto.Columns),
+                    dto.IsEnabled
+                ));
             CreateMap<IDatabaseKey, Dto.DatabaseKey>();
 
             CreateMap<Option<IDatabaseKey>, Dto.DatabaseKey?>()

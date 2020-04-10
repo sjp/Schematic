@@ -2,7 +2,7 @@
 {
     public class DatabaseSequence
     {
-        public Identifier? Name { get; set; }
+        public Identifier? SequenceName { get; set; }
 
         public int Cache { get; set; }
 

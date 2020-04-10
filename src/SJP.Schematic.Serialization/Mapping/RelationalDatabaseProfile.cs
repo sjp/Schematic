@@ -11,7 +11,7 @@ namespace SJP.Schematic.Serialization.Mapping
             CreateMap<Dto.RelationalDatabase, RelationalDatabase>()
                 .ConstructUsing((dto, ctx) => new RelationalDatabase(
                     ctx.Mapper.Map<Dto.IdentifierDefaults, IdentifierDefaults>(dto.IdentifierDefaults),
-                    new VerbatimIdentifierResolutionStrategy(),
+                    dto.IdentifierResolver ?? new VerbatimIdentifierResolutionStrategy(),
                     ctx.Mapper.Map<IEnumerable<Dto.RelationalDatabaseTable>, IEnumerable<RelationalDatabaseTable>>(dto.Tables),
                     ctx.Mapper.Map<IEnumerable<Dto.DatabaseView>, IEnumerable<DatabaseView>>(dto.Views),
                     ctx.Mapper.Map<IEnumerable<Dto.DatabaseSequence>, IEnumerable<DatabaseSequence>>(dto.Sequences),

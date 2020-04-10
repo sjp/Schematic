@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Dto
 {
     public class RelationalDatabase
     {
         public IdentifierDefaults IdentifierDefaults { get; set; } = default!;
+
+        public IIdentifierResolutionStrategy? IdentifierResolver { get; set; }
 
         public IEnumerable<RelationalDatabaseTable> Tables { get; set; } = Array.Empty<RelationalDatabaseTable>();
 

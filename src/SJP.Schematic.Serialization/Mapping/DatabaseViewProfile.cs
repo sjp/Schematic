@@ -12,15 +12,16 @@ namespace SJP.Schematic.Serialization.Mapping
                 .ConstructUsing((dto, ctx) =>
                     dto.IsMaterialized
                         ? new DatabaseMaterializedView(
-                            ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.Name),
+                            ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.ViewName),
                             dto.Definition,
                             ctx.Mapper.Map<IEnumerable<Dto.DatabaseColumn>, List<DatabaseColumn>>(dto.Columns))
                         : new DatabaseView(
-                            ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.Name),
+                            ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.ViewName),
                             dto.Definition,
                             ctx.Mapper.Map<IEnumerable<Dto.DatabaseColumn>, List<DatabaseColumn>>(dto.Columns)));
 
-            CreateMap<IDatabaseView, Dto.DatabaseView>();
+            CreateMap<IDatabaseView, Dto.DatabaseView>()
+                .ForMember(dest => dest.ViewName, src => src.MapFrom(v => v.Name));
         }
     }
 }

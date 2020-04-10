@@ -2,7 +2,7 @@
 {
     public class DatabaseTrigger
     {
-        public Identifier? Name { get; set; }
+        public Identifier? TriggerName { get; set; }
 
         public string? Definition { get; set; }
 

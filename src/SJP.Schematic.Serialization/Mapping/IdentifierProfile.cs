@@ -28,7 +28,8 @@ namespace SJP.Schematic.Serialization.Mapping
                     ));
 
             CreateMap<Identifier, Dto.Identifier>();
-            CreateMap<Dto.Identifier?, Identifier>();
+            CreateMap<Dto.Identifier, Identifier>()
+                .ConstructUsing(dto => Identifier.CreateQualifiedIdentifier(dto.Server, dto.Database, dto.Schema, dto.LocalName));
         }
     }
 }

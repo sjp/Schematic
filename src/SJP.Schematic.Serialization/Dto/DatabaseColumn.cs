@@ -2,7 +2,7 @@
 {
     public class DatabaseColumn
     {
-        public Identifier? Name { get; set; }
+        public Identifier? ColumnName { get; set; }
 
         public bool IsNullable { get; set; }
 
@@ -13,5 +13,7 @@
         public DbType? Type { get; set; }
 
         public AutoIncrement? AutoIncrement { get; set; }
+
+        public string? Definition { get; set; }
     }
 }

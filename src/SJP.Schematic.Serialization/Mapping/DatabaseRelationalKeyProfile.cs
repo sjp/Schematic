@@ -7,7 +7,15 @@ namespace SJP.Schematic.Serialization.Mapping
     {
         public DatabaseRelationalKeyProfile()
         {
-            CreateMap<Dto.DatabaseRelationalKey, DatabaseRelationalKey>();
+            CreateMap<Dto.DatabaseRelationalKey, DatabaseRelationalKey>()
+                .ConstructUsing((dto, ctx) => new DatabaseRelationalKey(
+                    ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.ChildTable!),
+                    ctx.Mapper.Map<Dto.DatabaseKey, DatabaseKey>(dto.ChildKey!),
+                    ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.ParentTable!),
+                    ctx.Mapper.Map<Dto.DatabaseKey, DatabaseKey>(dto.ParentKey!),
+                    dto.DeleteAction,
+                    dto.UpdateAction
+                ));
             CreateMap<IDatabaseRelationalKey, Dto.DatabaseRelationalKey>();
         }
     }

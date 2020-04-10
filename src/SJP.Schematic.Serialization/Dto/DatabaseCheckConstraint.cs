@@ -2,7 +2,7 @@
 {
     public class DatabaseCheckConstraint
     {
-        public Identifier? Name { get; set; }
+        public Identifier? CheckName { get; set; }
 
         public string? Definition { get; set; }
 

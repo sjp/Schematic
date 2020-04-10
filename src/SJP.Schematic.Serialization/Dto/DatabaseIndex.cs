@@ -5,7 +5,7 @@ namespace SJP.Schematic.Serialization.Dto
 {
     public class DatabaseIndex
     {
-        public Identifier? Name { get; set; }
+        public Identifier? IndexName { get; set; }
 
         public IEnumerable<DatabaseIndexColumn> Columns { get; set; } = Array.Empty<DatabaseIndexColumn>();
 

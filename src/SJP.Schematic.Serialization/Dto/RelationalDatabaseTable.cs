@@ -5,7 +5,7 @@ namespace SJP.Schematic.Serialization.Dto
 {
     public class RelationalDatabaseTable
     {
-        public Identifier? Name { get; set; }
+        public Identifier? TableName { get; set; }
 
         public DatabaseKey? PrimaryKey { get; set; }
 

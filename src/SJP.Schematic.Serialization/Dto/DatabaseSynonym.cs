@@ -2,7 +2,7 @@
 {
     public class DatabaseSynonym
     {
-        public Identifier? Name { get; set; }
+        public Identifier? SynonymName { get; set; }
 
         public Identifier? Target { get; set; }
     }

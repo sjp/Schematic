@@ -5,7 +5,7 @@ namespace SJP.Schematic.Serialization.Dto
 {
     public class DatabaseView
     {
-        public Identifier Name { get; set; } = default!;
+        public Identifier ViewName { get; set; } = default!;
 
         public string Definition { get; set; } = default!;
 
