@@ -36,6 +36,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
         protected ISqliteConnectionPragma Pragma { get; } = new ConnectionPragma(Config.Connection);
 
-        protected ISqliteDatabase GetSqliteDatabase() => new SqliteRelationalDatabase(Config.Connection, IdentifierDefaults);
+        protected ISqliteDatabase GetSqliteDatabase() => new SqliteRelationalDatabase(Config.Connection, IdentifierDefaults, Pragma);
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.Data.Sqlite;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Sqlite.Pragma;
 
 namespace SJP.Schematic.Sqlite
 {
@@ -85,7 +86,7 @@ namespace SJP.Schematic.Sqlite
         private static async Task<IRelationalDatabase> GetRelationalDatabaseAsyncCore(ISchematicConnection connection)
         {
             var identifierDefaults = await GetIdentifierDefaultsAsyncCore().ConfigureAwait(false);
-            return new SqliteRelationalDatabase(connection, identifierDefaults);
+            return new SqliteRelationalDatabase(connection, identifierDefaults, new ConnectionPragma(connection));
         }
 
         public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)

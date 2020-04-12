@@ -20,14 +20,14 @@ namespace SJP.Schematic.Sqlite
         /// </summary>
         /// <param name="connection">The connection to a SQLite database.</param>
         /// <param name="identifierDefaults">Default values for identifier components.</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="dialect"/>, <paramref name="connection"/>, or <paramref name="identifierDefaults"/> are <code>null</code>.</exception>
-        public SqliteRelationalDatabase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults)
+        /// <param name="connectionPragma">Default values for identifier components.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="connection"/>, or <paramref name="identifierDefaults"/>, or <paramref name="connectionPragma"/> are <code>null</code>.</exception>
+        public SqliteRelationalDatabase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, ISqliteConnectionPragma connectionPragma)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
-            var pragma = new ConnectionPragma(connection);
-            _tableProvider = new SqliteRelationalDatabaseTableProvider(connection, pragma, identifierDefaults);
-            _viewProvider = new SqliteDatabaseViewProvider(connection, pragma, identifierDefaults);
+            _tableProvider = new SqliteRelationalDatabaseTableProvider(connection, connectionPragma, identifierDefaults);
+            _viewProvider = new SqliteDatabaseViewProvider(connection, connectionPragma, identifierDefaults);
         }
 
         public IIdentifierDefaults IdentifierDefaults { get; }

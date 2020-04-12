@@ -11,7 +11,7 @@ namespace SJP.Schematic.Dot.Tests.Integration
     [TestFixture]
     internal sealed class DotFormatterTests : SqliteTest
     {
-        private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults);
+        private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults, Pragma);
 
         private Task<IRelationalDatabaseTable> GetTable(Identifier tableName) => Database.GetTable(tableName).UnwrapSomeAsync();
 

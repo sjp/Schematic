@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite;
+using SJP.Schematic.Sqlite.Pragma;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
 {
@@ -29,6 +30,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
         protected ISchematicConnection Connection { get; } = Config.Connection;
 
         protected IDbConnection DbConnection => Connection.DbConnection;
+
+        protected ISqliteConnectionPragma Pragma { get; } = new ConnectionPragma(Config.Connection);
 
         protected IIdentifierDefaults IdentifierDefaults { get; } = new SqliteDialect().GetIdentifierDefaultsAsync(Config.Connection).GetAwaiter().GetResult();
     }

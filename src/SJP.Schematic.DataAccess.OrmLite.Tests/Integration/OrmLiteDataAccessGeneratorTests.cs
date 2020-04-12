@@ -15,7 +15,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests.Integration
 {
     internal sealed class OrmLiteDataAccessGeneratorTests : SqliteTest
     {
-        private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults);
+        private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults, Pragma);
 
         [OneTimeSetUp]
         public async Task Init()

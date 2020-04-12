@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite;
+using SJP.Schematic.Sqlite.Pragma;
 
 namespace SJP.Schematic.Tests.Utilities.Integration
 {
@@ -52,6 +53,8 @@ namespace SJP.Schematic.Tests.Utilities.Integration
 
         protected IIdentifierDefaults IdentifierDefaults { get; } = Config.SchematicConnection.Dialect.GetIdentifierDefaultsAsync(Config.SchematicConnection).GetAwaiter().GetResult();
 
-        protected ISqliteDatabase GetDatabase() => new SqliteRelationalDatabase(Config.SchematicConnection, IdentifierDefaults);
+        protected ISqliteConnectionPragma Pragma { get; } = new ConnectionPragma(Config.SchematicConnection);
+
+        protected ISqliteDatabase GetDatabase() => new SqliteRelationalDatabase(Config.SchematicConnection, IdentifierDefaults, Pragma);
     }
 }

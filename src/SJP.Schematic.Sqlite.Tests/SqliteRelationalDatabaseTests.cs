@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Sqlite.Pragma;
 
 namespace SJP.Schematic.Sqlite.Tests
 {
@@ -15,8 +16,9 @@ namespace SJP.Schematic.Sqlite.Tests
             {
                 var connection = Mock.Of<ISchematicConnection>();
                 var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+                var pragma = new ConnectionPragma(connection);
 
-                return new SqliteRelationalDatabase(connection, identifierDefaults);
+                return new SqliteRelationalDatabase(connection, identifierDefaults, pragma);
             }
         }
 
@@ -24,16 +26,27 @@ namespace SJP.Schematic.Sqlite.Tests
         public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
         {
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+            var pragma = new ConnectionPragma(Mock.Of<ISchematicConnection>());
 
-            Assert.That(() => new SqliteRelationalDatabase(null, identifierDefaults), Throws.ArgumentNullException);
+            Assert.That(() => new SqliteRelationalDatabase(null, identifierDefaults, pragma), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgumentNullException()
         {
             var connection = Mock.Of<ISchematicConnection>();
+            var pragma = new ConnectionPragma(connection);
 
-            Assert.That(() => new SqliteRelationalDatabase(connection, null), Throws.ArgumentNullException);
+            Assert.That(() => new SqliteRelationalDatabase(connection, null, pragma), Throws.ArgumentNullException);
+        }
+
+        [Test]
+        public static void Ctor_GivenNullPragma_ThrowsArgumentNullException()
+        {
+            var connection = Mock.Of<ISchematicConnection>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+
+            Assert.That(() => new SqliteRelationalDatabase(connection, identifierDefaults, null), Throws.ArgumentNullException);
         }
 
         [Test]

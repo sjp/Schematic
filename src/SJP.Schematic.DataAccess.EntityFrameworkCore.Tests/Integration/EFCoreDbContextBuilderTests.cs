@@ -10,7 +10,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
 {
     internal sealed class EFCoreDbContextBuilderTests : SqliteTest
     {
-        private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults);
+        private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults, Pragma);
 
         private static EFCoreDbContextBuilder Builder => new EFCoreDbContextBuilder(new PascalCaseNameTranslator(), "EFCoreTestNamespace");
 

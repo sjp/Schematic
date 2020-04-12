@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Sqlite.Pragma;
 
 namespace SJP.Schematic.Sqlite.Migrations.Tests.Integration
 {
@@ -32,6 +33,8 @@ namespace SJP.Schematic.Sqlite.Migrations.Tests.Integration
 
         protected IIdentifierDefaults IdentifierDefaults { get; } = new SqliteDialect().GetIdentifierDefaultsAsync(Config.Connection).GetAwaiter().GetResult();
 
-        protected IRelationalDatabase GetSqliteDatabase() => new SqliteRelationalDatabase(Config.Connection, IdentifierDefaults);
+        protected ISqliteConnectionPragma Pragma { get; } = new ConnectionPragma(Config.Connection);
+
+        protected IRelationalDatabase GetSqliteDatabase() => new SqliteRelationalDatabase(Config.Connection, IdentifierDefaults, Pragma);
     }
 }
