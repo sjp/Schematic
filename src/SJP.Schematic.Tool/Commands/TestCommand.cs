@@ -1,45 +1,29 @@
-﻿using System;
-using System.Threading.Tasks;
-using McMaster.Extensions.CommandLineUtils;
-using SJP.Schematic.Core.Extensions;
+﻿using System.CommandLine;
+using System.CommandLine.Invocation;
+using System.IO;
+using System.Threading;
+using SJP.Schematic.Tool.Handlers;
 
-namespace SJP.Schematic.Tool
+namespace SJP.Schematic.Tool.Commands
 {
-    [Command(Name = "test", Description = "Test a database connection to see whether it is available.")]
-    internal sealed class TestCommand
+    public class TestCommand : Command
     {
-        private DatabaseCommand Parent { get; set; }
-
-        private Task<int> OnExecuteAsync(CommandLineApplication application)
+        public TestCommand()
+            : base("test", "Test a database connection to see whether it is available.")
         {
-            if (application == null)
-                throw new ArgumentNullException(nameof(application));
+            var timeoutOption = new Option<int>(
+                "--timeout",
+                getDefaultValue: () => 10,
+                description: "A timeout (in seconds) to wait for."
+            );
 
-            return OnExecuteAsyncCore(application);
-        }
+            AddOption(timeoutOption);
 
-        private async Task<int> OnExecuteAsyncCore(CommandLineApplication application)
-        {
-            var connectionString = await Parent.TryGetConnectionStringAsync().ConfigureAwait(false);
-            if (connectionString.IsNullOrWhiteSpace())
+            Handler = CommandHandler.Create<FileInfo, IConsole, int, CancellationToken>((config, console, timeout, cancellationToken) =>
             {
-                await application.Error.WriteLineAsync().ConfigureAwait(false);
-                await application.Error.WriteLineAsync("Unable to continue without a connection string. Exiting.").ConfigureAwait(false);
-                return 1;
-            }
-
-            var status = await Parent.GetConnectionStatusAsync(connectionString).ConfigureAwait(false);
-            if (status.IsConnected)
-            {
-                await application.Out.WriteLineAsync("Successfully connected to the database.").ConfigureAwait(false);
-                return 0;
-            }
-
-            await application.Error.WriteLineAsync("Unable to connect to the database.").ConfigureAwait(false);
-            await application.Error.WriteLineAsync().ConfigureAwait(false);
-            await application.Error.WriteLineAsync("Error message: " + status.Error.Message).ConfigureAwait(false);
-
-            return 1;
+                var handler = new TestCommandHandler(config);
+                return handler.HandleCommand(console, timeout, cancellationToken);
+            });
         }
     }
 }
