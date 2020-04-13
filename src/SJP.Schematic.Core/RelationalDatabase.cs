@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core.Extensions;
 
@@ -231,6 +232,51 @@ namespace SJP.Schematic.Core
                 throw new ArgumentNullException(nameof(routineName));
 
             return GetResolvedObject(Routines, routineName);
+        }
+
+        /// <summary>
+        /// Snapshots a relational database. Preserves the same behaviour, but enables querying in-memory, avoiding further database calls.
+        /// </summary>
+        /// <param name="database">A relational database.</param>
+        /// <param name="identifierResolver">An identifier resolver to use when an object cannot be found using the given name.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A relational database with the same data as <paramref name="database"/>, but serialized into an in-memory copy.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="database"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
+        public static Task<IRelationalDatabase> SnapshotAsync(IRelationalDatabase database, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken = default)
+        {
+            if (database == null)
+                throw new ArgumentNullException(nameof(database));
+            if (identifierResolver == null)
+                throw new ArgumentNullException(nameof(identifierResolver));
+
+            return SnapshotAsyncCore(database, identifierResolver, cancellationToken);
+        }
+
+        private static async Task<IRelationalDatabase> SnapshotAsyncCore(IRelationalDatabase database, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken)
+        {
+            var tablesTask = database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).AsTask();
+            var viewsTask = database.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask();
+            var sequencesTask = database.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).AsTask();
+            var synonymsTask = database.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).AsTask();
+            var routinesTask = database.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).AsTask();
+
+            await Task.WhenAll(new Task[] { tablesTask, viewsTask, sequencesTask, synonymsTask, routinesTask }).ConfigureAwait(false);
+
+            var tables = await tablesTask.ConfigureAwait(false);
+            var views = await viewsTask.ConfigureAwait(false);
+            var sequences = await sequencesTask.ConfigureAwait(false);
+            var synonyms = await synonymsTask.ConfigureAwait(false);
+            var routines = await routinesTask.ConfigureAwait(false);
+
+            return new RelationalDatabase(
+                database.IdentifierDefaults,
+                identifierResolver,
+                tables,
+                views,
+                sequences,
+                synonyms,
+                routines
+            );
         }
     }
 }
