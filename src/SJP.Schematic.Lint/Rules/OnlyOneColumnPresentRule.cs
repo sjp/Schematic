@@ -18,7 +18,7 @@ namespace SJP.Schematic.Lint.Rules
         /// </summary>
         /// <param name="level">The reporting level.</param>
         public OnlyOneColumnPresentRule(RuleLevel level)
-            : base(RuleTitle, level)
+            : base(RuleId, RuleTitle, level)
         {
         }
 
@@ -71,8 +71,14 @@ namespace SJP.Schematic.Lint.Rules
             var messageText = columnCount == 0
                 ? $"The table { tableName } has too few columns. It has no columns, consider adding more."
                 : $"The table { tableName } has too few columns. It has one column, consider adding more.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
+
+        /// <summary>
+        /// The rule identifier.
+        /// </summary>
+        /// <value>A rule identifier.</value>
+        protected static string RuleId { get; } = "SCHEMATIC0015";
 
         /// <summary>
         /// Gets the rule title.

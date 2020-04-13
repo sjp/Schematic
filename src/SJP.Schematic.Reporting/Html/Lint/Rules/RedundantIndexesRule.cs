@@ -51,7 +51,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                 .Append(").");
 
             var messageText = builder.GetStringAndRelease();
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
     }
 }

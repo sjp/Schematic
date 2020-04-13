@@ -19,7 +19,7 @@ namespace SJP.Schematic.Lint.Rules
         /// </summary>
         /// <param name="level">The reporting level.</param>
         public PrimaryKeyColumnNotFirstColumnRule(RuleLevel level)
-            : base(RuleTitle, level)
+            : base(RuleId, RuleTitle, level)
         {
         }
 
@@ -93,8 +93,14 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(tableName));
 
             var messageText = $"The table { tableName } has a primary key whose column is not the first column in the table.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
+
+        /// <summary>
+        /// The rule identifier.
+        /// </summary>
+        /// <value>A rule identifier.</value>
+        protected static string RuleId { get; } = "SCHEMATIC0017";
 
         /// <summary>
         /// Gets the rule title.

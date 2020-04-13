@@ -20,7 +20,7 @@ namespace SJP.Schematic.Lint.Rules
         /// </summary>
         /// <param name="level">The reporting level.</param>
         public ForeignKeyMissingRule(RuleLevel level)
-            : base(RuleTitle, level)
+            : base(RuleId, RuleTitle, level)
         {
         }
 
@@ -132,8 +132,14 @@ namespace SJP.Schematic.Lint.Rules
                 .Append(" which is missing a foreign key constraint.");
 
             var messageText = builder.GetStringAndRelease();
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
+
+        /// <summary>
+        /// The rule identifier.
+        /// </summary>
+        /// <value>A rule identifier.</value>
+        protected static string RuleId { get; } = "SCHEMATIC0008";
 
         /// <summary>
         /// Gets the rule title.

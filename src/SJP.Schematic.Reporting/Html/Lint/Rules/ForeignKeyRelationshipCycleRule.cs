@@ -29,7 +29,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                 .Join(" &rarr; ");
             var message = "Cycle found for the following path: " + tableNames;
 
-            return new RuleMessage(RuleTitle, Level, message);
+            return new RuleMessage(RuleId, RuleTitle, Level, message);
         }
     }
 }

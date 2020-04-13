@@ -18,7 +18,7 @@ namespace SJP.Schematic.Lint.Rules
         /// </summary>
         /// <param name="level">The reporting level.</param>
         public CandidateKeyMissingRule(RuleLevel level)
-            : base(RuleTitle, level)
+            : base(RuleId, RuleTitle, level)
         {
         }
 
@@ -67,8 +67,14 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(tableName));
 
             var messageText = $"The table { tableName } has no candidate (primary or unique) keys. Consider adding one to ensure records are unique.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
+
+        /// <summary>
+        /// The rule identifier.
+        /// </summary>
+        /// <value>A rule identifier.</value>
+        protected static string RuleId { get; } = "SCHEMATIC0001";
 
         /// <summary>
         /// Gets the rule title.

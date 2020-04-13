@@ -23,7 +23,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             var messageText = columnCount == 0
                 ? $"The table { tableLink } has too few columns. It has no columns, consider adding more."
                 : $"The table { tableLink } has too few columns. It has one column, consider adding more.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
     }
 }

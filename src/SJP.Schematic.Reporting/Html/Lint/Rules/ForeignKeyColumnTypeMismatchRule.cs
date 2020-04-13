@@ -43,7 +43,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                 .Append(" contains mismatching column types. These should be the same in order to ensure that foreign keys can always hold the same information as the target key.");
 
             var messageText = builder.GetStringAndRelease();
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
     }
 }

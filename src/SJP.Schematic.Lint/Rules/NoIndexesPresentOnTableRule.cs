@@ -18,7 +18,7 @@ namespace SJP.Schematic.Lint.Rules
         /// </summary>
         /// <param name="level">The reporting level.</param>
         public NoIndexesPresentOnTableRule(RuleLevel level)
-            : base(RuleTitle, level)
+            : base(RuleId, RuleTitle, level)
         {
         }
 
@@ -69,8 +69,14 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(tableName));
 
             var messageText = $"The table { tableName } does not have any indexes present, requiring table scans to access records. Consider introducing an index or a primary key or a unique key constraint.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
+
+        /// <summary>
+        /// The rule identifier.
+        /// </summary>
+        /// <value>A rule identifier.</value>
+        protected static string RuleId { get; } = "SCHEMATIC0011";
 
         /// <summary>
         /// Gets the rule title.

@@ -6,6 +6,12 @@
     public interface IRuleMessage
     {
         /// <summary>
+        /// The identifier of the linting rule that raised this message.
+        /// </summary>
+        /// <value>A unique identifier.</value>
+        string RuleId { get; }
+
+        /// <summary>
         /// The reporting level. A higher level indicates a more severe issue.
         /// </summary>
         /// <value>The reporting level.</value>

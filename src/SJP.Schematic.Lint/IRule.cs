@@ -6,6 +6,13 @@
     public interface IRule
     {
         /// <summary>
+        /// A unique identifier for a rule. Roughly equivalent to a compiler warning ID.
+        /// </summary>
+        /// <value>A string identifier.
+        /// </value>
+        string Id { get; }
+
+        /// <summary>
         /// A reporting level to use. A higher level indicates a more severe issue.
         /// </summary>
         /// <value>The reporting level.</value>

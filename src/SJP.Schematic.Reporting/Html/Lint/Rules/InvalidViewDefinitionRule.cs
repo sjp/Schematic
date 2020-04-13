@@ -20,7 +20,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             var viewUrl = UrlRouter.GetViewUrl(viewName);
             var viewLink = $"<a href=\"{ viewUrl }\">{ HttpUtility.HtmlEncode(viewName.ToVisibleName()) }</a>";
             var messageText = $"The view { viewLink } was unable to be queried. This may indicate an incorrect view definition.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
     }
 }

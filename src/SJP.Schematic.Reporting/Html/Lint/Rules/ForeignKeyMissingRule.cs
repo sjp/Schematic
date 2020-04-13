@@ -39,7 +39,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                 .Append(" which is missing a foreign key constraint.");
 
             var messageText = builder.GetStringAndRelease();
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
     }
 }

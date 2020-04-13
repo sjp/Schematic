@@ -81,7 +81,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 .Concat(routineMessages);
 
             var groupedRules = messages
-                .GroupBy(m => m.Title)
+                .GroupBy(m => m.RuleId)
                 .Select(m => new LintResults.LintRule(m.Key, m.Select(r => new HtmlString(r.Message)).ToList()))
                 .ToList();
 

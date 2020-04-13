@@ -25,7 +25,7 @@ namespace SJP.Schematic.Lint.Rules
         /// <param name="level">The reporting level.</param>
         /// <exception cref="ArgumentNullException"><paramref name="dialect"/> is <c>null</c>.</exception>
         public ReservedKeywordNameRule(IDatabaseDialect dialect, RuleLevel level)
-            : base(RuleTitle, level)
+            : base(RuleId, RuleTitle, level)
         {
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
         }
@@ -258,7 +258,7 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(tableName));
 
             var messageText = $"The table '{ tableName }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
 
         /// <summary>
@@ -276,7 +276,7 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(columnName));
 
             var messageText = $"The table '{ tableName }' contains a column '{ columnName }' which is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
 
         /// <summary>
@@ -291,7 +291,7 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(viewName));
 
             var messageText = $"The view '{ viewName }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
 
         /// <summary>
@@ -309,7 +309,7 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(columnName));
 
             var messageText = $"The view '{ viewName }' contains a column '{ columnName }' which is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
 
         /// <summary>
@@ -324,7 +324,7 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(sequenceName));
 
             var messageText = $"The sequence '{ sequenceName }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
 
         /// <summary>
@@ -339,7 +339,7 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(synonymName));
 
             var messageText = $"The synonym '{ synonymName }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
 
         /// <summary>
@@ -354,8 +354,14 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(routineName));
 
             var messageText = $"The routine '{ routineName }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
+
+        /// <summary>
+        /// The rule identifier.
+        /// </summary>
+        /// <value>A rule identifier.</value>
+        protected static string RuleId { get; } = "SCHEMATIC0020";
 
         /// <summary>
         /// Gets the rule title.

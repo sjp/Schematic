@@ -20,7 +20,7 @@ namespace SJP.Schematic.Lint.Rules
         /// </summary>
         /// <param name="level">The reporting level.</param>
         public DisabledObjectsRule(RuleLevel level)
-            : base(RuleTitle, level)
+            : base(RuleId, RuleTitle, level)
         {
         }
 
@@ -116,7 +116,7 @@ namespace SJP.Schematic.Lint.Rules
             );
 
             var messageText = $"The table '{ tableName }' contains a disabled foreign key{ messageKeyName }. Consider enabling or removing the foreign key.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace SJP.Schematic.Lint.Rules
             );
 
             var messageText = $"The table '{ tableName }' contains a disabled primary key{ messageKeyName }. Consider enabling or removing the primary key.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
 
         /// <summary>
@@ -158,7 +158,7 @@ namespace SJP.Schematic.Lint.Rules
             );
 
             var messageText = $"The table '{ tableName }' contains a disabled unique key{ messageKeyName }. Consider enabling or removing the unique key.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
 
         /// <summary>
@@ -179,7 +179,7 @@ namespace SJP.Schematic.Lint.Rules
             );
 
             var messageText = $"The table '{ tableName }' contains a disabled check constraint{ messageCheckName }. Consider enabling or removing the check constraint.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
 
         /// <summary>
@@ -199,7 +199,7 @@ namespace SJP.Schematic.Lint.Rules
                 : string.Empty;
 
             var messageText = $"The table '{ tableName }' contains a disabled index{ messageIndexName }. Consider enabling or removing the index.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
 
         /// <summary>
@@ -219,8 +219,14 @@ namespace SJP.Schematic.Lint.Rules
                 : string.Empty;
 
             var messageText = $"The table '{ tableName }' contains a disabled trigger{ messageTriggerName }. Consider enabling or removing the trigger.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
+
+        /// <summary>
+        /// The rule identifier.
+        /// </summary>
+        /// <value>A rule identifier.</value>
+        protected static string RuleId { get; } = "SCHEMATIC0004";
 
         /// <summary>
         /// Gets the rule title.

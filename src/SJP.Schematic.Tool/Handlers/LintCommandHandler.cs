@@ -40,7 +40,7 @@ namespace SJP.Schematic.Tool.Handlers
                 .Append(sequenceResults)
                 .Append(synonymResults)
                 .Append(routineResults)
-                .GroupBy(r => r.Title)
+                .GroupBy(r => r.RuleId)
                 .ToList();
 
             var hasDisplayedResults = false;

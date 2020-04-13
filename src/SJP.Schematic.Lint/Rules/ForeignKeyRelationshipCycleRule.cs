@@ -20,7 +20,7 @@ namespace SJP.Schematic.Lint.Rules
         /// </summary>
         /// <param name="level">The reporting level.</param>
         public ForeignKeyRelationshipCycleRule(RuleLevel level)
-            : base(RuleTitle, level)
+            : base(RuleId, RuleTitle, level)
         {
         }
 
@@ -58,8 +58,14 @@ namespace SJP.Schematic.Lint.Rules
                 .Join(" -> ");
             var message = "Cycle found for the following path: " + tableNames;
 
-            return new RuleMessage(RuleTitle, Level, message);
+            return new RuleMessage(RuleId, RuleTitle, Level, message);
         }
+
+        /// <summary>
+        /// The rule identifier.
+        /// </summary>
+        /// <value>A rule identifier.</value>
+        protected static string RuleId { get; } = "SCHEMATIC0009";
 
         /// <summary>
         /// Gets the rule title.

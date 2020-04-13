@@ -23,7 +23,7 @@ namespace SJP.Schematic.Lint.Rules
         /// </summary>
         /// <param name="level">The reporting level.</param>
         public WhitespaceNameRule(RuleLevel level)
-            : base(RuleTitle, level)
+            : base(RuleId, RuleTitle, level)
         {
         }
 
@@ -263,7 +263,7 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(tableName));
 
             var messageText = $"The table '{ tableName }' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
 
         /// <summary>
@@ -281,7 +281,7 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(columnName));
 
             var messageText = $"The table '{ tableName }' contains a column '{ columnName }' which contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
 
         /// <summary>
@@ -296,7 +296,7 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(viewName));
 
             var messageText = $"The view '{ viewName }' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
 
         /// <summary>
@@ -314,7 +314,7 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(columnName));
 
             var messageText = $"The view '{ viewName }' contains a column '{ columnName }' which contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
 
         /// <summary>
@@ -329,7 +329,7 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(sequenceName));
 
             var messageText = $"The sequence '{ sequenceName }' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
 
         /// <summary>
@@ -344,7 +344,7 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(synonymName));
 
             var messageText = $"The synonym '{ synonymName }' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
 
         /// <summary>
@@ -359,8 +359,14 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(routineName));
 
             var messageText = $"The routine '{ routineName }' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
+
+        /// <summary>
+        /// The rule identifier.
+        /// </summary>
+        /// <value>A rule identifier.</value>
+        protected static string RuleId { get; } = "SCHEMATIC0023";
 
         /// <summary>
         /// Gets the rule title.

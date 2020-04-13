@@ -36,7 +36,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                 .Append(" contains the same column set as the target key.");
 
             var message = builder.GetStringAndRelease();
-            return new RuleMessage(RuleTitle, Level, message);
+            return new RuleMessage(RuleId, RuleTitle, Level, message);
         }
     }
 }

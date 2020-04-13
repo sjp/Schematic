@@ -22,7 +22,7 @@ namespace SJP.Schematic.Lint.Rules
         /// <param name="level">The reporting level.</param>
         /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public InvalidViewDefinitionRule(ISchematicConnection connection, RuleLevel level)
-            : base(RuleTitle, level)
+            : base(RuleId, RuleTitle, level)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
         }
@@ -103,8 +103,14 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(viewName));
 
             var messageText = $"The view { viewName } was unable to be queried. This may indicate an incorrect view definition.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
+
+        /// <summary>
+        /// The rule identifier.
+        /// </summary>
+        /// <value>A rule identifier.</value>
+        protected static string RuleId { get; } = "SCHEMATIC0010";
 
         /// <summary>
         /// Gets the rule title.

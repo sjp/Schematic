@@ -25,7 +25,7 @@ namespace SJP.Schematic.Lint.Rules
         /// <param name="level">The reporting level.</param>
         /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public NoValueForNullableColumnRule(ISchematicConnection connection, RuleLevel level)
-            : base(RuleTitle, level)
+            : base(RuleId, RuleTitle, level)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
 
@@ -176,7 +176,7 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(columnName));
 
             var messageText = $"The table '{ tableName }' has a nullable column '{ columnName }' whose values are always null. Consider removing the column.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
 
         private Task<string> GetTableHasRowsQueryAsync(Identifier tableName)
@@ -247,6 +247,12 @@ namespace SJP.Schematic.Lint.Rules
             _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryFromDual, CancellationToken.None).ConfigureAwait(false);
             return "DUAL";
         }
+
+        /// <summary>
+        /// The rule identifier.
+        /// </summary>
+        /// <value>A rule identifier.</value>
+        protected static string RuleId { get; } = "SCHEMATIC0014";
 
         /// <summary>
         /// Gets the rule title.

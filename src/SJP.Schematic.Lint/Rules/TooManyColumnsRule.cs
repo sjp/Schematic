@@ -20,7 +20,7 @@ namespace SJP.Schematic.Lint.Rules
         /// <param name="columnLimit">The column limit. When exceeded, this rule will report issues.</param>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="columnLimit"/> is less than one.</exception>
         public TooManyColumnsRule(RuleLevel level, uint columnLimit = 100)
-            : base(RuleTitle, level)
+            : base(RuleId, RuleTitle, level)
         {
             if (columnLimit == 0)
                 throw new ArgumentOutOfRangeException(nameof(columnLimit), "The column limit must be at least 1.");
@@ -81,8 +81,14 @@ namespace SJP.Schematic.Lint.Rules
                 throw new ArgumentNullException(nameof(tableName));
 
             var messageText = $"The table { tableName } has too many columns. It has { columnCount } columns.";
-            return new RuleMessage(RuleTitle, Level, messageText);
+            return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
+
+        /// <summary>
+        /// The rule identifier.
+        /// </summary>
+        /// <value>A rule identifier.</value>
+        protected static string RuleId { get; } = "SCHEMATIC0021";
 
         /// <summary>
         /// Gets the rule title.
