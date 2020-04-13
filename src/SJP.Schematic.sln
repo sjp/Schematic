@@ -73,18 +73,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Serialization
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Serialization.Tests", "SJP.Schematic.Serialization.Tests\SJP.Schematic.Serialization.Tests.csproj", "{08C72898-4C23-4EC6-99A5-0235B99AA793}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Migrations", "SJP.Schematic.Migrations\SJP.Schematic.Migrations.csproj", "{1A00CBCE-74CC-4D53-8E17-1B513668C9D7}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Migrations.Tests", "SJP.Schematic.Migrations.Tests\SJP.Schematic.Migrations.Tests.csproj", "{1C83193D-CFB4-4BDF-A533-E83EAC3B0BEB}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Sqlite.Migrations", "SJP.Schematic.Sqlite.Migrations\SJP.Schematic.Sqlite.Migrations.csproj", "{AA475D9F-50C8-4BA6-98CE-A7E873A90401}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Sqlite.Migrations.Tests", "SJP.Schematic.Sqlite.Migrations.Tests\SJP.Schematic.Sqlite.Migrations.Tests.csproj", "{A8329CA0-69F0-49A1-A126-FA7D00767BCF}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.SqlServer.Migrations", "SJP.Schematic.SqlServer.Migrations\SJP.Schematic.SqlServer.Migrations.csproj", "{AFC6DA8F-F42C-477D-B923-C6104D198318}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.SqlServer.Migrations.Tests", "SJP.Schematic.SqlServer.Migrations.Tests\SJP.Schematic.SqlServer.Migrations.Tests.csproj", "{E6F7642B-014A-486E-AA3B-0E332B1BE9DF}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Dot", "SJP.Schematic.Dot\SJP.Schematic.Dot.csproj", "{7E11AF10-4E9A-455B-A35D-AF301A6CEBD7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Dot.Tests", "SJP.Schematic.Dot.Tests\SJP.Schematic.Dot.Tests.csproj", "{139103BD-C06F-4EB2-BCA5-899430150384}"
@@ -239,30 +227,6 @@ Global
 		{08C72898-4C23-4EC6-99A5-0235B99AA793}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08C72898-4C23-4EC6-99A5-0235B99AA793}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08C72898-4C23-4EC6-99A5-0235B99AA793}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1A00CBCE-74CC-4D53-8E17-1B513668C9D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1A00CBCE-74CC-4D53-8E17-1B513668C9D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1A00CBCE-74CC-4D53-8E17-1B513668C9D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1A00CBCE-74CC-4D53-8E17-1B513668C9D7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1C83193D-CFB4-4BDF-A533-E83EAC3B0BEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1C83193D-CFB4-4BDF-A533-E83EAC3B0BEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1C83193D-CFB4-4BDF-A533-E83EAC3B0BEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1C83193D-CFB4-4BDF-A533-E83EAC3B0BEB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AA475D9F-50C8-4BA6-98CE-A7E873A90401}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AA475D9F-50C8-4BA6-98CE-A7E873A90401}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AA475D9F-50C8-4BA6-98CE-A7E873A90401}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AA475D9F-50C8-4BA6-98CE-A7E873A90401}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A8329CA0-69F0-49A1-A126-FA7D00767BCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A8329CA0-69F0-49A1-A126-FA7D00767BCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A8329CA0-69F0-49A1-A126-FA7D00767BCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A8329CA0-69F0-49A1-A126-FA7D00767BCF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AFC6DA8F-F42C-477D-B923-C6104D198318}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AFC6DA8F-F42C-477D-B923-C6104D198318}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AFC6DA8F-F42C-477D-B923-C6104D198318}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AFC6DA8F-F42C-477D-B923-C6104D198318}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E6F7642B-014A-486E-AA3B-0E332B1BE9DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E6F7642B-014A-486E-AA3B-0E332B1BE9DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E6F7642B-014A-486E-AA3B-0E332B1BE9DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E6F7642B-014A-486E-AA3B-0E332B1BE9DF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7E11AF10-4E9A-455B-A35D-AF301A6CEBD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7E11AF10-4E9A-455B-A35D-AF301A6CEBD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E11AF10-4E9A-455B-A35D-AF301A6CEBD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
