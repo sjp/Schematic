@@ -37,13 +37,66 @@ namespace SJP.Schematic.Lint
         private IEnumerable<IRoutineRule> RoutineRules => Rules.OfType<IRoutineRule>();
 
         /// <summary>
+        /// Analyses a relational database.
+        /// </summary>
+        /// <param name="database">A relational database. Analysis will be performed on objects retrieved from the database.</param>
+        /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
+        /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="database"/> is <c>null</c>.</exception>
+        public IAsyncEnumerable<IRuleMessage> AnalyseDatabase(IRelationalDatabase database, CancellationToken cancellationToken = default)
+        {
+            if (database == null)
+                throw new ArgumentNullException(nameof(database));
+
+            return AnalyseDatabaseCore(database, cancellationToken);
+        }
+
+        private async IAsyncEnumerable<IRuleMessage> AnalyseDatabaseCore(IRelationalDatabase database, [EnumeratorCancellation] CancellationToken cancellationToken)
+        {
+            var tables = await database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            foreach (var tableRule in TableRules)
+            {
+                await foreach (var message in tableRule.AnalyseTables(tables, cancellationToken).ConfigureAwait(false))
+                    yield return message;
+            }
+
+            var views = await database.GetAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            foreach (var viewRule in ViewRules)
+            {
+                await foreach (var message in viewRule.AnalyseViews(views, cancellationToken).ConfigureAwait(false))
+                    yield return message;
+            }
+
+            var sequences = await database.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            foreach (var sequenceRule in SequenceRules)
+            {
+                await foreach (var message in sequenceRule.AnalyseSequences(sequences, cancellationToken).ConfigureAwait(false))
+                    yield return message;
+            }
+
+            var synonyms = await database.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            foreach (var synonymRule in SynonymRules)
+            {
+                await foreach (var message in synonymRule.AnalyseSynonyms(synonyms, cancellationToken).ConfigureAwait(false))
+                    yield return message;
+            }
+
+            var routines = await database.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            foreach (var routineRule in RoutineRules)
+            {
+                await foreach (var message in routineRule.AnalyseRoutines(routines, cancellationToken).ConfigureAwait(false))
+                    yield return message;
+            }
+        }
+
+        /// <summary>
         /// Analyses database tables.
         /// </summary>
         /// <param name="tables">A set of database tables.</param>
         /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
         /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
-        public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken)
+        public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
         {
             if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
@@ -67,7 +120,7 @@ namespace SJP.Schematic.Lint
         /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
         /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="views"/> is <c>null</c>.</exception>
-        public IAsyncEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken)
+        public IAsyncEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default)
         {
             if (views == null)
                 throw new ArgumentNullException(nameof(views));
@@ -91,7 +144,7 @@ namespace SJP.Schematic.Lint
         /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
         /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="sequences"/> is <c>null</c>.</exception>
-        public IAsyncEnumerable<IRuleMessage> AnalyseSequences(IEnumerable<IDatabaseSequence> sequences, CancellationToken cancellationToken)
+        public IAsyncEnumerable<IRuleMessage> AnalyseSequences(IEnumerable<IDatabaseSequence> sequences, CancellationToken cancellationToken = default)
         {
             if (sequences == null)
                 throw new ArgumentNullException(nameof(sequences));
@@ -115,7 +168,7 @@ namespace SJP.Schematic.Lint
         /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
         /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="synonyms"/> is <c>null</c>.</exception>
-        public IAsyncEnumerable<IRuleMessage> AnalyseSynonyms(IEnumerable<IDatabaseSynonym> synonyms, CancellationToken cancellationToken)
+        public IAsyncEnumerable<IRuleMessage> AnalyseSynonyms(IEnumerable<IDatabaseSynonym> synonyms, CancellationToken cancellationToken = default)
         {
             if (synonyms == null)
                 throw new ArgumentNullException(nameof(synonyms));
@@ -139,7 +192,7 @@ namespace SJP.Schematic.Lint
         /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
         /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="routines"/> is <c>null</c>.</exception>
-        public IAsyncEnumerable<IRuleMessage> AnalyseRoutines(IEnumerable<IDatabaseRoutine> routines, CancellationToken cancellationToken)
+        public IAsyncEnumerable<IRuleMessage> AnalyseRoutines(IEnumerable<IDatabaseRoutine> routines, CancellationToken cancellationToken = default)
         {
             if (routines == null)
                 throw new ArgumentNullException(nameof(routines));
