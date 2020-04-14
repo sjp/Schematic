@@ -38,10 +38,10 @@ namespace SJP.Schematic.Tool.Commands
             };
             AddOption(baseNamespaceOption);
 
-            Handler = CommandHandler.Create<FileInfo, string, FileInfo, string, CancellationToken>((config, convention, projectPath, baseNamespace, cancellationToken) =>
+            Handler = CommandHandler.Create<IConsole, FileInfo, string, FileInfo, string, CancellationToken>((console, config, convention, projectPath, baseNamespace, cancellationToken) =>
             {
                 var handler = new GenerateEfCoreCommandHandler(config);
-                return handler.HandleCommand(projectPath, baseNamespace, convention, cancellationToken);
+                return handler.HandleCommand(console, projectPath, baseNamespace, convention, cancellationToken);
             });
         }
     }
