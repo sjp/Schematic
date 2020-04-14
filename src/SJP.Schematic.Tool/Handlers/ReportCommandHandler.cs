@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace SJP.Schematic.Tool.Handlers
 {
-    internal class ReportCommandHandler : DatabaseCommand
+    internal class ReportCommandHandler : DatabaseCommandHandler
     {
         public ReportCommandHandler(FileInfo filePath)
             : base(filePath)

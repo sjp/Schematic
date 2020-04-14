@@ -6,7 +6,7 @@ using SJP.Schematic.DataAccess.EntityFrameworkCore;
 
 namespace SJP.Schematic.Tool.Handlers
 {
-    internal class GenerateEfCoreCommandHandler : DatabaseCommand
+    internal class GenerateEfCoreCommandHandler : DatabaseCommandHandler
     {
         public GenerateEfCoreCommandHandler(FileInfo filePath)
             : base(filePath)

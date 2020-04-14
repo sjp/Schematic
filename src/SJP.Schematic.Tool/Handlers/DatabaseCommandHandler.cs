@@ -9,9 +9,9 @@ using SJP.Schematic.DataAccess;
 
 namespace SJP.Schematic.Tool.Handlers
 {
-    internal abstract class DatabaseCommand
+    internal abstract class DatabaseCommandHandler
     {
-        protected DatabaseCommand(FileInfo filePath)
+        protected DatabaseCommandHandler(FileInfo filePath)
         {
             if (!filePath.Exists)
                 throw new FileNotFoundException($"Expected a configuration file at '{ filePath }', but could not find one.");
@@ -21,7 +21,7 @@ namespace SJP.Schematic.Tool.Handlers
 
         protected IConfiguration Configuration { get; }
 
-        private static IConfiguration GetConfig(string filePath)
+        protected static IConfiguration GetConfig(string filePath)
         {
             return new ConfigurationBuilder()
                 .AddJsonFile(filePath)

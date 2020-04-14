@@ -6,7 +6,7 @@ using SJP.Schematic.DataAccess.OrmLite;
 
 namespace SJP.Schematic.Tool.Handlers
 {
-    internal class GenerateOrmLiteCommandHandler : DatabaseCommand
+    internal class GenerateOrmLiteCommandHandler : DatabaseCommandHandler
     {
         public GenerateOrmLiteCommandHandler(FileInfo filePath)
             : base(filePath)

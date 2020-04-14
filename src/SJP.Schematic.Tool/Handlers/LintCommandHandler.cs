@@ -7,7 +7,7 @@ using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Tool.Handlers
 {
-    internal class LintCommandHandler : DatabaseCommand
+    internal class LintCommandHandler : DatabaseCommandHandler
     {
         public LintCommandHandler(FileInfo filePath)
             : base(filePath)
