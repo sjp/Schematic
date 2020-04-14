@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using SJP.Schematic.Reporting;
 
 namespace SJP.Schematic.Tool.Handlers
 {
@@ -16,7 +17,7 @@ namespace SJP.Schematic.Tool.Handlers
             var connection = await GetSchematicConnectionAsync(cancellationToken).ConfigureAwait(false);
             var database = await connection.Dialect.GetRelationalDatabaseAsync(connection, cancellationToken).ConfigureAwait(false);
 
-            var reportGenerator = new Reporting.Html.ReportExporter(connection, database, outputPath);
+            var reportGenerator = new ReportExporter(connection, database, outputPath);
 
             await reportGenerator.ExportAsync(cancellationToken).ConfigureAwait(false);
             return ErrorCode.Success;

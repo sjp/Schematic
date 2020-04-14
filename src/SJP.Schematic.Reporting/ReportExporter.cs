@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint;
+using SJP.Schematic.Reporting.Html;
 using SJP.Schematic.Reporting.Html.Lint;
 using SJP.Schematic.Reporting.Html.Renderers;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
-namespace SJP.Schematic.Reporting.Html
+namespace SJP.Schematic.Reporting
 {
     public class ReportExporter
     {
