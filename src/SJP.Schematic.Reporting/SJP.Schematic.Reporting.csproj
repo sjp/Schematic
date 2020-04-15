@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Html\Templates\*.cshtml" />
-    <EmbeddedResource Include="assets\**\*.*" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,7 +44,7 @@
   </ItemGroup>
 
   <Target Name="CheckNpmExists">
-    <Exec Command="npm" ContinueOnError="true" IgnoreExitCode="true" ConsoleToMsBuild="true">
+    <Exec Command="npm" ContinueOnError="true" IgnoreExitCode="true" StandardErrorImportance="Low" StandardOutputImportance="Low">
       <Output TaskParameter="ExitCode" PropertyName="NpmExitCode"/>
     </Exec>
   </Target>
@@ -66,6 +65,10 @@
     <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm run build" WorkingDirectory="$(MSBuildThisFileDirectory)" />
     <Touch Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Files="$(GulpBuildStampFile)" AlwaysCreate="true" />
     <Message Condition="'$(NpmExitCode)' != '$(NpmExpectedExitCode)'" Text="npm and gulp are not available. A gulp build will not occur." />
+
+    <ItemGroup Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'">
+      <EmbeddedResource Include="assets\**\*.*" />
+    </ItemGroup>
   </Target>
 
 </Project>
