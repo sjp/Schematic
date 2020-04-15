@@ -1,5 +1,6 @@
 #tool nuget:?package=Codecov&version=1.10.0
 #addin nuget:?package=Cake.Codecov&version=0.8.0
+#addin nuget:?package=Cake.Coverlet&version=2.4.2
 #tool nuget:?package=docfx.console&version=2.51.0
 #addin nuget:?package=Cake.DocFx&version=0.13.1
 
@@ -77,23 +78,20 @@ Task("Run-Unit-Tests")
     {
         try
         {
-            DotNetCoreTest(testProject, new DotNetCoreTestSettings
+            var testSettings = new DotNetCoreTestSettings
             {
-                Configuration = configuration,
-                Logger = "trx",
-                ArgumentCustomization = a =>
-                {
-                    var result = a.AppendSwitchQuoted("--results-directory", tempDirectory);
-                    if (reportCoverage)
-                    {
-                        result = result.Append("/p:CollectCoverage=true")
-                            .Append("/p:CoverletOutputFormat=opencover")
-                            .Append("/p:CoverletOutput=" + tempDirectory + "/coverage.xml");
-                    }
+                Configuration = configuration
+            };
 
-                    return result;
-                }
-            });
+            var coverletSettings = new CoverletSettings
+            {
+                CollectCoverage = reportCoverage,
+                CoverletOutputFormat = CoverletOutputFormat.opencover,
+                CoverletOutputDirectory = Directory(tempDirectory),
+                CoverletOutputName = "coverage.xml"
+            };
+
+            DotNetCoreTest(testProject, testSettings, coverletSettings);
         }
         finally
         {
