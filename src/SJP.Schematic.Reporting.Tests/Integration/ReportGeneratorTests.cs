@@ -5,7 +5,7 @@ using SJP.Schematic.Tests.Utilities.Integration;
 
 namespace SJP.Schematic.Reporting.Tests.Integration
 {
-    internal sealed class ReportExporterTests : SakilaTest
+    internal sealed class ReportGeneratorTests : SakilaTest
     {
         [Test]
         public async Task ExportAsync_GivenValidSqliteDatabase_GeneratesReportsWithoutError()
@@ -13,7 +13,7 @@ namespace SJP.Schematic.Reporting.Tests.Integration
             var database = GetDatabase();
 
             using var tempDir = new TemporaryDirectory();
-            var exporter = new ReportExporter(Connection, database, tempDir.DirectoryPath);
+            var exporter = new ReportGenerator(Connection, database, tempDir.DirectoryPath);
             await exporter.ExportAsync().ConfigureAwait(false);
 
             Assert.Pass();

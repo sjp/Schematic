@@ -14,14 +14,14 @@ using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 namespace SJP.Schematic.Reporting
 {
-    public class ReportExporter
+    public class ReportGenerator
     {
-        public ReportExporter(ISchematicConnection connection, IRelationalDatabase database, string directory)
+        public ReportGenerator(ISchematicConnection connection, IRelationalDatabase database, string directory)
             : this(connection, database, new DirectoryInfo(directory))
         {
         }
 
-        public ReportExporter(ISchematicConnection connection, IRelationalDatabase database, DirectoryInfo directory)
+        public ReportGenerator(ISchematicConnection connection, IRelationalDatabase database, DirectoryInfo directory)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Database = database ?? throw new ArgumentNullException(nameof(database));
