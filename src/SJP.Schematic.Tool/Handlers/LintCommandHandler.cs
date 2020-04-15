@@ -47,7 +47,7 @@ namespace SJP.Schematic.Tool.Handlers
 
             foreach (var group in groupedResults)
             {
-                var ruleTitle = "Rule: " + group.Key;
+                var ruleTitle = "Rule: " + group.First().Title;
                 var underline = new string('-', ruleTitle.Length);
 
                 if (hasDisplayedResults)

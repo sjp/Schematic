@@ -82,7 +82,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             var groupedRules = messages
                 .GroupBy(m => m.RuleId)
-                .Select(m => new LintResults.LintRule(m.Key, m.Select(r => new HtmlString(r.Message)).ToList()))
+                .Select(m => new LintResults.LintRule(m.First().Title, m.Select(r => new HtmlString(r.Message)).ToList()))
                 .ToList();
 
             var templateParameter = new LintResults(groupedRules);
