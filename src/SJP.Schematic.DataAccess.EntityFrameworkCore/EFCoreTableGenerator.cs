@@ -13,6 +13,7 @@ using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.DataAccess.CodeGeneration;
 using SJP.Schematic.DataAccess.Extensions;
+using StringHashSet = System.Collections.Generic.HashSet<string>;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore
@@ -29,6 +30,22 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
         }
 
         protected string Namespace { get; }
+
+        private static string GenerateUniqueName(StringHashSet existingNames, string propertyName)
+        {
+            var candidateName = propertyName;
+            var suffix = 1;
+            while (!existingNames.Add(candidateName))
+            {
+                candidateName = propertyName + "_" + suffix.ToString();
+                suffix++;
+
+                if (suffix > 10000)
+                    throw new InvalidOperationException("Unable to generate a valid candidate column name.");
+            }
+
+            return candidateName;
+        }
 
         public override string Generate(IReadOnlyCollection<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
         {
@@ -85,8 +102,23 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var columnProperties = table.Columns
                 .Select(c => BuildColumn(c, comment, className))
                 .ToList();
-            var parentKeyProperties = table.ParentKeys.Select(fk => BuildParentKey(tables, fk, comment, className));
-            var childKeyProperties = table.ChildKeys.Select(ck => BuildChildKey(tables, ck, className));
+
+            var usedNames = new StringHashSet(table.Columns.Select(c => NameTranslator.ColumnToPropertyName(table.Name.LocalName, c.Name.LocalName)));
+
+            var parentKeyProperties = table.ParentKeys.Select(fk =>
+            {
+                var candidatePropertyName = NameTranslator.TableToClassName(fk.ParentTable);
+                var propertyName = GenerateUniqueName(usedNames, candidatePropertyName);
+
+                return BuildParentKey(tables, fk, comment, className, propertyName);
+            });
+            var childKeyProperties = table.ChildKeys.Select(ck =>
+            {
+                var candidatePropertyName = NameTranslator.TableToClassName(ck.ChildTable).Pluralize();
+                var propertyName = GenerateUniqueName(usedNames, candidatePropertyName);
+
+                return BuildChildKey(tables, ck, className, propertyName);
+            });
             var properties = columnProperties.Concat(parentKeyProperties).Concat(childKeyProperties);
 
             return ClassDeclaration(className)
@@ -136,7 +168,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
         }
 
-        private PropertyDeclarationSyntax BuildParentKey(IEnumerable<IRelationalDatabaseTable> tables, IDatabaseRelationalKey relationalKey, Option<IRelationalDatabaseTableComments> comment, string className)
+        private PropertyDeclarationSyntax BuildParentKey(IEnumerable<IRelationalDatabaseTable> tables, IDatabaseRelationalKey relationalKey, Option<IRelationalDatabaseTableComments> comment, string className, string propertyName)
         {
             if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
@@ -144,10 +176,12 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 throw new ArgumentNullException(nameof(relationalKey));
             if (className.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(className));
+            if (propertyName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(propertyName));
 
             var parentTable = relationalKey.ParentTable;
 
-            var parentSchemaName = parentTable.Schema;
+            var parentSchemaName = NameTranslator.SchemaToNamespace(parentTable);
             var parentClassName = NameTranslator.TableToClassName(parentTable);
             var qualifiedParentName = !parentSchemaName.IsNullOrWhiteSpace()
                 ? parentSchemaName + "." + parentClassName
@@ -161,7 +195,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
             var property = PropertyDeclaration(
                 parentTypeName,
-                Identifier(parentClassName)
+                Identifier(propertyName)
             );
 
             var foreignKey = property
@@ -177,7 +211,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
         }
 
-        private PropertyDeclarationSyntax BuildChildKey(IEnumerable<IRelationalDatabaseTable> tables, IDatabaseRelationalKey relationalKey, string className)
+        private PropertyDeclarationSyntax BuildChildKey(IEnumerable<IRelationalDatabaseTable> tables, IDatabaseRelationalKey relationalKey, string className, string propertyName)
         {
             if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
@@ -185,16 +219,16 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 throw new ArgumentNullException(nameof(relationalKey));
             if (className.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(className));
+            if (propertyName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(propertyName));
 
             var childTableName = relationalKey.ChildTable;
 
-            var childSchemaName = childTableName.Schema;
+            var childSchemaName = NameTranslator.SchemaToNamespace(childTableName);
             var childClassName = NameTranslator.TableToClassName(childTableName);
             var qualifiedChildName = !childSchemaName.IsNullOrWhiteSpace()
                 ? childSchemaName + "." + childClassName
                 : childClassName;
-
-            var propertyName = childClassName.Pluralize();
 
             var childTable = tables.FirstOrDefault(t => t.Name == relationalKey.ChildTable);
             var childKeyIsUnique = childTable != null && IsChildKeyUnique(childTable, relationalKey.ChildKey);

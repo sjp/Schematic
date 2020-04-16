@@ -501,22 +501,22 @@ namespace EFCoreTestNamespace.Main
         /// <summary>
         /// The <c>fk_test_table_4_test_table_3_fk1</c> child key. Navigates from <c>test_table_3</c> to <c>test_table_4</c>.
         /// </summary>
-        public virtual ICollection<main.TestTable4> TestTable4s { get; set; } = new HashSet<main.TestTable4>();
+        public virtual ICollection<Main.TestTable4> TestTable4s { get; set; } = new HashSet<Main.TestTable4>();
 
         /// <summary>
         /// The <c>fk_test_table_4_test_table_3_fk1</c> child key. Navigates from <c>test_table_3</c> to <c>test_table_4</c>.
         /// </summary>
-        public virtual ICollection<main.TestTable4> TestTable4s { get; set; } = new HashSet<main.TestTable4>();
+        public virtual ICollection<Main.TestTable4> TestTable4s_1 { get; set; } = new HashSet<Main.TestTable4>();
 
         /// <summary>
         /// The <c>fk_test_table_4_test_table_3_fk1</c> child key. Navigates from <c>test_table_3</c> to <c>test_table_4</c>.
         /// </summary>
-        public virtual ICollection<main.TestTable4> TestTable4s { get; set; } = new HashSet<main.TestTable4>();
+        public virtual ICollection<Main.TestTable4> TestTable4s_2 { get; set; } = new HashSet<Main.TestTable4>();
 
         /// <summary>
         /// The <c>fk_test_table_4_test_table_3_fk1</c> child key. Navigates from <c>test_table_3</c> to <c>test_table_4</c>.
         /// </summary>
-        public virtual ICollection<main.TestTable4> TestTable4s { get; set; } = new HashSet<main.TestTable4>();
+        public virtual ICollection<Main.TestTable4> TestTable4s_3 { get; set; } = new HashSet<Main.TestTable4>();
     }
 }";
 
@@ -616,22 +616,22 @@ namespace EFCoreTestNamespace.Main
         /// <summary>
         /// The <c>fk_test_table_4_test_table_3_fk1</c> foreign key. Navigates from <c>test_table_4</c> to <c>test_table_3</c>.
         /// </summary>
-        public virtual main.TestTable3? TestTable3 { get; set; }
+        public virtual Main.TestTable3? TestTable3 { get; set; }
 
         /// <summary>
         /// The <c>fk_test_table_4_test_table_3_fk1</c> foreign key. Navigates from <c>test_table_4</c> to <c>test_table_3</c>.
         /// </summary>
-        public virtual main.TestTable3? TestTable3 { get; set; }
+        public virtual Main.TestTable3? TestTable3_1 { get; set; }
 
         /// <summary>
         /// The <c>fk_test_table_4_test_table_3_fk1</c> foreign key. Navigates from <c>test_table_4</c> to <c>test_table_3</c>.
         /// </summary>
-        public virtual main.TestTable3? TestTable3 { get; set; }
+        public virtual Main.TestTable3? TestTable3_2 { get; set; }
 
         /// <summary>
         /// The <c>fk_test_table_4_test_table_3_fk1</c> foreign key. Navigates from <c>test_table_4</c> to <c>test_table_3</c>.
         /// </summary>
-        public virtual main.TestTable3? TestTable3 { get; set; }
+        public virtual Main.TestTable3? TestTable3_3 { get; set; }
     }
 }";
 
@@ -708,17 +708,17 @@ namespace EFCoreTestNamespace.Main
         /// <summary>
         /// The <c>fk_test_table_7_test_table_6_fk1</c> child key. Navigates from <c>test_table_6</c> to <c>test_table_7</c>.
         /// </summary>
-        public virtual ICollection<main.TestTable7> TestTable7s { get; set; } = new HashSet<main.TestTable7>();
+        public virtual ICollection<Main.TestTable7> TestTable7s { get; set; } = new HashSet<Main.TestTable7>();
 
         /// <summary>
         /// The <c>fk_test_table_8_test_table_6_fk1</c> child key. Navigates from <c>test_table_6</c> to <c>test_table_8</c>.
         /// </summary>
-        public virtual main.TestTable8? TestTable8s { get; set; }
+        public virtual Main.TestTable8? TestTable8s { get; set; }
 
         /// <summary>
         /// The <c>fk_test_table_9_test_table_6_fk1</c> child key. Navigates from <c>test_table_6</c> to <c>test_table_9</c>.
         /// </summary>
-        public virtual main.TestTable9? TestTable9s { get; set; }
+        public virtual Main.TestTable9? TestTable9s { get; set; }
     }
 }";
 
@@ -751,7 +751,7 @@ namespace EFCoreTestNamespace.Main
         /// <summary>
         /// This is a test foreign key comment for EF Core
         /// </summary>
-        public virtual main.TestTable6 TestTable6 { get; set; } = default!;
+        public virtual Main.TestTable6 TestTable6 { get; set; } = default!;
     }
 }";
 
@@ -786,7 +786,7 @@ namespace EFCoreTestNamespace.Main
         /// <para>This is a test foreign key comment for EF Core.</para>
         /// <para>This is a second line for it.</para>
         /// </summary>
-        public virtual main.TestTable6 TestTable6 { get; set; } = default!;
+        public virtual Main.TestTable6 TestTable6 { get; set; } = default!;
     }
 }";
     }

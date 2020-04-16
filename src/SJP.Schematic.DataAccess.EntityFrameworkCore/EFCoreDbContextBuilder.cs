@@ -335,7 +335,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     ArgumentList(
                         SingletonSeparatedList(
                             Argument(
-                                GenerateColumnSet(className, primaryKey.Columns)))));
+                                GenerateColumnSet(className, primaryKey.Columns, false)))));
 
             primaryKey.Name.IfSome(pkName =>
             {
@@ -380,7 +380,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     ArgumentList(
                         SingletonSeparatedList(
                             Argument(
-                                GenerateColumnSet(className, columns)))));
+                                GenerateColumnSet(className, columns, false)))));
 
             if (index.IsUnique)
             {
@@ -433,7 +433,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     ArgumentList(
                         SingletonSeparatedList(
                             Argument(
-                                GenerateColumnSet(className, uniqueKey.Columns)))));
+                                GenerateColumnSet(className, uniqueKey.Columns, false)))));
 
             uniqueKey.Name.IfSome(ukName =>
             {
@@ -503,7 +503,9 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                                         Identifier(EntityLambdaParameterName)),
                                     MemberAccessExpression(
                                         SyntaxKind.SimpleMemberAccessExpression,
-                                        IdentifierName(EntityLambdaParameterName),
+                                        PostfixUnaryExpression(
+                                            SyntaxKind.SuppressNullableWarningExpression,
+                                            IdentifierName(EntityLambdaParameterName)),
                                         IdentifierName(childSetName)))))));
 
             parentKeyBuilder = InvocationExpression(
@@ -515,7 +517,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     ArgumentList(
                         SingletonSeparatedList(
                             Argument(
-                                GenerateColumnSet(className, childKey.Columns)))));
+                                GenerateColumnSet(className, childKey.Columns, false)))));
 
             parentKeyBuilder = InvocationExpression(
                 MemberAccessExpression(
@@ -526,7 +528,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     ArgumentList(
                         SingletonSeparatedList(
                             Argument(
-                                GenerateColumnSet(className, relationalKey.ParentKey.Columns)))));
+                                GenerateColumnSet(className, relationalKey.ParentKey.Columns, true)))));
 
             relationalKey.ChildKey.Name.IfSome(childKeyName =>
             {
@@ -547,7 +549,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             return parentKeyBuilder;
         }
 
-        private SimpleLambdaExpressionSyntax GenerateColumnSet(string className, IEnumerable<IDatabaseColumn> columns)
+        private SimpleLambdaExpressionSyntax GenerateColumnSet(string className, IEnumerable<IDatabaseColumn> columns, bool suppressNullable)
         {
             if (columns == null)
                 throw new ArgumentNullException(nameof(columns));
@@ -563,7 +565,11 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                         Identifier(EntityLambdaParameterName)),
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName(EntityLambdaParameterName),
+                        suppressNullable
+                            ? PostfixUnaryExpression(
+                                SyntaxKind.SuppressNullableWarningExpression,
+                                IdentifierName(EntityLambdaParameterName))
+                            : IdentifierName(EntityLambdaParameterName) as ExpressionSyntax,
                         IdentifierName(propertyName)));
             }
 
@@ -572,7 +578,11 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     AnonymousObjectMemberDeclarator(
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName(EntityLambdaParameterName),
+                            suppressNullable
+                                ? PostfixUnaryExpression(
+                                    SyntaxKind.SuppressNullableWarningExpression,
+                                    IdentifierName(EntityLambdaParameterName))
+                                : IdentifierName(EntityLambdaParameterName) as ExpressionSyntax,
                             IdentifierName(NameTranslator.ColumnToPropertyName(className, c.Name.LocalName)))))
                 .ToList();
 

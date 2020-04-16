@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
-using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -12,35 +11,16 @@ using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite;
 using SJP.Schematic.Tests.Utilities;
+using SJP.Schematic.Tests.Utilities.Integration;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
 {
-    internal sealed class EFCoreDataAccessGeneratorTests : SqliteTest
+    internal sealed class EfCoreSakilaDataAccessGeneratorTests : SakilaTest
     {
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults, Pragma);
 
-        [OneTimeSetUp]
-        public async Task Init()
-        {
-            await DbConnection.ExecuteAsync(@"create table dal_test_table_1 (
-    testint integer not null primary key autoincrement,
-    testdecimal numeric default 2.45,
-    testblob blob default X'DEADBEEF',
-    testdatetime datetime default CURRENT_TIMESTAMP,
-    teststring text default 'test'
-)", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("create view dal_test_view_1 as select * from dal_test_table_1", CancellationToken.None).ConfigureAwait(false);
-        }
-
-        [OneTimeTearDown]
-        public async Task CleanUp()
-        {
-            await DbConnection.ExecuteAsync("drop view dal_test_view_1", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop table dal_test_table_1", CancellationToken.None).ConfigureAwait(false);
-        }
-
         [Test]
-        public async Task Generate_GivenDatabaseWithTablesAndViews_GeneratesFilesInExpectedLocations()
+        public async Task Generate_GivenDatabaseWithTables_GeneratesFilesInExpectedLocations()
         {
             using var tempDir = new TemporaryDirectory();
             var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFilename);
@@ -48,15 +28,15 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
             var viewsDir = Path.Combine(tempDir.DirectoryPath, "Views");
 
             var expectedAppContextPath = Path.Combine(tempDir.DirectoryPath, "AppContext.cs");
-            var expectedTable1Path = Path.Combine(tablesDir, "Main", "DalTestTable1.cs");
-            var expectedView1Path = Path.Combine(viewsDir, "Main", "DalTestView1.cs");
+            var expectedTablePath = Path.Combine(tablesDir, "Main", "Actor.cs");
+            var expectedViewPath = Path.Combine(viewsDir, "Main", "CustomerList.cs");
 
             var mockFs = new MockFileSystem(new Dictionary<string, MockFileData>
             {
                 [tempDir.DirectoryPath + Path.PathSeparator] = new MockDirectoryData(),
                 [expectedAppContextPath] = MockFileData.NullObject,
-                [expectedTable1Path] = MockFileData.NullObject,
-                [expectedView1Path] = MockFileData.NullObject
+                [expectedTablePath] = MockFileData.NullObject,
+                [expectedViewPath] = MockFileData.NullObject
             });
 
             var nameTranslator = new PascalCaseNameTranslator();
@@ -69,27 +49,9 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
                 Assert.That(mockFs.FileExists(expectedAppContextPath), Is.True);
                 Assert.That(mockFs.Directory.Exists(tablesDir), Is.True);
                 Assert.That(mockFs.Directory.Exists(viewsDir), Is.True);
-                Assert.That(mockFs.FileExists(expectedTable1Path), Is.True);
-                Assert.That(mockFs.FileExists(expectedView1Path), Is.True);
+                Assert.That(mockFs.FileExists(expectedTablePath), Is.True);
+                Assert.That(mockFs.FileExists(expectedViewPath), Is.True);
             });
-        }
-
-        [Test]
-        public async Task Generate_GivenDatabaseWithoutTablesOrViews_BuildsProjectSuccessfully()
-        {
-            using var tempDir = new TemporaryDirectory();
-            var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFilename);
-
-            var database = new EmptyRelationalDatabase(Database.IdentifierDefaults);
-
-            var fileSystem = new FileSystem();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
-            var nameTranslator = new PascalCaseNameTranslator();
-            var generator = new EFCoreDataAccessGenerator(fileSystem, database, commentProvider, nameTranslator);
-            await generator.Generate(projectPath, TestNamespace).ConfigureAwait(false);
-
-            var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
-            Assert.That(buildsSuccessfully, Is.True);
         }
 
         [Test]

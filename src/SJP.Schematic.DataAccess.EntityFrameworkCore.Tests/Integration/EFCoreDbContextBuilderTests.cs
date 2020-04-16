@@ -149,10 +149,10 @@ namespace EFCoreTestNamespace
             modelBuilder.Entity<Main.TestTable4>().Property(t => t.TestDatetime).HasDefaultValue(""CURRENT_TIMESTAMP"");
             modelBuilder.Entity<Main.TestTable4>().Property(t => t.TestStringWithDefault).HasDefaultValue(""'test'"");
             modelBuilder.Entity<Main.TestTable4>().HasKey(t => t.TestPk);
-            modelBuilder.Entity<Main.TestTable4>().HasOne(t => t.TestTable3).WithMany(t => t.TestTable4s).HasForeignKey(t => t.TestTable3Fk4).HasPrincipalKey(t => t.TestPk).HasConstraintName(""fk_test_table_4_test_table_3_fk1"");
-            modelBuilder.Entity<Main.TestTable4>().HasOne(t => t.TestTable3).WithMany(t => t.TestTable4s).HasForeignKey(t => t.TestTable3Fk3).HasPrincipalKey(t => t.TestPk).HasConstraintName(""fk_test_table_4_test_table_3_fk1"");
-            modelBuilder.Entity<Main.TestTable4>().HasOne(t => t.TestTable3).WithMany(t => t.TestTable4s).HasForeignKey(t => t.TestTable3Fk2).HasPrincipalKey(t => t.TestPk).HasConstraintName(""fk_test_table_4_test_table_3_fk1"");
-            modelBuilder.Entity<Main.TestTable4>().HasOne(t => t.TestTable3).WithMany(t => t.TestTable4s).HasForeignKey(t => t.TestTable3Fk1).HasPrincipalKey(t => t.TestPk).HasConstraintName(""fk_test_table_4_test_table_3_fk1"");
+            modelBuilder.Entity<Main.TestTable4>().HasOne(t => t.TestTable3).WithMany(t => t!.TestTable4s).HasForeignKey(t => t.TestTable3Fk4).HasPrincipalKey(t => t!.TestPk).HasConstraintName(""fk_test_table_4_test_table_3_fk1"");
+            modelBuilder.Entity<Main.TestTable4>().HasOne(t => t.TestTable3).WithMany(t => t!.TestTable4s).HasForeignKey(t => t.TestTable3Fk3).HasPrincipalKey(t => t!.TestPk).HasConstraintName(""fk_test_table_4_test_table_3_fk1"");
+            modelBuilder.Entity<Main.TestTable4>().HasOne(t => t.TestTable3).WithMany(t => t!.TestTable4s).HasForeignKey(t => t.TestTable3Fk2).HasPrincipalKey(t => t!.TestPk).HasConstraintName(""fk_test_table_4_test_table_3_fk1"");
+            modelBuilder.Entity<Main.TestTable4>().HasOne(t => t.TestTable3).WithMany(t => t!.TestTable4s).HasForeignKey(t => t.TestTable3Fk1).HasPrincipalKey(t => t!.TestPk).HasConstraintName(""fk_test_table_4_test_table_3_fk1"");
         }
     }
 }";
