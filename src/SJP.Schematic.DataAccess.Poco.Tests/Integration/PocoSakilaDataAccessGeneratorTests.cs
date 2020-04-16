@@ -1,0 +1,90 @@
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.IO.Abstractions;
+using System.Threading.Tasks;
+using NUnit.Framework;
+using SJP.Schematic.Core;
+using SJP.Schematic.Core.Comments;
+using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Sqlite;
+using SJP.Schematic.Tests.Utilities;
+using SJP.Schematic.Tests.Utilities.Integration;
+
+namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
+{
+    [TestFixture]
+    internal sealed class PocoSakilaDataAccessGeneratorTests : SakilaTest
+    {
+        private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults, Pragma);
+
+        [Test]
+        public async Task Generate_GivenDatabaseWithoutTablesOrViews_BuildsProjectSuccessfully()
+        {
+            using var tempDir = new TemporaryDirectory();
+            var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFilename);
+
+            var database = new EmptyRelationalDatabase(Database.IdentifierDefaults);
+
+            var fileSystem = new FileSystem();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var nameTranslator = new PascalCaseNameTranslator();
+            var generator = new PocoDataAccessGenerator(fileSystem, database, commentProvider, nameTranslator);
+            await generator.Generate(projectPath, TestNamespace).ConfigureAwait(false);
+
+            var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
+            Assert.That(buildsSuccessfully, Is.True);
+        }
+
+        [Test]
+        public async Task Generate_GivenDatabaseWithTablesAndViews_BuildsProjectSuccessfully()
+        {
+            using var tempDir = new TemporaryDirectory();
+            var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFilename);
+
+            var fileSystem = new FileSystem();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var nameTranslator = new PascalCaseNameTranslator();
+            var generator = new PocoDataAccessGenerator(fileSystem, Database, commentProvider, nameTranslator);
+            await generator.Generate(projectPath, TestNamespace).ConfigureAwait(false);
+
+            var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
+            Assert.That(buildsSuccessfully, Is.True);
+        }
+
+        private static Task<bool> ProjectBuildsSuccessfullyAsync(string projectPath)
+        {
+            if (projectPath.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(projectPath));
+            if (!File.Exists(projectPath))
+                throw new FileNotFoundException("Expected to find a csproj at: " + projectPath, projectPath);
+
+            return ProjectBuildsSuccessfullyAsyncCore(projectPath);
+        }
+
+        private static async Task<bool> ProjectBuildsSuccessfullyAsyncCore(string projectPath)
+        {
+            var projectDir = Path.GetDirectoryName(projectPath);
+            var escapedProjectPath = projectPath.Replace("\"", "\\\"");
+
+            var startInfo = new ProcessStartInfo
+            {
+                ArgumentList = { "build", escapedProjectPath },
+                CreateNoWindow = true,
+                FileName = "dotnet",
+                WindowStyle = ProcessWindowStyle.Hidden,
+                WorkingDirectory = projectDir
+            };
+
+            using var process = new Process { StartInfo = startInfo };
+            process.Start();
+            var exitCode = await process.WaitForExitAsync().ConfigureAwait(false);
+
+            return exitCode == ExitSuccess;
+        }
+
+        private const string TestNamespace = "PocoTestNamespace";
+        private const string TestCsprojFilename = "DataAccessGeneratorTest.csproj";
+        private const int ExitSuccess = 0;
+    }
+}
