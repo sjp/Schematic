@@ -459,11 +459,28 @@ namespace SJP.Schematic.Sqlite
                     foreignKeysCache[tableName] = childTableParentKeys;
                 }
 
-                var matchingParentKeys = childTableParentKeys
-                    .Where(fk => string.Equals(tableName.Schema, fk.ParentTable.Schema, StringComparison.OrdinalIgnoreCase)
-                        && string.Equals(tableName.LocalName, fk.ParentTable.LocalName, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-                result.AddRange(matchingParentKeys);
+                // if this is the current table, only get self-referencing keys, otherwise get all keys
+                var isCurrentTable = string.Equals(tableName.Schema, childTableName.Schema, StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(tableName.LocalName, childTableName.LocalName, StringComparison.OrdinalIgnoreCase);
+                if (isCurrentTable)
+                {
+                    var matchingParentKeys = childTableParentKeys
+                        .Where(fk => string.Equals(tableName.Schema, fk.ChildTable.Schema, StringComparison.OrdinalIgnoreCase)
+                            && string.Equals(tableName.LocalName, fk.ChildTable.LocalName, StringComparison.OrdinalIgnoreCase)
+                            && string.Equals(tableName.Schema, fk.ParentTable.Schema, StringComparison.OrdinalIgnoreCase)
+                            && string.Equals(tableName.LocalName, fk.ParentTable.LocalName, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+                    result.AddRange(matchingParentKeys);
+                }
+                else
+                {
+                    var matchingParentKeys = childTableParentKeys
+                        .Where(fk => string.Equals(tableName.Schema, fk.ParentTable.Schema, StringComparison.OrdinalIgnoreCase)
+                            && string.Equals(tableName.LocalName, fk.ParentTable.LocalName, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+                    result.AddRange(matchingParentKeys);
+                }
+
             }
 
             return result;
