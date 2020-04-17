@@ -311,5 +311,25 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
             Assert.That(foreignKey.ChildKey.IsEnabled, Is.True);
         }
+
+        [Test]
+        public async Task ChildKeys_WhenGivenTableWithChildKeysAndSelfReferencingKey_ContainsExpectedChildKeySet()
+        {
+            // this in particular is to fix a bug that will only happen when two conditions are met:
+            // - a child table alphabetically appears before the parent table
+            // - the parent table must also have a self-referencing foreign key
+
+            var expectedChildTableNames = new[]
+            {
+                "table_test_table_34",
+                "table_test_table_35",
+                "table_test_table_36"
+            };
+
+            var table = await GetTableAsync("table_test_table_35").ConfigureAwait(false);
+            var childTableNames = table.ChildKeys.Select(ck => ck.ChildTable.LocalName).ToList();
+
+            Assert.That(childTableNames, Is.EqualTo(expectedChildTableNames));
+        }
     }
 }

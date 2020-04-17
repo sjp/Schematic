@@ -450,37 +450,20 @@ namespace SJP.Schematic.Sqlite
                 {
                     var childKeyColumns = await LoadColumnsAsync(dbPragma, childTableParser, childTableName, cancellationToken).ConfigureAwait(false);
                     childKeyColumnLookup = GetColumnLookup(childKeyColumns);
-                    columnLookupsCache[tableName] = childKeyColumnLookup;
+                    columnLookupsCache[childTableName] = childKeyColumnLookup;
                 }
 
                 if (!foreignKeysCache.TryGetValue(childTableName, out var childTableParentKeys))
                 {
                     childTableParentKeys = await LoadParentKeysAsync(dbPragma, childTableParser, childTableName, childKeyColumnLookup, cancellationToken).ConfigureAwait(false);
-                    foreignKeysCache[tableName] = childTableParentKeys;
+                    foreignKeysCache[childTableName] = childTableParentKeys;
                 }
 
-                // if this is the current table, only get self-referencing keys, otherwise get all keys
-                var isCurrentTable = string.Equals(tableName.Schema, childTableName.Schema, StringComparison.OrdinalIgnoreCase)
-                    && string.Equals(tableName.LocalName, childTableName.LocalName, StringComparison.OrdinalIgnoreCase);
-                if (isCurrentTable)
-                {
-                    var matchingParentKeys = childTableParentKeys
-                        .Where(fk => string.Equals(tableName.Schema, fk.ChildTable.Schema, StringComparison.OrdinalIgnoreCase)
-                            && string.Equals(tableName.LocalName, fk.ChildTable.LocalName, StringComparison.OrdinalIgnoreCase)
-                            && string.Equals(tableName.Schema, fk.ParentTable.Schema, StringComparison.OrdinalIgnoreCase)
-                            && string.Equals(tableName.LocalName, fk.ParentTable.LocalName, StringComparison.OrdinalIgnoreCase))
-                        .ToList();
-                    result.AddRange(matchingParentKeys);
-                }
-                else
-                {
-                    var matchingParentKeys = childTableParentKeys
-                        .Where(fk => string.Equals(tableName.Schema, fk.ParentTable.Schema, StringComparison.OrdinalIgnoreCase)
-                            && string.Equals(tableName.LocalName, fk.ParentTable.LocalName, StringComparison.OrdinalIgnoreCase))
-                        .ToList();
-                    result.AddRange(matchingParentKeys);
-                }
-
+                var matchingParentKeys = childTableParentKeys
+                    .Where(fk => string.Equals(tableName.Schema, fk.ParentTable.Schema, StringComparison.OrdinalIgnoreCase)
+                        && string.Equals(tableName.LocalName, fk.ParentTable.LocalName, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                result.AddRange(matchingParentKeys);
             }
 
             return result;

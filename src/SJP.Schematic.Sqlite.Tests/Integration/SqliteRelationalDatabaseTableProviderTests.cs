@@ -198,15 +198,37 @@ create table table_test_table_32 (
     constraint ck_test_table_32 check ([test_column]>(1))
 )", CancellationToken.None).ConfigureAwait(false);
             await DbConnection.ExecuteAsync("create table table_test_table_33 ( test_column int not null default 1 )", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync(@"
+create table table_test_table_34 (
+    first_name_child nvarchar(50),
+    middle_name_child nvarchar(50),
+    last_name_child nvarchar(50),
+    constraint fk_test_table_34 foreign key (first_name_child) references table_test_table_35 (first_name_parent)
+)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync(@"
+create table table_test_table_35 (
+    first_name_parent nvarchar(50),
+    middle_name_parent nvarchar(50),
+    last_name_parent nvarchar(50),
+    constraint pk_test_table_35 primary key (first_name_parent),
+    constraint fk_test_table_35 foreign key (last_name_parent) references table_test_table_35 (first_name_parent)
+)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync(@"
+create table table_test_table_36 (
+    first_name_parent nvarchar(50),
+    middle_name_parent nvarchar(50),
+    last_name_parent nvarchar(50),
+    constraint fk_test_table_36 foreign key (last_name_parent) references table_test_table_35 (first_name_parent)
+)", CancellationToken.None).ConfigureAwait(false);
 
             // TODO: uncomment when v3.31 is available
-//            await DbConnection.ExecuteAsync(@"
-//create table table_test_table_34 (
-//    test_column_1 int not null,
-//    test_column_2 int as (test_column_1 * test_column_1),
-//    test_column_3 int generated always as (test_column_1 * test_column_1 * test_column_1) stored,
-//    test_column_4 int constraint computed_col_constraint as (test_column_1 * test_column_1 * test_column_1 * test_column_1) virtual
-//)", CancellationToken.None).ConfigureAwait(false);
+            //            await DbConnection.ExecuteAsync(@"
+            //create table table_test_table_37 (
+            //    test_column_1 int not null,
+            //    test_column_2 int as (test_column_1 * test_column_1),
+            //    test_column_3 int generated always as (test_column_1 * test_column_1 * test_column_1) stored,
+            //    test_column_4 int constraint computed_col_constraint as (test_column_1 * test_column_1 * test_column_1 * test_column_1) virtual
+            //)", CancellationToken.None).ConfigureAwait(false);
 
             await DbConnection.ExecuteAsync("create table trigger_test_table_1 (table_id integer primary key not null)", CancellationToken.None).ConfigureAwait(false);
             await DbConnection.ExecuteAsync("create table trigger_test_table_2 (table_id integer primary key not null)", CancellationToken.None).ConfigureAwait(false);
@@ -283,6 +305,9 @@ end", CancellationToken.None).ConfigureAwait(false);
             await DbConnection.ExecuteAsync("drop table table_test_table_15", CancellationToken.None).ConfigureAwait(false);
             await DbConnection.ExecuteAsync("drop table table_test_table_32", CancellationToken.None).ConfigureAwait(false);
             await DbConnection.ExecuteAsync("drop table table_test_table_33", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_34", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_36", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop table table_test_table_35", CancellationToken.None).ConfigureAwait(false);
             await DbConnection.ExecuteAsync("drop table trigger_test_table_1", CancellationToken.None).ConfigureAwait(false);
             await DbConnection.ExecuteAsync("drop table trigger_test_table_2", CancellationToken.None).ConfigureAwait(false);
         }

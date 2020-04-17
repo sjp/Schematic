@@ -11,7 +11,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
         [Test]
         public async Task ParentKeys_WhenGivenTableWithNoForeignKeys_ReturnsEmptyCollection()
         {
-            var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+            var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
 
             Assert.That(table.ParentKeys, Is.Empty);
         }
