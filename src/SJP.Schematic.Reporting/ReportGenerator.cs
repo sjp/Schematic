@@ -36,20 +36,23 @@ namespace SJP.Schematic.Reporting
 
         protected static IHtmlFormatter TemplateFormatter { get; } = new HtmlFormatter(new TemplateProvider());
 
-        public async Task ExportAsync(CancellationToken cancellationToken = default)
+        public async Task GenerateAsync(CancellationToken cancellationToken = default)
         {
-            var tables = await Database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-            var views = await Database.GetAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-            var sequences = await Database.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-            var synonyms = await Database.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-            var routines = await Database.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            var tablesTask = Database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).AsTask();
+            var viewsTask = Database.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask();
+            var sequencesTask = Database.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).AsTask();
+            var synonymsTask = Database.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).AsTask();
+            var routinesTask = Database.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).AsTask();
 
-            var rowCounts = new Dictionary<Identifier, ulong>();
-            foreach (var table in tables)
-            {
-                var count = await Connection.DbConnection.GetRowCountAsync(Connection.Dialect, table.Name, cancellationToken).ConfigureAwait(false);
-                rowCounts[table.Name] = count;
-            }
+            await Task.WhenAll(tablesTask, viewsTask, sequencesTask, synonymsTask, routinesTask).ConfigureAwait(false);
+
+            var tables = await tablesTask.ConfigureAwait(false);
+            var views = await viewsTask.ConfigureAwait(false);
+            var sequences = await sequencesTask.ConfigureAwait(false);
+            var synonyms = await synonymsTask.ConfigureAwait(false);
+            var routines = await routinesTask.ConfigureAwait(false);
+
+            var rowCounts = await GetRowCountsAsync(tables, cancellationToken).ConfigureAwait(false);
 
             var dbVersion = await Connection.Dialect.GetDatabaseDisplayVersionAsync(Connection, CancellationToken.None).ConfigureAwait(false);
 
@@ -59,6 +62,27 @@ namespace SJP.Schematic.Reporting
 
             var assetExporter = new AssetExporter();
             await assetExporter.SaveAssetsAsync(ExportDirectory).ConfigureAwait(false);
+        }
+
+        private async Task<IReadOnlyDictionary<Identifier, ulong>> GetRowCountsAsync(IReadOnlyCollection<IRelationalDatabaseTable> tables, CancellationToken cancellationToken)
+        {
+            var rowCountTasks = new List<Task<ulong>>();
+
+            foreach (var table in tables)
+                rowCountTasks.Add(Connection.DbConnection.GetRowCountAsync(Connection.Dialect, table.Name, cancellationToken));
+
+            await Task.WhenAll(rowCountTasks).ConfigureAwait(false);
+
+            var result = new Dictionary<Identifier, ulong>();
+
+            var index = 0;
+            foreach (var table in tables)
+            {
+                result[table.Name] = await rowCountTasks[index].ConfigureAwait(false);
+                index++;
+            }
+
+            return result;
         }
 
         private IEnumerable<ITemplateRenderer> GetRenderers(

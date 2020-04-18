@@ -10,7 +10,7 @@ namespace SJP.Schematic.Graphviz.Tests
     {
         private GraphvizTemporaryExecutable GraphvizExe { get; set; }
 
-        private DotSvgRenderer Renderer => new DotSvgRenderer(GraphvizExe.DotExecutablePath);
+        private DotSvgRenderer Renderer => new DotSvgRenderer(GraphvizExe.DotPath);
 
         [OneTimeSetUp]
         public void Init()

@@ -53,7 +53,9 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var relationshipFinder = new RelationshipFinder(Tables);
             var mapper = new TableModelMapper(IdentifierDefaults, RowCounts, relationshipFinder);
 
-            using var dot = new GraphvizTemporaryExecutable();
+            var graphvizFactory = new GraphvizExecutableFactory();
+            using var graphviz = graphvizFactory.GetExecutable();
+
             var tableTasks = Tables.Select(async table =>
             {
                 var tableModel = mapper.Map(table);
@@ -64,7 +66,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 XNamespace svgNs = "http://www.w3.org/2000/svg";
                 XNamespace xlinkNs = "http://www.w3.org/1999/xlink";
 
-                var dotRenderer = new DotSvgRenderer(dot.DotExecutablePath);
+                var dotRenderer = new DotSvgRenderer(graphviz.DotPath);
                 foreach (var diagram in tableModel.Diagrams)
                 {
                     var svgFilePath = Path.Combine(ExportDirectory.FullName, diagram.ContainerId + ".svg");

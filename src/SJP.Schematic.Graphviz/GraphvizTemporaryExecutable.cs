@@ -1,21 +1,20 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 namespace SJP.Schematic.Graphviz
 {
-    public sealed class GraphvizTemporaryExecutable : IDisposable
+    public sealed class GraphvizTemporaryExecutable : IGraphvizExecutable
     {
         public GraphvizTemporaryExecutable()
         {
             _tempDir = new TemporaryDirectory();
             var zipResource = new ZippedResource(Resources.GraphVizZip);
             zipResource.ExtractToDirectory(_tempDir.DirectoryPath);
-            DotExecutablePath = Path.Combine(_tempDir.DirectoryPath, "dot.exe");
-            if (!File.Exists(DotExecutablePath))
-                throw new FileNotFoundException($"Expected to find a file at: '{ DotExecutablePath }', but was not found.", DotExecutablePath);
+            DotPath = Path.Combine(_tempDir.DirectoryPath, "dot.exe");
+            if (!File.Exists(DotPath))
+                throw new FileNotFoundException($"Expected to find a file at: '{ DotPath }', but was not found.", DotPath);
         }
 
-        public string DotExecutablePath { get; }
+        public string DotPath { get; }
 
         public void Dispose()
         {

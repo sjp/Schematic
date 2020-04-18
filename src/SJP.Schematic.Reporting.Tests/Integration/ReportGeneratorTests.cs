@@ -8,13 +8,13 @@ namespace SJP.Schematic.Reporting.Tests.Integration
     internal sealed class ReportGeneratorTests : SakilaTest
     {
         [Test]
-        public async Task ExportAsync_GivenValidSqliteDatabase_GeneratesReportsWithoutError()
+        public async Task GenerateAsync_GivenValidSqliteDatabase_GeneratesReportsWithoutError()
         {
             var database = GetDatabase();
 
             using var tempDir = new TemporaryDirectory();
             var exporter = new ReportGenerator(Connection, database, tempDir.DirectoryPath);
-            await exporter.ExportAsync().ConfigureAwait(false);
+            await exporter.GenerateAsync().ConfigureAwait(false);
 
             Assert.Pass();
         }

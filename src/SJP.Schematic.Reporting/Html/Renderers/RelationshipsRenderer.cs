@@ -49,9 +49,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             XNamespace svgNs = "http://www.w3.org/2000/svg";
             XNamespace xlinkNs = "http://www.w3.org/1999/xlink";
 
-            using (var dot = new GraphvizTemporaryExecutable())
+            var graphvizFactory = new GraphvizExecutableFactory();
+            using (var graphviz = graphvizFactory.GetExecutable())
             {
-                var dotRenderer = new DotSvgRenderer(dot.DotExecutablePath);
+                var dotRenderer = new DotSvgRenderer(graphviz.DotPath);
 
                 foreach (var diagram in viewModel.Diagrams)
                 {

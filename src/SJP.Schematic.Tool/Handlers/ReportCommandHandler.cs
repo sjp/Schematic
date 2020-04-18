@@ -1,7 +1,10 @@
-﻿using System.CommandLine;
+﻿using System;
+using System.CommandLine;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Reporting;
 
 namespace SJP.Schematic.Tool.Handlers
@@ -11,6 +14,14 @@ namespace SJP.Schematic.Tool.Handlers
         public ReportCommandHandler(FileInfo filePath)
             : base(filePath)
         {
+            ConfigureDotPath();
+        }
+
+        private void ConfigureDotPath()
+        {
+            var dotPath = Configuration.GetValue<string>("Graphviz:Dot");
+            if (!dotPath.IsNullOrWhiteSpace())
+                Environment.SetEnvironmentVariable("SCHEMATIC_GRAPHVIZ_DOT", dotPath, EnvironmentVariableTarget.Process);
         }
 
         public async Task<int> HandleCommand(IConsole console, DirectoryInfo outputPath, CancellationToken cancellationToken)
@@ -20,7 +31,7 @@ namespace SJP.Schematic.Tool.Handlers
 
             var reportGenerator = new ReportGenerator(connection, database, outputPath);
 
-            await reportGenerator.ExportAsync(cancellationToken).ConfigureAwait(false);
+            await reportGenerator.GenerateAsync(cancellationToken).ConfigureAwait(false);
 
             console.Out.Write("Report generated to: " + outputPath.FullName);
             return ErrorCode.Success;

@@ -6,19 +6,19 @@ namespace SJP.Schematic.Graphviz.Tests
     internal static class GraphvizTemporaryExecutableTests
     {
         [Test]
-        public static void DotExecutablePath_PropertyGet_IsNonEmptyOrWhiteSpace()
+        public static void DotPath_PropertyGet_IsNonEmptyOrWhiteSpace()
         {
             using var graphviz = new GraphvizTemporaryExecutable();
-            var nonWhiteSpace = !string.IsNullOrWhiteSpace(graphviz.DotExecutablePath);
+            var nonWhiteSpace = !string.IsNullOrWhiteSpace(graphviz.DotPath);
 
             Assert.That(nonWhiteSpace, Is.True);
         }
 
         [Test]
-        public static void DotExecutablePath_PropertyGet_FileExists()
+        public static void DotPath_PropertyGet_FileExists()
         {
             using var graphviz = new GraphvizTemporaryExecutable();
-            Assert.That(graphviz.DotExecutablePath, Does.Exist);
+            Assert.That(graphviz.DotPath, Does.Exist);
         }
 
         [Test]
