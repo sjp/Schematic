@@ -40,7 +40,7 @@ namespace SJP.Schematic.Sqlite
 
         public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var dbNamesQuery = await ConnectionPragma.DatabaseListAsync().ConfigureAwait(false);
+            var dbNamesQuery = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
             var dbNames = dbNamesQuery
                 .OrderBy(d => d.seq)
                 .Select(d => d.name)
@@ -95,7 +95,7 @@ namespace SJP.Schematic.Sqlite
                     .ConfigureAwait(false);
             }
 
-            var dbNamesResult = await ConnectionPragma.DatabaseListAsync().ConfigureAwait(false);
+            var dbNamesResult = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
             var dbNames = dbNamesResult.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
@@ -134,7 +134,7 @@ namespace SJP.Schematic.Sqlite
 
                 if (tableLocalName != null)
                 {
-                    var dbList = await ConnectionPragma.DatabaseListAsync().ConfigureAwait(false);
+                    var dbList = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
                     var tableSchemaName = dbList
                         .OrderBy(s => s.seq)
                         .Select(s => s.name)
@@ -146,7 +146,7 @@ namespace SJP.Schematic.Sqlite
                 }
             }
 
-            var dbNamesResult = await ConnectionPragma.DatabaseListAsync().ConfigureAwait(false);
+            var dbNamesResult = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
             var dbNames = dbNamesResult
                 .OrderBy(l => l.seq)
                 .Select(l => l.name)
@@ -841,8 +841,7 @@ namespace SJP.Schematic.Sqlite
             if (schema.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(schema));
 
-            var loader = _dbPragmaCache.GetOrAdd(schema, new Lazy<ISqliteDatabasePragma>(() => new DatabasePragma(Connection, schema)));
-            return loader.Value;
+            return _dbPragmaCache.GetOrAdd(schema, _ => new DatabasePragma(Connection, schema));
         }
 
         protected static bool IsReservedTableName(Identifier tableName)
@@ -876,7 +875,7 @@ namespace SJP.Schematic.Sqlite
 
         private readonly ConcurrentDictionary<string, Lazy<ParsedTableData>> _tableParserCache = new ConcurrentDictionary<string, Lazy<ParsedTableData>>();
         private readonly ConcurrentDictionary<string, Lazy<ParsedTriggerData>> _triggerParserCache = new ConcurrentDictionary<string, Lazy<ParsedTriggerData>>();
-        private readonly ConcurrentDictionary<string, Lazy<ISqliteDatabasePragma>> _dbPragmaCache = new ConcurrentDictionary<string, Lazy<ISqliteDatabasePragma>>();
+        private readonly ConcurrentDictionary<string, ISqliteDatabasePragma> _dbPragmaCache = new ConcurrentDictionary<string, ISqliteDatabasePragma>();
 
         private readonly AsyncLazy<Version> _dbVersion;
 

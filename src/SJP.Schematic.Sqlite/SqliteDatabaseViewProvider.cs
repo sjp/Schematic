@@ -35,7 +35,7 @@ namespace SJP.Schematic.Sqlite
 
         public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var dbNamesQuery = await ConnectionPragma.DatabaseListAsync().ConfigureAwait(false);
+            var dbNamesQuery = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
             var dbNames = dbNamesQuery
                 .OrderBy(d => d.seq)
                 .Select(d => d.name)
@@ -87,7 +87,7 @@ namespace SJP.Schematic.Sqlite
                     .ConfigureAwait(false);
             }
 
-            var dbNamesResult = await ConnectionPragma.DatabaseListAsync().ConfigureAwait(false);
+            var dbNamesResult = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
             var dbNames = dbNamesResult.OrderBy(l => l.seq).Select(l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
@@ -123,7 +123,7 @@ namespace SJP.Schematic.Sqlite
 
                 if (viewLocalName != null)
                 {
-                    var dbList = await ConnectionPragma.DatabaseListAsync().ConfigureAwait(false);
+                    var dbList = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
                     var viewSchemaName = dbList
                         .OrderBy(s => s.seq)
                         .Select(s => s.name)
@@ -135,7 +135,7 @@ namespace SJP.Schematic.Sqlite
                 }
             }
 
-            var dbNamesResult = await ConnectionPragma.DatabaseListAsync().ConfigureAwait(false);
+            var dbNamesResult = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
             var dbNames = dbNamesResult
                 .OrderBy(l => l.seq)
                 .Select(l => l.name)
@@ -227,7 +227,7 @@ namespace SJP.Schematic.Sqlite
                 // When the view is invalid, this may throw an exception so we catch it.
                 // This does mean that we are in a partial state, but if the definition is corrected
                 // and the view is queried again then we'll end up with something correct.
-                tableInfos = await pragma.TableInfoAsync(viewName).ConfigureAwait(false);
+                tableInfos = await pragma.TableInfoAsync(viewName, cancellationToken).ConfigureAwait(false);
             }
             catch (SqliteException ex) when (ex.SqliteErrorCode == SqliteError)
             {
