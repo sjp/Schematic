@@ -137,5 +137,20 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.That(trigger.IsEnabled, Is.False);
         }
+
+        [TestCase("test_trigger", "Trigger: test_trigger")]
+        [TestCase("test_trigger_other", "Trigger: test_trigger_other")]
+        public static void ToString_WhenInvoked_ReturnsExpectedValues(string name, string expectedResult)
+        {
+            var triggerName = Identifier.CreateQualifiedIdentifier(name);
+            const string definition = "create trigger test_trigger...";
+            const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+            const TriggerEvent events = TriggerEvent.Update;
+
+            var trigger = new DatabaseTrigger(triggerName, definition, timing, events, false);
+            var result = trigger.ToString();
+
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
     }
 }

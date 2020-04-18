@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using EnumsNET;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class DatabaseIndexColumn : IDatabaseIndexColumn
     {
         public DatabaseIndexColumn(string expression, IDatabaseColumn column, IndexColumnOrder order)
@@ -32,5 +36,21 @@ namespace SJP.Schematic.Core
         public IReadOnlyList<IDatabaseColumn> DependentColumns { get; }
 
         public IndexColumnOrder Order { get; }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override string ToString() => DebuggerDisplay;
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                var builder = StringBuilderCache.Acquire();
+
+                builder.Append("Index Column: ")
+                    .Append(Expression);
+
+                return builder.GetStringAndRelease();
+            }
+        }
     }
 }

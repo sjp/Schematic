@@ -1,9 +1,14 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Diagnostics;
 using EnumsNET;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Oracle
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class OracleRelationalKey : IDatabaseRelationalKey
     {
         public OracleRelationalKey(Identifier childTableName, IDatabaseKey childKey, Identifier parentTableName, IDatabaseKey parentKey, ReferentialAction deleteAction)
@@ -35,5 +40,46 @@ namespace SJP.Schematic.Oracle
         public ReferentialAction DeleteAction { get; }
 
         public ReferentialAction UpdateAction { get; }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override string ToString() => DebuggerDisplay;
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                var builder = StringBuilderCache.Acquire();
+
+                builder.Append("Relational Key: ");
+
+                if (!ChildTable.Schema.IsNullOrWhiteSpace())
+                    builder.Append(ChildTable.Schema).Append('.');
+
+                builder.Append(ChildTable.LocalName);
+
+                ChildKey.Name.IfSome(name =>
+                {
+                    builder.Append(" (")
+                        .Append(name.LocalName)
+                        .Append(")");
+                });
+
+                builder.Append(" -> ");
+
+                if (!ParentTable.Schema.IsNullOrWhiteSpace())
+                    builder.Append(ParentTable.Schema).Append('.');
+
+                builder.Append(ParentTable.LocalName);
+
+                ParentKey.Name.IfSome(name =>
+                {
+                    builder.Append(" (")
+                        .Append(name.LocalName)
+                        .Append(")");
+                });
+
+                return builder.GetStringAndRelease();
+            }
+        }
     }
 }

@@ -101,5 +101,18 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             Assert.That(indexColumn.Order, Is.EqualTo(IndexColumnOrder.Descending));
         }
+
+        [TestCase("test_expression", "Index Column: test_expression")]
+        [TestCase("test_expression_other", "Index Column: test_expression_other")]
+        public static void ToString_WhenInvoked_ReturnsExpectedValues(string expression, string expectedResult)
+        {
+            var column = Mock.Of<IDatabaseColumn>();
+            const IndexColumnOrder order = IndexColumnOrder.Ascending;
+
+            var indexColumn = new PostgreSqlDatabaseIndexColumn(expression, column, order);
+            var result = indexColumn.ToString();
+
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
     }
 }

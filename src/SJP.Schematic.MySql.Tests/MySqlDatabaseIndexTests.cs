@@ -124,5 +124,18 @@ namespace SJP.Schematic.MySql.Tests
 
             Assert.That(index.IsEnabled, Is.True);
         }
+
+        [TestCase("test_index", "Index: test_index")]
+        [TestCase("test_index_other", "Index: test_index_other")]
+        public static void ToString_WhenInvoked_ReturnsExpectedValues(string name, string expectedResult)
+        {
+            var indexName = Identifier.CreateQualifiedIdentifier(name);
+            var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
+
+            var index = new MySqlDatabaseIndex(indexName, false, columns);
+            var result = index.ToString();
+
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
     }
 }

@@ -110,5 +110,20 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             Assert.That(key.IsEnabled, Is.True);
         }
+
+        [TestCase(DatabaseKeyType.Foreign, "test_foreign_key", "Foreign Key: test_foreign_key")]
+        [TestCase(DatabaseKeyType.Primary, "test_primary_key", "Primary Key: test_primary_key")]
+        [TestCase(DatabaseKeyType.Unique, "test_unique_key", "Unique Key: test_unique_key")]
+        public static void ToString_WhenInvoked_ReturnsExpectedValues(DatabaseKeyType keyType, string name, string expectedResult)
+        {
+            var keyName = Identifier.CreateQualifiedIdentifier(name);
+            var column = Mock.Of<IDatabaseColumn>();
+            var columns = new[] { column };
+
+            var key = new PostgreSqlDatabaseKey(keyName, keyType, columns);
+            var result = key.ToString();
+
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
     }
 }

@@ -46,5 +46,16 @@ namespace SJP.Schematic.PostgreSql.Tests
 
             Assert.That(check.IsEnabled, Is.True);
         }
+
+        [TestCase("test_check", "Check: test_check")]
+        public static void ToString_WhenInvoked_ReturnsExpectedValues(string name, string expectedResult)
+        {
+            var checkName = Identifier.CreateQualifiedIdentifier(name);
+
+            var check = new PostgreSqlCheckConstraint(checkName, "test_check_definition");
+            var result = check.ToString();
+
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
     }
 }

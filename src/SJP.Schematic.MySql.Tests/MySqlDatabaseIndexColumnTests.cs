@@ -59,5 +59,17 @@ namespace SJP.Schematic.MySql.Tests
 
             Assert.That(indexColumn.Order, Is.EqualTo(IndexColumnOrder.Ascending));
         }
+
+        [TestCase("test_expression", "Index Column: test_expression")]
+        [TestCase("test_expression_other", "Index Column: test_expression_other")]
+        public static void ToString_WhenInvoked_ReturnsExpectedValues(string expression, string expectedResult)
+        {
+            var column = Mock.Of<IDatabaseColumn>();
+
+            var indexColumn = new MySqlDatabaseIndexColumn(expression, column);
+            var result = indexColumn.ToString();
+
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
     }
 }

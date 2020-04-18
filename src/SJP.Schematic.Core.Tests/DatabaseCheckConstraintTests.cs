@@ -1,5 +1,6 @@
 ﻿using LanguageExt;
 using NUnit.Framework;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Core.Tests
@@ -47,6 +48,20 @@ namespace SJP.Schematic.Core.Tests
             var check = new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), "test_check_definition", false);
 
             Assert.That(check.IsEnabled, Is.False);
+        }
+
+        [TestCase(null, "Check")]
+        [TestCase("test_check", "Check: test_check")]
+        public static void ToString_WhenInvoked_ReturnsExpectedValues(string name, string expectedResult)
+        {
+            var checkName = !name.IsNullOrWhiteSpace()
+                ? Option<Identifier>.Some(name)
+                : Option<Identifier>.None;
+
+            var check = new DatabaseCheckConstraint(checkName, "test_check_definition", true);
+            var result = check.ToString();
+
+            Assert.That(result, Is.EqualTo(expectedResult));
         }
     }
 }

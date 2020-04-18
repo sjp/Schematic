@@ -1,6 +1,8 @@
 ﻿using System;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Core.Tests
@@ -123,6 +125,27 @@ namespace SJP.Schematic.Core.Tests
             var key = new DatabaseKey(keyName, keyType, columns, enabled);
 
             Assert.That(key.IsEnabled, Is.EqualTo(enabled));
+        }
+
+        [TestCase(DatabaseKeyType.Foreign, null, "Foreign Key")]
+        [TestCase(DatabaseKeyType.Foreign, "test_foreign_key", "Foreign Key: test_foreign_key")]
+        [TestCase(DatabaseKeyType.Primary, null, "Primary Key")]
+        [TestCase(DatabaseKeyType.Primary, "test_primary_key", "Primary Key: test_primary_key")]
+        [TestCase(DatabaseKeyType.Unique, null, "Unique Key")]
+        [TestCase(DatabaseKeyType.Unique, "test_unique_key", "Unique Key: test_unique_key")]
+        public static void ToString_WhenInvoked_ReturnsExpectedValues(DatabaseKeyType keyType, string name, string expectedResult)
+        {
+            var keyName = !name.IsNullOrWhiteSpace()
+                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(name))
+                : Option<Identifier>.None;
+            var column = Mock.Of<IDatabaseColumn>();
+            var columns = new[] { column };
+            const bool enabled = true;
+
+            var key = new DatabaseKey(keyName, keyType, columns, enabled);
+            var result = key.ToString();
+
+            Assert.That(result, Is.EqualTo(expectedResult));
         }
     }
 }

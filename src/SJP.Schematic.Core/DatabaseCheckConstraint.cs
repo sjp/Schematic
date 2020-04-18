@@ -1,6 +1,9 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Diagnostics;
 using LanguageExt;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core
 {
@@ -8,6 +11,7 @@ namespace SJP.Schematic.Core
     /// Represents a database check constraint.
     /// </summary>
     /// <seealso cref="IDatabaseCheckConstraint" />
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class DatabaseCheckConstraint : IDatabaseCheckConstraint
     {
         /// <summary>
@@ -46,5 +50,26 @@ namespace SJP.Schematic.Core
         /// </summary>
         /// <value><c>true</c> if the constraint is enabled; otherwise, <c>false</c>.</value>
         public bool IsEnabled { get; }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override string ToString() => DebuggerDisplay;
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                var builder = StringBuilderCache.Acquire();
+
+                builder.Append("Check");
+
+                Name.IfSome(name =>
+                {
+                    builder.Append(": ")
+                        .Append(name.LocalName);
+                });
+
+                return builder.GetStringAndRelease();
+            }
+        }
     }
 }

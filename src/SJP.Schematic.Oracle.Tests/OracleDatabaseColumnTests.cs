@@ -93,5 +93,18 @@ namespace SJP.Schematic.Oracle.Tests
 
             Assert.That(column.AutoIncrement, OptionIs.None);
         }
+
+        [TestCase("test_column_1", "Column: test_column_1")]
+        [TestCase("test_column_2", "Column: test_column_2")]
+        public static void ToString_WhenInvoked_ReturnsExpectedValues(string name, string expectedResult)
+        {
+            var columnName = Identifier.CreateQualifiedIdentifier(name);
+            var columnType = Mock.Of<IDbType>();
+
+            var column = new OracleDatabaseColumn(columnName, columnType, true, null);
+            var result = column.ToString();
+
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
     }
 }

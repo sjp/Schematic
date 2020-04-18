@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using EnumsNET;
 using LanguageExt;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core
 {
@@ -28,5 +30,27 @@ namespace SJP.Schematic.Core
         public IReadOnlyCollection<IDatabaseColumn> Columns { get; }
 
         public bool IsEnabled { get; }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override string ToString() => DebuggerDisplay;
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                var builder = StringBuilderCache.Acquire();
+
+                builder.Append(KeyType.ToString())
+                    .Append(" Key");
+
+                Name.IfSome(name =>
+                {
+                    builder.Append(": ")
+                        .Append(name.LocalName);
+                });
+
+                return builder.GetStringAndRelease();
+            }
+        }
     }
 }

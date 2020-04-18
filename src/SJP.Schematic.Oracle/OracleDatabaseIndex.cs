@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using EnumsNET;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Oracle
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class OracleDatabaseIndex : IOracleDatabaseIndex
     {
         public OracleDatabaseIndex(Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns, OracleIndexProperties properties)
@@ -37,5 +41,25 @@ namespace SJP.Schematic.Oracle
         public bool GeneratedByConstraint { get; }
 
         private const OracleIndexProperties ConstraintGeneratedProps = OracleIndexProperties.Unique | OracleIndexProperties.CreatedByConstraint;
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override string ToString() => DebuggerDisplay;
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                var builder = StringBuilderCache.Acquire();
+
+                builder.Append("Index: ");
+
+                if (!Name.Schema.IsNullOrWhiteSpace())
+                    builder.Append(Name.Schema).Append('.');
+
+                builder.Append(Name.LocalName);
+
+                return builder.GetStringAndRelease();
+            }
+        }
     }
 }

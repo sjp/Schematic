@@ -188,5 +188,18 @@ namespace SJP.Schematic.Oracle.Tests
 
             Assert.That(index.IsEnabled, Is.True);
         }
+
+        [TestCase("test_index", "Index: test_index")]
+        [TestCase("test_index_other", "Index: test_index_other")]
+        public static void ToString_WhenInvoked_ReturnsExpectedValues(string name, string expectedResult)
+        {
+            var indexName = Identifier.CreateQualifiedIdentifier(name);
+            var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
+
+            var index = new OracleDatabaseIndex(indexName, false, columns, OracleIndexProperties.None);
+            var result = index.ToString();
+
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
     }
 }

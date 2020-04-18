@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.MySql
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class MySqlDatabaseIndexColumn : IDatabaseIndexColumn
     {
         public MySqlDatabaseIndexColumn(string expression, IDatabaseColumn column)
@@ -23,5 +27,21 @@ namespace SJP.Schematic.MySql
         public IReadOnlyList<IDatabaseColumn> DependentColumns { get; }
 
         public IndexColumnOrder Order { get; }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override string ToString() => DebuggerDisplay;
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                var builder = StringBuilderCache.Acquire();
+
+                builder.Append("Index Column: ")
+                    .Append(Expression);
+
+                return builder.GetStringAndRelease();
+            }
+        }
     }
 }

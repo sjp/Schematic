@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using EnumsNET;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.PostgreSql
 {
     // TODO: remove this when the dependent columns can be parsed out
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class PostgreSqlDatabaseIndexColumn : IDatabaseIndexColumn
     {
         public PostgreSqlDatabaseIndexColumn(string expression, IndexColumnOrder order)
@@ -40,5 +44,21 @@ namespace SJP.Schematic.PostgreSql
         public IndexColumnOrder Order { get; }
 
         public string Expression { get; }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override string ToString() => DebuggerDisplay;
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                var builder = StringBuilderCache.Acquire();
+
+                builder.Append("Index Column: ")
+                    .Append(Expression);
+
+                return builder.GetStringAndRelease();
+            }
+        }
     }
 }

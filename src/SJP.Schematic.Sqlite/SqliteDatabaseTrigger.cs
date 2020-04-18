@@ -1,10 +1,14 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Diagnostics;
 using EnumsNET;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Sqlite
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class SqliteDatabaseTrigger : IDatabaseTrigger
     {
         public SqliteDatabaseTrigger(Identifier name, string definition, TriggerQueryTiming queryTiming, TriggerEvent events)
@@ -35,5 +39,25 @@ namespace SJP.Schematic.Sqlite
         public TriggerEvent TriggerEvent { get; }
 
         public bool IsEnabled { get; } = true; // always enabled for sqlite
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override string ToString() => DebuggerDisplay;
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                var builder = StringBuilderCache.Acquire();
+
+                builder.Append("Trigger: ");
+
+                if (!Name.Schema.IsNullOrWhiteSpace())
+                    builder.Append(Name.Schema).Append('.');
+
+                builder.Append(Name.LocalName);
+
+                return builder.GetStringAndRelease();
+            }
+        }
     }
 }

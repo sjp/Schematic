@@ -101,5 +101,19 @@ namespace SJP.Schematic.Oracle.Tests
 
             Assert.That(column.AutoIncrement, OptionIs.None);
         }
+
+        [TestCase("test_computed_column_1", "Computed Column: test_computed_column_1")]
+        [TestCase("test_computed_column_2", "Computed Column: test_computed_column_2")]
+        public static void ToString_WhenInvoked_ReturnsExpectedValues(string name, string expectedResult)
+        {
+            var columnName = Identifier.CreateQualifiedIdentifier(name);
+            var columnType = Mock.Of<IDbType>();
+            const string definition = "test";
+
+            var column = new OracleDatabaseComputedColumn(columnName, columnType, true, definition);
+            var result = column.ToString();
+
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
     }
 }

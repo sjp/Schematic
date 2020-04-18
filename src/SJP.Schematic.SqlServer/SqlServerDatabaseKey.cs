@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using EnumsNET;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.SqlServer
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class SqlServerDatabaseKey : IDatabaseKey
     {
         public SqlServerDatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, bool isEnabled)
@@ -31,5 +35,27 @@ namespace SJP.Schematic.SqlServer
         public IReadOnlyCollection<IDatabaseColumn> Columns { get; }
 
         public bool IsEnabled { get; }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override string ToString() => DebuggerDisplay;
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                var builder = StringBuilderCache.Acquire();
+
+                builder.Append(KeyType.ToString())
+                    .Append(" Key");
+
+                Name.IfSome(name =>
+                {
+                    builder.Append(": ")
+                        .Append(name.LocalName);
+                });
+
+                return builder.GetStringAndRelease();
+            }
+        }
     }
 }

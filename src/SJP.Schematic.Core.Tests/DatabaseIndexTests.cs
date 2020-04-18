@@ -158,5 +158,19 @@ namespace SJP.Schematic.Core.Tests
 
             Assert.That(index.IncludedColumns, Is.EqualTo(includedColumns));
         }
+
+        [TestCase("test_index", "Index: test_index")]
+        [TestCase("test_index_other", "Index: test_index_other")]
+        public static void ToString_WhenInvoked_ReturnsExpectedValues(string name, string expectedResult)
+        {
+            var indexName = Identifier.CreateQualifiedIdentifier(name);
+            var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
+            var includedColumns = new[] { Mock.Of<IDatabaseColumn>() };
+
+            var index = new DatabaseIndex(indexName, false, columns, includedColumns, true);
+            var result = index.ToString();
+
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
     }
 }

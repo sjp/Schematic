@@ -1,8 +1,12 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Diagnostics;
 using LanguageExt;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class DatabaseColumn : IDatabaseColumn
     {
         public DatabaseColumn(
@@ -34,5 +38,21 @@ namespace SJP.Schematic.Core
         public bool IsNullable { get; }
 
         public Option<IAutoIncrement> AutoIncrement { get; }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override string ToString() => DebuggerDisplay;
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                var builder = StringBuilderCache.Acquire();
+
+                builder.Append("Column: ")
+                    .Append(Name.LocalName);
+
+                return builder.GetStringAndRelease();
+            }
+        }
     }
 }

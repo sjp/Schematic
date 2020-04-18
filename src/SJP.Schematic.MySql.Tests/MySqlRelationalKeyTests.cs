@@ -1,6 +1,8 @@
-﻿using Moq;
+﻿using LanguageExt;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.MySql.Tests
@@ -274,6 +276,53 @@ namespace SJP.Schematic.MySql.Tests
             const ReferentialAction updateAction = ReferentialAction.NoAction;
 
             Assert.That(() => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction), Throws.ArgumentException);
+        }
+
+        [TestCase(null, "test_table_1", null, null, "test_table_2", null, "Relational Key: test_table_1 -> test_table_2")]
+        [TestCase("child_schema", "test_table_1", null, null, "test_table_2", null, "Relational Key: child_schema.test_table_1 -> test_table_2")]
+        [TestCase(null, "test_table_1", null, "parent_schema", "test_table_2", null, "Relational Key: test_table_1 -> parent_schema.test_table_2")]
+        [TestCase("child_schema", "test_table_1", null, "parent_schema", "test_table_2", null, "Relational Key: child_schema.test_table_1 -> parent_schema.test_table_2")]
+        [TestCase(null, "test_table_1", null, null, "test_table_2", "pk_parent_1", "Relational Key: test_table_1 -> test_table_2 (pk_parent_1)")]
+        [TestCase(null, "test_table_1", "fk_child_1", null, "test_table_2", null, "Relational Key: test_table_1 (fk_child_1) -> test_table_2")]
+        [TestCase(null, "test_table_1", "fk_child_1", null, "test_table_2", "pk_parent_1", "Relational Key: test_table_1 (fk_child_1) -> test_table_2 (pk_parent_1)")]
+        [TestCase("child_schema", "test_table_1", "fk_child_1", null, "test_table_2", "pk_parent_1", "Relational Key: child_schema.test_table_1 (fk_child_1) -> test_table_2 (pk_parent_1)")]
+        [TestCase(null, "test_table_1", "fk_child_1", "parent_schema", "test_table_2", "pk_parent_1", "Relational Key: test_table_1 (fk_child_1) -> parent_schema.test_table_2 (pk_parent_1)")]
+        [TestCase("child_schema", "test_table_1", "fk_child_1", "parent_schema", "test_table_2", "pk_parent_1", "Relational Key: child_schema.test_table_1 (fk_child_1) -> parent_schema.test_table_2 (pk_parent_1)")]
+        public static void ToString_WhenInvoked_ReturnsExpectedValues(
+            string childTableSchema,
+            string childTableLocal,
+            string childKeyName,
+            string parentTableSchema,
+            string parentTableLocal,
+            string parentKeyName,
+            string expectedResult
+        )
+        {
+            var childTableName = Identifier.CreateQualifiedIdentifier(childTableSchema, childTableLocal);
+            var childKeyIdentifier = !childKeyName.IsNullOrWhiteSpace()
+                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(childKeyName))
+                : Option<Identifier>.None;
+
+            var parentTableName = Identifier.CreateQualifiedIdentifier(parentTableSchema, parentTableLocal);
+            var parentKeyIdentifier = !parentKeyName.IsNullOrWhiteSpace()
+                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(parentKeyName))
+                : Option<Identifier>.None;
+
+            var childKeyMock = new Mock<IDatabaseKey>();
+            childKeyMock.Setup(k => k.Name).Returns(childKeyIdentifier);
+            childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
+
+            var parentKeyMock = new Mock<IDatabaseKey>();
+            parentKeyMock.Setup(k => k.Name).Returns(parentKeyIdentifier);
+            parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
+
+            const ReferentialAction deleteAction = ReferentialAction.NoAction;
+            const ReferentialAction updateAction = ReferentialAction.NoAction;
+
+            var key = new MySqlRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction);
+            var result = key.ToString();
+
+            Assert.That(result, Is.EqualTo(expectedResult));
         }
     }
 }

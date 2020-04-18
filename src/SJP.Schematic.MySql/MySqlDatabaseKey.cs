@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using EnumsNET;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.MySql
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class MySqlDatabaseKey : IDatabaseKey
     {
         public MySqlDatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns)
@@ -31,5 +35,27 @@ namespace SJP.Schematic.MySql
         public IReadOnlyCollection<IDatabaseColumn> Columns { get; }
 
         public bool IsEnabled { get; }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override string ToString() => DebuggerDisplay;
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                var builder = StringBuilderCache.Acquire();
+
+                builder.Append(KeyType.ToString())
+                    .Append(" Key");
+
+                Name.IfSome(name =>
+                {
+                    builder.Append(": ")
+                        .Append(name.LocalName);
+                });
+
+                return builder.GetStringAndRelease();
+            }
+        }
     }
 }

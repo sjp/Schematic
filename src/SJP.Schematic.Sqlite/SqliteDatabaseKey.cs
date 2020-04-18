@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using EnumsNET;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Sqlite
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class SqliteDatabaseKey : IDatabaseKey
     {
         public SqliteDatabaseKey(Option<Identifier> name, DatabaseKeyType keyType, IEnumerable<IDatabaseColumn> columns)
@@ -29,5 +33,27 @@ namespace SJP.Schematic.Sqlite
         public IReadOnlyCollection<IDatabaseColumn> Columns { get; }
 
         public bool IsEnabled { get; } = true;
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override string ToString() => DebuggerDisplay;
+
+        private string DebuggerDisplay
+        {
+            get
+            {
+                var builder = StringBuilderCache.Acquire();
+
+                builder.Append(KeyType.ToString())
+                    .Append(" Key");
+
+                Name.IfSome(name =>
+                {
+                    builder.Append(": ")
+                        .Append(name.LocalName);
+                });
+
+                return builder.GetStringAndRelease();
+            }
+        }
     }
 }
