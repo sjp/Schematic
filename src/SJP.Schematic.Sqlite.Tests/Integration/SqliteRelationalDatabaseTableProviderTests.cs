@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
@@ -401,6 +402,26 @@ end", CancellationToken.None).ConfigureAwait(false);
 
             var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, table.Name);
             Assert.That(equalNames, Is.True);
+        }
+
+        [Test]
+        public async Task GetAllTables_WhenEnumerated_ContainsTables()
+        {
+            var hasTables = await TableProvider.GetAllTables()
+                .AnyAsync()
+                .ConfigureAwait(false);
+
+            Assert.That(hasTables, Is.True);
+        }
+
+        [Test]
+        public async Task GetAllTables_WhenEnumerated_ContainsTestTable()
+        {
+            var containsTestTable = await TableProvider.GetAllTables()
+                .AnyAsync(t => t.Name.LocalName == "db_test_table_1")
+                .ConfigureAwait(false);
+
+            Assert.That(containsTestTable, Is.True);
         }
     }
 }

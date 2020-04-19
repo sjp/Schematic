@@ -63,8 +63,9 @@ namespace SJP.Schematic.Sqlite
                 .OrderBy(name => name.Schema)
                 .ThenBy(name => name.LocalName);
 
+            var tableCache = new TableCache();
             foreach (var tableName in tableNames)
-                yield return await LoadTableAsyncCore(tableName, cancellationToken).ConfigureAwait(false);
+                yield return await LoadTableAsyncCore(tableName, tableCache, cancellationToken).ConfigureAwait(false);
         }
 
         protected virtual string TablesQuery(string schemaName)
@@ -176,45 +177,58 @@ namespace SJP.Schematic.Sqlite
         }
 
         protected virtual OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, CancellationToken cancellationToken)
+            => LoadTable(tableName, new TableCache(), cancellationToken);
+
+        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, TableCache tableCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
+            if (tableCache == null)
+                throw new ArgumentNullException(nameof(tableCache));
 
             var candidateTableName = QualifyTableName(tableName);
             return GetResolvedTableName(candidateTableName, cancellationToken)
-                .MapAsync(name => LoadTableAsyncCore(name, cancellationToken));
+                .MapAsync(name => LoadTableAsyncCore(name, tableCache, cancellationToken));
         }
 
-        private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName, TableCache tableCache, CancellationToken cancellationToken)
         {
-            var pragma = GetDatabasePragma(tableName.Schema!);
-            var parsedTable = await GetParsedTableDefinitionAsync(tableName, cancellationToken).ConfigureAwait(false);
+            if (!tableCache.TryGetParsedTable(tableName, out var parsedTable))
+            {
+                parsedTable = await GetParsedTableDefinitionAsync(tableName, cancellationToken).ConfigureAwait(false);
+                tableCache.TryAddParsedTable(tableName, parsedTable);
+            }
 
-            var columnsTask = LoadColumnsAsync(pragma, parsedTable, tableName, cancellationToken);
+            if (!tableCache.TryGetColumns(tableName, out var columns))
+            {
+                columns = await LoadColumnsAsync(tableName, tableCache, cancellationToken).ConfigureAwait(false);
+                tableCache.TryAddColumns(tableName, columns);
+            }
+
             var checksTask = LoadChecksAsync(parsedTable, cancellationToken);
             var triggersTask = LoadTriggersAsync(tableName, cancellationToken);
-            await Task.WhenAll(columnsTask, checksTask, triggersTask).ConfigureAwait(false);
+            await Task.WhenAll(checksTask, triggersTask).ConfigureAwait(false);
 
-            var columns = await columnsTask.ConfigureAwait(false);
-            var columnLookup = GetColumnLookup(columns);
             var checks = await checksTask.ConfigureAwait(false);
             var triggers = await triggersTask.ConfigureAwait(false);
 
-            var primaryKeyTask = LoadPrimaryKeyAsync(pragma, parsedTable, tableName, columnLookup, cancellationToken);
-            var uniqueKeysTask = LoadUniqueKeysAsync(pragma, parsedTable, tableName, columnLookup, cancellationToken);
-            var indexesTask = LoadIndexesAsync(pragma, tableName, columnLookup, cancellationToken);
+            var primaryKeyTask = LoadPrimaryKeyAsync(tableName, tableCache, cancellationToken);
+            var uniqueKeysTask = LoadUniqueKeysAsync(tableName, tableCache, cancellationToken);
+            var indexesTask = LoadIndexesAsync(tableName, tableCache, cancellationToken);
             await Task.WhenAll(primaryKeyTask, uniqueKeysTask, indexesTask).ConfigureAwait(false);
 
             var primaryKey = await primaryKeyTask.ConfigureAwait(false);
             var uniqueKeys = await uniqueKeysTask.ConfigureAwait(false);
             var indexes = await indexesTask.ConfigureAwait(false);
 
-            var childKeysTask = LoadChildKeysAsync(tableName, columnLookup, cancellationToken);
-            var parentKeysTask = LoadParentKeysAsync(pragma, parsedTable, tableName, columnLookup, cancellationToken);
-            await Task.WhenAll(childKeysTask, parentKeysTask).ConfigureAwait(false);
+            var parentKeysTask = LoadParentKeysAsync(tableName, tableCache, cancellationToken);
+            var childKeysTask = LoadChildKeysAsync(tableName, tableCache, cancellationToken);
+            await Task.WhenAll(parentKeysTask, childKeysTask).ConfigureAwait(false);
 
             var childKeys = await childKeysTask.ConfigureAwait(false);
             var parentKeys = await parentKeysTask.ConfigureAwait(false);
+
+            tableCache.TryAddForeignKeys(tableName, parentKeys);
 
             return new RelationalDatabaseTable(
                 tableName,
@@ -229,21 +243,17 @@ namespace SJP.Schematic.Sqlite
             );
         }
 
-        protected virtual Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(ISqliteDatabasePragma pragma, ParsedTableData parsedTable, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        protected virtual Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(Identifier tableName, TableCache tableCache, CancellationToken cancellationToken)
         {
-            if (pragma == null)
-                throw new ArgumentNullException(nameof(pragma));
-            if (parsedTable == null)
-                throw new ArgumentNullException(nameof(parsedTable));
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
+            if (tableCache == null)
+                throw new ArgumentNullException(nameof(tableCache));
 
-            return LoadPrimaryKeyAsyncCore(pragma, parsedTable, tableName, columns, cancellationToken);
+            return LoadPrimaryKeyAsyncCore(tableName, tableCache, cancellationToken);
         }
 
-        private async Task<Option<IDatabaseKey>> LoadPrimaryKeyAsyncCore(ISqliteDatabasePragma pragma, ParsedTableData parsedTable, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        private async Task<Option<IDatabaseKey>> LoadPrimaryKeyAsyncCore(Identifier tableName, TableCache tableCache, CancellationToken cancellationToken)
         {
             if (tableName.Schema == null)
             {
@@ -254,6 +264,7 @@ namespace SJP.Schematic.Sqlite
                 tableName = resolvedName;
             }
 
+            var pragma = GetDatabasePragma(tableName.Schema!);
             var tableInfos = await pragma.TableInfoAsync(tableName, cancellationToken).ConfigureAwait(false);
             if (tableInfos.Empty())
                 return Option<IDatabaseKey>.None;
@@ -265,31 +276,53 @@ namespace SJP.Schematic.Sqlite
             if (pkColumns.Empty())
                 return Option<IDatabaseKey>.None;
 
+            if (!tableCache.TryGetColumns(tableName, out var columns))
+            {
+                columns = await LoadColumnsAsync(tableName, tableCache, cancellationToken).ConfigureAwait(false);
+                tableCache.TryAddColumns(tableName, columns);
+            }
+
+            var columnLookup = GetColumnLookup(columns);
+
             var keyColumns = pkColumns
-                .Where(c => columns.ContainsKey(c.name))
-                .Select(c => columns[c.name])
+                .Where(c => columnLookup.ContainsKey(c.name))
+                .Select(c => columnLookup[c.name])
                 .ToList();
 
-            var primaryKeyName = parsedTable.PrimaryKey.Bind(c => c.Name.Map(Identifier.CreateQualifiedIdentifier));
+            if (!tableCache.TryGetParsedTable(tableName, out var parsedTable))
+            {
+                parsedTable = await GetParsedTableDefinitionAsync(tableName, cancellationToken).ConfigureAwait(false);
+                tableCache.TryAddParsedTable(tableName, parsedTable);
+            }
 
+            var primaryKeyName = parsedTable.PrimaryKey.Bind(c => c.Name.Map(Identifier.CreateQualifiedIdentifier));
             var primaryKey = new SqliteDatabaseKey(primaryKeyName, DatabaseKeyType.Primary, keyColumns);
+
             return Option<IDatabaseKey>.Some(primaryKey);
         }
 
-        protected virtual Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(ISqliteDatabasePragma pragma, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        protected virtual Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier tableName, TableCache tableCache, CancellationToken cancellationToken)
         {
-            if (pragma == null)
-                throw new ArgumentNullException(nameof(pragma));
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
+            if (tableCache == null)
+                throw new ArgumentNullException(nameof(tableCache));
 
-            return LoadIndexesAsyncCore(pragma, tableName, columns, cancellationToken);
+            return LoadIndexesAsyncCore(tableName, tableCache, cancellationToken);
         }
 
-        private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(ISqliteDatabasePragma pragma, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier tableName, TableCache tableCache, CancellationToken cancellationToken)
         {
+            if (tableName.Schema == null)
+            {
+                var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
+                    .MatchUnsafe(name => name, () => (Identifier?)null).ConfigureAwait(false);
+                if (resolvedName == null)
+                    return Array.Empty<IDatabaseIndex>();
+                tableName = resolvedName;
+            }
+
+            var pragma = GetDatabasePragma(tableName.Schema!);
             var indexLists = await pragma.IndexListAsync(tableName, cancellationToken).ConfigureAwait(false);
             if (indexLists.Empty())
                 return Array.Empty<IDatabaseIndex>();
@@ -298,6 +331,13 @@ namespace SJP.Schematic.Sqlite
             if (nonConstraintIndexLists.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
+            if (!tableCache.TryGetColumns(tableName, out var columns))
+            {
+                columns = await LoadColumnsAsync(tableName, tableCache, cancellationToken).ConfigureAwait(false);
+                tableCache.TryAddColumns(tableName, columns);
+            }
+
+            var columnLookup = GetColumnLookup(columns);
             var result = new List<IDatabaseIndex>(nonConstraintIndexLists.Count);
 
             foreach (var indexList in nonConstraintIndexLists)
@@ -309,20 +349,20 @@ namespace SJP.Schematic.Sqlite
                 var indexColumns = indexInfo
                     .Where(i => i.key && i.cid >= 0)
                     .OrderBy(i => i.seqno)
-                    .Where(i => i.name != null && columns.ContainsKey(i.name))
+                    .Where(i => i.name != null && columnLookup.ContainsKey(i.name))
                     .Select(i =>
                     {
                         var order = i.desc ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
-                        var column = columns[i.name!];
+                        var column = columnLookup[i.name!];
                         var expression = Dialect.QuoteName(column.Name);
                         return new DatabaseIndexColumn(expression, column, order);
                     })
                     .ToList();
 
                 var includedColumns = indexInfo
-                    .Where(i => !i.key && i.cid >= 0 && i.name != null && columns.ContainsKey(i.name))
+                    .Where(i => !i.key && i.cid >= 0 && i.name != null && columnLookup.ContainsKey(i.name))
                     .OrderBy(i => i.name)
-                    .Select(i => columns[i.name!])
+                    .Select(i => columnLookup[i.name!])
                     .ToList();
 
                 var index = new SqliteDatabaseIndex(indexList.name, indexList.unique, indexColumns, includedColumns);
@@ -332,20 +372,28 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        protected virtual Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(ISqliteDatabasePragma pragma, ParsedTableData parsedTable, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        protected virtual Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(Identifier tableName, TableCache tableCache, CancellationToken cancellationToken)
         {
-            if (pragma == null)
-                throw new ArgumentNullException(nameof(pragma));
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
+            if (tableCache == null)
+                throw new ArgumentNullException(nameof(tableCache));
 
-            return LoadUniqueKeysAsyncCore(pragma, parsedTable, tableName, columns, cancellationToken);
+            return LoadUniqueKeysAsyncCore(tableName, tableCache, cancellationToken);
         }
 
-        private async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsyncCore(ISqliteDatabasePragma pragma, ParsedTableData parsedTable, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        private async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsyncCore(Identifier tableName, TableCache tableCache, CancellationToken cancellationToken)
         {
+            if (tableName.Schema == null)
+            {
+                var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
+                    .MatchUnsafe(name => name, () => (Identifier?)null).ConfigureAwait(false);
+                if (resolvedName == null)
+                    return Array.Empty<IDatabaseKey>();
+                tableName = resolvedName;
+            }
+
+            var pragma = GetDatabasePragma(tableName.Schema!);
             var indexLists = await pragma.IndexListAsync(tableName, cancellationToken).ConfigureAwait(false);
             if (indexLists.Empty())
                 return Array.Empty<IDatabaseKey>();
@@ -359,6 +407,20 @@ namespace SJP.Schematic.Sqlite
                 return Array.Empty<IDatabaseKey>();
 
             var result = new List<IDatabaseKey>(ukIndexLists.Count);
+
+            if (!tableCache.TryGetColumns(tableName, out var columns))
+            {
+                columns = await LoadColumnsAsync(tableName, tableCache, cancellationToken).ConfigureAwait(false);
+                tableCache.TryAddColumns(tableName, columns);
+            }
+
+            if (!tableCache.TryGetParsedTable(tableName, out var parsedTable))
+            {
+                parsedTable = await GetParsedTableDefinitionAsync(tableName, cancellationToken).ConfigureAwait(false);
+                tableCache.TryAddParsedTable(tableName, parsedTable);
+            }
+
+            var columnLookup = GetColumnLookup(columns);
             var parsedUniqueConstraints = parsedTable.UniqueKeys;
 
             foreach (var ukIndexList in ukIndexLists)
@@ -372,8 +434,8 @@ namespace SJP.Schematic.Sqlite
                     .Select(i => i.name)
                     .ToList();
                 var keyColumns = orderedColumns
-                    .Where(i => columns.ContainsKey(i.name!))
-                    .Select(i => columns[i.name!])
+                    .Where(i => columnLookup.ContainsKey(i.name!))
+                    .Select(i => columnLookup[i.name!])
                     .ToList();
 
                 var parsedUniqueConstraint = parsedUniqueConstraints
@@ -390,17 +452,17 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(Identifier tableName, TableCache tableCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
+            if (tableCache == null)
+                throw new ArgumentNullException(nameof(tableCache));
 
-            return LoadChildKeysAsyncCore(tableName, columns, cancellationToken);
+            return LoadChildKeysAsyncCore(tableName, tableCache, cancellationToken);
         }
 
-        private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, TableCache tableCache, CancellationToken cancellationToken)
         {
             if (tableName.Schema == null)
             {
@@ -431,32 +493,14 @@ namespace SJP.Schematic.Sqlite
                 qualifiedChildTableNames.AddRange(tableNames);
             }
 
-            var dbPragmaLookup = new Dictionary<string, ISqliteDatabasePragma>();
-            var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
-            var foreignKeysCache = new Dictionary<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>>();
             var result = new List<IDatabaseRelationalKey>();
 
             foreach (var childTableName in qualifiedChildTableNames)
             {
-                if (!dbPragmaLookup.TryGetValue(childTableName.Schema!, out var dbPragma))
+                if (!tableCache.TryGetForeignKeys(childTableName, out var childTableParentKeys))
                 {
-                    dbPragma = GetDatabasePragma(childTableName.Schema!);
-                    dbPragmaLookup[childTableName.Schema!] = dbPragma;
-                }
-
-                var childTableParser = await GetParsedTableDefinitionAsync(childTableName, cancellationToken).ConfigureAwait(false);
-
-                if (!columnLookupsCache.TryGetValue(childTableName, out var childKeyColumnLookup))
-                {
-                    var childKeyColumns = await LoadColumnsAsync(dbPragma, childTableParser, childTableName, cancellationToken).ConfigureAwait(false);
-                    childKeyColumnLookup = GetColumnLookup(childKeyColumns);
-                    columnLookupsCache[childTableName] = childKeyColumnLookup;
-                }
-
-                if (!foreignKeysCache.TryGetValue(childTableName, out var childTableParentKeys))
-                {
-                    childTableParentKeys = await LoadParentKeysAsync(dbPragma, childTableParser, childTableName, childKeyColumnLookup, cancellationToken).ConfigureAwait(false);
-                    foreignKeysCache[childTableName] = childTableParentKeys;
+                    childTableParentKeys = await LoadParentKeysAsync(childTableName, tableCache, cancellationToken).ConfigureAwait(false);
+                    tableCache.TryAddForeignKeys(childTableName, childTableParentKeys);
                 }
 
                 var matchingParentKeys = childTableParentKeys
@@ -495,21 +539,17 @@ namespace SJP.Schematic.Sqlite
             return Task.FromResult<IReadOnlyCollection<IDatabaseCheckConstraint>>(result);
         }
 
-        protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(ISqliteDatabasePragma pragma, ParsedTableData parsedTable, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(Identifier tableName, TableCache tableCache, CancellationToken cancellationToken)
         {
-            if (pragma == null)
-                throw new ArgumentNullException(nameof(pragma));
-            if (parsedTable == null)
-                throw new ArgumentNullException(nameof(parsedTable));
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
+            if (tableCache == null)
+                throw new ArgumentNullException(nameof(tableCache));
 
-            return LoadParentKeysAsyncCore(pragma, parsedTable, tableName, columns, cancellationToken);
+            return LoadParentKeysAsyncCore(tableName, tableCache, cancellationToken);
         }
 
-        private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsyncCore(ISqliteDatabasePragma pragma, ParsedTableData parsedTable, Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsyncCore(Identifier tableName, TableCache tableCache, CancellationToken cancellationToken)
         {
             if (tableName.Schema == null)
             {
@@ -520,17 +560,34 @@ namespace SJP.Schematic.Sqlite
                 tableName = resolvedName;
             }
 
+            var pragma = GetDatabasePragma(tableName.Schema!);
             var queryResult = await pragma.ForeignKeyListAsync(tableName, cancellationToken).ConfigureAwait(false);
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
-            var foreignKeys = queryResult.GroupBy(row => new { ForeignKeyId = row.id, ParentTableName = row.table, OnDelete = row.on_delete, OnUpdate = row.on_update }).ToList();
+            var foreignKeys = queryResult.GroupBy(row => new
+            {
+                ForeignKeyId = row.id,
+                ParentTableName = row.table,
+                OnDelete = row.on_delete,
+                OnUpdate = row.on_update
+            }).ToList();
             if (foreignKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
-            var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
-            var primaryKeyCache = new Dictionary<Identifier, Option<IDatabaseKey>>();
-            var uniqueKeyLookupCache = new Dictionary<Identifier, IReadOnlyCollection<IDatabaseKey>>();
+            if (!tableCache.TryGetColumns(tableName, out var columns))
+            {
+                columns = await LoadColumnsAsync(tableName, tableCache, cancellationToken).ConfigureAwait(false);
+                tableCache.TryAddColumns(tableName, columns);
+            }
+
+            if (!tableCache.TryGetParsedTable(tableName, out var parsedTable))
+            {
+                parsedTable = await GetParsedTableDefinitionAsync(tableName, cancellationToken).ConfigureAwait(false);
+                tableCache.TryAddParsedTable(tableName, parsedTable);
+            }
+
+            var columnLookup = GetColumnLookup(columns);
 
             var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
             foreach (var fkey in foreignKeys)
@@ -540,15 +597,14 @@ namespace SJP.Schematic.Sqlite
                 await GetResolvedTableName(candidateParentTableName, cancellationToken)
                     .BindAsync(async name =>
                     {
-                        parentTableName = name;
-                        var parentTableParser = await GetParsedTableDefinitionAsync(name, cancellationToken).ConfigureAwait(false);
-
-                        if (!columnLookupsCache.TryGetValue(name, out var parentTableColumnLookup))
+                        parentTableName = name; // required for later binding
+                        if (!tableCache.TryGetColumns(name, out var parentTableColumns))
                         {
-                            var parentTableColumns = await LoadColumnsAsync(pragma, parentTableParser, name, cancellationToken).ConfigureAwait(false);
-                            parentTableColumnLookup = GetColumnLookup(parentTableColumns);
-                            columnLookupsCache[name] = parentTableColumnLookup;
+                            parentTableColumns = await LoadColumnsAsync(name, tableCache, cancellationToken).ConfigureAwait(false);
+                            tableCache.TryAddColumns(name, parentTableColumns);
                         }
+
+                        var parentTableColumnLookup = GetColumnLookup(parentTableColumns);
 
                         var rows = fkey.OrderBy(row => row.seq).ToList();
                         var parentColumns = rows
@@ -556,10 +612,10 @@ namespace SJP.Schematic.Sqlite
                             .Select(row => parentTableColumnLookup[row.to])
                             .ToList();
 
-                        if (!primaryKeyCache.TryGetValue(name, out var parentPrimaryKey))
+                        if (!tableCache.TryGetPrimaryKey(name, out var parentPrimaryKey))
                         {
-                            parentPrimaryKey = await LoadPrimaryKeyAsync(pragma, parentTableParser, name, parentTableColumnLookup, cancellationToken).ConfigureAwait(false);
-                            primaryKeyCache[name] = parentPrimaryKey;
+                            parentPrimaryKey = await LoadPrimaryKeyAsync(name, tableCache, cancellationToken).ConfigureAwait(false);
+                            tableCache.TryAddPrimaryKey(name, parentPrimaryKey);
                         }
 
                         var pkColumnsEqual = parentPrimaryKey
@@ -570,10 +626,10 @@ namespace SJP.Schematic.Sqlite
                         if (pkColumnsEqual)
                             return parentPrimaryKey.ToAsync();
 
-                        if (!uniqueKeyLookupCache.TryGetValue(name, out var parentUniqueKeys))
+                       if (!tableCache.TryGetUniqueKeys(name, out var parentUniqueKeys))
                         {
-                            parentUniqueKeys = await LoadUniqueKeysAsync(pragma, parentTableParser, name, parentTableColumnLookup, cancellationToken).ConfigureAwait(false);
-                            uniqueKeyLookupCache[name] = parentUniqueKeys;
+                            parentUniqueKeys = await LoadUniqueKeysAsync(name, tableCache, cancellationToken).ConfigureAwait(false);
+                            tableCache.TryAddUniqueKeys(name, parentUniqueKeys);
                         }
 
                         var parentUniqueKey = parentUniqueKeys.FirstOrDefault(uk =>
@@ -597,8 +653,8 @@ namespace SJP.Schematic.Sqlite
 
                         var childKeyName = parsedConstraintOption.Bind(fk => fk.Name.Map(Identifier.CreateQualifiedIdentifier));
                         var childKeyColumns = rows
-                            .Where(row => columns.ContainsKey(row.from))
-                            .Select(row => columns[row.from])
+                            .Where(row => columnLookup.ContainsKey(row.from))
+                            .Select(row => columnLookup[row.from])
                             .ToList();
 
                         var childKey = new SqliteDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
@@ -615,31 +671,45 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(ISqliteDatabasePragma pragma, ParsedTableData parsedTable, Identifier tableName, CancellationToken cancellationToken)
+        protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier tableName, TableCache tableCache, CancellationToken cancellationToken)
         {
-            if (pragma == null)
-                throw new ArgumentNullException(nameof(pragma));
-            if (parsedTable == null)
-                throw new ArgumentNullException(nameof(parsedTable));
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
+            if (tableCache == null)
+                throw new ArgumentNullException(nameof(tableCache));
 
-            return LoadColumnsAsyncCore(pragma, parsedTable, tableName, cancellationToken);
+            return LoadColumnsAsyncCore(tableName, tableCache, cancellationToken);
         }
 
-        private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(ISqliteDatabasePragma pragma, ParsedTableData parsedTable, Identifier tableName, CancellationToken cancellationToken)
+        private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, TableCache tableCache, CancellationToken cancellationToken)
         {
             var version = await _dbVersion.Task.ConfigureAwait(false);
             return version >= new Version(3, 31, 0)
-                ? await LoadAllColumnsAsync(pragma, parsedTable, tableName, cancellationToken).ConfigureAwait(false)
-                : await LoadPhysicalColumnsAsync(pragma, parsedTable, tableName, cancellationToken).ConfigureAwait(false);
+                ? await LoadAllColumnsAsync(tableName, tableCache, cancellationToken).ConfigureAwait(false)
+                : await LoadPhysicalColumnsAsync(tableName, tableCache, cancellationToken).ConfigureAwait(false);
         }
 
-        private async Task<IReadOnlyList<IDatabaseColumn>> LoadAllColumnsAsync(ISqliteDatabasePragma pragma, ParsedTableData parsedTable, Identifier tableName, CancellationToken cancellationToken)
+        private async Task<IReadOnlyList<IDatabaseColumn>> LoadAllColumnsAsync(Identifier tableName, TableCache tableCache, CancellationToken cancellationToken)
         {
+            if (tableName.Schema == null)
+            {
+                var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
+                    .MatchUnsafe(name => name, () => (Identifier?)null).ConfigureAwait(false);
+                if (resolvedName == null)
+                    return Array.Empty<IDatabaseColumn>();
+                tableName = resolvedName;
+            }
+
+            var pragma = GetDatabasePragma(tableName.Schema!);
             var tableInfos = await pragma.TableXInfoAsync(tableName, cancellationToken).ConfigureAwait(false);
             if (tableInfos.Empty())
                 return Array.Empty<IDatabaseColumn>();
+
+            if (!tableCache.TryGetParsedTable(tableName, out var parsedTable))
+            {
+                parsedTable = await GetParsedTableDefinitionAsync(tableName, cancellationToken).ConfigureAwait(false);
+                tableCache.TryAddParsedTable(tableName, parsedTable);
+            }
 
             var result = new List<IDatabaseColumn>();
             var parsedColumns = parsedTable.Columns;
@@ -684,11 +754,27 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        private async Task<IReadOnlyList<IDatabaseColumn>> LoadPhysicalColumnsAsync(ISqliteDatabasePragma pragma, ParsedTableData parsedTable, Identifier tableName, CancellationToken cancellationToken)
+        private async Task<IReadOnlyList<IDatabaseColumn>> LoadPhysicalColumnsAsync(Identifier tableName, TableCache tableCache, CancellationToken cancellationToken)
         {
+            if (tableName.Schema == null)
+            {
+                var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
+                    .MatchUnsafe(name => name, () => (Identifier?)null).ConfigureAwait(false);
+                if (resolvedName == null)
+                    return Array.Empty<IDatabaseColumn>();
+                tableName = resolvedName;
+            }
+
+            var pragma = GetDatabasePragma(tableName.Schema!);
             var tableInfos = await pragma.TableInfoAsync(tableName, cancellationToken).ConfigureAwait(false);
             if (tableInfos.Empty())
                 return Array.Empty<IDatabaseColumn>();
+
+            if (!tableCache.TryGetParsedTable(tableName, out var parsedTable))
+            {
+                parsedTable = await GetParsedTableDefinitionAsync(tableName, cancellationToken).ConfigureAwait(false);
+                tableCache.TryAddParsedTable(tableName, parsedTable);
+            }
 
             var result = new List<IDatabaseColumn>();
             var parsedColumns = parsedTable.Columns;
@@ -898,6 +984,103 @@ namespace SJP.Schematic.Sqlite
             public const string CreateIndex = "c";
 
             public const string UniqueConstraint = "u";
+        }
+
+        protected class TableCache
+        {
+            public bool TryGetParsedTable(Identifier tableName, out ParsedTableData parsedTable)
+            {
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+
+                return _parsedTables.TryGetValue(tableName, out parsedTable);
+            }
+
+            public bool TryAddParsedTable(Identifier tableName, ParsedTableData parsedTable)
+            {
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+                if (parsedTable == null)
+                    throw new ArgumentNullException(nameof(parsedTable));
+
+                return _parsedTables.TryAdd(tableName, parsedTable);
+            }
+
+            public bool TryGetColumns(Identifier tableName, out IReadOnlyList<IDatabaseColumn> columns)
+            {
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+
+                return _columnsCache.TryGetValue(tableName, out columns);
+            }
+
+            public bool TryAddColumns(Identifier tableName, IReadOnlyList<IDatabaseColumn> columns)
+            {
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+                if (columns == null)
+                    throw new ArgumentNullException(nameof(columns));
+
+                return _columnsCache.TryAdd(tableName, columns);
+            }
+
+            public bool TryGetPrimaryKey(Identifier tableName, out Option<IDatabaseKey> primaryKey)
+            {
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+
+                return _primaryKeyCache.TryGetValue(tableName, out primaryKey);
+            }
+
+            public bool TryAddPrimaryKey(Identifier tableName, Option<IDatabaseKey> primaryKey)
+            {
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+
+                return _primaryKeyCache.TryAdd(tableName, primaryKey);
+            }
+
+            public bool TryGetUniqueKeys(Identifier tableName, out IReadOnlyCollection<IDatabaseKey> uniqueKeys)
+            {
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+
+                return _uniqueKeysCache.TryGetValue(tableName, out uniqueKeys);
+            }
+
+            public bool TryAddUniqueKeys(Identifier tableName, IReadOnlyCollection<IDatabaseKey> uniqueKeys)
+            {
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+                if (uniqueKeys == null)
+                    throw new ArgumentNullException(nameof(uniqueKeys));
+
+                return _uniqueKeysCache.TryAdd(tableName, uniqueKeys);
+            }
+
+            public bool TryGetForeignKeys(Identifier tableName, out IReadOnlyCollection<IDatabaseRelationalKey> foreignKeys)
+            {
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+
+                return _foreignKeysCache.TryGetValue(tableName, out foreignKeys);
+            }
+
+            public bool TryAddForeignKeys(Identifier tableName, IReadOnlyCollection<IDatabaseRelationalKey> foreignKeys)
+            {
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+                if (foreignKeys == null)
+                    throw new ArgumentNullException(nameof(foreignKeys));
+
+                return _foreignKeysCache.TryAdd(tableName, foreignKeys);
+            }
+
+            private readonly ConcurrentDictionary<Identifier, ParsedTableData> _parsedTables = new ConcurrentDictionary<Identifier, ParsedTableData>();
+            private readonly ConcurrentDictionary<Identifier, IReadOnlyList<IDatabaseColumn>> _columnsCache = new ConcurrentDictionary<Identifier, IReadOnlyList<IDatabaseColumn>>();
+            private readonly ConcurrentDictionary<Identifier, Option<IDatabaseKey>> _primaryKeyCache = new ConcurrentDictionary<Identifier, Option<IDatabaseKey>>();
+            private readonly ConcurrentDictionary<Identifier, IReadOnlyCollection<IDatabaseKey>> _uniqueKeysCache = new ConcurrentDictionary<Identifier, IReadOnlyCollection<IDatabaseKey>>();
+            private readonly ConcurrentDictionary<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>> _foreignKeysCache = new ConcurrentDictionary<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>>();
         }
     }
 }
