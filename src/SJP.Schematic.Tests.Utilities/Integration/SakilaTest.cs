@@ -22,7 +22,15 @@ namespace SJP.Schematic.Tests.Utilities.Integration
             }
         }
 
-        public static ISchematicConnection SchematicConnection { get; } = new SchematicConnection(Connection, new SqliteDialect());
+        public static ISchematicConnection SchematicConnection
+        {
+            get
+            {
+                var connection = new SchematicConnection(Connection, new SqliteDialect());
+                connection.SetMaxConcurrentQueries(1);
+                return connection;
+            }
+        }
 
         private static string ConnectionString => "Data Source=" + SakilaDbPath;
 
@@ -51,10 +59,10 @@ namespace SJP.Schematic.Tests.Utilities.Integration
 
         protected IDbConnection DbConnection => Connection.DbConnection;
 
-        protected IIdentifierDefaults IdentifierDefaults { get; } = Config.SchematicConnection.Dialect.GetIdentifierDefaultsAsync(Config.SchematicConnection).GetAwaiter().GetResult();
+        protected IIdentifierDefaults IdentifierDefaults => Connection.Dialect.GetIdentifierDefaultsAsync(Config.SchematicConnection).GetAwaiter().GetResult();
 
-        protected ISqliteConnectionPragma Pragma { get; } = new ConnectionPragma(Config.SchematicConnection);
+        protected ISqliteConnectionPragma Pragma => new ConnectionPragma(Connection);
 
-        protected ISqliteDatabase GetDatabase() => new SqliteRelationalDatabase(Config.SchematicConnection, IdentifierDefaults, Pragma);
+        protected ISqliteDatabase GetDatabase() => new SqliteRelationalDatabase(Connection, IdentifierDefaults, Pragma);
     }
 }
