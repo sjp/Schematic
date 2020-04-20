@@ -10,6 +10,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Exceptions;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.PostgreSql.Query;
 
 namespace SJP.Schematic.PostgreSql
@@ -35,6 +36,14 @@ namespace SJP.Schematic.PostgreSql
 
         protected IDbTypeProvider TypeProvider => Dialect.TypeProvider;
 
+        protected PostgreSqlTableQueryCache CreateQueryCache() => new PostgreSqlTableQueryCache(
+            new AsyncCache<Identifier, Option<Identifier>, PostgreSqlTableQueryCache>((tableName, _, token) => GetResolvedTableName(tableName, token)),
+            new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, PostgreSqlTableQueryCache>((tableName, _, token) => LoadColumnsAsync(tableName, token)),
+            new AsyncCache<Identifier, Option<IDatabaseKey>, PostgreSqlTableQueryCache>(LoadPrimaryKeyAsync),
+            new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, PostgreSqlTableQueryCache>(LoadUniqueKeysAsync),
+            new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, PostgreSqlTableQueryCache>(LoadParentKeysAsync)
+        );
+
         public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResults = await DbConnection.QueryAsync<QualifiedName>(TablesQuery, cancellationToken).ConfigureAwait(false);
@@ -42,8 +51,9 @@ namespace SJP.Schematic.PostgreSql
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .Select(QualifyTableName);
 
+            var queryCache = CreateQueryCache();
             foreach (var tableName in tableNames)
-                yield return await LoadTableAsyncCore(tableName, cancellationToken).ConfigureAwait(false);
+                yield return await LoadTableAsyncCore(tableName, queryCache, cancellationToken).ConfigureAwait(false);
         }
 
         protected virtual string TablesQuery => TablesQuerySql;
@@ -61,11 +71,12 @@ order by schemaname, tablename";
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
+            var queryCache = CreateQueryCache();
             var candidateTableName = QualifyTableName(tableName);
-            return LoadTable(candidateTableName, cancellationToken);
+            return LoadTable(candidateTableName, queryCache, cancellationToken);
         }
 
-        protected OptionAsync<Identifier> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken = default)
+        protected Task<Option<Identifier>> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken = default)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -76,7 +87,8 @@ order by schemaname, tablename";
 
             return resolvedNames
                 .Select(name => GetResolvedTableNameStrict(name, cancellationToken))
-                .FirstSome(cancellationToken);
+                .FirstSome(cancellationToken)
+                .ToOption();
         }
 
         protected OptionAsync<Identifier> GetResolvedTableNameStrict(Identifier tableName, CancellationToken cancellationToken)
@@ -103,43 +115,42 @@ where schemaname = @SchemaName and tablename = @TableName
     and schemaname not in ('pg_catalog', 'information_schema')
 limit 1";
 
-        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             var candidateTableName = QualifyTableName(tableName);
             return GetResolvedTableName(candidateTableName)
-                .MapAsync(name => LoadTableAsyncCore(name, cancellationToken));
+                .MapAsync(name => LoadTableAsyncCore(name, queryCache, cancellationToken));
         }
 
-        private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
+            var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+            var columnLookup = GetColumnLookup(columns);
+
             var checksTask = LoadChecksAsync(tableName, cancellationToken);
             var triggersTask = LoadTriggersAsync(tableName, cancellationToken);
-            var columnsTask = LoadColumnsAsync(tableName, cancellationToken);
 
-            await Task.WhenAll(checksTask, triggersTask, columnsTask).ConfigureAwait(false);
+            await Task.WhenAll(checksTask, triggersTask).ConfigureAwait(false);
 
             var checks = await checksTask.ConfigureAwait(false);
             var triggers = await triggersTask.ConfigureAwait(false);
-            var columns = await columnsTask.ConfigureAwait(false);
-            var columnLookup = GetColumnLookup(columns);
 
-            var primaryKeyTask = LoadPrimaryKeyAsync(tableName, columnLookup, cancellationToken);
-            var uniqueKeysTask = LoadUniqueKeysAsync(tableName, columnLookup, cancellationToken);
+            var primaryKeyTask = queryCache.GetPrimaryKeyAsync(tableName, cancellationToken);
+            var uniqueKeysTask = queryCache.GetUniqueKeysAsync(tableName, cancellationToken);
             var indexesTask = LoadIndexesAsync(tableName, columnLookup, cancellationToken);
-            var parentKeysTask = LoadParentKeysAsync(tableName, columnLookup, cancellationToken);
+            var parentKeysTask = queryCache.GetForeignKeysAsync(tableName, cancellationToken);
+            var childKeysTask = LoadChildKeysAsync(tableName, queryCache, cancellationToken);
 
-            await Task.WhenAll(primaryKeyTask, uniqueKeysTask, indexesTask, parentKeysTask).ConfigureAwait(false);
+            await Task.WhenAll(primaryKeyTask, uniqueKeysTask, indexesTask, parentKeysTask, childKeysTask).ConfigureAwait(false);
 
             var primaryKey = await primaryKeyTask.ConfigureAwait(false);
             var parentKeys = await parentKeysTask.ConfigureAwait(false);
             var indexes = await indexesTask.ConfigureAwait(false);
             var uniqueKeys = await uniqueKeysTask.ConfigureAwait(false);
-            var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
-
-            var childKeys = await LoadChildKeysAsync(tableName, columnLookup, primaryKey, uniqueKeyLookup, cancellationToken).ConfigureAwait(false);
+            var childKeys = await childKeysTask.ConfigureAwait(false);
 
             return new RelationalDatabaseTable(
                 tableName,
@@ -154,17 +165,17 @@ limit 1";
             );
         }
 
-        protected virtual Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        protected virtual Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
+            if (queryCache == null)
+                throw new ArgumentNullException(nameof(queryCache));
 
-            return LoadPrimaryKeyAsyncCore(tableName, columns, cancellationToken);
+            return LoadPrimaryKeyAsyncCore(tableName, queryCache, cancellationToken);
         }
 
-        private async Task<Option<IDatabaseKey>> LoadPrimaryKeyAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        private async Task<Option<IDatabaseKey>> LoadPrimaryKeyAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             var primaryKeyColumns = await DbConnection.QueryAsync<ConstraintColumnMapping>(
                 PrimaryKeyQuery,
@@ -175,6 +186,9 @@ limit 1";
             if (primaryKeyColumns.Empty())
                 return Option<IDatabaseKey>.None;
 
+            var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+            var columnLookup = GetColumnLookup(columns);
+
             var groupedByName = primaryKeyColumns.GroupBy(row => new { row.ConstraintName });
             var firstRow = groupedByName.First();
             var constraintName = firstRow.Key.ConstraintName;
@@ -184,8 +198,8 @@ limit 1";
             var keyColumns = groupedByName
                 .Where(row => row.Key.ConstraintName == constraintName)
                 .SelectMany(g => g.OrderBy(row => row.OrdinalPosition)
-                    .Where(row => row.ColumnName != null && columns.ContainsKey(row.ColumnName))
-                    .Select(row => columns[row.ColumnName!]))
+                    .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
+                    .Select(row => columnLookup[row.ColumnName!]))
                 .ToList();
 
             var primaryKey = new PostgreSqlDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns);
@@ -296,17 +310,17 @@ where
     and t.relname = @TableName
     and ns.nspname = @SchemaName";
 
-        protected virtual Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        protected virtual Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
+            if (queryCache == null)
+                throw new ArgumentNullException(nameof(queryCache));
 
-            return LoadUniqueKeysAsyncCore(tableName, columns, cancellationToken);
+            return LoadUniqueKeysAsyncCore(tableName, queryCache, cancellationToken);
         }
 
-        private async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        private async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             var uniqueKeyColumns = await DbConnection.QueryAsync<ConstraintColumnMapping>(
                 UniqueKeysQuery,
@@ -317,6 +331,9 @@ where
             if (uniqueKeyColumns.Empty())
                 return Array.Empty<IDatabaseKey>();
 
+            var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+            var columnLookup = GetColumnLookup(columns);
+
             var groupedByName = uniqueKeyColumns.GroupBy(row => new { row.ConstraintName });
             var constraintColumns = groupedByName
                 .Select(g => new
@@ -324,8 +341,8 @@ where
                     g.Key.ConstraintName,
                     Columns = g
                         .OrderBy(row => row.OrdinalPosition)
-                        .Where(row => row.ColumnName != null && columns.ContainsKey(row.ColumnName))
-                        .Select(row => columns[row.ColumnName!])
+                        .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
+                        .Select(row => columnLookup[row.ColumnName!])
                         .ToList(),
                 })
                 .ToList();
@@ -356,19 +373,17 @@ inner join information_schema.key_column_usage kc
 where tc.table_schema = @SchemaName and tc.table_name = @TableName
     and tc.constraint_type = 'UNIQUE'";
 
-        protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, Option<IDatabaseKey> primaryKey, IReadOnlyDictionary<Identifier, IDatabaseKey> uniqueKeys, CancellationToken cancellationToken)
+        protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
-            if (uniqueKeys == null)
-                throw new ArgumentNullException(nameof(uniqueKeys));
+            if (queryCache == null)
+                throw new ArgumentNullException(nameof(queryCache));
 
-            return LoadChildKeysAsyncCore(tableName, columns, primaryKey, uniqueKeys, cancellationToken);
+            return LoadChildKeysAsyncCore(tableName, queryCache, cancellationToken);
         }
 
-        private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, Option<IDatabaseKey> primaryKey, IReadOnlyDictionary<Identifier, IDatabaseKey> uniqueKeys, CancellationToken cancellationToken)
+        private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             var queryResult = await DbConnection.QueryAsync<ChildKeyData>(
                 ChildKeysQuery,
@@ -393,9 +408,10 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
             if (groupedChildKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
-            var tableNameCache = new Dictionary<Identifier, Identifier> { [Identifier.CreateQualifiedIdentifier(tableName.Schema, tableName.LocalName)] = tableName };
-            var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
-            var foreignKeyLookupCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseKey>>();
+            var primaryKey = await queryCache.GetPrimaryKeyAsync(tableName, cancellationToken).ConfigureAwait(false);
+            var uniqueKeys = await queryCache.GetUniqueKeysAsync(tableName, cancellationToken).ConfigureAwait(false);
+            var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
+
             var result = new List<IDatabaseRelationalKey>(groupedChildKeys.Count);
 
             foreach (var groupedChildKey in groupedChildKeys)
@@ -404,34 +420,20 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
                 IDatabaseKey? parentKey = null;
                 if (groupedChildKey.Key.ParentKeyType == Constants.PrimaryKeyType)
                     await primaryKey.IfSomeAsync(k => parentKey = k).ConfigureAwait(false);
-                else if (uniqueKeys.ContainsKey(groupedChildKey.Key.ParentKeyName))
-                    parentKey = uniqueKeys[groupedChildKey.Key.ParentKeyName];
+                else if (uniqueKeyLookup.ContainsKey(groupedChildKey.Key.ParentKeyName))
+                    parentKey = uniqueKeyLookup[groupedChildKey.Key.ParentKeyName];
+
                 if (parentKey == null)
                     continue;
 
                 var candidateChildTableName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
-                var childTableNameOption = tableNameCache.ContainsKey(candidateChildTableName)
-                    ? OptionAsync<Identifier>.Some(tableNameCache[candidateChildTableName])
-                    : GetResolvedTableName(candidateChildTableName, cancellationToken);
+                var childTableNameOption = queryCache.GetTableNameAsync(candidateChildTableName, cancellationToken);
 
                 await childTableNameOption
                     .BindAsync(async childTableName =>
                     {
-                        tableNameCache[candidateChildTableName] = childTableName;
-
-                        if (!columnLookupsCache.TryGetValue(childTableName, out var childKeyColumnLookup))
-                        {
-                            var childKeyColumns = await LoadColumnsAsync(childTableName, cancellationToken).ConfigureAwait(false);
-                            childKeyColumnLookup = GetColumnLookup(childKeyColumns);
-                            columnLookupsCache[tableName] = childKeyColumnLookup;
-                        }
-
-                        if (!foreignKeyLookupCache.TryGetValue(childTableName, out var parentKeyLookup))
-                        {
-                            var parentKeys = await LoadParentKeysAsync(childTableName, childKeyColumnLookup, cancellationToken).ConfigureAwait(false);
-                            parentKeyLookup = GetDatabaseKeyLookup(parentKeys.Select(fk => fk.ChildKey).ToList());
-                            foreignKeyLookupCache[tableName] = parentKeyLookup;
-                        }
+                        var childParentKeys = await queryCache.GetForeignKeysAsync(childTableName, cancellationToken).ConfigureAwait(false);
+                        var parentKeyLookup = GetDatabaseKeyLookup(childParentKeys.Select(fk => fk.ChildKey).ToList());
 
                         var childKeyName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildKeyName);
                         if (!parentKeyLookup.TryGetValue(childKeyName, out var childKey))
@@ -523,17 +525,17 @@ where
     and t.relname = @TableName
     and ns.nspname = @SchemaName";
 
-        protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
+            if (queryCache == null)
+                throw new ArgumentNullException(nameof(queryCache));
 
-            return LoadParentKeysAsyncCore(tableName, columns, cancellationToken);
+            return LoadParentKeysAsyncCore(tableName, queryCache, cancellationToken);
         }
 
-        private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             var queryResult = await DbConnection.QueryAsync<ForeignKeyData>(
                 ParentKeysQuery,
@@ -557,71 +559,45 @@ where
             if (foreignKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
-            var tableNameCache = new Dictionary<Identifier, Identifier> { [Identifier.CreateQualifiedIdentifier(tableName.Schema, tableName.LocalName)] = tableName };
-            var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
-            var primaryKeyCache = new Dictionary<Identifier, Option<IDatabaseKey>>();
-            var uniqueKeyLookupCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseKey>>();
+            var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+            var columnLookup = GetColumnLookup(columns);
 
             var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
             foreach (var fkey in foreignKeys)
             {
                 var candidateParentTableName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentSchemaName, fkey.Key.ParentTableName);
-                var parentTableNameOption = tableNameCache.ContainsKey(candidateParentTableName)
-                    ? OptionAsync<Identifier>.Some(tableNameCache[candidateParentTableName])
-                    : GetResolvedTableName(candidateParentTableName, cancellationToken);
+                var parentTableNameOption = await queryCache.GetTableNameAsync(candidateParentTableName, cancellationToken).ConfigureAwait(false);
+                Identifier? resolvedParentTableName = null;
 
                 await parentTableNameOption
                     .BindAsync(async parentTableName =>
                     {
-                        tableNameCache[candidateParentTableName] = parentTableName;
-
+                        resolvedParentTableName = parentTableName;
                         if (fkey.Key.KeyType == Constants.PrimaryKeyType)
                         {
-                            if (primaryKeyCache.TryGetValue(parentTableName, out var pk))
-                                return pk.ToAsync();
-
-                            if (!columnLookupsCache.TryGetValue(parentTableName, out var parentColumnLookup))
-                            {
-                                var parentColumns = await LoadColumnsAsync(parentTableName, cancellationToken).ConfigureAwait(false);
-                                parentColumnLookup = GetColumnLookup(parentColumns);
-                                columnLookupsCache[parentTableName] = parentColumnLookup;
-                            }
-
-                            var parentKeyOption = await LoadPrimaryKeyAsync(parentTableName, parentColumnLookup, cancellationToken).ConfigureAwait(false);
-                            primaryKeyCache[parentTableName] = parentKeyOption;
-                            return parentKeyOption.ToAsync();
+                            var pk = await queryCache.GetPrimaryKeyAsync(parentTableName, cancellationToken).ConfigureAwait(false);
+                            return pk.ToAsync();
                         }
                         else
                         {
                             var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
-                            if (uniqueKeyLookupCache.TryGetValue(parentTableName, out var uks) && uks.ContainsKey(parentKeyName.LocalName))
-                                return OptionAsync<IDatabaseKey>.Some(uks[parentKeyName.LocalName]);
+                            var uniqueKeys = await queryCache.GetUniqueKeysAsync(parentTableName, cancellationToken).ConfigureAwait(false);
+                            var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
 
-                            if (!columnLookupsCache.TryGetValue(parentTableName, out var parentColumnLookup))
-                            {
-                                var parentColumns = await LoadColumnsAsync(parentTableName, cancellationToken).ConfigureAwait(false);
-                                parentColumnLookup = GetColumnLookup(parentColumns);
-                                columnLookupsCache[parentTableName] = parentColumnLookup;
-                            }
-
-                            var parentUniqueKeys = await LoadUniqueKeysAsync(parentTableName, parentColumnLookup, cancellationToken).ConfigureAwait(false);
-                            var parentUniqueKeyLookup = GetDatabaseKeyLookup(parentUniqueKeys);
-                            uniqueKeyLookupCache[parentTableName] = parentUniqueKeyLookup;
-
-                            return parentUniqueKeyLookup.ContainsKey(parentKeyName.LocalName)
-                                ? OptionAsync<IDatabaseKey>.Some(parentUniqueKeyLookup[parentKeyName.LocalName])
+                            return uniqueKeyLookup.ContainsKey(parentKeyName.LocalName)
+                                ? OptionAsync<IDatabaseKey>.Some(uniqueKeyLookup[parentKeyName.LocalName])
                                 : OptionAsync<IDatabaseKey>.None;
                         }
                     })
                     .Map(parentKey =>
                     {
-                        var parentTableName = tableNameCache[candidateParentTableName];
+                        var parentTableName = resolvedParentTableName!;
 
                         var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ChildKeyName);
                         var childKeyColumns = fkey
                             .OrderBy(row => row.ConstraintColumnId)
-                            .Where(row => row.ColumnName != null && columns.ContainsKey(row.ColumnName))
-                            .Select(row => columns[row.ColumnName!])
+                            .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
+                            .Select(row => columnLookup[row.ColumnName!])
                             .ToList();
 
                         var childKey = new PostgreSqlDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
@@ -935,6 +911,70 @@ where t.relkind = 'r'
             public const string Always = "ALWAYS";
 
             public const string Never = "NEVER";
+        }
+
+        protected class PostgreSqlTableQueryCache
+        {
+            private readonly AsyncCache<Identifier, Option<Identifier>, PostgreSqlTableQueryCache> _tableNames;
+            private readonly AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, PostgreSqlTableQueryCache> _columns;
+            private readonly AsyncCache<Identifier, Option<IDatabaseKey>, PostgreSqlTableQueryCache> _primaryKeys;
+            private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, PostgreSqlTableQueryCache> _uniqueKeys;
+            private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, PostgreSqlTableQueryCache> _foreignKeys;
+
+            public PostgreSqlTableQueryCache(
+                AsyncCache<Identifier, Option<Identifier>, PostgreSqlTableQueryCache> tableNameLoader,
+                AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, PostgreSqlTableQueryCache> columnLoader,
+                AsyncCache<Identifier, Option<IDatabaseKey>, PostgreSqlTableQueryCache> primaryKeyLoader,
+                AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, PostgreSqlTableQueryCache> uniqueKeyLoader,
+                AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, PostgreSqlTableQueryCache> foreignKeyLoader
+            )
+            {
+                _tableNames = tableNameLoader ?? throw new ArgumentNullException(nameof(tableNameLoader));
+                _columns = columnLoader ?? throw new ArgumentNullException(nameof(columnLoader));
+                _primaryKeys = primaryKeyLoader ?? throw new ArgumentNullException(nameof(primaryKeyLoader));
+                _uniqueKeys = uniqueKeyLoader ?? throw new ArgumentNullException(nameof(uniqueKeyLoader));
+                _foreignKeys = foreignKeyLoader ?? throw new ArgumentNullException(nameof(foreignKeyLoader));
+            }
+
+            public Task<Option<Identifier>> GetTableNameAsync(Identifier tableName, CancellationToken cancellationToken)
+            {
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+
+                return _tableNames.GetByKeyAsync(tableName, this, cancellationToken);
+            }
+
+            public Task<IReadOnlyList<IDatabaseColumn>> GetColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
+            {
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+
+                return _columns.GetByKeyAsync(tableName, this, cancellationToken);
+            }
+
+            public Task<Option<IDatabaseKey>> GetPrimaryKeyAsync(Identifier tableName, CancellationToken cancellationToken)
+            {
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+
+                return _primaryKeys.GetByKeyAsync(tableName, this, cancellationToken);
+            }
+
+            public Task<IReadOnlyCollection<IDatabaseKey>> GetUniqueKeysAsync(Identifier tableName, CancellationToken cancellationToken)
+            {
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+
+                return _uniqueKeys.GetByKeyAsync(tableName, this, cancellationToken);
+            }
+
+            public Task<IReadOnlyCollection<IDatabaseRelationalKey>> GetForeignKeysAsync(Identifier tableName, CancellationToken cancellationToken)
+            {
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+
+                return _foreignKeys.GetByKeyAsync(tableName, this, cancellationToken);
+            }
         }
     }
 }

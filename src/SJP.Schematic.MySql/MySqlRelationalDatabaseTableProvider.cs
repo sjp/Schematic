@@ -10,6 +10,7 @@ using Nito.AsyncEx;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Exceptions;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.MySql.Query;
 
 namespace SJP.Schematic.MySql
@@ -32,6 +33,14 @@ namespace SJP.Schematic.MySql
 
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
+        protected MySqlTableQueryCache CreateQueryCache() => new MySqlTableQueryCache(
+            new AsyncCache<Identifier, Option<Identifier>, MySqlTableQueryCache>((tableName, _, token) => GetResolvedTableName(tableName, token)),
+            new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, MySqlTableQueryCache>((tableName, _, token) => LoadColumnsAsync(tableName, token)),
+            new AsyncCache<Identifier, Option<IDatabaseKey>, MySqlTableQueryCache>(LoadPrimaryKeyAsync),
+            new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, MySqlTableQueryCache>(LoadUniqueKeysAsync),
+            new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, MySqlTableQueryCache>(LoadParentKeysAsync)
+        );
+
         public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResults = await DbConnection.QueryAsync<QualifiedName>(
@@ -43,8 +52,9 @@ namespace SJP.Schematic.MySql
                 .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .Select(QualifyTableName);
 
+            var queryCache = CreateQueryCache();
             foreach (var tableName in tableNames)
-                yield return await LoadTableAsyncCore(tableName, cancellationToken).ConfigureAwait(false);
+                yield return await LoadTableAsyncCore(tableName, queryCache, cancellationToken).ConfigureAwait(false);
         }
 
         protected virtual string TablesQuery => TablesQuerySql;
@@ -61,11 +71,12 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
+            var queryCache = CreateQueryCache();
             var candidateTableName = QualifyTableName(tableName);
-            return LoadTable(candidateTableName, cancellationToken);
+            return LoadTable(candidateTableName, queryCache, cancellationToken);
         }
 
-        protected OptionAsync<Identifier> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken)
+        protected Task<Option<Identifier>> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
@@ -77,7 +88,9 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
                 cancellationToken
             );
 
-            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedTableName
+                .Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.ObjectName))
+                .ToOption();
         }
 
         protected virtual string TableNameQuery => TableNameQuerySql;
@@ -88,30 +101,29 @@ from information_schema.tables
 where table_schema = @SchemaName and table_name = @TableName
 limit 1";
 
-        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, CancellationToken cancellationToken)
+        protected virtual OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
             var candidateTableName = QualifyTableName(tableName);
             return GetResolvedTableName(candidateTableName, cancellationToken)
-                .MapAsync(name => LoadTableAsyncCore(name, cancellationToken));
+                .MapAsync(name => LoadTableAsyncCore(name, queryCache, cancellationToken));
         }
 
-        private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var columns = await LoadColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+            var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
             var columnLookup = GetColumnLookup(columns);
             var checks = await LoadChecksAsync(tableName, cancellationToken).ConfigureAwait(false);
             var triggers = await LoadTriggersAsync(tableName, cancellationToken).ConfigureAwait(false);
 
-            var primaryKey = await LoadPrimaryKeyAsync(tableName, columnLookup, cancellationToken).ConfigureAwait(false);
-            var uniqueKeys = await LoadUniqueKeysAsync(tableName, columnLookup, cancellationToken).ConfigureAwait(false);
-            var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
+            var primaryKey = await queryCache.GetPrimaryKeyAsync(tableName, cancellationToken).ConfigureAwait(false);
+            var uniqueKeys = await queryCache.GetUniqueKeysAsync(tableName, cancellationToken).ConfigureAwait(false);
             var indexes = await LoadIndexesAsync(tableName, columnLookup, cancellationToken).ConfigureAwait(false);
 
-            var childKeys = await LoadChildKeysAsync(tableName, columnLookup, primaryKey, uniqueKeyLookup, cancellationToken).ConfigureAwait(false);
-            var parentKeys = await LoadParentKeysAsync(tableName, columnLookup, cancellationToken).ConfigureAwait(false);
+            var parentKeys = await queryCache.GetForeignKeysAsync(tableName, cancellationToken).ConfigureAwait(false);
+            var childKeys = await LoadChildKeysAsync(tableName, queryCache, cancellationToken).ConfigureAwait(false);
 
             return new RelationalDatabaseTable(
                 tableName,
@@ -126,17 +138,17 @@ limit 1";
             );
         }
 
-        protected virtual Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        protected virtual Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
+            if (queryCache == null)
+                throw new ArgumentNullException(nameof(queryCache));
 
-            return LoadPrimaryKeyAsyncCore(tableName, columns, cancellationToken);
+            return LoadPrimaryKeyAsyncCore(tableName, queryCache, cancellationToken);
         }
 
-        private async Task<Option<IDatabaseKey>> LoadPrimaryKeyAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        private async Task<Option<IDatabaseKey>> LoadPrimaryKeyAsyncCore(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             var primaryKeyColumns = await DbConnection.QueryAsync<ConstraintColumnMapping>(
                 PrimaryKeyQuery,
@@ -147,13 +159,16 @@ limit 1";
             if (primaryKeyColumns.Empty())
                 return Option<IDatabaseKey>.None;
 
+            var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+            var columnLookup = GetColumnLookup(columns);
+
             var groupedByName = primaryKeyColumns.GroupBy(row => new { row.ConstraintName });
             var firstRow = groupedByName.First();
             var constraintName = firstRow.Key.ConstraintName;
 
             var keyColumns = groupedByName
                 .Where(row => row.Key.ConstraintName == constraintName)
-                .SelectMany(g => g.Select(row => columns[row.ColumnName!]))
+                .SelectMany(g => g.Select(row => columnLookup[row.ColumnName!]))
                 .ToList();
 
             var primaryKey = new MySqlDatabasePrimaryKey(keyColumns);
@@ -237,17 +252,17 @@ select
 from information_schema.statistics
 where table_schema = @SchemaName and table_name = @TableName";
 
-        protected virtual Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        protected virtual Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
+            if (queryCache == null)
+                throw new ArgumentNullException(nameof(queryCache));
 
-            return LoadUniqueKeysAsyncCore(tableName, columns, cancellationToken);
+            return LoadUniqueKeysAsyncCore(tableName, queryCache, cancellationToken);
         }
 
-        private async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        private async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsyncCore(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             var uniqueKeyColumns = await DbConnection.QueryAsync<ConstraintColumnMapping>(
                 UniqueKeysQuery,
@@ -258,12 +273,15 @@ where table_schema = @SchemaName and table_name = @TableName";
             if (uniqueKeyColumns.Empty())
                 return Array.Empty<IDatabaseKey>();
 
+            var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+            var columnLookup = GetColumnLookup(columns);
+
             var groupedByName = uniqueKeyColumns.GroupBy(row => new { row.ConstraintName });
             var constraintColumns = groupedByName
                 .Select(g => new
                 {
                     g.Key.ConstraintName,
-                    Columns = g.Select(row => columns[row.ColumnName!]).ToList(),
+                    Columns = g.Select(row => columnLookup[row.ColumnName!]).ToList(),
                 })
                 .ToList();
             if (constraintColumns.Empty())
@@ -295,19 +313,17 @@ where t.table_schema = @SchemaName and t.table_name = @TableName
     and tc.constraint_type = 'UNIQUE'
 order by kc.ordinal_position";
 
-        protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, Option<IDatabaseKey> primaryKey, IReadOnlyDictionary<Identifier, IDatabaseKey> uniqueKeys, CancellationToken cancellationToken)
+        protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
-            if (uniqueKeys == null)
-                throw new ArgumentNullException(nameof(uniqueKeys));
+            if (queryCache == null)
+                throw new ArgumentNullException(nameof(queryCache));
 
-            return LoadChildKeysAsyncCore(tableName, columns, primaryKey, uniqueKeys, cancellationToken);
+            return LoadChildKeysAsyncCore(tableName, queryCache, cancellationToken);
         }
 
-        private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, Option<IDatabaseKey> primaryKey, IReadOnlyDictionary<Identifier, IDatabaseKey> uniqueKeys, CancellationToken cancellationToken)
+        private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             var queryResult = await DbConnection.QueryAsync<ChildKeyData>(
                 ChildKeysQuery,
@@ -332,9 +348,8 @@ order by kc.ordinal_position";
             if (groupedChildKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
-            var tableNameCache = new Dictionary<Identifier, Identifier> { [Identifier.CreateQualifiedIdentifier(tableName.Schema, tableName.LocalName)] = tableName };
-            var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
-            var foreignKeyLookupCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseKey>>();
+            var uniqueKeys = await queryCache.GetUniqueKeysAsync(tableName, cancellationToken).ConfigureAwait(false);
+            var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
 
             var result = new List<IDatabaseRelationalKey>(groupedChildKeys.Count);
 
@@ -343,37 +358,28 @@ order by kc.ordinal_position";
                 // ensure we have a key to begin with
                 IDatabaseKey? parentKey = null;
                 if (groupedChildKey.Key.ParentKeyType == Constants.PrimaryKey)
-                    await primaryKey.IfSomeAsync(k => parentKey = k).ConfigureAwait(false);
-                else if (uniqueKeys.ContainsKey(groupedChildKey.Key.ParentKeyName))
-                    parentKey = uniqueKeys[groupedChildKey.Key.ParentKeyName];
+                {
+                    var pk = await queryCache.GetPrimaryKeyAsync(tableName, cancellationToken).ConfigureAwait(false);
+                    pk.IfSome(k => parentKey = k);
+                }
+                else if (uniqueKeyLookup.ContainsKey(groupedChildKey.Key.ParentKeyName))
+                {
+                    parentKey = uniqueKeyLookup[groupedChildKey.Key.ParentKeyName];
+                }
+
                 if (parentKey == null)
                     continue;
 
                 var candidateChildTableName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
-                var resolvedName = tableNameCache.ContainsKey(candidateChildTableName)
-                    ? OptionAsync<Identifier>.Some(tableNameCache[candidateChildTableName])
-                    : GetResolvedTableName(candidateChildTableName, cancellationToken);
+                var resolvedName = await queryCache.GetTableNameAsync(candidateChildTableName, cancellationToken).ConfigureAwait(false);
 
                 await resolvedName
                     .BindAsync(async name =>
                     {
-                        tableNameCache[candidateChildTableName] = name;
                         var childKeyName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildKeyName);
 
-                        if (!columnLookupsCache.TryGetValue(name, out var childKeyColumnLookup))
-                        {
-                            var childKeyColumns = await LoadColumnsAsync(name, cancellationToken).ConfigureAwait(false);
-                            childKeyColumnLookup = GetColumnLookup(childKeyColumns);
-                            columnLookupsCache[tableName] = childKeyColumnLookup;
-                        }
-
-                        if (!foreignKeyLookupCache.TryGetValue(name, out var parentKeyLookup))
-                        {
-                            var parentKeys = await LoadParentKeysAsync(name, childKeyColumnLookup, cancellationToken).ConfigureAwait(false);
-                            parentKeyLookup = GetDatabaseKeyLookup(parentKeys.Select(fk => fk.ChildKey).ToList());
-                            foreignKeyLookupCache[tableName] = parentKeyLookup;
-                        }
-
+                        var parentKeys = await queryCache.GetForeignKeysAsync(name, cancellationToken).ConfigureAwait(false);
+                        var parentKeyLookup = GetDatabaseKeyLookup(parentKeys.Select(fk => fk.ChildKey).ToList());
                         if (!parentKeyLookup.TryGetValue(childKeyName, out var childKey))
                             return OptionAsync<IDatabaseRelationalKey>.None;
 
@@ -456,17 +462,17 @@ from information_schema.table_constraints tc
 inner join information_schema.check_constraints cc on tc.table_schema = cc.constraint_schema and tc.constraint_name = cc.constraint_name
 where tc.table_schema = @SchemaName and tc.table_name = @TableName and tc.constraint_type = 'CHECK'";
 
-        protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
+            if (queryCache == null)
+                throw new ArgumentNullException(nameof(queryCache));
 
-            return LoadParentKeysAsyncCore(tableName, columns, cancellationToken);
+            return LoadParentKeysAsyncCore(tableName, queryCache, cancellationToken);
         }
 
-        private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsyncCore(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             var queryResult = await DbConnection.QueryAsync<ForeignKeyData>(
                 ParentKeysQuery,
@@ -490,18 +496,14 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName and tc.constr
             if (foreignKeys.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
-            var tableNameCache = new Dictionary<Identifier, Identifier> { [Identifier.CreateQualifiedIdentifier(tableName.Schema, tableName.LocalName)] = tableName };
-            var columnLookupsCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>> { [tableName] = columns };
-            var primaryKeyCache = new Dictionary<Identifier, Option<IDatabaseKey>>();
-            var uniqueKeyLookupCache = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseKey>>();
+            var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+            var columnLookup = GetColumnLookup(columns);
 
             var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
             foreach (var fkey in foreignKeys)
             {
                 var candidateParentTableName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
-                var resolvedName = tableNameCache.ContainsKey(candidateParentTableName)
-                    ? OptionAsync<Identifier>.Some(tableNameCache[candidateParentTableName])
-                    : GetResolvedTableName(candidateParentTableName, cancellationToken);
+                var resolvedName = await queryCache.GetTableNameAsync(candidateParentTableName, cancellationToken).ConfigureAwait(false);
 
                 Identifier? parentTableName = null;
 
@@ -511,48 +513,18 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName and tc.constr
                         parentTableName = name;
                         if (fkey.Key.KeyType == Constants.PrimaryKey)
                         {
-                            if (primaryKeyCache.TryGetValue(name, out var pk))
-                            {
-                                return pk.ToAsync();
-                            }
-                            else
-                            {
-                                if (!columnLookupsCache.TryGetValue(name, out var parentColumnLookup))
-                                {
-                                    var parentColumns = await LoadColumnsAsync(name, cancellationToken).ConfigureAwait(false);
-                                    parentColumnLookup = GetColumnLookup(parentColumns);
-                                    columnLookupsCache[name] = parentColumnLookup;
-                                }
-
-                                var parentKeyOption = await LoadPrimaryKeyAsync(name, parentColumnLookup, cancellationToken).ConfigureAwait(false);
-                                primaryKeyCache[name] = parentKeyOption;
-                                return parentKeyOption.ToAsync();
-                            }
+                            var primaryKey = await queryCache.GetPrimaryKeyAsync(name, cancellationToken).ConfigureAwait(false);
+                            return primaryKey.ToAsync();
                         }
                         else
                         {
                             var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
-                            if (uniqueKeyLookupCache.TryGetValue(name, out var uks) && uks.ContainsKey(parentKeyName.LocalName))
-                            {
-                                return OptionAsync<IDatabaseKey>.Some(uks[parentKeyName.LocalName]);
-                            }
-                            else
-                            {
-                                if (!columnLookupsCache.TryGetValue(name, out var parentColumnLookup))
-                                {
-                                    var parentColumns = await LoadColumnsAsync(name, cancellationToken).ConfigureAwait(false);
-                                    parentColumnLookup = GetColumnLookup(parentColumns);
-                                    columnLookupsCache[name] = parentColumnLookup;
-                                }
 
-                                var parentUniqueKeys = await LoadUniqueKeysAsync(name, parentColumnLookup, cancellationToken).ConfigureAwait(false);
-                                var parentUniqueKeyLookup = GetDatabaseKeyLookup(parentUniqueKeys);
-                                uniqueKeyLookupCache[name] = parentUniqueKeyLookup;
-
-                                return parentUniqueKeyLookup.ContainsKey(parentKeyName.LocalName)
-                                    ? OptionAsync<IDatabaseKey>.Some(parentUniqueKeyLookup[parentKeyName.LocalName])
-                                    : OptionAsync<IDatabaseKey>.None;
-                            }
+                            var parentUniqueKeys = await queryCache.GetUniqueKeysAsync(name, cancellationToken).ConfigureAwait(false);
+                            var parentUniqueKeyLookup = GetDatabaseKeyLookup(parentUniqueKeys);
+                            return parentUniqueKeyLookup.ContainsKey(parentKeyName.LocalName)
+                                ? OptionAsync<IDatabaseKey>.Some(parentUniqueKeyLookup[parentKeyName.LocalName])
+                                : OptionAsync<IDatabaseKey>.None;
                         }
                     })
                     .IfSome(key =>
@@ -560,7 +532,7 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName and tc.constr
                         var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ChildKeyName);
                         var childKeyColumns = fkey
                             .OrderBy(row => row.ConstraintColumnId)
-                            .Select(row => columns[row.ColumnName!])
+                            .Select(row => columnLookup[row.ColumnName!])
                             .ToList();
 
                         var childKey = new MySqlDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
@@ -808,6 +780,70 @@ where tr.event_object_schema = @SchemaName and tr.event_object_table = @TableNam
             public const string PrimaryKey = "PRIMARY KEY";
 
             public const string Update = "UPDATE";
+        }
+
+        protected class MySqlTableQueryCache
+        {
+            private readonly AsyncCache<Identifier, Option<Identifier>, MySqlTableQueryCache> _tableNames;
+            private readonly AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, MySqlTableQueryCache> _columns;
+            private readonly AsyncCache<Identifier, Option<IDatabaseKey>, MySqlTableQueryCache> _primaryKeys;
+            private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, MySqlTableQueryCache> _uniqueKeys;
+            private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, MySqlTableQueryCache> _foreignKeys;
+
+            public MySqlTableQueryCache(
+                AsyncCache<Identifier, Option<Identifier>, MySqlTableQueryCache> tableNameLoader,
+                AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, MySqlTableQueryCache> columnLoader,
+                AsyncCache<Identifier, Option<IDatabaseKey>, MySqlTableQueryCache> primaryKeyLoader,
+                AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, MySqlTableQueryCache> uniqueKeyLoader,
+                AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, MySqlTableQueryCache> foreignKeyLoader
+            )
+            {
+                _tableNames = tableNameLoader ?? throw new ArgumentNullException(nameof(tableNameLoader));
+                _columns = columnLoader ?? throw new ArgumentNullException(nameof(columnLoader));
+                _primaryKeys = primaryKeyLoader ?? throw new ArgumentNullException(nameof(primaryKeyLoader));
+                _uniqueKeys = uniqueKeyLoader ?? throw new ArgumentNullException(nameof(uniqueKeyLoader));
+                _foreignKeys = foreignKeyLoader ?? throw new ArgumentNullException(nameof(foreignKeyLoader));
+            }
+
+            public Task<Option<Identifier>> GetTableNameAsync(Identifier tableName, CancellationToken cancellationToken)
+            {
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+
+                return _tableNames.GetByKeyAsync(tableName, this, cancellationToken);
+            }
+
+            public Task<IReadOnlyList<IDatabaseColumn>> GetColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
+            {
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+
+                return _columns.GetByKeyAsync(tableName, this, cancellationToken);
+            }
+
+            public Task<Option<IDatabaseKey>> GetPrimaryKeyAsync(Identifier tableName, CancellationToken cancellationToken)
+            {
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+
+                return _primaryKeys.GetByKeyAsync(tableName, this, cancellationToken);
+            }
+
+            public Task<IReadOnlyCollection<IDatabaseKey>> GetUniqueKeysAsync(Identifier tableName, CancellationToken cancellationToken)
+            {
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+
+                return _uniqueKeys.GetByKeyAsync(tableName, this, cancellationToken);
+            }
+
+            public Task<IReadOnlyCollection<IDatabaseRelationalKey>> GetForeignKeysAsync(Identifier tableName, CancellationToken cancellationToken)
+            {
+                if (tableName == null)
+                    throw new ArgumentNullException(nameof(tableName));
+
+                return _foreignKeys.GetByKeyAsync(tableName, this, cancellationToken);
+            }
         }
     }
 }
