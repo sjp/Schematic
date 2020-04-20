@@ -73,6 +73,12 @@ The helpful database schema querying tool.
                 exception = tie.InnerException;
             }
 
+            // take the first if present
+            if (exception is AggregateException ae && ae.InnerExceptions.Count > 0)
+            {
+                exception = ae.InnerExceptions[0];
+            }
+
             if (exception is OperationCanceledException)
             {
                 context.Console.Error.WriteLine("...canceled.");
