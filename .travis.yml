@@ -1,6 +1,8 @@
 language: csharp
 dotnet: 3.1.201
 mono: none
+git:
+  autocrlf: input
 matrix:
   include:
     - os: linux
