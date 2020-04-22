@@ -53,7 +53,7 @@ create table test_view_table_1 (
             var expected = TestView1Output;
             var result = generator.Generate(view, Option<IDatabaseViewComments>.None);
 
-            Assert.That(result, Is.EqualTo(expected));
+            Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
         }
 
         [Test]
@@ -73,7 +73,7 @@ create table test_view_table_1 (
             var result = generator.Generate(view, comment);
 
             var expected = TestView1WithCommentOutput;
-            Assert.That(result, Is.EqualTo(expected));
+            Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
         }
 
         [Test]
@@ -97,7 +97,7 @@ This is a second line for it.";
             var result = generator.Generate(view, comment);
 
             var expected = TestView1MultiLineOutput;
-            Assert.That(result, Is.EqualTo(expected));
+            Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
         }
 
         private const string TestNamespace = "EFCoreTestNamespace";

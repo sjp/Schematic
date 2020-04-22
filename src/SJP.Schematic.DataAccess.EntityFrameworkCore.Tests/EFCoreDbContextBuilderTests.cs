@@ -2,6 +2,7 @@ using System;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
 {
@@ -77,7 +78,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
 
             var result = dbContextBuilder.Generate(tables, views, sequences);
 
-            Assert.That(result, Is.EqualTo(ExpectedSequenceTestResult));
+            Assert.That(result, Is.EqualTo(ExpectedSequenceTestResult).Using(LineEndingInvariantStringComparer.Ordinal));
         }
 
         private const string ExpectedSequenceTestResult = @"using System;

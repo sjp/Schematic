@@ -5,6 +5,7 @@ using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
 {
@@ -98,7 +99,7 @@ create table test_table_4 (
             var expected = TestAppContextOutput;
             var result = builder.Generate(tables, views, sequences);
 
-            Assert.That(result, Is.EqualTo(expected));
+            Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
         }
 
         private readonly string TestAppContextOutput = @"using System;
