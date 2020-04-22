@@ -22,4 +22,6 @@ script:
   - dotnet tool install -g Cake.Tool --version 0.37.0
   - dotnet cake build.cake
   - dotnet cake build.cake --target=Run-Unit-Tests
-  - dotnet cake build.cake --target=Build-Docs
+  # enable doc building when docfx v3 is available
+  # as it will be implemented as a dotnet tool
+  #- dotnet cake build.cake --target=Build-Docs
