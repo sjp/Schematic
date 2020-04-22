@@ -7,7 +7,7 @@ matrix:
       dist: bionic
       before_install:
         - curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
-        - sudo apt-get install -y nodejs graphviz
+        - sudo apt-get -qq update && sudo apt-get install -y nodejs graphviz
     - os: osx
       addons:
         homebrew:
@@ -20,4 +20,5 @@ script:
   - dotnet tool install -g Cake.Tool --version 0.37.0
   - dotnet cake build.cake
   - dotnet cake build.cake --target=Run-Unit-Tests
-  - dotnet cake build.cake --target=Publish-Artifacts
+# disable for now while RazorLight is in pre-release
+#  - dotnet cake build.cake --target=Publish-Artifacts
