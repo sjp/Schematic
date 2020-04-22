@@ -56,7 +56,7 @@ namespace SJP.Schematic.DataAccess.Tests
         [TestCase("some title", "some_title")]
         [TestCase("some title that will be underscored", "some_title_that_will_be_underscored")]
         [TestCase("SomeTitleThatWillBeUnderscored", "some_title_that_will_be_underscored")]
-        [TestCase("SomeForeignWordsLikeƒgypten—u", "some_foreign_words_like_‰gypten_Òu")]
+        [TestCase("SomeForeignWordsLike√Ñgypten√ëu", "some_foreign_words_like_√§gypten_√±u")]
         [TestCase("Some wordsTo be Underscored", "some_words_to_be_underscored")]
         public static void Underscore(string input, string expectedOuput)
         {
