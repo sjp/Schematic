@@ -6,8 +6,12 @@ matrix:
     - os: linux
       dist: bionic
       before_install:
-        - curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
-        - sudo apt-get -qq update && sudo apt-get install -y nodejs graphviz
+        #- sudo apt remove nodejs && sudo apt autoremove
+        #- curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+        - nvm use 11
+        - sudo apt-get -qq update && sudo apt-get install -y graphviz
+        - node --version
+        - npm --version
     - os: osx
       addons:
         homebrew:
