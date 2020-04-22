@@ -1,12 +1,2 @@
 * text=auto
 * eol=crlf
-
-*.cs text eol=crlf diff=csharp
-*.sln text eol=crlf
-*.csproj text eol=crlf
-
-# Scripts
-*.sh text eol=lf
-*.bat text eol=crlf
-*.cmd text eol=crlf
-*.ps1 text eol=crlf

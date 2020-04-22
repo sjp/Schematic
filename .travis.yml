@@ -1,21 +1,20 @@
 language: csharp
 dotnet: 3.1.201
 mono: none
-git:
-  autocrlf: input
 matrix:
   include:
     - os: linux
       dist: bionic
       before_install:
-        - sudo apt remove nodejs && sudo apt autoremove
         - curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
-        - sudo apt-get install -y nodejs
+        - sudo apt-get install -y nodejs graphviz
     - os: osx
       addons:
         homebrew:
+          update: true
           packages:
             - node
+            - graphviz
 script:
   - export PATH="$PATH:$HOME/.dotnet/tools"
   - dotnet tool install -g Cake.Tool --version 0.37.0
