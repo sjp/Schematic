@@ -67,7 +67,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Tests.Utiliti
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Graphviz", "SJP.Schematic.Graphviz\SJP.Schematic.Graphviz.csproj", "{F5BE53E9-755E-4412-8CCC-7EDB8BCB125F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Graphviz.Test", "SJP.Schematic.Graphviz.Test\SJP.Schematic.Graphviz.Test.csproj", "{EA19DA86-5666-46EA-8DA5-514A7C9A77F1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Graphviz.Tests", "SJP.Schematic.Graphviz.Tests\SJP.Schematic.Graphviz.Tests.csproj", "{EA19DA86-5666-46EA-8DA5-514A7C9A77F1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Serialization", "SJP.Schematic.Serialization\SJP.Schematic.Serialization.csproj", "{E810EF17-F5DC-405C-8B41-127FD2CFF1C9}"
 EndProject
