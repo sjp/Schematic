@@ -13,8 +13,6 @@ namespace SJP.Schematic.Graphviz
         {
             if (string.IsNullOrWhiteSpace(dotExecutablePath))
                 throw new ArgumentNullException(nameof(dotExecutablePath));
-            if (!File.Exists(dotExecutablePath))
-                throw new FileNotFoundException($"Expected to find a file at: '{ dotExecutablePath }', but was not found.", dotExecutablePath);
 
             _dotPath = dotExecutablePath;
         }

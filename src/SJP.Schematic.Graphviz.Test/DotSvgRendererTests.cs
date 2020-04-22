@@ -32,12 +32,6 @@ namespace SJP.Schematic.Graphviz.Tests
             Assert.That(() => new DotSvgRenderer(exePath), Throws.ArgumentNullException);
         }
 
-        [Test]
-        public void DotRenderer_GivenMissingExecutablePath_ThrowsFileNotFoundException()
-        {
-            Assert.That(() => new DotSvgRenderer("path_not_existing"), Throws.TypeOf<FileNotFoundException>());
-        }
-
         [TestCase((string)null)]
         [TestCase("")]
         [TestCase("    ")]
