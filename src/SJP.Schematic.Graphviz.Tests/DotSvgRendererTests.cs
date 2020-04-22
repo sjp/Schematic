@@ -1,4 +1,4 @@
-using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using NUnit.Framework;
@@ -8,14 +8,15 @@ namespace SJP.Schematic.Graphviz.Tests
     [TestFixture]
     internal sealed class DotSvgRendererTests
     {
-        private GraphvizTemporaryExecutable GraphvizExe { get; set; }
+        private IGraphvizExecutable GraphvizExe { get; set; }
 
         private DotSvgRenderer Renderer => new DotSvgRenderer(GraphvizExe.DotPath);
 
         [OneTimeSetUp]
         public void Init()
         {
-            GraphvizExe = new GraphvizTemporaryExecutable();
+            var factory = new GraphvizExecutableFactory();
+            GraphvizExe = factory.GetExecutable();
         }
 
         [OneTimeTearDown]
@@ -94,14 +95,22 @@ namespace SJP.Schematic.Graphviz.Tests
             Assert.That(() => _ = XDocument.Parse(svg, LoadOptions.PreserveWhitespace), Throws.Nothing);
         }
 
-        // Note, this is fragile only because it contains date/version comments.
-        // It should be very stable otherwise.
         [Test]
         public async Task RenderToSvgAsync_GivenValidDot_ReturnsExpectedSvg()
         {
             var svg = await Renderer.RenderToSvgAsync("digraph g { a -> b }").ConfigureAwait(false);
 
-            Assert.That(svg, Is.EqualTo(SimpleGraphExpectedSvg));
+            // have to compare xml without comments because it contains things like the date & version string
+            var svgDoc = XDocument.Parse(svg, LoadOptions.PreserveWhitespace);
+            svgDoc.DescendantNodes().OfType<XComment>().Remove();
+
+            var expectedDoc = XDocument.Parse(SimpleGraphExpectedSvg, LoadOptions.PreserveWhitespace);
+            expectedDoc.DescendantNodes().OfType<XComment>().Remove();
+
+            var svgDocStr = svgDoc.ToString();
+            var expectedDocStr = expectedDoc.ToString();
+
+            Assert.That(svgDocStr, Is.EqualTo(expectedDocStr));
         }
 
         [Test]
