@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
@@ -18,7 +17,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void IsLoggingConfigured_GivenConfiguredConnection_ReturnsTrue()
         {
-            var dbConnection = Mock.Of<IDbConnection>();
+            var dbConnection = Mock.Of<IDbConnectionFactory>();
             var connection = new SchematicConnection(dbConnection, Mock.Of<IDatabaseDialect>());
 
             Logging.AddLogging(connection, Mock.Of<ILogger>(), LogLevel.Information);
@@ -28,7 +27,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void IsLoggingConfigured_GivenNonConfiguredConnection_ReturnsFalse()
         {
-            var dbConnection = Mock.Of<IDbConnection>();
+            var dbConnection = Mock.Of<IDbConnectionFactory>();
             Assert.That(Logging.IsLoggingConfigured(dbConnection), Is.False);
         }
 
@@ -70,7 +69,7 @@ namespace SJP.Schematic.Core.Tests
         public static void RemoveLogging_WhenNoLoggingConfigured_ThrowsNothing()
         {
             var connectionMock = new Mock<ISchematicConnection>();
-            connectionMock.Setup(c => c.DbConnection).Returns(Mock.Of<IDbConnection>());
+            connectionMock.Setup(c => c.DbConnection).Returns(Mock.Of<IDbConnectionFactory>());
 
             Assert.That(() => Logging.RemoveLogging(connectionMock.Object), Throws.Nothing);
         }
@@ -79,7 +78,7 @@ namespace SJP.Schematic.Core.Tests
         public static void RemoveLogging_WhenLoggingConfigured_ThrowsNothing()
         {
             var connectionMock = new Mock<ISchematicConnection>();
-            connectionMock.Setup(c => c.DbConnection).Returns(Mock.Of<IDbConnection>());
+            connectionMock.Setup(c => c.DbConnection).Returns(Mock.Of<IDbConnectionFactory>());
             var logger = Mock.Of<ILogger>();
             const LogLevel logLevel = LogLevel.Information;
 
@@ -91,7 +90,7 @@ namespace SJP.Schematic.Core.Tests
         public static void LogCommandExecuting_WhenNoConnectionProvided_ThrowsArgumentNullException()
         {
             var connectionMock = new Mock<ISchematicConnection>();
-            connectionMock.Setup(c => c.DbConnection).Returns(Mock.Of<IDbConnection>());
+            connectionMock.Setup(c => c.DbConnection).Returns(Mock.Of<IDbConnectionFactory>());
             var logger = Mock.Of<ILogger>();
             const LogLevel logLevel = LogLevel.Information;
 
@@ -105,7 +104,7 @@ namespace SJP.Schematic.Core.Tests
         public static void LogCommandExecuting_WhenNullOrWhiteSpaceSqlProvided_ThrowsArgumentNullException(string sql)
         {
             var connectionMock = new Mock<ISchematicConnection>();
-            connectionMock.Setup(c => c.DbConnection).Returns(Mock.Of<IDbConnection>());
+            connectionMock.Setup(c => c.DbConnection).Returns(Mock.Of<IDbConnectionFactory>());
             var logger = Mock.Of<ILogger>();
             const LogLevel logLevel = LogLevel.Information;
 
@@ -116,7 +115,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void LogCommandExecuting_WhenNoConfiguredConnectionProvided_ThrowsNothing()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
 
             Assert.That(() => Logging.LogCommandExecuting(connection, Guid.NewGuid(), "test_query", null), Throws.Nothing);
         }
@@ -130,7 +129,7 @@ namespace SJP.Schematic.Core.Tests
             var parameters = new { ParamA = "test_param_1", ParamB = "test_param_2" };
 
             var connectionMock = new Mock<ISchematicConnection>();
-            connectionMock.Setup(c => c.DbConnection).Returns(Mock.Of<IDbConnection>());
+            connectionMock.Setup(c => c.DbConnection).Returns(Mock.Of<IDbConnectionFactory>());
             connectionMock.Setup(c => c.ConnectionId).Returns(connectionId);
             var loggerMock = new Mock<ILogger>();
             var logger = loggerMock.Object;
@@ -148,7 +147,7 @@ namespace SJP.Schematic.Core.Tests
             const string sql = "test_query";
 
             var connectionMock = new Mock<ISchematicConnection>();
-            connectionMock.Setup(c => c.DbConnection).Returns(Mock.Of<IDbConnection>());
+            connectionMock.Setup(c => c.DbConnection).Returns(Mock.Of<IDbConnectionFactory>());
             connectionMock.Setup(c => c.ConnectionId).Returns(connectionId);
             var loggerMock = new Mock<ILogger>();
             var logger = loggerMock.Object;
@@ -173,7 +172,7 @@ namespace SJP.Schematic.Core.Tests
             var duration = TimeSpan.FromMilliseconds(1234);
 
             var connectionMock = new Mock<ISchematicConnection>();
-            connectionMock.Setup(c => c.DbConnection).Returns(Mock.Of<IDbConnection>());
+            connectionMock.Setup(c => c.DbConnection).Returns(Mock.Of<IDbConnectionFactory>());
             connectionMock.Setup(c => c.ConnectionId).Returns(connectionId);
             var loggerMock = new Mock<ILogger>();
             var logger = loggerMock.Object;
@@ -192,7 +191,7 @@ namespace SJP.Schematic.Core.Tests
             var duration = TimeSpan.FromMilliseconds(1234);
 
             var connectionMock = new Mock<ISchematicConnection>();
-            connectionMock.Setup(c => c.DbConnection).Returns(Mock.Of<IDbConnection>());
+            connectionMock.Setup(c => c.DbConnection).Returns(Mock.Of<IDbConnectionFactory>());
             connectionMock.Setup(c => c.ConnectionId).Returns(connectionId);
             var loggerMock = new Mock<ILogger>();
             var logger = loggerMock.Object;

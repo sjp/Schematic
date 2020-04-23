@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Data;
 using System.Reflection;
 using NUnit.Framework;
+using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Tests.Utilities
 {
@@ -29,7 +30,7 @@ namespace SJP.Schematic.Tests.Utilities
             var getMethod = propCache.GetOrAdd(propertyName, propName =>
             {
                 var propInfo = target.GetProperty(propName, SearchFlags);
-                if (propInfo != null && (!IDbConnectionType.IsAssignableFrom(propInfo.PropertyType) || propInfo.GetGetMethod() == null))
+                if (propInfo != null && (!IDbConnectionFactoryType.IsAssignableFrom(propInfo.PropertyType) || propInfo.GetGetMethod() == null))
                     propInfo = null;
 
                 return propInfo?.GetGetMethod();
@@ -38,14 +39,39 @@ namespace SJP.Schematic.Tests.Utilities
             if (getMethod == null)
                 return;
 
-            var isEnabled = ResultCache.GetOrAdd(getMethod, method => method.Invoke(null, Array.Empty<object>()) is IDbConnection);
+            if (ResultCache.TryGetValue(getMethod, out var cachedResult) && !cachedResult)
+            {
+                Ignore = ignoreMessage;
+                return;
+            }
+
+            var methodResult = getMethod.Invoke(null, Array.Empty<object>());
+            if (!(methodResult is IDbConnectionFactory factory))
+            {
+                ResultCache.AddOrUpdate(getMethod, false, (_, __) => false);
+                Ignore = ignoreMessage;
+                return;
+            }
+
+            var hasConnection = false;
+            try
+            {
+                using var connection = factory.OpenConnection();
+                hasConnection = true;
+            }
+            catch
+            {
+                // ignore any connection failure
+            }
+
+            var isEnabled = ResultCache.AddOrUpdate(getMethod, hasConnection, (_, __) => hasConnection);
             if (!isEnabled)
                 Ignore = ignoreMessage;
         }
 
         private const BindingFlags SearchFlags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
 
-        private static readonly Type IDbConnectionType = typeof(IDbConnection);
+        private static readonly Type IDbConnectionFactoryType = typeof(IDbConnectionFactory);
         private static readonly ConcurrentDictionary<Type, ConcurrentDictionary<string, MethodInfo?>> TypeCache = new ConcurrentDictionary<Type, ConcurrentDictionary<string, MethodInfo?>>();
         private static readonly ConcurrentDictionary<MethodInfo, bool> ResultCache = new ConcurrentDictionary<MethodInfo, bool>();
     }

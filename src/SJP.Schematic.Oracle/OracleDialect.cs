@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
-using Oracle.ManagedDataAccess.Client;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
@@ -16,21 +14,6 @@ namespace SJP.Schematic.Oracle
 {
     public class OracleDialect : DatabaseDialect
     {
-        public static Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default)
-        {
-            if (connectionString.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(connectionString));
-
-            return CreateConnectionAsyncCore(connectionString, cancellationToken);
-        }
-
-        private static async Task<IDbConnection> CreateConnectionAsyncCore(string connectionString, CancellationToken cancellationToken)
-        {
-            var connection = new OracleConnection(connectionString);
-            await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
-            return connection;
-        }
-
         public override string QuoteIdentifier(string identifier)
         {
             if (identifier.IsNullOrWhiteSpace())

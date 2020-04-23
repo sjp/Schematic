@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -39,10 +38,10 @@ namespace SJP.Schematic.Lint.Rules
         protected ISchematicConnection Connection { get; }
 
         /// <summary>
-        /// A database connection.
+        /// A database connection factory.
         /// </summary>
-        /// <value>The database connection.</value>
-        protected IDbConnection DbConnection => Connection.DbConnection;
+        /// <value>The database connection factory.</value>
+        protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
         /// <summary>
         /// A database dialect.

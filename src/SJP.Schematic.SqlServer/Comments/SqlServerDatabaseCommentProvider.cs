@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Threading;
 using LanguageExt;
 using SJP.Schematic.Core;
@@ -10,7 +9,7 @@ namespace SJP.Schematic.SqlServer.Comments
 {
     public class SqlServerDatabaseCommentProvider : IRelationalDatabaseCommentProvider
     {
-        public SqlServerDatabaseCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults)
+        public SqlServerDatabaseCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));

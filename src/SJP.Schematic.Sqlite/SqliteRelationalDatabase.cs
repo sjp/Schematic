@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -34,7 +33,7 @@ namespace SJP.Schematic.Sqlite
 
         protected ISchematicConnection Connection { get; }
 
-        protected IDbConnection DbConnection => Connection.DbConnection;
+        protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
         protected IDatabaseDialect Dialect => Connection.Dialect;
 

@@ -1,5 +1,4 @@
-﻿using System.Data;
-using System.Threading;
+﻿using System.Threading;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
@@ -20,7 +19,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [TestCase("    ")]
         public static void QueryAsync_WithoutParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentNullException(string sql)
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
 
             Assert.That(() => connection.QueryAsync<string>(sql, CancellationToken.None), Throws.ArgumentNullException);
         }
@@ -38,7 +37,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [TestCase("    ")]
         public static void QueryAsync_WithParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentNullException(string sql)
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
             var param = new { Test = "test" };
 
             Assert.That(() => connection.QueryAsync<string>(sql, param, CancellationToken.None), Throws.ArgumentNullException);
@@ -47,7 +46,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [Test]
         public static void QueryAsync_WithParamsGivenNullParam_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
 
             Assert.That(() => connection.QueryAsync<string>("test", null, CancellationToken.None), Throws.ArgumentNullException);
         }
@@ -63,7 +62,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [TestCase("    ")]
         public static void ExecuteScalarAsync_WithoutParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentNullException(string sql)
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
 
             Assert.That(() => connection.ExecuteScalarAsync<string>(sql, CancellationToken.None), Throws.ArgumentNullException);
         }
@@ -81,7 +80,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [TestCase("    ")]
         public static void ExecuteScalarAsync_WithParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentNullException(string sql)
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
             var param = new { Test = "test" };
 
             Assert.That(() => connection.ExecuteScalarAsync<string>(sql, param, CancellationToken.None), Throws.ArgumentNullException);
@@ -90,7 +89,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [Test]
         public static void ExecuteScalarAsync_WithParamsGivenNullParam_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
 
             Assert.That(() => connection.ExecuteScalarAsync<string>("test", null, CancellationToken.None), Throws.ArgumentNullException);
         }
@@ -106,7 +105,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [TestCase("    ")]
         public static void ExecuteAsync_WithoutParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentNullException(string sql)
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
 
             Assert.That(() => connection.ExecuteAsync(null, CancellationToken.None), Throws.ArgumentNullException);
         }
@@ -124,7 +123,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [TestCase("    ")]
         public static void ExecuteAsync_WithParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentNullException(string sql)
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
             var param = new { Test = "test" };
 
             Assert.That(() => connection.ExecuteAsync(sql, param, CancellationToken.None), Throws.ArgumentNullException);
@@ -133,7 +132,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [Test]
         public static void ExecuteAsync_WithParamsGivenNullParam_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
 
             Assert.That(() => connection.ExecuteAsync("test", null, CancellationToken.None), Throws.ArgumentNullException);
         }
@@ -149,7 +148,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [TestCase("    ")]
         public static void QueryFirstOrNone_WithoutParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentNullException(string sql)
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
 
             Assert.That(() => connection.QueryFirstOrNone<string>(sql, CancellationToken.None), Throws.ArgumentNullException);
         }
@@ -167,7 +166,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [TestCase("    ")]
         public static void QueryFirstOrNone_WithParamsGivenNullSql_ThrowsArgumentNullException(string sql)
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
             var param = new { Test = "test" };
 
             Assert.That(() => connection.QueryFirstOrNone<string>(sql, param, CancellationToken.None), Throws.ArgumentNullException);
@@ -176,7 +175,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [Test]
         public static void QueryFirstOrNone_WithParamsGivenNullParam_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
 
             Assert.That(() => connection.QueryFirstOrNone<string>("test", null, CancellationToken.None), Throws.ArgumentNullException);
         }
@@ -192,7 +191,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [TestCase("    ")]
         public static void QuerySingleAsync_WithoutParamsGivenNullSql_ThrowsArgumentNullException(string sql)
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
 
             Assert.That(() => connection.QuerySingleAsync<string>(sql, CancellationToken.None), Throws.ArgumentNullException);
         }
@@ -210,7 +209,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [TestCase("    ")]
         public static void QuerySingleAsync_WithParamsGivenNullSql_ThrowsArgumentNullException(string sql)
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
             var param = new { Test = "test" };
 
             Assert.That(() => connection.QuerySingleAsync<string>(sql, param, CancellationToken.None), Throws.ArgumentNullException);
@@ -219,7 +218,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [Test]
         public static void QuerySingleAsync_WithParamsGivenNullParam_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
 
             Assert.That(() => connection.QuerySingleAsync<string>("test", null, CancellationToken.None), Throws.ArgumentNullException);
         }
@@ -235,7 +234,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [TestCase("    ")]
         public static void QuerySingleOrNone_WithoutParamsGivenNullSql_ThrowsArgumentNullException(string sql)
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
 
             Assert.That(() => connection.QuerySingleOrNone<string>(sql, CancellationToken.None), Throws.ArgumentNullException);
         }
@@ -251,18 +250,18 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [TestCase((string)null)]
         [TestCase("")]
         [TestCase("    ")]
-        public static void QuerySingleOrNone_WithParamsGivenNullSql_ThrowsArgumentNullException(string sql)
+        public static void QuerySingleOrNone_WithParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentNullException(string sql)
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
             var param = new { Test = "test" };
 
-            Assert.That(() => connection.QuerySingleOrNone<string>(null, param, CancellationToken.None), Throws.ArgumentNullException);
+            Assert.That(() => connection.QuerySingleOrNone<string>(sql, param, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void QuerySingleOrNone_WithParamsGivenNullParam_ThrowsArgumentNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
 
             Assert.That(() => connection.QuerySingleOrNone<string>("test", null, CancellationToken.None), Throws.ArgumentNullException);
         }

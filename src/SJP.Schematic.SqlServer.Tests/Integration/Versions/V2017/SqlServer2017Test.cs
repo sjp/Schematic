@@ -1,24 +1,16 @@
-﻿using System.Data;
-using LanguageExt;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2017
 {
     internal static class Config2017
     {
-        public static IDbConnectionFactory ConnectionFactory { get; } = new SqlServerConnectionFactory();
-
-        public static IDbConnection Connection { get; } = Prelude.Try(() => !ConnectionString.IsNullOrWhiteSpace()
-            ? ConnectionFactory.CreateConnection(ConnectionString)
-            : null)
-            .Match(c => c, _ => null);
+        public static IDbConnectionFactory ConnectionFactory { get; } = new SqlServerConnectionFactory(ConnectionString);
 
         public static ISchematicConnection SchematicConnection => new SchematicConnection(
-            Connection,
+            ConnectionFactory,
             new SqlServerDialect()
         );
 
@@ -31,12 +23,12 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2017
     }
 
     [Category("SqlServerDatabase")]
-    [DatabaseTestFixture(typeof(Config2017), nameof(Config2017.Connection), "No SQL Server 2017 DB available")]
+    [DatabaseTestFixture(typeof(Config2017), nameof(Config2017.ConnectionFactory), "No SQL Server 2017 DB available")]
     internal abstract class SqlServer2017Test
     {
         protected ISchematicConnection Connection { get; } = Config2017.SchematicConnection;
 
-        protected IDbConnection DbConnection => Connection.DbConnection;
+        protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
         protected ISqlServerDialect Dialect => Connection.Dialect as ISqlServerDialect;
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Threading;
 using LanguageExt;
 using SJP.Schematic.Core;
@@ -10,7 +9,7 @@ namespace SJP.Schematic.MySql.Comments
 {
     public class MySqlDatabaseCommentProvider : IRelationalDatabaseCommentProvider
     {
-        public MySqlDatabaseCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults)
+        public MySqlDatabaseCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));

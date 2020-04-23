@@ -1,5 +1,5 @@
 ﻿{
   "ConnectionStrings": {
-    "TestDb": "Data Source=:memory:"
+    "TestDb": "Data Source=InMemory_d6071eed_21c9_488c_8914_743dc7a57098;Mode=Memory;Cache=Shared"
   }
 }

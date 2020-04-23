@@ -10,29 +10,32 @@ namespace SJP.Schematic.Oracle
 {
     public class OracleConnectionFactory : IDbConnectionFactory
     {
-        public IDbConnection CreateConnection(string connectionString)
+        public OracleConnectionFactory(string connectionString)
         {
             if (connectionString.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(connectionString));
 
-            var connection = new OracleConnection(connectionString);
+            ConnectionString = connectionString;
+        }
+
+        protected string ConnectionString { get; }
+
+        public IDbConnection CreateConnection() => new OracleConnection(ConnectionString);
+
+        public IDbConnection OpenConnection()
+        {
+            var connection = new OracleConnection(ConnectionString);
             connection.Open();
             return connection;
         }
 
-        public Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default)
+        public async Task<IDbConnection> OpenConnectionAsync(CancellationToken cancellationToken = default)
         {
-            if (connectionString.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(connectionString));
-
-            return CreateConnectionAsyncCore(connectionString, cancellationToken);
-        }
-
-        private static async Task<IDbConnection> CreateConnectionAsyncCore(string connectionString, CancellationToken cancellationToken)
-        {
-            var connection = new OracleConnection(connectionString);
+            var connection = new OracleConnection(ConnectionString);
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
             return connection;
         }
+
+        public bool DisposeConnection { get; } = true;
     }
 }

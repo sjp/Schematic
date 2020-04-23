@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using Moq;
 using NUnit.Framework;
 
@@ -18,7 +17,7 @@ namespace SJP.Schematic.Core.Tests
         public static void RegisterConnection_GivenValidConnection_SetsConnection()
         {
             var connectionId = Guid.NewGuid();
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
 
             Assert.That(() => ConnectionRegistry.RegisterConnection(connectionId, connection), Throws.Nothing);
         }
@@ -27,8 +26,8 @@ namespace SJP.Schematic.Core.Tests
         public static void RegisterConnection_GivenTwoConnectionsWithSameId_SetsSecondConnection()
         {
             var connectionId = Guid.NewGuid();
-            var firstConnection = Mock.Of<IDbConnection>();
-            var secondConnection = Mock.Of<IDbConnection>();
+            var firstConnection = Mock.Of<IDbConnectionFactory>();
+            var secondConnection = Mock.Of<IDbConnectionFactory>();
 
             Assert.That(() =>
             {
@@ -46,7 +45,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void TryGetConnectionId_WhenNoConnectionSet_ReturnsEmptyGuid()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
             var result = ConnectionRegistry.TryGetConnectionId(connection, out var connectionId);
 
             Assert.Multiple(() =>
@@ -60,7 +59,7 @@ namespace SJP.Schematic.Core.Tests
         public static void TryGetConnectionId_WhenConnectionSet_ReturnsConnectionId()
         {
             var connectionId = Guid.NewGuid();
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
 
             ConnectionRegistry.RegisterConnection(connectionId, connection);
             var result = ConnectionRegistry.TryGetConnectionId(connection, out var retrievedConnectionId);

@@ -16,14 +16,13 @@ namespace SJP.Schematic.Tool.Handlers
         public async Task<int> HandleCommand(IConsole console, int timeout, CancellationToken cancellationToken)
         {
             var factory = GetConnectionFactory();
-            var connectionString = GetConnectionString();
 
             try
             {
                 using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                 cts.CancelAfter(TimeSpan.FromSeconds(timeout));
 
-                _ = await factory.CreateConnectionAsync(connectionString, cts.Token).ConfigureAwait(false);
+                _ = await factory.OpenConnectionAsync(cts.Token).ConfigureAwait(false);
 
                 console.SetTerminalForegroundGreen();
                 console.Out.Write("Successfully connected to the database.");

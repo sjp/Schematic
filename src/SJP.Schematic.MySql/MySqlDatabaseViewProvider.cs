@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -24,7 +23,7 @@ namespace SJP.Schematic.MySql
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
-        protected IDbConnection DbConnection => Connection.DbConnection;
+        protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
@@ -97,8 +96,13 @@ limit 1";
 
         private async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
-            var columns = await LoadColumnsAsync(viewName, cancellationToken).ConfigureAwait(false);
-            var definition = await LoadDefinitionAsync(viewName, cancellationToken).ConfigureAwait(false);
+            var columnsTask = LoadColumnsAsync(viewName, cancellationToken);
+            var definitionTask = LoadDefinitionAsync(viewName, cancellationToken);
+
+            await Task.WhenAll(columnsTask, definitionTask);
+
+            var columns = await columnsTask.ConfigureAwait(false);
+            var definition = await definitionTask.ConfigureAwait(false);
 
             return new DatabaseView(viewName, definition, columns);
         }

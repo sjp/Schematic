@@ -1,5 +1,4 @@
-﻿using System.Data;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite;
@@ -9,10 +8,10 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
 {
     internal static class Config
     {
-        public static IDbConnectionFactory ConnectionFactory { get; } = new SqliteConnectionFactory();
+        public static IDbConnectionFactory ConnectionFactory { get; } = new CachingConnectionFactory(new SqliteConnectionFactory(ConnectionString));
 
         public static ISchematicConnection Connection { get; } = new SchematicConnection(
-            ConnectionFactory.CreateConnection(ConnectionString),
+            ConnectionFactory,
             new SqliteDialect()
         );
 
@@ -29,7 +28,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
     {
         protected ISchematicConnection Connection { get; } = Config.Connection;
 
-        protected IDbConnection DbConnection => Connection.DbConnection;
+        protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
         protected ISqliteConnectionPragma Pragma { get; } = new ConnectionPragma(Config.Connection);
 

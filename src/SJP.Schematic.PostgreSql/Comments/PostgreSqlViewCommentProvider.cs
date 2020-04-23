@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -13,7 +12,7 @@ namespace SJP.Schematic.PostgreSql.Comments
 {
     public class PostgreSqlViewCommentProvider : IDatabaseViewCommentProvider
     {
-        public PostgreSqlViewCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
+        public PostgreSqlViewCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));

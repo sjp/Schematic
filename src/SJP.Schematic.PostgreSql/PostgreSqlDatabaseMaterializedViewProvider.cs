@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -27,7 +26,7 @@ namespace SJP.Schematic.PostgreSql
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
-        protected IDbConnection DbConnection => Connection.DbConnection;
+        protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
         protected IDatabaseDialect Dialect => Connection.Dialect;
 

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
@@ -15,24 +13,6 @@ namespace SJP.Schematic.SqlServer
 {
     public class SqlServerDialect : DatabaseDialect, ISqlServerDialect
     {
-        public static Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default)
-        {
-            if (connectionString.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(connectionString));
-
-            var builder = new SqlConnectionStringBuilder(connectionString) { MultipleActiveResultSets = true };
-            var connWithMars = builder.ConnectionString;
-
-            return CreateConnectionAsyncCore(connWithMars, cancellationToken);
-        }
-
-        private static async Task<IDbConnection> CreateConnectionAsyncCore(string connectionString, CancellationToken cancellationToken)
-        {
-            var connection = new SqlConnection(connectionString);
-            await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
-            return connection;
-        }
-
         public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
@@ -106,7 +86,7 @@ select
             return new SqlServerDatabaseCommentProvider(connection.DbConnection, identifierDefaults);
         }
 
-        public Task<IServerProperties2008?> GetServerProperties2008(IDbConnection connection, CancellationToken cancellationToken = default)
+        public Task<IServerProperties2008?> GetServerProperties2008(IDbConnectionFactory connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -117,7 +97,7 @@ select
                 .IfNoneUnsafe(() => null);
         }
 
-        public Task<IServerProperties2012?> GetServerProperties2012(IDbConnection connection, CancellationToken cancellationToken = default)
+        public Task<IServerProperties2012?> GetServerProperties2012(IDbConnectionFactory connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -128,7 +108,7 @@ select
                 .IfNoneUnsafe(() => null);
         }
 
-        public Task<IServerProperties2014?> GetServerProperties2014(IDbConnection connection, CancellationToken cancellationToken = default)
+        public Task<IServerProperties2014?> GetServerProperties2014(IDbConnectionFactory connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -139,7 +119,7 @@ select
                 .IfNoneUnsafe(() => null);
         }
 
-        public Task<IServerProperties2017?> GetServerProperties2017(IDbConnection connection, CancellationToken cancellationToken = default)
+        public Task<IServerProperties2017?> GetServerProperties2017(IDbConnectionFactory connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
@@ -150,7 +130,7 @@ select
                 .IfNoneUnsafe(() => null);
         }
 
-        public Task<IServerProperties2019?> GetServerProperties2019(IDbConnection connection, CancellationToken cancellationToken = default)
+        public Task<IServerProperties2019?> GetServerProperties2019(IDbConnectionFactory connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));

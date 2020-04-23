@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using EnumsNET;
@@ -15,20 +14,20 @@ namespace SJP.Schematic.Core
     public static class Logging
     {
         private static readonly IReadOnlyDictionary<string, object> EmptyParams = new Dictionary<string, object>();
-        private static readonly ConditionalWeakTable<IDbConnection, LoggingConfiguration> ConnectionLoggerLookup = new ConditionalWeakTable<IDbConnection, LoggingConfiguration>();
+        private static readonly ConditionalWeakTable<IDbConnectionFactory, LoggingConfiguration> ConnectionLoggerLookup = new ConditionalWeakTable<IDbConnectionFactory, LoggingConfiguration>();
 
         /// <summary>
-        /// Determines whether logging is currently configured on the given connection.
+        /// Determines whether logging is currently configured on the given connection factory.
         /// </summary>
-        /// <param name="connection">A database connection.</param>
+        /// <param name="connectionFactory">A database connection factory.</param>
         /// <returns><c>true</c> if logging is configured on the connection; otherwise, <c>false</c>.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
-        public static bool IsLoggingConfigured(IDbConnection connection)
+        /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>.</exception>
+        public static bool IsLoggingConfigured(IDbConnectionFactory connectionFactory)
         {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
+            if (connectionFactory == null)
+                throw new ArgumentNullException(nameof(connectionFactory));
 
-            return ConnectionLoggerLookup.TryGetValue(connection, out var config) && config != null;
+            return ConnectionLoggerLookup.TryGetValue(connectionFactory, out var config) && config != null;
         }
 
         /// <summary>
@@ -66,15 +65,15 @@ namespace SJP.Schematic.Core
                 ConnectionLoggerLookup.Remove(connection.DbConnection);
         }
 
-        internal static void LogCommandExecuting(IDbConnection connection, Guid commandId, string sql, object? param)
+        internal static void LogCommandExecuting(IDbConnectionFactory connectionFactory, Guid commandId, string sql, object? param)
         {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
+            if (connectionFactory == null)
+                throw new ArgumentNullException(nameof(connectionFactory));
             if (sql.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(sql));
-            if (!ConnectionLoggerLookup.TryGetValue(connection, out var loggingConfig))
+            if (!ConnectionLoggerLookup.TryGetValue(connectionFactory, out var loggingConfig))
                 return;
-            if (!ConnectionRegistry.TryGetConnectionId(connection, out var connectionId))
+            if (!ConnectionRegistry.TryGetConnectionId(connectionFactory, out var connectionId))
                 connectionId = Guid.Empty;
 
             var parameters = ToDictionary(param);
@@ -89,15 +88,15 @@ namespace SJP.Schematic.Core
             );
         }
 
-        internal static void LogCommandExecuted(IDbConnection connection, Guid commandId, string sql, object? param, TimeSpan duration)
+        internal static void LogCommandExecuted(IDbConnectionFactory connectionFactory, Guid commandId, string sql, object? param, TimeSpan duration)
         {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
+            if (connectionFactory == null)
+                throw new ArgumentNullException(nameof(connectionFactory));
             if (sql.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(sql));
-            if (!ConnectionLoggerLookup.TryGetValue(connection, out var loggingConfig))
+            if (!ConnectionLoggerLookup.TryGetValue(connectionFactory, out var loggingConfig))
                 return;
-            if (!ConnectionRegistry.TryGetConnectionId(connection, out var connectionId))
+            if (!ConnectionRegistry.TryGetConnectionId(connectionFactory, out var connectionId))
                 connectionId = Guid.Empty;
 
             var parameters = ToDictionary(param);

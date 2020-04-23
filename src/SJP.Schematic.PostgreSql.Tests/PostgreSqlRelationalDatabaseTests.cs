@@ -1,5 +1,4 @@
-﻿using System.Data;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -14,7 +13,7 @@ namespace SJP.Schematic.PostgreSql.Tests
         {
             get
             {
-                var connection = new SchematicConnection(Mock.Of<IDbConnection>(), Mock.Of<IDatabaseDialect>());
+                var connection = new SchematicConnection(Mock.Of<IDbConnectionFactory>(), Mock.Of<IDatabaseDialect>());
                 var identifierDefaults = Mock.Of<IIdentifierDefaults>();
                 var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 

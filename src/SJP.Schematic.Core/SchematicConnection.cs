@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 
 namespace SJP.Schematic.Core
 {
@@ -12,11 +11,11 @@ namespace SJP.Schematic.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="SchematicConnection"/> class.
         /// </summary>
-        /// <param name="connection">A database connection.</param>
-        /// <param name="dialect">The dialect used for <paramref name="connection"/>.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="dialect"/> is <c>null</c>.</exception>
-        public SchematicConnection(IDbConnection connection, IDatabaseDialect dialect)
-            : this(Guid.NewGuid(), connection, dialect)
+        /// <param name="connectionFactory">A database connection factory.</param>
+        /// <param name="dialect">The dialect used for <paramref name="connectionFactory"/>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> or <paramref name="dialect"/> is <c>null</c>.</exception>
+        public SchematicConnection(IDbConnectionFactory connectionFactory, IDatabaseDialect dialect)
+            : this(Guid.NewGuid(), connectionFactory, dialect)
         {
         }
 
@@ -24,27 +23,27 @@ namespace SJP.Schematic.Core
         /// Initializes a new instance of the <see cref="SchematicConnection"/> class.
         /// </summary>
         /// <param name="connectionId">A connection identifier.</param>
-        /// <param name="connection">A database connection.</param>
-        /// <param name="dialect">The dialect used for <paramref name="connection"/>.</param>
+        /// <param name="connectionFactory">A database connection factory.</param>
+        /// <param name="dialect">The dialect used for <paramref name="connectionFactory"/>.</param>
         /// <exception cref="ArgumentException">An empty connection ID was provided.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="dialect"/> is <c>null</c>.</exception>
-        public SchematicConnection(Guid connectionId, IDbConnection connection, IDatabaseDialect dialect)
+        /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> or <paramref name="dialect"/> is <c>null</c>.</exception>
+        public SchematicConnection(Guid connectionId, IDbConnectionFactory connectionFactory, IDatabaseDialect dialect)
         {
             if (connectionId == Guid.Empty)
                 throw new ArgumentException("An empty connection ID was provided. Consider using Guid.NewGuid() instead.", nameof(connectionId));
 
             ConnectionId = connectionId;
-            DbConnection = connection ?? throw new ArgumentNullException(nameof(connection));
+            DbConnection = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
 
-            ConnectionRegistry.RegisterConnection(connectionId, connection);
+            ConnectionRegistry.RegisterConnection(connectionId, connectionFactory);
         }
 
         /// <inheritdoc />
         public Guid ConnectionId { get; }
 
         /// <inheritdoc />
-        public IDbConnection DbConnection { get; }
+        public IDbConnectionFactory DbConnection { get; }
 
         /// <inheritdoc />
         public IDatabaseDialect Dialect { get; }

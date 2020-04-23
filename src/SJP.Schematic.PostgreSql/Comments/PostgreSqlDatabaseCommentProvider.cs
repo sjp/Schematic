@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Threading;
 using LanguageExt;
 using SJP.Schematic.Core;
@@ -10,7 +9,7 @@ namespace SJP.Schematic.PostgreSql.Comments
 {
     public class PostgreSqlDatabaseCommentProvider : IRelationalDatabaseCommentProvider
     {
-        public PostgreSqlDatabaseCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
+        public PostgreSqlDatabaseCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));

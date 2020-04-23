@@ -1,5 +1,4 @@
-﻿using System.Data;
-using System.IO;
+﻿using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
@@ -11,26 +10,16 @@ namespace SJP.Schematic.Tests.Utilities.Integration
 {
     internal static class Config
     {
-        public static IDbConnectionFactory ConnectionFactory { get; } = new SqliteConnectionFactory();
-
-        public static IDbConnection Connection
+        public static IDbConnectionFactory ConnectionFactory
         {
             get
             {
                 EnsureUnzipped();
-                return ConnectionFactory.CreateConnection(ConnectionString);
+                return new SqliteConnectionFactory(ConnectionString);
             }
         }
 
-        public static ISchematicConnection SchematicConnection
-        {
-            get
-            {
-                var connection = new SchematicConnection(Connection, new SqliteDialect());
-                connection.SetMaxConcurrentQueries(1);
-                return connection;
-            }
-        }
+        public static ISchematicConnection SchematicConnection => new SchematicConnection(ConnectionFactory, new SqliteDialect());
 
         private static string ConnectionString => "Data Source=" + SakilaDbPath;
 
@@ -52,12 +41,12 @@ namespace SJP.Schematic.Tests.Utilities.Integration
         private static string CurrentDirectory => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
     }
 
-    [DatabaseTestFixture(typeof(Config), nameof(Config.Connection), "No Sakila DB available")]
+    [DatabaseTestFixture(typeof(Config), nameof(Config.ConnectionFactory), "No Sakila DB available")]
     public abstract class SakilaTest
     {
         protected ISchematicConnection Connection { get; } = Config.SchematicConnection;
 
-        protected IDbConnection DbConnection => Connection.DbConnection;
+        protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
         protected IIdentifierDefaults IdentifierDefaults => Connection.Dialect.GetIdentifierDefaultsAsync(Config.SchematicConnection).GetAwaiter().GetResult();
 

@@ -1,5 +1,4 @@
-﻿using System.Data;
-using System.Linq;
+﻿using System.Linq;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -18,7 +17,7 @@ namespace SJP.Schematic.Lint.Tests
         [Test]
         public static void Build_GivenNoProviders_ReturnsEmptyRuleSet()
         {
-            var dbConnection = Mock.Of<IDbConnection>();
+            var dbConnection = Mock.Of<IDbConnectionFactory>();
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = new SchematicConnection(dbConnection, dialect);
 
@@ -31,7 +30,7 @@ namespace SJP.Schematic.Lint.Tests
         [Test]
         public static void Build_GivenDefaultProvider_ReturnsNonEmptyRuleSet()
         {
-            var dbConnection = Mock.Of<IDbConnection>();
+            var dbConnection = Mock.Of<IDbConnectionFactory>();
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = new SchematicConnection(dbConnection, dialect);
 
@@ -47,7 +46,7 @@ namespace SJP.Schematic.Lint.Tests
         [Test]
         public static void Build_GivenDefaultProviderViaGeneric_ReturnsNonEmptyRuleSet()
         {
-            var dbConnection = Mock.Of<IDbConnection>();
+            var dbConnection = Mock.Of<IDbConnectionFactory>();
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = new SchematicConnection(dbConnection, dialect);
 
@@ -62,7 +61,7 @@ namespace SJP.Schematic.Lint.Tests
         [Test]
         public static void Build_GivenMultipleProviders_ReturnsExpectedRuleCount()
         {
-            var dbConnection = Mock.Of<IDbConnection>();
+            var dbConnection = Mock.Of<IDbConnectionFactory>();
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = new SchematicConnection(dbConnection, dialect);
 

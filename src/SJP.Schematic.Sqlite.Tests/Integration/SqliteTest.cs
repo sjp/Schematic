@@ -1,5 +1,4 @@
-﻿using System.Data;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite.Pragma;
@@ -8,11 +7,9 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 {
     internal static class Config
     {
-        public static IDbConnectionFactory ConnectionFactory { get; } = new SqliteConnectionFactory();
+        public static IDbConnectionFactory ConnectionFactory { get; } = new CachingConnectionFactory(new SqliteConnectionFactory(ConnectionString));
 
-        public static IDbConnection DbConnection { get; } = ConnectionFactory.CreateConnection(ConnectionString);
-
-        public static ISchematicConnection Connection { get; } = new SchematicConnection(DbConnection, new SqliteDialect());
+        public static ISchematicConnection Connection { get; } = new SchematicConnection(ConnectionFactory, new SqliteDialect());
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
@@ -28,7 +25,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
     {
         protected ISchematicConnection Connection { get; } = Config.Connection;
 
-        protected IDbConnection DbConnection => Connection.DbConnection;
+        protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
         protected IDatabaseDialect Dialect => Connection.Dialect;
 

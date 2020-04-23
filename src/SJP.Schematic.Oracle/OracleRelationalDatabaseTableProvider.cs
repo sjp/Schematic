@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -30,7 +29,7 @@ namespace SJP.Schematic.Oracle
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
-        protected IDbConnection DbConnection => Connection.DbConnection;
+        protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
@@ -150,17 +149,15 @@ where
             var uniqueKeysTask = queryCache.GetUniqueKeysAsync(tableName, cancellationToken);
             var indexesTask = LoadIndexesAsync(tableName, columnLookup, cancellationToken);
             var checksTask = LoadChecksAsync(tableName, columnLookup, cancellationToken);
-            await Task.WhenAll(primaryKeyTask, checksTask, uniqueKeysTask, indexesTask).ConfigureAwait(false);
+            var childKeysTask = LoadChildKeysAsync(tableName, queryCache, cancellationToken);
+            var parentKeysTask = queryCache.GetForeignKeysAsync(tableName, cancellationToken);
+
+            await Task.WhenAll(primaryKeyTask, checksTask, uniqueKeysTask, indexesTask, childKeysTask, parentKeysTask).ConfigureAwait(false);
 
             var primaryKey = await primaryKeyTask.ConfigureAwait(false);
             var uniqueKeys = await uniqueKeysTask.ConfigureAwait(false);
             var indexes = await indexesTask.ConfigureAwait(false);
             var checks = await checksTask.ConfigureAwait(false);
-
-            var childKeysTask = LoadChildKeysAsync(tableName, queryCache, cancellationToken);
-            var parentKeysTask = queryCache.GetForeignKeysAsync(tableName, cancellationToken);
-            await Task.WhenAll(childKeysTask, parentKeysTask).ConfigureAwait(false);
-
             var childKeys = await childKeysTask.ConfigureAwait(false);
             var parentKeys = await parentKeysTask.ConfigureAwait(false);
 

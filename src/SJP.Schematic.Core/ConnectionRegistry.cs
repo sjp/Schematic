@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Data;
 using System.Runtime.CompilerServices;
 
 namespace SJP.Schematic.Core
@@ -10,44 +9,44 @@ namespace SJP.Schematic.Core
     /// </summary>
     public static class ConnectionRegistry
     {
-        private static readonly ConcurrentDictionary<Guid, WeakReference<IDbConnection>> ConnectionLookup = new ConcurrentDictionary<Guid, WeakReference<IDbConnection>>();
-        private static readonly ConditionalWeakTable<IDbConnection, string> ConnectionIdLookup = new ConditionalWeakTable<IDbConnection, string>();
+        private static readonly ConcurrentDictionary<Guid, WeakReference<IDbConnectionFactory>> ConnectionFactoryLookup = new ConcurrentDictionary<Guid, WeakReference<IDbConnectionFactory>>();
+        private static readonly ConditionalWeakTable<IDbConnectionFactory, string> ConnectionIdLookup = new ConditionalWeakTable<IDbConnectionFactory, string>();
 
         /// <summary>
-        /// Registers a database connection by its identifier.
+        /// Registers a database connection factory by its identifier.
         /// </summary>
         /// <param name="connectionId">The connection identifier.</param>
-        /// <param name="connection">A database connection.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
-        public static void RegisterConnection(Guid connectionId, IDbConnection connection)
+        /// <param name="connectionFactory">A database connection factory.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>.</exception>
+        public static void RegisterConnection(Guid connectionId, IDbConnectionFactory connectionFactory)
         {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
+            if (connectionFactory == null)
+                throw new ArgumentNullException(nameof(connectionFactory));
 
-            ConnectionLookup.AddOrUpdate(
+            ConnectionFactoryLookup.AddOrUpdate(
                 connectionId,
-                new WeakReference<IDbConnection>(connection),
+                new WeakReference<IDbConnectionFactory>(connectionFactory),
                 (_, reference) =>
                 {
-                    reference.SetTarget(connection);
+                    reference.SetTarget(connectionFactory);
                     return reference;
                 });
-            ConnectionIdLookup.AddOrUpdate(connection, connectionId.ToString());
+            ConnectionIdLookup.AddOrUpdate(connectionFactory, connectionId.ToString());
         }
 
         /// <summary>
-        /// Tries to get a connection identifier. This will be available if the connection has been registered.
+        /// Tries to get a connection identifier. This will be available if the connection factory has been registered.
         /// </summary>
-        /// <param name="connection">A database connection.</param>
+        /// <param name="connectionFactory">A database connection factory.</param>
         /// <param name="connectionId">The connection identifier.</param>
         /// <returns><c>true</c> if the connection has been registered and a connection identifier has been found; otherwise <c>false</c>.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
-        public static bool TryGetConnectionId(IDbConnection connection, out Guid connectionId)
+        /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>.</exception>
+        public static bool TryGetConnectionId(IDbConnectionFactory connectionFactory, out Guid connectionId)
         {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
+            if (connectionFactory == null)
+                throw new ArgumentNullException(nameof(connectionFactory));
 
-            if (ConnectionIdLookup.TryGetValue(connection, out var guidStr)
+            if (ConnectionIdLookup.TryGetValue(connectionFactory, out var guidStr)
                 && Guid.TryParse(guidStr, out var lookupId))
             {
                 connectionId = lookupId;

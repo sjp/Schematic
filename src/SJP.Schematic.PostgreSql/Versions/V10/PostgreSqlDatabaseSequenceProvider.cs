@@ -1,11 +1,10 @@
-﻿using System.Data;
-using SJP.Schematic.Core;
+﻿using SJP.Schematic.Core;
 
 namespace SJP.Schematic.PostgreSql.Versions.V10
 {
     public class PostgreSqlDatabaseSequenceProvider : PostgreSqlDatabaseSequenceProviderBase
     {
-        public PostgreSqlDatabaseSequenceProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
+        public PostgreSqlDatabaseSequenceProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
             : base(connection, identifierDefaults, identifierResolver)
         {
         }

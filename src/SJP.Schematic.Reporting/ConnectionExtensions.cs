@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
@@ -9,7 +8,7 @@ namespace SJP.Schematic.Reporting
 {
     internal static class ConnectionExtensions
     {
-        public static Task<ulong> GetRowCountAsync(this IDbConnection connection, IDatabaseDialect dialect, Identifier tableName, CancellationToken cancellationToken)
+        public static Task<ulong> GetRowCountAsync(this IDbConnectionFactory connection, IDatabaseDialect dialect, Identifier tableName, CancellationToken cancellationToken)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));

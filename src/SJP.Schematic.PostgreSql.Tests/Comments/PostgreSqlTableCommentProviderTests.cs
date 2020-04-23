@@ -1,5 +1,4 @@
-﻿using System.Data;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.PostgreSql.Comments;
@@ -21,7 +20,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Comments
         [Test]
         public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
             var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
             Assert.That(() => new PostgreSqlTableCommentProvider(connection, null, identifierResolver), Throws.ArgumentNullException);
@@ -30,7 +29,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Comments
         [Test]
         public static void Ctor_GivenNullIdentifierResolver_ThrowsArgNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             Assert.That(() => new PostgreSqlTableCommentProvider(connection, identifierDefaults, null), Throws.ArgumentNullException);
@@ -39,7 +38,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Comments
         [Test]
         public static void GetTableComments_GivenNullTableName_ThrowsArgNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 

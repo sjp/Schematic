@@ -10,12 +10,27 @@ namespace SJP.Schematic.SqlServer
 {
     public class SqlServerConnectionFactory : IDbConnectionFactory
     {
-        public IDbConnection CreateConnection(string connectionString)
+        public SqlServerConnectionFactory(string connectionString)
         {
             if (connectionString.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(connectionString));
 
-            var builder = new SqlConnectionStringBuilder(connectionString) { MultipleActiveResultSets = true };
+            ConnectionString = connectionString;
+        }
+
+        protected string ConnectionString { get; }
+
+        public IDbConnection CreateConnection()
+        {
+            var builder = new SqlConnectionStringBuilder(ConnectionString) { MultipleActiveResultSets = true };
+            var connWithMars = builder.ConnectionString;
+
+            return new SqlConnection(connWithMars);
+        }
+
+        public IDbConnection OpenConnection()
+        {
+            var builder = new SqlConnectionStringBuilder(ConnectionString) { MultipleActiveResultSets = true };
             var connWithMars = builder.ConnectionString;
 
             var connection = new SqlConnection(connWithMars);
@@ -23,22 +38,16 @@ namespace SJP.Schematic.SqlServer
             return connection;
         }
 
-        public Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default)
+        public async Task<IDbConnection> OpenConnectionAsync(CancellationToken cancellationToken = default)
         {
-            if (connectionString.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(connectionString));
-
-            var builder = new SqlConnectionStringBuilder(connectionString) { MultipleActiveResultSets = true };
+            var builder = new SqlConnectionStringBuilder(ConnectionString) { MultipleActiveResultSets = true };
             var connWithMars = builder.ConnectionString;
 
-            return CreateConnectionAsyncCore(connWithMars, cancellationToken);
-        }
-
-        private static async Task<IDbConnection> CreateConnectionAsyncCore(string connectionString, CancellationToken cancellationToken)
-        {
-            var connection = new SqlConnection(connectionString);
+            var connection = new SqlConnection(connWithMars);
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
             return connection;
         }
+
+        public bool DisposeConnection { get; } = true;
     }
 }

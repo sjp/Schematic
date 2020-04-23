@@ -1,5 +1,4 @@
-﻿using System.Data;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite.Pragma;
@@ -29,7 +28,7 @@ namespace SJP.Schematic.Sqlite.Tests.Pragma
         {
             var dialectMock = new Mock<IDatabaseDialect>();
             dialectMock.Setup(dialect => dialect.QuoteIdentifier(It.IsAny<string>())).Returns("test");
-            var connection = new SchematicConnection(Mock.Of<IDbConnection>(), dialectMock.Object);
+            var connection = new SchematicConnection(Mock.Of<IDbConnectionFactory>(), dialectMock.Object);
 
             const string schemaName = "test";
             var dbPragma = new DatabasePragma(connection, schemaName);

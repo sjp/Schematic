@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using Moq;
 using NUnit.Framework;
@@ -27,7 +26,7 @@ namespace SJP.Schematic.Lint.Tests
         [Test]
         public static void GetRules_WhenInvoked_RetrievesRulesFromTestRuleProvider()
         {
-            var dbConnection = Mock.Of<IDbConnection>();
+            var dbConnection = Mock.Of<IDbConnectionFactory>();
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = new SchematicConnection(dbConnection, dialect);
 
@@ -39,7 +38,7 @@ namespace SJP.Schematic.Lint.Tests
         [Test]
         public static void GetRules_WhenInvokedWithMatchingDialect_RetrievesRulesFromTestRuleProviderAndTestDialectProvider()
         {
-            var dbConnection = Mock.Of<IDbConnection>();
+            var dbConnection = Mock.Of<IDbConnectionFactory>();
             var dialect = new Fakes.FakeDatabaseDialect();
             var connection = new SchematicConnection(dbConnection, dialect);
 

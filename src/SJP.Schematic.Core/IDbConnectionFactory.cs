@@ -6,8 +6,12 @@ namespace SJP.Schematic.Core
 {
     public interface IDbConnectionFactory
     {
-        IDbConnection CreateConnection(string connectionString);
+        IDbConnection CreateConnection();
 
-        Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default);
+        IDbConnection OpenConnection();
+
+        Task<IDbConnection> OpenConnectionAsync(CancellationToken cancellationToken = default);
+
+        bool DisposeConnection { get; }
     }
 }

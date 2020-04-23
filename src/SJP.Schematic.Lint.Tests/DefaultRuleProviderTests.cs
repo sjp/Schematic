@@ -1,5 +1,4 @@
-﻿using System.Data;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -25,7 +24,7 @@ namespace SJP.Schematic.Lint.Tests
         [Test]
         public static void GetRules_GivenValidInput_ReturnsNonEmptySet()
         {
-            var dbConnection = Mock.Of<IDbConnection>();
+            var dbConnection = Mock.Of<IDbConnectionFactory>();
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = new SchematicConnection(dbConnection, dialect);
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using Moq;
 using NUnit.Framework;
 
@@ -19,7 +18,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void Ctor_GivenNullDialect_ThrowsArgumentNullException()
         {
-            var dbConnection = Mock.Of<IDbConnection>();
+            var dbConnection = Mock.Of<IDbConnectionFactory>();
 
             Assert.That(() => new SchematicConnection(dbConnection, null), Throws.ArgumentNullException);
         }
@@ -27,7 +26,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void Ctor_GivenEmptyIdentifier_ThrowsArgumentException()
         {
-            var dbConnection = Mock.Of<IDbConnection>();
+            var dbConnection = Mock.Of<IDbConnectionFactory>();
             var dialect = Mock.Of<IDatabaseDialect>();
 
             Assert.That(() => new SchematicConnection(Guid.Empty, dbConnection, dialect), Throws.ArgumentException);
@@ -37,7 +36,7 @@ namespace SJP.Schematic.Core.Tests
         public static void ConnectionId_PropertyGet_ReturnsCtorArg()
         {
             var identifier = Guid.NewGuid();
-            var dbConnection = Mock.Of<IDbConnection>();
+            var dbConnection = Mock.Of<IDbConnectionFactory>();
             var dialect = Mock.Of<IDatabaseDialect>();
 
             var connection = new SchematicConnection(identifier, dbConnection, dialect);
@@ -48,7 +47,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void ConnectionId_PropertyGetWhenNoCtorArgProvided_IsNotEmpty()
         {
-            var dbConnection = Mock.Of<IDbConnection>();
+            var dbConnection = Mock.Of<IDbConnectionFactory>();
             var dialect = Mock.Of<IDatabaseDialect>();
 
             var connection = new SchematicConnection(dbConnection, dialect);
@@ -60,7 +59,7 @@ namespace SJP.Schematic.Core.Tests
         public static void DbConnection_PropertyGet_ReturnsCtorArg()
         {
             var identifier = Guid.NewGuid();
-            var dbConnection = Mock.Of<IDbConnection>();
+            var dbConnection = Mock.Of<IDbConnectionFactory>();
             var dialect = Mock.Of<IDatabaseDialect>();
 
             var connection = new SchematicConnection(identifier, dbConnection, dialect);
@@ -72,7 +71,7 @@ namespace SJP.Schematic.Core.Tests
         public static void Dialect_PropertyGet_ReturnsCtorArg()
         {
             var identifier = Guid.NewGuid();
-            var dbConnection = Mock.Of<IDbConnection>();
+            var dbConnection = Mock.Of<IDbConnectionFactory>();
             var dialect = Mock.Of<IDatabaseDialect>();
 
             var connection = new SchematicConnection(identifier, dbConnection, dialect);

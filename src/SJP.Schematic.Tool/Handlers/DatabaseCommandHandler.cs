@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -53,26 +51,25 @@ namespace SJP.Schematic.Tool.Handlers
             if (dialect.IsNullOrWhiteSpace())
                 throw new InvalidOperationException(nameof(dialect));
 
+            var connectionString = GetConnectionString();
             dialect = dialect.ToLowerInvariant();
             return dialect switch
             {
-                "mysql" => new MySql.MySqlConnectionFactory(),
-                "oracle" => new Oracle.OracleConnectionFactory(),
-                "postgresql" => new PostgreSql.PostgreSqlConnectionFactory(),
-                "sqlserver" => new SqlServer.SqlServerConnectionFactory(),
-                "sqlite" => new Sqlite.SqliteConnectionFactory(),
+                "mysql" => new MySql.MySqlConnectionFactory(connectionString),
+                "oracle" => new Oracle.OracleConnectionFactory(connectionString),
+                "postgresql" => new PostgreSql.PostgreSqlConnectionFactory(connectionString),
+                "sqlserver" => new SqlServer.SqlServerConnectionFactory(connectionString),
+                "sqlite" => new Sqlite.SqliteConnectionFactory(connectionString),
                 _ => throw new NotSupportedException($"The given dialect is not supported {dialect}, expected one of: ..."),
             };
         }
 
-        protected async Task<ISchematicConnection> GetSchematicConnectionAsync(CancellationToken cancellationToken)
+        protected ISchematicConnection GetSchematicConnection()
         {
             var connectionFactory = GetConnectionFactory();
-            var connectionString = GetConnectionString();
             var dialect = GetDialect();
-            var dbConnection = await connectionFactory.CreateConnectionAsync(connectionString, cancellationToken).ConfigureAwait(false);
 
-            return new SchematicConnection(dbConnection, dialect);
+            return new SchematicConnection(connectionFactory, dialect);
         }
 
         protected string GetConnectionString()

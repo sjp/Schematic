@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -14,13 +13,13 @@ namespace SJP.Schematic.SqlServer
 {
     public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
     {
-        public SqlServerDatabaseRoutineProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults)
+        public SqlServerDatabaseRoutineProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         }
 
-        protected IDbConnection Connection { get; }
+        protected IDbConnectionFactory Connection { get; }
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
 

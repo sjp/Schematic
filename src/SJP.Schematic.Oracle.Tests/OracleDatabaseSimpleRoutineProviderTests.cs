@@ -1,5 +1,4 @@
-﻿using System.Data;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -20,7 +19,7 @@ namespace SJP.Schematic.Oracle.Tests
         [Test]
         public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
             Assert.That(() => new OracleDatabaseSimpleRoutineProvider(connection, null, identifierResolver), Throws.ArgumentNullException);
@@ -29,7 +28,7 @@ namespace SJP.Schematic.Oracle.Tests
         [Test]
         public static void Ctor_GivenNullIdentifierResolver_ThrowsArgNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             Assert.That(() => new OracleDatabaseSimpleRoutineProvider(connection, identifierDefaults, null), Throws.ArgumentNullException);
@@ -38,7 +37,7 @@ namespace SJP.Schematic.Oracle.Tests
         [Test]
         public static void GetRoutine_GivenNullRoutineName_ThrowsArgNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 

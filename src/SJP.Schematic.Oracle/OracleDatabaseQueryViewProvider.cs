@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -28,7 +27,7 @@ namespace SJP.Schematic.Oracle
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
-        protected IDbConnection DbConnection => Connection.DbConnection;
+        protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
@@ -114,6 +113,7 @@ where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED 
         {
             var columnsTask = LoadColumnsAsync(viewName, cancellationToken);
             var definitionTask = LoadDefinitionAsync(viewName, cancellationToken);
+
             await Task.WhenAll(columnsTask, definitionTask).ConfigureAwait(false);
 
             var columns = await columnsTask.ConfigureAwait(false);

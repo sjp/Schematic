@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Threading;
 using LanguageExt;
 using SJP.Schematic.Core;
@@ -10,7 +9,7 @@ namespace SJP.Schematic.Oracle.Comments
 {
     public class OracleDatabaseCommentProvider : IRelationalDatabaseCommentProvider
     {
-        public OracleDatabaseCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
+        public OracleDatabaseCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));

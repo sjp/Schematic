@@ -1,5 +1,4 @@
-﻿using System.Data;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.SqlServer.Comments;
@@ -20,7 +19,7 @@ namespace SJP.Schematic.SqlServer.Tests.Comments
         [Test]
         public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
 
             Assert.That(() => new SqlServerRoutineCommentProvider(connection, null), Throws.ArgumentNullException);
         }
@@ -28,7 +27,7 @@ namespace SJP.Schematic.SqlServer.Tests.Comments
         [Test]
         public static void GetRoutineComments_GivenNullRoutineName_ThrowsArgNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             var commentProvider = new SqlServerRoutineCommentProvider(connection, identifierDefaults);

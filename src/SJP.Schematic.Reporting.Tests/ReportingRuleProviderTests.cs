@@ -1,4 +1,3 @@
-using System.Data;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -12,7 +11,7 @@ namespace SJP.Schematic.Reporting.Tests
         public static void Test()
         {
             var ruleProvider = new Reporting.Html.Lint.ReportingRuleProvider();
-            var dbConnection = Mock.Of<IDbConnection>();
+            var dbConnection = Mock.Of<IDbConnectionFactory>();
             var dialect = new Sqlite.SqliteDialect();
             var connection = new SchematicConnection(dbConnection, dialect);
 

@@ -10,29 +10,32 @@ namespace SJP.Schematic.MySql
 {
     public class MySqlConnectionFactory : IDbConnectionFactory
     {
-        public IDbConnection CreateConnection(string connectionString)
+        public MySqlConnectionFactory(string connectionString)
         {
             if (connectionString.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(connectionString));
 
-            var connection = new MySqlConnection(connectionString);
+            ConnectionString = connectionString;
+        }
+
+        protected string ConnectionString { get; }
+
+        public IDbConnection CreateConnection() => new MySqlConnection(ConnectionString);
+
+        public IDbConnection OpenConnection()
+        {
+            var connection = new MySqlConnection(ConnectionString);
             connection.Open();
             return connection;
         }
 
-        public Task<IDbConnection> CreateConnectionAsync(string connectionString, CancellationToken cancellationToken = default)
+        public async Task<IDbConnection> OpenConnectionAsync(CancellationToken cancellationToken = default)
         {
-            if (connectionString.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(connectionString));
-
-            return CreateConnectionAsyncCore(connectionString, cancellationToken);
-        }
-
-        private static async Task<IDbConnection> CreateConnectionAsyncCore(string connectionString, CancellationToken cancellationToken)
-        {
-            var connection = new MySqlConnection(connectionString);
+            var connection = new MySqlConnection(ConnectionString);
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
             return connection;
         }
+
+        public bool DisposeConnection { get; } = true;
     }
 }

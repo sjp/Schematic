@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
@@ -33,19 +32,19 @@ namespace SJP.Schematic.Core
         private readonly AsyncSemaphore? _semaphore;
         private readonly QueryLoggingContext _loggingContext;
 
-        public static Task<QueryContext> CreateAsync(IDbConnection connection, QueryLoggingContext loggingContext)
+        public static Task<QueryContext> CreateAsync(IDbConnectionFactory connectionFactory, QueryLoggingContext loggingContext)
         {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
+            if (connectionFactory == null)
+                throw new ArgumentNullException(nameof(connectionFactory));
             if (loggingContext == null)
                 throw new ArgumentNullException(nameof(loggingContext));
 
-            return CreateAsyncCore(connection, loggingContext);
+            return CreateAsyncCore(connectionFactory, loggingContext);
         }
 
-        private static async Task<QueryContext> CreateAsyncCore(IDbConnection connection, QueryLoggingContext loggingContext)
+        private static async Task<QueryContext> CreateAsyncCore(IDbConnectionFactory connectionFactory, QueryLoggingContext loggingContext)
         {
-            if (SemaphoreLookup.TryGetValue(connection, out var semaphore))
+            if (SemaphoreLookup.TryGetValue(connectionFactory, out var semaphore))
             {
                 await semaphore.WaitAsync().ConfigureAwait(false);
                 try
@@ -66,11 +65,11 @@ namespace SJP.Schematic.Core
             }
         }
 
-        private static readonly ConditionalWeakTable<IDbConnection, AsyncSemaphore> SemaphoreLookup = new ConditionalWeakTable<IDbConnection, AsyncSemaphore>();
+        private static readonly ConditionalWeakTable<IDbConnectionFactory, AsyncSemaphore> SemaphoreLookup = new ConditionalWeakTable<IDbConnectionFactory, AsyncSemaphore>();
 
-        public static void SetMaxConcurrentQueries(IDbConnection connection, AsyncSemaphore semaphore)
+        public static void SetMaxConcurrentQueries(IDbConnectionFactory connectionFactory, AsyncSemaphore semaphore)
         {
-            SemaphoreLookup.AddOrUpdate(connection, semaphore);
+            SemaphoreLookup.AddOrUpdate(connectionFactory, semaphore);
         }
     }
 }

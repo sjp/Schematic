@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -22,7 +21,7 @@ namespace SJP.Schematic.MySql
 
         protected ISchematicConnection Connection { get; }
 
-        protected IDbConnection DbConnection => Connection.DbConnection;
+        protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
 

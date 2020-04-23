@@ -1,24 +1,16 @@
-﻿using System.Data;
-using LanguageExt;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.MySql.Tests.Integration
 {
     internal static class Config
     {
-        public static IDbConnectionFactory ConnectionFactory { get; } = new MySqlConnectionFactory();
-
-        public static IDbConnection Connection { get; } = Prelude.Try(() => !ConnectionString.IsNullOrWhiteSpace()
-            ? ConnectionFactory.CreateConnection(ConnectionString)
-            : null)
-            .Match(c => c, _ => null);
+        public static IDbConnectionFactory ConnectionFactory { get; } = new MySqlConnectionFactory(ConnectionString);
 
         public static ISchematicConnection SchematicConnection => new SchematicConnection(
-            Connection,
+            ConnectionFactory,
             new MySqlDialect()
         );
 
@@ -31,12 +23,12 @@ namespace SJP.Schematic.MySql.Tests.Integration
     }
 
     [Category("MySqlDatabase")]
-    [DatabaseTestFixture(typeof(Config), nameof(Config.Connection), "No MySQL DB available")]
+    [DatabaseTestFixture(typeof(Config), nameof(Config.ConnectionFactory), "No MySQL DB available")]
     internal abstract class MySqlTest
     {
         protected ISchematicConnection Connection { get; } = Config.SchematicConnection;
 
-        protected IDbConnection DbConnection => Connection.DbConnection;
+        protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
         protected IDatabaseDialect Dialect => Connection.Dialect;
 

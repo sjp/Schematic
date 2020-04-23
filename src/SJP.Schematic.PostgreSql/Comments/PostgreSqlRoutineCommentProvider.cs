@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -14,14 +13,14 @@ namespace SJP.Schematic.PostgreSql.Comments
 {
     public class PostgreSqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
     {
-        public PostgreSqlRoutineCommentProvider(IDbConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
+        public PostgreSqlRoutineCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
         }
 
-        protected IDbConnection Connection { get; }
+        protected IDbConnectionFactory Connection { get; }
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
 

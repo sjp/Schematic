@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,16 +13,17 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 {
     internal sealed class ConnectionPragmaTests : SqliteTest
     {
-        private static IDbConnection CreateConnection()
+        private static IDbConnectionFactory CreateConnectionFactory()
         {
-            var connection = new SqliteConnection("Data Source=:memory:");
-            connection.Open();
-            return connection;
+            var id = Guid.NewGuid().ToString().Replace("-", "_");
+            var connectionString = $"Data Source=InMemory_{id};Mode=Memory;Cache=Shared";
+
+            return new CachingConnectionFactory(new SqliteConnectionFactory(connectionString));
         }
 
-        private static ISqliteConnectionPragma CreateConnectionPragma(IDbConnection connection)
+        private static ISqliteConnectionPragma CreateConnectionPragma(IDbConnectionFactory connectionFactory)
         {
-            var conn = new SchematicConnection(Guid.NewGuid(), connection, new SqliteDialect());
+            var conn = new SchematicConnection(Guid.NewGuid(), connectionFactory, new SqliteDialect());
             return new ConnectionPragma(conn);
         }
 
@@ -32,8 +32,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         {
             var expectedSchemas = new HashSet<string>(new[] { "main", "temp" }, StringComparer.OrdinalIgnoreCase);
 
-            using var connection = CreateConnection();
-            var connPragma = CreateConnectionPragma(connection);
+            var connectionFactory = CreateConnectionFactory();
+            var connPragma = CreateConnectionPragma(connectionFactory);
 
             var dbPragmas = await connPragma.DatabasePragmasAsync().ConfigureAwait(false);
             var dbPragmaNames = dbPragmas.Select(d => d.SchemaName).ToList();
@@ -47,8 +47,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         {
             var expectedSchemas = new HashSet<string>(new[] { "main", "temp" }, StringComparer.OrdinalIgnoreCase);
 
-            using var connection = CreateConnection();
-            var connPragma = CreateConnectionPragma(connection);
+            var connectionFactory = CreateConnectionFactory();
+            var connPragma = CreateConnectionPragma(connectionFactory);
 
             var dbLists = await connPragma.DatabaseListAsync().ConfigureAwait(false);
             var dbNames = dbLists.Select(d => d.name).ToList();
@@ -60,8 +60,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task AutomaticIndexAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
-            using var connection = CreateConnection();
-            var connPragma = CreateConnectionPragma(connection);
+            var connectionFactory = CreateConnectionFactory();
+            var connPragma = CreateConnectionPragma(connectionFactory);
 
             var automaticIndex = await connPragma.AutomaticIndexAsync().ConfigureAwait(false);
             var newValue = !automaticIndex;
@@ -74,8 +74,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task BusyTimeoutAsync_Get_ReadsCorrectly()
         {
-            using var connection = CreateConnection();
-            var connPragma = CreateConnectionPragma(connection);
+            var connectionFactory = CreateConnectionFactory();
+            var connPragma = CreateConnectionPragma(connectionFactory);
 
             var busyTimeout = await connPragma.BusyTimeoutAsync().ConfigureAwait(false);
             var defaultValue = new TimeSpan(0, 0, 0);
@@ -87,8 +87,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Ignore("SqliteConnection does not support setting of busy_timeout pragmas yet.")]
         public static async Task BusyTimeoutAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
-            using var connection = CreateConnection();
-            var connPragma = CreateConnectionPragma(connection);
+            var connectionFactory = CreateConnectionFactory();
+            var connPragma = CreateConnectionPragma(connectionFactory);
 
             _ = await connPragma.BusyTimeoutAsync().ConfigureAwait(false);
             var newValue = new TimeSpan(0, 0, 23);
@@ -101,7 +101,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task CaseSensitiveLikeAsync_WhenSet_WritesCorrectly()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             await connection.ExecuteAsync("create table test ( col text )", CancellationToken.None).ConfigureAwait(false);
@@ -129,7 +129,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task CellSizeCheckAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             var cellSizeCheck = await connPragma.CellSizeCheckAsync().ConfigureAwait(false);
@@ -143,7 +143,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task CheckpointFullFsyncAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             var checkpointFullFsync = await connPragma.CheckpointFullFsyncAsync().ConfigureAwait(false);
@@ -157,7 +157,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task CollationListAsync_GetInvoked_ReadsCorrectly()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             var collations = await connPragma.CollationListAsync().ConfigureAwait(false);
@@ -168,7 +168,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task CompileOptionsAsync_GetInvoked_ReadsCorrectly()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             var options = await connPragma.CompileOptionsAsync().ConfigureAwait(false);
@@ -179,7 +179,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task DataVersionAsync_GetInvoked_ReadsCorrectly()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             var dataVersion = await connPragma.DataVersionAsync().ConfigureAwait(false);
@@ -190,7 +190,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task DeferForeignKeysAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             var deferForeignKeys = await connPragma.DeferForeignKeysAsync().ConfigureAwait(false);
@@ -204,7 +204,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task EncodingAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             var textEncoding = await connPragma.EncodingAsync().ConfigureAwait(false);
@@ -218,7 +218,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static void EncodingAsync_GivenInvalidEncodingValue_ThrowsArgumentException()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             const Encoding newValue = (Encoding)55;
@@ -228,7 +228,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task ForeignKeysAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             var foreignKeys = await connPragma.ForeignKeysAsync().ConfigureAwait(false);
@@ -242,7 +242,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task FullFsyncAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             var fullFsync = await connPragma.FullFsyncAsync().ConfigureAwait(false);
@@ -256,7 +256,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static void FunctionListAsync_WhenInvoked_ThrowsNothing()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             Assert.That(async () => await connPragma.FunctionListAsync().ConfigureAwait(false), Throws.Nothing);
@@ -265,7 +265,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task IgnoreCheckConstraintsAsync_WhenSet_WritesCorrectly()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             await connection.ExecuteAsync("create table test ( col text, constraint col_ck check (col <> 'test') )", CancellationToken.None).ConfigureAwait(false);
@@ -280,7 +280,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task LegacyAlterTableAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             var legacyAlterTable = await connPragma.LegacyAlterTableAsync().ConfigureAwait(false);
@@ -294,7 +294,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task LegacyFileFormatAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             var legacyFileFormat = await connPragma.LegacyFileFormatAsync().ConfigureAwait(false);
@@ -308,7 +308,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static void ModuleListAsync_WhenInvoked_ThrowsNothing()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             Assert.That(async () => await connPragma.ModuleListAsync().ConfigureAwait(false), Throws.Nothing);
@@ -317,7 +317,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task OptimizeAsync_WhenInvoked_PerformsOperationSuccessfully()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             await connPragma.OptimizeAsync().ConfigureAwait(false);
@@ -327,7 +327,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static void OptimizeAsync_GivenInvalidOptimizeFeaturesValue_ThrowsArgumentException()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             const OptimizeFeatures newValue = (OptimizeFeatures)55;
@@ -337,7 +337,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static void PragmaListAsync_WhenInvoked_ThrowsNothing()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             Assert.That(async () => await connPragma.PragmaListAsync().ConfigureAwait(false), Throws.Nothing);
@@ -346,7 +346,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task QueryOnlyAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             var queryOnly = await connPragma.QueryOnlyAsync().ConfigureAwait(false);
@@ -360,7 +360,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task ReadUncommittedAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             var readUncommitted = await connPragma.ReadUncommittedAsync().ConfigureAwait(false);
@@ -374,7 +374,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task RecursiveTriggersAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             var recursiveTriggers = await connPragma.RecursiveTriggersAsync().ConfigureAwait(false);
@@ -388,7 +388,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task ReverseUnorderedSelectsAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             var recursiveTriggers = await connPragma.ReverseUnorderedSelectsAsync().ConfigureAwait(false);
@@ -402,7 +402,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task ShrinkMemoryAsync_WhenInvoked_PerformsOperationSuccessfully()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             await connPragma.ShrinkMemoryAsync().ConfigureAwait(false);
@@ -412,7 +412,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task SoftHeapLimitAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             var softHeapLimit = await connPragma.SoftHeapLimitAsync().ConfigureAwait(false);
@@ -426,7 +426,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task TemporaryStoreAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             var tempStore = await connPragma.TemporaryStoreAsync().ConfigureAwait(false);
@@ -440,7 +440,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static void TemporaryStoreAsync_GivenInvalidTemporaryStoreLocationValue_ThrowsArgumentException()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             const TemporaryStoreLocation tempStore = (TemporaryStoreLocation)55;
@@ -450,7 +450,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task ThreadsAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             var threads = await connPragma.ThreadsAsync().ConfigureAwait(false);
@@ -464,7 +464,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task WalAutoCheckpointAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             var autoCheckpoint = await connPragma.WalAutoCheckpointAsync().ConfigureAwait(false);
@@ -478,7 +478,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         [Test]
         public static async Task WritableSchemaAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
-            using var connection = CreateConnection();
+            var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
             var writableSchema = await connPragma.WritableSchemaAsync().ConfigureAwait(false);

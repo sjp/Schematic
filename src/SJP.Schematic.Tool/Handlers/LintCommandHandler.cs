@@ -16,7 +16,7 @@ namespace SJP.Schematic.Tool.Handlers
 
         public async Task<int> HandleCommand(IConsole console, CancellationToken cancellationToken)
         {
-            var connection = await GetSchematicConnectionAsync(cancellationToken).ConfigureAwait(false);
+            var connection = GetSchematicConnection();
             var database = await connection.Dialect.GetRelationalDatabaseAsync(connection, cancellationToken).ConfigureAwait(false);
             var ruleProvider = new DefaultRuleProvider();
             var rules = ruleProvider.GetRules(connection, RuleLevel.Information);

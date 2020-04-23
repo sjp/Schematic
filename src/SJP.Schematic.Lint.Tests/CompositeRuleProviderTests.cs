@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using System.Linq;
 using Moq;
 using NUnit.Framework;
@@ -33,7 +32,7 @@ namespace SJP.Schematic.Lint.Tests
         [Test]
         public static void GetRules_GivenNoProviders_ReturnsEmptySet()
         {
-            var dbConnection = Mock.Of<IDbConnection>();
+            var dbConnection = Mock.Of<IDbConnectionFactory>();
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = new SchematicConnection(dbConnection, dialect);
 
@@ -46,7 +45,7 @@ namespace SJP.Schematic.Lint.Tests
         [Test]
         public static void GetRules_GivenDefaultProvider_ReturnsNonEmptySet()
         {
-            var dbConnection = Mock.Of<IDbConnection>();
+            var dbConnection = Mock.Of<IDbConnectionFactory>();
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = new SchematicConnection(dbConnection, dialect);
 
@@ -59,7 +58,7 @@ namespace SJP.Schematic.Lint.Tests
         [Test]
         public static void GetRules_GivenMultipleProviders_ReturnsExpectedRuleCount()
         {
-            var dbConnection = Mock.Of<IDbConnection>();
+            var dbConnection = Mock.Of<IDbConnectionFactory>();
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = new SchematicConnection(dbConnection, dialect);
 

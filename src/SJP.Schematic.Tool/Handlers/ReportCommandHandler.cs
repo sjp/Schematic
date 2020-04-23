@@ -26,7 +26,7 @@ namespace SJP.Schematic.Tool.Handlers
 
         public async Task<int> HandleCommand(IConsole console, DirectoryInfo outputPath, CancellationToken cancellationToken)
         {
-            var connection = await GetSchematicConnectionAsync(cancellationToken).ConfigureAwait(false);
+            var connection = GetSchematicConnection();
             var database = await connection.Dialect.GetRelationalDatabaseAsync(connection, cancellationToken).ConfigureAwait(false);
 
             var reportGenerator = new ReportGenerator(connection, database, outputPath);

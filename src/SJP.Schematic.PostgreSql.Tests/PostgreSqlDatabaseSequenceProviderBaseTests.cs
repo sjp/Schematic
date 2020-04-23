@@ -1,5 +1,4 @@
-﻿using System.Data;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SequenceProvider = SJP.Schematic.PostgreSql.PostgreSqlDatabaseSequenceProviderBase;
@@ -21,7 +20,7 @@ namespace SJP.Schematic.PostgreSql.Tests
         [Test]
         public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
             Assert.That(() => new SequenceProvider(connection, null, identifierResolver), Throws.ArgumentNullException);
@@ -30,7 +29,7 @@ namespace SJP.Schematic.PostgreSql.Tests
         [Test]
         public static void Ctor_GivenNullIdentifierResolver_ThrowsArgNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             Assert.That(() => new SequenceProvider(connection, identifierDefaults, null), Throws.ArgumentNullException);
@@ -39,7 +38,7 @@ namespace SJP.Schematic.PostgreSql.Tests
         [Test]
         public static void GetSequence_GivenNullSequenceName_ThrowsArgNullException()
         {
-            var connection = Mock.Of<IDbConnection>();
+            var connection = Mock.Of<IDbConnectionFactory>();
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
             var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 

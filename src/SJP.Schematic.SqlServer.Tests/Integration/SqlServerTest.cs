@@ -1,26 +1,15 @@
-﻿using System.Data;
-using LanguageExt;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
 {
     internal static class Config
     {
-        public static IDbConnectionFactory ConnectionFactory { get; } = new SqlServerConnectionFactory();
+        public static IDbConnectionFactory ConnectionFactory { get; } = new SqlServerConnectionFactory(ConnectionString);
 
-        public static IDbConnection Connection { get; } = Prelude.Try(() => !ConnectionString.IsNullOrWhiteSpace()
-            ? ConnectionFactory.CreateConnection(ConnectionString)
-            : null)
-            .Match(c => c, _ => null);
-
-        public static ISchematicConnection SchematicConnection => new SchematicConnection(
-            Connection,
-            new SqlServerDialect()
-        );
+        public static ISchematicConnection SchematicConnection => new SchematicConnection(ConnectionFactory, new SqlServerDialect());
 
         private static string ConnectionString => Configuration.GetConnectionString("TestDb");
 
@@ -31,12 +20,12 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
     }
 
     [Category("SqlServerDatabase")]
-    [DatabaseTestFixture(typeof(Config), nameof(Config.Connection), "No SQL Server DB available")]
+    [DatabaseTestFixture(typeof(Config), nameof(Config.ConnectionFactory), "No SQL Server DB available")]
     internal abstract class SqlServerTest
     {
         protected ISchematicConnection Connection { get; } = Config.SchematicConnection;
 
-        protected IDbConnection DbConnection => Connection.DbConnection;
+        protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
         protected IDatabaseDialect Dialect => Connection.Dialect;
 

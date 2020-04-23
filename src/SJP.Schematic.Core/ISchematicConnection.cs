@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 
 namespace SJP.Schematic.Core
 {
@@ -15,10 +14,10 @@ namespace SJP.Schematic.Core
         Guid ConnectionId { get; }
 
         /// <summary>
-        /// Gets a database connection.
+        /// Gets a database connection factory.
         /// </summary>
-        /// <value>A database connection.</value>
-        IDbConnection DbConnection { get; }
+        /// <value>A database connection factory.</value>
+        IDbConnectionFactory DbConnection { get; }
 
         /// <summary>
         /// Gets the database dialect.

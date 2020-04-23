@@ -18,7 +18,7 @@ namespace SJP.Schematic.Tool.Handlers
         {
             var fileSystem = new FileSystem();
             var nameTranslator = GetNameTranslator(convention);
-            var connection = await GetSchematicConnectionAsync(cancellationToken).ConfigureAwait(false);
+            var connection = GetSchematicConnection();
             var database = await connection.Dialect.GetRelationalDatabaseAsync(connection, cancellationToken).ConfigureAwait(false);
             var commentProvider = await connection.Dialect.GetRelationalDatabaseCommentProviderAsync(connection, cancellationToken).ConfigureAwait(false);
 

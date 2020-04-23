@@ -1,5 +1,4 @@
-﻿using System.Data;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 
@@ -35,7 +34,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void AddLogging_GivenValidConnection_ThrowsNothing()
         {
-            var dbConnection = Mock.Of<IDbConnection>();
+            var dbConnection = Mock.Of<IDbConnectionFactory>();
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = new SchematicConnection(dbConnection, dialect);
 
@@ -48,7 +47,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void RemoveLogging_GivenNonLoggedConnection_ThrowsNothing()
         {
-            var dbConnection = Mock.Of<IDbConnection>();
+            var dbConnection = Mock.Of<IDbConnectionFactory>();
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = new SchematicConnection(dbConnection, dialect);
 
@@ -58,7 +57,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void RemoveLogging_GivenLoggedConnection_ThrowsNothing()
         {
-            var dbConnection = Mock.Of<IDbConnection>();
+            var dbConnection = Mock.Of<IDbConnectionFactory>();
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = new SchematicConnection(dbConnection, dialect);
 
@@ -78,7 +77,7 @@ namespace SJP.Schematic.Core.Tests
         [Test]
         public static void SetMaxConcurrentQueries_GivenValidConnection_ThrowsNothing()
         {
-            var dbConnection = Mock.Of<IDbConnection>();
+            var dbConnection = Mock.Of<IDbConnectionFactory>();
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = new SchematicConnection(dbConnection, dialect);
 

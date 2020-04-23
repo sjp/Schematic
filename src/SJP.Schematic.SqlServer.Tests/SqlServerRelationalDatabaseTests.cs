@@ -1,5 +1,4 @@
-﻿using System.Data;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -27,7 +26,7 @@ namespace SJP.Schematic.SqlServer.Tests
         [Test]
         public static void GetTable_GivenNullIdentifier_ThrowsArgumentNullException()
         {
-            var connection = new SchematicConnection(Mock.Of<IDbConnection>(), Mock.Of<IDatabaseDialect>());
+            var connection = new SchematicConnection(Mock.Of<IDbConnectionFactory>(), Mock.Of<IDatabaseDialect>());
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             var database = new SqlServerRelationalDatabase(connection, identifierDefaults);
@@ -38,7 +37,7 @@ namespace SJP.Schematic.SqlServer.Tests
         [Test]
         public static void GetView_GivenNullIdentifier_ThrowsArgumentNullException()
         {
-            var connection = new SchematicConnection(Mock.Of<IDbConnection>(), Mock.Of<IDatabaseDialect>());
+            var connection = new SchematicConnection(Mock.Of<IDbConnectionFactory>(), Mock.Of<IDatabaseDialect>());
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             var database = new SqlServerRelationalDatabase(connection, identifierDefaults);
@@ -49,7 +48,7 @@ namespace SJP.Schematic.SqlServer.Tests
         [Test]
         public static void GetSequence_GivenNullIdentifier_ThrowsArgumentNullException()
         {
-            var connection = new SchematicConnection(Mock.Of<IDbConnection>(), Mock.Of<IDatabaseDialect>());
+            var connection = new SchematicConnection(Mock.Of<IDbConnectionFactory>(), Mock.Of<IDatabaseDialect>());
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             var database = new SqlServerRelationalDatabase(connection, identifierDefaults);
@@ -60,7 +59,7 @@ namespace SJP.Schematic.SqlServer.Tests
         [Test]
         public static void GetSynonym_GivenNullIdentifier_ThrowsArgumentNullException()
         {
-            var connection = new SchematicConnection(Mock.Of<IDbConnection>(), Mock.Of<IDatabaseDialect>());
+            var connection = new SchematicConnection(Mock.Of<IDbConnectionFactory>(), Mock.Of<IDatabaseDialect>());
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             var database = new SqlServerRelationalDatabase(connection, identifierDefaults);
@@ -71,7 +70,7 @@ namespace SJP.Schematic.SqlServer.Tests
         [Test]
         public static void GetRoutine_GivenNullIdentifier_ThrowsArgumentNullException()
         {
-            var connection = new SchematicConnection(Mock.Of<IDbConnection>(), Mock.Of<IDatabaseDialect>());
+            var connection = new SchematicConnection(Mock.Of<IDbConnectionFactory>(), Mock.Of<IDatabaseDialect>());
             var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
             var database = new SqlServerRelationalDatabase(connection, identifierDefaults);
