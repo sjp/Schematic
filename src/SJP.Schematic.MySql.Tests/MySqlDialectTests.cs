@@ -8,14 +8,6 @@ namespace SJP.Schematic.MySql.Tests
         [TestCase((string)null)]
         [TestCase("")]
         [TestCase("    ")]
-        public static void CreateConnectionAsync_GivenNullConnectionString_ThrowsArgumentNullException(string connectionString)
-        {
-            Assert.That(() => MySqlDialect.CreateConnectionAsync(connectionString), Throws.ArgumentNullException);
-        }
-
-        [TestCase((string)null)]
-        [TestCase("")]
-        [TestCase("    ")]
         public static void QuoteIdentifier_GivenNullOrWhiteSpaceIdentifier_ThrowsArgumentNullException(string identifier)
         {
             var dialect = new MySqlDialect();

@@ -8,14 +8,6 @@ namespace SJP.Schematic.PostgreSql.Tests
         [TestCase((string)null)]
         [TestCase("")]
         [TestCase("    ")]
-        public static void CreateConnectionAsync_GivenNullOrWhiteSpaceConnectionString_ThrowsArgumentNullException(string connectionString)
-        {
-            Assert.That(() => PostgreSqlDialect.CreateConnectionAsync(connectionString), Throws.ArgumentNullException);
-        }
-
-        [TestCase((string)null)]
-        [TestCase("")]
-        [TestCase("    ")]
         public static void QuoteIdentifier_GivenNullOrWhiteSpaceIdentifier_ThrowsArgumentNullException(string identifier)
         {
             var dialect = new PostgreSqlDialect();

@@ -10,14 +10,6 @@ namespace SJP.Schematic.Sqlite.Tests
         [TestCase((string)null)]
         [TestCase("")]
         [TestCase("    ")]
-        public static void CreateConnectionAsync_GivenNullOrWhiteSpaceConnectionString_ThrowsArgumentNullException(string connectionString)
-        {
-            Assert.That(() => SqliteDialect.CreateConnectionAsync(connectionString), Throws.ArgumentNullException);
-        }
-
-        [TestCase((string)null)]
-        [TestCase("")]
-        [TestCase("    ")]
         public static void QuoteIdentifier_GivenNullOrWhiteSpaceIdentifier_ThrowsArgumentNullException(string identifier)
         {
             var connection = Mock.Of<IDbConnection>();
