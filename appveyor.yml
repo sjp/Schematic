@@ -22,9 +22,9 @@ environment:
   ConnectionStrings__MySql_TestDb: Server=localhost; Port=3306; Database=schematic; Uid=root; Pwd=Password12!; ConnectionTimeout=2
   ConnectionStrings__PostgreSql_TestDb: Server=localhost; Port=5432; Database=schematic; User Id=postgres; Password=Password12!; Timeout=2
   ConnectionStrings__PostgreSql_TestDb_12: Server=localhost; Port=5432; Database=schematic; User Id=postgres; Password=Password12!; Timeout=2
-  ConnectionStrings__SqlServer_TestDb: Server=(local)\\SQL2019; Database=master; User ID=sa; Password=Password12!; MultipleActiveResultSets=true; Connection Timeout=2
-  ConnectionStrings__SqlServer_TestDb_2017: Server=(local)\\SQL2017; Database=master; User ID=sa; Password=Password12!; MultipleActiveResultSets=true; Connection Timeout=2
-  ConnectionStrings__SqlServer_TestDb_2019: Server=(local)\\SQL2019; Database=master; User ID=sa; Password=Password12!; MultipleActiveResultSets=true; Connection Timeout=2
+  ConnectionStrings__SqlServer_TestDb: Server=(local)\SQL2019; Database=master; User ID=sa; Password=Password12!; MultipleActiveResultSets=true; Connection Timeout=2
+  ConnectionStrings__SqlServer_TestDb_2017: Server=(local)\SQL2017; Database=master; User ID=sa; Password=Password12!; MultipleActiveResultSets=true; Connection Timeout=2
+  ConnectionStrings__SqlServer_TestDb_2019: Server=(local)\SQL2019; Database=master; User ID=sa; Password=Password12!; MultipleActiveResultSets=true; Connection Timeout=2
 
 init:
   - net start MSSQL$SQL2019
