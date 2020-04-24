@@ -104,17 +104,10 @@ select
 
             var versionPieces = versionStr
                 .Split(new[] { '.', '-' }, StringSplitOptions.RemoveEmptyEntries)
-                .Where(piece => int.TryParse(piece, NumberStyles.Integer, CultureInfo.InvariantCulture, out _));
+                .TakeWhile(piece => int.TryParse(piece, NumberStyles.Integer, CultureInfo.InvariantCulture, out _));
 
             var saferVersionStr = versionPieces.Join(".");
-            try
-            {
-                return Version.Parse(saferVersionStr);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Failed to parse version, given version string: '{versionStr}'", ex);
-            }
+            return Version.Parse(saferVersionStr);
         }
 
         private const string DatabaseVersionQuerySql = "select version() as DatabaseVersion";
