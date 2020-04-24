@@ -8,20 +8,20 @@ matrix:
       before_install:
         - nvm use 11
         - sudo apt-get -qq update && sudo apt-get install -y graphviz
+        - sudo apt-get --yes remove postgresql\*
+        - sudo apt-get install -y postgresql-12 postgresql-client-12
         - node --version
-        - npm --version
+        - sudo sed -i -e '/local.*peer/s/postgres/all/' -e 's/peer\|md5/trust/g' /etc/postgresql/*/main/pg_hba.conf
+        - sudo service postgresql restart 12
       addons:
         postgresql: "12"
-        apt:
-          packages:
-            - postgresql-12
-            - postgresql-client-12
       services:
         - mysql
         - postgresql
       env:
         - ConnectionStrings__MySql_TestDb="Server=localhost; Port=3306; Database=schematic; Uid=root; ConnectionTimeout=2"
         - PGPORT=5433
+        - PGUSER=postgres
         - ConnectionStrings__PostgreSql_TestDb="Server=localhost; Port=5433; Database=schematic; User Id=postgres; Timeout=2"
         - ConnectionStrings__PostgreSql_TestDb_12="Server=localhost; Port=5433; Database=schematic; User Id=postgres; Timeout=2"
       before_script:
