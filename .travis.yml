@@ -11,14 +11,19 @@ matrix:
         - node --version
         - npm --version
       addons:
-        postgresql: "11"
+        postgresql: "12"
+        apt:
+          packages:
+            - postgresql-12
+            - postgresql-client-12
       services:
         - mysql
         - postgresql
       env:
         - ConnectionStrings__MySql_TestDb="Server=localhost; Port=3306; Database=schematic; Uid=root; ConnectionTimeout=2"
-        - ConnectionStrings__PostgreSql_TestDb="Server=localhost; Port=5432; Database=schematic; User Id=postgres; Timeout=2"
-        - ConnectionStrings__PostgreSql_TestDb_11="Server=localhost; Port=5432; Database=schematic; User Id=postgres; Timeout=2"
+        - PGPORT=5433
+        - ConnectionStrings__PostgreSql_TestDb="Server=localhost; Port=5433; Database=schematic; User Id=postgres; Timeout=2"
+        - ConnectionStrings__PostgreSql_TestDb_12="Server=localhost; Port=5433; Database=schematic; User Id=postgres; Timeout=2"
       before_script:
         - mysql -e 'CREATE DATABASE IF NOT EXISTS schematic;'
         - psql -c 'create database schematic;' -U postgres
@@ -29,14 +34,6 @@ matrix:
           packages:
             - node
             - graphviz
-        postgresql: "10"
-      services:
-        - postgresql
-      env:
-        - ConnectionStrings__PostgreSql_TestDb="Server=localhost; Port=5432; Database=schematic; User Id=postgres; Timeout=2"
-        - ConnectionStrings__PostgreSql_TestDb_10="Server=localhost; Port=5432; Database=schematic; User Id=postgres; Timeout=2"
-      before_script:
-        - psql -c 'create database schematic;' -U postgres
 script:
   - export PATH="$PATH:$HOME/.dotnet/tools"
   - dotnet tool install -g Cake.Tool --version 0.37.0
