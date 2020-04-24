@@ -107,7 +107,14 @@ select
                 .Where(piece => int.TryParse(piece, NumberStyles.Integer, CultureInfo.InvariantCulture, out _));
 
             var saferVersionStr = versionPieces.Join(".");
-            return Version.Parse(saferVersionStr);
+            try
+            {
+                return Version.Parse(saferVersionStr);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to parse version, given version string: '{versionStr}'", ex);
+            }
         }
 
         private const string DatabaseVersionQuerySql = "select version() as DatabaseVersion";
