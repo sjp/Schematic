@@ -7,18 +7,18 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 {
     internal static class Config
     {
-        public static IDbConnectionFactory ConnectionFactory { get; } = new OracleConnectionFactory(ConnectionString);
+        public static IDbConnectionFactory ConnectionFactory => new OracleConnectionFactory(ConnectionString);
 
         public static ISchematicConnection SchematicConnection => new SchematicConnection(
             ConnectionFactory,
             new OracleDialect()
         );
 
-        private static string ConnectionString => Configuration.GetConnectionString("TestDb");
+        private static string ConnectionString => Configuration.GetConnectionString("Oracle_TestDb");
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()
+            .AddEnvironmentVariables()
             .AddJsonFile("oracle-test.config.json")
-            .AddJsonFile("oracle-test.local.config.json", optional: true)
             .Build();
     }
 

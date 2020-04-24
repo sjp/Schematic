@@ -1,5 +1,5 @@
 ﻿{
   "ConnectionStrings": {
-    "TestDb": "Data Source=:memory:"
+    "Sqlite_TestDb": "Data Source=InMemory_8df2d6c5_6393_420c_973d_ad8cc80ef047;Mode=Memory;Cache=Shared"
   }
 }

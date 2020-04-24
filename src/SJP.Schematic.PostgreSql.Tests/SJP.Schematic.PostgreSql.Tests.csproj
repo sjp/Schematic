@@ -7,7 +7,8 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.msbuild" Version="2.8.1" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.3" />    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.0" />
     <PackageReference Include="Moq" Version="4.13.1" />
     <PackageReference Include="NUnit" Version="3.12.0" />
@@ -25,37 +26,19 @@
     <None Update="postgresql-test.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="postgresql-test.local.config.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="postgresql-test-95.config.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="postgresql-test-95.local.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="postgresql-test-96.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="postgresql-test-96.local.config.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="postgresql-test-10.config.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="postgresql-test-10.local.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="postgresql-test-11.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="postgresql-test-11.local.config.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="postgresql-test-12.config.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="postgresql-test-12.local.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

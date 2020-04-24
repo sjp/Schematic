@@ -15,11 +15,11 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests.Integration
             new SqliteDialect()
         );
 
-        private static string ConnectionString => Configuration.GetConnectionString("TestDb");
+        private static string ConnectionString => Configuration.GetConnectionString("OrmLite_TestDb");
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()
+            .AddEnvironmentVariables()
             .AddJsonFile("sqlite-test.config.json")
-            .AddJsonFile("sqlite-test.local.config.json", optional: true)
             .Build();
     }
 

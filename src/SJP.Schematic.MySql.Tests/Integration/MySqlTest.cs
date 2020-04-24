@@ -7,18 +7,18 @@ namespace SJP.Schematic.MySql.Tests.Integration
 {
     internal static class Config
     {
-        public static IDbConnectionFactory ConnectionFactory { get; } = new MySqlConnectionFactory(ConnectionString);
+        public static IDbConnectionFactory ConnectionFactory => new MySqlConnectionFactory(ConnectionString);
 
         public static ISchematicConnection SchematicConnection => new SchematicConnection(
             ConnectionFactory,
             new MySqlDialect()
         );
 
-        private static string ConnectionString => Configuration.GetConnectionString("TestDb");
+        private static string ConnectionString => Configuration.GetConnectionString("MySql_TestDb");
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()
+            .AddEnvironmentVariables()
             .AddJsonFile("mysql-test.config.json")
-            .AddJsonFile("mysql-test.local.config.json", optional: true)
             .Build();
     }
 

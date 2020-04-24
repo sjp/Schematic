@@ -1,5 +1,5 @@
 ﻿{
   "ConnectionStrings": {
-    "TestDb": "Data Source=InMemory_53164a95_2d46_438a_87ca_63b02dc3843a;Mode=Memory;Cache=Shared"
+    "Lint_TestDb": "Data Source=InMemory_53164a95_2d46_438a_87ca_63b02dc3843a;Mode=Memory;Cache=Shared"
   }
 }

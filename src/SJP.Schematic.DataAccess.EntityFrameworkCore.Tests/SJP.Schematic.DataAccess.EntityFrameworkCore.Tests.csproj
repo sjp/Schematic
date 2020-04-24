@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.msbuild" Version="2.8.1" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.3" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.0" />
     <PackageReference Include="Moq" Version="4.13.1" />
@@ -24,9 +25,6 @@
 
   <ItemGroup>
     <None Update="sqlite-test.config.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="sqlite-test.local.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

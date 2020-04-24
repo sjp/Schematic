@@ -23,6 +23,12 @@ environment:
 init:
   - net start MSSQL$SQL2019
   - SET PATH=%POSTGRES_PATH%\bin;%MYSQL_PATH%\bin;%PATH%
+  - SET ConnectionStrings__MySql_Test="Server=localhost; Port=3306; Database=schematic; Uid=root; Pwd=Password12!; ConnectionTimeout=2"
+  - SET ConnectionStrings__PostgreSql_Test="Server=localhost; Port=5432; Database=schematic; User Id=postgres; Password=Password12!; Timeout=2"
+  - SET ConnectionStrings__PostgreSql_Test_12="Server=localhost; Port=5432; Database=schematic; User Id=postgres; Password=Password12!; Timeout=2"
+  - SET ConnectionStrings__SqlServer_TestDb="Server=(local)\\SQL2019; Database=master; User ID=sa; Password=Password12!; MultipleActiveResultSets=true; Connection Timeout=2"
+  - SET ConnectionStrings__SqlServer_TestDb_2017="Server=(local)\\SQL2017; Database=master; User ID=sa; Password=Password12!; MultipleActiveResultSets=true; Connection Timeout=2"
+  - SET ConnectionStrings__SqlServer_TestDb_2019="Server=(local)\\SQL2019; Database=master; User ID=sa; Password=Password12!; MultipleActiveResultSets=true; Connection Timeout=2"
   - ps: >-
       Get-ChildItem -Path 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\' |
       Where-Object {

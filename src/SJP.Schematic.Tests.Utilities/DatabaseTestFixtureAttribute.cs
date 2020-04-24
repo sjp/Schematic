@@ -45,8 +45,19 @@ namespace SJP.Schematic.Tests.Utilities
                 return;
             }
 
-            var methodResult = getMethod.Invoke(null, Array.Empty<object>());
-            if (!(methodResult is IDbConnectionFactory factory))
+            IDbConnectionFactory factory;
+            try
+            {
+                var methodResult = getMethod.Invoke(null, Array.Empty<object>());
+                if (!(methodResult is IDbConnectionFactory connFactory))
+                {
+                    ResultCache.AddOrUpdate(getMethod, false, (_, __) => false);
+                    Ignore = ignoreMessage;
+                    return;
+                }
+                factory = connFactory;
+            }
+            catch
             {
                 ResultCache.AddOrUpdate(getMethod, false, (_, __) => false);
                 Ignore = ignoreMessage;

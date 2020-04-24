@@ -11,11 +11,11 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
 
         public static ISchematicConnection Connection { get; } = new SchematicConnection(ConnectionFactory, new SqliteDialect());
 
-        private static string ConnectionString => Configuration.GetConnectionString("TestDb");
+        private static string ConnectionString => Configuration.GetConnectionString("Sqlite_TestDb");
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()
+            .AddEnvironmentVariables()
             .AddJsonFile("sqlite-test.config.json")
-            .AddJsonFile("sqlite-test.local.config.json", optional: true)
             .Build();
     }
 

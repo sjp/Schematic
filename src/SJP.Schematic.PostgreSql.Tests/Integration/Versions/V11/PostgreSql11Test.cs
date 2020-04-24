@@ -7,15 +7,15 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V11
 {
     internal static class Config11
     {
-        public static IDbConnectionFactory ConnectionFactory { get; } = new PostgreSqlConnectionFactory(ConnectionString);
+        public static IDbConnectionFactory ConnectionFactory => new PostgreSqlConnectionFactory(ConnectionString);
 
         public static ISchematicConnection SchematicConnection => new SchematicConnection(ConnectionFactory, new PostgreSqlDialect());
 
-        private static string ConnectionString => Configuration.GetConnectionString("TestDb");
+        private static string ConnectionString => Configuration.GetConnectionString("PostgreSql_TestDb_11");
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()
+            .AddEnvironmentVariables()
             .AddJsonFile("postgresql-test-11.config.json")
-            .AddJsonFile("postgresql-test-11.local.config.json", optional: true)
             .Build();
     }
 

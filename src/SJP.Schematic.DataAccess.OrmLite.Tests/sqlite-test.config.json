@@ -1,5 +1,5 @@
 ﻿{
   "ConnectionStrings": {
-    "TestDb": "Data Source=InMemory_a1f20f14_eb2f_4175_ae18_1e8c1cd0bd04;Mode=Memory;Cache=Shared"
+    "OrmLite_TestDb": "Data Source=InMemory_a1f20f14_eb2f_4175_ae18_1e8c1cd0bd04;Mode=Memory;Cache=Shared"
   }
 }
