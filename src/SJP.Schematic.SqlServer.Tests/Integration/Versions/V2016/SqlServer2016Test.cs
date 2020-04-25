@@ -19,7 +19,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2016
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()
             .AddEnvironmentVariables()
-            .AddJsonFile("sqlserver-test-2016.config.json")
+            .AddJsonFile("sqlserver-test.config.json")
             .Build();
     }
 

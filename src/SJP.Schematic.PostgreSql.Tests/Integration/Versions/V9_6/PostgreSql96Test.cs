@@ -15,7 +15,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_6
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()
             .AddEnvironmentVariables()
-            .AddJsonFile("postgresql-test-96.config.json")
+            .AddJsonFile("postgresql-test.config.json")
             .Build();
     }
 
