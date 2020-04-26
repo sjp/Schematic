@@ -133,7 +133,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V10
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Last();
 
-            Assert.That(column.AutoIncrement.UnwrapSome().InitialValue, Is.EqualTo(1m));
+            Assert.That(column.AutoIncrement.UnwrapSome().InitialValue, Is.EqualTo(123m));
         }
 
         [Test]
@@ -143,7 +143,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V10
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Last();
 
-            Assert.That(column.AutoIncrement.UnwrapSome().Increment, Is.EqualTo(1m));
+            Assert.That(column.AutoIncrement.UnwrapSome().Increment, Is.EqualTo(456m));
         }
     }
 }
