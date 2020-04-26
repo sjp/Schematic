@@ -1,0 +1,5 @@
+{
+    "ConnectionStrings": {
+        "MySql_TestDb": "Server=127.0.0.1; Database=schematic; Uid=schematic; Pwd=schematic; ConnectionTimeout=2"
+    }
+  }

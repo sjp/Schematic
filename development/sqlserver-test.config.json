@@ -1,0 +1,7 @@
+{
+  "ConnectionStrings": {
+      "SqlServer_TestDb": "Server=127.0.0.1,1419; User Id=sa; Password=Schematic0123!; MultipleActiveResultSets=True",
+      "SqlServer_TestDb_2017": "Server=127.0.0.1,1417; User Id=sa; Password=Schematic0123!; MultipleActiveResultSets=True",
+      "SqlServer_TestDb_2019": "Server=127.0.0.1,1419; User Id=sa; Password=Schematic0123!; MultipleActiveResultSets=True"
+  }
+}

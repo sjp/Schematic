@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+    mysql-8:
+        image: mysql:8.0
+        command: --default-authentication-plugin=mysql_native_password
+        env_file: 
+            - ./mysql.env
+        ports:
+            - 3306:3306
+    
+    postgres-9.6:
+        image: postgres:9.6-alpine
+        env_file: 
+            - ./postgres.env
+        ports: 
+            - 5436:5432
+
+    postgres-10:
+        image: postgres:10-alpine
+        env_file: 
+            - ./postgres.env
+        ports: 
+            - 5410:5432
+
+    postgres-11:
+        image: postgres:11-alpine
+        env_file: 
+            - ./postgres.env
+        ports: 
+            - 5411:5432
+
+    postgres-12:
+        image: postgres:12-alpine
+        env_file: 
+            - ./postgres.env
+        ports: 
+            - 5412:5432
+
+    sql-server-2017:
+        image: mcr.microsoft.com/mssql/server:2017-latest
+        env_file: 
+            - ./sql-server.env
+        ports: 
+            - 1417:1433
+    
+    sql-server-2019:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        env_file: 
+            - ./sql-server.env
+        ports: 
+            -  1419:1433
