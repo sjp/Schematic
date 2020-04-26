@@ -60,7 +60,7 @@ namespace SJP.Schematic.PostgreSql
 
             var factories = new Dictionary<Version, Func<IDatabaseSequenceProvider>>
             {
-                [new Version(9, 5)] = () => new PostgreSqlDatabaseSequenceProviderBase(DbConnection, IdentifierDefaults, IdentifierResolver),
+                [new Version(9, 6)] = () => new PostgreSqlDatabaseSequenceProviderBase(DbConnection, IdentifierDefaults, IdentifierResolver),
                 [new Version(10, 0)] = () => new Versions.V10.PostgreSqlDatabaseSequenceProvider(DbConnection, IdentifierDefaults, IdentifierResolver)
             };
             var versionLookup = new VersionResolvingFactory<IDatabaseSequenceProvider>(factories);

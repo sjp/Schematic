@@ -62,7 +62,8 @@ namespace SJP.Schematic.PostgreSql
 
             var factories = new Dictionary<Version, Func<IRelationalDatabaseTableProvider>>
             {
-                [new Version(9, 5)] = () => new PostgreSqlRelationalDatabaseTableProviderBase(Connection, IdentifierDefaults, IdentifierResolver),
+                [new Version(9, 6)] = () => new PostgreSqlRelationalDatabaseTableProviderBase(Connection, IdentifierDefaults, IdentifierResolver),
+                [new Version(10, 0)] = () => new Versions.V10.PostgreSqlRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver),
                 [new Version(11, 0)] = () => new Versions.V11.PostgreSqlRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver),
                 [new Version(12, 0)] = () => new Versions.V12.PostgreSqlRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver)
             };
