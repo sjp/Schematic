@@ -24,11 +24,13 @@ namespace SJP.Schematic.MySql.Tests.Integration.Comments
 CREATE FUNCTION comment_test_routine_1()
   RETURNS TEXT
   LANGUAGE SQL
+  DETERMINISTIC
 BEGIN
   RETURN 'test';
 END", CancellationToken.None).ConfigureAwait(false);
             await DbConnection.ExecuteAsync(@"
 CREATE PROCEDURE comment_test_routine_2()
+DETERMINISTIC
 BEGIN
    COMMIT;
 END", CancellationToken.None).ConfigureAwait(false);
@@ -36,6 +38,7 @@ END", CancellationToken.None).ConfigureAwait(false);
 CREATE FUNCTION comment_test_routine_3()
   RETURNS TEXT
   LANGUAGE SQL
+  DETERMINISTIC
   COMMENT 'This is a test function comment.'
 BEGIN
   RETURN 'test';
@@ -43,6 +46,7 @@ END
 ", CancellationToken.None).ConfigureAwait(false);
             await DbConnection.ExecuteAsync(@"
 CREATE PROCEDURE comment_test_routine_4()
+  DETERMINISTIC
   COMMENT 'This is a test stored procedure comment.'
 BEGIN
    COMMIT;

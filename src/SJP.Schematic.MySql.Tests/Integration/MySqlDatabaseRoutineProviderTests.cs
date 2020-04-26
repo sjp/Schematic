@@ -22,11 +22,13 @@ namespace SJP.Schematic.MySql.Tests.Integration
 CREATE FUNCTION db_test_routine_1()
   RETURNS TEXT
   LANGUAGE SQL
+  DETERMINISTIC
 BEGIN
   RETURN 'test';
 END;", CancellationToken.None).ConfigureAwait(false);
             await DbConnection.ExecuteAsync(@"
 CREATE PROCEDURE db_test_routine_2()
+DETERMINISTIC
 BEGIN
    COMMIT;
 END", CancellationToken.None).ConfigureAwait(false);

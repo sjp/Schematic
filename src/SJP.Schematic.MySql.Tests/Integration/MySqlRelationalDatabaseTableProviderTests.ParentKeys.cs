@@ -75,13 +75,14 @@ namespace SJP.Schematic.MySql.Tests.Integration
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultUpdateAction_ReturnsUpdateActionAsRestrict()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultUpdateAction_ReturnsUpdateActionAsRestrictOrNoAction()
         {
             var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.Restrict));
+            // mysql treats restrict and no action as the same thing, accept either
+            Assert.That(foreignKey.UpdateAction, Is.AnyOf(ReferentialAction.NoAction, ReferentialAction.Restrict));
         }
 
         [Test]
@@ -105,13 +106,14 @@ namespace SJP.Schematic.MySql.Tests.Integration
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultDeleteAction_ReturnsDeleteActionAsRestrict()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultDeleteAction_ReturnsDeleteActionAsRestrictOrNoAction()
         {
             var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.Restrict));
+            // mysql treats restrict and no action as the same thing, accept either
+            Assert.That(foreignKey.DeleteAction, Is.AnyOf(ReferentialAction.NoAction, ReferentialAction.Restrict));
         }
 
         [Test]
@@ -203,13 +205,14 @@ namespace SJP.Schematic.MySql.Tests.Integration
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultUpdateAction_ReturnsUpdateActionAsRestrict()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultUpdateAction_ReturnsUpdateActionAsRestrictOrNoAction()
         {
             var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.Restrict));
+            // mysql treats restrict and no action as the same thing, accept either
+            Assert.That(foreignKey.UpdateAction, Is.AnyOf(ReferentialAction.NoAction, ReferentialAction.Restrict));
         }
 
         [Test]
@@ -233,13 +236,14 @@ namespace SJP.Schematic.MySql.Tests.Integration
         }
 
         [Test]
-        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultDeleteAction_ReturnsDeleteActionAsRestrict()
+        public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultDeleteAction_ReturnsDeleteActionAsRestrictOrNoAction()
         {
             var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
             var parentKeys = table.ParentKeys;
             var foreignKey = parentKeys.Single();
 
-            Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.Restrict));
+            // mysql treats restrict and no action as the same thing, accept either
+            Assert.That(foreignKey.DeleteAction, Is.AnyOf(ReferentialAction.NoAction, ReferentialAction.Restrict));
         }
 
         [Test]
