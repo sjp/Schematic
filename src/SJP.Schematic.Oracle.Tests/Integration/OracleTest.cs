@@ -18,7 +18,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()
             .AddEnvironmentVariables()
-            .AddJsonFile("oracle-test.config.json")
+            .AddJsonFile("oracle-test.config.json", optional: true)
             .Build();
     }
 

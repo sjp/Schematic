@@ -19,7 +19,7 @@ namespace SJP.Schematic.Dot.Tests.Integration
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()
             .AddEnvironmentVariables()
-            .AddJsonFile("sqlite-test.config.json")
+            .AddJsonFile("sqlite-test.config.json", optional: true)
             .Build();
     }
 

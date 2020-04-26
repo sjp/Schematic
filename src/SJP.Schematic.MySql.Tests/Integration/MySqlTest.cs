@@ -18,7 +18,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
 
         private static IConfigurationRoot Configuration => new ConfigurationBuilder()
             .AddEnvironmentVariables()
-            .AddJsonFile("mysql-test.config.json")
+            .AddJsonFile("mysql-test.config.json", optional: true)
             .Build();
     }
 
