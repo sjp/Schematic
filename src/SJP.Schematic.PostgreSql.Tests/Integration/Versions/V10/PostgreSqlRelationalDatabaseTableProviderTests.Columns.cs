@@ -127,23 +127,23 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V10
         }
 
         [Test]
-        public async Task Columns_WhenGivenTableColumnWithIdentity_ReturnsCorrectInitialValue()
+        public async Task Columns_WhenGivenTableColumnWithIdentity_ReturnsDefaultInitialValue()
         {
             const string tableName = "v10_table_test_table_36";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Last();
 
-            Assert.That(column.AutoIncrement.UnwrapSome().InitialValue, Is.EqualTo(123));
+            Assert.That(column.AutoIncrement.UnwrapSome().InitialValue, Is.EqualTo(1m));
         }
 
         [Test]
-        public async Task Columns_WhenGivenTableColumnWithIdentity_ReturnsCorrectIncrement()
+        public async Task Columns_WhenGivenTableColumnWithIdentity_ReturnsDefaultIncrement()
         {
             const string tableName = "v10_table_test_table_36";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
             var column = table.Columns.Last();
 
-            Assert.That(column.AutoIncrement.UnwrapSome().Increment, Is.EqualTo(456));
+            Assert.That(column.AutoIncrement.UnwrapSome().Increment, Is.EqualTo(1m));
         }
     }
 }
