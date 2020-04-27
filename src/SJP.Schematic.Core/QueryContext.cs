@@ -52,10 +52,9 @@ namespace SJP.Schematic.Core
                     loggingContext.Start();
                     return new QueryContext(semaphore, loggingContext);
                 }
-                catch
+                finally
                 {
                     semaphore.Release();
-                    throw;
                 }
             }
             else
@@ -69,6 +68,11 @@ namespace SJP.Schematic.Core
 
         public static void SetMaxConcurrentQueries(IDbConnectionFactory connectionFactory, AsyncSemaphore semaphore)
         {
+            if (connectionFactory == null)
+                throw new ArgumentNullException(nameof(connectionFactory));
+            if (semaphore == null)
+                throw new ArgumentNullException(nameof(semaphore));
+
             SemaphoreLookup.AddOrUpdate(connectionFactory, semaphore);
         }
     }

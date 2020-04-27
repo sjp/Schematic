@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace SJP.Schematic.Core
 {
-    internal class LoggingConfiguration
+    internal sealed class LoggingConfiguration
     {
         public LoggingConfiguration(ILogger logger, LogLevel logLevel)
         {
