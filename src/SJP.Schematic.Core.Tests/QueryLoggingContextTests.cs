@@ -18,11 +18,11 @@ namespace SJP.Schematic.Core.Tests
         [TestCase(null)]
         [TestCase("")]
         [TestCase("    ")]
-        public static void Ctor_GivenNullSql_ThrowsArgNullException(string sql)
+        public static void Ctor_GivenNullOrWhiteSpaceSql_ThrowsArgNullException(string sql)
         {
             var connectionFactory = Mock.Of<IDbConnectionFactory>();
 
-            Assert.That(() => new QueryLoggingContext(null, sql, null), Throws.ArgumentNullException);
+            Assert.That(() => new QueryLoggingContext(connectionFactory, sql, null), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -95,7 +95,6 @@ namespace SJP.Schematic.Core.Tests
             var loggingContext = new QueryLoggingContext(connectionFactory, sql, null);
 
             Assert.That(() => loggingContext.Start(), Throws.Nothing);
-
         }
 
         [Test]

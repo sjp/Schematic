@@ -1,6 +1,4 @@
-﻿using System.Data;
-using Moq;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace SJP.Schematic.Sqlite.Tests
 {
@@ -12,7 +10,6 @@ namespace SJP.Schematic.Sqlite.Tests
         [TestCase("    ")]
         public static void QuoteIdentifier_GivenNullOrWhiteSpaceIdentifier_ThrowsArgumentNullException(string identifier)
         {
-            var connection = Mock.Of<IDbConnection>();
             var dialect = new SqliteDialect();
 
             Assert.That(() => dialect.QuoteIdentifier(identifier), Throws.ArgumentNullException);
@@ -23,7 +20,6 @@ namespace SJP.Schematic.Sqlite.Tests
         [TestCase("    ")]
         public static void QuoteName_GivenNullOrWhiteSpaceName_ThrowsArgumentNullException(string name)
         {
-            var connection = Mock.Of<IDbConnection>();
             var dialect = new SqliteDialect();
 
             Assert.That(() => dialect.QuoteName(name), Throws.ArgumentNullException);

@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Moq;
+﻿using Moq;
 using Nito.AsyncEx;
 using NUnit.Framework;
 
@@ -45,7 +44,7 @@ namespace SJP.Schematic.Core.Tests
             const string sql = "select 1";
             var loggingContext = new QueryLoggingContext(connectionFactory, sql, null);
 
-            Assert.That(async () => await QueryContext.CreateAsync(connectionFactory, loggingContext), Throws.Nothing);
+            Assert.That(async () => await QueryContext.CreateAsync(connectionFactory, loggingContext).ConfigureAwait(false), Throws.Nothing);
         }
 
         [Test]
@@ -57,7 +56,7 @@ namespace SJP.Schematic.Core.Tests
 
             QueryContext.SetMaxConcurrentQueries(connectionFactory, new AsyncSemaphore(1));
 
-            Assert.That(async () => await QueryContext.CreateAsync(connectionFactory, loggingContext), Throws.Nothing);
+            Assert.That(async () => await QueryContext.CreateAsync(connectionFactory, loggingContext).ConfigureAwait(false), Throws.Nothing);
         }
     }
 }

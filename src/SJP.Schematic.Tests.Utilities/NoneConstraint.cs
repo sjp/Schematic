@@ -20,7 +20,7 @@ namespace SJP.Schematic.Tests.Utilities
 
             var propGet = actualType.GetProperty(nameof(Option<object>.IsNone))!.GetGetMethod()!;
             var isNone = (bool)propGet.Invoke(actual, Array.Empty<object>())!;
-            //return new ConstraintResult(this, actual, isNone);
+
             return new OptionConstraintResult(this, false, isNone);
         }
 

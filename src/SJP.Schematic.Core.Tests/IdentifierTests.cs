@@ -78,7 +78,6 @@ namespace SJP.Schematic.Core.Tests
             [Values(null, "", "    ")] string localName
         )
         {
-
             Assert.That(() => new Identifier(serverName, databaseName, schemaName, localName), Throws.ArgumentNullException);
         }
 

@@ -157,7 +157,7 @@ namespace SJP.Schematic.Lint
             return !IgnoredPrefixes.Any(prefix => fileName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
         }
 
-        private static IEnumerable<string> IgnoredPrefixes = new[] { "System.", "Microsoft." };
+        private static readonly IEnumerable<string> IgnoredPrefixes = new[] { "System.", "Microsoft." };
 
         private static readonly Type DialectRuleProviderGeneric = typeof(IDialectRuleProvider<>);
 
