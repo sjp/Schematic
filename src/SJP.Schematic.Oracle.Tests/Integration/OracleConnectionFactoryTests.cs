@@ -4,7 +4,6 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
-    [TestFixture]
     internal class OracleConnectionFactoryTests : OracleTest
     {
         [Test]

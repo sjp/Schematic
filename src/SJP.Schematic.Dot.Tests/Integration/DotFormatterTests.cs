@@ -8,7 +8,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Dot.Tests.Integration
 {
-    [TestFixture]
     internal sealed class DotFormatterTests : SqliteTest
     {
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults, Pragma);

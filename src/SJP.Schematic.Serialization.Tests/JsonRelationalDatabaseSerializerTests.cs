@@ -9,7 +9,6 @@ using SJP.Schematic.Tests.Utilities.Integration;
 
 namespace SJP.Schematic.Serialization.Tests
 {
-    [TestFixture]
     internal class JsonRelationalDatabaseSerializerTests : SakilaTest
     {
         private static IMapper Mapper { get; } = new Mapper(

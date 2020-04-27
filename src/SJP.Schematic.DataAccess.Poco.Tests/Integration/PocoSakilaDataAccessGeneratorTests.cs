@@ -13,7 +13,6 @@ using SJP.Schematic.Tests.Utilities.Integration;
 
 namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
 {
-    [TestFixture]
     internal sealed class PocoSakilaDataAccessGeneratorTests : SakilaTest
     {
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults, Pragma);

@@ -15,7 +15,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
 {
-    [TestFixture]
     internal sealed class PocoDataAccessGeneratorTests : SqliteTest
     {
         private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults, Pragma);

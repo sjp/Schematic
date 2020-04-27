@@ -4,7 +4,6 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
 {
-    [TestFixture]
     internal static class SqliteConnectionFactoryTests
     {
         [Test]

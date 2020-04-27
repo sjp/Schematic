@@ -4,7 +4,6 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.MySql.Tests.Integration
 {
-    [TestFixture]
     internal class MySqlConnectionFactoryTests : MySqlTest
     {
         [Test]
