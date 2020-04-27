@@ -20,30 +20,18 @@ namespace SJP.Schematic.SqlServer
 
         protected string ConnectionString { get; }
 
-        public IDbConnection CreateConnection()
-        {
-            var builder = new SqlConnectionStringBuilder(ConnectionString) { MultipleActiveResultSets = true };
-            var connWithMars = builder.ConnectionString;
-
-            return new SqlConnection(connWithMars);
-        }
+        public IDbConnection CreateConnection() => new SqlConnection(ConnectionString);
 
         public IDbConnection OpenConnection()
         {
-            var builder = new SqlConnectionStringBuilder(ConnectionString) { MultipleActiveResultSets = true };
-            var connWithMars = builder.ConnectionString;
-
-            var connection = new SqlConnection(connWithMars);
+            var connection = CreateConnection();
             connection.Open();
             return connection;
         }
 
         public async Task<IDbConnection> OpenConnectionAsync(CancellationToken cancellationToken = default)
         {
-            var builder = new SqlConnectionStringBuilder(ConnectionString) { MultipleActiveResultSets = true };
-            var connWithMars = builder.ConnectionString;
-
-            var connection = new SqlConnection(connWithMars);
+            var connection = new SqlConnection(ConnectionString);
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
             return connection;
         }

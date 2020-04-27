@@ -99,7 +99,7 @@ limit 1";
             var columnsTask = LoadColumnsAsync(viewName, cancellationToken);
             var definitionTask = LoadDefinitionAsync(viewName, cancellationToken);
 
-            await Task.WhenAll(columnsTask, definitionTask);
+            await Task.WhenAll(columnsTask, definitionTask).ConfigureAwait(false);
 
             var columns = await columnsTask.ConfigureAwait(false);
             var definition = await definitionTask.ConfigureAwait(false);
