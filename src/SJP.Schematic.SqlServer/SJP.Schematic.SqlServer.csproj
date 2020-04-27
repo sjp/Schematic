@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <Description>SQL Server database metadata and migration provider for SJP.Schematic</Description>
+    <Description>SQL Server database metadata provider for Schematic</Description>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 

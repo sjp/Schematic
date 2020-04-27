@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <Description>Oracle database metadata and migration provider for SJP.Schematic</Description>
+    <Description>Oracle database metadata provider for Schematic</Description>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 

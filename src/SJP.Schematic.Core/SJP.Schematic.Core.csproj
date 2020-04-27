@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <Description>Core components for database modelling and migrations in .NET</Description>
+    <Description>Core components for database schema representation and modelling in .NET</Description>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
