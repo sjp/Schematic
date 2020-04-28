@@ -100,11 +100,11 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2019
         }
 
         [Test]
-        public async Task InstanceName_PropertyGet_IsNotNull()
+        public async Task InstanceName_PropertyGet_ThrowsNothing()
         {
             var serverProps = await Dialect.GetServerProperties2014(Config.ConnectionFactory).ConfigureAwait(false);
 
-            Assert.That(serverProps.InstanceName, Is.Not.Null);
+            Assert.That(() => serverProps.InstanceName, Throws.Nothing);
         }
 
         [Test]
