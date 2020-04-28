@@ -24,6 +24,38 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2019
         }
 
         [Test]
+        public async Task GetServerProperties2008_WhenInvoked_ReturnsNonNullObject()
+        {
+            var properties = await Dialect.GetServerProperties2008(DbConnection).ConfigureAwait(false);
+
+            Assert.That(properties, Is.Not.Null);
+        }
+
+        [Test]
+        public async Task GetServerProperties2012_WhenInvoked_ReturnsNonNullObject()
+        {
+            var properties = await Dialect.GetServerProperties2012(DbConnection).ConfigureAwait(false);
+
+            Assert.That(properties, Is.Not.Null);
+        }
+
+        [Test]
+        public async Task GetServerProperties2014_WhenInvoked_ReturnsNonNullObject()
+        {
+            var properties = await Dialect.GetServerProperties2014(DbConnection).ConfigureAwait(false);
+
+            Assert.That(properties, Is.Not.Null);
+        }
+
+        [Test]
+        public async Task GetServerProperties2017_WhenInvoked_ReturnsNonNullObject()
+        {
+            var properties = await Dialect.GetServerProperties2017(DbConnection).ConfigureAwait(false);
+
+            Assert.That(properties, Is.Not.Null);
+        }
+
+        [Test]
         public async Task GetServerProperties2019_WhenInvoked_ReturnsNonNullObject()
         {
             var properties = await Dialect.GetServerProperties2019(DbConnection).ConfigureAwait(false);
