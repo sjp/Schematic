@@ -1,13 +1,16 @@
 ﻿using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.MySql.Tests.Integration
 {
     internal static class Config
     {
-        public static IDbConnectionFactory ConnectionFactory => new MySqlConnectionFactory(ConnectionString);
+        public static IDbConnectionFactory ConnectionFactory => !ConnectionString.IsNullOrWhiteSpace()
+            ? new MySqlConnectionFactory(ConnectionString)
+            : null;
 
         public static ISchematicConnection SchematicConnection => new SchematicConnection(
             ConnectionFactory,

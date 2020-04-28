@@ -2,13 +2,16 @@
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2017
 {
     internal static class Config2017
     {
-        public static IDbConnectionFactory ConnectionFactory => new SqlServerConnectionFactory(ConnectionString);
+        public static IDbConnectionFactory ConnectionFactory => !ConnectionString.IsNullOrWhiteSpace()
+            ? new SqlServerConnectionFactory(ConnectionString)
+            : null;
 
         public static ISchematicConnection SchematicConnection => new SchematicConnection(
             ConnectionFactory,

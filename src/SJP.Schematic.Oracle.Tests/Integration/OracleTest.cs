@@ -1,13 +1,16 @@
 ﻿using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
     internal static class Config
     {
-        public static IDbConnectionFactory ConnectionFactory => new OracleConnectionFactory(ConnectionString);
+        public static IDbConnectionFactory ConnectionFactory => !ConnectionString.IsNullOrWhiteSpace()
+            ? new OracleConnectionFactory(ConnectionString)
+            : null;
 
         public static ISchematicConnection SchematicConnection => new SchematicConnection(
             ConnectionFactory,
