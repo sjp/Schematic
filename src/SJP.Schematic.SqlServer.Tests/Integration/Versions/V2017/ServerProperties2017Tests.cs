@@ -268,11 +268,11 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2017
         }
 
         [Test]
-        public async Task ProductUpdateReference_PropertyGet_IsNotNull()
+        public async Task ProductUpdateReference_PropertyGet_ThrowsNothing()
         {
             var serverProps = await Dialect.GetServerProperties2017(Config.ConnectionFactory).ConfigureAwait(false);
 
-            Assert.That(serverProps.ProductUpdateReference, Is.Not.Null);
+            Assert.That(() => serverProps.ProductUpdateReference, Throws.Nothing);
         }
 
         [Test]
