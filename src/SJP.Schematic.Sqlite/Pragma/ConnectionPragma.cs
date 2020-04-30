@@ -22,8 +22,6 @@ namespace SJP.Schematic.Sqlite.Pragma
 
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
-        protected IDatabaseDialect Dialect => Connection.Dialect;
-
         protected string PragmaPrefix { get; } = "PRAGMA ";
 
         public async Task<IEnumerable<ISqliteDatabasePragma>> DatabasePragmasAsync(CancellationToken cancellationToken = default)
