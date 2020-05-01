@@ -47,31 +47,31 @@ namespace SJP.Schematic.Lint.Tests
 
             Assert.That(rules, Has.Exactly(expectedCount).Items);
         }
+    }
 
-        public class TestRuleProvider : IRuleProvider
+    public class TestRuleProvider : IRuleProvider
+    {
+        public IEnumerable<IRule> GetRules(ISchematicConnection connection, RuleLevel level)
         {
-            public IEnumerable<IRule> GetRules(ISchematicConnection connection, RuleLevel level)
-            {
-                return new DefaultRuleProvider()
-                    .GetRules(connection, level)
-                    .Take(RuleCount)
-                    .ToList();
-            }
-
-            public const int RuleCount = 3;
+            return new DefaultRuleProvider()
+                .GetRules(connection, level)
+                .Take(RuleCount)
+                .ToList();
         }
 
-        public class TestDialectRuleProvider : IDialectRuleProvider<Fakes.FakeDatabaseDialect>
-        {
-            public IEnumerable<IRule> GetRules(ISchematicConnection connection, RuleLevel level)
-            {
-                return new DefaultRuleProvider()
-                    .GetRules(connection, level)
-                    .Take(RuleCount)
-                    .ToList();
-            }
+        public const int RuleCount = 3;
+    }
 
-            public const int RuleCount = 5;
+    public class TestDialectRuleProvider : IDialectRuleProvider<Fakes.FakeDatabaseDialect>
+    {
+        public IEnumerable<IRule> GetRules(ISchematicConnection connection, RuleLevel level)
+        {
+            return new DefaultRuleProvider()
+                .GetRules(connection, level)
+                .Take(RuleCount)
+                .ToList();
         }
+
+        public const int RuleCount = 5;
     }
 }

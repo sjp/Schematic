@@ -79,7 +79,7 @@ namespace SJP.Schematic.Lint
 
             try
             {
-                return assembly.DefinedTypes
+                return assembly.GetExportedTypes()
                     .Where(t => TypeFilter(t, dialectType)
                         && (IsRuleProviderImplementation(t) || IsDialectRuleProviderImplementation(t, dialectType)));
             }
