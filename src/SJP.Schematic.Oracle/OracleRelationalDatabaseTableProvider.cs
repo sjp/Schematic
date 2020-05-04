@@ -263,13 +263,16 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
 
                 var indexCols = indexInfo
                     .OrderBy(row => row.ColumnPosition)
-                    .Where(row => row.ColumnName != null && columns.ContainsKey(row.ColumnName))
-                    .Select(row => new { row.IsDescending, Column = columns[row.ColumnName!] })
+                    .Where(row => row.ColumnName != null)
+                    .Select(row => new { row.IsDescending, Column = row.ColumnName! })
                     .Select(row =>
                     {
                         var order = row.IsDescending == Constants.Y ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
-                        var expression = Dialect.QuoteName(row.Column.Name);
-                        return new DatabaseIndexColumn(expression, row.Column, order);
+                        var indexColumns = columns.ContainsKey(row.Column)
+                            ? new[] { columns[row.Column] }
+                            : Array.Empty<IDatabaseColumn>();
+                        var expression = Dialect.QuoteName(row.Column);
+                        return new DatabaseIndexColumn(expression, indexColumns, order);
                     })
                     .ToList();
 
