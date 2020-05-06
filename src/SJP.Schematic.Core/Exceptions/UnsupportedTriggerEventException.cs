@@ -64,10 +64,21 @@ namespace SJP.Schematic.Core.Exceptions
                 + triggerEvent;
         }
 
+        /// <summary>
+        /// Gets the name of the table that contains the unsupported trigger.
+        /// </summary>
+        /// <value>A table name.</value>
         public string TableName { get; } = string.Empty;
 
+        /// <summary>
+        /// Gets the trigger event that is not supported.
+        /// </summary>
+        /// <value>The trigger event name.</value>
         public string TriggerEvent { get; } = string.Empty;
 
+        /// <summary>
+        /// A message that describes the unsupported trigger event exception.
+        /// </summary>
         public override string Message { get; } = string.Empty;
     }
 }

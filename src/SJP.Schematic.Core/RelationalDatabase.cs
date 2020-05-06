@@ -18,6 +18,11 @@ namespace SJP.Schematic.Core
         /// </summary>
         /// <param name="identifierDefaults">Database identifier defaults.</param>
         /// <param name="identifierResolver">An identifier resolver to use when an object cannot be found using the given name.</param>
+        /// <param name="tables">A collection of database tables.</param>
+        /// <param name="views">A collection of database views.</param>
+        /// <param name="sequences">A collection of database sequences.</param>
+        /// <param name="synonyms">A collection of database synonyms.</param>
+        /// <param name="routines">A collection of database routines.</param>
         /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
         public RelationalDatabase(
             IIdentifierDefaults identifierDefaults,

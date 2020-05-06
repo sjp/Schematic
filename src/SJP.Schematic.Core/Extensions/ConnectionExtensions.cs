@@ -8,8 +8,20 @@ using LanguageExt;
 
 namespace SJP.Schematic.Core.Extensions
 {
+    /// <summary>
+    /// Extension methods used to query databases. When called, enables Schematic to enhance queries with logging, query limiting, etc.
+    /// </summary>
     public static class ConnectionExtensions
     {
+        /// <summary>
+        /// Queries the database and returns a collection of results.
+        /// </summary>
+        /// <typeparam name="T">The type of results to map to.</typeparam>
+        /// <param name="connectionFactory">A connection factory.</param>
+        /// <param name="sql">The SQL to query with.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of query results from the database.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c> or <paramref name="sql"/> is <c>null</c>, empty, or whitespace.</exception>
         public static Task<IEnumerable<T>> QueryAsync<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
             where T : notnull
         {
@@ -32,6 +44,16 @@ namespace SJP.Schematic.Core.Extensions
             return await connection.QueryAsync<T>(command).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Queries the database and returns a collection of results.
+        /// </summary>
+        /// <typeparam name="T">The type of results to map to.</typeparam>
+        /// <param name="connectionFactory">A connection factory.</param>
+        /// <param name="sql">The SQL to query with.</param>
+        /// <param name="parameters">Parameters for the associated SQL query.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of query results from the database.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>, <paramref name="parameters"/> is <c>null</c>, or <paramref name="sql"/> is <c>null</c>, empty, or whitespace.</exception>
         public static Task<IEnumerable<T>> QueryAsync<T>(this IDbConnectionFactory connectionFactory, string sql, object parameters, CancellationToken cancellationToken)
             where T : notnull
         {
@@ -56,6 +78,16 @@ namespace SJP.Schematic.Core.Extensions
             return await connection.QueryAsync<T>(command).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Queries the database and returns a scalar result.
+        /// </summary>
+        /// <typeparam name="T">The type of results to map to.</typeparam>
+        /// <param name="connectionFactory">A connection factory.</param>
+        /// <param name="sql">The SQL to query with.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A single scalar value.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>, or <paramref name="sql"/> is <c>null</c>, empty, or whitespace.</exception>
+        /// <remarks>If the results contain more than one column or row, the value of the first column of the first row is taken.</remarks>
         public static Task<T> ExecuteScalarAsync<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
         {
             if (connectionFactory == null)
@@ -77,6 +109,17 @@ namespace SJP.Schematic.Core.Extensions
             return await connection.ExecuteScalarAsync<T>(command).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Queries the database and returns a scalar result.
+        /// </summary>
+        /// <typeparam name="T">The type of results to map to.</typeparam>
+        /// <param name="connectionFactory">A connection factory.</param>
+        /// <param name="sql">The SQL to query with.</param>
+        /// <param name="parameters">Parameters for the associated SQL query.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A single scalar value.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>, <paramref name="parameters"/> is <c>null</c>, or <paramref name="sql"/> is <c>null</c>, empty, or whitespace.</exception>
+        /// <remarks>If the results contain more than one column or row, the value of the first column of the first row is taken.</remarks>
         public static Task<T> ExecuteScalarAsync<T>(this IDbConnectionFactory connectionFactory, string sql, object parameters, CancellationToken cancellationToken)
         {
             if (connectionFactory == null)
@@ -100,6 +143,14 @@ namespace SJP.Schematic.Core.Extensions
             return await connection.ExecuteScalarAsync<T>(command).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Executes a query against the database without observing its result.
+        /// </summary>
+        /// <param name="connectionFactory">A connection factory.</param>
+        /// <param name="sql">The SQL to query with.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task containing the number of rows affected by the given query.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>, or <paramref name="sql"/> is <c>null</c>, empty, or whitespace.</exception>
         public static Task<int> ExecuteAsync(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
         {
             if (connectionFactory == null)
@@ -121,6 +172,15 @@ namespace SJP.Schematic.Core.Extensions
             return await connection.ExecuteAsync(command).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Executes a query against the database without observing its result.
+        /// </summary>
+        /// <param name="connectionFactory">A connection factory.</param>
+        /// <param name="sql">The SQL to query with.</param>
+        /// <param name="parameters">Parameters for the associated SQL query.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task containing the number of rows affected by the given query.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>, <paramref name="parameters"/> is <c>null</c>, or <paramref name="sql"/> is <c>null</c>, empty, or whitespace.</exception>
         public static Task<int> ExecuteAsync(this IDbConnectionFactory connectionFactory, string sql, object parameters, CancellationToken cancellationToken)
         {
             if (connectionFactory == null)
@@ -144,6 +204,16 @@ namespace SJP.Schematic.Core.Extensions
             return await connection.ExecuteAsync(command).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Queries the database and returns a scalar result if available, otherwise none.
+        /// </summary>
+        /// <typeparam name="T">The type of results to map to.</typeparam>
+        /// <param name="connectionFactory">A connection factory.</param>
+        /// <param name="sql">The SQL to query with.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A single scalar value if one is available, otherwise none.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>, or <paramref name="sql"/> is <c>null</c>, empty, or whitespace.</exception>
+        /// <remarks>If the results contain more than one column or row, the value of the first column of the first row is taken. If there are no results, no results are provided.</remarks>
         public static OptionAsync<T> QueryFirstOrNone<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
             where T : notnull
         {
@@ -170,6 +240,17 @@ namespace SJP.Schematic.Core.Extensions
                 : Option<T>.None;
         }
 
+        /// <summary>
+        /// Queries the database and returns a scalar result if available, otherwise none.
+        /// </summary>
+        /// <typeparam name="T">The type of results to map to.</typeparam>
+        /// <param name="connectionFactory">A connection factory.</param>
+        /// <param name="sql">The SQL to query with.</param>
+        /// <param name="parameters">Parameters for the associated SQL query.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A single scalar value if one is available, otherwise none.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>, <paramref name="parameters"/> is <c>null</c>, or <paramref name="sql"/> is <c>null</c>, empty, or whitespace.</exception>
+        /// <remarks>If the results contain more than one column or row, the value of the first column of the first row is taken. If there are no results, no results are provided.</remarks>
         public static OptionAsync<T> QueryFirstOrNone<T>(this IDbConnectionFactory connectionFactory, string sql, object parameters, CancellationToken cancellationToken)
             where T : notnull
         {
@@ -198,6 +279,15 @@ namespace SJP.Schematic.Core.Extensions
                 : Option<T>.None;
         }
 
+        /// <summary>
+        /// Queries the database and returns the only result.
+        /// </summary>
+        /// <typeparam name="T">The type of results to map to.</typeparam>
+        /// <param name="connectionFactory">A connection factory.</param>
+        /// <param name="sql">The SQL to query with.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task containing a single row of data.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>, or <paramref name="sql"/> is <c>null</c>, empty, or whitespace.</exception>
         public static Task<T> QuerySingleAsync<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
             where T : notnull
         {
@@ -221,6 +311,16 @@ namespace SJP.Schematic.Core.Extensions
             return await connection.QuerySingleAsync<T>(command).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Queries the database and returns the only result.
+        /// </summary>
+        /// <typeparam name="T">The type of results to map to.</typeparam>
+        /// <param name="connectionFactory">A connection factory.</param>
+        /// <param name="sql">The SQL to query with.</param>
+        /// <param name="parameters">Parameters for the associated SQL query.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A single row of data.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>, <paramref name="parameters"/> is <c>null</c>, or <paramref name="sql"/> is <c>null</c>, empty, or whitespace.</exception>
         public static Task<T> QuerySingleAsync<T>(this IDbConnectionFactory connectionFactory, string sql, object parameters, CancellationToken cancellationToken)
             where T : notnull
         {
@@ -246,6 +346,15 @@ namespace SJP.Schematic.Core.Extensions
             return await connection.QuerySingleAsync<T>(command).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Queries the database and returns the only result. If no results or too many results are present, a 'none' value is returned.
+        /// </summary>
+        /// <typeparam name="T">The type of results to map to.</typeparam>
+        /// <param name="connectionFactory">A connection factory.</param>
+        /// <param name="sql">The SQL to query with.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task containing single row of data if only one row is returned, otherwise none.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>, or <paramref name="sql"/> is <c>null</c>, empty, or whitespace.</exception>
         public static OptionAsync<T> QuerySingleOrNone<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
             where T : notnull
         {
@@ -279,6 +388,16 @@ namespace SJP.Schematic.Core.Extensions
             }
         }
 
+        /// <summary>
+        /// Queries the database and returns the only result. If no results or too many results are present, a 'none' value is returned.
+        /// </summary>
+        /// <typeparam name="T">The type of results to map to.</typeparam>
+        /// <param name="connectionFactory">A connection factory.</param>
+        /// <param name="sql">The SQL to query with.</param>
+        /// <param name="parameters">Parameters for the associated SQL query.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task containing single row of data if only one row is returned, otherwise none.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>, <paramref name="parameters"/> is <c>null</c>, or <paramref name="sql"/> is <c>null</c>, empty, or whitespace.</exception>
         public static OptionAsync<T> QuerySingleOrNone<T>(this IDbConnectionFactory connectionFactory, string sql, object parameters, CancellationToken cancellationToken)
             where T : notnull
         {
