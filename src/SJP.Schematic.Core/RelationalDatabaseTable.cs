@@ -9,9 +9,30 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core
 {
+    /// <summary>
+    /// A database table implementation, containing information about database tables.
+    /// </summary>
+    /// <seealso cref="IRelationalDatabaseTable" />
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class RelationalDatabaseTable : IRelationalDatabaseTable
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RelationalDatabaseTable"/> class.
+        /// </summary>
+        /// <param name="tableName">Name of the table.</param>
+        /// <param name="columns">The columns.</param>
+        /// <param name="primaryKey">The primary key.</param>
+        /// <param name="uniqueKeys">The unique keys.</param>
+        /// <param name="parentKeys">The parent keys.</param>
+        /// <param name="childKeys">The child keys.</param>
+        /// <param name="indexes">The indexes.</param>
+        /// <param name="checks">The checks.</param>
+        /// <param name="triggers">The triggers.</param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="tableName"/> or <paramref name="columns"/> or <paramref name="uniqueKeys"/> or <paramref name="parentKeys"/> or <paramref name="childKeys"/> or <paramref name="indexes"/> or <paramref name="checks"/> or <paramref name="triggers"/>.
+        /// If a given collection contains a <c>null</c> value, an <see cref="ArgumentNullException"/> will also be thrown.
+        /// </exception>
+        /// <exception cref="ArgumentException">When given key with mismatching key types, e.g. primary key or unique keys.</exception>
         public RelationalDatabaseTable(
             Identifier tableName,
             IReadOnlyList<IDatabaseColumn> columns,
@@ -61,22 +82,61 @@ namespace SJP.Schematic.Core
             Triggers = triggers;
         }
 
+        /// <summary>
+        /// The table name.
+        /// </summary>
+        /// <value>The table name.</value>
         public Identifier Name { get; }
 
+        /// <summary>
+        /// The primary key of the table, if available.
+        /// </summary>
+        /// <value>A primary key, if available.</value>
         public Option<IDatabaseKey> PrimaryKey { get; }
 
+        /// <summary>
+        /// Indexes defined for the table.
+        /// </summary>
+        /// <value>A set of indexes.</value>
         public IReadOnlyCollection<IDatabaseIndex> Indexes { get; }
 
+        /// <summary>
+        /// Unique key constraints defined for the table.
+        /// </summary>
+        /// <value>Unique key constraints.</value>
         public IReadOnlyCollection<IDatabaseKey> UniqueKeys { get; }
 
+        /// <summary>
+        /// <para>A set of child foreign key constraints.</para>
+        /// <para>Child keys form a relationship from a primary or unique key in the current table, to a foreign key constraint.</para>
+        /// </summary>
+        /// <value>The child keys.</value>
+        /// <remarks>This is a convenient way of determining which records in a database may depend on a value defined in this table.</remarks>
         public IReadOnlyCollection<IDatabaseRelationalKey> ChildKeys { get; }
 
+        /// <summary>
+        /// Check constraints defined for the table.
+        /// </summary>
+        /// <value>Check constraints.</value>
         public IReadOnlyCollection<IDatabaseCheckConstraint> Checks { get; }
 
+        /// <summary>
+        /// <para>A set of parent foreign key constraints.</para>
+        /// <para>Parent keys form a relationship from the current table's foreign key, to a unique or primary key.</para>
+        /// </summary>
+        /// <value>Foreign key constraints.</value>
         public IReadOnlyCollection<IDatabaseRelationalKey> ParentKeys { get; }
 
+        /// <summary>
+        /// The ordered list of columns in the table.
+        /// </summary>
+        /// <value>The table columns.</value>
         public IReadOnlyList<IDatabaseColumn> Columns { get; }
 
+        /// <summary>
+        /// The triggers defined on the table.
+        /// </summary>
+        /// <value>Triggers defined on the table.</value>
         public IReadOnlyCollection<IDatabaseTrigger> Triggers { get; }
 
         /// <summary>

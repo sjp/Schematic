@@ -2,13 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using QuikGraph;
-using QuikGraph.Algorithms;
-using QuikGraph.Algorithms.Search;
 
 namespace SJP.Schematic.Core.Utilities
 {
+    /// <summary>
+    /// A convenience class that uses foreign key relationships to determine the order in which data should be inserted/deleted.
+    /// </summary>
     public class TableRelationshipOrderer
     {
+        /// <summary>
+        /// Retrieves the deletion order for a collection of tables.
+        /// </summary>
+        /// <param name="tables">The tables.</param>
+        /// <returns>An ordered set of tables, where the tables at the head of the collection should be deleted from before tables at the tail of the collection.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
         public IReadOnlyCollection<Identifier> GetDeletionOrder(IReadOnlyCollection<IRelationalDatabaseTable> tables)
         {
             if (tables == null)
@@ -31,54 +38,18 @@ namespace SJP.Schematic.Core.Utilities
             return topologicalSorter.SortedVertices.Distinct().ToList();
         }
 
+        /// <summary>
+        /// Retrieves the insertion order for a collection of tables.
+        /// </summary>
+        /// <param name="tables">The tables.</param>
+        /// <returns>An ordered set of tables, where the tables at the head of the collection should be inserted into before tables at the tail of the collection.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
         public IReadOnlyCollection<Identifier> GetInsertionOrder(IReadOnlyCollection<IRelationalDatabaseTable> tables)
         {
             if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
 
             return GetDeletionOrder(tables).Reverse().ToList();
-        }
-    }
-
-    /// <summary>
-    /// Applies topological sorting in the same manner as QuickGraph's built-in algorithm. However, this implementation enables cycles and potentially incorrect results.
-    /// </summary>
-    public sealed class TopologicalSortingAlgorithm<TVertex, TEdge> : AlgorithmBase<IVertexListGraph<TVertex, TEdge>> where TEdge : IEdge<TVertex>
-    {
-        public TopologicalSortingAlgorithm(IVertexListGraph<TVertex, TEdge> graph)
-            : this(graph, new List<TVertex>())
-        {
-        }
-
-        public TopologicalSortingAlgorithm(IVertexListGraph<TVertex, TEdge> graph, IList<TVertex> vertices)
-            : base(graph)
-        {
-            SortedVertices = vertices ?? throw new ArgumentNullException(nameof(vertices));
-        }
-
-        public IList<TVertex> SortedVertices { get; }
-
-        private void FinishVertex(TVertex v) => SortedVertices.Insert(0, v);
-
-        protected override void InternalCompute()
-        {
-            DepthFirstSearchAlgorithm<TVertex, TEdge>? dfs = null;
-            try
-            {
-                dfs = new DepthFirstSearchAlgorithm<TVertex, TEdge>(
-                    this,
-                    VisitedGraph,
-                    new Dictionary<TVertex, GraphColor>(VisitedGraph.VertexCount)
-                );
-                dfs.FinishVertex += FinishVertex;
-
-                dfs.Compute();
-            }
-            finally
-            {
-                if (dfs != null)
-                    dfs.FinishVertex -= FinishVertex;
-            }
         }
     }
 }

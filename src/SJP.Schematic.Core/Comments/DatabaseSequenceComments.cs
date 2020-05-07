@@ -4,7 +4,7 @@ using LanguageExt;
 namespace SJP.Schematic.Core.Comments
 {
     /// <summary>
-    /// Stores comment information for database sequences.
+    /// Comments for an <see cref="IDatabaseSequence"/> instance.
     /// </summary>
     /// <seealso cref="IDatabaseSequenceComments" />
     public class DatabaseSequenceComments : IDatabaseSequenceComments
@@ -21,10 +21,16 @@ namespace SJP.Schematic.Core.Comments
             Comment = comment;
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// The name of an <see cref="IDatabaseSequence" /> instance.
+        /// </summary>
+        /// <value>The sequence name.</value>
         public Identifier SequenceName { get; }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// A comment for the <see cref="IDatabaseSequence" /> instance.
+        /// </summary>
+        /// <value>The comment, if available.</value>
         public Option<string> Comment { get; }
     }
 }

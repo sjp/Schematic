@@ -5,8 +5,17 @@ using Dapper;
 
 namespace SJP.Schematic.Core.Utilities
 {
+    /// <summary>
+    /// A utility class that contains methods used to make working with collections of query parameters easier.
+    /// </summary>
     public static class ObjectParameterTransformer
     {
+        /// <summary>
+        /// Converts a parameter lookup to a set of parameters that can be used to query with Dapper.
+        /// </summary>
+        /// <param name="paramLookup">The parameter lookup.</param>
+        /// <returns>A dynamic query parameters object for use with Dapper.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="paramLookup"/> is <c>null</c>.</exception>
         public static DynamicParameters ToParameters(IReadOnlyDictionary<string, object> paramLookup)
         {
             if (paramLookup == null)
@@ -22,6 +31,17 @@ namespace SJP.Schematic.Core.Utilities
             return result;
         }
 
+        /// <summary>
+        /// Converts any object to a dictionary lookup of strings (property names), to values.
+        /// </summary>
+        /// <param name="param">The parameter object.</param>
+        /// <returns>A lookup of the object's constituent property values.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="param"/> is <c>null</c>.</exception>
+        /// <example>The following method call:
+        /// <code>ObjectParameterTransformer.ToDictionary(new { A = "test", B = 132 })</code>
+        /// will return an object equivalent to the following result:
+        /// <code>new Dictionary&lt;string, object&gt;{ ["A"] = "test", ["B"] = 132 }</code>
+        /// </example>
         public static IReadOnlyDictionary<string, object> ToDictionary(object param)
         {
             if (param == null)

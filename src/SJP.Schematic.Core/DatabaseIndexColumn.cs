@@ -37,6 +37,10 @@ namespace SJP.Schematic.Core
 
         public IndexColumnOrder Order { get; }
 
+        /// <summary>
+        /// Returns a string that provides a basic string representation of this object.
+        /// </summary>
+        /// <returns>A <see cref="string"/> that represents this instance.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override string ToString() => DebuggerDisplay;
 

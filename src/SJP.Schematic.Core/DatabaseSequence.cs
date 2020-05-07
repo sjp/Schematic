@@ -10,7 +10,7 @@ namespace SJP.Schematic.Core
     /// <summary>
     /// A database sequence.
     /// </summary>
-    /// <seealso cref="SJP.Schematic.Core.IDatabaseSequence" />
+    /// <seealso cref="IDatabaseSequence" />
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class DatabaseSequence : IDatabaseSequence
     {

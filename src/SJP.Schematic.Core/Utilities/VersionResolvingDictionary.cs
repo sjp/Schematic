@@ -5,8 +5,19 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core.Utilities
 {
+    /// <summary>
+    /// A lookup container that is intended to retrieve database implementations for a given version, avoiding the need to provide version ranges manually.
+    /// </summary>
+    /// <typeparam name="T">The type of value to retrieve from the lookup.</typeparam>
+    /// <seealso cref="IVersionedLookup{T}" />
     public class VersionResolvingDictionary<T> : IVersionedLookup<T>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VersionResolvingDictionary{T}"/> class.
+        /// </summary>
+        /// <param name="lookup">A lookup to retrieve versions by value.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="lookup"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="lookup"/> is empty.</exception>
         public VersionResolvingDictionary(IReadOnlyDictionary<Version, T> lookup)
         {
             if (lookup == null)
@@ -17,6 +28,12 @@ namespace SJP.Schematic.Core.Utilities
             _lookup = lookup;
         }
 
+        /// <summary>
+        /// Retrieves the value that is applicable for the given version.
+        /// </summary>
+        /// <param name="version">A version.</param>
+        /// <returns>An object of type <typeparamref name="T" />.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="version"/> is <c>null</c>.</exception>
         public T GetValue(Version version)
         {
             if (version == null)

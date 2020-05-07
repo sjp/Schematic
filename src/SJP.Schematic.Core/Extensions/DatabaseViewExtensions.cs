@@ -9,6 +9,12 @@ namespace SJP.Schematic.Core.Extensions
     /// </summary>
     public static class DatabaseViewExtensions
     {
+        /// <summary>
+        /// Gets a database column lookup.
+        /// </summary>
+        /// <param name="view">A database view.</param>
+        /// <returns>A lookup keyed by column names, whose values are the associated columns.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="view"/> is <c>null</c>.</exception>
         public static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(this IDatabaseView view)
         {
             if (view == null)
@@ -26,6 +32,13 @@ namespace SJP.Schematic.Core.Extensions
             return result;
         }
 
+        /// <summary>
+        /// Gets a database column lookup.
+        /// </summary>
+        /// <param name="view">A database view.</param>
+        /// <param name="identifierResolver">An identifier resolver.</param>
+        /// <returns>A lookup keyed by column names, whose values are the associated columns.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="view"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
         public static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(this IDatabaseView view, IIdentifierResolutionStrategy identifierResolver)
         {
             if (view == null)

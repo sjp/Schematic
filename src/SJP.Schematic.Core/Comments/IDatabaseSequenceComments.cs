@@ -3,7 +3,7 @@
 namespace SJP.Schematic.Core.Comments
 {
     /// <summary>
-    /// Defines comment information related to <see cref="IDatabaseSequence"/>
+    /// Defines comment information related to <see cref="IDatabaseSequence"/> instances.
     /// </summary>
     public interface IDatabaseSequenceComments
     {

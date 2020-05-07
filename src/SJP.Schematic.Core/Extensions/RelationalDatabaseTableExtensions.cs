@@ -49,6 +49,12 @@ namespace SJP.Schematic.Core.Extensions
             return new IdentifierResolvingDictionary<IDatabaseCheckConstraint>(lookup, identifierResolver);
         }
 
+        /// <summary>
+        /// Gets a database column lookup.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <returns>A lookup keyed by column names, whose values are the associated columns.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
         public static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(this IRelationalDatabaseTable table)
         {
             if (table == null)
@@ -66,6 +72,13 @@ namespace SJP.Schematic.Core.Extensions
             return result;
         }
 
+        /// <summary>
+        /// Gets a database column lookup.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <param name="identifierResolver">An identifier resolver.</param>
+        /// <returns>A lookup keyed by column names, whose values are the associated columns.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
         public static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(this IRelationalDatabaseTable table, IIdentifierResolutionStrategy identifierResolver)
         {
             if (table == null)
@@ -77,6 +90,12 @@ namespace SJP.Schematic.Core.Extensions
             return new IdentifierResolvingDictionary<IDatabaseColumn>(lookup, identifierResolver);
         }
 
+        /// <summary>
+        /// Gets a database index lookup.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <returns>A lookup keyed by index names, whose values are the associated indexes.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
         public static IReadOnlyDictionary<Identifier, IDatabaseIndex> GetIndexLookup(this IRelationalDatabaseTable table)
         {
             if (table == null)
@@ -94,6 +113,13 @@ namespace SJP.Schematic.Core.Extensions
             return result;
         }
 
+        /// <summary>
+        /// Gets a database index lookup.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <param name="identifierResolver">An identifier resolver.</param>
+        /// <returns>A lookup keyed by index names, whose values are the associated indexes.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
         public static IReadOnlyDictionary<Identifier, IDatabaseIndex> GetIndexLookup(this IRelationalDatabaseTable table, IIdentifierResolutionStrategy identifierResolver)
         {
             if (table == null)
@@ -105,6 +131,12 @@ namespace SJP.Schematic.Core.Extensions
             return new IdentifierResolvingDictionary<IDatabaseIndex>(lookup, identifierResolver);
         }
 
+        /// <summary>
+        /// Gets a foreign key lookup.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <returns>A lookup keyed by foreign key names, whose values are the associated foreign keys.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
         public static IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> GetParentKeyLookup(this IRelationalDatabaseTable table)
         {
             if (table == null)
@@ -121,6 +153,13 @@ namespace SJP.Schematic.Core.Extensions
             return result;
         }
 
+        /// <summary>
+        /// Gets a foreign key lookup.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <param name="identifierResolver">An identifier resolver.</param>
+        /// <returns>A lookup keyed by foreign key names, whose values are the associated foreign keys.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
         public static IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> GetParentKeyLookup(this IRelationalDatabaseTable table, IIdentifierResolutionStrategy identifierResolver)
         {
             if (table == null)
@@ -132,6 +171,12 @@ namespace SJP.Schematic.Core.Extensions
             return new IdentifierResolvingDictionary<IDatabaseRelationalKey>(lookup, identifierResolver);
         }
 
+        /// <summary>
+        /// Gets a database trigger lookup.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <returns>A lookup keyed by trigger names, whose values are the associated triggers.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
         public static IReadOnlyDictionary<Identifier, IDatabaseTrigger> GetTriggerLookup(this IRelationalDatabaseTable table)
         {
             if (table == null)
@@ -149,6 +194,13 @@ namespace SJP.Schematic.Core.Extensions
             return result;
         }
 
+        /// <summary>
+        /// Gets a database trigger lookup.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <param name="identifierResolver">An identifier resolver.</param>
+        /// <returns>A lookup keyed by trigger names, whose values are the associated triggers.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
         public static IReadOnlyDictionary<Identifier, IDatabaseTrigger> GetTriggerLookup(this IRelationalDatabaseTable table, IIdentifierResolutionStrategy identifierResolver)
         {
             if (table == null)
@@ -160,6 +212,12 @@ namespace SJP.Schematic.Core.Extensions
             return new IdentifierResolvingDictionary<IDatabaseTrigger>(lookup, identifierResolver);
         }
 
+        /// <summary>
+        /// Gets a unique key lookup.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <returns>A lookup keyed by unique key names, whose values are the associated unique keys.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
         public static IReadOnlyDictionary<Identifier, IDatabaseKey> GetUniqueKeyLookup(this IRelationalDatabaseTable table)
         {
             if (table == null)
@@ -176,6 +234,13 @@ namespace SJP.Schematic.Core.Extensions
             return result;
         }
 
+        /// <summary>
+        /// Gets a unique key lookup.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <param name="identifierResolver">An identifier resolver.</param>
+        /// <returns>A lookup keyed by unique key names, whose values are the associated unique keys.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
         public static IReadOnlyDictionary<Identifier, IDatabaseKey> GetUniqueKeyLookup(this IRelationalDatabaseTable table, IIdentifierResolutionStrategy identifierResolver)
         {
             if (table == null)
