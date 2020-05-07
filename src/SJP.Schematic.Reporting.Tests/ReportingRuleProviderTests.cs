@@ -10,7 +10,7 @@ namespace SJP.Schematic.Reporting.Tests
         [Test]
         public static void Test()
         {
-            var ruleProvider = new Reporting.Html.Lint.ReportingRuleProvider();
+            var ruleProvider = new Html.Lint.ReportingRuleProvider();
             var dbConnection = Mock.Of<IDbConnectionFactory>();
             var dialect = new Sqlite.SqliteDialect();
             var connection = new SchematicConnection(dbConnection, dialect);
