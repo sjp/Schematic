@@ -24,7 +24,7 @@ namespace SJP.Schematic.Tool.Handlers
                 Environment.SetEnvironmentVariable("SCHEMATIC_GRAPHVIZ_DOT", dotPath, EnvironmentVariableTarget.Process);
         }
 
-        public async Task<int> HandleCommand(IConsole console, DirectoryInfo outputPath, CancellationToken cancellationToken)
+        public async Task<int> HandleCommandAsync(IConsole console, DirectoryInfo outputPath, CancellationToken cancellationToken)
         {
             var connection = GetSchematicConnection();
             var database = await connection.Dialect.GetRelationalDatabaseAsync(connection, cancellationToken).ConfigureAwait(false);

@@ -69,21 +69,21 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 foreignKeyViewModels,
                 checkConstraintViewModels
             );
-            var renderedConstraints = await Formatter.RenderTemplateAsync(templateParameter).ConfigureAwait(false);
+            var renderedConstraints = await Formatter.RenderTemplateAsync(templateParameter, cancellationToken).ConfigureAwait(false);
 
             var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                 ? IdentifierDefaults.Database + " Database"
                 : "Database";
             var pageTitle = "Constraints · " + databaseName;
             var constraintsContainer = new Container(renderedConstraints, pageTitle, string.Empty);
-            var renderedPage = await Formatter.RenderTemplateAsync(constraintsContainer).ConfigureAwait(false);
+            var renderedPage = await Formatter.RenderTemplateAsync(constraintsContainer, cancellationToken).ConfigureAwait(false);
 
             if (!ExportDirectory.Exists)
                 ExportDirectory.Create();
             var outputPath = Path.Combine(ExportDirectory.FullName, "constraints.html");
 
             using var writer = File.CreateText(outputPath);
-            await writer.WriteAsync(renderedPage).ConfigureAwait(false);
+            await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
             await writer.FlushAsync().ConfigureAwait(false);
         }
     }

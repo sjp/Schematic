@@ -49,21 +49,21 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var routineTasks = Routines.Select(async routine =>
             {
                 var viewModel = mapper.Map(routine);
-                var renderedRoutine = await Formatter.RenderTemplateAsync(viewModel).ConfigureAwait(false);
+                var renderedRoutine = await Formatter.RenderTemplateAsync(viewModel, cancellationToken).ConfigureAwait(false);
 
                 var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                     ? IdentifierDefaults.Database + " Database"
                     : "Database";
                 var pageTitle = routine.Name.ToVisibleName() + " · Routine · " + databaseName;
                 var routineContainer = new Container(renderedRoutine, pageTitle, "../");
-                var renderedPage = await Formatter.RenderTemplateAsync(routineContainer).ConfigureAwait(false);
+                var renderedPage = await Formatter.RenderTemplateAsync(routineContainer, cancellationToken).ConfigureAwait(false);
 
                 var outputPath = Path.Combine(ExportDirectory.FullName, routine.Name.ToSafeKey() + ".html");
                 if (!ExportDirectory.Exists)
                     ExportDirectory.Create();
 
                 using var writer = File.CreateText(outputPath);
-                await writer.WriteAsync(renderedPage).ConfigureAwait(false);
+                await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
                 await writer.FlushAsync().ConfigureAwait(false);
             });
 

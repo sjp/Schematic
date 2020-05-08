@@ -50,7 +50,7 @@ select
         }
 
         [Test]
-        public async Task Generate_GivenDatabaseWithTablesAndViews_GeneratesFilesInExpectedLocations()
+        public async Task GenerateAsync_GivenDatabaseWithTablesAndViews_GeneratesFilesInExpectedLocations()
         {
             using var tempDir = new TemporaryDirectory();
             var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFilename);
@@ -72,7 +72,7 @@ select
             var nameTranslator = new PascalCaseNameTranslator();
             var commentProvider = new EmptyRelationalDatabaseCommentProvider();
             var generator = new PocoDataAccessGenerator(mockFs, Database, commentProvider, nameTranslator);
-            await generator.Generate(projectPath, TestNamespace).ConfigureAwait(false);
+            await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
 
             Assert.Multiple(() =>
             {
@@ -86,7 +86,7 @@ select
         }
 
         [Test]
-        public async Task Generate_GivenDatabaseWithoutTables_BuildsProjectSuccessfully()
+        public async Task GenerateAsync_GivenDatabaseWithoutTables_BuildsProjectSuccessfully()
         {
             using var tempDir = new TemporaryDirectory();
             var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFilename);
@@ -97,14 +97,14 @@ select
             var commentProvider = new EmptyRelationalDatabaseCommentProvider();
             var nameTranslator = new PascalCaseNameTranslator();
             var generator = new PocoDataAccessGenerator(fileSystem, database, commentProvider, nameTranslator);
-            await generator.Generate(projectPath, TestNamespace).ConfigureAwait(false);
+            await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
 
             var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
             Assert.That(buildsSuccessfully, Is.True);
         }
 
         [Test]
-        public async Task Generate_GivenDatabaseWithTables_BuildsProjectSuccessfully()
+        public async Task GenerateAsync_GivenDatabaseWithTables_BuildsProjectSuccessfully()
         {
             using var tempDir = new TemporaryDirectory();
             var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFilename);
@@ -113,7 +113,7 @@ select
             var commentProvider = new EmptyRelationalDatabaseCommentProvider();
             var nameTranslator = new PascalCaseNameTranslator();
             var generator = new PocoDataAccessGenerator(fileSystem, Database, commentProvider, nameTranslator);
-            await generator.Generate(projectPath, TestNamespace).ConfigureAwait(false);
+            await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
 
             var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
             Assert.That(buildsSuccessfully, Is.True);

@@ -5,7 +5,7 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.SqlServer.Tests
 {
     [TestFixture]
-    internal static class SqlServerRelationalDatabaseSequenceProviderTests
+    internal static class SqlServerDatabaseSequenceProviderTests
     {
         [Test]
         public static void Ctor_GivenNullConnection_ThrowsArgNullException()

@@ -54,7 +54,7 @@ namespace SJP.Schematic.Reporting
 
             var rowCounts = await GetRowCountsAsync(tables, cancellationToken).ConfigureAwait(false);
 
-            var dbVersion = await Connection.Dialect.GetDatabaseDisplayVersionAsync(Connection, CancellationToken.None).ConfigureAwait(false);
+            var dbVersion = await Connection.Dialect.GetDatabaseDisplayVersionAsync(Connection, cancellationToken).ConfigureAwait(false);
 
             var renderers = GetRenderers(tables, views, sequences, synonyms, routines, rowCounts, dbVersion);
             var renderTasks = renderers.Select(r => r.RenderAsync(cancellationToken)).ToArray();

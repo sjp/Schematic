@@ -57,14 +57,14 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                     var triggerModel = mapper.Map(table.Name, trigger);
                     var outputPath = Path.Combine(outputDirectory, trigger.Name.ToSafeKey() + ".html");
 
-                    var renderedTable = await Formatter.RenderTemplateAsync(triggerModel).ConfigureAwait(false);
+                    var renderedTable = await Formatter.RenderTemplateAsync(triggerModel, cancellationToken).ConfigureAwait(false);
 
                     var pageTitle = trigger.Name.ToVisibleName() + " · Trigger · " + table.Name.ToVisibleName();
                     var container = new Container(renderedTable, pageTitle, "../../../");
-                    var renderedPage = await Formatter.RenderTemplateAsync(container).ConfigureAwait(false);
+                    var renderedPage = await Formatter.RenderTemplateAsync(container, cancellationToken).ConfigureAwait(false);
 
                     using var writer = File.CreateText(outputPath);
-                    await writer.WriteAsync(renderedPage).ConfigureAwait(false);
+                    await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
                     await writer.FlushAsync().ConfigureAwait(false);
                 });
             });

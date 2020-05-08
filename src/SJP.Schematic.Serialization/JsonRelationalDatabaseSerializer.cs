@@ -21,6 +21,7 @@ namespace SJP.Schematic.Serialization
         public Task<IRelationalDatabase> DeserializeAsync(string input, CancellationToken cancellationToken = default)
             => DeserializeAsync(input, new VerbatimIdentifierResolutionStrategy(), cancellationToken);
 
+        // TODO: update this so that it deserialises in async way
         public Task<IRelationalDatabase> DeserializeAsync(string input, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken = default)
         {
             if (input == null)

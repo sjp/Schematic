@@ -40,7 +40,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
         }
 
         [Test]
-        public async Task Generate_GivenDatabaseWithTablesAndViews_GeneratesFilesInExpectedLocations()
+        public async Task GenerateAsync_GivenDatabaseWithTablesAndViews_GeneratesFilesInExpectedLocations()
         {
             using var tempDir = new TemporaryDirectory();
             var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFilename);
@@ -61,7 +61,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
 
             var nameTranslator = new PascalCaseNameTranslator();
             var generator = new EFCoreDataAccessGenerator(mockFs, Database, new EmptyRelationalDatabaseCommentProvider(), nameTranslator);
-            await generator.Generate(projectPath, TestNamespace).ConfigureAwait(false);
+            await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
 
             Assert.Multiple(() =>
             {
@@ -75,7 +75,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
         }
 
         [Test]
-        public async Task Generate_GivenDatabaseWithoutTablesOrViews_BuildsProjectSuccessfully()
+        public async Task GenerateAsync_GivenDatabaseWithoutTablesOrViews_BuildsProjectSuccessfully()
         {
             using var tempDir = new TemporaryDirectory();
             var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFilename);
@@ -86,14 +86,14 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
             var commentProvider = new EmptyRelationalDatabaseCommentProvider();
             var nameTranslator = new PascalCaseNameTranslator();
             var generator = new EFCoreDataAccessGenerator(fileSystem, database, commentProvider, nameTranslator);
-            await generator.Generate(projectPath, TestNamespace).ConfigureAwait(false);
+            await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
 
             var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
             Assert.That(buildsSuccessfully, Is.True);
         }
 
         [Test]
-        public async Task Generate_GivenDatabaseWithTablesAndViews_BuildsProjectSuccessfully()
+        public async Task GenerateAsync_GivenDatabaseWithTablesAndViews_BuildsProjectSuccessfully()
         {
             using var tempDir = new TemporaryDirectory();
             var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFilename);
@@ -102,7 +102,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
             var commentProvider = new EmptyRelationalDatabaseCommentProvider();
             var nameTranslator = new PascalCaseNameTranslator();
             var generator = new EFCoreDataAccessGenerator(fileSystem, Database, commentProvider, nameTranslator);
-            await generator.Generate(projectPath, TestNamespace).ConfigureAwait(false);
+            await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
 
             var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
             Assert.That(buildsSuccessfully, Is.True);

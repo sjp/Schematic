@@ -22,7 +22,7 @@ namespace SJP.Schematic.Tool.Commands
             Handler = CommandHandler.Create<FileInfo, IConsole, int, CancellationToken>((config, console, timeout, cancellationToken) =>
             {
                 var handler = new TestCommandHandler(config);
-                return handler.HandleCommand(console, timeout, cancellationToken);
+                return handler.HandleCommandAsync(console, timeout, cancellationToken);
             });
         }
     }

@@ -56,21 +56,21 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 .ToList();
 
             var templateParameter = new Columns(orderedColumns);
-            var renderedColumns = await Formatter.RenderTemplateAsync(templateParameter).ConfigureAwait(false);
+            var renderedColumns = await Formatter.RenderTemplateAsync(templateParameter, cancellationToken).ConfigureAwait(false);
 
             var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                 ? IdentifierDefaults.Database + " Database"
                 : "Database";
             var pageTitle = "Columns · " + databaseName;
             var columnsContainer = new Container(renderedColumns, pageTitle, string.Empty);
-            var renderedPage = await Formatter.RenderTemplateAsync(columnsContainer).ConfigureAwait(false);
+            var renderedPage = await Formatter.RenderTemplateAsync(columnsContainer, cancellationToken).ConfigureAwait(false);
 
             if (!ExportDirectory.Exists)
                 ExportDirectory.Create();
             var outputPath = Path.Combine(ExportDirectory.FullName, "columns.html");
 
             using var writer = File.CreateText(outputPath);
-            await writer.WriteAsync(renderedPage).ConfigureAwait(false);
+            await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
             await writer.FlushAsync().ConfigureAwait(false);
         }
     }

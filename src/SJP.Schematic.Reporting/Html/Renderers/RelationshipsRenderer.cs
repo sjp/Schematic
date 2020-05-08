@@ -97,20 +97,20 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 }
             }
 
-            var renderedRelationships = await Formatter.RenderTemplateAsync(viewModel).ConfigureAwait(false);
+            var renderedRelationships = await Formatter.RenderTemplateAsync(viewModel, cancellationToken).ConfigureAwait(false);
 
             var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                 ? IdentifierDefaults.Database + " Database"
                 : "Database";
             var pageTitle = "Relationships · " + databaseName;
             var relationshipContainer = new Container(renderedRelationships, pageTitle, string.Empty);
-            var renderedPage = await Formatter.RenderTemplateAsync(relationshipContainer).ConfigureAwait(false);
+            var renderedPage = await Formatter.RenderTemplateAsync(relationshipContainer, cancellationToken).ConfigureAwait(false);
 
             var outputPath = Path.Combine(ExportDirectory.FullName, "relationships.html");
 
             using (var writer = File.CreateText(outputPath))
             {
-                await writer.WriteAsync(renderedPage).ConfigureAwait(false);
+                await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
                 await writer.FlushAsync().ConfigureAwait(false);
             }
         }

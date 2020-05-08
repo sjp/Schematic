@@ -109,18 +109,18 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                         doc.Save(writer, SaveOptions.DisableFormatting);
                 }
 
-                var renderedTable = await Formatter.RenderTemplateAsync(tableModel).ConfigureAwait(false);
+                var renderedTable = await Formatter.RenderTemplateAsync(tableModel, cancellationToken).ConfigureAwait(false);
 
                 var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                     ? IdentifierDefaults.Database + " Database"
                     : "Database";
                 var pageTitle = table.Name.ToVisibleName() + " · Table · " + databaseName;
                 var tableContainer = new Container(renderedTable, pageTitle, "../");
-                var renderedPage = await Formatter.RenderTemplateAsync(tableContainer).ConfigureAwait(false);
+                var renderedPage = await Formatter.RenderTemplateAsync(tableContainer, cancellationToken).ConfigureAwait(false);
 
                 using (var writer = File.CreateText(outputPath))
                 {
-                    await writer.WriteAsync(renderedPage).ConfigureAwait(false);
+                    await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
                     await writer.FlushAsync().ConfigureAwait(false);
                 }
             });

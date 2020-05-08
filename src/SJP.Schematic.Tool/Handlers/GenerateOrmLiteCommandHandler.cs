@@ -14,7 +14,7 @@ namespace SJP.Schematic.Tool.Handlers
         {
         }
 
-        public async Task<int> HandleCommand(IConsole console, FileInfo projectPath, string baseNamespace, string convention, CancellationToken cancellationToken)
+        public async Task<int> HandleCommandAsync(IConsole console, FileInfo projectPath, string baseNamespace, string convention, CancellationToken cancellationToken)
         {
             var fileSystem = new FileSystem();
             var nameTranslator = GetNameTranslator(convention);
@@ -24,7 +24,7 @@ namespace SJP.Schematic.Tool.Handlers
 
             var generator = new OrmLiteDataAccessGenerator(fileSystem, database, commentProvider, nameTranslator);
 
-            await generator.Generate(projectPath.FullName, baseNamespace, cancellationToken).ConfigureAwait(false);
+            await generator.GenerateAsync(projectPath.FullName, baseNamespace, cancellationToken).ConfigureAwait(false);
 
             console.Out.Write("Project generated at: " + projectPath.FullName);
             return ErrorCode.Success;

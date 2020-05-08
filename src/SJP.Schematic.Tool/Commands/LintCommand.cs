@@ -14,7 +14,7 @@ namespace SJP.Schematic.Tool.Commands
             Handler = CommandHandler.Create<IConsole, FileInfo, CancellationToken>((console, config, cancellationToken) =>
             {
                 var handler = new LintCommandHandler(config);
-                return handler.HandleCommand(console, cancellationToken);
+                return handler.HandleCommandAsync(console, cancellationToken);
             });
         }
     }

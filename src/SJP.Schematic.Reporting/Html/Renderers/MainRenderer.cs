@@ -142,21 +142,21 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 routineViewModels
             );
 
-            var renderedMain = await Formatter.RenderTemplateAsync(templateParameter).ConfigureAwait(false);
+            var renderedMain = await Formatter.RenderTemplateAsync(templateParameter, cancellationToken).ConfigureAwait(false);
 
             var databaseName = !Database.IdentifierDefaults.Database.IsNullOrWhiteSpace()
                 ? Database.IdentifierDefaults.Database + " Database"
                 : "Database";
             var pageTitle = "Home · " + databaseName;
             var mainContainer = new Container(renderedMain, pageTitle, string.Empty);
-            var renderedPage = await Formatter.RenderTemplateAsync(mainContainer).ConfigureAwait(false);
+            var renderedPage = await Formatter.RenderTemplateAsync(mainContainer, cancellationToken).ConfigureAwait(false);
 
             if (!ExportDirectory.Exists)
                 ExportDirectory.Create();
             var outputPath = Path.Combine(ExportDirectory.FullName, "index.html");
 
             using var writer = File.CreateText(outputPath);
-            await writer.WriteAsync(renderedPage).ConfigureAwait(false);
+            await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
             await writer.FlushAsync().ConfigureAwait(false);
         }
     }

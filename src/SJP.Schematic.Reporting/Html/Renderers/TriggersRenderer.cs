@@ -44,21 +44,21 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var triggers = Tables.SelectMany(t => t.Triggers.Select(tr => mapper.Map(t.Name, tr))).ToList();
             var triggersVm = new Triggers(triggers);
 
-            var renderedTriggers = await Formatter.RenderTemplateAsync(triggersVm).ConfigureAwait(false);
+            var renderedTriggers = await Formatter.RenderTemplateAsync(triggersVm, cancellationToken).ConfigureAwait(false);
 
             var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                 ? IdentifierDefaults.Database + " Database"
                 : "Database";
             var pageTitle = "Triggers · " + databaseName;
             var mainContainer = new Container(renderedTriggers, pageTitle, string.Empty);
-            var renderedPage = await Formatter.RenderTemplateAsync(mainContainer).ConfigureAwait(false);
+            var renderedPage = await Formatter.RenderTemplateAsync(mainContainer, cancellationToken).ConfigureAwait(false);
 
             if (!ExportDirectory.Exists)
                 ExportDirectory.Create();
             var outputPath = Path.Combine(ExportDirectory.FullName, "triggers.html");
 
             using var writer = File.CreateText(outputPath);
-            await writer.WriteAsync(renderedPage).ConfigureAwait(false);
+            await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
             await writer.FlushAsync().ConfigureAwait(false);
         }
     }

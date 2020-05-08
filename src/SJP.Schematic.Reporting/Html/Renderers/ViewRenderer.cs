@@ -53,21 +53,21 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var viewTasks = Views.Select(async view =>
             {
                 var viewModel = mapper.Map(view, ReferencedObjectTargets);
-                var renderedView = await Formatter.RenderTemplateAsync(viewModel).ConfigureAwait(false);
+                var renderedView = await Formatter.RenderTemplateAsync(viewModel, cancellationToken).ConfigureAwait(false);
 
                 var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                     ? IdentifierDefaults.Database + " Database"
                     : "Database";
                 var pageTitle = view.Name.ToVisibleName() + " · View · " + databaseName;
                 var viewContainer = new Container(renderedView, pageTitle, "../");
-                var renderedPage = await Formatter.RenderTemplateAsync(viewContainer).ConfigureAwait(false);
+                var renderedPage = await Formatter.RenderTemplateAsync(viewContainer, cancellationToken).ConfigureAwait(false);
 
                 var outputPath = Path.Combine(ExportDirectory.FullName, view.Name.ToSafeKey() + ".html");
                 if (!ExportDirectory.Exists)
                     ExportDirectory.Create();
 
                 using var writer = File.CreateText(outputPath);
-                await writer.WriteAsync(renderedPage).ConfigureAwait(false);
+                await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
                 await writer.FlushAsync().ConfigureAwait(false);
             });
 

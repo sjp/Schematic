@@ -86,21 +86,21 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 .ToList();
 
             var templateParameter = new LintResults(groupedRules);
-            var renderedLint = await Formatter.RenderTemplateAsync(templateParameter).ConfigureAwait(false);
+            var renderedLint = await Formatter.RenderTemplateAsync(templateParameter, cancellationToken).ConfigureAwait(false);
 
             var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                 ? IdentifierDefaults.Database + " Database"
                 : "Database";
             var pageTitle = "Lint · " + databaseName;
             var lintContainer = new Container(renderedLint, pageTitle, string.Empty);
-            var renderedPage = await Formatter.RenderTemplateAsync(lintContainer).ConfigureAwait(false);
+            var renderedPage = await Formatter.RenderTemplateAsync(lintContainer, cancellationToken).ConfigureAwait(false);
 
             if (!ExportDirectory.Exists)
                 ExportDirectory.Create();
             var outputPath = Path.Combine(ExportDirectory.FullName, "lint.html");
 
             using var writer = File.CreateText(outputPath);
-            await writer.WriteAsync(renderedPage).ConfigureAwait(false);
+            await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
             await writer.FlushAsync().ConfigureAwait(false);
         }
     }

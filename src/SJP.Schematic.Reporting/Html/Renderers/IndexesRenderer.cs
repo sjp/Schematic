@@ -54,21 +54,21 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 .ToList();
 
             var templateParameter = new Indexes(indexes);
-            var renderedIndexes = await Formatter.RenderTemplateAsync(templateParameter).ConfigureAwait(false);
+            var renderedIndexes = await Formatter.RenderTemplateAsync(templateParameter, cancellationToken).ConfigureAwait(false);
 
             var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                 ? IdentifierDefaults.Database + " Database"
                 : "Database";
             var pageTitle = "Indexes · " + databaseName;
             var indexesContainer = new Container(renderedIndexes, pageTitle, string.Empty);
-            var renderedPage = await Formatter.RenderTemplateAsync(indexesContainer).ConfigureAwait(false);
+            var renderedPage = await Formatter.RenderTemplateAsync(indexesContainer, cancellationToken).ConfigureAwait(false);
 
             if (!ExportDirectory.Exists)
                 ExportDirectory.Create();
             var outputPath = Path.Combine(ExportDirectory.FullName, "indexes.html");
 
             using var writer = File.CreateText(outputPath);
-            await writer.WriteAsync(renderedPage).ConfigureAwait(false);
+            await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
             await writer.FlushAsync().ConfigureAwait(false);
         }
     }

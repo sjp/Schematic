@@ -36,7 +36,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
         protected INameTranslator NameTranslator { get; }
 
-        public Task Generate(string projectPath, string baseNamespace, CancellationToken cancellationToken = default)
+        public Task GenerateAsync(string projectPath, string baseNamespace, CancellationToken cancellationToken = default)
         {
             if (projectPath.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(projectPath));

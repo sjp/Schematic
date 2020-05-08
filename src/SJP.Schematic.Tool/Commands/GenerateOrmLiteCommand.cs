@@ -41,7 +41,7 @@ namespace SJP.Schematic.Tool.Commands
             Handler = CommandHandler.Create<IConsole, FileInfo, string, FileInfo, string, CancellationToken>((console, config, convention, projectPath, baseNamespace, cancellationToken) =>
             {
                 var handler = new GenerateOrmLiteCommandHandler(config);
-                return handler.HandleCommand(console, projectPath, baseNamespace, convention, cancellationToken);
+                return handler.HandleCommandAsync(console, projectPath, baseNamespace, convention, cancellationToken);
             });
         }
     }

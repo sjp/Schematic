@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
 
@@ -32,21 +33,21 @@ namespace SJP.Schematic.Core
         private readonly AsyncSemaphore? _semaphore;
         private readonly QueryLoggingContext _loggingContext;
 
-        public static Task<QueryContext> CreateAsync(IDbConnectionFactory connectionFactory, QueryLoggingContext loggingContext)
+        public static Task<QueryContext> CreateAsync(IDbConnectionFactory connectionFactory, QueryLoggingContext loggingContext, CancellationToken cancellationToken = default)
         {
             if (connectionFactory == null)
                 throw new ArgumentNullException(nameof(connectionFactory));
             if (loggingContext == null)
                 throw new ArgumentNullException(nameof(loggingContext));
 
-            return CreateAsyncCore(connectionFactory, loggingContext);
+            return CreateAsyncCore(connectionFactory, loggingContext, cancellationToken);
         }
 
-        private static async Task<QueryContext> CreateAsyncCore(IDbConnectionFactory connectionFactory, QueryLoggingContext loggingContext)
+        private static async Task<QueryContext> CreateAsyncCore(IDbConnectionFactory connectionFactory, QueryLoggingContext loggingContext, CancellationToken cancellationToken)
         {
             if (SemaphoreLookup.TryGetValue(connectionFactory, out var semaphore))
             {
-                await semaphore.WaitAsync().ConfigureAwait(false);
+                await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
                 try
                 {
                     loggingContext.Start();

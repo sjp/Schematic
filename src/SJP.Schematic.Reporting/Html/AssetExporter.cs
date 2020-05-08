@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.FileProviders;
 using SJP.Schematic.Core.Extensions;
@@ -12,24 +13,24 @@ namespace SJP.Schematic.Reporting.Html
 {
     internal class AssetExporter
     {
-        public Task SaveAssetsAsync(string directory, bool overwrite = true)
+        public Task SaveAssetsAsync(string directory, bool overwrite = true, CancellationToken cancellationToken = default)
         {
             if (directory.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(directory));
 
             var dirInfo = new DirectoryInfo(directory);
-            return SaveAssetsAsync(dirInfo, overwrite);
+            return SaveAssetsAsync(dirInfo, overwrite, cancellationToken);
         }
 
-        public Task SaveAssetsAsync(DirectoryInfo directory, bool overwrite = true)
+        public Task SaveAssetsAsync(DirectoryInfo directory, bool overwrite = true, CancellationToken cancellationToken = default)
         {
             if (directory == null)
                 throw new ArgumentNullException(nameof(directory));
 
-            return SaveAssetsAsyncCore(directory, overwrite);
+            return SaveAssetsAsyncCore(directory, overwrite, cancellationToken);
         }
 
-        private static async Task SaveAssetsAsyncCore(DirectoryInfo directory, bool overwrite = true)
+        private static async Task SaveAssetsAsyncCore(DirectoryInfo directory, bool overwrite, CancellationToken cancellationToken)
         {
             if (!directory.Exists)
                 directory.Create();
@@ -60,12 +61,12 @@ namespace SJP.Schematic.Reporting.Html
                 if (isGzipped)
                 {
                     using var gzipStream = new GZipStream(resourceStream, CompressionMode.Decompress);
-                    await gzipStream.CopyToAsync(stream).ConfigureAwait(false);
+                    await gzipStream.CopyToAsync(stream, cancellationToken).ConfigureAwait(false);
                     await stream.FlushAsync().ConfigureAwait(false);
                 }
                 else
                 {
-                    await resourceStream.CopyToAsync(stream).ConfigureAwait(false);
+                    await resourceStream.CopyToAsync(stream, cancellationToken).ConfigureAwait(false);
                     await stream.FlushAsync().ConfigureAwait(false);
                 }
             }

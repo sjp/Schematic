@@ -204,18 +204,15 @@ namespace SJP.Schematic.Sqlite
             var parsedTable = await queryCache.GetParsedTableAsync(tableName, cancellationToken).ConfigureAwait(false);
             var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
 
-            var checksTask = LoadChecksAsync(parsedTable, cancellationToken);
+            var checks = LoadChecks(parsedTable);
+
             var triggersTask = LoadTriggersAsync(tableName, cancellationToken);
-            await Task.WhenAll(checksTask, triggersTask).ConfigureAwait(false);
-
-            var checks = await checksTask.ConfigureAwait(false);
-            var triggers = await triggersTask.ConfigureAwait(false);
-
             var primaryKeyTask = LoadPrimaryKeyAsync(tableName, queryCache, cancellationToken);
             var uniqueKeysTask = LoadUniqueKeysAsync(tableName, queryCache, cancellationToken);
             var indexesTask = LoadIndexesAsync(tableName, queryCache, cancellationToken);
-            await Task.WhenAll(primaryKeyTask, uniqueKeysTask, indexesTask).ConfigureAwait(false);
+            await Task.WhenAll(triggersTask, primaryKeyTask, uniqueKeysTask, indexesTask).ConfigureAwait(false);
 
+            var triggers = await triggersTask.ConfigureAwait(false);
             var primaryKey = await primaryKeyTask.ConfigureAwait(false);
             var uniqueKeys = await uniqueKeysTask.ConfigureAwait(false);
             var indexes = await indexesTask.ConfigureAwait(false);
@@ -478,14 +475,14 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
-        protected virtual Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(ParsedTableData parsedTable, CancellationToken cancellationToken)
+        protected virtual IReadOnlyCollection<IDatabaseCheckConstraint> LoadChecks(ParsedTableData parsedTable)
         {
             if (parsedTable == null)
                 throw new ArgumentNullException(nameof(parsedTable));
 
             var checks = parsedTable.Checks.ToList();
             if (checks.Empty())
-                return Task.FromResult<IReadOnlyCollection<IDatabaseCheckConstraint>>(Array.Empty<IDatabaseCheckConstraint>());
+                return Array.Empty<IDatabaseCheckConstraint>();
 
             var result = new List<IDatabaseCheckConstraint>(checks.Count);
 
@@ -501,7 +498,7 @@ namespace SJP.Schematic.Sqlite
                 result.Add(check);
             }
 
-            return Task.FromResult<IReadOnlyCollection<IDatabaseCheckConstraint>>(result);
+            return result;
         }
 
         protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)

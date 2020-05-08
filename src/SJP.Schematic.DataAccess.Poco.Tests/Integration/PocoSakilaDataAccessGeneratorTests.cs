@@ -29,7 +29,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
             var commentProvider = new EmptyRelationalDatabaseCommentProvider();
             var nameTranslator = new PascalCaseNameTranslator();
             var generator = new PocoDataAccessGenerator(fileSystem, database, commentProvider, nameTranslator);
-            await generator.Generate(projectPath, TestNamespace).ConfigureAwait(false);
+            await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
 
             var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
             Assert.That(buildsSuccessfully, Is.True);
@@ -45,7 +45,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
             var commentProvider = new EmptyRelationalDatabaseCommentProvider();
             var nameTranslator = new PascalCaseNameTranslator();
             var generator = new PocoDataAccessGenerator(fileSystem, Database, commentProvider, nameTranslator);
-            await generator.Generate(projectPath, TestNamespace).ConfigureAwait(false);
+            await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
 
             var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
             Assert.That(buildsSuccessfully, Is.True);

@@ -50,21 +50,21 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var synonymTasks = Synonyms.Select(async synonym =>
             {
                 var viewModel = mapper.Map(synonym, SynonymTargets);
-                var renderedSynonym = await Formatter.RenderTemplateAsync(viewModel).ConfigureAwait(false);
+                var renderedSynonym = await Formatter.RenderTemplateAsync(viewModel, cancellationToken).ConfigureAwait(false);
 
                 var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                     ? IdentifierDefaults.Database + " Database"
                     : "Database";
                 var pageTitle = synonym.Name.ToVisibleName() + " · Synonym · " + databaseName;
                 var synonymContainer = new Container(renderedSynonym, pageTitle, "../");
-                var renderedPage = await Formatter.RenderTemplateAsync(synonymContainer).ConfigureAwait(false);
+                var renderedPage = await Formatter.RenderTemplateAsync(synonymContainer, cancellationToken).ConfigureAwait(false);
 
                 var outputPath = Path.Combine(ExportDirectory.FullName, synonym.Name.ToSafeKey() + ".html");
                 if (!ExportDirectory.Exists)
                     ExportDirectory.Create();
 
                 using var writer = File.CreateText(outputPath);
-                await writer.WriteAsync(renderedPage).ConfigureAwait(false);
+                await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
                 await writer.FlushAsync().ConfigureAwait(false);
             });
 

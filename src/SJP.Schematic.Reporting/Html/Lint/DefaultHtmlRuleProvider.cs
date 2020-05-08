@@ -32,6 +32,7 @@ namespace SJP.Schematic.Reporting.Html.Lint
             {
                 new CandidateKeyMissingRule(level),
                 new ColumnWithNullDefaultValueRule(level),
+                new ColumnWithNumericSuffix(level),
                 new DisabledObjectsRule(level),
                 new ForeignKeyColumnTypeMismatchRule(level),
                 new ForeignKeyIndexRule(level),

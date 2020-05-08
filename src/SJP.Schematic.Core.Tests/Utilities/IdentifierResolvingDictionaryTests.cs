@@ -142,7 +142,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
             var resolver = new FakeIdentifierResolver();
             var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
 
-            Assert.That(() => resolvingDictionary.TryGetValue(null, out var value), Throws.ArgumentNullException);
+            Assert.That(() => resolvingDictionary.TryGetValue(null, out _), Throws.ArgumentNullException);
         }
 
         [Test]

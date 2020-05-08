@@ -52,7 +52,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         [TestCase((string)null)]
         [TestCase("")]
         [TestCase("    ")]
-        public static void Generate_GivenNullProjectPath_ThrowsArgumentNullException(string projectPath)
+        public static void GenerateAsync_GivenNullProjectPath_ThrowsArgumentNullException(string projectPath)
         {
             var mockFs = new MockFileSystem();
             var database = Mock.Of<IRelationalDatabase>();
@@ -60,13 +60,13 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
             var nameTranslator = new VerbatimNameTranslator();
             var generator = new PocoDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
 
-            Assert.That(() => generator.Generate(projectPath, "test"), Throws.ArgumentNullException);
+            Assert.That(() => generator.GenerateAsync(projectPath, "test"), Throws.ArgumentNullException);
         }
 
         [TestCase((string)null)]
         [TestCase("")]
         [TestCase("    ")]
-        public static void Generate_GivenNullOrWhiteSpaceNamespace_ThrowsArgumentNullException(string ns)
+        public static void GenerateAsync_GivenNullOrWhiteSpaceNamespace_ThrowsArgumentNullException(string ns)
         {
             var mockFs = new MockFileSystem();
             var database = Mock.Of<IRelationalDatabase>();
@@ -76,11 +76,11 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
             using var tempDir = new TemporaryDirectory();
             var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFileName);
 
-            Assert.That(() => generator.Generate(projectPath, ns), Throws.ArgumentNullException);
+            Assert.That(() => generator.GenerateAsync(projectPath, ns), Throws.ArgumentNullException);
         }
 
         [Test]
-        public static void Generate_GivenProjectPathNotACsproj_ThrowsArgumentException()
+        public static void GenerateAsync_GivenProjectPathNotACsproj_ThrowsArgumentException()
         {
             var mockFs = new MockFileSystem();
             var database = Mock.Of<IRelationalDatabase>();
@@ -90,7 +90,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
             using var tempDir = new TemporaryDirectory();
             var projectPath = Path.Combine(tempDir.DirectoryPath, "DataAccessGeneratorTest.vbproj");
 
-            Assert.That(() => generator.Generate(projectPath, "test"), Throws.ArgumentException);
+            Assert.That(() => generator.GenerateAsync(projectPath, "test"), Throws.ArgumentException);
         }
     }
 }

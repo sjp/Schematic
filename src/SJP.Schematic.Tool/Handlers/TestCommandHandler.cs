@@ -13,7 +13,7 @@ namespace SJP.Schematic.Tool.Handlers
         {
         }
 
-        public async Task<int> HandleCommand(IConsole console, int timeout, CancellationToken cancellationToken)
+        public async Task<int> HandleCommandAsync(IConsole console, int timeout, CancellationToken cancellationToken)
         {
             var factory = GetConnectionFactory();
 
