@@ -6,7 +6,6 @@ using QuikGraph.Algorithms.Search;
 
 namespace SJP.Schematic.Core.Utilities
 {
-
     /// <summary>
     /// Applies topological sorting in the same manner as QuickGraph's built-in algorithm. However, this implementation enables cycles and potentially incorrect results.
     /// </summary>

@@ -6,9 +6,19 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core
 {
+    /// <summary>
+    /// A materialized database view implementation, containing information about materialized database views.
+    /// </summary>
+    /// <seealso cref="DatabaseView" />
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class DatabaseMaterializedView : DatabaseView
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DatabaseMaterializedView"/> class.
+        /// </summary>
+        /// <param name="viewName">The view name.</param>
+        /// <param name="definition">The view definition.</param>
+        /// <param name="columns">An ordered collection of columns defined by the view definition.</param>
         public DatabaseMaterializedView(
             Identifier viewName,
             string definition,
@@ -17,6 +27,11 @@ namespace SJP.Schematic.Core
         {
         }
 
+        /// <summary>
+        /// Determines whether this view is materialized or pre-computed.
+        /// </summary>
+        /// <value><c>true</c> if this view is materialized; otherwise, <c>false</c>.</value>
+        /// <remarks>Always <c>true</c> unless overridden.</remarks>
         public override bool IsMaterialized { get; } = true;
 
         /// <summary>
