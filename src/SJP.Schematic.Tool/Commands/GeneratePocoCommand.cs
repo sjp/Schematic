@@ -6,7 +6,7 @@ using SJP.Schematic.Tool.Handlers;
 
 namespace SJP.Schematic.Tool.Commands
 {
-    public class GeneratePocoCommand : Command
+    internal class GeneratePocoCommand : Command
     {
         public GeneratePocoCommand()
             : base("poco", "Generate a C# project for basic mapping ORMs, e.g. Dapper.")

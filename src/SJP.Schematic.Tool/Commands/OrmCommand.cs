@@ -4,7 +4,7 @@ using System.CommandLine.Invocation;
 
 namespace SJP.Schematic.Tool.Commands
 {
-    public class OrmCommand : Command
+    internal class OrmCommand : Command
     {
         public OrmCommand()
             : base("orm", "Generate ORM projects to interact with a database.")

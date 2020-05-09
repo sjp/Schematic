@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace SJP.Schematic.Tool
 {
     [Serializable]
-    public class CommandException : Exception
+    internal class CommandException : Exception
     {
         public CommandException()
         {

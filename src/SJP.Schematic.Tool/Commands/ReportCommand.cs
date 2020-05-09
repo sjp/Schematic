@@ -6,7 +6,7 @@ using SJP.Schematic.Tool.Handlers;
 
 namespace SJP.Schematic.Tool.Commands
 {
-    public class ReportCommand : Command
+    internal class ReportCommand : Command
     {
         public ReportCommand()
             : base("report", "Creates a detailed graphical report on database schema and relationships.")

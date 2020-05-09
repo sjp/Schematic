@@ -6,7 +6,7 @@ using SJP.Schematic.Tool.Handlers;
 
 namespace SJP.Schematic.Tool.Commands
 {
-    public class LintCommand : Command
+    internal class LintCommand : Command
     {
         public LintCommand()
             : base("lint", "Provides a lint report for potential schema issues.")
