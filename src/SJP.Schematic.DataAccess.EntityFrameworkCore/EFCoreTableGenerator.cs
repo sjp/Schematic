@@ -19,8 +19,19 @@ using System.IO.Abstractions;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 {
+    /// <summary>
+    /// Generate data access classes for tables for use with Entity Framework Core.
+    /// </summary>
+    /// <seealso cref="DatabaseTableGenerator" />
     public class EFCoreTableGenerator : DatabaseTableGenerator
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EFCoreTableGenerator"/> class.
+        /// </summary>
+        /// <param name="fileSystem">A file system.</param>
+        /// <param name="nameTranslator">The name translator.</param>
+        /// <param name="baseNamespace">The base namespace.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="baseNamespace"/> is <c>null</c>, empty, or whitespace.</exception>
         public EFCoreTableGenerator(IFileSystem fileSystem, INameTranslator nameTranslator, string baseNamespace)
             : base(fileSystem, nameTranslator)
         {
@@ -30,6 +41,10 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             Namespace = baseNamespace;
         }
 
+        /// <summary>
+        /// The namespace to use for the generated classes.
+        /// </summary>
+        /// <value>A string representing a namespace.</value>
         protected string Namespace { get; }
 
         private static string GenerateUniqueName(StringHashSet existingNames, string propertyName)
@@ -48,6 +63,14 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             return candidateName;
         }
 
+        /// <summary>
+        /// Generates source code that enables interoperability with a given database table for Entity Framework Core.
+        /// </summary>
+        /// <param name="tables">The database tables in the database.</param>
+        /// <param name="table">A database table.</param>
+        /// <param name="comment">Comment information for the given table.</param>
+        /// <returns>A string containing source code to interact with the table.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tables"/> or <paramref name="table"/> is <c>null</c>.</exception>
         public override string Generate(IReadOnlyCollection<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
         {
             if (tables == null)

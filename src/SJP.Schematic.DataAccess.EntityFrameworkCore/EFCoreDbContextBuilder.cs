@@ -16,8 +16,17 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 {
+    /// <summary>
+    /// A builder for generating <see cref="DbContext"/> classes for Entity Framework Core.
+    /// </summary>
     public class EFCoreDbContextBuilder
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EFCoreDbContextBuilder"/> class.
+        /// </summary>
+        /// <param name="nameTranslator">A name translator.</param>
+        /// <param name="baseNamespace">The base namespace.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="nameTranslator"/> is <c>null</c>, or <paramref name="baseNamespace"/> is <c>null</c>, empty or whitespace.</exception>
         public EFCoreDbContextBuilder(INameTranslator nameTranslator, string baseNamespace)
         {
             if (baseNamespace.IsNullOrWhiteSpace())
@@ -27,10 +36,26 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             Namespace = baseNamespace;
         }
 
+        /// <summary>
+        /// The name translator when translating database object names to C# object names.
+        /// </summary>
+        /// <value>A name translator.</value>
         protected INameTranslator NameTranslator { get; }
 
+        /// <summary>
+        /// The namespace to use for the <see cref="DbContext"/> class.
+        /// </summary>
+        /// <value>A string representing a namespace.</value>
         protected string Namespace { get; }
 
+        /// <summary>
+        /// Generates source code for a <see cref="DbContext"/>.
+        /// </summary>
+        /// <param name="tables">A collection of tables in the database.</param>
+        /// <param name="views">A collection of views in the database.</param>
+        /// <param name="sequences">A collection of sequences in the database.</param>
+        /// <returns>A string of source code that represents a <see cref="DbContext"/> definition.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tables"/>, <paramref name="views"/>, or <paramref name="sequences"/> is <c>null</c>.</exception>
         public string Generate(IEnumerable<IRelationalDatabaseTable> tables, IEnumerable<IDatabaseView> views, IEnumerable<IDatabaseSequence> sequences)
         {
             if (tables == null)

@@ -17,8 +17,19 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace SJP.Schematic.DataAccess.OrmLite
 {
+    /// <summary>
+    /// Generate data access classes for views for use with OrmLite.
+    /// </summary>
+    /// <seealso cref="DatabaseTableGenerator" />
     public class OrmLiteViewGenerator : DatabaseViewGenerator
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OrmLiteViewGenerator"/> class.
+        /// </summary>
+        /// <param name="fileSystem">A file system.</param>
+        /// <param name="nameTranslator">The name translator.</param>
+        /// <param name="baseNamespace">The base namespace.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="baseNamespace"/> is <c>null</c>, empty, or whitespace.</exception>
         public OrmLiteViewGenerator(IFileSystem fileSystem, INameTranslator nameTranslator, string baseNamespace)
             : base(fileSystem, nameTranslator)
         {
@@ -28,8 +39,19 @@ namespace SJP.Schematic.DataAccess.OrmLite
             Namespace = baseNamespace;
         }
 
+        /// <summary>
+        /// The namespace to use for the generated classes.
+        /// </summary>
+        /// <value>A string representing a namespace.</value>
         protected string Namespace { get; }
 
+        /// <summary>
+        /// Generates source code that enables interoperability with a given database view for OrmLite.
+        /// </summary>
+        /// <param name="view">A database view.</param>
+        /// <param name="comment">Comment information for the given view.</param>
+        /// <returns>A string containing source code to interact with the view.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="view"/> is <c>null</c>.</exception>
         public override string Generate(IDatabaseView view, Option<IDatabaseViewComments> comment)
         {
             if (view == null)

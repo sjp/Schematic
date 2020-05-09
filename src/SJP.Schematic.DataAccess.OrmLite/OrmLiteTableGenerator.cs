@@ -17,8 +17,19 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace SJP.Schematic.DataAccess.OrmLite
 {
+    /// <summary>
+    /// Generate data access classes for tables for use with OrmLite.
+    /// </summary>
+    /// <seealso cref="DatabaseTableGenerator" />
     public class OrmLiteTableGenerator : DatabaseTableGenerator
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OrmLiteTableGenerator"/> class.
+        /// </summary>
+        /// <param name="fileSystem">A file system.</param>
+        /// <param name="nameTranslator">The name translator.</param>
+        /// <param name="baseNamespace">The base namespace.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="baseNamespace"/> is <c>null</c>, empty, or whitespace.</exception>
         public OrmLiteTableGenerator(IFileSystem fileSystem, INameTranslator nameTranslator, string baseNamespace)
             : base(fileSystem, nameTranslator)
         {
@@ -28,8 +39,20 @@ namespace SJP.Schematic.DataAccess.OrmLite
             Namespace = baseNamespace;
         }
 
+        /// <summary>
+        /// The namespace to use for the generated classes.
+        /// </summary>
+        /// <value>A string representing a namespace.</value>
         protected string Namespace { get; }
 
+        /// <summary>
+        /// Generates source code that enables interoperability with a given database table for OrmLite.
+        /// </summary>
+        /// <param name="tables">The database tables in the database.</param>
+        /// <param name="table">A database table.</param>
+        /// <param name="comment">Comment information for the given table.</param>
+        /// <returns>A string containing source code to interact with the table.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tables"/> or <paramref name="table"/> is <c>null</c>.</exception>
         public override string Generate(IReadOnlyCollection<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
         {
             if (tables == null)
@@ -471,6 +494,13 @@ namespace SJP.Schematic.DataAccess.OrmLite
             return attributes;
         }
 
+        /// <summary>
+        /// Determines whether a given column is a primary key column for the table.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <param name="column">A column in the given table.</param>
+        /// <returns><c>true</c> if the column is a primary key column; otherwise, <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c> or <paramref name="column"/> is <c>null</c>.</exception>
         protected static bool ColumnIsPrimaryKey(IRelationalDatabaseTable table, IDatabaseColumn column)
         {
             if (table == null)
@@ -484,6 +514,13 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 .IsSome;
         }
 
+        /// <summary>
+        /// Determines whether a given column is a foreign key column for the table.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <param name="column">A column in the given table.</param>
+        /// <returns><c>true</c> if the column is a foreign key column; otherwise, <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c> or <paramref name="column"/> is <c>null</c>.</exception>
         protected static bool ColumnIsForeignKey(IRelationalDatabaseTable table, IDatabaseColumn column)
         {
             if (table == null)
@@ -512,6 +549,13 @@ namespace SJP.Schematic.DataAccess.OrmLite
             return false;
         }
 
+        /// <summary>
+        /// Retrieves the relational key associated with a given column, if available.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <param name="column">A column within the given table.</param>
+        /// <returns>A relational key, if available, otherwise <c>null</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="column"/> are <c>null</c>.</exception>
         protected static IDatabaseRelationalKey? ColumnRelationalKey(IRelationalDatabaseTable table, IDatabaseColumn column)
         {
             if (table == null)
@@ -540,6 +584,13 @@ namespace SJP.Schematic.DataAccess.OrmLite
             return null;
         }
 
+        /// <summary>
+        /// Determines whether a given column is a non-unique index column for the table.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <param name="column">A column in the given table.</param>
+        /// <returns><c>true</c> if the column is a non-unique index column; otherwise, <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c> or <paramref name="column"/> is <c>null</c>.</exception>
         protected static bool ColumnIsNonUniqueIndex(IRelationalDatabaseTable table, IDatabaseColumn column)
         {
             if (column == null)
@@ -568,6 +619,13 @@ namespace SJP.Schematic.DataAccess.OrmLite
             return false;
         }
 
+        /// <summary>
+        /// Determines whether a given column is a unique index column for the table.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <param name="column">A column in the given table.</param>
+        /// <returns><c>true</c> if the column is a unique index column; otherwise, <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c> or <paramref name="column"/> is <c>null</c>.</exception>
         protected static bool ColumnIsUniqueIndex(IRelationalDatabaseTable table, IDatabaseColumn column)
         {
             if (table == null)
@@ -598,6 +656,13 @@ namespace SJP.Schematic.DataAccess.OrmLite
             return false;
         }
 
+        /// <summary>
+        /// Determines whether a given column is unique key column for the table.
+        /// </summary>
+        /// <param name="table">A database table.</param>
+        /// <param name="column">A column in the given table.</param>
+        /// <returns><c>true</c> if the column is a unique key column; otherwise, <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c> or <paramref name="column"/> is <c>null</c>.</exception>
         protected static bool ColumnIsUniqueKey(IRelationalDatabaseTable table, IDatabaseColumn column)
         {
             if (table == null)

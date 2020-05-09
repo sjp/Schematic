@@ -12,8 +12,20 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.DataAccess.Poco
 {
+    /// <summary>
+    /// A POCO data access project generator.
+    /// </summary>
+    /// <seealso cref="IDataAccessGenerator" />
     public class PocoDataAccessGenerator : IDataAccessGenerator
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PocoDataAccessGenerator"/> class.
+        /// </summary>
+        /// <param name="fileSystem">A file system to export to.</param>
+        /// <param name="database">A relational database object provider.</param>
+        /// <param name="commentProvider">A database comment provider.</param>
+        /// <param name="nameTranslator">The name translator to use when generating C# object names.</param>
+        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="fileSystem"/>, <paramref name="database"/>, <paramref name="commentProvider"/>, <paramref name="nameTranslator"/> are <c>null</c>.</exception>
         public PocoDataAccessGenerator(
             IFileSystem fileSystem,
             IRelationalDatabase database,
@@ -26,14 +38,39 @@ namespace SJP.Schematic.DataAccess.Poco
             NameTranslator = nameTranslator ?? throw new ArgumentNullException(nameof(nameTranslator));
         }
 
+        /// <summary>
+        /// The file system to export a project to.
+        /// </summary>
+        /// <value>A file system.</value>
         protected IFileSystem FileSystem { get; }
 
+        /// <summary>
+        /// A relational database that will be generated for.
+        /// </summary>
+        /// <value>A relational database.</value>
         protected IRelationalDatabase Database { get; }
 
+        /// <summary>
+        /// A comment provider for the given database.
+        /// </summary>
+        /// <value>A comment provider.</value>
         protected IRelationalDatabaseCommentProvider CommentProvider { get; }
 
+        /// <summary>
+        /// Gets the name translator.
+        /// </summary>
+        /// <value>The name translator.</value>
         protected INameTranslator NameTranslator { get; }
 
+        /// <summary>
+        /// Generates a POCO data access project in C#.
+        /// </summary>
+        /// <param name="projectPath">A path that determines where the generated C# project file should be stored.</param>
+        /// <param name="baseNamespace">The base C# namespace to use for generated files.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A task indicating the completion of the source code generation.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="projectPath"/> or <paramref name="baseNamespace"/> are <c>null</c>, empty or whitespace.</exception>
+        /// <exception cref="ArgumentException">Thrown if <paramref name="projectPath"/> is not a path to a <c>csproj</c> file.</exception>
         public Task GenerateAsync(string projectPath, string baseNamespace, CancellationToken cancellationToken = default)
         {
             if (projectPath.IsNullOrWhiteSpace())
