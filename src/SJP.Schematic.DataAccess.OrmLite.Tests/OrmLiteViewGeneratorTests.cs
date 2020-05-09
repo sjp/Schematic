@@ -1,5 +1,6 @@
 using System.IO;
 using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -11,10 +12,18 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
     [TestFixture]
     internal static class OrmLiteViewGeneratorTests
     {
+        private static IDatabaseViewGenerator GetViewGenerator() => new OrmLiteViewGenerator(new MockFileSystem(), new VerbatimNameTranslator(), "SJP.Schematic.Test");
+
+        [Test]
+        public static void Ctor_GivenNullFileSystem_ThrowsArgumentNullException()
+        {
+            Assert.That(() => new OrmLiteViewGenerator(null, new VerbatimNameTranslator(), "test"), Throws.ArgumentNullException);
+        }
+
         [Test]
         public static void Ctor_GivenNullNameTranslator_ThrowsArgumentNullException()
         {
-            Assert.That(() => new OrmLiteViewGenerator(null, "test"), Throws.ArgumentNullException);
+            Assert.That(() => new OrmLiteViewGenerator(new MockFileSystem(), null, "test"), Throws.ArgumentNullException);
         }
 
         [TestCase((string)null)]
@@ -22,16 +31,15 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         [TestCase("    ")]
         public static void Ctor_GivenNullOrWhiteSpaceNamespace_ThrowsArgumentNullException(string ns)
         {
+            var fileSystem = new MockFileSystem();
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.That(() => new OrmLiteViewGenerator(nameTranslator, ns), Throws.ArgumentNullException);
+            Assert.That(() => new OrmLiteViewGenerator(fileSystem, nameTranslator, ns), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetFilePath_GivenNullObjectName_ThrowsArgumentNullException()
         {
-            var nameTranslator = new VerbatimNameTranslator();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new OrmLiteViewGenerator(nameTranslator, testNs);
+            var generator = GetViewGenerator();
             using var tempDir = new TemporaryDirectory();
             var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
 
@@ -41,9 +49,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         [Test]
         public static void GetFilePath_GivenNameWithOnlyLocalName_ReturnsExpectedPath()
         {
-            var nameTranslator = new VerbatimNameTranslator();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new OrmLiteViewGenerator(nameTranslator, testNs);
+            var generator = GetViewGenerator();
             using var tempDir = new TemporaryDirectory();
             var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
             const string testViewName = "view_name";
@@ -57,9 +63,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         [Test]
         public static void GetFilePath_GivenNameWithSchemaAndLocalName_ReturnsExpectedPath()
         {
-            var nameTranslator = new VerbatimNameTranslator();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new OrmLiteViewGenerator(nameTranslator, testNs);
+            var generator = GetViewGenerator();
             using var tempDir = new TemporaryDirectory();
             var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
             const string testViewSchema = "view_schema";
@@ -74,9 +78,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         [Test]
         public static void Generate_GivenNullView_ThrowsArgumentNullException()
         {
-            var nameTranslator = new VerbatimNameTranslator();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new OrmLiteViewGenerator(nameTranslator, testNs);
+            var generator = GetViewGenerator();
 
             Assert.That(() => generator.Generate(null, Option<IDatabaseViewComments>.None), Throws.ArgumentNullException);
         }

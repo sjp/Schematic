@@ -41,6 +41,12 @@ namespace SJP.Schematic.DataAccess
         /// <returns>A property name.</returns>
         public abstract string ColumnToPropertyName(string className, string columnName);
 
+        /// <summary>
+        /// Determines whether a given string is a valid identifier.
+        /// </summary>
+        /// <param name="identifier">A string to test.</param>
+        /// <returns><c>true</c> if <paramref name="identifier"/> is a valid identifier; otherwise, <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <c>null</c>, empty or whitespace</exception>
         protected static bool IsValidIdentifier(string identifier)
         {
             if (identifier.IsNullOrWhiteSpace())
@@ -63,6 +69,12 @@ namespace SJP.Schematic.DataAccess
                 .All(ValidPartCategories.Contains);
         }
 
+        /// <summary>
+        /// Creates a valid identifier from a given object name.
+        /// </summary>
+        /// <param name="objectName">An object name.</param>
+        /// <returns>A valid identifier.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <c>null</c>, empty or whitespace</exception>
         protected static string CreateValidIdentifier(string objectName)
         {
             if (objectName.IsNullOrWhiteSpace())
@@ -81,6 +93,14 @@ namespace SJP.Schematic.DataAccess
             return new string(chars.ToArray());
         }
 
+        /// <summary>
+        /// Creates a valid identifier from a given class name and column name.
+        /// </summary>
+        /// <param name="className">The name of the containing class.</param>
+        /// <param name="columnName">The name of the column the property maps to.</param>
+        /// <returns>A valid identifier.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="className"/> or <paramref name="columnName"/> are <c>null</c>, empty or whitespace.
+        /// </exception>
         protected static string CreateValidIdentifier(string className, string columnName)
         {
             if (className.IsNullOrWhiteSpace())

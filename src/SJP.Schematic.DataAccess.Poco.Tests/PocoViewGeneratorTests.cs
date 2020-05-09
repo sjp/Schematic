@@ -1,5 +1,6 @@
 using System.IO;
 using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -11,10 +12,18 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
     [TestFixture]
     internal static class PocoViewGeneratorTests
     {
+        private static IDatabaseViewGenerator GetViewGenerator() => new PocoViewGenerator(new MockFileSystem(), new VerbatimNameTranslator(), "SJP.Schematic.Test");
+
+        [Test]
+        public static void Ctor_GivenNullFileSystem_ThrowsArgumentNullException()
+        {
+            Assert.That(() => new PocoViewGenerator(null, new VerbatimNameTranslator(), "test"), Throws.ArgumentNullException);
+        }
+
         [Test]
         public static void Ctor_GivenNullNameTranslator_ThrowsArgumentNullException()
         {
-            Assert.That(() => new PocoViewGenerator(null, "test"), Throws.ArgumentNullException);
+            Assert.That(() => new PocoViewGenerator(new MockFileSystem(), null, "test"), Throws.ArgumentNullException);
         }
 
         [TestCase((string)null)]
@@ -22,16 +31,15 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         [TestCase("    ")]
         public static void Ctor_GivenNullNamespace_ThrowsArgumentNullException(string ns)
         {
+            var fileSystem = new MockFileSystem();
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.That(() => new PocoViewGenerator(nameTranslator, null), Throws.ArgumentNullException);
+            Assert.That(() => new PocoViewGenerator(fileSystem, nameTranslator, null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetFilePath_GivenNullObjectName_ThrowsArgumentNullException()
         {
-            var nameTranslator = new VerbatimNameTranslator();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new PocoViewGenerator(nameTranslator, testNs);
+            var generator = GetViewGenerator();
             using var tempDir = new TemporaryDirectory();
             var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
 
@@ -41,9 +49,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         [Test]
         public static void GetFilePath_GivenNameWithOnlyLocalName_ReturnsExpectedPath()
         {
-            var nameTranslator = new VerbatimNameTranslator();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new PocoViewGenerator(nameTranslator, testNs);
+            var generator = GetViewGenerator();
             using var tempDir = new TemporaryDirectory();
             var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
             const string testViewName = "view_name";
@@ -57,9 +63,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         [Test]
         public static void GetFilePath_GivenNameWithSchemaAndLocalName_ReturnsExpectedPath()
         {
-            var nameTranslator = new VerbatimNameTranslator();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new PocoViewGenerator(nameTranslator, testNs);
+            var generator = GetViewGenerator();
             using var tempDir = new TemporaryDirectory();
             var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
             const string testViewSchema = "view_schema";
@@ -74,9 +78,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         [Test]
         public static void Generate_GivenNullView_ThrowsArgumentNullException()
         {
-            var nameTranslator = new VerbatimNameTranslator();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new PocoViewGenerator(nameTranslator, testNs);
+            var generator = GetViewGenerator();
 
             Assert.That(() => generator.Generate(null, Option<IDatabaseViewComments>.None), Throws.ArgumentNullException);
         }

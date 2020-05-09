@@ -3,6 +3,9 @@ using System.Text.RegularExpressions;
 
 namespace SJP.Schematic.DataAccess.Extensions
 {
+    /// <summary>
+    /// Utility methods for transforming strings into different naming conventions.
+    /// </summary>
     public static class StringExtensions
     {
         /// <summary>

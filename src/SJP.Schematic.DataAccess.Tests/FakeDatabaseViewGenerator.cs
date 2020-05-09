@@ -7,13 +7,13 @@ namespace SJP.Schematic.DataAccess.Tests
 {
     internal sealed class FakeDatabaseViewGenerator : DatabaseViewGenerator
     {
-        public FakeDatabaseViewGenerator(INameTranslator nameTranslator)
-            : base(nameTranslator)
+        public FakeDatabaseViewGenerator(IFileSystem fileSystem, INameTranslator nameTranslator)
+            : base(fileSystem, nameTranslator)
         {
         }
 
         public override string Generate(IDatabaseView view, Option<IDatabaseViewComments> comment) => string.Empty;
 
-        public FileInfoBase InnerGetFilePath(DirectoryInfoBase baseDirectory, Identifier objectName) => GetFilePath(baseDirectory, objectName);
+        public IFileInfo InnerGetFilePath(DirectoryInfoBase baseDirectory, Identifier objectName) => GetFilePath(baseDirectory, objectName);
     }
 }

@@ -60,14 +60,14 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
             FileSystem.File.WriteAllText(projectPath, ProjectDefinition);
 
-            var tableGenerator = new OrmLiteTableGenerator(NameTranslator, baseNamespace);
+            var tableGenerator = new OrmLiteTableGenerator(FileSystem, NameTranslator, baseNamespace);
             var tables = await Database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var tableComments = await CommentProvider.GetAllTableComments(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var tableCommentsLookup = new Dictionary<Identifier, IRelationalDatabaseTableComments>();
             foreach (var comment in tableComments)
                 tableCommentsLookup[comment.TableName] = comment;
 
-            var viewGenerator = new OrmLiteViewGenerator(NameTranslator, baseNamespace);
+            var viewGenerator = new OrmLiteViewGenerator(FileSystem, NameTranslator, baseNamespace);
             var views = await Database.GetAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var viewComments = await CommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var viewCommentsLookup = new Dictionary<Identifier, IDatabaseViewComments>();

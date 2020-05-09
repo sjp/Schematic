@@ -15,13 +15,14 @@ using SJP.Schematic.DataAccess.CodeGeneration;
 using SJP.Schematic.DataAccess.Extensions;
 using StringHashSet = System.Collections.Generic.HashSet<string>;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using System.IO.Abstractions;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 {
     public class EFCoreTableGenerator : DatabaseTableGenerator
     {
-        public EFCoreTableGenerator(INameTranslator nameTranslator, string baseNamespace)
-            : base(nameTranslator)
+        public EFCoreTableGenerator(IFileSystem fileSystem, INameTranslator nameTranslator, string baseNamespace)
+            : base(fileSystem, nameTranslator)
         {
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));

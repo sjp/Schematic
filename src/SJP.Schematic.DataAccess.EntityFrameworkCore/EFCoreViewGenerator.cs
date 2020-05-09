@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.IO.Abstractions;
 using System.Linq;
 using LanguageExt;
 using Microsoft.CodeAnalysis;
@@ -18,8 +19,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 {
     public class EFCoreViewGenerator : DatabaseViewGenerator
     {
-        public EFCoreViewGenerator(INameTranslator nameTranslator, string baseNamespace)
-            : base(nameTranslator)
+        public EFCoreViewGenerator(IFileSystem fileSystem, INameTranslator nameTranslator, string baseNamespace)
+            : base(fileSystem, nameTranslator)
         {
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));

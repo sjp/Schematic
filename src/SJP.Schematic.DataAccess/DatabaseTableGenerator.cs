@@ -8,18 +8,53 @@ using SJP.Schematic.Core.Comments;
 
 namespace SJP.Schematic.DataAccess
 {
+    /// <summary>
+    /// Common functionality for generating database tables.
+    /// </summary>
+    /// <seealso cref="IDatabaseTableGenerator" />
     public abstract class DatabaseTableGenerator : IDatabaseTableGenerator
     {
-        protected DatabaseTableGenerator(INameTranslator nameTranslator)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DatabaseTableGenerator"/> class.
+        /// </summary>
+        /// <param name="fileSystem">A file system to generate paths for.</param>
+        /// <param name="nameTranslator">A name translator.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="nameTranslator"/> is <c>null</c>.</exception>
+        protected DatabaseTableGenerator(IFileSystem fileSystem, INameTranslator nameTranslator)
         {
+            FileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
             NameTranslator = nameTranslator ?? throw new ArgumentNullException(nameof(nameTranslator));
         }
 
+        /// <summary>
+        /// A file system.
+        /// </summary>
+        /// <value>The file system.</value>
+        protected IFileSystem FileSystem { get; }
+
+        /// <summary>
+        /// A name translator.
+        /// </summary>
+        /// <value>The name translator.</value>
         protected INameTranslator NameTranslator { get; }
 
+        /// <summary>
+        /// Generates source code that enables interoperability with a given database table.
+        /// </summary>
+        /// <param name="tables">The database tables in the database.</param>
+        /// <param name="table">A database table.</param>
+        /// <param name="comment">Comment information for the given table.</param>
+        /// <returns>A string containing source code to interact with the table.</returns>
         public abstract string Generate(IReadOnlyCollection<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment);
 
-        public virtual FileInfoBase GetFilePath(IDirectoryInfo baseDirectory, Identifier objectName)
+        /// <summary>
+        /// Gets the file path that the source code should be generated to.
+        /// </summary>
+        /// <param name="baseDirectory">The base directory.</param>
+        /// <param name="objectName">The name of the database object.</param>
+        /// <returns>A file path.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="baseDirectory"/> or <paramref name="objectName"/> is <c>null</c>.</exception>
+        public virtual IFileInfo GetFilePath(IDirectoryInfo baseDirectory, Identifier objectName)
         {
             if (baseDirectory == null)
                 throw new ArgumentNullException(nameof(baseDirectory));
@@ -38,7 +73,8 @@ namespace SJP.Schematic.DataAccess
             paths.Add(tableName + ".cs");
 
             var tablePath = Path.Combine(paths.ToArray());
-            return new FileInfo(tablePath);
+            var fileInfo = new FileInfo(tablePath);
+            return new FileInfoWrapper(FileSystem, fileInfo);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO.Abstractions.TestingHelpers;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -17,7 +18,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests.Integration
 
         private Task<IDatabaseView> GetView(Identifier viewName) => Database.GetView(viewName).UnwrapSomeAsync();
 
-        private static IDatabaseViewGenerator ViewGenerator => new OrmLiteViewGenerator(new PascalCaseNameTranslator(), TestNamespace);
+        private static IDatabaseViewGenerator ViewGenerator => new OrmLiteViewGenerator(new MockFileSystem(), new PascalCaseNameTranslator(), TestNamespace);
 
         [OneTimeSetUp]
         public async Task Init()

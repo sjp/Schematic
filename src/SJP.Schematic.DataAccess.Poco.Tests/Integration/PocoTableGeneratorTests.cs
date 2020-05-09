@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
 
         private Task<IRelationalDatabaseTable> GetTable(Identifier tableName) => Database.GetTable(tableName).UnwrapSomeAsync();
 
-        private static IDatabaseTableGenerator TableGenerator => new PocoTableGenerator(new PascalCaseNameTranslator(), TestNamespace);
+        private static IDatabaseTableGenerator TableGenerator => new PocoTableGenerator(new MockFileSystem(), new PascalCaseNameTranslator(), TestNamespace);
 
         [OneTimeSetUp]
         public async Task Init()

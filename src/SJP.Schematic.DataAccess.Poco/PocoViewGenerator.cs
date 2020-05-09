@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO.Abstractions;
 using System.Linq;
 using LanguageExt;
 using Microsoft.CodeAnalysis;
@@ -16,8 +17,8 @@ namespace SJP.Schematic.DataAccess.Poco
 {
     public class PocoViewGenerator : DatabaseViewGenerator
     {
-        public PocoViewGenerator(INameTranslator nameTranslator, string baseNamespace)
-            : base(nameTranslator)
+        public PocoViewGenerator(IFileSystem fileSystem, INameTranslator nameTranslator, string baseNamespace)
+            : base(fileSystem, nameTranslator)
         {
             if (baseNamespace.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(baseNamespace));

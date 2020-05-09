@@ -8,13 +8,13 @@ namespace SJP.Schematic.DataAccess.Tests
 {
     internal sealed class FakeDatabaseTableGenerator : DatabaseTableGenerator
     {
-        public FakeDatabaseTableGenerator(INameTranslator nameTranslator)
-            : base(nameTranslator)
+        public FakeDatabaseTableGenerator(IFileSystem fileSystem, INameTranslator nameTranslator)
+            : base(fileSystem, nameTranslator)
         {
         }
 
         public override string Generate(IReadOnlyCollection<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment) => string.Empty;
 
-        public FileInfoBase InnerGetFilePath(DirectoryInfoBase baseDirectory, Identifier objectName) => GetFilePath(baseDirectory, objectName);
+        public IFileInfo InnerGetFilePath(DirectoryInfoBase baseDirectory, Identifier objectName) => GetFilePath(baseDirectory, objectName);
     }
 }

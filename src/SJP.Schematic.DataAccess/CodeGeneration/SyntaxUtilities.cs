@@ -8,8 +8,15 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace SJP.Schematic.DataAccess.CodeGeneration
 {
+    /// <summary>
+    /// Utility methods for generating code with Roslyn.
+    /// </summary>
     public static class SyntaxUtilities
     {
+        /// <summary>
+        /// Returns an assignment expression that generates <c>= default!</c>.
+        /// </summary>
+        /// <value>A not null default assignment expression.</value>
         public static EqualsValueClauseSyntax NotNullDefault { get; } = EqualsValueClause(
             PostfixUnaryExpression(
                 SyntaxKind.SuppressNullableWarningExpression,
@@ -17,6 +24,10 @@ namespace SJP.Schematic.DataAccess.CodeGeneration
                     SyntaxKind.DefaultLiteralExpression,
                     Token(SyntaxKind.DefaultKeyword))));
 
+        /// <summary>
+        /// Returns an expression that generates <c>{ get; set; }</c>.
+        /// </summary>
+        /// <value>An auto property expression.</value>
         public static AccessorListSyntax PropertyGetSetDeclaration { get; } = AccessorList(
             List(new[]
             {
@@ -27,6 +38,11 @@ namespace SJP.Schematic.DataAccess.CodeGeneration
             })
         );
 
+        /// <summary>
+        /// Creates qualified attribute name for use with Roslyn.
+        /// </summary>
+        /// <param name="attributeName">Name of the attribute.</param>
+        /// <returns>An attribute name definition.</returns>
         public static IdentifierNameSyntax AttributeName(string attributeName)
         {
             var trimmedName = !attributeName.EndsWith(AttributeSuffix)
@@ -38,6 +54,12 @@ namespace SJP.Schematic.DataAccess.CodeGeneration
 
         private const string AttributeSuffix = "Attribute";
 
+        /// <summary>
+        /// Constructs a documentation comment definition for use with Roslyn.
+        /// </summary>
+        /// <param name="comment">A comment.</param>
+        /// <returns>Syntax nodes that represent the comment.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="comment"/> is <c>null</c>.</exception>
         public static SyntaxTriviaList BuildCommentTrivia(string comment)
         {
             if (comment == null)
@@ -58,6 +80,12 @@ namespace SJP.Schematic.DataAccess.CodeGeneration
             );
         }
 
+        /// <summary>
+        /// Constructs a documentation comment definition for use with Roslyn.
+        /// </summary>
+        /// <param name="commentNodes">Comment nodes.</param>
+        /// <returns>Syntax nodes that represent the comment.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="commentNodes"/> is <c>null</c>.</exception>
         public static SyntaxTriviaList BuildCommentTrivia(IEnumerable<XmlNodeSyntax> commentNodes)
         {
             if (commentNodes == null)
@@ -76,6 +104,13 @@ namespace SJP.Schematic.DataAccess.CodeGeneration
             );
         }
 
+        /// <summary>
+        /// Constructs a documentation comment definition for use with Roslyn.
+        /// </summary>
+        /// <param name="commentNodes">Comment nodes representing method documentation.</param>
+        /// <param name="paramNodes">Nodes presenting parameter documentation.</param>
+        /// <returns>Syntax nodes that represent the comment.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="commentNodes"/> or <paramref name="paramNodes"/> are <c>null</c>.</exception>
         public static SyntaxTriviaList BuildCommentTriviaWithParams(IEnumerable<XmlNodeSyntax> commentNodes, IReadOnlyDictionary<string, IEnumerable<XmlNodeSyntax>> paramNodes)
         {
             if (commentNodes == null)
@@ -114,6 +149,9 @@ namespace SJP.Schematic.DataAccess.CodeGeneration
             );
         }
 
+        /// <summary>
+        /// A type syntax lookup that translates from built-in C# types to Roslyn type definitions.
+        /// </summary>
         public static readonly IReadOnlyDictionary<string, TypeSyntax> TypeSyntaxMap = new Dictionary<string, TypeSyntax>
         {
             [nameof(Boolean)] = PredefinedType(Token(SyntaxKind.BoolKeyword)),

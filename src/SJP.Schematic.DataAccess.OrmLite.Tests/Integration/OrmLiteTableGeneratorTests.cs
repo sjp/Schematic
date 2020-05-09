@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests.Integration
 
         private Task<IRelationalDatabaseTable> GetTable(Identifier tableName) => Database.GetTable(tableName).UnwrapSomeAsync();
 
-        private static IDatabaseTableGenerator TableGenerator => new OrmLiteTableGenerator(new PascalCaseNameTranslator(), TestNamespace);
+        private static IDatabaseTableGenerator TableGenerator => new OrmLiteTableGenerator(new MockFileSystem(), new PascalCaseNameTranslator(), TestNamespace);
 
         [OneTimeSetUp]
         public async Task Init()

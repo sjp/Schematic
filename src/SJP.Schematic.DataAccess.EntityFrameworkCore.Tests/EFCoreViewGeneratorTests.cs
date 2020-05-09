@@ -1,5 +1,6 @@
 using System.IO;
 using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -11,10 +12,22 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
     [TestFixture]
     internal static class EFCoreViewGeneratorTests
     {
+        private static IDatabaseViewGenerator GetViewGenerator() => new EFCoreViewGenerator(new MockFileSystem(), new VerbatimNameTranslator(), "SJP.Schematic.Test");
+
+        [Test]
+        public static void Ctor_GivenNullNameFileSystem_ThrowsArgumentNullException()
+        {
+            var nameTranslator = new VerbatimNameTranslator();
+
+            Assert.That(() => new EFCoreViewGenerator(null, nameTranslator, "test"), Throws.ArgumentNullException);
+        }
+
         [Test]
         public static void Ctor_GivenNullNameTranslator_ThrowsArgumentNullException()
         {
-            Assert.That(() => new EFCoreViewGenerator(null, "test"), Throws.ArgumentNullException);
+            var fileSystem = new MockFileSystem();
+
+            Assert.That(() => new EFCoreViewGenerator(fileSystem, null, "test"), Throws.ArgumentNullException);
         }
 
         [TestCase((string)null)]
@@ -22,16 +35,16 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         [TestCase("    ")]
         public static void Ctor_GivenNullOrWhiteSpaceNamespace_ThrowsArgumentNullException(string ns)
         {
+            var fileSystem = new MockFileSystem();
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.That(() => new EFCoreViewGenerator(nameTranslator, ns), Throws.ArgumentNullException);
+
+            Assert.That(() => new EFCoreViewGenerator(fileSystem, nameTranslator, ns), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetFilePath_GivenNullDirectory_ThrowsArgumentNullException()
         {
-            var nameTranslator = new VerbatimNameTranslator();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new EFCoreViewGenerator(nameTranslator, testNs);
+            var generator = GetViewGenerator();
 
             Assert.That(() => generator.GetFilePath(null, "test"), Throws.ArgumentNullException);
         }
@@ -39,9 +52,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         [Test]
         public static void GetFilePath_GivenNullObjectName_ThrowsArgumentNullException()
         {
-            var nameTranslator = new VerbatimNameTranslator();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new EFCoreViewGenerator(nameTranslator, testNs);
+            var generator = GetViewGenerator();
             using var tempDir = new TemporaryDirectory();
             var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
 
@@ -51,11 +62,9 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         [Test]
         public static void GetFilePath_GivenNameWithOnlyLocalName_ReturnsExpectedPath()
         {
-            var nameTranslator = new VerbatimNameTranslator();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new EFCoreViewGenerator(nameTranslator, testNs);
+            var generator = GetViewGenerator();
             using var tempDir = new TemporaryDirectory();
-            var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
+            var baseDir = new DirectoryInfoWrapper(new MockFileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
             const string testViewName = "view_name";
             var expectedPath = Path.Combine(tempDir.DirectoryPath, "Views", testViewName + ".cs");
 
@@ -67,11 +76,9 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         [Test]
         public static void GetFilePath_GivenNameWithSchemaAndLocalName_ReturnsExpectedPath()
         {
-            var nameTranslator = new VerbatimNameTranslator();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new EFCoreViewGenerator(nameTranslator, testNs);
+            var generator = GetViewGenerator();
             using var tempDir = new TemporaryDirectory();
-            var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
+            var baseDir = new DirectoryInfoWrapper(new MockFileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
             const string testViewSchema = "view_schema";
             const string testViewName = "view_name";
             var expectedPath = Path.Combine(tempDir.DirectoryPath, "Views", testViewSchema, testViewName + ".cs");
@@ -84,10 +91,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
         [Test]
         public static void Generate_GivenNullView_ThrowsArgumentNullException()
         {
-            var nameTranslator = new VerbatimNameTranslator();
+            var generator = GetViewGenerator();
             var comment = Option<IDatabaseViewComments>.None;
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new EFCoreViewGenerator(nameTranslator, testNs);
 
             Assert.That(() => generator.Generate(null, comment), Throws.ArgumentNullException);
         }

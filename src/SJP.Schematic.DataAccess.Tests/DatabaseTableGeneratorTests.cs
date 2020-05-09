@@ -1,4 +1,5 @@
 using System.IO;
+using System.IO.Abstractions.TestingHelpers;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Tests.Utilities;
@@ -8,17 +9,24 @@ namespace SJP.Schematic.DataAccess.Tests
     [TestFixture]
     internal static class DatabaseTableGeneratorTests
     {
+        private static FakeDatabaseTableGenerator GetTableGenerator() => new FakeDatabaseTableGenerator(new MockFileSystem(), new VerbatimNameTranslator());
+
+        [Test]
+        public static void Ctor_GivenNullFileSystem_ThrowsArgumentNullException()
+        {
+            Assert.That(() => new FakeDatabaseTableGenerator(null, new VerbatimNameTranslator()), Throws.ArgumentNullException);
+        }
+
         [Test]
         public static void Ctor_GivenNullNameTranslator_ThrowsArgumentNullException()
         {
-            Assert.That(() => new FakeDatabaseTableGenerator(null), Throws.ArgumentNullException);
+            Assert.That(() => new FakeDatabaseTableGenerator(new MockFileSystem(), null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetFilePath_GivenNullDirectory_ThrowsArgumentNullException()
         {
-            var nameTranslator = new VerbatimNameTranslator();
-            var generator = new FakeDatabaseTableGenerator(nameTranslator);
+            var generator = GetTableGenerator();
 
             Assert.That(() => generator.InnerGetFilePath(null, "test"), Throws.ArgumentNullException);
         }
@@ -26,8 +34,7 @@ namespace SJP.Schematic.DataAccess.Tests
         [Test]
         public static void GetFilePath_GivenNullObjectName_ThrowsArgumentNullException()
         {
-            var nameTranslator = new VerbatimNameTranslator();
-            var generator = new FakeDatabaseTableGenerator(nameTranslator);
+            var generator = GetTableGenerator();
             using var tempDir = new TemporaryDirectory();
             var baseDir = new DirectoryInfo(tempDir.DirectoryPath);
 
@@ -37,8 +44,7 @@ namespace SJP.Schematic.DataAccess.Tests
         [Test]
         public static void GetFilePath_GivenNameWithOnlyLocalName_ReturnsExpectedPath()
         {
-            var nameTranslator = new VerbatimNameTranslator();
-            var generator = new FakeDatabaseTableGenerator(nameTranslator);
+            var generator = GetTableGenerator();
             using var tempDir = new TemporaryDirectory();
             var baseDir = new DirectoryInfo(tempDir.DirectoryPath);
             const string testTableName = "table_name";
@@ -52,8 +58,7 @@ namespace SJP.Schematic.DataAccess.Tests
         [Test]
         public static void GetFilePath_GivenNameWithSchemaAndLocalName_ReturnsExpectedPath()
         {
-            var nameTranslator = new VerbatimNameTranslator();
-            var generator = new FakeDatabaseTableGenerator(nameTranslator);
+            var generator = GetTableGenerator();
             using var tempDir = new TemporaryDirectory();
             var baseDir = new DirectoryInfo(tempDir.DirectoryPath);
             const string testTableSchema = "table_schema";

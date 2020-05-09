@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using LanguageExt;
 using Moq;
 using NUnit.Framework;
@@ -13,10 +14,18 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
     [TestFixture]
     internal static class PocoTableGeneratorTests
     {
+        private static IDatabaseTableGenerator GetTableGenerator() => new PocoTableGenerator(new MockFileSystem(), new VerbatimNameTranslator(), "SJP.Schematic.Test");
+
+        [Test]
+        public static void Ctor_GivenNullFileSystem_ThrowsArgumentNullException()
+        {
+            Assert.That(() => new PocoTableGenerator(null, new VerbatimNameTranslator(), "test"), Throws.ArgumentNullException);
+        }
+
         [Test]
         public static void Ctor_GivenNullNameTranslator_ThrowsArgumentNullException()
         {
-            Assert.That(() => new PocoTableGenerator(null, "test"), Throws.ArgumentNullException);
+            Assert.That(() => new PocoTableGenerator(new MockFileSystem(), null, "test"), Throws.ArgumentNullException);
         }
 
         [TestCase((string)null)]
@@ -24,16 +33,15 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         [TestCase("    ")]
         public static void Ctor_GivenNullOrWhiteSpaceNamespace_ThrowsArgumentNullException(string ns)
         {
+            var fileSystem = new MockFileSystem();
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.That(() => new PocoTableGenerator(nameTranslator, ns), Throws.ArgumentNullException);
+            Assert.That(() => new PocoTableGenerator(fileSystem, nameTranslator, ns), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void GetFilePath_GivenNullDirectory_ThrowsArgumentNullException()
         {
-            var nameTranslator = new VerbatimNameTranslator();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new PocoTableGenerator(nameTranslator, testNs);
+            var generator = GetTableGenerator();
 
             Assert.That(() => generator.GetFilePath(null, "test"), Throws.ArgumentNullException);
         }
@@ -41,9 +49,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         [Test]
         public static void GetFilePath_GivenNullObjectName_ThrowsArgumentNullException()
         {
-            var nameTranslator = new VerbatimNameTranslator();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new PocoTableGenerator(nameTranslator, testNs);
+            var generator = GetTableGenerator();
             using var tempDir = new TemporaryDirectory();
             var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
 
@@ -53,9 +59,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         [Test]
         public static void GetFilePath_GivenNameWithOnlyLocalName_ReturnsExpectedPath()
         {
-            var nameTranslator = new VerbatimNameTranslator();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new PocoTableGenerator(nameTranslator, testNs);
+            var generator = GetTableGenerator();
             using var tempDir = new TemporaryDirectory();
             var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
             const string testTableName = "table_name";
@@ -69,9 +73,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         [Test]
         public static void GetFilePath_GivenNameWithSchemaAndLocalName_ReturnsExpectedPath()
         {
-            var nameTranslator = new VerbatimNameTranslator();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new PocoTableGenerator(nameTranslator, testNs);
+            var generator = GetTableGenerator();
             using var tempDir = new TemporaryDirectory();
             var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
             const string testTableSchema = "table_schema";
@@ -86,9 +88,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         [Test]
         public static void Generate_GivenNullDatabase_ThrowsArgumentNullException()
         {
-            var nameTranslator = new VerbatimNameTranslator();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new PocoTableGenerator(nameTranslator, testNs);
+            var generator = GetTableGenerator();
             var table = Mock.Of<IRelationalDatabaseTable>();
 
             Assert.That(() => generator.Generate(null, table, Option<IRelationalDatabaseTableComments>.None), Throws.ArgumentNullException);
@@ -97,9 +97,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         [Test]
         public static void Generate_GivenNullTable_ThrowsArgumentNullException()
         {
-            var nameTranslator = new VerbatimNameTranslator();
-            const string testNs = "SJP.Schematic.Test";
-            var generator = new PocoTableGenerator(nameTranslator, testNs);
+            var generator = GetTableGenerator();
 
             Assert.That(() => generator.Generate(Array.Empty<IRelationalDatabaseTable>(), null, Option<IRelationalDatabaseTableComments>.None), Throws.ArgumentNullException);
         }

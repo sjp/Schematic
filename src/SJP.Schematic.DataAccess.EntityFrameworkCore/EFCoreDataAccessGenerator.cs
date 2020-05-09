@@ -62,8 +62,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             FileSystem.File.WriteAllText(projectPath, ProjectDefinition);
 
             var dbContextGenerator = new EFCoreDbContextBuilder(NameTranslator, baseNamespace);
-            var tableGenerator = new EFCoreTableGenerator(NameTranslator, baseNamespace);
-            var viewGenerator = new EFCoreViewGenerator(NameTranslator, baseNamespace);
+            var tableGenerator = new EFCoreTableGenerator(FileSystem, NameTranslator, baseNamespace);
+            var viewGenerator = new EFCoreViewGenerator(FileSystem, NameTranslator, baseNamespace);
 
             var tables = await Database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             var tableComments = await CommentProvider.GetAllTableComments(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
