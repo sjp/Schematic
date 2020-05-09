@@ -4,8 +4,18 @@ using LanguageExt;
 
 namespace SJP.Schematic.Tests.Utilities
 {
+    /// <summary>
+    /// Convenience methods for testing the values of <see cref="Option{A}"/> and <see cref="OptionAsync{A}"/> types.
+    /// </summary>
     public static class OptionExtensions
     {
+        /// <summary>
+        /// Unwraps an option type in the some state and returns its contained value.
+        /// </summary>
+        /// <typeparam name="T">The type of value contained in the <see cref="Option{A}"/> type.</typeparam>
+        /// <param name="input">The input.</param>
+        /// <returns>The contained value in <paramref name="input"/>.</returns>
+        /// <exception cref="ArgumentException"><paramref name="input"/> is an <see cref="Option{A}"/> in the none state.</exception>
         public static T UnwrapSome<T>(this Option<T> input)
         {
             if (input.IsNone)
@@ -14,6 +24,13 @@ namespace SJP.Schematic.Tests.Utilities
             return input.IfNoneUnsafe(default(T)!);
         }
 
+        /// <summary>
+        /// Unwraps an option type in the some state and asynchronously returns its contained value.
+        /// </summary>
+        /// <typeparam name="T">The type of value contained in the <see cref="Option{A}"/> type.</typeparam>
+        /// <param name="input">The input.</param>
+        /// <returns>The contained value in <paramref name="input"/>.</returns>
+        /// <exception cref="ArgumentException"><paramref name="input"/> is an <see cref="OptionAsync{A}"/> in the none state.</exception>
         public static async Task<T> UnwrapSomeAsync<T>(this OptionAsync<T> input)
         {
             var isNone = await input.IsNone.ConfigureAwait(false);

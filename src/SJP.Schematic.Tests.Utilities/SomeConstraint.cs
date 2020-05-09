@@ -4,10 +4,23 @@ using NUnit.Framework.Constraints;
 
 namespace SJP.Schematic.Tests.Utilities
 {
+    /// <summary>
+    /// A constraint that asserts a <see cref="Option{A}.Some(A)"/> value must be present.
+    /// </summary>
+    /// <seealso cref="Constraint" />
     public sealed class SomeConstraint : Constraint
     {
+        /// <summary>
+        /// The Description of what this constraint tests, for
+        /// use in messages and in the ConstraintResult. Always "Some".
+        /// </summary>
         public override string Description { get; protected set; } = "Some";
 
+        /// <summary>
+        /// Applies the constraint to an actual value, returning a <see cref="ConstraintResult"/>.
+        /// </summary>
+        /// <param name="actual">The value to be tested</param>
+        /// <returns>A <see cref="ConstraintResult"/></returns>
         public override ConstraintResult ApplyTo<TActual>(TActual actual)
         {
             var actualType = typeof(TActual);
@@ -20,7 +33,7 @@ namespace SJP.Schematic.Tests.Utilities
 
             var propGet = actualType.GetProperty(nameof(Option<object>.IsSome))!.GetGetMethod()!;
             var isSome = (bool)propGet.Invoke(actual, Array.Empty<object>())!;
-            //return new ConstraintResult(this, actual, isSome);
+
             return new OptionConstraintResult(this, true, isSome);
         }
 
