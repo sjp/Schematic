@@ -3,10 +3,10 @@ using NUnit.Framework;
 namespace SJP.Schematic.Reporting.Tests
 {
     [TestFixture]
-    public class AssetExporterTests
+    internal static class AssetExporterTests
     {
         [Test]
-        public void Test()
+        public static void Test()
         {
             Assert.Pass();
         }

@@ -49,8 +49,14 @@ namespace SJP.Schematic.Lint.Tests
         }
     }
 
+    /// <summary>
+    /// Not intended to be used directly, testing only.
+    /// </summary>
     public class TestRuleProvider : IRuleProvider
     {
+        /// <summary>
+        /// Ignore.
+        /// </summary>
         public IEnumerable<IRule> GetRules(ISchematicConnection connection, RuleLevel level)
         {
             return new DefaultRuleProvider()
@@ -59,11 +65,20 @@ namespace SJP.Schematic.Lint.Tests
                 .ToList();
         }
 
+        /// <summary>
+        /// Ignore.
+        /// </summary>
         public const int RuleCount = 3;
     }
 
+    /// <summary>
+    /// Not intended to be used directly, testing only.
+    /// </summary>
     public class TestDialectRuleProvider : IDialectRuleProvider<Fakes.FakeDatabaseDialect>
     {
+        /// <summary>
+        /// Ignore.
+        /// </summary>
         public IEnumerable<IRule> GetRules(ISchematicConnection connection, RuleLevel level)
         {
             return new DefaultRuleProvider()
@@ -72,6 +87,9 @@ namespace SJP.Schematic.Lint.Tests
                 .ToList();
         }
 
+        /// <summary>
+        /// Ignore.
+        /// </summary>
         public const int RuleCount = 5;
     }
 }
