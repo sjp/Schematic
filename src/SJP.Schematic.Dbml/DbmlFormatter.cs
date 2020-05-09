@@ -8,8 +8,18 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Dbml
 {
+    /// <summary>
+    /// A formatter for database tables to create DBML files.
+    /// </summary>
+    /// <seealso cref="IDbmlFormatter" />
     public class DbmlFormatter : IDbmlFormatter
     {
+        /// <summary>
+        /// Renders database tables as a DBML format.
+        /// </summary>
+        /// <param name="tables">A collection of database tables.</param>
+        /// <returns>A string, in DBML format.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
         public string RenderTables(IEnumerable<IRelationalDatabaseTable> tables)
         {
             if (tables == null)

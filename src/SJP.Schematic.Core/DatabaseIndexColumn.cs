@@ -12,7 +12,7 @@ namespace SJP.Schematic.Core
     /// <summary>
     /// A database index column.
     /// </summary>
-    /// <seealso cref="SJP.Schematic.Core.IDatabaseIndexColumn" />
+    /// <seealso cref="IDatabaseIndexColumn" />
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class DatabaseIndexColumn : IDatabaseIndexColumn
     {
