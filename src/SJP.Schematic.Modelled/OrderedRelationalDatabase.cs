@@ -10,9 +10,18 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Modelled
 {
+    /// <summary>
+    /// A relational database that is built from constituent relational databases.
+    /// </summary>
+    /// <seealso cref="IRelationalDatabase" />
     public class OrderedRelationalDatabase : IRelationalDatabase
     {
-        // databases in order of preference, most preferred first
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OrderedRelationalDatabase"/> class.
+        /// </summary>
+        /// <param name="databases">An ordered set of databases, later objects are preferred over earlier objects.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="databases"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="databases"/> is empty.</exception>
         public OrderedRelationalDatabase(IEnumerable<IRelationalDatabase> databases)
         {
             if (databases == null)
@@ -24,12 +33,31 @@ namespace SJP.Schematic.Modelled
             BaseDatabase = Databases.Last();
         }
 
+        /// <summary>
+        /// Identifier defaults. Used to determine the default name resolution applies to the database.
+        /// </summary>
+        /// <value>The identifier defaults.</value>
         public IIdentifierDefaults IdentifierDefaults => BaseDatabase.IdentifierDefaults;
 
+        /// <summary>
+        /// The base database.
+        /// </summary>
+        /// <value>A base relational database.</value>
         protected IRelationalDatabase BaseDatabase { get; }
 
+        /// <summary>
+        /// The databases to use for resolution.
+        /// </summary>
+        /// <value>An ordered collection of relational databases.</value>
         protected IEnumerable<IRelationalDatabase> Databases { get; }
 
+        /// <summary>
+        /// Gets a database table, taking the first found table, if available.
+        /// </summary>
+        /// <param name="tableName">A database table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database table in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default)
         {
             if (tableName == null)
@@ -38,6 +66,11 @@ namespace SJP.Schematic.Modelled
             return LoadTable(tableName, cancellationToken);
         }
 
+        /// <summary>
+        /// Gets all database tables, while also respecting the layering preferences.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A collection of database tables.</returns>
         public async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var tablesTasks = Databases.Select(d => d.GetAllTables(cancellationToken).ToListAsync(cancellationToken).AsTask());
@@ -52,6 +85,13 @@ namespace SJP.Schematic.Modelled
                 yield return table;
         }
 
+        /// <summary>
+        /// Loads the first available table from the provided database.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A table, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -70,6 +110,13 @@ namespace SJP.Schematic.Modelled
             return tables.HeadOrNone();
         }
 
+        /// <summary>
+        /// Gets a database view, taking the first found view, if available.
+        /// </summary>
+        /// <param name="viewName">A database view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database view in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
         {
             if (viewName == null)
@@ -78,6 +125,11 @@ namespace SJP.Schematic.Modelled
             return LoadView(viewName, cancellationToken);
         }
 
+        /// <summary>
+        /// Gets all database views, while also respecting the layering preferences.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A collection of database views.</returns>
         public async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var viewsTasks = Databases.Select(d => d.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask());
@@ -92,6 +144,13 @@ namespace SJP.Schematic.Modelled
                 yield return view;
         }
 
+        /// <summary>
+        /// Loads the first available view from the provided database.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A view, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -110,6 +169,13 @@ namespace SJP.Schematic.Modelled
             return views.HeadOrNone();
         }
 
+        /// <summary>
+        /// Gets a database sequence, taking the first found sequence, if available.
+        /// </summary>
+        /// <param name="sequenceName">A database sequence name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database sequence in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default)
         {
             if (sequenceName == null)
@@ -118,6 +184,11 @@ namespace SJP.Schematic.Modelled
             return LoadSequence(sequenceName, cancellationToken);
         }
 
+        /// <summary>
+        /// Gets all database sequences, while also respecting the layering preferences.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A collection of database sequences.</returns>
         public async IAsyncEnumerable<IDatabaseSequence> GetAllSequences([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var sequencesTasks = Databases.Select(d => d.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).AsTask());
@@ -132,6 +203,13 @@ namespace SJP.Schematic.Modelled
                 yield return sequence;
         }
 
+        /// <summary>
+        /// Loads the first available sequence from the provided database.
+        /// </summary>
+        /// <param name="sequenceName">A sequence name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A sequence, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IDatabaseSequence> LoadSequence(Identifier sequenceName, CancellationToken cancellationToken)
         {
             if (sequenceName == null)
@@ -150,6 +228,13 @@ namespace SJP.Schematic.Modelled
             return sequences.HeadOrNone();
         }
 
+        /// <summary>
+        /// Gets a database synonym, taking the first found synonym, if available.
+        /// </summary>
+        /// <param name="synonymName">A database synonym name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database synonym in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default)
         {
             if (synonymName == null)
@@ -158,6 +243,11 @@ namespace SJP.Schematic.Modelled
             return LoadSynonym(synonymName, cancellationToken);
         }
 
+        /// <summary>
+        /// Gets all database synonyms, while also respecting the layering preferences.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A collection of database synonyms.</returns>
         public async IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var synonymsTasks = Databases.Select(d => d.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).AsTask());
@@ -172,6 +262,13 @@ namespace SJP.Schematic.Modelled
                 yield return synonym;
         }
 
+        /// <summary>
+        /// Loads the first available synonym from the provided database.
+        /// </summary>
+        /// <param name="synonymName">A synonym name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A synonym, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IDatabaseSynonym> LoadSynonym(Identifier synonymName, CancellationToken cancellationToken)
         {
             if (synonymName == null)
@@ -190,6 +287,13 @@ namespace SJP.Schematic.Modelled
             return synonyms.HeadOrNone();
         }
 
+        /// <summary>
+        /// Gets a database routine, taking the first found routine, if available.
+        /// </summary>
+        /// <param name="routineName">A database routine name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database routine in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
         {
             if (routineName == null)
@@ -198,6 +302,11 @@ namespace SJP.Schematic.Modelled
             return LoadRoutine(routineName, cancellationToken);
         }
 
+        /// <summary>
+        /// Gets all database routines, while also respecting the layering preferences.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A collection of database routines.</returns>
         public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var routinesTasks = Databases.Select(d => d.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).AsTask());
@@ -212,6 +321,13 @@ namespace SJP.Schematic.Modelled
                 yield return routine;
         }
 
+        /// <summary>
+        /// Loads the first available routine from the provided database.
+        /// </summary>
+        /// <param name="routineName">A routine name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A routine, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IDatabaseRoutine> LoadRoutine(Identifier routineName, CancellationToken cancellationToken)
         {
             if (routineName == null)

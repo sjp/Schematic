@@ -7,8 +7,17 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Graphviz
 {
+    /// <summary>
+    /// A renderer that renders a DOT file into an SVG image.
+    /// </summary>
+    /// <seealso cref="IDotSvgRenderer" />
     public class DotSvgRenderer : IDotSvgRenderer
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DotSvgRenderer"/> class.
+        /// </summary>
+        /// <param name="dotExecutablePath">The dot executable path.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="dotExecutablePath"/> is <c>null</c>, empty or whitespace.</exception>
         public DotSvgRenderer(string dotExecutablePath)
         {
             if (string.IsNullOrWhiteSpace(dotExecutablePath))
@@ -17,6 +26,13 @@ namespace SJP.Schematic.Graphviz
             _dotPath = dotExecutablePath;
         }
 
+        /// <summary>
+        /// Renders a DOT file as an SVG image synchronously.
+        /// </summary>
+        /// <param name="dot">A dot graph in string form.</param>
+        /// <returns>A rendered SVG image as a string.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="dot"/> is <c>null</c>, empty or whitespace.</exception>
+        /// <exception cref="GraphvizException">Thrown when the Graphviz process exited unsuccessfully.</exception>
         public string RenderToSvg(string dot)
         {
             if (string.IsNullOrWhiteSpace(dot))
@@ -61,6 +77,14 @@ namespace SJP.Schematic.Graphviz
             }
         }
 
+        /// <summary>
+        /// Renders a DOT file as an SVG image asynchronously.
+        /// </summary>
+        /// <param name="dot">A dot graph in string form.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A rendered SVG image as a string.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="dot"/> is <c>null</c>, empty or whitespace.</exception>
+        /// <exception cref="GraphvizException">Thrown when the Graphviz process exited unsuccessfully.</exception>
         public Task<string> RenderToSvgAsync(string dot, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(dot))
@@ -79,7 +103,7 @@ namespace SJP.Schematic.Graphviz
 
             try
             {
-                File.WriteAllText(tmpInputFilePath, dot);
+                await File.WriteAllTextAsync(tmpInputFilePath, dot, cancellationToken).ConfigureAwait(false);
 
                 var startInfo = new ProcessStartInfo
                 {
@@ -99,7 +123,7 @@ namespace SJP.Schematic.Graphviz
                     }
                 }
 
-                return File.ReadAllText(tmpOutputFilePath);
+                return await File.ReadAllTextAsync(tmpOutputFilePath, cancellationToken).ConfigureAwait(false);
             }
             finally
             {
