@@ -23,6 +23,11 @@ namespace SJP.Schematic.SqlServer
 
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// Retrieves all database routines.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A collection of database routines.</returns>
         public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResult = await Connection.QueryAsync<RoutineData>(RoutinesQuery, cancellationToken).ConfigureAwait(false);
@@ -47,6 +52,13 @@ inner join sys.objects o on o.object_id = m.object_id
 where o.is_ms_shipped = 0 and o.type in ('P', 'FN', 'IF', 'TF')
 order by schema_name(o.schema_id), o.name";
 
+        /// <summary>
+        /// Retrieves a database routine, if available.
+        /// </summary>
+        /// <param name="routineName">A database routine name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database routine in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
         {
             if (routineName == null)
@@ -115,6 +127,12 @@ where schema_name(o.schema_id) = @SchemaName and o.name = @RoutineName and o.is_
             );
         }
 
+        /// <summary>
+        /// Qualifies the name of a routine, using known identifier defaults.
+        /// </summary>
+        /// <param name="routineName">A routine name to qualify.</param>
+        /// <returns>A routine name that is at least as qualified as its input.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         protected Identifier QualifyRoutineName(Identifier routineName)
         {
             if (routineName == null)

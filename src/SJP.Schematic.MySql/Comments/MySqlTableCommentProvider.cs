@@ -13,18 +13,41 @@ using SJP.Schematic.MySql.Query;
 
 namespace SJP.Schematic.MySql.Comments
 {
+    /// <summary>
+    /// A table comment provider for MySQL databases.
+    /// </summary>
+    /// <seealso cref="IRelationalDatabaseTableCommentProvider" />
     public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MySqlTableCommentProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="identifierDefaults">Identifier defaults for the given database.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <c>null</c>.</exception>
         public MySqlTableCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         }
 
+        /// <summary>
+        /// A database connection factory to query the database.
+        /// </summary>
+        /// <value>A connection factory.</value>
         protected IDbConnectionFactory Connection { get; }
 
+        /// <summary>
+        /// Identifier defaults for the associated database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// Retrieves comments for all database tables.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of database table comments, where available.</returns>
         public async IAsyncEnumerable<IRelationalDatabaseTableComments> GetAllTableComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var allCommentsData = await Connection.QueryAsync<TableCommentsData>(
@@ -66,6 +89,13 @@ namespace SJP.Schematic.MySql.Comments
                 yield return comment;
         }
 
+        /// <summary>
+        /// Gets the resolved name of the table. This enables non-strict name matching to be applied.
+        /// </summary>
+        /// <param name="tableName">A table name that will be resolved.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A table name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected OptionAsync<Identifier> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -81,6 +111,10 @@ namespace SJP.Schematic.MySql.Comments
             return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.ObjectName));
         }
 
+        /// <summary>
+        /// A SQL query definition that resolves a table name for the database.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string TableNameQuery => TableNameQuerySql;
 
         private const string TableNameQuerySql = @"
@@ -89,6 +123,13 @@ from information_schema.tables
 where table_schema = @SchemaName and table_name = @TableName
 limit 1";
 
+        /// <summary>
+        /// Retrieves comments for a database table, if available.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Comments for the given database table, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         public OptionAsync<IRelationalDatabaseTableComments> GetTableComments(Identifier tableName, CancellationToken cancellationToken = default)
         {
             if (tableName == null)
@@ -98,6 +139,13 @@ limit 1";
             return LoadTableComments(candidateTableName, cancellationToken);
         }
 
+        /// <summary>
+        /// Retrieves a table's comments.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Comments for a table, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IRelationalDatabaseTableComments> LoadTableComments(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -139,6 +187,10 @@ limit 1";
             );
         }
 
+        /// <summary>
+        /// A SQL query definition which retrieves all comment information for all tables.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string AllTableCommentsQuery => AllTableCommentsQuerySql;
 
         private const string AllTableCommentsQuerySql = @"
@@ -166,6 +218,10 @@ where s.TABLE_SCHEMA = @SchemaName
 ) wrapped order by wrapped.SchemaName, wrapped.ObjectName
 ";
 
+        /// <summary>
+        /// A SQL query definition which retrieves all comment information for a particular table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string TableCommentsQuery => TableCommentsQuerySql;
 
         private const string TableCommentsQuerySql = @"
@@ -220,6 +276,12 @@ where s.TABLE_SCHEMA = @SchemaName and s.TABLE_NAME = @TableName
                 .ToDictionary(c => c.Key, c => c.Value);
         }
 
+        /// <summary>
+        /// Qualifies the name of a table, using known identifier defaults.
+        /// </summary>
+        /// <param name="tableName">A table name to qualify.</param>
+        /// <returns>A table name that is at least as qualified as its input.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected Identifier QualifyTableName(Identifier tableName)
         {
             if (tableName == null)

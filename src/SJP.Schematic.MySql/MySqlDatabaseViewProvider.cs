@@ -19,14 +19,31 @@ namespace SJP.Schematic.MySql
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         }
 
+        /// <summary>
+        /// A database connection that is specific to a given MySQL database.
+        /// </summary>
+        /// <value>A database connection.</value>
         protected ISchematicConnection Connection { get; }
 
+        /// <summary>
+        /// Identifier defaults for the associated database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// A database connection factory to query the database.
+        /// </summary>
+        /// <value>A connection factory.</value>
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
+        /// <summary>
+        /// Gets all database views.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A collection of database views.</returns>
         public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResult = await DbConnection.QueryAsync<QualifiedName>(
@@ -52,6 +69,13 @@ select
 from information_schema.views
 where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
 
+        /// <summary>
+        /// Gets a database view.
+        /// </summary>
+        /// <param name="viewName">A database view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database view in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
         {
             if (viewName == null)
@@ -61,6 +85,13 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
             return LoadView(candidateViewName, cancellationToken);
         }
 
+        /// <summary>
+        /// Gets the resolved name of the view. This enables non-strict name matching to be applied.
+        /// </summary>
+        /// <param name="viewName">A view name that will be resolved.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A view name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected OptionAsync<Identifier> GetResolvedViewName(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)

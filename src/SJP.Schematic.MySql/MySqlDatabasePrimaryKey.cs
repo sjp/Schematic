@@ -6,9 +6,17 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.MySql
 {
+    /// <summary>
+    /// A primary key that always has the name <c>PRIMARY</c>.
+    /// </summary>
+    /// <seealso cref="MySqlDatabaseKey" />
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class MySqlDatabasePrimaryKey : MySqlDatabaseKey
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MySqlDatabasePrimaryKey"/> class.
+        /// </summary>
+        /// <param name="columns">A collection of columns.</param>
         public MySqlDatabasePrimaryKey(IReadOnlyCollection<IDatabaseColumn> columns)
             : base(PrimaryKeyName, DatabaseKeyType.Primary, columns)
         {
@@ -16,6 +24,10 @@ namespace SJP.Schematic.MySql
 
         private static readonly Identifier PrimaryKeyName = Identifier.CreateQualifiedIdentifier("PRIMARY");
 
+        /// <summary>
+        /// Returns a string that provides a basic string representation of this object.
+        /// </summary>
+        /// <returns>A <see cref="string"/> that represents this instance.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override string ToString() => DebuggerDisplay;
 

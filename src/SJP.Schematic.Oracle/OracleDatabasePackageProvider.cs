@@ -26,6 +26,11 @@ namespace SJP.Schematic.Oracle
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
+        /// <summary>
+        /// Retrieves all database packages.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A collection of database packages.</returns>
         public async IAsyncEnumerable<IOracleDatabasePackage> GetAllPackages([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResult = await Connection.QueryAsync<RoutineData>(
@@ -78,6 +83,13 @@ FROM SYS.ALL_SOURCE
     WHERE TYPE in ('PACKAGE', 'PACKAGE BODY')
 ORDER BY OWNER, NAME, LINE";
 
+        /// <summary>
+        /// Retrieves a database package, if available.
+        /// </summary>
+        /// <param name="packageName">A database package name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database package in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="packageName"/> is <c>null</c>.</exception>
         public OptionAsync<IOracleDatabasePackage> GetPackage(Identifier packageName, CancellationToken cancellationToken = default)
         {
             if (packageName == null)
@@ -221,6 +233,12 @@ from SYS.USER_SOURCE
 where NAME = :PackageName and TYPE in ('PACKAGE', 'PACKAGE BODY')
 order by LINE";
 
+        /// <summary>
+        /// Qualifies the name of the package, using known identifier defaults.
+        /// </summary>
+        /// <param name="packageName">A package name to qualify.</param>
+        /// <returns>A package name that is at least as qualified as its input.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="packageName"/> is <c>null</c>.</exception>
         protected Identifier QualifyPackageName(Identifier packageName)
         {
             if (packageName == null)

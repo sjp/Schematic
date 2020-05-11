@@ -137,6 +137,12 @@ where r.schema_id = SCHEMA_ID(@SchemaName) and r.name = @RoutineName and r.is_ms
                 .FirstOrDefault();
         }
 
+        /// <summary>
+        /// Qualifies the name of a routine, using known identifier defaults.
+        /// </summary>
+        /// <param name="routineName">A routine name to qualify.</param>
+        /// <returns>A routine name that is at least as qualified as its input.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         protected Identifier QualifyRoutineName(Identifier routineName)
         {
             if (routineName == null)

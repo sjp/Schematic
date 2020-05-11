@@ -26,6 +26,11 @@ namespace SJP.Schematic.PostgreSql
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
+        /// <summary>
+        /// Retrieves all database routines.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A collection of database routines.</returns>
         public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResult = await Connection.QueryAsync<RoutineData>(
@@ -56,6 +61,13 @@ from information_schema.routines
 where ROUTINE_SCHEMA not in ('pg_catalog', 'information_schema')
 order by ROUTINE_SCHEMA, ROUTINE_NAME";
 
+        /// <summary>
+        /// Retrieves a database routine, if available.
+        /// </summary>
+        /// <param name="routineName">A database routine name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database routine in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
         {
             if (routineName == null)
@@ -140,6 +152,12 @@ select ROUTINE_DEFINITION
 from information_schema.routines
 where ROUTINE_SCHEMA = @SchemaName and ROUTINE_NAME = @RoutineName";
 
+        /// <summary>
+        /// Qualifies the name of a routine, using known identifier defaults.
+        /// </summary>
+        /// <param name="routineName">A routine name to qualify.</param>
+        /// <returns>A routine name that is at least as qualified as its input.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         protected Identifier QualifyRoutineName(Identifier routineName)
         {
             if (routineName == null)

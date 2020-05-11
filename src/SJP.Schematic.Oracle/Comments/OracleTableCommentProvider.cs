@@ -94,6 +94,10 @@ namespace SJP.Schematic.Oracle.Comments
             return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(candidateTableName.Server, candidateTableName.Database, name.SchemaName, name.ObjectName));
         }
 
+        /// <summary>
+        /// A SQL query definition that resolves a table name for the database.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string TableNameQuery => TableNameQuerySql;
 
         private const string TableNameQuerySql = @"
@@ -170,6 +174,10 @@ where
             );
         }
 
+        /// <summary>
+        /// A SQL query definition which retrieves all comment information for all tables.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string AllTableCommentsQuery => AllTableCommentsQuerySql;
 
         private const string AllTableCommentsQuerySql = @"
@@ -200,6 +208,10 @@ where o.ORACLE_MAINTAINED <> 'Y'
     and mv.MVIEW_NAME is null
 ) wrapped order by wrapped.SchemaName, wrapped.ObjectName";
 
+        /// <summary>
+        /// A SQL query definition which retrieves all comment information for a particular table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string TableCommentsQuery => TableCommentsQuerySql;
 
         private const string TableCommentsQuerySql = @"
@@ -231,6 +243,10 @@ where t.OWNER = :SchemaName and t.TABLE_NAME = :TableName
     and mv.MVIEW_NAME is null
 ";
 
+        /// <summary>
+        /// A SQL query definition which retrieves all comment information for a particular table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string UserTableCommentsQuery => UserTableCommentsQuerySql;
 
         private const string UserTableCommentsQuerySql = @"
@@ -277,6 +293,12 @@ where t.TABLE_NAME = :TableName and mv.MVIEW_NAME is null
                 .ToDictionary(c => c.Key, c => c.Value);
         }
 
+        /// <summary>
+        /// Qualifies the name of a table, using known identifier defaults.
+        /// </summary>
+        /// <param name="tableName">A table name to qualify.</param>
+        /// <returns>A table name that is at least as qualified as its input.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected Identifier QualifyTableName(Identifier tableName)
         {
             if (tableName == null)

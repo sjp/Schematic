@@ -43,6 +43,11 @@ namespace SJP.Schematic.Oracle
             new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, OracleTableQueryCache>(LoadParentKeysAsync)
         );
 
+        /// <summary>
+        /// Gets all database tables.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A collection of database tables.</returns>
         public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResults = await DbConnection.QueryAsync<QualifiedName>(TablesQuery, cancellationToken).ConfigureAwait(false);
@@ -71,6 +76,13 @@ where
     and mv.MVIEW_NAME is null
 order by t.OWNER, t.TABLE_NAME";
 
+        /// <summary>
+        /// Gets a database table.
+        /// </summary>
+        /// <param name="tableName">A database table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database table in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default)
         {
             if (tableName == null)
@@ -111,6 +123,10 @@ order by t.OWNER, t.TABLE_NAME";
             return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(candidateTableName.Server, candidateTableName.Database, name.SchemaName, name.ObjectName));
         }
 
+        /// <summary>
+        /// A SQL query definition that resolves a table name for the database.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string TableNameQuery => TableNameQuerySql;
 
         private const string TableNameQuerySql = @"
@@ -807,6 +823,12 @@ where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE
             ["COMPOUND"] = TriggerQueryTiming.InsteadOf
         };
 
+        /// <summary>
+        /// Qualifies the name of a table, using known identifier defaults.
+        /// </summary>
+        /// <param name="tableName">A table name to qualify.</param>
+        /// <returns>A table name that is at least as qualified as its input.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected Identifier QualifyTableName(Identifier tableName)
         {
             if (tableName == null)

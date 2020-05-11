@@ -24,10 +24,22 @@ namespace SJP.Schematic.MySql
             _supportsChecks = new AsyncLazy<bool>(LoadHasCheckSupport);
         }
 
+        /// <summary>
+        /// A database connection that is specific to a given MySQL database.
+        /// </summary>
+        /// <value>A database connection.</value>
         protected ISchematicConnection Connection { get; }
 
+        /// <summary>
+        /// Identifier defaults for the associated database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// A database connection factory to query the database.
+        /// </summary>
+        /// <value>A connection factory.</value>
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
         protected IDatabaseDialect Dialect => Connection.Dialect;
@@ -40,6 +52,11 @@ namespace SJP.Schematic.MySql
             new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, MySqlTableQueryCache>(LoadParentKeysAsync)
         );
 
+        /// <summary>
+        /// Gets all database tables.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A collection of database tables.</returns>
         public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResults = await DbConnection.QueryAsync<QualifiedName>(
@@ -65,6 +82,13 @@ select
 from information_schema.tables
 where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
 
+        /// <summary>
+        /// Gets a database table.
+        /// </summary>
+        /// <param name="tableName">A database table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database table in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default)
         {
             if (tableName == null)
@@ -75,6 +99,13 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
             return LoadTable(candidateTableName, queryCache, cancellationToken);
         }
 
+        /// <summary>
+        /// Gets the resolved name of the table. This enables non-strict name matching to be applied.
+        /// </summary>
+        /// <param name="tableName">A table name that will be resolved.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A table name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected Task<Option<Identifier>> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -92,6 +123,10 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
                 .ToOption();
         }
 
+        /// <summary>
+        /// A SQL query definition that resolves a table name for the database.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string TableNameQuery => TableNameQuerySql;
 
         private const string TableNameQuerySql = @"
@@ -718,6 +753,12 @@ select
 from information_schema.triggers tr
 where tr.event_object_schema = @SchemaName and tr.event_object_table = @TableName";
 
+        /// <summary>
+        /// Qualifies the name of a table, using known identifier defaults.
+        /// </summary>
+        /// <param name="tableName">A table name to qualify.</param>
+        /// <returns>A table name that is at least as qualified as its input.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected Identifier QualifyTableName(Identifier tableName)
         {
             if (tableName == null)

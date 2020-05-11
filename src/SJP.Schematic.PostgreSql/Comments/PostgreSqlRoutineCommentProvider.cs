@@ -140,6 +140,12 @@ where n.nspname = @SchemaName and p.proname = @RoutineName
     and n.nspname not in ('pg_catalog', 'information_schema')
 ";
 
+        /// <summary>
+        /// Qualifies the name of a routine, using known identifier defaults.
+        /// </summary>
+        /// <param name="routineName">A routine name to qualify.</param>
+        /// <returns>A routine name that is at least as qualified as its input.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         protected Identifier QualifyRoutineName(Identifier routineName)
         {
             if (routineName == null)

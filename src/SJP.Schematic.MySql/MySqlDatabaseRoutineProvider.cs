@@ -19,10 +19,22 @@ namespace SJP.Schematic.MySql
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         }
 
+        /// <summary>
+        /// A database connection that is specific to a given MySQL database.
+        /// </summary>
+        /// <value>A database connection.</value>
         protected ISchematicConnection Connection { get; }
 
+        /// <summary>
+        /// A database connection factory to query the database.
+        /// </summary>
+        /// <value>A connection factory.</value>
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
+        /// <summary>
+        /// Identifier defaults for the associated database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
         public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -56,6 +68,13 @@ from information_schema.routines
 where ROUTINE_SCHEMA = @SchemaName
 order by ROUTINE_SCHEMA, ROUTINE_NAME";
 
+        /// <summary>
+        /// Retrieves a database routine, if available.
+        /// </summary>
+        /// <param name="routineName">A database routine name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database routine in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
         {
             if (routineName == null)
@@ -65,6 +84,13 @@ order by ROUTINE_SCHEMA, ROUTINE_NAME";
             return LoadRoutine(candidateRoutineName, cancellationToken);
         }
 
+        /// <summary>
+        /// Gets the resolved name of the routine. This enables non-strict name matching to be applied.
+        /// </summary>
+        /// <param name="routineName">A routine name that will be resolved.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A routine name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         protected OptionAsync<Identifier> GetResolvedRoutineName(Identifier routineName, CancellationToken cancellationToken)
         {
             if (routineName == null)

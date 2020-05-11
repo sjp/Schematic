@@ -82,6 +82,10 @@ namespace SJP.Schematic.SqlServer.Comments
             return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.ObjectName));
         }
 
+        /// <summary>
+        /// A SQL query definition that resolves a table name for the database.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string TableNameQuery => TableNameQuerySql;
 
         private const string TableNameQuerySql = @"
@@ -140,6 +144,10 @@ where schema_id = schema_id(@SchemaName) and name = @TableName
             );
         }
 
+        /// <summary>
+        /// A SQL query definition which retrieves all comment information for all tables.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string AllTableCommentsQuery => AllTableCommentsQuerySql;
 
         private const string AllTableCommentsQuerySql = @"
@@ -215,6 +223,10 @@ left join sys.extended_properties ep on tr.object_id = ep.major_id and ep.name =
 where t.is_ms_shipped = 0
 ) wrapped order by wrapped.SchemaName, wrapped.TableName";
 
+        /// <summary>
+        /// A SQL query definition which retrieves all comment information for a particular table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string TableCommentsQuery => TableCommentsQuerySql;
 
         private const string TableCommentsQuerySql = @"
@@ -321,6 +333,12 @@ where t.schema_id = SCHEMA_ID(@SchemaName) and t.name = @TableName and t.is_ms_s
                 .ToDictionary(c => c.Key, c => c.Value);
         }
 
+        /// <summary>
+        /// Qualifies the name of a table, using known identifier defaults.
+        /// </summary>
+        /// <param name="tableName">A table name to qualify.</param>
+        /// <returns>A table name that is at least as qualified as its input.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected Identifier QualifyTableName(Identifier tableName)
         {
             if (tableName == null)

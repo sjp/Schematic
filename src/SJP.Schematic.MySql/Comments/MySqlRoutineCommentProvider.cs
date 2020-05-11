@@ -12,18 +12,41 @@ using SJP.Schematic.MySql.Query;
 
 namespace SJP.Schematic.MySql.Comments
 {
+    /// <summary>
+    /// A routine comment provider for MySQL routines.
+    /// </summary>
+    /// <seealso cref="IDatabaseRoutineCommentProvider" />
     public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MySqlRoutineCommentProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="identifierDefaults">Identifier defaults for the given database.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> is <c>null</c>.</exception>
         public MySqlRoutineCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         }
 
+        /// <summary>
+        /// A database connection factory to query the database.
+        /// </summary>
+        /// <value>A connection factory.</value>
         protected IDbConnectionFactory Connection { get; }
 
+        /// <summary>
+        /// Identifier defaults for the associated database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// Retrieves comments for all database routines.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of database routine comments, where available.</returns>
         public async IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var commentsData = await Connection.QueryAsync<CommentsData>(
@@ -49,6 +72,13 @@ namespace SJP.Schematic.MySql.Comments
                 yield return comment;
         }
 
+        /// <summary>
+        /// Gets the resolved name of the routine. This enables non-strict name matching to be applied.
+        /// </summary>
+        /// <param name="routineName">A routine name that will be resolved.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A routine name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         protected OptionAsync<Identifier> GetResolvedRoutineName(Identifier routineName, CancellationToken cancellationToken)
         {
             if (routineName == null)
@@ -74,6 +104,13 @@ from information_schema.routines
 where ROUTINE_SCHEMA = @SchemaName and ROUTINE_NAME = @RoutineName
 limit 1";
 
+        /// <summary>
+        /// Retrieves comments for a database routine, if available.
+        /// </summary>
+        /// <param name="routineName">A routine name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Comments for the given database routine, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseRoutineComments> GetRoutineComments(Identifier routineName, CancellationToken cancellationToken = default)
         {
             if (routineName == null)
@@ -83,6 +120,13 @@ limit 1";
             return LoadRoutineComments(candidateRoutineName, cancellationToken);
         }
 
+        /// <summary>
+        /// Retrieves a routine's comments.
+        /// </summary>
+        /// <param name="routineName">A routine name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Comments for a routine, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IDatabaseRoutineComments> LoadRoutineComments(Identifier routineName, CancellationToken cancellationToken)
         {
             if (routineName == null)
@@ -108,6 +152,10 @@ limit 1";
             return new DatabaseRoutineComments(routineName, routineComment);
         }
 
+        /// <summary>
+        /// A SQL query definition that retrieves all routine comments in a given database.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string AllRoutineCommentsQuery => AllRoutineCommentsQuerySql;
 
         private const string AllRoutineCommentsQuerySql = @"
@@ -126,6 +174,12 @@ select ROUTINE_COMMENT
 from information_schema.routines
 where ROUTINE_SCHEMA = @SchemaName and ROUTINE_NAME = @RoutineName";
 
+        /// <summary>
+        /// Qualifies the name of a routine, using known identifier defaults.
+        /// </summary>
+        /// <param name="routineName">A routine name to qualify.</param>
+        /// <returns>A routine name that is at least as qualified as its input.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         protected Identifier QualifyRoutineName(Identifier routineName)
         {
             if (routineName == null)
