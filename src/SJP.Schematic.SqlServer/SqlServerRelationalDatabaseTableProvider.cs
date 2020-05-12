@@ -13,6 +13,10 @@ using SJP.Schematic.SqlServer.Query;
 
 namespace SJP.Schematic.SqlServer
 {
+    /// <summary>
+    /// A database table provider for SQL Server.
+    /// </summary>
+    /// <seealso cref="IRelationalDatabaseTableProvider" />
     public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTableProvider
     {
         public SqlServerRelationalDatabaseTableProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults)
@@ -27,8 +31,16 @@ namespace SJP.Schematic.SqlServer
 
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
+        /// <summary>
+        /// The dialect for the associated database.
+        /// </summary>
+        /// <value>A database dialect.</value>
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
+        /// <summary>
+        /// Creates a query cache for a given query context
+        /// </summary>
+        /// <returns>A query cache.</returns>
         protected SqlServerTableQueryCache CreateQueryCache() => new SqlServerTableQueryCache(
             new AsyncCache<Identifier, Option<Identifier>, SqlServerTableQueryCache>((tableName, _, token) => GetResolvedTableName(tableName, token)),
             new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqlServerTableQueryCache>((tableName, _, token) => LoadColumnsAsync(tableName, token)),
@@ -54,6 +66,10 @@ namespace SJP.Schematic.SqlServer
                 yield return await LoadTableAsyncCore(tableName, queryCache, cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// A SQL query that retrieves the names of all tables in the database.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string TablesQuery => TablesQuerySql;
 
         private const string TablesQuerySql = @"
@@ -106,6 +122,14 @@ select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
 from sys.tables
 where schema_id = schema_id(@SchemaName) and name = @TableName and is_ms_shipped = 0";
 
+        /// <summary>
+        /// Retrieves a table from the database, if available.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="queryCache">The query cache.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A table, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -155,6 +179,14 @@ where schema_id = schema_id(@SchemaName) and name = @TableName and is_ms_shipped
             );
         }
 
+        /// <summary>
+        /// Retrieves the primary key for the given table, if available.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="queryCache">A query cache for the given context.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A primary key, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
         protected virtual Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -198,6 +230,10 @@ where schema_id = schema_id(@SchemaName) and name = @TableName and is_ms_shipped
             return Option<IDatabaseKey>.Some(primaryKey);
         }
 
+        /// <summary>
+        /// A SQL query that retrieves information on any primary key defined for a given table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string PrimaryKeyQuery => PrimaryKeyQuerySql;
 
         private const string PrimaryKeyQuerySql = @"
@@ -215,6 +251,14 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
     and i.is_hypothetical = 0 and i.type <> 0 -- type = 0 is a heap, ignore
 order by ic.key_ordinal";
 
+        /// <summary>
+        /// Retrieves indexes that relate to the given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="columns">Columns for the given table.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of indexes.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="columns"/> are <c>null</c>.</exception>
         protected virtual Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -275,6 +319,10 @@ order by ic.key_ordinal";
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves information on indexes for a given table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string IndexesQuery => IndexesQuerySql;
 
         private const string IndexesQuerySql = @"
@@ -296,6 +344,14 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
     and i.is_hypothetical = 0 and i.type <> 0 -- type = 0 is a heap, ignore
 order by ic.index_id, ic.key_ordinal, ic.index_column_id";
 
+        /// <summary>
+        /// Retrieves unique keys that relate to the given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="queryCache">A query cache for the given context.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of unique keys.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
         protected virtual Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -344,6 +400,10 @@ order by ic.index_id, ic.key_ordinal, ic.index_column_id";
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that returns unique key information for a particular table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string UniqueKeysQuery => UniqueKeysQuerySql;
 
         private const string UniqueKeysQuerySql = @"
@@ -363,6 +423,14 @@ where
     and i.is_hypothetical = 0 and i.type <> 0 -- type = 0 is a heap, ignore
 order by ic.key_ordinal";
 
+        /// <summary>
+        /// Retrieves child keys that relate to the given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="queryCache">A query cache for the given context.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of child keys.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
         protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -442,6 +510,10 @@ order by ic.key_ordinal";
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves information on child keys for a given table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ChildKeysQuery => ChildKeysQuerySql;
 
         private const string ChildKeysQuerySql = @"
@@ -462,6 +534,12 @@ inner join sys.key_constraints kc on kc.unique_index_id = fk.key_index_id and kc
 where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableName
     and child_t.is_ms_shipped = 0 and parent_t.is_ms_shipped = 0";
 
+        /// <summary>
+        /// Retrieves check constraints defined on a given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of check constraints.</returns>
         protected virtual async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             var checks = await DbConnection.QueryAsync<CheckConstraintData>(
@@ -491,6 +569,10 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves check constraint information for a table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ChecksQuery => ChecksQuerySql;
 
         private const string ChecksQuerySql = @"
@@ -502,6 +584,14 @@ from sys.tables t
 inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
 where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms_shipped = 0";
 
+        /// <summary>
+        /// Retrieves foreign keys that relate to the given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="queryCache">A query cache for the given context.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of foreign keys.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
         protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -591,6 +681,10 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves information about foreign keys.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ParentKeysQuery => ParentKeysQuerySql;
 
         private const string ParentKeysQuerySql = @"
@@ -614,6 +708,13 @@ inner join sys.key_constraints kc on kc.unique_index_id = fk.key_index_id and kc
 where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
      and child_t.is_ms_shipped = 0 and parent_t.is_ms_shipped = 0";
 
+        /// <summary>
+        /// Retrieves the columns for a given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>An ordered collection of columns.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -668,6 +769,10 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves column definitions.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
         private const string ColumnsQuerySql = @"
@@ -695,10 +800,17 @@ left join sys.types st on c.user_type_id = st.user_type_id
 where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms_shipped = 0
 order by c.column_id";
 
+        /// <summary>
+        /// Retrieves all triggers defined on a table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of triggers.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected virtual Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
-                throw new ArgumentNullException(nameof(cancellationToken));
+                throw new ArgumentNullException(nameof(tableName));
 
             return LoadTriggersAsyncCore(tableName, cancellationToken);
         }
@@ -752,6 +864,10 @@ order by c.column_id";
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves information about any triggers on the table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string TriggersQuery => TriggersQuerySql;
 
         private const string TriggersQuerySql = @"
@@ -782,6 +898,10 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
             return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, tableName.LocalName);
         }
 
+        /// <summary>
+        /// A mapping from the referential actions as described in SQL Server, to a <see cref="ReferentialAction"/> instance.
+        /// </summary>
+        /// <value>A mapping dictionary.</value>
         protected IReadOnlyDictionary<int, ReferentialAction> ReferentialActionMapping { get; } = new Dictionary<int, ReferentialAction>
         {
             [0] = ReferentialAction.NoAction,
@@ -830,6 +950,9 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
             public const string Update = "UPDATE";
         }
 
+        /// <summary>
+        /// A query cache provider for SQL Server tables. Ensures that a given query only occurs at most once for a given query context.
+        /// </summary>
         protected class SqlServerTableQueryCache
         {
             private readonly AsyncCache<Identifier, Option<Identifier>, SqlServerTableQueryCache> _tableNames;
@@ -838,6 +961,15 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
             private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqlServerTableQueryCache> _uniqueKeys;
             private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqlServerTableQueryCache> _foreignKeys;
 
+            /// <summary>
+            /// Initializes a new instance of the <see cref="SqlServerTableQueryCache"/> class.
+            /// </summary>
+            /// <param name="tableNameLoader">A table name cache.</param>
+            /// <param name="columnLoader">A column cache.</param>
+            /// <param name="primaryKeyLoader">A primary key cache.</param>
+            /// <param name="uniqueKeyLoader">A unique key cache.</param>
+            /// <param name="foreignKeyLoader">A foreign key cache.</param>
+            /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/> or <paramref name="foreignKeyLoader"/> are <c>null</c>.</exception>
             public SqlServerTableQueryCache(
                 AsyncCache<Identifier, Option<Identifier>, SqlServerTableQueryCache> tableNameLoader,
                 AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqlServerTableQueryCache> columnLoader,
@@ -853,6 +985,13 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
                 _foreignKeys = foreignKeyLoader ?? throw new ArgumentNullException(nameof(foreignKeyLoader));
             }
 
+            /// <summary>
+            /// Retrieves the table name from the cache, querying the database when not populated.
+            /// </summary>
+            /// <param name="tableName">A table name.</param>
+            /// <param name="cancellationToken">The cancellation token.</param>
+            /// <returns>A table name, if matched in the database.</returns>
+            /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
             public Task<Option<Identifier>> GetTableNameAsync(Identifier tableName, CancellationToken cancellationToken)
             {
                 if (tableName == null)
@@ -861,6 +1000,13 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
                 return _tableNames.GetByKeyAsync(tableName, this, cancellationToken);
             }
 
+            /// <summary>
+            /// Retrieves a table's columns from the cache, querying the database when not populated.
+            /// </summary>
+            /// <param name="tableName">A table name.</param>
+            /// <param name="cancellationToken">The cancellation token.</param>
+            /// <returns>A collection of columns.</returns>
+            /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
             public Task<IReadOnlyList<IDatabaseColumn>> GetColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
             {
                 if (tableName == null)
@@ -869,6 +1015,13 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
                 return _columns.GetByKeyAsync(tableName, this, cancellationToken);
             }
 
+            /// <summary>
+            /// Retrieves a table's primary key from the cache, querying the database when not populated.
+            /// </summary>
+            /// <param name="tableName">A table name.</param>
+            /// <param name="cancellationToken">The cancellation token.</param>
+            /// <returns>A primary key, if available.</returns>
+            /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
             public Task<Option<IDatabaseKey>> GetPrimaryKeyAsync(Identifier tableName, CancellationToken cancellationToken)
             {
                 if (tableName == null)
@@ -877,6 +1030,13 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
                 return _primaryKeys.GetByKeyAsync(tableName, this, cancellationToken);
             }
 
+            /// <summary>
+            /// Retrieves a table's unique keys from the cache, querying the database when not populated.
+            /// </summary>
+            /// <param name="tableName">A table name.</param>
+            /// <param name="cancellationToken">The cancellation token.</param>
+            /// <returns>A collection of unique keys.</returns>
+            /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
             public Task<IReadOnlyCollection<IDatabaseKey>> GetUniqueKeysAsync(Identifier tableName, CancellationToken cancellationToken)
             {
                 if (tableName == null)
@@ -885,6 +1045,13 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
                 return _uniqueKeys.GetByKeyAsync(tableName, this, cancellationToken);
             }
 
+            /// <summary>
+            /// Retrieves a table's foreign keys from the cache, querying the database when not populated.
+            /// </summary>
+            /// <param name="tableName">A table name.</param>
+            /// <param name="cancellationToken">The cancellation token.</param>
+            /// <returns>A collection of foreign keys.</returns>
+            /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
             public Task<IReadOnlyCollection<IDatabaseRelationalKey>> GetForeignKeysAsync(Identifier tableName, CancellationToken cancellationToken)
             {
                 if (tableName == null)

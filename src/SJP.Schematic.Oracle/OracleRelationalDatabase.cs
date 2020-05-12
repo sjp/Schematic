@@ -6,6 +6,10 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Oracle
 {
+    /// <summary>
+    /// A relational database used to access and manage an Oracle database.
+    /// </summary>
+    /// <seealso cref="IRelationalDatabase"/>
     public class OracleRelationalDatabase : IRelationalDatabase
     {
         public OracleRelationalDatabase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)

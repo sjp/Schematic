@@ -64,6 +64,10 @@ namespace SJP.Schematic.SqlServer.Comments
             return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(routineName.Server, routineName.Database, name.SchemaName, name.ObjectName));
         }
 
+        /// <summary>
+        /// A SQL query that retrieves the resolved routine name.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string RoutineNameQuery => RoutineNameQuerySql;
 
         private const string RoutineNameQuerySql = @"

@@ -6,6 +6,10 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SqlServer
 {
+    /// <summary>
+    /// A relational database used to access and manage a SQL Server database.
+    /// </summary>
+    /// <seealso cref="IRelationalDatabase"/>
     public class SqlServerRelationalDatabase : IRelationalDatabase
     {
         public SqlServerRelationalDatabase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults)

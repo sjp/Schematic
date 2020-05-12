@@ -14,6 +14,10 @@ using SJP.Schematic.PostgreSql.Query;
 
 namespace SJP.Schematic.PostgreSql
 {
+    /// <summary>
+    /// A database table provider for PostgreSQL.
+    /// </summary>
+    /// <seealso cref="IRelationalDatabaseTableProvider" />
     public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabaseTableProvider
     {
         public PostgreSqlRelationalDatabaseTableProviderBase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
@@ -31,10 +35,18 @@ namespace SJP.Schematic.PostgreSql
 
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
+        /// <summary>
+        /// The dialect for the associated database.
+        /// </summary>
+        /// <value>A database dialect.</value>
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
         protected IDbTypeProvider TypeProvider => Dialect.TypeProvider;
 
+        /// <summary>
+        /// Creates a query cache for a given query context
+        /// </summary>
+        /// <returns>A query cache.</returns>
         protected PostgreSqlTableQueryCache CreateQueryCache() => new PostgreSqlTableQueryCache(
             new AsyncCache<Identifier, Option<Identifier>, PostgreSqlTableQueryCache>((tableName, _, token) => GetResolvedTableName(tableName, token)),
             new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, PostgreSqlTableQueryCache>((tableName, _, token) => LoadColumnsAsync(tableName, token)),
@@ -60,6 +72,10 @@ namespace SJP.Schematic.PostgreSql
                 yield return await LoadTableAsyncCore(tableName, queryCache, cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// A SQL query that retrieves the names of all tables in the database.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string TablesQuery => TablesQuerySql;
 
         private const string TablesQuerySql = @"
@@ -130,10 +146,20 @@ where schemaname = @SchemaName and tablename = @TableName
     and schemaname not in ('pg_catalog', 'information_schema')
 limit 1";
 
+        /// <summary>
+        /// Retrieves a table from the database, if available.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="queryCache">The query cache.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A table, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
+            if (queryCache == null)
+                throw new ArgumentNullException(nameof(queryCache));
 
             var candidateTableName = QualifyTableName(tableName);
             return GetResolvedTableName(candidateTableName)
@@ -180,6 +206,14 @@ limit 1";
             );
         }
 
+        /// <summary>
+        /// Retrieves the primary key for the given table, if available.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="queryCache">A query cache for the given context.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A primary key, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
         protected virtual Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -221,6 +255,10 @@ limit 1";
             return Option<IDatabaseKey>.Some(primaryKey);
         }
 
+        /// <summary>
+        /// A SQL query that retrieves information on any primary key defined for a given table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string PrimaryKeyQuery => PrimaryKeyQuerySql;
 
         private const string PrimaryKeyQuerySql = @"
@@ -236,6 +274,14 @@ inner join information_schema.key_column_usage kc
 where tc.table_schema = @SchemaName and tc.table_name = @TableName
     and tc.constraint_type = 'PRIMARY KEY'";
 
+        /// <summary>
+        /// Retrieves indexes that relate to the given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="columns">Columns for the given table.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of indexes.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="columns"/> are <c>null</c>.</exception>
         protected virtual Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -297,6 +343,10 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves information on indexes for a given table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string IndexesQuery => IndexesQuerySql;
 
         private const string IndexesQuerySql = @"
@@ -325,6 +375,14 @@ where
     and t.relname = @TableName
     and ns.nspname = @SchemaName";
 
+        /// <summary>
+        /// Retrieves unique keys that relate to the given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="queryCache">A query cache for the given context.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of unique keys.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
         protected virtual Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -373,6 +431,10 @@ where
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that returns unique key information for a particular table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string UniqueKeysQuery => UniqueKeysQuerySql;
 
         private const string UniqueKeysQuerySql = @"
@@ -388,6 +450,14 @@ inner join information_schema.key_column_usage kc
 where tc.table_schema = @SchemaName and tc.table_name = @TableName
     and tc.constraint_type = 'UNIQUE'";
 
+        /// <summary>
+        /// Retrieves child keys that relate to the given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="queryCache">A query cache for the given context.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of child keys.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
         protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -466,6 +536,10 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves information on child keys for a given table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ChildKeysQuery => ChildKeysQuerySql;
 
         private const string ChildKeysQuerySql = @"
@@ -498,6 +572,12 @@ left join pg_catalog.pg_constraint pkc on pkc.oid = d2.refobjid
     and pkc.conrelid = c.confrelid
 where pt.relname = @TableName and pns.nspname = @SchemaName";
 
+        /// <summary>
+        /// Retrieves check constraints defined on a given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of check constraints.</returns>
         protected virtual async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             var checks = await DbConnection.QueryAsync<CheckConstraintData>(
@@ -526,6 +606,10 @@ where pt.relname = @TableName and pns.nspname = @SchemaName";
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves check constraint information for a table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ChecksQuery => ChecksQuerySql;
 
         private const string ChecksQuerySql = @"
@@ -540,6 +624,14 @@ where
     and t.relname = @TableName
     and ns.nspname = @SchemaName";
 
+        /// <summary>
+        /// Retrieves foreign keys that relate to the given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="queryCache">A query cache for the given context.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of foreign keys.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
         protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -629,6 +721,10 @@ where
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves information about foreign keys.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ParentKeysQuery => ParentKeysQuerySql;
 
         private const string ParentKeysQuerySql = @"
@@ -665,6 +761,13 @@ left join pg_catalog.pg_constraint pkc on pkc.oid = d2.refobjid
     and pkc.conrelid = c.confrelid
 where t.relname = @TableName and ns.nspname = @SchemaName";
 
+        /// <summary>
+        /// Retrieves the columns for a given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>An ordered collection of columns.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -718,6 +821,10 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves column definitions.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
         // a little bit convoluted due to the quote_ident() being required.
@@ -753,10 +860,17 @@ from information_schema.columns
 where table_schema = @SchemaName and table_name = @TableName
 order by ordinal_position";
 
+        /// <summary>
+        /// Retrieves all triggers defined on a table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of triggers.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected virtual Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
-                throw new ArgumentNullException(nameof(cancellationToken));
+                throw new ArgumentNullException(nameof(tableName));
 
             return LoadTriggersAsyncCore(tableName, cancellationToken);
         }
@@ -810,6 +924,10 @@ order by ordinal_position";
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves information about any triggers on the table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string TriggersQuery => TriggersQuerySql;
 
         private const string TriggersQuerySql = @"
@@ -889,6 +1007,10 @@ where t.relkind = 'r'
             return new NumericPrecision(newPrecisionStr.Length, newScaleStr.Length);
         }
 
+        /// <summary>
+        /// A mapping from the referential actions as described in PostgreSQL, to a <see cref="ReferentialAction"/> instance.
+        /// </summary>
+        /// <value>A mapping dictionary.</value>
         protected IReadOnlyDictionary<string, ReferentialAction> ReferentialActionMapping { get; } = new Dictionary<string, ReferentialAction>
         {
             ["a"] = ReferentialAction.NoAction,
@@ -934,6 +1056,9 @@ where t.relkind = 'r'
             public const string Never = "NEVER";
         }
 
+        /// <summary>
+        /// A query cache provider for PostgreSQL tables. Ensures that a given query only occurs at most once for a given query context.
+        /// </summary>
         protected class PostgreSqlTableQueryCache
         {
             private readonly AsyncCache<Identifier, Option<Identifier>, PostgreSqlTableQueryCache> _tableNames;
@@ -942,6 +1067,15 @@ where t.relkind = 'r'
             private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, PostgreSqlTableQueryCache> _uniqueKeys;
             private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, PostgreSqlTableQueryCache> _foreignKeys;
 
+            /// <summary>
+            /// Initializes a new instance of the <see cref="PostgreSqlTableQueryCache"/> class.
+            /// </summary>
+            /// <param name="tableNameLoader">A table name cache.</param>
+            /// <param name="columnLoader">A column cache.</param>
+            /// <param name="primaryKeyLoader">A primary key cache.</param>
+            /// <param name="uniqueKeyLoader">A unique key cache.</param>
+            /// <param name="foreignKeyLoader">A foreign key cache.</param>
+            /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/> or <paramref name="foreignKeyLoader"/> are <c>null</c>.</exception>
             public PostgreSqlTableQueryCache(
                 AsyncCache<Identifier, Option<Identifier>, PostgreSqlTableQueryCache> tableNameLoader,
                 AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, PostgreSqlTableQueryCache> columnLoader,
@@ -957,6 +1091,13 @@ where t.relkind = 'r'
                 _foreignKeys = foreignKeyLoader ?? throw new ArgumentNullException(nameof(foreignKeyLoader));
             }
 
+            /// <summary>
+            /// Retrieves the table name from the cache, querying the database when not populated.
+            /// </summary>
+            /// <param name="tableName">A table name.</param>
+            /// <param name="cancellationToken">The cancellation token.</param>
+            /// <returns>A table name, if matched in the database.</returns>
+            /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
             public Task<Option<Identifier>> GetTableNameAsync(Identifier tableName, CancellationToken cancellationToken)
             {
                 if (tableName == null)
@@ -965,6 +1106,13 @@ where t.relkind = 'r'
                 return _tableNames.GetByKeyAsync(tableName, this, cancellationToken);
             }
 
+            /// <summary>
+            /// Retrieves a table's columns from the cache, querying the database when not populated.
+            /// </summary>
+            /// <param name="tableName">A table name.</param>
+            /// <param name="cancellationToken">The cancellation token.</param>
+            /// <returns>A collection of columns.</returns>
+            /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
             public Task<IReadOnlyList<IDatabaseColumn>> GetColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
             {
                 if (tableName == null)
@@ -973,6 +1121,13 @@ where t.relkind = 'r'
                 return _columns.GetByKeyAsync(tableName, this, cancellationToken);
             }
 
+            /// <summary>
+            /// Retrieves a table's primary key from the cache, querying the database when not populated.
+            /// </summary>
+            /// <param name="tableName">A table name.</param>
+            /// <param name="cancellationToken">The cancellation token.</param>
+            /// <returns>A primary key, if available.</returns>
+            /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
             public Task<Option<IDatabaseKey>> GetPrimaryKeyAsync(Identifier tableName, CancellationToken cancellationToken)
             {
                 if (tableName == null)
@@ -981,6 +1136,13 @@ where t.relkind = 'r'
                 return _primaryKeys.GetByKeyAsync(tableName, this, cancellationToken);
             }
 
+            /// <summary>
+            /// Retrieves a table's unique keys from the cache, querying the database when not populated.
+            /// </summary>
+            /// <param name="tableName">A table name.</param>
+            /// <param name="cancellationToken">The cancellation token.</param>
+            /// <returns>A collection of unique keys.</returns>
+            /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
             public Task<IReadOnlyCollection<IDatabaseKey>> GetUniqueKeysAsync(Identifier tableName, CancellationToken cancellationToken)
             {
                 if (tableName == null)
@@ -989,6 +1151,13 @@ where t.relkind = 'r'
                 return _uniqueKeys.GetByKeyAsync(tableName, this, cancellationToken);
             }
 
+            /// <summary>
+            /// Retrieves a table's foreign keys from the cache, querying the database when not populated.
+            /// </summary>
+            /// <param name="tableName">A table name.</param>
+            /// <param name="cancellationToken">The cancellation token.</param>
+            /// <returns>A collection of foreign keys.</returns>
+            /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
             public Task<IReadOnlyCollection<IDatabaseRelationalKey>> GetForeignKeysAsync(Identifier tableName, CancellationToken cancellationToken)
             {
                 if (tableName == null)

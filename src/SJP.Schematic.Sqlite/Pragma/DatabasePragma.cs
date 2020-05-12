@@ -30,6 +30,10 @@ namespace SJP.Schematic.Sqlite.Pragma
 
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
+        /// <summary>
+        /// The dialect for the associated database.
+        /// </summary>
+        /// <value>A database dialect.</value>
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
         protected string PragmaPrefix { get; }

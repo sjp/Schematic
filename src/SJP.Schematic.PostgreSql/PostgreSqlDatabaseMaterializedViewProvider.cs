@@ -11,8 +11,19 @@ using SJP.Schematic.PostgreSql.Query;
 
 namespace SJP.Schematic.PostgreSql
 {
+    /// <summary>
+    /// A materialized view provider for PostgreSQL.
+    /// </summary>
+    /// <seealso cref="IDatabaseViewProvider" />
     public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PostgreSqlDatabaseMaterializedViewProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="identifierDefaults">Identifier defaults for the associated database.</param>
+        /// <param name="identifierResolver">An identifier resolver that enables non-strict name resolution.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
         public PostgreSqlDatabaseMaterializedViewProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -28,6 +39,10 @@ namespace SJP.Schematic.PostgreSql
 
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
+        /// <summary>
+        /// The dialect for the associated database.
+        /// </summary>
+        /// <value>A database dialect.</value>
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
         public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -97,6 +112,13 @@ where schemaname = @SchemaName and matviewname = @ViewName
     and schemaname not in ('pg_catalog', 'information_schema')
 limit 1";
 
+        /// <summary>
+        /// Retrieves a database view, if available.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A view definition, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -120,6 +142,13 @@ limit 1";
             return new DatabaseMaterializedView(viewName, definition, columns);
         }
 
+        /// <summary>
+        /// Retrieves the definition of a view.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A string representing the definition of a view.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected virtual Task<string> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -139,6 +168,13 @@ select definition
 from pg_catalog.pg_matviews
 where schemaname = @SchemaName and matviewname = @ViewName";
 
+        /// <summary>
+        /// Retrieves the columns for a given materialized view.
+        /// </summary>
+        /// <param name="viewName">A materialized view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>An ordered collection of columns.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -185,6 +221,10 @@ where schemaname = @SchemaName and matviewname = @ViewName";
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves column definitions.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
         // taken largely from information_schema.sql for postgres (but modified to work with matviews)
@@ -265,6 +305,12 @@ WHERE (NOT pg_catalog.pg_is_other_temp_schema(nc.oid))
         AND nc.nspname = @SchemaName and c.relname = @ViewName
 ORDER BY a.attnum -- ordinal_position";
 
+        /// <summary>
+        /// Qualifies the name of the view.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <returns>A view name is at least as qualified as the given view name.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected Identifier QualifyViewName(Identifier viewName)
         {
             if (viewName == null)

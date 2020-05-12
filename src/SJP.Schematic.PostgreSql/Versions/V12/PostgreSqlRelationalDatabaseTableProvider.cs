@@ -16,6 +16,13 @@ namespace SJP.Schematic.PostgreSql.Versions.V12
         {
         }
 
+        /// <summary>
+        /// Retrieves the columns for a given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>An ordered collection of columns.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected override Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -127,6 +134,12 @@ from information_schema.columns
 where table_schema = @SchemaName and table_name = @TableName
 order by ordinal_position";
 
+        /// <summary>
+        /// Retrieves check constraints defined on a given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of check constraints.</returns>
         protected override async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             var checks = await DbConnection.QueryAsync<CheckConstraintData>(

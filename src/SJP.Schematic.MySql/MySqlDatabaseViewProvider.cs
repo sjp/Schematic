@@ -11,8 +11,18 @@ using SJP.Schematic.MySql.Query;
 
 namespace SJP.Schematic.MySql
 {
+    /// <summary>
+    /// A view provider for MySQL.
+    /// </summary>
+    /// <seealso cref="IDatabaseViewProvider" />
     public class MySqlDatabaseViewProvider : IDatabaseViewProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MySqlDatabaseViewProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="identifierDefaults">Identifier defaults for the associated database.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <c>null</c>.</exception>
         public MySqlDatabaseViewProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -37,6 +47,10 @@ namespace SJP.Schematic.MySql
         /// <value>A connection factory.</value>
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
+        /// <summary>
+        /// A dialect for the MySQL connection.
+        /// </summary>
+        /// <value>A database dialect.</value>
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
         /// <summary>
@@ -60,6 +74,10 @@ namespace SJP.Schematic.MySql
                 yield return await LoadViewAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// A SQL query that retrieves the names of views in the database.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ViewsQuery => ViewsQuerySql;
 
         private const string ViewsQuerySql = @"
@@ -107,6 +125,10 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
             return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ObjectName));
         }
 
+        /// <summary>
+        /// A SQL query that retrieves the resolved name of a view.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
         private const string ViewNameQuerySql = @"
@@ -115,6 +137,13 @@ from information_schema.views
 where table_schema = @SchemaName and table_name = @ViewName
 limit 1";
 
+        /// <summary>
+        /// Retrieves a database view, if available.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A view definition, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -138,6 +167,13 @@ limit 1";
             return new DatabaseView(viewName, definition, columns);
         }
 
+        /// <summary>
+        /// Retrieves the definition of a view.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A string representing the definition of a view.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected virtual Task<string> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -150,6 +186,10 @@ limit 1";
             );
         }
 
+        /// <summary>
+        /// A SQL query that retrieves the definition of a view.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string DefinitionQuery => DefinitionQuerySql;
 
         private const string DefinitionQuerySql = @"
@@ -157,6 +197,13 @@ select view_definition
 from information_schema.views
 where table_schema = @SchemaName and table_name = @ViewName";
 
+        /// <summary>
+        /// Retrieves the columns for a given view.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>An ordered collection of columns.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -210,6 +257,10 @@ where table_schema = @SchemaName and table_name = @ViewName";
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves column definitions.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
         private const string ColumnsQuerySql = @"
@@ -229,6 +280,12 @@ from information_schema.columns
 where table_schema = @SchemaName and table_name = @ViewName
 order by ordinal_position";
 
+        /// <summary>
+        /// Qualifies the name of the view.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <returns>A view name is at least as qualified as the given view name.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected Identifier QualifyViewName(Identifier viewName)
         {
             if (viewName == null)

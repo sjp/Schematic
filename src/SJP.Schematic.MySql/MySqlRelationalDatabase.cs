@@ -6,10 +6,23 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.MySql
 {
+    /// <summary>
+    /// A relational database used to access and manage a MySQL database.
+    /// </summary>
+    /// <seealso cref="IRelationalDatabase"/>
     public class MySqlRelationalDatabase : IRelationalDatabase
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MySqlRelationalDatabase"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="identifierDefaults">Identifier defaults for the associated database.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c> or <paramref name="identifierDefaults"/> is <c>null</c>.</exception>
         public MySqlRelationalDatabase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults)
         {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
 
             _tableProvider = new MySqlRelationalDatabaseTableProvider(connection, identifierDefaults);

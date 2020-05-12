@@ -94,6 +94,10 @@ namespace SJP.Schematic.MySql.Comments
             return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(routineName.Server, routineName.Database, name.SchemaName, name.ObjectName));
         }
 
+        /// <summary>
+        /// A SQL query that retrieves the resolved routine name.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string RoutineNameQuery => RoutineNameQuerySql;
 
         private const string RoutineNameQuerySql = @"
@@ -167,6 +171,10 @@ from INFORMATION_SCHEMA.ROUTINES
 where ROUTINE_SCHEMA = @SchemaName
 order by ROUTINE_SCHEMA, ROUTINE_NAME";
 
+        /// <summary>
+        /// A SQL query that retrieves the definition of a routine.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string RoutineCommentQuery => RoutineCommentQuerySql;
 
         private const string RoutineCommentQuerySql = @"

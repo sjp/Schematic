@@ -11,8 +11,18 @@ using SJP.Schematic.SqlServer.Query;
 
 namespace SJP.Schematic.SqlServer
 {
+    /// <summary>
+    /// A view provider for SQL Server.
+    /// </summary>
+    /// <seealso cref="IDatabaseViewProvider" />
     public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqlServerDatabaseViewProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="identifierDefaults">Identifier defaults for the associated database.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <c>null</c>.</exception>
         public SqlServerDatabaseViewProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -25,6 +35,10 @@ namespace SJP.Schematic.SqlServer
 
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
+        /// <summary>
+        /// The dialect for the associated database.
+        /// </summary>
+        /// <value>A database dialect.</value>
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
         /// <summary>
@@ -89,6 +103,13 @@ select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
 from sys.views
 where schema_id = schema_id(@SchemaName) and name = @ViewName and is_ms_shipped = 0";
 
+        /// <summary>
+        /// Retrieves a database view, if available.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A view definition, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -114,6 +135,13 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName and is_ms_shipped 
                 : new DatabaseView(viewName, definition, columns);
         }
 
+        /// <summary>
+        /// Retrieves the definition of a view.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A string representing the definition of a view.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected virtual Task<string> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -155,6 +183,13 @@ inner join sys.indexes i on v.object_id = i.object_id
 where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName and v.is_ms_shipped = 0
     and i.is_hypothetical = 0 and i.type <> 0 -- type = 0 is a heap, ignore";
 
+        /// <summary>
+        /// Retrieves the columns for a given view.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>An ordered collection of columns.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -204,6 +239,10 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName and v.is_ms_
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves column definitions.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
         private const string ColumnsQuerySql = @"
@@ -231,6 +270,12 @@ left join sys.types st on c.user_type_id = st.user_type_id
 where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName and v.is_ms_shipped = 0
 order by c.column_id";
 
+        /// <summary>
+        /// Qualifies the name of the view.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <returns>A view name is at least as qualified as the given view name.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected Identifier QualifyViewName(Identifier viewName)
         {
             if (viewName == null)

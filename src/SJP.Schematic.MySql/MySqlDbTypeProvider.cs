@@ -8,8 +8,18 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.MySql
 {
+    /// <summary>
+    /// A database type provider for MySQL.
+    /// </summary>
+    /// <seealso cref="IDbTypeProvider" />
     public class MySqlDbTypeProvider : IDbTypeProvider
     {
+        /// <summary>
+        /// Creates a column data type based on provided metadata.
+        /// </summary>
+        /// <param name="typeMetadata">Column type metadata.</param>
+        /// <returns>A column data type.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <c>null</c>.</exception>
         public IDbType CreateColumnType(ColumnTypeMetadata typeMetadata)
         {
             if (typeMetadata == null)
@@ -36,6 +46,12 @@ namespace SJP.Schematic.MySql
             );
         }
 
+        /// <summary>
+        /// Gets the data type that most closely matches the provided data type.
+        /// </summary>
+        /// <param name="otherType">An data type to compare with.</param>
+        /// <returns>The closest matching column data type.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="otherType"/> is <c>null</c>.</exception>
         public IDbType GetComparableColumnType(IDbType otherType)
         {
             if (otherType == null)
@@ -55,6 +71,12 @@ namespace SJP.Schematic.MySql
             return CreateColumnType(typeMetadata);
         }
 
+        /// <summary>
+        /// Gets the length of the is fixed.
+        /// </summary>
+        /// <param name="typeName">Name of the type.</param>
+        /// <returns><c>true</c> if the type has a fixed length, otherwise <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <c>null</c>, empty or whitespace.</exception>
         protected static bool GetIsFixedLength(string typeName)
         {
             if (typeName.IsNullOrWhiteSpace())
@@ -63,6 +85,13 @@ namespace SJP.Schematic.MySql
             return FixedLengthTypes.Contains(typeName);
         }
 
+        /// <summary>
+        /// Gets the default name of the type.
+        /// </summary>
+        /// <param name="typeMetadata">The type metadata.</param>
+        /// <returns>A type name for the given type metadata.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when a type is unknown or failed to be parsed.</exception>
         protected static Identifier GetDefaultTypeName(ColumnTypeMetadata typeMetadata)
         {
             if (typeMetadata == null)
@@ -107,6 +136,13 @@ namespace SJP.Schematic.MySql
             }
         }
 
+        /// <summary>
+        /// Gets the name of the formatted type.
+        /// </summary>
+        /// <param name="typeMetadata">The type metadata.</param>
+        /// <returns>A string representing a type name.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">Thrown when a type name is missing.</exception>
         protected static string GetFormattedTypeName(ColumnTypeMetadata typeMetadata)
         {
             if (typeMetadata == null)
@@ -148,6 +184,12 @@ namespace SJP.Schematic.MySql
             return builder.GetStringAndRelease();
         }
 
+        /// <summary>
+        /// Gets the type of the data.
+        /// </summary>
+        /// <param name="typeName">Name of the type.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <c>null</c>, empty or whitespace.</exception>
         protected static DataType GetDataType(string typeName)
         {
             if (typeName.IsNullOrWhiteSpace())
@@ -158,6 +200,12 @@ namespace SJP.Schematic.MySql
                 : DataType.Unknown;
         }
 
+        /// <summary>
+        /// Gets the CLR type for the associated type name.
+        /// </summary>
+        /// <param name="typeName">A type name.</param>
+        /// <returns>A CLR type for the associated database type.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <c>null</c>, empty or whitespace.</exception>
         protected static Type GetClrType(string typeName)
         {
             if (typeName.IsNullOrWhiteSpace())

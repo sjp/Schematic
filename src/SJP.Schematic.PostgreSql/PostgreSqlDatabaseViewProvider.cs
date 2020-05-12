@@ -9,6 +9,10 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.PostgreSql
 {
+    /// <summary>
+    /// A view provider for PostgreSQL.
+    /// </summary>
+    /// <seealso cref="IDatabaseViewProvider" />
     public class PostgreSqlDatabaseViewProvider : IDatabaseViewProvider
     {
         public PostgreSqlDatabaseViewProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)

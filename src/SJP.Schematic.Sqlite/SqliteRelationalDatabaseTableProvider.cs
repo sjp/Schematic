@@ -17,6 +17,10 @@ using SJP.Schematic.Sqlite.Query;
 
 namespace SJP.Schematic.Sqlite
 {
+    /// <summary>
+    /// A database table provider for SQLite.
+    /// </summary>
+    /// <seealso cref="IRelationalDatabaseTableProvider" />
     public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTableProvider
     {
         public SqliteRelationalDatabaseTableProvider(ISchematicConnection connection, ISqliteConnectionPragma pragma, IIdentifierDefaults identifierDefaults)
@@ -36,8 +40,16 @@ namespace SJP.Schematic.Sqlite
 
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
+        /// <summary>
+        /// The dialect for the associated database.
+        /// </summary>
+        /// <value>A database dialect.</value>
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
+        /// <summary>
+        /// Creates a query cache for a given query context
+        /// </summary>
+        /// <returns>A query cache.</returns>
         protected SqliteTableQueryCache CreateQueryCache() => new SqliteTableQueryCache(
             new AsyncCache<Identifier, ParsedTableData, SqliteTableQueryCache>((tableName, _, token) => GetParsedTableDefinitionAsync(tableName, token)),
             new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqliteTableQueryCache>(LoadColumnsAsync),
@@ -81,6 +93,10 @@ namespace SJP.Schematic.Sqlite
                 yield return await LoadTableAsyncCore(tableName, queryCache, cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Creates a SQL query that retrieves the names of all tables in a given schema.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string TablesQuery(string schemaName)
         {
             if (schemaName.IsNullOrWhiteSpace())
@@ -196,9 +212,24 @@ namespace SJP.Schematic.Sqlite
             return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'table' and lower(name) = lower(@TableName)";
         }
 
+        /// <summary>
+        /// Retrieves a table from the database, if available.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A table, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, CancellationToken cancellationToken)
             => LoadTable(tableName, CreateQueryCache(), cancellationToken);
 
+        /// <summary>
+        /// Retrieves a table from the database, if available.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="queryCache">The query cache.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A table, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -245,6 +276,14 @@ namespace SJP.Schematic.Sqlite
             );
         }
 
+        /// <summary>
+        /// Retrieves the primary key for the given table, if available.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="queryCache">A query cache for the given context.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A primary key, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
         protected virtual Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -294,6 +333,14 @@ namespace SJP.Schematic.Sqlite
             return Option<IDatabaseKey>.Some(primaryKey);
         }
 
+        /// <summary>
+        /// Retrieves indexes that relate to the given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="queryCache">A query cache for the given context.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of indexes.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
         protected virtual Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -360,6 +407,14 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
+        /// <summary>
+        /// Retrieves unique keys that relate to the given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="queryCache">A query cache for the given context.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of unique keys.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
         protected virtual Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -431,6 +486,14 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
+        /// <summary>
+        /// Retrieves child keys that relate to the given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="queryCache">A query cache for the given context.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of child keys.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
         protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -513,6 +576,14 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
+        /// <summary>
+        /// Retrieves foreign keys that relate to the given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="queryCache">A query cache for the given context.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of foreign keys.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
         protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -621,6 +692,13 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
+        /// <summary>
+        /// Retrieves the columns for a given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>An ordered collection of columns.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -747,10 +825,17 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
+        /// <summary>
+        /// Retrieves all triggers defined on a table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of triggers.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected virtual Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
-                throw new ArgumentNullException(nameof(cancellationToken));
+                throw new ArgumentNullException(nameof(tableName));
 
             return LoadTriggersAsyncCore(tableName, cancellationToken);
         }
@@ -934,6 +1019,9 @@ namespace SJP.Schematic.Sqlite
             public const string UniqueConstraint = "u";
         }
 
+        /// <summary>
+        /// A query cache provider for SQLite tables. Ensures that a given query only occurs at most once for a given query context.
+        /// </summary>
         protected class SqliteTableQueryCache
         {
             private readonly AsyncCache<Identifier, ParsedTableData, SqliteTableQueryCache> _parsedTables;
@@ -942,6 +1030,15 @@ namespace SJP.Schematic.Sqlite
             private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqliteTableQueryCache> _uniqueKeys;
             private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqliteTableQueryCache> _foreignKeys;
 
+            /// <summary>
+            /// Initializes a new instance of the <see cref="SqliteTableQueryCache"/> class.
+            /// </summary>
+            /// <param name="parsedTableLoader">A table parsing result cache.</param>
+            /// <param name="columnLoader">A column cache.</param>
+            /// <param name="primaryKeyLoader">A primary key cache.</param>
+            /// <param name="uniqueKeyLoader">A unique key cache.</param>
+            /// <param name="foreignKeyLoader">A foreign key cache.</param>
+            /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="parsedTableLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/> or <paramref name="foreignKeyLoader"/> are <c>null</c>.</exception>
             public SqliteTableQueryCache(
                 AsyncCache<Identifier, ParsedTableData, SqliteTableQueryCache> parsedTableLoader,
                 AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqliteTableQueryCache> columnLoader,
@@ -957,6 +1054,13 @@ namespace SJP.Schematic.Sqlite
                 _foreignKeys = foreignKeyLoader ?? throw new ArgumentNullException(nameof(foreignKeyLoader));
             }
 
+            /// <summary>
+            /// Retrieves a table's parsed definition from the cache, querying the database when not populated.
+            /// </summary>
+            /// <param name="tableName">A table name.</param>
+            /// <param name="cancellationToken">The cancellation token.</param>
+            /// <returns>The parsed definition of a table.</returns>
+            /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
             public Task<ParsedTableData> GetParsedTableAsync(Identifier tableName, CancellationToken cancellationToken)
             {
                 if (tableName == null)
@@ -965,6 +1069,13 @@ namespace SJP.Schematic.Sqlite
                 return _parsedTables.GetByKeyAsync(tableName, this, cancellationToken);
             }
 
+            /// <summary>
+            /// Retrieves a table's columns from the cache, querying the database when not populated.
+            /// </summary>
+            /// <param name="tableName">A table name.</param>
+            /// <param name="cancellationToken">The cancellation token.</param>
+            /// <returns>A collection of columns.</returns>
+            /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
             public Task<IReadOnlyList<IDatabaseColumn>> GetColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
             {
                 if (tableName == null)
@@ -973,6 +1084,13 @@ namespace SJP.Schematic.Sqlite
                 return _columns.GetByKeyAsync(tableName, this, cancellationToken);
             }
 
+            /// <summary>
+            /// Retrieves a table's primary key from the cache, querying the database when not populated.
+            /// </summary>
+            /// <param name="tableName">A table name.</param>
+            /// <param name="cancellationToken">The cancellation token.</param>
+            /// <returns>A primary key, if available.</returns>
+            /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
             public Task<Option<IDatabaseKey>> GetPrimaryKeyAsync(Identifier tableName, CancellationToken cancellationToken)
             {
                 if (tableName == null)
@@ -981,6 +1099,13 @@ namespace SJP.Schematic.Sqlite
                 return _primaryKeys.GetByKeyAsync(tableName, this, cancellationToken);
             }
 
+            /// <summary>
+            /// Retrieves a table's unique keys from the cache, querying the database when not populated.
+            /// </summary>
+            /// <param name="tableName">A table name.</param>
+            /// <param name="cancellationToken">The cancellation token.</param>
+            /// <returns>A collection of unique keys.</returns>
+            /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
             public Task<IReadOnlyCollection<IDatabaseKey>> GetUniqueKeysAsync(Identifier tableName, CancellationToken cancellationToken)
             {
                 if (tableName == null)
@@ -989,6 +1114,13 @@ namespace SJP.Schematic.Sqlite
                 return _uniqueKeys.GetByKeyAsync(tableName, this, cancellationToken);
             }
 
+            /// <summary>
+            /// Retrieves a table's foreign keys from the cache, querying the database when not populated.
+            /// </summary>
+            /// <param name="tableName">A table name.</param>
+            /// <param name="cancellationToken">The cancellation token.</param>
+            /// <returns>A collection of foreign keys.</returns>
+            /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
             public Task<IReadOnlyCollection<IDatabaseRelationalKey>> GetForeignKeysAsync(Identifier tableName, CancellationToken cancellationToken)
             {
                 if (tableName == null)

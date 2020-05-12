@@ -175,6 +175,12 @@ where v.schema_id = SCHEMA_ID(@SchemaName) and v.name = @ViewName and v.is_ms_sh
                 )).ToDictionary(c => c.Key, c => c.Value);
         }
 
+        /// <summary>
+        /// Qualifies the name of the view.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <returns>A view name is at least as qualified as the given view name.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected Identifier QualifyViewName(Identifier viewName)
         {
             if (viewName == null)

@@ -13,8 +13,19 @@ using SJP.Schematic.Sqlite.Pragma;
 
 namespace SJP.Schematic.Sqlite
 {
+    /// <summary>
+    /// A view provider for SQLite.
+    /// </summary>
+    /// <seealso cref="IDatabaseViewProvider" />
     public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqliteDatabaseViewProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="pragma">A connection pragma for the SQLite connection.</param>
+        /// <param name="identifierDefaults">Identifier defaults for the associated database.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="pragma"/> or <paramref name="identifierDefaults"/> are <c>null</c>.</exception>
         public SqliteDatabaseViewProvider(ISchematicConnection connection, ISqliteConnectionPragma pragma, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -30,6 +41,10 @@ namespace SJP.Schematic.Sqlite
 
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
+        /// <summary>
+        /// The dialect for the associated database.
+        /// </summary>
+        /// <value>A database dialect.</value>
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
         public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -163,6 +178,13 @@ namespace SJP.Schematic.Sqlite
             return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'view' and lower(name) = lower(@ViewName)";
         }
 
+        /// <summary>
+        /// Retrieves a database view, if available.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A view definition, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -187,6 +209,13 @@ namespace SJP.Schematic.Sqlite
             return new DatabaseView(viewName, definition, columns);
         }
 
+        /// <summary>
+        /// Retrieves the definition of a view.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A string representing the definition of a view.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected virtual Task<string> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -208,6 +237,13 @@ namespace SJP.Schematic.Sqlite
             return $"select sql from { Dialect.QuoteIdentifier(schema) }.sqlite_master where type = 'view' and tbl_name = @ViewName";
         }
 
+        /// <summary>
+        /// Retrieves the columns for a given view.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>An ordered collection of columns.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(ISqliteDatabasePragma pragma, Identifier viewName, CancellationToken cancellationToken)
         {
             if (pragma == null)
@@ -282,6 +318,12 @@ namespace SJP.Schematic.Sqlite
             return $"select typeof({ Dialect.QuoteName(columnName) }) from { Dialect.QuoteName(viewName) } limit 1";
         }
 
+        /// <summary>
+        /// Qualifies the name of the view.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <returns>A view name is at least as qualified as the given view name.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected Identifier QualifyViewName(Identifier viewName)
         {
             if (viewName == null)

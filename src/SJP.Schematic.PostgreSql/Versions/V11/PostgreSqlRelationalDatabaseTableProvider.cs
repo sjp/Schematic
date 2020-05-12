@@ -16,6 +16,14 @@ namespace SJP.Schematic.PostgreSql.Versions.V11
         {
         }
 
+        /// <summary>
+        /// Retrieves indexes that relate to the given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="columns">Columns for the given table.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of indexes.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="columns"/> are <c>null</c>.</exception>
         protected override Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
             if (tableName == null)

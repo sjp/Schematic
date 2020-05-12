@@ -14,6 +14,10 @@ using SJP.Schematic.Oracle.Query;
 
 namespace SJP.Schematic.Oracle
 {
+    /// <summary>
+    /// A database table provider for MySQL.
+    /// </summary>
+    /// <seealso cref="IRelationalDatabaseTableProvider" />
     public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTableProvider
     {
         public OracleRelationalDatabaseTableProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
@@ -31,10 +35,18 @@ namespace SJP.Schematic.Oracle
 
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
+        /// <summary>
+        /// The dialect for the associated database.
+        /// </summary>
+        /// <value>A database dialect.</value>
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
         protected IDbTypeProvider TypeProvider => Dialect.TypeProvider;
 
+        /// <summary>
+        /// Creates a query cache for a given query context
+        /// </summary>
+        /// <returns>A query cache.</returns>
         protected OracleTableQueryCache CreateQueryCache() => new OracleTableQueryCache(
             new AsyncCache<Identifier, Option<Identifier>, OracleTableQueryCache>((tableName, _, token) => GetResolvedTableName(tableName, token)),
             new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, OracleTableQueryCache>((tableName, _, token) => LoadColumnsAsync(tableName, token)),
@@ -60,6 +72,10 @@ namespace SJP.Schematic.Oracle
                 yield return await LoadTableAsyncCore(tableName, queryCache, cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// A SQL query that retrieves the names of all tables in the database.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string TablesQuery => TablesQuerySql;
 
         private const string TablesQuerySql = @"
@@ -141,10 +157,20 @@ where
     and o.SECONDARY <> 'Y'
     and mv.MVIEW_NAME is null";
 
+        /// <summary>
+        /// Retrieves a table from the database, if available.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="queryCache">The query cache.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A table, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
+            if (queryCache == null)
+                throw new ArgumentNullException(nameof(queryCache));
 
             var candidateTableName = QualifyTableName(tableName);
             return GetResolvedTableName(candidateTableName, cancellationToken)
@@ -190,6 +216,14 @@ where
             );
         }
 
+        /// <summary>
+        /// Retrieves the primary key for the given table, if available.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="queryCache">A query cache for the given context.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A primary key, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
         protected virtual Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -233,6 +267,10 @@ where
                 : Option<IDatabaseKey>.None;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves information on any primary key defined for a given table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string PrimaryKeyQuery => PrimaryKeyQuerySql;
 
         private const string PrimaryKeyQuerySql = @"
@@ -245,6 +283,14 @@ from SYS.ALL_CONSTRAINTS ac
 inner join SYS.ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
 where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'P'";
 
+        /// <summary>
+        /// Retrieves indexes that relate to the given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="columns">Columns for the given table.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of indexes.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="columns"/> are <c>null</c>.</exception>
         protected virtual Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -299,6 +345,10 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves information on indexes for a given table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string IndexesQuery => IndexesQuerySql;
 
         private const string IndexesQuerySql = @"
@@ -320,6 +370,14 @@ where ai.TABLE_OWNER = :SchemaName and ai.TABLE_NAME = :TableName
     and ao.OBJECT_TYPE = 'INDEX'
 order by aic.COLUMN_POSITION";
 
+        /// <summary>
+        /// Retrieves unique keys that relate to the given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="queryCache">A query cache for the given context.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of unique keys.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
         protected virtual Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -366,6 +424,10 @@ order by aic.COLUMN_POSITION";
                 .ToList();
         }
 
+        /// <summary>
+        /// A SQL query that returns unique key information for a particular table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string UniqueKeysQuery => UniqueKeysQuerySql;
 
         private const string UniqueKeysQuerySql = @"
@@ -378,6 +440,14 @@ from SYS.ALL_CONSTRAINTS ac
 inner join SYS.ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
 where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'U'";
 
+        /// <summary>
+        /// Retrieves child keys that relate to the given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="queryCache">A query cache for the given context.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of child keys.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
         protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -446,6 +516,10 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves information on child keys for a given table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ChildKeysQuery => ChildKeysQuerySql;
 
         private const string ChildKeysQuerySql = @"
@@ -461,6 +535,13 @@ from SYS.ALL_CONSTRAINTS ac
 inner join SYS.ALL_CONSTRAINTS pac on pac.OWNER = ac.R_OWNER and pac.CONSTRAINT_NAME = ac.R_CONSTRAINT_NAME
 where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'R' and pac.CONSTRAINT_TYPE in ('P', 'U')";
 
+        /// <summary>
+        /// Retrieves check constraints defined on a given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of check constraints.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected virtual Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -505,6 +586,10 @@ where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves check constraint information for a table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ChecksQuery => ChecksQuerySql;
 
         private const string ChecksQuerySql = @"
@@ -515,6 +600,14 @@ select
 from SYS.ALL_CONSTRAINTS
 where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'";
 
+        /// <summary>
+        /// Retrieves foreign keys that relate to the given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="queryCache">A query cache for the given context.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of foreign keys.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
         protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -601,6 +694,10 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves information about foreign keys.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ParentKeysQuery => ParentKeysQuerySql;
 
         private const string ParentKeysQuerySql = @"
@@ -619,6 +716,13 @@ inner join SYS.ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NA
 inner join SYS.ALL_CONSTRAINTS pac on pac.OWNER = ac.R_OWNER and pac.CONSTRAINT_NAME = ac.R_CONSTRAINT_NAME
 where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'R' and pac.CONSTRAINT_TYPE in ('P', 'U')";
 
+        /// <summary>
+        /// Retrieves the columns for a given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>An ordered collection of columns.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -677,6 +781,10 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves column definitions.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
         private const string ColumnsQuerySql = @"
@@ -695,10 +803,17 @@ from SYS.ALL_TAB_COLS
 where OWNER = :SchemaName and TABLE_NAME = :TableName
 order by COLUMN_ID";
 
+        /// <summary>
+        /// Retrieves all triggers defined on a table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of triggers.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected virtual Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
-                throw new ArgumentNullException(nameof(cancellationToken));
+                throw new ArgumentNullException(nameof(tableName));
 
             return LoadTriggersAsyncCore(tableName, cancellationToken);
         }
@@ -752,6 +867,10 @@ order by COLUMN_ID";
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves information about any triggers on the table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string TriggersQuery => TriggersQuerySql;
 
         private const string TriggersQuerySql = @"
@@ -804,6 +923,10 @@ where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE
             return _notNullDefinitions.GetOrAdd(columnName, colName => "\"" + colName + "\" IS NOT NULL");
         }
 
+        /// <summary>
+        /// A mapping from the referential actions as described in Oracle, to a <see cref="ReferentialAction"/> instance.
+        /// </summary>
+        /// <value>A mapping dictionary.</value>
         protected IReadOnlyDictionary<string, ReferentialAction> ReferentialActionMapping { get; } = new Dictionary<string, ReferentialAction>(StringComparer.OrdinalIgnoreCase)
         {
             ["NO ACTION"] = ReferentialAction.NoAction,
@@ -813,6 +936,10 @@ where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE
             ["SET DEFAULT"] = ReferentialAction.SetDefault
         };
 
+        /// <summary>
+        /// A mapping from the trigger query timings as described in Oracle, to a <see cref="TriggerQueryTiming"/> instance.
+        /// </summary>
+        /// <value>A mapping dictionary.</value>
         protected IReadOnlyDictionary<string, TriggerQueryTiming> TimingMapping { get; } = new Dictionary<string, TriggerQueryTiming>(StringComparer.OrdinalIgnoreCase)
         {
             ["BEFORE STATEMENT"] = TriggerQueryTiming.Before,
@@ -888,6 +1015,9 @@ where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE
             public const string Yes = "YES";
         }
 
+        /// <summary>
+        /// A query cache provider for Oracle tables. Ensures that a given query only occurs at most once for a given query context.
+        /// </summary>
         protected class OracleTableQueryCache
         {
             private readonly AsyncCache<Identifier, Option<Identifier>, OracleTableQueryCache> _tableNames;
@@ -896,6 +1026,15 @@ where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE
             private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, OracleTableQueryCache> _uniqueKeys;
             private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, OracleTableQueryCache> _foreignKeys;
 
+            /// <summary>
+            /// Initializes a new instance of the <see cref="OracleTableQueryCache"/> class.
+            /// </summary>
+            /// <param name="tableNameLoader">A table name cache.</param>
+            /// <param name="columnLoader">A column cache.</param>
+            /// <param name="primaryKeyLoader">A primary key cache.</param>
+            /// <param name="uniqueKeyLoader">A unique key cache.</param>
+            /// <param name="foreignKeyLoader">A foreign key cache.</param>
+            /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/> or <paramref name="foreignKeyLoader"/> are <c>null</c>.</exception>
             public OracleTableQueryCache(
                 AsyncCache<Identifier, Option<Identifier>, OracleTableQueryCache> tableNameLoader,
                 AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, OracleTableQueryCache> columnLoader,
@@ -911,6 +1050,13 @@ where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE
                 _foreignKeys = foreignKeyLoader ?? throw new ArgumentNullException(nameof(foreignKeyLoader));
             }
 
+            /// <summary>
+            /// Retrieves the table name from the cache, querying the database when not populated.
+            /// </summary>
+            /// <param name="tableName">A table name.</param>
+            /// <param name="cancellationToken">The cancellation token.</param>
+            /// <returns>A table name, if matched in the database.</returns>
+            /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
             public Task<Option<Identifier>> GetTableNameAsync(Identifier tableName, CancellationToken cancellationToken)
             {
                 if (tableName == null)
@@ -919,6 +1065,13 @@ where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE
                 return _tableNames.GetByKeyAsync(tableName, this, cancellationToken);
             }
 
+            /// <summary>
+            /// Retrieves a table's columns from the cache, querying the database when not populated.
+            /// </summary>
+            /// <param name="tableName">A table name.</param>
+            /// <param name="cancellationToken">The cancellation token.</param>
+            /// <returns>A collection of columns.</returns>
+            /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
             public Task<IReadOnlyList<IDatabaseColumn>> GetColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
             {
                 if (tableName == null)
@@ -927,6 +1080,13 @@ where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE
                 return _columns.GetByKeyAsync(tableName, this, cancellationToken);
             }
 
+            /// <summary>
+            /// Retrieves a table's primary key from the cache, querying the database when not populated.
+            /// </summary>
+            /// <param name="tableName">A table name.</param>
+            /// <param name="cancellationToken">The cancellation token.</param>
+            /// <returns>A primary key, if available.</returns>
+            /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
             public Task<Option<IDatabaseKey>> GetPrimaryKeyAsync(Identifier tableName, CancellationToken cancellationToken)
             {
                 if (tableName == null)
@@ -935,6 +1095,13 @@ where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE
                 return _primaryKeys.GetByKeyAsync(tableName, this, cancellationToken);
             }
 
+            /// <summary>
+            /// Retrieves a table's unique keys from the cache, querying the database when not populated.
+            /// </summary>
+            /// <param name="tableName">A table name.</param>
+            /// <param name="cancellationToken">The cancellation token.</param>
+            /// <returns>A collection of unique keys.</returns>
+            /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
             public Task<IReadOnlyCollection<IDatabaseKey>> GetUniqueKeysAsync(Identifier tableName, CancellationToken cancellationToken)
             {
                 if (tableName == null)
@@ -943,6 +1110,13 @@ where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE
                 return _uniqueKeys.GetByKeyAsync(tableName, this, cancellationToken);
             }
 
+            /// <summary>
+            /// Retrieves a table's foreign keys from the cache, querying the database when not populated.
+            /// </summary>
+            /// <param name="tableName">A table name.</param>
+            /// <param name="cancellationToken">The cancellation token.</param>
+            /// <returns>A collection of foreign keys.</returns>
+            /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
             public Task<IReadOnlyCollection<IDatabaseRelationalKey>> GetForeignKeysAsync(Identifier tableName, CancellationToken cancellationToken)
             {
                 if (tableName == null)

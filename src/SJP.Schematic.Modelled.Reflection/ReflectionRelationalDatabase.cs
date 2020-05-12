@@ -63,6 +63,14 @@ namespace SJP.Schematic.Modelled.Reflection
             return Option<IRelationalDatabaseTable>.Some(table);
         }
 
+        /// <summary>
+        /// Retrieves a table from the database, if available.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="queryCache">The query cache.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A table, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IRelationalDatabaseTable> LoadTable(Type tableType)
         {
             if (tableType == null)
@@ -118,6 +126,13 @@ namespace SJP.Schematic.Modelled.Reflection
             return Option<IDatabaseView>.Some(view);
         }
 
+        /// <summary>
+        /// Retrieves a database view, if available.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A view definition, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IDatabaseView> LoadView(Type viewType)
         {
             if (viewType == null)

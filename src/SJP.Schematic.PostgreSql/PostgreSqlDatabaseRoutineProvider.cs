@@ -106,6 +106,10 @@ order by ROUTINE_SCHEMA, ROUTINE_NAME";
             return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(candidateRoutineName.Server, candidateRoutineName.Database, name.SchemaName, name.ObjectName));
         }
 
+        /// <summary>
+        /// A SQL query that retrieves the resolved routine name.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string RoutineNameQuery => RoutineNameQuerySql;
 
         private const string RoutineNameQuerySql = @"
@@ -133,6 +137,13 @@ limit 1";
             return new DatabaseRoutine(routineName, definition);
         }
 
+        /// <summary>
+        /// Retrieves the definition of a routine.
+        /// </summary>
+        /// <param name="routineName">A routine name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A string representing the definition of a routine.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         protected virtual Task<string> LoadDefinitionAsync(Identifier routineName, CancellationToken cancellationToken)
         {
             if (routineName == null)

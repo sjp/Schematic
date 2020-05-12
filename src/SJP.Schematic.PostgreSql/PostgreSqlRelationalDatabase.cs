@@ -6,6 +6,10 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.PostgreSql
 {
+    /// <summary>
+    /// A relational database used to access and manage a PostgreSQL database.
+    /// </summary>
+    /// <seealso cref="IRelationalDatabase"/>
     public class PostgreSqlRelationalDatabase : IRelationalDatabase
     {
         public PostgreSqlRelationalDatabase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)

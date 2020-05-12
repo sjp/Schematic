@@ -11,8 +11,19 @@ using SJP.Schematic.PostgreSql.Query;
 
 namespace SJP.Schematic.PostgreSql
 {
+    /// <summary>
+    /// A query view provider for PostgreSQL.
+    /// </summary>
+    /// <seealso cref="IDatabaseViewProvider" />
     public class PostgreSqlDatabaseQueryViewProvider : IDatabaseViewProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PostgreSqlDatabaseQueryViewProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="identifierDefaults">Identifier defaults for the associated database.</param>
+        /// <param name="identifierResolver">An identifier resolver that enables non-strict name resolution.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
         public PostgreSqlDatabaseQueryViewProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -28,6 +39,10 @@ namespace SJP.Schematic.PostgreSql
 
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
+        /// <summary>
+        /// The dialect for the associated database.
+        /// </summary>
+        /// <value>A database dialect.</value>
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
         public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -96,6 +111,13 @@ where schemaname = @SchemaName and viewname = @ViewName
     and schemaname not in ('pg_catalog', 'information_schema')
 limit 1";
 
+        /// <summary>
+        /// Retrieves a database view, if available.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A view definition, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -119,6 +141,13 @@ limit 1";
             return new DatabaseView(viewName, definition, columns);
         }
 
+        /// <summary>
+        /// Retrieves the definition of a view.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A string representing the definition of a view.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected virtual Task<string> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -138,6 +167,13 @@ select view_definition
 from information_schema.views
 where table_schema = @SchemaName and table_name = @ViewName";
 
+        /// <summary>
+        /// Retrieves the columns for a given view.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>An ordered collection of columns.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -184,6 +220,10 @@ where table_schema = @SchemaName and table_name = @ViewName";
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves column definitions.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
         private const string ColumnsQuerySql = @"
@@ -214,6 +254,12 @@ from information_schema.columns
 where table_schema = @SchemaName and table_name = @ViewName
 order by ordinal_position";
 
+        /// <summary>
+        /// Qualifies the name of the view.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <returns>A view name is at least as qualified as the given view name.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected Identifier QualifyViewName(Identifier viewName)
         {
             if (viewName == null)

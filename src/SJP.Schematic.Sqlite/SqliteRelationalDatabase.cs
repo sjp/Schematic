@@ -12,6 +12,7 @@ namespace SJP.Schematic.Sqlite
     /// <summary>
     /// A relational database used to access and manage a SQLite database.
     /// </summary>
+    /// <seealso cref="IRelationalDatabase"/>
     public class SqliteRelationalDatabase : ISqliteDatabase
     {
         /// <summary>
@@ -35,6 +36,10 @@ namespace SJP.Schematic.Sqlite
 
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
+        /// <summary>
+        /// The dialect for the associated database.
+        /// </summary>
+        /// <value>A database dialect.</value>
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
         public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)

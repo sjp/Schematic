@@ -11,8 +11,18 @@ using SJP.Schematic.MySql.Query;
 
 namespace SJP.Schematic.MySql
 {
+    /// <summary>
+    /// A MySQL database routine provider.
+    /// </summary>
+    /// <seealso cref="IDatabaseRoutineProvider" />
     public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MySqlDatabaseRoutineProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="identifierDefaults">Identifier defaults for the associated database.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <c>null</c>.</exception>
         public MySqlDatabaseRoutineProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -37,6 +47,11 @@ namespace SJP.Schematic.MySql
         /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// Gets all database routines.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A collection of database routines.</returns>
         public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResult = await DbConnection.QueryAsync<RoutineData>(
@@ -57,6 +72,10 @@ namespace SJP.Schematic.MySql
                 yield return routine;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves all database routines.
+        /// </summary>
+        /// <value>A SQL query definition.</value>
         protected virtual string RoutinesQuery => RoutinesQuerySql;
 
         private const string RoutinesQuerySql = @"
@@ -106,6 +125,10 @@ order by ROUTINE_SCHEMA, ROUTINE_NAME";
             return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(candidateRoutineName.Server, candidateRoutineName.Database, name.SchemaName, name.ObjectName));
         }
 
+        /// <summary>
+        /// A SQL query that retrieves the resolved routine name.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string RoutineNameQuery => RoutineNameQuerySql;
 
         private const string RoutineNameQuerySql = @"
@@ -116,6 +139,13 @@ from information_schema.routines
 where ROUTINE_SCHEMA = @SchemaName and ROUTINE_NAME = @RoutineName
 limit 1";
 
+        /// <summary>
+        /// Retrieves the routine definition from the database, if available.
+        /// </summary>
+        /// <param name="routineName">Name of the routine.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">routineName</exception>
         protected virtual OptionAsync<IDatabaseRoutine> LoadRoutine(Identifier routineName, CancellationToken cancellationToken)
         {
             if (routineName == null)
@@ -132,6 +162,13 @@ limit 1";
             return new DatabaseRoutine(routineName, definition);
         }
 
+        /// <summary>
+        /// Retrieves the definition of the routine from the database.
+        /// </summary>
+        /// <param name="routineName">A routine name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A routine definition.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         protected virtual Task<string> LoadDefinitionAsync(Identifier routineName, CancellationToken cancellationToken)
         {
             if (routineName == null)
@@ -144,6 +181,10 @@ limit 1";
             );
         }
 
+        /// <summary>
+        /// A SQL query that retrieves the definition of a routine.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string DefinitionQuery => DefinitionQuerySql;
 
         private const string DefinitionQuerySql = @"
@@ -151,6 +192,12 @@ select ROUTINE_DEFINITION
 from information_schema.routines
 where ROUTINE_SCHEMA = @SchemaName and ROUTINE_NAME = @RoutineName";
 
+        /// <summary>
+        /// Qualifies the name of a routine, using known identifier defaults.
+        /// </summary>
+        /// <param name="routineName">A routine name to qualify.</param>
+        /// <returns>A routine name that is at least as qualified as its input.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         protected Identifier QualifyRoutineName(Identifier routineName)
         {
             if (routineName == null)

@@ -9,6 +9,10 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Oracle
 {
+    /// <summary>
+    /// A view provider for Oracle.
+    /// </summary>
+    /// <seealso cref="IDatabaseViewProvider" />
     public class OracleDatabaseViewProvider : IDatabaseViewProvider
     {
         public OracleDatabaseViewProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)

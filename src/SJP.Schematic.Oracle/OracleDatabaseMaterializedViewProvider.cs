@@ -12,6 +12,10 @@ using SJP.Schematic.Oracle.Query;
 
 namespace SJP.Schematic.Oracle
 {
+    /// <summary>
+    /// A materialized view provider for Oracle.
+    /// </summary>
+    /// <seealso cref="IDatabaseViewProvider" />
     public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
     {
         public OracleDatabaseMaterializedViewProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
@@ -29,6 +33,10 @@ namespace SJP.Schematic.Oracle
 
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
+        /// <summary>
+        /// The dialect for the associated database.
+        /// </summary>
+        /// <value>A database dialect.</value>
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
         public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -100,6 +108,13 @@ inner join SYS.ALL_OBJECTS o on mv.OWNER = o.OWNER and mv.MVIEW_NAME = o.OBJECT_
 where mv.OWNER = :SchemaName and mv.MVIEW_NAME = :ViewName
     and o.ORACLE_MAINTAINED <> 'Y' and o.OBJECT_TYPE <> 'TABLE'";
 
+        /// <summary>
+        /// Retrieves a database view, if available.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A view definition, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -121,7 +136,13 @@ where mv.OWNER = :SchemaName and mv.MVIEW_NAME = :ViewName
 
             return new DatabaseMaterializedView(viewName, definition, columns);
         }
-
+        /// <summary>
+        /// Retrieves the definition of a materialized view.
+        /// </summary>
+        /// <param name="viewName">A materialized view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A string representing the definition of a materialized view.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected virtual Task<string> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -141,6 +162,13 @@ select QUERY
 from SYS.ALL_MVIEWS
 where OWNER = :SchemaName and MVIEW_NAME = :ViewName";
 
+        /// <summary>
+        /// Retrieves the columns for a given materialized view.
+        /// </summary>
+        /// <param name="viewName">A materialized view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>An ordered collection of columns.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -193,6 +221,10 @@ where OWNER = :SchemaName and MVIEW_NAME = :ViewName";
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves column definitions.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
         private const string ColumnsQuerySql = @"
@@ -243,6 +275,10 @@ order by atc.COLUMN_ID";
                 .ToList();
         }
 
+        /// <summary>
+        /// A SQL query that retrieves check constraint information for a view.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ChecksQuery => ChecksQuerySql;
 
         private const string ChecksQuerySql = @"
@@ -261,6 +297,12 @@ where OWNER = :SchemaName and TABLE_NAME = :ViewName and CONSTRAINT_TYPE = 'C'";
             return _notNullDefinitions.GetOrAdd(columnName, colName => "\"" + colName + "\" IS NOT NULL");
         }
 
+        /// <summary>
+        /// Qualifies the name of the view.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <returns>A view name is at least as qualified as the given view name.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected Identifier QualifyViewName(Identifier viewName)
         {
             if (viewName == null)
