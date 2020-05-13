@@ -240,6 +240,7 @@ namespace SJP.Schematic.Sqlite
         /// <summary>
         /// Retrieves the columns for a given view.
         /// </summary>
+        /// <param name="pragma">A schema-specific pragma accessor.</param>
         /// <param name="viewName">A view name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>An ordered collection of columns.</returns>

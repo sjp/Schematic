@@ -144,8 +144,8 @@ limit 1";
         /// </summary>
         /// <param name="routineName">Name of the routine.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException">routineName</exception>
+        /// <returns>A database routine, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IDatabaseRoutine> LoadRoutine(Identifier routineName, CancellationToken cancellationToken)
         {
             if (routineName == null)

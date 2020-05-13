@@ -54,7 +54,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var autoVacuum = await dbPragma.AutoVacuumAsync().ConfigureAwait(false);
-            var newValue = autoVacuum == AutoVacuumMode.None ? AutoVacuumMode.Incremental : AutoVacuumMode.None;
+            var newValue = autoVacuum == AutoVacuumMode.Disabled ? AutoVacuumMode.Incremental : AutoVacuumMode.Disabled;
             await dbPragma.AutoVacuumAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await dbPragma.AutoVacuumAsync().ConfigureAwait(false);
 

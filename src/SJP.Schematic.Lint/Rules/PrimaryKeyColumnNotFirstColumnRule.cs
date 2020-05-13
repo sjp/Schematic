@@ -59,7 +59,7 @@ namespace SJP.Schematic.Lint.Rules
         /// </summary>
         /// <param name="table">A database table.</param>
         /// <param name="primaryKey">The primary key for the database table.</param>
-        /// <returns></returns>
+        /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="primaryKey"/> is <c>null</c>.</exception>
         protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table, IDatabaseKey primaryKey)
         {

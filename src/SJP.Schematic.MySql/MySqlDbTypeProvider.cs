@@ -188,7 +188,7 @@ namespace SJP.Schematic.MySql
         /// Gets the type of the data.
         /// </summary>
         /// <param name="typeName">Name of the type.</param>
-        /// <returns></returns>
+        /// <returns>A general data type class.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <c>null</c>, empty or whitespace.</exception>
         protected static DataType GetDataType(string typeName)
         {

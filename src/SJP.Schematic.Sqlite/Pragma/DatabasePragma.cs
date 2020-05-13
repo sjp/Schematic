@@ -11,8 +11,18 @@ using SJP.Schematic.Sqlite.Pragma.Query;
 
 namespace SJP.Schematic.Sqlite.Pragma
 {
+    /// <summary>
+    /// A <c>PRAGMA</c> accessor for particular SQLite schema.
+    /// </summary>
+    /// <seealso cref="ISqliteDatabasePragma" />
     public class DatabasePragma : ISqliteDatabasePragma
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DatabasePragma"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="schemaName">A schema  name.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>. If <paramref name="schemaName"/> is <c>null</c>, empty or whitespace.</exception>
         public DatabasePragma(ISchematicConnection connection, string schemaName)
         {
             if (schemaName.IsNullOrWhiteSpace())
@@ -24,10 +34,22 @@ namespace SJP.Schematic.Sqlite.Pragma
             PragmaPrefix = "PRAGMA " + connection.Dialect.QuoteIdentifier(schemaName) + ".";
         }
 
+        /// <summary>
+        /// The name of the schema that the <c>PRAGMA</c> relates to.
+        /// </summary>
+        /// <value>A schema name.</value>
         public string SchemaName { get; }
 
+        /// <summary>
+        /// A database connection specific to Schematic.
+        /// </summary>
+        /// <value>A database connection.</value>
         protected ISchematicConnection Connection { get; }
 
+        /// <summary>
+        /// A database connection factory used to query the database.
+        /// </summary>
+        /// <value>A database connection factory.</value>
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
         /// <summary>
@@ -36,6 +58,10 @@ namespace SJP.Schematic.Sqlite.Pragma
         /// <value>A database dialect.</value>
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
+        /// <summary>
+        /// A prefix used to create queries to access <c>PRAGMA</c> information.
+        /// </summary>
+        /// <value>A prefix for <c>PRAGMA</c> queries.</value>
         protected string PragmaPrefix { get; }
 
         public Task<uint> ApplicationIdAsync(CancellationToken cancellationToken = default) => DbConnection.ExecuteScalarAsync<uint>(ApplicationIdReadQuery, cancellationToken);

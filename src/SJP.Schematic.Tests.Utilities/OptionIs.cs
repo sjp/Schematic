@@ -26,7 +26,6 @@ namespace SJP.Schematic.Tests.Utilities
         /// </summary>
         public static class Not
         {
-
 #pragma warning disable S3218 // Inner class members should not shadow outer class "static" or type members
 
             /// <summary>

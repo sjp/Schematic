@@ -539,6 +539,7 @@ where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_
         /// Retrieves check constraints defined on a given table.
         /// </summary>
         /// <param name="tableName">A table name.</param>
+        /// <param name="columns">Columns from the associated table.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A collection of check constraints.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>

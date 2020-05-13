@@ -696,9 +696,10 @@ namespace SJP.Schematic.Sqlite
         /// Retrieves the columns for a given table.
         /// </summary>
         /// <param name="tableName">A table name.</param>
+        /// <param name="queryCache">A query cache.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>An ordered collection of columns.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> is <c>null</c>.</exception>
         protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
