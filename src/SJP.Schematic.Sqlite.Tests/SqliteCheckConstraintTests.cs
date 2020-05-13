@@ -1,6 +1,7 @@
 ﻿using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Sqlite.Tests
@@ -40,6 +41,20 @@ namespace SJP.Schematic.Sqlite.Tests
             var check = new SqliteCheckConstraint(Option<Identifier>.Some("test_check"), "test_check_definition");
 
             Assert.That(check.IsEnabled, Is.True);
+        }
+
+        [TestCase(null, "Check")]
+        [TestCase("test_check", "Check: test_check")]
+        public static void ToString_WhenInvoked_ReturnsExpectedValues(string name, string expectedResult)
+        {
+            var checkName = !name.IsNullOrWhiteSpace()
+                ? Option<Identifier>.Some(name)
+                : Option<Identifier>.None;
+
+            var check = new SqliteCheckConstraint(checkName, "test_check_definition");
+            var result = check.ToString();
+
+            Assert.That(result, Is.EqualTo(expectedResult));
         }
     }
 }

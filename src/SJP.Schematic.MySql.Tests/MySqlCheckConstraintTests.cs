@@ -61,5 +61,14 @@ namespace SJP.Schematic.MySql.Tests
 
             Assert.That(check.IsEnabled, Is.False);
         }
+
+        [TestCase("test_check", "Check: test_check")]
+        public static void ToString_WhenInvoked_ReturnsExpectedValues(string name, string expectedResult)
+        {
+            var check = new MySqlCheckConstraint(name, "test_check_definition", true);
+            var result = check.ToString();
+
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
     }
 }
