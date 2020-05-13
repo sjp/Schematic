@@ -186,7 +186,7 @@ namespace SJP.Schematic.SqlServer
         /// <para>For availability replicas to be created and run on an instance of SQL Server, Always On availability groups must be enabled on the server instance. For more information, see Enable and Disable AlwaysOn Availability Groups (SQL Server).</para>
         /// <para>The IsHadrEnabled property pertains only to Always On availability groups. Other high availability or disaster recovery features, such as database mirroring or log shipping, are unaffected by this server property.</para>
         /// </remarks>
-        public bool? IsHadrEnabled { get; set; }
+        public bool? IsHadrEnabled { get; }
 
         /// <summary>
         /// <para>Server is in integrated security mode.</para>
@@ -198,7 +198,7 @@ namespace SJP.Schematic.SqlServer
         /// <para>Server is an instance of SQL Server Express LocalDB.</para>
         /// <para>Returns <code>NULL</code> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
-        public bool? IsLocalDB { get; set; }
+        public bool? IsLocalDB { get; }
 
         /// <summary>
         /// <para>Server is in single-user mode.</para>
@@ -210,7 +210,7 @@ namespace SJP.Schematic.SqlServer
         /// <para>Server supports In-Memory OLTP.</para>
         /// <para>Returns <code>NULL</code> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
-        public bool? IsXTPSupported { get; set; }
+        public bool? IsXTPSupported { get; }
 
         /// <summary>
         /// Windows locale identifier (LCID) of the collation.
@@ -243,7 +243,7 @@ namespace SJP.Schematic.SqlServer
         /// <summary>
         /// The build number.
         /// </summary>
-        public int ProductBuild { get; set; }
+        public int ProductBuild { get; }
 
         /// <summary>
         /// <para>Type of build of the current build.</para>
@@ -253,7 +253,7 @@ namespace SJP.Schematic.SqlServer
         /// <item>NULL = Not applicable.</item>
         /// </list>
         /// </summary>
-        public string? ProductBuildType { get; set; }
+        public string? ProductBuildType { get; }
 
         /// <summary>
         /// <para>Level of the version of the instance of SQL Server.</para>
@@ -268,12 +268,12 @@ namespace SJP.Schematic.SqlServer
         /// <summary>
         /// The major version.
         /// </summary>
-        public int ProductMajorVersion { get; set; }
+        public int ProductMajorVersion { get; }
 
         /// <summary>
         /// The minor version.
         /// </summary>
-        public int ProductMinorVersion { get; set; }
+        public int ProductMinorVersion { get; }
 
         /// <summary>
         /// <para>Update level of the current build. CU indicates a cumulative update.</para>
@@ -282,12 +282,12 @@ namespace SJP.Schematic.SqlServer
         /// <item>NULL = Not applicable.</item>
         /// </list>
         /// </summary>
-        public string? ProductUpdateLevel { get; set; }
+        public string? ProductUpdateLevel { get; }
 
         /// <summary>
         /// KB article for that release.
         /// </summary>
-        public string? ProductUpdateReference { get; set; }
+        public string? ProductUpdateReference { get; }
 
         /// <summary>
         /// Version of the instance of SQL Server, in the form of 'major.minor.build.revision'.

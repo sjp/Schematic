@@ -292,20 +292,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public static async Task LegacyFileFormatAsync_GetAndSet_ReadsAndWritesCorrectly()
-        {
-            var connection = CreateConnectionFactory();
-            var connPragma = CreateConnectionPragma(connection);
-
-            var legacyFileFormat = await connPragma.LegacyFileFormatAsync().ConfigureAwait(false);
-            var newValue = !legacyFileFormat;
-            await connPragma.LegacyFileFormatAsync(newValue).ConfigureAwait(false);
-            var readOfNewValue = await connPragma.LegacyFileFormatAsync().ConfigureAwait(false);
-
-            Assert.That(readOfNewValue, Is.EqualTo(newValue));
-        }
-
-        [Test]
         public static void ModuleListAsync_WhenInvoked_ThrowsNothing()
         {
             var connection = CreateConnectionFactory();
