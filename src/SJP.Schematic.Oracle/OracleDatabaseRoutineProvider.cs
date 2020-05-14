@@ -32,6 +32,7 @@ namespace SJP.Schematic.Oracle
         {
             var simpleRoutinesTask = SimpleRoutineProvider.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).AsTask();
             var packagesTask = PackageProvider.GetAllPackages(cancellationToken).ToListAsync(cancellationToken).AsTask();
+
             await Task.WhenAll(simpleRoutinesTask, packagesTask).ConfigureAwait(false);
 
             var simpleRoutines = await simpleRoutinesTask.ConfigureAwait(false);

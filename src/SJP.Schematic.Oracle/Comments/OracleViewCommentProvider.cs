@@ -33,6 +33,7 @@ namespace SJP.Schematic.Oracle.Comments
         {
             var queryViewCommentsTask = QueryViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask();
             var materializedViewCommentsTask = MaterializedViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask();
+
             await Task.WhenAll(queryViewCommentsTask, materializedViewCommentsTask).ConfigureAwait(false);
 
             var queryViewComments = await queryViewCommentsTask.ConfigureAwait(false);

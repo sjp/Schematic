@@ -41,6 +41,7 @@ namespace SJP.Schematic.Oracle
         {
             var queryViewsTask = QueryViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask();
             var materializedViewsTask = MaterializedViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask();
+
             await Task.WhenAll(queryViewsTask, materializedViewsTask).ConfigureAwait(false);
 
             var queryViews = await queryViewsTask.ConfigureAwait(false);

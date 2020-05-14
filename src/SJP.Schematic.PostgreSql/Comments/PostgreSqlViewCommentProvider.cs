@@ -31,8 +31,13 @@ namespace SJP.Schematic.PostgreSql.Comments
 
         public async IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryViews = await QueryViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-            var materializedViews = await MaterializedViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            var queryViewsTask = QueryViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask();
+            var materializedViewsTask = MaterializedViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask();
+
+            await Task.WhenAll(queryViewsTask, materializedViewsTask).ConfigureAwait(false);
+
+            var queryViews = await queryViewsTask.ConfigureAwait(false);
+            var materializedViews = await materializedViewsTask.ConfigureAwait(false);
 
             var viewComments = queryViews
                 .Concat(materializedViews)
@@ -48,22 +53,8 @@ namespace SJP.Schematic.PostgreSql.Comments
             if (viewName == null)
                 throw new ArgumentNullException(nameof(viewName));
 
-            return GetViewCommentsAsyncCore(viewName, cancellationToken).ToAsync();
-        }
-
-        // This is equivalent to the '|' operator on OptionAsync<T> objects.
-        // However, this method is necessary because we need to set ConfigureAwait(false)
-        // on the async task, which the built-in '|' operator does not do.
-        // Without this method we get InProgressException errors...
-        private async Task<Option<IDatabaseViewComments>> GetViewCommentsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
-        {
-            var queryViewComments = QueryViewCommentProvider.GetViewComments(viewName, cancellationToken);
-            var queryViewIsSome = await queryViewComments.IsSome.ConfigureAwait(false);
-            if (queryViewIsSome)
-                return await queryViewComments.ToOption().ConfigureAwait(false);
-
-            var materializedViewComments = MaterializedViewCommentProvider.GetViewComments(viewName, cancellationToken);
-            return await materializedViewComments.ToOption().ConfigureAwait(false);
+            return QueryViewCommentProvider.GetViewComments(viewName, cancellationToken)
+                | MaterializedViewCommentProvider.GetViewComments(viewName, cancellationToken);
         }
     }
 }
