@@ -29,11 +29,23 @@ namespace SJP.Schematic.Oracle
         /// <value>Identifier defaults.</value>
         public IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// Gets all database tables.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A collection of database tables.</returns>
         public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)
         {
             return _tableProvider.GetAllTables(cancellationToken);
         }
 
+        /// <summary>
+        /// Gets a database table.
+        /// </summary>
+        /// <param name="tableName">A database table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database table in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default)
         {
             if (tableName == null)
@@ -42,6 +54,11 @@ namespace SJP.Schematic.Oracle
             return _tableProvider.GetTable(tableName, cancellationToken);
         }
 
+        /// <summary>
+        /// Gets all database views.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A collection of database views.</returns>
         public IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default)
         {
             return _viewProvider.GetAllViews(cancellationToken);

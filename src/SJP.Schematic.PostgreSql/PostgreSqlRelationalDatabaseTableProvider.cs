@@ -48,8 +48,17 @@ namespace SJP.Schematic.PostgreSql
         /// <value>A database dialect.</value>
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
+        /// <summary>
+        /// Gets a database column type provider.
+        /// </summary>
+        /// <value>A type provider.</value>
         protected IDbTypeProvider TypeProvider => Dialect.TypeProvider;
 
+        /// <summary>
+        /// Gets all database tables.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A collection of database tables.</returns>
         public async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var provider = await _tableProvider.ConfigureAwait(false);
@@ -62,6 +71,13 @@ namespace SJP.Schematic.PostgreSql
                 yield return table;
         }
 
+        /// <summary>
+        /// Gets a database table.
+        /// </summary>
+        /// <param name="tableName">A database table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database table in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default)
         {
             if (tableName == null)

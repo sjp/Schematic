@@ -57,6 +57,11 @@ namespace SJP.Schematic.PostgreSql
         /// <value>A database dialect.</value>
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
+        /// <summary>
+        /// Gets all materialized views.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A collection of materialized views.</returns>
         public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResult = await DbConnection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
@@ -81,6 +86,13 @@ where schemaname not in ('pg_catalog', 'information_schema')
 order by schemaname, matviewname
 ";
 
+        /// <summary>
+        /// Gets a materialized view.
+        /// </summary>
+        /// <param name="viewName">A materialized view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A materialized view in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
         {
             if (viewName == null)
