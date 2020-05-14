@@ -18,8 +18,16 @@ namespace SJP.Schematic.SqlServer
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         }
 
+        /// <summary>
+        /// A database connection factory.
+        /// </summary>
+        /// <value>A database connection factory.</value>
         protected IDbConnectionFactory Connection { get; }
 
+        /// <summary>
+        /// Identifier defaults for the associated database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
         public async IAsyncEnumerable<IDatabaseSequence> GetAllSequences([EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -62,6 +70,13 @@ order by schema_name(schema_id), name";
             return LoadSequence(candidateSequenceName, cancellationToken);
         }
 
+        /// <summary>
+        /// Gets the resolved name of the sequence. This enables non-strict name matching to be applied.
+        /// </summary>
+        /// <param name="sequenceName">A sequence name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A sequence name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
         protected OptionAsync<Identifier> GetResolvedSequenceName(Identifier sequenceName, CancellationToken cancellationToken)
         {
             if (sequenceName == null)

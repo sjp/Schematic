@@ -20,12 +20,29 @@ namespace SJP.Schematic.SqlServer.Comments
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         }
 
+        /// <summary>
+        /// A database connection factory.
+        /// </summary>
+        /// <value>A database connection factory.</value>
         protected IDbConnectionFactory Connection { get; }
 
+        /// <summary>
+        /// Identifier defaults for the associated database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// Retrieves the extended property name used to store comments on an object.
+        /// </summary>
+        /// <value>The comment property name.</value>
         protected virtual string CommentProperty { get; } = "MS_Description";
 
+        /// <summary>
+        /// Retrieves comments for all database synonyms.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of database synonyms comments.</returns>
         public async IAsyncEnumerable<IDatabaseSynonymComments> GetAllSynonymComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var allCommentsData = await Connection.QueryAsync<CommentsData>(
@@ -49,6 +66,13 @@ namespace SJP.Schematic.SqlServer.Comments
                 yield return comment;
         }
 
+        /// <summary>
+        /// Gets the resolved name of the synonym. This enables non-strict name matching to be applied.
+        /// </summary>
+        /// <param name="synonymName">A synonym name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A synonym name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
         protected OptionAsync<Identifier> GetResolvedSynonymName(Identifier synonymName, CancellationToken cancellationToken)
         {
             if (synonymName == null)

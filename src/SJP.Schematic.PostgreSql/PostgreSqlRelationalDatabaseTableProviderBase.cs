@@ -27,12 +27,24 @@ namespace SJP.Schematic.PostgreSql
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
         }
 
+        /// <summary>
+        /// A database connection that is specific to a given PostgreSQL database.
+        /// </summary>
+        /// <value>A database connection.</value>
         protected ISchematicConnection Connection { get; }
 
+        /// <summary>
+        /// Identifier defaults for the associated database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
+        /// <summary>
+        /// A database connection factory used to query the database.
+        /// </summary>
+        /// <value>A database connection factory.</value>
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
         /// <summary>
@@ -103,6 +115,13 @@ order by schemaname, tablename";
             return LoadTable(candidateTableName, queryCache, cancellationToken);
         }
 
+        /// <summary>
+        /// Gets the resolved name of the table. This enables non-strict name matching to be applied.
+        /// </summary>
+        /// <param name="tableName">A table name that will be resolved.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A table name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected Task<Option<Identifier>> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken = default)
         {
             if (tableName == null)

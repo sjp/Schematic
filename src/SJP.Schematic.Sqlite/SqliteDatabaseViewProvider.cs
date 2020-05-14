@@ -33,12 +33,24 @@ namespace SJP.Schematic.Sqlite
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         }
 
+        /// <summary>
+        /// A database connection that is specific to a given SQLite database.
+        /// </summary>
+        /// <value>A database connection.</value>
         protected ISchematicConnection Connection { get; }
 
         protected ISqliteConnectionPragma ConnectionPragma { get; }
 
+        /// <summary>
+        /// Identifier defaults for the associated database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// A database connection factory.
+        /// </summary>
+        /// <value>A database connection factory.</value>
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
         /// <summary>
@@ -116,6 +128,13 @@ namespace SJP.Schematic.Sqlite
             return Option<IDatabaseView>.None;
         }
 
+        /// <summary>
+        /// Gets the resolved name of the view. This enables non-strict name matching to be applied.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A view name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected OptionAsync<Identifier> GetResolvedViewName(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)

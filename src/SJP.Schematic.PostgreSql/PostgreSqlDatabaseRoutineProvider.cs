@@ -20,8 +20,16 @@ namespace SJP.Schematic.PostgreSql
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
         }
 
+        /// <summary>
+        /// A database connection factory.
+        /// </summary>
+        /// <value>A database connection factory.</value>
         protected IDbConnectionFactory Connection { get; }
 
+        /// <summary>
+        /// Identifier defaults for the associated database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
@@ -50,6 +58,10 @@ namespace SJP.Schematic.PostgreSql
                 yield return routine;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves all database routines.
+        /// </summary>
+        /// <value>A SQL query definition.</value>
         protected virtual string RoutinesQuery => RoutinesQuerySql;
 
         private const string RoutinesQuerySql = @"
@@ -77,6 +89,13 @@ order by ROUTINE_SCHEMA, ROUTINE_NAME";
             return LoadRoutine(candidateRoutineName, cancellationToken);
         }
 
+        /// <summary>
+        /// Gets the resolved name of the routine. This enables non-strict name matching to be applied.
+        /// </summary>
+        /// <param name="routineName">A routine name that will be resolved.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A routine name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         protected OptionAsync<Identifier> GetResolvedRoutineName(Identifier routineName, CancellationToken cancellationToken = default)
         {
             if (routineName == null)
@@ -121,6 +140,13 @@ where ROUTINE_SCHEMA = @SchemaName and ROUTINE_NAME = @RoutineName
     and ROUTINE_SCHEMA not in ('pg_catalog', 'information_schema')
 limit 1";
 
+        /// <summary>
+        /// Retrieves a routine from the database, if available.
+        /// </summary>
+        /// <param name="routineName">A routine name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database routine, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IDatabaseRoutine> LoadRoutine(Identifier routineName, CancellationToken cancellationToken)
         {
             if (routineName == null)
@@ -156,6 +182,10 @@ limit 1";
             );
         }
 
+        /// <summary>
+        /// A SQL query that retrieves the definition of a routine.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string DefinitionQuery => DefinitionQuerySql;
 
         private const string DefinitionQuerySql = @"

@@ -11,14 +11,28 @@ namespace SJP.Schematic.SqlServer
 {
     public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqlServerDatabaseSynonymProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="identifierDefaults">Database identifier defaults.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <c>null</c>.</exception>
         public SqlServerDatabaseSynonymProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         }
 
+        /// <summary>
+        /// A database connection factory.
+        /// </summary>
+        /// <value>A database connection factory.</value>
         protected IDbConnectionFactory Connection { get; }
 
+        /// <summary>
+        /// Identifier defaults for the associated database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
         public async IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms([EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -41,6 +55,10 @@ namespace SJP.Schematic.SqlServer
             }
         }
 
+        /// <summary>
+        /// A SQL query that retrieves the definitions of all synonyms in the database.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string SynonymsQuery => SynonymsQuerySql;
 
         private const string SynonymsQuerySql = @"
@@ -55,6 +73,13 @@ from sys.synonyms
 where is_ms_shipped = 0
 order by schema_name(schema_id), name";
 
+        /// <summary>
+        /// Gets a database synonym.
+        /// </summary>
+        /// <param name="synonymName">A database synonym name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database synonym in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default)
         {
             if (synonymName == null)
@@ -64,6 +89,13 @@ order by schema_name(schema_id), name";
             return LoadSynonym(candidateSynonymName, cancellationToken);
         }
 
+        /// <summary>
+        /// Gets the resolved name of the synonym. This enables non-strict name matching to be applied.
+        /// </summary>
+        /// <param name="synonymName">A synonym name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A synonym name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
         protected OptionAsync<Identifier> GetResolvedSynonymName(Identifier synonymName, CancellationToken cancellationToken)
         {
             if (synonymName == null)
@@ -86,6 +118,13 @@ select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
 from sys.synonyms
 where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipped = 0";
 
+        /// <summary>
+        /// Retrieves a database synonym, if available.
+        /// </summary>
+        /// <param name="synonymName">A synonym name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A synonym definition, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IDatabaseSynonym> LoadSynonym(Identifier synonymName, CancellationToken cancellationToken)
         {
             if (synonymName == null)
@@ -114,6 +153,10 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipp
                 });
         }
 
+        /// <summary>
+        /// A SQL query that retrieves a synonym's definition.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string LoadSynonymQuery => LoadSynonymQuerySql;
 
         private const string LoadSynonymQuerySql = @"
@@ -125,6 +168,12 @@ select
 from sys.synonyms
 where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipped = 0";
 
+        /// <summary>
+        /// Qualifies the name of a synonym, using known identifier defaults.
+        /// </summary>
+        /// <param name="synonymName">A synonym name to qualify.</param>
+        /// <returns>A synonym name that is at least as qualified as its input.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
         protected Identifier QualifySynonymName(Identifier synonymName)
         {
             if (synonymName == null)
@@ -134,6 +183,12 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipp
             return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, synonymName.LocalName);
         }
 
+        /// <summary>
+        /// Qualifies the name of a synonym's target, using known identifier defaults.
+        /// </summary>
+        /// <param name="targetName">A synonym's target name to qualify.</param>
+        /// <returns>A synonym target name that is at least as qualified as its input.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="targetName"/> is <c>null</c>.</exception>
         protected Identifier QualifySynonymTargetName(Identifier targetName)
         {
             if (targetName == null)

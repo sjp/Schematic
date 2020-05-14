@@ -140,9 +140,9 @@ where ROUTINE_SCHEMA = @SchemaName and ROUTINE_NAME = @RoutineName
 limit 1";
 
         /// <summary>
-        /// Retrieves the routine definition from the database, if available.
+        /// Retrieves a routine from the database, if available.
         /// </summary>
-        /// <param name="routineName">Name of the routine.</param>
+        /// <param name="routineName">A routine name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A database routine, if available.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>

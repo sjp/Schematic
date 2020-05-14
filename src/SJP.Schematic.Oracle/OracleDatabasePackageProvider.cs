@@ -20,8 +20,16 @@ namespace SJP.Schematic.Oracle
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
         }
 
+        /// <summary>
+        /// A database connection factory.
+        /// </summary>
+        /// <value>A database connection factory.</value>
         protected IDbConnectionFactory Connection { get; }
 
+        /// <summary>
+        /// Identifier defaults for the associated database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
@@ -99,6 +107,13 @@ ORDER BY OWNER, NAME, LINE";
             return LoadPackage(candidatePackageName, cancellationToken);
         }
 
+        /// <summary>
+        /// Gets the resolved name of the package. This enables non-strict name matching to be applied.
+        /// </summary>
+        /// <param name="packageName">A package name that will be resolved.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A package name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="packageName"/> is <c>null</c>.</exception>
         protected OptionAsync<Identifier> GetResolvedPackageName(Identifier packageName, CancellationToken cancellationToken = default)
         {
             if (packageName == null)
@@ -138,6 +153,13 @@ from SYS.ALL_OBJECTS
 where OWNER = :SchemaName and OBJECT_NAME = :PackageName
     and ORACLE_MAINTAINED <> 'Y' and OBJECT_TYPE = 'PACKAGE'";
 
+        /// <summary>
+        /// Retrieves a package from the database, if available.
+        /// </summary>
+        /// <param name="packageName">A package name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database package, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="packageName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IOracleDatabasePackage> LoadPackage(Identifier packageName, CancellationToken cancellationToken)
         {
             if (packageName == null)

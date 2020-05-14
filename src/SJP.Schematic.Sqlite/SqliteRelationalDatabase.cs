@@ -30,10 +30,22 @@ namespace SJP.Schematic.Sqlite
             _viewProvider = new SqliteDatabaseViewProvider(connection, connectionPragma, identifierDefaults);
         }
 
+        /// <summary>
+        /// Identifier defaults for the associated database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
         public IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// A database connection that is specific to a given SQLite database.
+        /// </summary>
+        /// <value>A database connection.</value>
         protected ISchematicConnection Connection { get; }
 
+        /// <summary>
+        /// A database connection factory.
+        /// </summary>
+        /// <value>A database connection factory.</value>
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
         /// <summary>

@@ -20,12 +20,29 @@ namespace SJP.Schematic.SqlServer.Comments
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         }
 
+        /// <summary>
+        /// A database connection factory.
+        /// </summary>
+        /// <value>A database connection factory.</value>
         protected IDbConnectionFactory Connection { get; }
 
+        /// <summary>
+        /// Identifier defaults for the associated database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// Retrieves the extended property name used to store comments on an object.
+        /// </summary>
+        /// <value>The comment property name.</value>
         protected virtual string CommentProperty { get; } = "MS_Description";
 
+        /// <summary>
+        /// Retrieves all database view comments defined within a database.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of view comments.</returns>
         public async IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var allCommentsData = await Connection.QueryAsync<CommentsData>(
@@ -51,6 +68,13 @@ namespace SJP.Schematic.SqlServer.Comments
                 yield return comment;
         }
 
+        /// <summary>
+        /// Gets the resolved name of the view. This enables non-strict name matching to be applied.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A view name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected OptionAsync<Identifier> GetResolvedViewName(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -66,6 +90,10 @@ namespace SJP.Schematic.SqlServer.Comments
             return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(viewName.Server, viewName.Database, name.SchemaName, name.ObjectName));
         }
 
+        /// <summary>
+        /// A SQL query that retrieves the resolved name of a view in the database.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
         private const string ViewNameQuerySql = @"
@@ -74,6 +102,13 @@ from sys.views
 where schema_id = schema_id(@SchemaName) and name = @ViewName
     and is_ms_shipped = 0";
 
+        /// <summary>
+        /// Retrieves comments for a particular database view.
+        /// </summary>
+        /// <param name="viewName">The name of a database view.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>An <see cref="T:LanguageExt.OptionAsync`1" /> instance which holds the value of the view's comments, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default)
         {
             if (viewName == null)
@@ -83,6 +118,13 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName
             return LoadViewComments(candidateViewName, cancellationToken);
         }
 
+        /// <summary>
+        /// Retrieves a view's comments.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Comments for a view, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IDatabaseViewComments> LoadViewComments(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)

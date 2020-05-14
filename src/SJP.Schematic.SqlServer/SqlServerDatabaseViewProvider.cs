@@ -29,10 +29,22 @@ namespace SJP.Schematic.SqlServer
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         }
 
+        /// <summary>
+        /// A database connection that is specific to a given SQL Server database.
+        /// </summary>
+        /// <value>A database connection.</value>
         protected ISchematicConnection Connection { get; }
 
+        /// <summary>
+        /// Identifier defaults for the associated database.
+        /// </summary>
+        /// <value>Identifier defaults for the given database.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// A database connection factory.
+        /// </summary>
+        /// <value>A database connection factory.</value>
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
         /// <summary>
@@ -57,6 +69,10 @@ namespace SJP.Schematic.SqlServer
                 yield return await LoadViewAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// A SQL query that retrieves the names of views available in the database.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ViewsQuery => ViewsQuerySql;
 
         private const string ViewsQuerySql = @"
@@ -81,6 +97,13 @@ order by schema_name(schema_id), name";
             return LoadView(candidateViewName, cancellationToken);
         }
 
+        /// <summary>
+        /// Gets the resolved name of the view. This enables non-strict name matching to be applied.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A view name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected OptionAsync<Identifier> GetResolvedViewName(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -96,6 +119,10 @@ order by schema_name(schema_id), name";
             return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ObjectName));
         }
 
+        /// <summary>
+        /// A SQL query that retrieves the resolved name of a view in the database.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
         private const string ViewNameQuerySql = @"
@@ -154,6 +181,10 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName and is_ms_shipped 
             );
         }
 
+        /// <summary>
+        /// A SQL query that retrieves the definition of a view.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string DefinitionQuery => DefinitionQuerySql;
 
         private const string DefinitionQuerySql = @"
@@ -162,6 +193,13 @@ from sys.sql_modules sm
 inner join sys.views v on sm.object_id = v.object_id
 where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName and v.is_ms_shipped = 0";
 
+        /// <summary>
+        /// Determines whether the view is an indexed view.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns><c>true</c> if the view is indexed; otherwise <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected virtual Task<bool> LoadIndexExistsAsync(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -174,6 +212,10 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName and v.is_ms_
             );
         }
 
+        /// <summary>
+        /// A SQL query that retrieves whether indexes are present on a view.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string IndexExistsQuery => IndexExistsQuerySql;
 
         private const string IndexExistsQuerySql = @"

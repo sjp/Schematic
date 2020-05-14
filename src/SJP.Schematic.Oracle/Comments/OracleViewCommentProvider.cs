@@ -29,6 +29,11 @@ namespace SJP.Schematic.Oracle.Comments
 
         protected IDatabaseViewCommentProvider MaterializedViewCommentProvider { get; }
 
+        /// <summary>
+        /// Retrieves all database view comments defined within a database.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of view comments.</returns>
         public async IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryViewCommentsTask = QueryViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask();
@@ -48,6 +53,13 @@ namespace SJP.Schematic.Oracle.Comments
                 yield return comment;
         }
 
+        /// <summary>
+        /// Retrieves comments for a particular database view.
+        /// </summary>
+        /// <param name="viewName">The name of a database view.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>An <see cref="T:LanguageExt.OptionAsync`1" /> instance which holds the value of the view's comments, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default)
         {
             if (viewName == null)

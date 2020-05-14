@@ -25,10 +25,22 @@ namespace SJP.Schematic.SqlServer
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         }
 
+        /// <summary>
+        /// A database connection that is specific to a given SQL Server database.
+        /// </summary>
+        /// <value>A database connection.</value>
         protected ISchematicConnection Connection { get; }
 
+        /// <summary>
+        /// Identifier defaults for the associated database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// A database connection factory.
+        /// </summary>
+        /// <value>A database connection factory.</value>
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
         /// <summary>
@@ -94,6 +106,13 @@ order by schema_name(schema_id), name";
             return LoadTable(candidateTableName, CreateQueryCache(), cancellationToken);
         }
 
+        /// <summary>
+        /// Gets the resolved name of the table. This enables non-strict name matching to be applied.
+        /// </summary>
+        /// <param name="tableName">A table name that will be resolved.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A table name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected Task<Option<Identifier>> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)

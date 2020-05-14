@@ -20,12 +20,25 @@ namespace SJP.Schematic.PostgreSql.Comments
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
         }
 
+        /// <summary>
+        /// A database connection factory.
+        /// </summary>
+        /// <value>A database connection factory.</value>
         protected IDbConnectionFactory Connection { get; }
 
+        /// <summary>
+        /// Identifier defaults for the associated database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
+        /// <summary>
+        /// Retrieves comments for all database sequences.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of database sequence comments.</returns>
         public async IAsyncEnumerable<IDatabaseSequenceComments> GetAllSequenceComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var allCommentsData = await Connection.QueryAsync<CommentsData>(AllSequenceCommentsQuery, cancellationToken).ConfigureAwait(false);
@@ -43,6 +56,13 @@ namespace SJP.Schematic.PostgreSql.Comments
             }
         }
 
+        /// <summary>
+        /// Gets the resolved name of the sequence. This enables non-strict name matching to be applied.
+        /// </summary>
+        /// <param name="sequenceName">A sequence name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A sequence name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
         protected OptionAsync<Identifier> GetResolvedSequenceName(Identifier sequenceName, CancellationToken cancellationToken = default)
         {
             if (sequenceName == null)

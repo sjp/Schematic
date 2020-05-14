@@ -31,12 +31,24 @@ namespace SJP.Schematic.PostgreSql
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
         }
 
+        /// <summary>
+        /// A database connection that is specific to a given PostgreSQL database.
+        /// </summary>
+        /// <value>A database connection.</value>
         protected ISchematicConnection Connection { get; }
 
+        /// <summary>
+        /// Identifier defaults for the associated database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
+        /// <summary>
+        /// A database connection factory used to query the database.
+        /// </summary>
+        /// <value>A database connection factory.</value>
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
         /// <summary>
@@ -56,6 +68,10 @@ namespace SJP.Schematic.PostgreSql
                 yield return await LoadViewAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// A SQL query that retrieves the names of materialized views available in the database.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ViewsQuery => ViewsQuerySql;
 
         private const string ViewsQuerySql = @"
@@ -74,6 +90,13 @@ order by schemaname, matviewname
             return LoadView(candidateViewName, cancellationToken);
         }
 
+        /// <summary>
+        /// Gets the resolved name of the materialized view. This enables non-strict name matching to be applied.
+        /// </summary>
+        /// <param name="viewName">A materialized view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A materialized view name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected OptionAsync<Identifier> GetResolvedViewName(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -103,6 +126,10 @@ order by schemaname, matviewname
             return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ObjectName));
         }
 
+        /// <summary>
+        /// A SQL query that retrieves the resolved name of a materialized view in the database.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
         private const string ViewNameQuerySql = @"
@@ -161,6 +188,10 @@ limit 1";
             );
         }
 
+        /// <summary>
+        /// A SQL query that retrieves the definition of a materialized view.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string DefinitionQuery => DefinitionQuerySql;
 
         private const string DefinitionQuerySql = @"

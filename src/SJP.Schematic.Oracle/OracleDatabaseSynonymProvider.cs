@@ -19,8 +19,16 @@ namespace SJP.Schematic.Oracle
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
         }
 
+        /// <summary>
+        /// A database connection factory.
+        /// </summary>
+        /// <value>A database connection factory.</value>
         protected IDbConnectionFactory Connection { get; }
 
+        /// <summary>
+        /// Identifier defaults for the associated database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
@@ -52,6 +60,10 @@ namespace SJP.Schematic.Oracle
             }
         }
 
+        /// <summary>
+        /// A SQL query that retrieves the definitions of all synonyms in the database.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string SynonymsQuery => SynonymsQuerySql;
 
         private const string SynonymsQuerySql = @"
@@ -66,6 +78,13 @@ inner join SYS.ALL_OBJECTS o on s.OWNER = o.OWNER and s.SYNONYM_NAME = o.OBJECT_
 where o.ORACLE_MAINTAINED <> 'Y'
 order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
 
+        /// <summary>
+        /// Gets a database synonym.
+        /// </summary>
+        /// <param name="synonymName">A database synonym name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database synonym in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default)
         {
             if (synonymName == null)
@@ -75,6 +94,13 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
             return LoadSynonym(candidateSynonymName, cancellationToken);
         }
 
+        /// <summary>
+        /// Gets the resolved name of the synonym. This enables non-strict name matching to be applied.
+        /// </summary>
+        /// <param name="synonymName">A synonym name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A synonym name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
         public OptionAsync<Identifier> GetResolvedSynonymName(Identifier synonymName, CancellationToken cancellationToken = default)
         {
             if (synonymName == null)
@@ -134,6 +160,13 @@ from SYS.USER_SYNONYMS s
 inner join SYS.ALL_OBJECTS o on s.SYNONYM_NAME = o.OBJECT_NAME
 where o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and s.SYNONYM_NAME = :SynonymName and o.ORACLE_MAINTAINED <> 'Y'";
 
+        /// <summary>
+        /// Retrieves a database synonym, if available.
+        /// </summary>
+        /// <param name="synonymName">A synonym name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A synonym definition, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IDatabaseSynonym> LoadSynonym(Identifier synonymName, CancellationToken cancellationToken)
         {
             if (synonymName == null)
@@ -155,6 +188,10 @@ where o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and s.SYNONYM_NAME = :Syn
             return synonymData.Map(synData => BuildSynonymFromDto(synonymName, synData));
         }
 
+        /// <summary>
+        /// A SQL query that retrieves a synonym's definition.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string LoadSynonymQuery => LoadSynonymQuerySql;
 
         private const string LoadSynonymQuerySql = @"
@@ -166,6 +203,10 @@ from SYS.ALL_SYNONYMS s
 inner join SYS.ALL_OBJECTS o on s.OWNER = o.OWNER and s.SYNONYM_NAME = o.OBJECT_NAME
 where s.OWNER = :SchemaName and s.SYNONYM_NAME = :SynonymName and o.ORACLE_MAINTAINED <> 'Y'";
 
+        /// <summary>
+        /// A SQL query that retrieves a synonym's definition for the default/user schema.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string LoadUserSynonymQuery => LoadUserSynonymQuerySql;
 
         private const string LoadUserSynonymQuerySql = @"
@@ -219,6 +260,12 @@ where s.SYNONYM_NAME = :SynonymName and o.OWNER = SYS_CONTEXT('USERENV', 'CURREN
             return new DatabaseSynonym(qualifiedSynonymName, qualifiedTargetName);
         }
 
+        /// <summary>
+        /// Qualifies the name of a synonym, using known identifier defaults.
+        /// </summary>
+        /// <param name="synonymName">A synonym name to qualify.</param>
+        /// <returns>A synonym name that is at least as qualified as its input.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
         protected Identifier QualifySynonymName(Identifier synonymName)
         {
             if (synonymName == null)
@@ -228,6 +275,12 @@ where s.SYNONYM_NAME = :SynonymName and o.OWNER = SYS_CONTEXT('USERENV', 'CURREN
             return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, synonymName.LocalName);
         }
 
+        /// <summary>
+        /// Qualifies the name of a synonym's target, using known identifier defaults.
+        /// </summary>
+        /// <param name="targetName">A synonym's target name to qualify.</param>
+        /// <returns>A synonym target name that is at least as qualified as its input.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="targetName"/> is <c>null</c>.</exception>
         private Identifier QualifySynonymTargetName(Identifier targetName)
         {
             if (targetName == null)

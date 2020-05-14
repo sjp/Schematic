@@ -21,12 +21,25 @@ namespace SJP.Schematic.PostgreSql.Comments
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
         }
 
+        /// <summary>
+        /// A database connection factory.
+        /// </summary>
+        /// <value>A database connection factory.</value>
         protected IDbConnectionFactory Connection { get; }
 
+        /// <summary>
+        /// Identifier defaults for the associated database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
+        /// <summary>
+        /// Retrieves comments for all database tables.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of database table comments, where available.</returns>
         public async IAsyncEnumerable<IRelationalDatabaseTableComments> GetAllTableComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var allCommentsData = await Connection.QueryAsync<TableCommentsData>(AllTableCommentsQuery, cancellationToken).ConfigureAwait(false);
@@ -65,6 +78,13 @@ namespace SJP.Schematic.PostgreSql.Comments
                 yield return comment;
         }
 
+        /// <summary>
+        /// Gets the resolved name of the table. This enables non-strict name matching to be applied.
+        /// </summary>
+        /// <param name="tableName">A table name that will be resolved.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A table name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected OptionAsync<Identifier> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken = default)
         {
             if (tableName == null)
@@ -107,6 +127,13 @@ where schemaname = @SchemaName and tablename = @TableName
     and schemaname not in ('pg_catalog', 'information_schema')
 limit 1";
 
+        /// <summary>
+        /// Retrieves comments for a database table, if available.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Comments for the given database table, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         public OptionAsync<IRelationalDatabaseTableComments> GetTableComments(Identifier tableName, CancellationToken cancellationToken = default)
         {
             if (tableName == null)
@@ -116,6 +143,13 @@ limit 1";
             return LoadTableComments(candidateTableName, cancellationToken);
         }
 
+        /// <summary>
+        /// Retrieves a table's comments.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Comments for a table, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IRelationalDatabaseTableComments> LoadTableComments(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)

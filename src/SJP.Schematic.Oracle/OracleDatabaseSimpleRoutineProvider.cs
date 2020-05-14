@@ -20,8 +20,16 @@ namespace SJP.Schematic.Oracle
             IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
         }
 
+        /// <summary>
+        /// A database connection factory.
+        /// </summary>
+        /// <value>A database connection factory.</value>
         protected IDbConnectionFactory Connection { get; }
 
+        /// <summary>
+        /// Identifier defaults for the associated database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
@@ -87,6 +95,13 @@ ORDER BY OWNER, NAME, LINE";
             return LoadRoutine(candidateRoutineName, cancellationToken);
         }
 
+        /// <summary>
+        /// Gets the resolved name of the routine. This enables non-strict name matching to be applied.
+        /// </summary>
+        /// <param name="routineName">A routine name that will be resolved.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A routine name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         protected OptionAsync<Identifier> GetResolvedRoutineName(Identifier routineName, CancellationToken cancellationToken = default)
         {
             if (routineName == null)
@@ -130,6 +145,13 @@ from SYS.ALL_OBJECTS
 where OWNER = :SchemaName and OBJECT_NAME = :RoutineName
     and ORACLE_MAINTAINED <> 'Y' and OBJECT_TYPE in ('FUNCTION', 'PROCEDURE')";
 
+        /// <summary>
+        /// Retrieves a routine from the database, if available.
+        /// </summary>
+        /// <param name="routineName">A routine name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database routine, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IDatabaseRoutine> LoadRoutine(Identifier routineName, CancellationToken cancellationToken)
         {
             if (routineName == null)

@@ -7,8 +7,17 @@ using Superpower.Model;
 
 namespace SJP.Schematic.SqlServer
 {
+    /// <summary>
+    /// An expression comparer for SQL Server expressions.
+    /// </summary>
+    /// <seealso cref="IEqualityComparer{T}" />
     public sealed class SqlServerExpressionComparer : IEqualityComparer<string>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqlServerExpressionComparer"/> class.
+        /// </summary>
+        /// <param name="comparer">The comparer.</param>
+        /// <param name="sqlStringComparer">The SQL string comparer.</param>
         public SqlServerExpressionComparer(IEqualityComparer<string>? comparer = null, IEqualityComparer<string>? sqlStringComparer = null)
         {
             Comparer = comparer ?? StringComparer.Ordinal;
@@ -19,6 +28,13 @@ namespace SJP.Schematic.SqlServer
 
         private IEqualityComparer<string> SqlStringComparer { get; }
 
+        /// <summary>
+        /// Determines whether the specified expressions are equal.
+        /// </summary>
+        /// <param name="x">The first expression to compare.</param>
+        /// <param name="y">The second expression to compare.</param>
+        /// <returns><see langword="true" /> if the specified expressions are equal; otherwise, <see langword="false" />.</returns>
+        /// <exception cref="ArgumentException"><paramref name="x"/> or <paramref name="y"/> are expressions that could not be parsed as a SQL expression.</exception>
         public bool Equals(string x, string y)
         {
             if (ReferenceEquals(x, y))
@@ -57,6 +73,11 @@ namespace SJP.Schematic.SqlServer
             return true;
         }
 
+        /// <summary>
+        /// Returns a hash code for a SQL expression.
+        /// </summary>
+        /// <param name="obj">A SQL expression.</param>
+        /// <returns>A hash code for a SQL expression, suitable for use in hashing algorithms and data structures like a hash table.</returns>
         public int GetHashCode(string obj) => Comparer.GetHashCode(obj);
 
         private bool TokensEqual(Token<SqlServerToken> x, Token<SqlServerToken> y)

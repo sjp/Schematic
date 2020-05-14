@@ -28,9 +28,9 @@ namespace SJP.Schematic.Sqlite.Pragma
         }
 
         /// <summary>
-        /// A database connection.
+        /// A database connection that is specific to a given SQLite database.
         /// </summary>
-        /// <value>A connection.</value>
+        /// <value>A database connection.</value>
         protected ISchematicConnection Connection { get; }
 
         /// <summary>

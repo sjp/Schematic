@@ -26,6 +26,10 @@ namespace SJP.Schematic.SqlServer
             _routineProvider = new SqlServerDatabaseRoutineProvider(connection.DbConnection, identifierDefaults);
         }
 
+        /// <summary>
+        /// Identifier defaults for the associated database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
         public IIdentifierDefaults IdentifierDefaults { get; }
 
         public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)

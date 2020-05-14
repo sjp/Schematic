@@ -11,8 +11,20 @@ using SJP.Schematic.SqlServer.Query;
 
 namespace SJP.Schematic.SqlServer
 {
+    /// <summary>
+    /// A database dialect specific to SQL Server.
+    /// </summary>
+    /// <seealso cref="DatabaseDialect" />
+    /// <seealso cref="ISqlServerDialect" />
     public class SqlServerDialect : DatabaseDialect, ISqlServerDialect
     {
+        /// <summary>
+        /// Retrieves the set of identifier defaults for the given database connection.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A set of identifier defaults.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
@@ -32,6 +44,13 @@ select
     db_name() as [Database],
     schema_name() as [Schema]";
 
+        /// <summary>
+        /// Gets the database display version. Usually a more user-friendly form of the database version.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A descriptive version.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public override Task<string> GetDatabaseDisplayVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
@@ -42,6 +61,13 @@ select
 
         private const string DatabaseDisplayVersionQuerySql = "select @@version as DatabaseVersion";
 
+        /// <summary>
+        /// Gets the database version.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A version.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public override Task<Version> GetDatabaseVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
@@ -58,6 +84,13 @@ select
 
         private const string DatabaseVersionQuerySql = "select SERVERPROPERTY('ProductVersion') as DatabaseVersion";
 
+        /// <summary>
+        /// Retrieves a relational database for the given dialect.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A relational database.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public override Task<IRelationalDatabase> GetRelationalDatabaseAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
@@ -72,6 +105,13 @@ select
             return new SqlServerRelationalDatabase(connection, identifierDefaults);
         }
 
+        /// <summary>
+        /// Retrieves a relational database comment provider for the given dialect.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A comment provider.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
@@ -86,6 +126,13 @@ select
             return new SqlServerDatabaseCommentProvider(connection.DbConnection, identifierDefaults);
         }
 
+        /// <summary>
+        /// Gets the server properties available on SQL Server 2008.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Server properties available on SQL Server 2008.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public Task<IServerProperties2008?> GetServerProperties2008(IDbConnectionFactory connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
@@ -97,6 +144,13 @@ select
                 .IfNoneUnsafe(() => null);
         }
 
+        /// <summary>
+        /// Gets the server properties available on SQL Server 2012.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Server properties available on SQL Server 2012.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public Task<IServerProperties2012?> GetServerProperties2012(IDbConnectionFactory connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
@@ -108,6 +162,13 @@ select
                 .IfNoneUnsafe(() => null);
         }
 
+        /// <summary>
+        /// Gets the server properties available on SQL Server 2014.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Server properties available on SQL Server 2014.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public Task<IServerProperties2014?> GetServerProperties2014(IDbConnectionFactory connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
@@ -119,6 +180,13 @@ select
                 .IfNoneUnsafe(() => null);
         }
 
+        /// <summary>
+        /// Gets the server properties available on SQL Server 2017.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Server properties available on SQL Server 2017.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public Task<IServerProperties2017?> GetServerProperties2017(IDbConnectionFactory connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
@@ -130,6 +198,13 @@ select
                 .IfNoneUnsafe(() => null);
         }
 
+        /// <summary>
+        /// Gets the server properties available on SQL Server 2019.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Server properties available on SQL Server 2019.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public Task<IServerProperties2019?> GetServerProperties2019(IDbConnectionFactory connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
@@ -150,8 +225,18 @@ select
             return "SELECT " + propNames;
         }
 
+        /// <summary>
+        /// Gets a dependency provider for SQL Server expressions.
+        /// </summary>
+        /// <returns>A dependency provider.</returns>
         public override IDependencyProvider GetDependencyProvider() => new SqlServerDependencyProvider();
 
+        /// <summary>
+        /// Determines whether the given text is a reserved keyword.
+        /// </summary>
+        /// <param name="text">A piece of text.</param>
+        /// <returns><c>true</c> if the given text is a reserved keyword; otherwise, <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="text"/> is <c>null</c>, empty or whitespace.</exception>
         public override bool IsReservedKeyword(string text)
         {
             if (text.IsNullOrWhiteSpace())
