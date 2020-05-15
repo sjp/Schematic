@@ -8,6 +8,9 @@ using Superpower.Model;
 
 namespace SJP.Schematic.Sqlite.Parsing
 {
+    /// <summary>
+    /// The parsed definition of an index column in a SQLite <c>CREATE TABLE</c> definition.
+    /// </summary>
     public class IndexedColumn
     {
         internal IndexedColumn(SqlIdentifier identifier)
@@ -44,12 +47,28 @@ namespace SJP.Schematic.Sqlite.Parsing
             Expression = expression;
         }
 
+        /// <summary>
+        /// The indexed column name.
+        /// </summary>
+        /// <value>The indexed column name.</value>
         public string? Name { get; protected set; }
 
+        /// <summary>
+        /// A SQL expression representing the indexing on a column.
+        /// </summary>
+        /// <value>A SQL expression.</value>
         public IReadOnlyCollection<Token<SqliteToken>> Expression { get; protected set; }
 
+        /// <summary>
+        /// Indexing collation.
+        /// </summary>
+        /// <value>A collation.</value>
         public SqliteCollation Collation { get; protected set; }
 
+        /// <summary>
+        /// The column ordering for indexing.
+        /// </summary>
+        /// <value>A column order.</value>
         public IndexColumnOrder ColumnOrder { get; protected set; }
 
         internal IndexedColumn WithCollation(ColumnConstraint constraint)

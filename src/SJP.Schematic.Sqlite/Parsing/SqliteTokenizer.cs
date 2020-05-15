@@ -5,6 +5,10 @@ using Superpower.Model;
 
 namespace SJP.Schematic.Sqlite.Parsing
 {
+    /// <summary>
+    /// A tokenizer for SQLite SQL expressions.
+    /// </summary>
+    /// <seealso cref="Tokenizer{TKind}" />
     public class SqliteTokenizer : Tokenizer<SqliteToken>
     {
         static SqliteTokenizer()
@@ -33,6 +37,11 @@ namespace SJP.Schematic.Sqlite.Parsing
             SimpleOps[';'] = SqliteToken.Semicolon;
         }
 
+        /// <summary>
+        /// Tokenizes SQLite SQL text.
+        /// </summary>
+        /// <param name="span">The input span to tokenize.</param>
+        /// <returns>A list of parsed tokens.</returns>
         protected override IEnumerable<Result<SqliteToken>> Tokenize(TextSpan span)
         {
             var next = SkipWhiteSpace(span);

@@ -7,8 +7,18 @@ using Superpower.Model;
 
 namespace SJP.Schematic.Sqlite.Parsing
 {
+    /// <summary>
+    /// A parser for SQLite <c>CREATE TABLE</c> definitions.
+    /// </summary>
     public class SqliteTableParser
     {
+        /// <summary>
+        /// Parses the tokens into structured table definition.
+        /// </summary>
+        /// <param name="definition">The textual definition of the <c>CREATE TABLE</c> statement.</param>
+        /// <param name="tokens">A collection of tokens from the table definition.</param>
+        /// <returns>Parsed data for a <c>CREATE TABLE</c> definition.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tokens"/> is empty.</exception>
         public ParsedTableData ParseTokens(string definition, TokenList<SqliteToken> tokens)
         {
             if (definition.IsNullOrWhiteSpace())

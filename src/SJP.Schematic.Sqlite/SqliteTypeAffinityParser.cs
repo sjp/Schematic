@@ -3,9 +3,17 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Sqlite
 {
+    /// <summary>
+    /// A parser for column type expressions, enabling type affinities to be retrieved.
+    /// </summary>
     public class SqliteTypeAffinityParser
     {
-        // https://sqlite.org/datatype3.html#determination_of_column_affinity
+        /// <summary>
+        /// Parses the name of the type into a compatible affinity.
+        /// </summary>
+        /// <param name="typeName">A type expression.</param>
+        /// <returns>A type affinity.</returns>
+        /// <remarks>https://sqlite.org/datatype3.html#determination_of_column_affinity</remarks>
         public SqliteTypeAffinity ParseTypeName(string? typeName)
         {
             if (typeName.IsNullOrWhiteSpace())
