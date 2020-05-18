@@ -23,6 +23,13 @@ namespace SJP.Schematic.Sqlite
     /// <seealso cref="IRelationalDatabaseTableProvider" />
     public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTableProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqliteRelationalDatabaseTableProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A schematic connection.</param>
+        /// <param name="pragma">A pragma for the given database connection.</param>
+        /// <param name="identifierDefaults">Database identifier defaults.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="pragma"/> are <c>null</c>.</exception>
         public SqliteRelationalDatabaseTableProvider(ISchematicConnection connection, ISqliteConnectionPragma pragma, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -38,6 +45,10 @@ namespace SJP.Schematic.Sqlite
         /// <value>A database connection.</value>
         protected ISchematicConnection Connection { get; }
 
+        /// <summary>
+        /// Accesses pragma that applies to the entire SQLite connection.
+        /// </summary>
+        /// <value>A connection pragma.</value>
         protected ISqliteConnectionPragma ConnectionPragma { get; }
 
         /// <summary>
@@ -223,6 +234,12 @@ namespace SJP.Schematic.Sqlite
             return Option<Identifier>.None;
         }
 
+        /// <summary>
+        /// Creates a SQL query that resolves a table name to its canonical form.
+        /// </summary>
+        /// <param name="schemaName">A schema name.</param>
+        /// <returns>A SQL query</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="schemaName"/> is <c>null</c>, empty or whitespace.</exception>
         protected virtual string TableNameQuery(string schemaName)
         {
             if (schemaName.IsNullOrWhiteSpace())
@@ -569,6 +586,12 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
+        /// <summary>
+        /// Retrieves checks from parsed table information.
+        /// </summary>
+        /// <param name="parsedTable">Parsed table information.</param>
+        /// <returns>A collection of check constraints.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="parsedTable"/> is <c>null</c>.</exception>
         protected virtual IReadOnlyCollection<IDatabaseCheckConstraint> LoadChecks(ParsedTableData parsedTable)
         {
             if (parsedTable == null)
@@ -900,6 +923,12 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
+        /// <summary>
+        /// Creates a SQL query that retrieves triggers for a given table.
+        /// </summary>
+        /// <param name="schema">A table's schema.</param>
+        /// <returns>A SQL query.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="schema"/> is <c>null</c>, empty or whitespace.</exception>
         protected virtual string TriggerDefinitionQuery(string schema)
         {
             if (schema.IsNullOrWhiteSpace())
@@ -924,6 +953,13 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
+        /// <summary>
+        /// Gets the parsed table definition from a <c>CREATE TABLE</c> definition.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Parsed table data.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected virtual Task<ParsedTableData> GetParsedTableDefinitionAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -961,6 +997,12 @@ namespace SJP.Schematic.Sqlite
             })).Value;
         }
 
+        /// <summary>
+        /// Creates a query that retrieves a table's <c>CREATE TABLE</c> definition.
+        /// </summary>
+        /// <param name="schema">A schema name.</param>
+        /// <returns>A SQL query.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="schema"/> is <c>null</c>, empty or whitespace.</exception>
         protected virtual string TableDefinitionQuery(string schema)
         {
             if (schema.IsNullOrWhiteSpace())
@@ -969,6 +1011,12 @@ namespace SJP.Schematic.Sqlite
             return $"select sql from { Dialect.QuoteIdentifier(schema) }.sqlite_master where type = 'table' and tbl_name = @TableName";
         }
 
+        /// <summary>
+        /// Retrieves a pragma that accesses and modifies a particular schema/database.
+        /// </summary>
+        /// <param name="schema">A schema name.</param>
+        /// <returns>A database pragma.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="schema"/> is <c>null</c>, empty or whitespace.</exception>
         protected virtual ISqliteDatabasePragma GetDatabasePragma(string schema)
         {
             if (schema.IsNullOrWhiteSpace())
@@ -977,6 +1025,12 @@ namespace SJP.Schematic.Sqlite
             return _dbPragmaCache.GetOrAdd(schema, _ => new DatabasePragma(Connection, schema));
         }
 
+        /// <summary>
+        /// Determines whether a table's name is a SQLite reserved table name.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <returns><c>true</c> if the table name is a reserved table name; otherwise, <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected static bool IsReservedTableName(Identifier tableName)
         {
             if (tableName == null)
@@ -1000,6 +1054,12 @@ namespace SJP.Schematic.Sqlite
             return Identifier.CreateQualifiedIdentifier(schema, tableName.LocalName);
         }
 
+        /// <summary>
+        /// Retrieves a strongly typed referential action given a string definition from SQLite.
+        /// </summary>
+        /// <param name="pragmaUpdateAction">An update action from SQLite.</param>
+        /// <returns>A referential action.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="pragmaUpdateAction"/> is <c>null</c>, empty or whitespace.</exception>
         protected static ReferentialAction GetReferentialAction(string pragmaUpdateAction)
         {
             if (pragmaUpdateAction.IsNullOrWhiteSpace())
