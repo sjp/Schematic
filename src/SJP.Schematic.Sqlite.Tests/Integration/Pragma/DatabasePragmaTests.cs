@@ -40,7 +40,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var applicationId = await dbPragma.ApplicationIdAsync().ConfigureAwait(false);
-            var newValue = applicationId == 123u ? 456u : 123u;
+            var newValue = applicationId == 123 ? 456 : 123;
             await dbPragma.ApplicationIdAsync(newValue).ConfigureAwait(false);
             var readOfNewValue = await dbPragma.ApplicationIdAsync().ConfigureAwait(false);
 
