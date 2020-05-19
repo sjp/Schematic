@@ -12,8 +12,18 @@ using SJP.Schematic.SqlServer.Query;
 
 namespace SJP.Schematic.SqlServer.Comments
 {
+    /// <summary>
+    /// A comment provider for SQL Server database views.
+    /// </summary>
+    /// <seealso cref="IDatabaseViewCommentProvider" />
     public class SqlServerViewCommentProvider : IDatabaseViewCommentProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqlServerViewCommentProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection factory.</param>
+        /// <param name="identifierDefaults">Database identifier defaults.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <c>null</c>.</exception>
         public SqlServerViewCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -149,6 +159,10 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName
             return new DatabaseViewComments(viewName, viewComment, columnComments);
         }
 
+        /// <summary>
+        /// Gets a query that retrieves view comments for all views.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string AllViewCommentsQuery => AllViewCommentsQuerySql;
 
         private const string AllViewCommentsQuerySql = @"
@@ -170,6 +184,10 @@ where v.is_ms_shipped = 0
 ) wrapped order by wrapped.SchemaName, wrapped.TableName
 ";
 
+        /// <summary>
+        /// Gets a query that retrieves view comments for a single view.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ViewCommentsQuery => ViewCommentsQuerySql;
 
         private const string ViewCommentsQuerySql = @"

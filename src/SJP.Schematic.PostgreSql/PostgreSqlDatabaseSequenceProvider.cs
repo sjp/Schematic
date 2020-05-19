@@ -48,6 +48,11 @@ namespace SJP.Schematic.PostgreSql
         /// <value>A database dialect.</value>
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
+        /// <summary>
+        /// Gets all database sequences.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A collection of database sequences.</returns>
         public async IAsyncEnumerable<IDatabaseSequence> GetAllSequences([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var provider = await _sequenceProvider.ConfigureAwait(false);
@@ -60,6 +65,13 @@ namespace SJP.Schematic.PostgreSql
                 yield return sequence;
         }
 
+        /// <summary>
+        /// Gets a database sequence.
+        /// </summary>
+        /// <param name="sequenceName">A database sequence name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database sequence in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default)
         {
             if (sequenceName == null)

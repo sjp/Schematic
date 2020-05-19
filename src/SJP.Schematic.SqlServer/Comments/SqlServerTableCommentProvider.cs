@@ -12,8 +12,18 @@ using SJP.Schematic.SqlServer.Query;
 
 namespace SJP.Schematic.SqlServer.Comments
 {
+    /// <summary>
+    /// A comment provider for SQL Server database tables.
+    /// </summary>
+    /// <seealso cref="IRelationalDatabaseTableCommentProvider" />
     public class SqlServerTableCommentProvider : IRelationalDatabaseTableCommentProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqlServerTableCommentProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection factory.</param>
+        /// <param name="identifierDefaults">Database identifier defaults.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <c>null</c>.</exception>
         public SqlServerTableCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));

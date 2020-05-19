@@ -72,6 +72,13 @@ namespace SJP.Schematic.Oracle.Comments
             return _viewCommentProvider.GetAllViewComments(cancellationToken);
         }
 
+        /// <summary>
+        /// Retrieves comments for a particular database sequence.
+        /// </summary>
+        /// <param name="sequenceName">The name of a database sequence.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>An <see cref="OptionAsync{A}" /> instance which holds the value of the sequence's comments, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseSequenceComments> GetSequenceComments(Identifier sequenceName, CancellationToken cancellationToken = default)
         {
             if (sequenceName == null)
@@ -90,6 +97,13 @@ namespace SJP.Schematic.Oracle.Comments
             return SequenceCommentProvider.GetAllSequenceComments(cancellationToken);
         }
 
+        /// <summary>
+        /// Retrieves comments for a database synonym.
+        /// </summary>
+        /// <param name="synonymName">A synonym name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A comments object result in the some state, if found, none otherwise.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseSynonymComments> GetSynonymComments(Identifier synonymName, CancellationToken cancellationToken = default)
         {
             if (synonymName == null)
@@ -108,6 +122,13 @@ namespace SJP.Schematic.Oracle.Comments
             return SynonymCommentProvider.GetAllSynonymComments(cancellationToken);
         }
 
+        /// <summary>
+        /// Retrieves comments for a database routine, if available.
+        /// </summary>
+        /// <param name="routineName">A routine name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Comments for the given database routine, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseRoutineComments> GetRoutineComments(Identifier routineName, CancellationToken cancellationToken = default)
         {
             if (routineName == null)

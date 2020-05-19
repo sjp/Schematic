@@ -169,6 +169,10 @@ where mv.OWNER = :SchemaName and mv.MVIEW_NAME = :ViewName
             return new DatabaseViewComments(viewName, viewComment, columnComments);
         }
 
+        /// <summary>
+        /// Gets a query that retrieves comments for all materialized views.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string AllViewCommentsQuery => AllViewCommentsQuerySql;
 
         private const string AllViewCommentsQuerySql = @"
@@ -192,6 +196,10 @@ where o.ORACLE_MAINTAINED <> 'Y'
 ) wrapped order by wrapped.SchemaName, wrapped.ObjectName
 ";
 
+        /// <summary>
+        /// Gets a query that retrieves comments for a single materialized view.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ViewCommentsQuery => ViewCommentsQuerySql;
 
         private const string ViewCommentsQuerySql = @"

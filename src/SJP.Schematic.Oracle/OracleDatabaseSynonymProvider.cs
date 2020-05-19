@@ -33,12 +33,17 @@ namespace SJP.Schematic.Oracle
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
-        // collections create directly instead of via LoadSynonym() methods
-        // the main reason is to avoid queries where possible, especially when
-        // the SYS.ALL_SYNONYMS data dictionary view is very slow
-
+        /// <summary>
+        /// Gets all database synonyms.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A collection of database synonyms.</returns>
         public async IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
+            // collections create directly instead of via LoadSynonym() methods
+            // the main reason is to avoid queries where possible, especially when
+            // the SYS.ALL_SYNONYMS data dictionary view is very slow
+
             var queryResult = await Connection.QueryAsync<SynonymData>(SynonymsQuery, cancellationToken).ConfigureAwait(false);
 
             foreach (var synonymRow in queryResult)
@@ -144,6 +149,10 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
             return qualifiedSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSynonymName.Server, candidateSynonymName.Database, name.SchemaName, name.ObjectName));
         }
 
+        /// <summary>
+        /// Gets a query that retrieves a synonym's name from all visible schemas.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string SynonymNameQuery => SynonymNameQuerySql;
 
         private const string SynonymNameQuerySql = @"
@@ -152,6 +161,10 @@ from SYS.ALL_SYNONYMS s
 inner join SYS.ALL_OBJECTS o on s.OWNER = o.OWNER and s.SYNONYM_NAME = o.OBJECT_NAME
 where s.OWNER = :SchemaName and s.SYNONYM_NAME = :SynonymName and o.ORACLE_MAINTAINED <> 'Y'";
 
+        /// <summary>
+        /// Gets a query that retrieves a synonym's name from the user's schema.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string UserSynonymNameQuery => UserSynonymNameQuerySql;
 
         private const string UserSynonymNameQuerySql = @"

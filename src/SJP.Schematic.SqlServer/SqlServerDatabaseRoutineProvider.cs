@@ -11,8 +11,18 @@ using SJP.Schematic.SqlServer.Query;
 
 namespace SJP.Schematic.SqlServer
 {
+    /// <summary>
+    /// A comment provider for SQL Server database routines.
+    /// </summary>
+    /// <seealso cref="IDatabaseRoutineProvider" />
     public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqlServerDatabaseRoutineProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="identifierDefaults">Identifier defaults for the associated database.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> is <c>null</c>.</exception>
         public SqlServerDatabaseRoutineProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));

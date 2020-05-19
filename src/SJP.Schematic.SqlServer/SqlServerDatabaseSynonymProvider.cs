@@ -9,6 +9,10 @@ using SJP.Schematic.SqlServer.Query;
 
 namespace SJP.Schematic.SqlServer
 {
+    /// <summary>
+    /// A database synonym provider for SQL Server.
+    /// </summary>
+    /// <seealso cref="IDatabaseSynonymProvider" />
     public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
     {
         /// <summary>
@@ -35,6 +39,11 @@ namespace SJP.Schematic.SqlServer
         /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// Gets all database synonyms.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A collection of database synonyms.</returns>
         public async IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var queryResult = await Connection.QueryAsync<SynonymData>(SynonymsQuery, cancellationToken).ConfigureAwait(false);
@@ -111,6 +120,10 @@ order by schema_name(schema_id), name";
             return qualifiedSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSynonymName.Server, candidateSynonymName.Database, name.SchemaName, name.ObjectName));
         }
 
+        /// <summary>
+        /// Gets a query that retrieves a synonym's name, used for name resolution.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string SynonymNameQuery => SynonymNameQuerySql;
 
         private const string SynonymNameQuerySql = @"

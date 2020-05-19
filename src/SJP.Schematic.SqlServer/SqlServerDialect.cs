@@ -562,6 +562,12 @@ select
             "ZONE"
         };
 
+        /// <summary>
+        /// Quotes a string identifier, e.g. a column name.
+        /// </summary>
+        /// <param name="identifier">An identifier.</param>
+        /// <returns>A quoted identifier.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <c>null</c>, empty or whitespace.</exception>
         public override string QuoteIdentifier(string identifier)
         {
             if (identifier.IsNullOrWhiteSpace())
@@ -570,6 +576,12 @@ select
             return $"[{ identifier.Replace("]", "]]") }]";
         }
 
+        /// <summary>
+        /// Quotes a qualified name.
+        /// </summary>
+        /// <param name="name">An object name.</param>
+        /// <returns>A quoted name.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>.</exception>
         public override string QuoteName(Identifier name)
         {
             if (name == null)
@@ -589,6 +601,10 @@ select
             return pieces.Join(".");
         }
 
+        /// <summary>
+        /// Gets a database column data type provider.
+        /// </summary>
+        /// <value>The type provider.</value>
         public override IDbTypeProvider TypeProvider => InnerTypeProvider;
 
         private static readonly IDbTypeProvider InnerTypeProvider = new SqlServerDbTypeProvider();

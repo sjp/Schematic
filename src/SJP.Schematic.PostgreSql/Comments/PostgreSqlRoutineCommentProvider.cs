@@ -105,6 +105,13 @@ where ROUTINE_SCHEMA = @SchemaName and ROUTINE_NAME = @RoutineName
     and ROUTINE_SCHEMA not in ('pg_catalog', 'information_schema')
 limit 1";
 
+        /// <summary>
+        /// Retrieves comments for a database routine, if available.
+        /// </summary>
+        /// <param name="routineName">A routine name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Comments for the given database routine, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseRoutineComments> GetRoutineComments(Identifier routineName, CancellationToken cancellationToken = default)
         {
             if (routineName == null)
@@ -114,6 +121,13 @@ limit 1";
             return LoadRoutineComments(candidateRoutineName, cancellationToken);
         }
 
+        /// <summary>
+        /// Retrieves comments for a database routine, if available.
+        /// </summary>
+        /// <param name="routineName">A routine name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Comments for the given database routine, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IDatabaseRoutineComments> LoadRoutineComments(Identifier routineName, CancellationToken cancellationToken)
         {
             if (routineName == null)
@@ -138,6 +152,10 @@ limit 1";
                 });
         }
 
+        /// <summary>
+        /// Gets a query that retrieves comments for all routines in the database.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string AllRoutineCommentsQuery => AllRoutineCommentsQuerySql;
 
         private const string AllRoutineCommentsQuerySql = @"
@@ -149,6 +167,10 @@ where n.nspname not in ('pg_catalog', 'information_schema')
 order by n.nspname, p.proname
 ";
 
+        /// <summary>
+        /// Gets a query that retrieves comments for a single routine.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string RoutineCommentsQuery => RoutineCommentsQuerySql;
 
         private const string RoutineCommentsQuerySql = @"

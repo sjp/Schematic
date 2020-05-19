@@ -92,6 +92,10 @@ namespace SJP.Schematic.PostgreSql.Comments
             return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSequenceName.Server, candidateSequenceName.Database, name.SchemaName, name.ObjectName));
         }
 
+        /// <summary>
+        /// Gets a query that resolves the name of a sequence.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string SequenceNameQuery => SequenceNameQuerySql;
 
         private const string SequenceNameQuerySql = @"
@@ -101,6 +105,13 @@ where sequence_schema = @SchemaName and sequence_name = @SequenceName
     and sequence_schema not in ('pg_catalog', 'information_schema')
 limit 1";
 
+        /// <summary>
+        /// Retrieves comments for a particular database sequence.
+        /// </summary>
+        /// <param name="sequenceName">The name of a database sequence.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>An <see cref="OptionAsync{A}" /> instance which holds the value of the sequence's comments, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseSequenceComments> GetSequenceComments(Identifier sequenceName, CancellationToken cancellationToken = default)
         {
             if (sequenceName == null)
@@ -110,6 +121,13 @@ limit 1";
             return LoadSequenceComments(candidateSequenceName, cancellationToken);
         }
 
+        /// <summary>
+        /// Retrieves comments for a particular database sequence.
+        /// </summary>
+        /// <param name="sequenceName">The name of a database sequence.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>An <see cref="OptionAsync{A}" /> instance which holds the value of the sequence's comments, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IDatabaseSequenceComments> LoadSequenceComments(Identifier sequenceName, CancellationToken cancellationToken)
         {
             if (sequenceName == null)
@@ -133,6 +151,10 @@ limit 1";
                 });
         }
 
+        /// <summary>
+        /// Gets a query that retrieves comment information on all sequences.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string AllSequenceCommentsQuery => AllSequenceCommentsQuerySql;
 
         private const string AllSequenceCommentsQuerySql = @"
@@ -146,6 +168,10 @@ left join pg_catalog.pg_description d on d.objoid = c.oid
 where nc.nspname not in ('pg_catalog', 'information_schema') and c.relkind = 'S'
 order by nc.nspname, c.relname";
 
+        /// <summary>
+        /// Gets a query that retrieves comment information on a single comment.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string SequenceCommentsQuery => SequenceCommentsQuerySql;
 
         private const string SequenceCommentsQuerySql = @"
@@ -161,6 +187,12 @@ where nc.nspname = @SchemaName and c.relname = @SequenceName
     and c.relkind = 'S'
 ";
 
+        /// <summary>
+        /// Qualifies the name of the sequence.
+        /// </summary>
+        /// <param name="sequenceName">A view name.</param>
+        /// <returns>A sequence name is at least as qualified as the given sequence name.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
         protected Identifier QualifySequenceName(Identifier sequenceName)
         {
             if (sequenceName == null)

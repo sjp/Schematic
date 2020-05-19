@@ -12,8 +12,18 @@ using SJP.Schematic.SqlServer.Query;
 
 namespace SJP.Schematic.SqlServer.Comments
 {
+    /// <summary>
+    /// A comment provider for SQL Server database synonyms.
+    /// </summary>
+    /// <seealso cref="IDatabaseSynonymCommentProvider" />
     public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqlServerSynonymCommentProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection factory.</param>
+        /// <param name="identifierDefaults">Database identifier defaults.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <c>null</c>.</exception>
         public SqlServerSynonymCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -88,6 +98,10 @@ namespace SJP.Schematic.SqlServer.Comments
             return qualifiedSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(synonymName.Server, synonymName.Database, name.SchemaName, name.ObjectName));
         }
 
+        /// <summary>
+        /// Gets a query that retrieves a synonym's name, used for name resolution.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string SynonymNameQuery => SynonymNameQuerySql;
 
         private const string SynonymNameQuerySql = @"
@@ -95,6 +109,13 @@ select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
 from sys.synonyms
 where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipped = 0";
 
+        /// <summary>
+        /// Retrieves comments for a database synonym.
+        /// </summary>
+        /// <param name="synonymName">A synonym name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A comments object result in the some state, if found, none otherwise.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseSynonymComments> GetSynonymComments(Identifier synonymName, CancellationToken cancellationToken = default)
         {
             if (synonymName == null)
@@ -104,6 +125,13 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipp
             return LoadSynonymComments(candidateSynonymName, cancellationToken);
         }
 
+        /// <summary>
+        /// Retrieves comments for a database synonym.
+        /// </summary>
+        /// <param name="synonymName">A synonym name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A comments object result in the some state, if found, none otherwise.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IDatabaseSynonymComments> LoadSynonymComments(Identifier synonymName, CancellationToken cancellationToken)
         {
             if (synonymName == null)
@@ -127,6 +155,10 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipp
             return new DatabaseSynonymComments(synonymName, synonymComment);
         }
 
+        /// <summary>
+        /// Gets a query that retrieves comment information on all synonyms.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string AllSynonymCommentsQuery => AllSynonymCommentsQuerySql;
 
         private const string AllSynonymCommentsQuerySql = @"
@@ -137,6 +169,10 @@ where s.is_ms_shipped = 0
 order by SCHEMA_NAME(s.schema_id), s.name
 ";
 
+        /// <summary>
+        /// Gets a query that retrieves comment information on a single synonym.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string SynonymCommentsQuery => SynonymCommentsQuerySql;
 
         private const string SynonymCommentsQuerySql = @"
@@ -159,6 +195,12 @@ where s.schema_id = SCHEMA_ID(@SchemaName) and s.name = @SynonymName and s.is_ms
                 .FirstOrDefault();
         }
 
+        /// <summary>
+        /// Qualifies the name of a synonym, using known identifier defaults.
+        /// </summary>
+        /// <param name="synonymName">A synonym name to qualify.</param>
+        /// <returns>A synonym name that is at least as qualified as its input.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
         protected Identifier QualifySynonymName(Identifier synonymName)
         {
             if (synonymName == null)

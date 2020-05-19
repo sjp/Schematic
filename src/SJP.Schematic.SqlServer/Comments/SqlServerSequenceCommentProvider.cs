@@ -12,8 +12,18 @@ using SJP.Schematic.SqlServer.Query;
 
 namespace SJP.Schematic.SqlServer.Comments
 {
+    /// <summary>
+    /// A database sequence comment provider for SQL Server.
+    /// </summary>
+    /// <seealso cref="IDatabaseSequenceCommentProvider" />
     public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqlServerSequenceCommentProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection factory.</param>
+        /// <param name="identifierDefaults">Database identifier defaults.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <c>null</c>.</exception>
         public SqlServerSequenceCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -88,6 +98,10 @@ namespace SJP.Schematic.SqlServer.Comments
             return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(sequenceName.Server, sequenceName.Database, name.SchemaName, name.ObjectName));
         }
 
+        /// <summary>
+        /// Gets a query that resolves the name of a sequence.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string SequenceNameQuery => SequenceNameQuerySql;
 
         private const string SequenceNameQuerySql = @"
@@ -95,6 +109,13 @@ select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
 from sys.sequences
 where schema_id = schema_id(@SchemaName) and name = @SequenceName and is_ms_shipped = 0";
 
+        /// <summary>
+        /// Retrieves comments for a particular database sequence.
+        /// </summary>
+        /// <param name="sequenceName">The name of a database sequence.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>An <see cref="OptionAsync{A}" /> instance which holds the value of the sequence's comments, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseSequenceComments> GetSequenceComments(Identifier sequenceName, CancellationToken cancellationToken = default)
         {
             if (sequenceName == null)
@@ -104,6 +125,13 @@ where schema_id = schema_id(@SchemaName) and name = @SequenceName and is_ms_ship
             return LoadSequenceComments(candidateSequenceName, cancellationToken);
         }
 
+        /// <summary>
+        /// Retrieves comments for a particular database sequence.
+        /// </summary>
+        /// <param name="sequenceName">The name of a database sequence.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>An <see cref="OptionAsync{A}" /> instance which holds the value of the sequence's comments, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IDatabaseSequenceComments> LoadSequenceComments(Identifier sequenceName, CancellationToken cancellationToken)
         {
             if (sequenceName == null)
@@ -127,6 +155,10 @@ where schema_id = schema_id(@SchemaName) and name = @SequenceName and is_ms_ship
             return new DatabaseSequenceComments(sequenceName, sequenceComment);
         }
 
+        /// <summary>
+        /// Gets a query that retrieves comment information on all sequences.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string AllSequenceCommentsQuery => AllSequenceCommentsQuerySql;
 
         private const string AllSequenceCommentsQuerySql = @"
@@ -137,6 +169,10 @@ where s.is_ms_shipped = 0
 order by SCHEMA_NAME(s.schema_id), s.name
 ";
 
+        /// <summary>
+        /// Gets a query that retrieves comment information on a single comment.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string SequenceCommentsQuery => SequenceCommentsQuerySql;
 
         private const string SequenceCommentsQuerySql = @"
@@ -159,6 +195,12 @@ where s.schema_id = SCHEMA_ID(@SchemaName) and s.name = @SequenceName and s.is_m
                 .FirstOrDefault();
         }
 
+        /// <summary>
+        /// Qualifies the name of the sequence.
+        /// </summary>
+        /// <param name="sequenceName">A view name.</param>
+        /// <returns>A sequence name is at least as qualified as the given sequence name.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
         protected Identifier QualifySequenceName(Identifier sequenceName)
         {
             if (sequenceName == null)

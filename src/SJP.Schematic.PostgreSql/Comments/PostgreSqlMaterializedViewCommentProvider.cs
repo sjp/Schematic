@@ -157,6 +157,10 @@ limit 1";
             return new DatabaseViewComments(viewName, viewComment, columnComments);
         }
 
+        /// <summary>
+        /// Gets a query that retrieves comments for all materialized views.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string AllViewCommentsQuery => AllViewCommentsQuerySql;
 
         private const string AllViewCommentsQuerySql = @"
@@ -181,6 +185,10 @@ where c.relkind = 'm' and n.nspname not in ('pg_catalog', 'information_schema')
 ) wrapped order by wrapped.SchemaName, wrapped.ViewName
 ";
 
+        /// <summary>
+        /// Gets a query that retrieves comments for a single materialized view.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ViewCommentsQuery => ViewCommentsQuerySql;
 
         private const string ViewCommentsQuerySql = @"

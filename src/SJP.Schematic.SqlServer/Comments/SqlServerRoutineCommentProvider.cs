@@ -12,8 +12,18 @@ using SJP.Schematic.SqlServer.Query;
 
 namespace SJP.Schematic.SqlServer.Comments
 {
+    /// <summary>
+    ///  A routine comment provider for SQL Server.
+    /// </summary>
+    /// <seealso cref="IDatabaseRoutineCommentProvider" />
     public class SqlServerRoutineCommentProvider : IDatabaseRoutineCommentProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqlServerDatabaseCommentProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="identifierDefaults">Identifier defaults for the associated database.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> is <c>null</c>.</exception>
         public SqlServerRoutineCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -100,6 +110,13 @@ from sys.objects
 where schema_id = schema_id(@SchemaName) and name = @RoutineName
     and type in ('P', 'FN', 'IF', 'TF') and is_ms_shipped = 0";
 
+        /// <summary>
+        /// Retrieves comments for a database routine, if available.
+        /// </summary>
+        /// <param name="routineName">A routine name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Comments for the given database routine, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseRoutineComments> GetRoutineComments(Identifier routineName, CancellationToken cancellationToken = default)
         {
             if (routineName == null)
@@ -109,6 +126,13 @@ where schema_id = schema_id(@SchemaName) and name = @RoutineName
             return LoadRoutineComments(candidateRoutineName, cancellationToken);
         }
 
+        /// <summary>
+        /// Retrieves comments for a database routine, if available.
+        /// </summary>
+        /// <param name="routineName">A routine name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Comments for the given database routine, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         protected virtual OptionAsync<IDatabaseRoutineComments> LoadRoutineComments(Identifier routineName, CancellationToken cancellationToken)
         {
             if (routineName == null)
@@ -132,6 +156,10 @@ where schema_id = schema_id(@SchemaName) and name = @RoutineName
             return new DatabaseRoutineComments(routineName, routineComment);
         }
 
+        /// <summary>
+        /// Gets a query that retrieves comments for all routines in the database.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string AllRoutineCommentsQuery => AllRoutineCommentsQuerySql;
 
         private const string AllRoutineCommentsQuerySql = @"
@@ -142,6 +170,10 @@ where r.is_ms_shipped = 0 and r.type in ('P', 'FN', 'IF', 'TF')
 order by SCHEMA_NAME(r.schema_id), r.name
 ";
 
+        /// <summary>
+        /// Gets a query that retrieves comments for a single routine.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string RoutineCommentsQuery => RoutineCommentsQuerySql;
 
         private const string RoutineCommentsQuerySql = @"

@@ -12,6 +12,12 @@ namespace SJP.Schematic.SqlServer
     /// <seealso cref="IRelationalDatabase"/>
     public class SqlServerRelationalDatabase : IRelationalDatabase
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqlServerRelationalDatabase"/> class.
+        /// </summary>
+        /// <param name="connection">A schematic connection.</param>
+        /// <param name="identifierDefaults">Database identifier defaults.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <c>null</c>.</exception>
         public SqlServerRelationalDatabase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults)
         {
             if (connection == null)
@@ -82,11 +88,23 @@ namespace SJP.Schematic.SqlServer
             return _viewProvider.GetView(viewName, cancellationToken);
         }
 
+        /// <summary>
+        /// Gets all database sequences.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A collection of database sequences.</returns>
         public IAsyncEnumerable<IDatabaseSequence> GetAllSequences(CancellationToken cancellationToken = default)
         {
             return _sequenceProvider.GetAllSequences(cancellationToken);
         }
 
+        /// <summary>
+        /// Gets a database sequence.
+        /// </summary>
+        /// <param name="sequenceName">A database sequence name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database sequence in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default)
         {
             if (sequenceName == null)
@@ -95,11 +113,23 @@ namespace SJP.Schematic.SqlServer
             return _sequenceProvider.GetSequence(sequenceName, cancellationToken);
         }
 
+        /// <summary>
+        /// Gets all database synonyms.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A collection of database synonyms.</returns>
         public IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default)
         {
             return _synonymProvider.GetAllSynonyms(cancellationToken);
         }
 
+        /// <summary>
+        /// Gets a database synonym.
+        /// </summary>
+        /// <param name="synonymName">A database synonym name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database synonym in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default)
         {
             if (synonymName == null)
@@ -108,11 +138,23 @@ namespace SJP.Schematic.SqlServer
             return _synonymProvider.GetSynonym(synonymName, cancellationToken);
         }
 
+        /// <summary>
+        /// Gets all database routines.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A collection of database routines.</returns>
         public IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines(CancellationToken cancellationToken = default)
         {
             return _routineProvider.GetAllRoutines(cancellationToken);
         }
 
+        /// <summary>
+        /// Gets a database routine.
+        /// </summary>
+        /// <param name="routineName">A database routine name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database routine in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
         {
             if (routineName == null)

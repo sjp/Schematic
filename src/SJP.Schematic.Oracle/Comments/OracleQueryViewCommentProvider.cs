@@ -168,6 +168,10 @@ where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED 
             return new DatabaseViewComments(viewName, viewComment, columnComments);
         }
 
+        /// <summary>
+        /// Gets a query that retrieves view comments for all views.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string AllViewCommentsQuery => AllViewCommentsQuerySql;
 
         private const string AllViewCommentsQuerySql = @"
@@ -190,6 +194,10 @@ left join SYS.ALL_COL_COMMENTS c on c.OWNER = vc.OWNER and c.TABLE_NAME = vc.TAB
 where o.ORACLE_MAINTAINED <> 'Y'
 ) wrapped order by wrapped.SchemaName, wrapped.ObjectName";
 
+        /// <summary>
+        /// Gets a query that retrieves view comments for a single view.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string ViewCommentsQuery => ViewCommentsQuerySql;
 
         private const string ViewCommentsQuerySql = @"
