@@ -15,6 +15,12 @@ namespace SJP.Schematic.Sqlite
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class SqliteCheckConstraint : IDatabaseCheckConstraint
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqliteCheckConstraint"/> class.
+        /// </summary>
+        /// <param name="checkName">A check constraint name, if available.</param>
+        /// <param name="definition">The constraint definition.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <c>null</c>, empty or whitespace.</exception>
         public SqliteCheckConstraint(Option<Identifier> checkName, string definition)
         {
             if (definition.IsNullOrWhiteSpace())
@@ -24,10 +30,22 @@ namespace SJP.Schematic.Sqlite
             Definition = definition;
         }
 
+        /// <summary>
+        /// The check constraint name.
+        /// </summary>
+        /// <value>A constraint name, if available.</value>
         public Option<Identifier> Name { get; }
 
+        /// <summary>
+        /// The definition of the check constraint.
+        /// </summary>
+        /// <value>The check constraint definition.</value>
         public string Definition { get; }
 
+        /// <summary>
+        /// Indicates whether this constraint is enabled.
+        /// </summary>
+        /// <value>Always <c>true</c>.</value>
         public bool IsEnabled { get; } = true;
 
         /// <summary>

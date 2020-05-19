@@ -39,6 +39,10 @@ namespace SJP.Schematic.Sqlite
         /// <value>A database connection.</value>
         protected ISchematicConnection Connection { get; }
 
+        /// <summary>
+        /// A pragma that accesses or modifies information for a given connection.
+        /// </summary>
+        /// <value>A connection pragma.</value>
         protected ISqliteConnectionPragma ConnectionPragma { get; }
 
         /// <summary>
@@ -93,6 +97,12 @@ namespace SJP.Schematic.Sqlite
                 yield return await LoadViewAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Creates a query that retrieves the names of all views.
+        /// </summary>
+        /// <param name="schemaName">A schema name.</param>
+        /// <returns>A SQL query.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="schemaName"/> is <c>null</c>, empty or whitespace.</exception>
         protected virtual string ViewsQuery(string schemaName)
         {
             if (schemaName.IsNullOrWhiteSpace())
@@ -101,6 +111,13 @@ namespace SJP.Schematic.Sqlite
             return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'view' order by name";
         }
 
+        /// <summary>
+        /// Gets a database view.
+        /// </summary>
+        /// <param name="viewName">A database view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database view in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
         {
             if (viewName == null)
@@ -194,6 +211,12 @@ namespace SJP.Schematic.Sqlite
             return Option<Identifier>.None;
         }
 
+        /// <summary>
+        /// Creates a query that resolves a view name.
+        /// </summary>
+        /// <param name="schemaName">A schema name.</param>
+        /// <returns>A SQL query.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="schemaName"/> is <c>null</c>, empty or whitespace.</exception>
         protected virtual string ViewNameQuery(string schemaName)
         {
             if (schemaName.IsNullOrWhiteSpace())
@@ -253,12 +276,18 @@ namespace SJP.Schematic.Sqlite
             );
         }
 
-        protected virtual string DefinitionQuery(string schema)
+        /// <summary>
+        /// Creates a query that retrieves a view's definition.
+        /// </summary>
+        /// <param name="schemaName">A schema name.</param>
+        /// <returns>A SQL query.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="schemaName"/> is <c>null</c>, empty or whitespace.</exception>
+        protected virtual string DefinitionQuery(string schemaName)
         {
-            if (schema.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(schema));
+            if (schemaName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(schemaName));
 
-            return $"select sql from { Dialect.QuoteIdentifier(schema) }.sqlite_master where type = 'view' and tbl_name = @ViewName";
+            return $"select sql from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'view' and tbl_name = @ViewName";
         }
 
         /// <summary>
@@ -322,6 +351,14 @@ namespace SJP.Schematic.Sqlite
             return result;
         }
 
+        /// <summary>
+        /// Retrieves the runtime type of a column value.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="columnName">A column name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The runtime type name of a column value.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> or <paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
         protected virtual Task<string> GetTypeofColumnAsync(Identifier viewName, Identifier columnName, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -333,6 +370,13 @@ namespace SJP.Schematic.Sqlite
             return DbConnection.ExecuteScalarAsync<string>(sql, cancellationToken);
         }
 
+        /// <summary>
+        /// Creates a query that gets the runtime type of a column value.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <param name="columnName">A column name for the given view.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c> or <paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
         protected virtual string GetTypeofQuery(Identifier viewName, string columnName)
         {
             if (viewName == null)
@@ -358,6 +402,12 @@ namespace SJP.Schematic.Sqlite
             return Identifier.CreateQualifiedIdentifier(schema, viewName.LocalName);
         }
 
+        /// <summary>
+        /// Retrieves a schema-specific database pragma.
+        /// </summary>
+        /// <param name="schema">A schema name.</param>
+        /// <returns>A database pragma.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="schema"/> is <c>null</c>, empty or whitespace.</exception>
         protected virtual ISqliteDatabasePragma GetDatabasePragma(string schema)
         {
             if (schema.IsNullOrWhiteSpace())
@@ -367,12 +417,18 @@ namespace SJP.Schematic.Sqlite
             return loader.Value;
         }
 
-        protected static bool IsReservedTableName(Identifier tableName)
+        /// <summary>
+        /// Determines whether a given view name is a reserved name.
+        /// </summary>
+        /// <param name="viewName">A view name.</param>
+        /// <returns><c>true</c> if the given view name is reserved; otherwise, <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+        protected static bool IsReservedTableName(Identifier viewName)
         {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
 
-            return tableName.LocalName.StartsWith("sqlite_", StringComparison.OrdinalIgnoreCase);
+            return viewName.LocalName.StartsWith("sqlite_", StringComparison.OrdinalIgnoreCase);
         }
 
         private readonly ConcurrentDictionary<string, Lazy<ISqliteDatabasePragma>> _dbPragmaCache = new ConcurrentDictionary<string, Lazy<ISqliteDatabasePragma>>();

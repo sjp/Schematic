@@ -10,8 +10,19 @@ using SJP.Schematic.Sqlite.Pragma;
 
 namespace SJP.Schematic.Sqlite
 {
+    /// <summary>
+    /// A database dialect specific to SQLite.
+    /// </summary>
+    /// <seealso cref="DatabaseDialect" />
     public class SqliteDialect : DatabaseDialect
     {
+        /// <summary>
+        /// Retrieves the set of identifier defaults for the given database connection.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A set of identifier defaults.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
@@ -28,6 +39,13 @@ namespace SJP.Schematic.Sqlite
 
         private const string DefaultSchema = "main";
 
+        /// <summary>
+        /// Gets the database display version. Usually a more user-friendly form of the database version.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A descriptive version.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public override Task<string> GetDatabaseDisplayVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
@@ -42,6 +60,13 @@ namespace SJP.Schematic.Sqlite
             return "SQLite " + versionStr;
         }
 
+        /// <summary>
+        /// Gets the database version.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A version.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public override Task<Version> GetDatabaseVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
@@ -58,6 +83,13 @@ namespace SJP.Schematic.Sqlite
 
         private const string DatabaseDisplayVersionQuerySql = "select sqlite_version()";
 
+        /// <summary>
+        /// Retrieves a relational database for the given dialect.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A relational database.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public override Task<IRelationalDatabase> GetRelationalDatabaseAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
@@ -72,11 +104,28 @@ namespace SJP.Schematic.Sqlite
             return new SqliteRelationalDatabase(connection, identifierDefaults, new ConnectionPragma(connection));
         }
 
+        /// <summary>
+        /// Retrieves a relational database comment provider for the given dialect.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A comment provider.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
             => Task.FromResult<IRelationalDatabaseCommentProvider>(new EmptyRelationalDatabaseCommentProvider());
 
+        /// <summary>
+        /// Gets a dependency provider that retrieves dependencies for SQLite statements.
+        /// </summary>
+        /// <returns>A dependency provider.</returns>
         public override IDependencyProvider GetDependencyProvider() => new SqliteDependencyProvider();
 
+        /// <summary>
+        /// Determines whether the given text is a reserved keyword.
+        /// </summary>
+        /// <param name="text">A piece of text.</param>
+        /// <returns><c>true</c> if the given text is a reserved keyword; otherwise, <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="text"/> is <c>null</c>, empty or whitespace.</exception>
         public override bool IsReservedKeyword(string text)
         {
             if (text.IsNullOrWhiteSpace())
@@ -214,6 +263,12 @@ namespace SJP.Schematic.Sqlite
             "WITHOUT"
         };
 
+        /// <summary>
+        /// Quotes a qualified name.
+        /// </summary>
+        /// <param name="name">An object name.</param>
+        /// <returns>A quoted name.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>.</exception>
         public override string QuoteName(Identifier name)
         {
             if (name == null)
@@ -231,6 +286,10 @@ namespace SJP.Schematic.Sqlite
             }
         }
 
+        /// <summary>
+        /// Gets a database column data type provider.
+        /// </summary>
+        /// <value>The type provider.</value>
         public override IDbTypeProvider TypeProvider => InnerTypeProvider;
 
         private static readonly IDbTypeProvider InnerTypeProvider = new SqliteDbTypeProvider();

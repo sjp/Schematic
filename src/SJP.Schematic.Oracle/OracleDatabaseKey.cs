@@ -10,9 +10,22 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Oracle
 {
+    /// <summary>
+    /// A database key implementation, specific to Oracle.
+    /// </summary>
+    /// <seealso cref="IDatabaseKey" />
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class OracleDatabaseKey : IDatabaseKey
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OracleDatabaseKey"/> class.
+        /// </summary>
+        /// <param name="name">The key constraint name.</param>
+        /// <param name="keyType">Type of the key constraint.</param>
+        /// <param name="columns">A collection of table columns.</param>
+        /// <param name="isEnabled">If true, the constraint is currently enabled.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="columns"/> is <c>null</c>. Alternatively, if <paramref name="columns"/> is empty or has <c>null</c> values.</exception>
+        /// <exception cref="ArgumentException"><paramref name="keyType"/> is not a valid enum.</exception>
         public OracleDatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, bool isEnabled)
         {
             if (name == null)
@@ -28,12 +41,28 @@ namespace SJP.Schematic.Oracle
             IsEnabled = isEnabled;
         }
 
+        /// <summary>
+        /// The name of the key constraint.
+        /// </summary>
+        /// <value>A constraint name.</value>
         public Option<Identifier> Name { get; }
 
+        /// <summary>
+        /// The type of key constraint, e.g. primary, unique, foreign.
+        /// </summary>
+        /// <value>A key constraint type.</value>
         public DatabaseKeyType KeyType { get; }
 
+        /// <summary>
+        /// The columns that defines the key constraint.
+        /// </summary>
+        /// <value>A collection of database columns.</value>
         public IReadOnlyCollection<IDatabaseColumn> Columns { get; }
 
+        /// <summary>
+        /// Indicates whether this database key is enabled.
+        /// </summary>
+        /// <value><c>true</c> if this constraint is enabled; otherwise, <c>false</c>.</value>
         public bool IsEnabled { get; }
 
         /// <summary>
