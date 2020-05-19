@@ -137,6 +137,13 @@ order by schemaname, tablename";
                 .ToOption();
         }
 
+        /// <summary>
+        /// Gets the resolved name of the table without name resolution. i.e. the name must match strictly to return a result.
+        /// </summary>
+        /// <param name="tableName">A table name that will be resolved.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A table name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected OptionAsync<Identifier> GetResolvedTableNameStrict(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -1054,25 +1061,50 @@ where t.relkind = 'r'
             return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, tableName.LocalName);
         }
 
+        /// <summary>
+        /// A set of constants used to test results of queries.
+        /// </summary>
         protected static class Constants
         {
+            /// <summary>
+            /// Used to check whether a trigger event is a <c>DELETE</c> event.
+            /// </summary>
             public const string Delete = "DELETE";
 
+            /// <summary>
+            /// Determines whether a trigger is enabled.
+            /// </summary>
             public const string DisabledFlag = "D";
 
+            /// <summary>
+            /// Used to check whether a trigger event is an <c>INSERT</c> event.
+            /// </summary>
             public const string Insert = "INSERT";
 
+            /// <summary>
+            /// The built-in system schema.
+            /// </summary>
             public const string PgCatalog = "pg_catalog";
 
+            /// <summary>
+            /// Determines whether a key type is a primary key.
+            /// </summary>
             public const string PrimaryKeyType = "p";
 
+            /// <summary>
+            /// Used to check whether a trigger event is an <c>UPDATE</c> event.
+            /// </summary>
             public const string Update = "UPDATE";
 
+            /// <summary>
+            /// Some queries return yes/no, this handles the yes case.
+            /// </summary>
             public const string Yes = "YES";
 
+            /// <summary>
+            /// Determines whether a column is generated.
+            /// </summary>
             public const string Always = "ALWAYS";
-
-            public const string Never = "NEVER";
         }
 
         /// <summary>

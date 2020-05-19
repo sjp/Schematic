@@ -110,6 +110,13 @@ order by ROUTINE_SCHEMA, ROUTINE_NAME";
                 .FirstSome(cancellationToken);
         }
 
+        /// <summary>
+        /// Gets the resolved name of the routine without name resolution. i.e. the name must match strictly to return a result.
+        /// </summary>
+        /// <param name="routineName">A routine name that will be resolved.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A routine name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
         protected OptionAsync<Identifier> GetResolvedRoutineNameStrict(Identifier routineName, CancellationToken cancellationToken)
         {
             if (routineName == null)

@@ -11,8 +11,19 @@ using SJP.Schematic.Oracle.Query;
 
 namespace SJP.Schematic.Oracle
 {
+    /// <summary>
+    /// An Oracle database package provider.
+    /// </summary>
+    /// <seealso cref="SJP.Schematic.Oracle.IOracleDatabasePackageProvider" />
     public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OracleDatabasePackageProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection factory.</param>
+        /// <param name="identifierDefaults">Database identifier defaults.</param>
+        /// <param name="identifierResolver">Database identifier resolver.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
         public OracleDatabasePackageProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -78,6 +89,10 @@ namespace SJP.Schematic.Oracle
                 yield return package;
         }
 
+        /// <summary>
+        /// Gets a query that retrieves all package sources.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string AllSourcesQuery => AllSourcesQuerySql;
 
         private const string AllSourcesQuerySql = @"
@@ -128,6 +143,13 @@ ORDER BY OWNER, NAME, LINE";
                 .FirstSome(cancellationToken);
         }
 
+        /// <summary>
+        /// Gets the resolved name of the package without name resolution. i.e. the name must match strictly to return a result.
+        /// </summary>
+        /// <param name="packageName">A package name that will be resolved.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A package name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="packageName"/> is <c>null</c>.</exception>
         protected OptionAsync<Identifier> GetResolvedPackageNameStrict(Identifier packageName, CancellationToken cancellationToken)
         {
             if (packageName == null)
@@ -143,6 +165,10 @@ ORDER BY OWNER, NAME, LINE";
             return qualifiedPackageName.Map(name => Identifier.CreateQualifiedIdentifier(candidatePackageName.Server, candidatePackageName.Database, name.SchemaName, name.ObjectName));
         }
 
+        /// <summary>
+        /// Gets a query that retrieves the resolved name of a package.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string PackageNameQuery => PackageNameQuerySql;
 
         private const string PackageNameQuerySql = @"
@@ -233,6 +259,10 @@ where OWNER = :SchemaName and OBJECT_NAME = :PackageName
             }
         }
 
+        /// <summary>
+        /// Gets a query that retrieves the package definition for a package in any visible schema.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string PackageDefinitionQuery => PackageDefinitionQuerySql;
 
         private const string PackageDefinitionQuerySql = @"
@@ -244,6 +274,10 @@ from SYS.ALL_SOURCE
 where OWNER = :SchemaName and NAME = :PackageName and TYPE in ('PACKAGE', 'PACKAGE BODY')
 order by LINE";
 
+        /// <summary>
+        /// Gets a query that retrieves the package definition for a package in the user's schema.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string UserPackageDefinitionQuery => UserPackageDefinitionQuerySql;
 
         private const string UserPackageDefinitionQuerySql = @"

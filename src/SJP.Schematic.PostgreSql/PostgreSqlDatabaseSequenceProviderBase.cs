@@ -109,6 +109,13 @@ order by nc.nspname, c.relname";
                 .FirstSome(cancellationToken);
         }
 
+        /// <summary>
+        /// Gets the resolved name of the sequence without name resolution. i.e. the name must match strictly to return a result.
+        /// </summary>
+        /// <param name="sequenceName">A sequence name that will be resolved.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A sequence name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
         protected OptionAsync<Identifier> GetResolvedSequenceNameStrict(Identifier sequenceName, CancellationToken cancellationToken)
         {
             if (sequenceName == null)

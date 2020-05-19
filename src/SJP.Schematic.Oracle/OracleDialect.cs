@@ -12,8 +12,18 @@ using SJP.Schematic.Oracle.Query;
 
 namespace SJP.Schematic.Oracle
 {
+    /// <summary>
+    /// A database dialect specific to SQL Server.
+    /// </summary>
+    /// <seealso cref="DatabaseDialect" />
     public class OracleDialect : DatabaseDialect
     {
+        /// <summary>
+        /// Quotes a string identifier, e.g. a column name.
+        /// </summary>
+        /// <param name="identifier">An identifier.</param>
+        /// <returns>A quoted identifier.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <c>null</c>, empty or whitespace.</exception>
         public override string QuoteIdentifier(string identifier)
         {
             if (identifier.IsNullOrWhiteSpace())
@@ -28,6 +38,12 @@ namespace SJP.Schematic.Oracle
 
         private static bool IsValidIdentifierChar(char identifierChar) => identifierChar != '"' && identifierChar != '\0';
 
+        /// <summary>
+        /// Quotes a qualified name.
+        /// </summary>
+        /// <param name="name">An object name.</param>
+        /// <returns>A quoted name.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>.</exception>
         public override string QuoteName(Identifier name)
         {
             if (name == null)
@@ -47,6 +63,13 @@ namespace SJP.Schematic.Oracle
             return pieces.Join(".");
         }
 
+        /// <summary>
+        /// Retrieves the set of identifier defaults for the given database connection.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A set of identifier defaults.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
@@ -81,6 +104,13 @@ select
     SYS_CONTEXT('USERENV', 'CURRENT_USER') as DefaultSchema
 from DUAL";
 
+        /// <summary>
+        /// Gets the database display version. Usually a more user-friendly form of the database version.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A descriptive version.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public override Task<string> GetDatabaseDisplayVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
@@ -93,6 +123,13 @@ from DUAL";
             );
         }
 
+        /// <summary>
+        /// Gets the database version.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A version.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public override Task<Version> GetDatabaseVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
@@ -137,6 +174,13 @@ select
 from PRODUCT_COMPONENT_VERSION
 where PRODUCT like 'Oracle Database%'";
 
+        /// <summary>
+        /// Retrieves a relational database for the given dialect.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A relational database.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public override Task<IRelationalDatabase> GetRelationalDatabaseAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
@@ -152,6 +196,13 @@ where PRODUCT like 'Oracle Database%'";
             return new OracleRelationalDatabase(connection, identifierDefaults, identifierResolver);
         }
 
+        /// <summary>
+        /// Retrieves a relational database comment provider for the given dialect.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A comment provider.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
         {
             if (connection == null)
@@ -167,6 +218,12 @@ where PRODUCT like 'Oracle Database%'";
             return new OracleDatabaseCommentProvider(connection.DbConnection, identifierDefaults, identifierResolver);
         }
 
+        /// <summary>
+        /// Determines whether the given text is a reserved keyword.
+        /// </summary>
+        /// <param name="text">A piece of text.</param>
+        /// <returns><c>true</c> if the given text is a reserved keyword; otherwise, <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="text"/> is <c>null</c>, empty or whitespace.</exception>
         public override bool IsReservedKeyword(string text)
         {
             if (text.IsNullOrWhiteSpace())
@@ -175,8 +232,16 @@ where PRODUCT like 'Oracle Database%'";
             return Keywords.Contains(text);
         }
 
+        /// <summary>
+        /// Gets a dependency provider for Oracle expressions.
+        /// </summary>
+        /// <returns>A dependency provider.</returns>
         public override IDependencyProvider GetDependencyProvider() => new OracleDependencyProvider();
 
+        /// <summary>
+        /// Gets a database column data type provider.
+        /// </summary>
+        /// <value>The type provider.</value>
         public override IDbTypeProvider TypeProvider => InnerTypeProvider;
 
         private static readonly IDbTypeProvider InnerTypeProvider = new OracleDbTypeProvider();

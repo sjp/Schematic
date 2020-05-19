@@ -82,6 +82,13 @@ namespace SJP.Schematic.Oracle.Comments
                 .FirstSome(cancellationToken);
         }
 
+        /// <summary>
+        /// Gets the resolved name of the materialized view without name resolution. i.e. the name must match strictly to return a result.
+        /// </summary>
+        /// <param name="viewName">A materialized view name that will be resolved.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A materialized view name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         protected OptionAsync<Identifier> GetResolvedViewNameStrict(Identifier viewName, CancellationToken cancellationToken)
         {
             if (viewName == null)

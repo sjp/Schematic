@@ -8,8 +8,18 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Oracle
 {
+    /// <summary>
+    /// A database column type provider for Oracle.
+    /// </summary>
+    /// <seealso cref="IDbTypeProvider" />
     public class OracleDbTypeProvider : IDbTypeProvider
     {
+        /// <summary>
+        /// Creates a column data type based on provided metadata.
+        /// </summary>
+        /// <param name="typeMetadata">Column type metadata.</param>
+        /// <returns>A column data type.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <c>null</c>.</exception>
         public IDbType CreateColumnType(ColumnTypeMetadata typeMetadata)
         {
             if (typeMetadata == null)
@@ -54,6 +64,12 @@ namespace SJP.Schematic.Oracle
             );
         }
 
+        /// <summary>
+        /// Gets the data type that most closely matches the provided data type.
+        /// </summary>
+        /// <param name="otherType">An data type to compare with.</param>
+        /// <returns>The closest matching column data type.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="otherType"/> is <c>null</c>.</exception>
         public IDbType GetComparableColumnType(IDbType otherType)
         {
             if (otherType == null)
@@ -73,6 +89,12 @@ namespace SJP.Schematic.Oracle
             return CreateColumnType(typeMetadata);
         }
 
+        /// <summary>
+        /// Gets the length of the is fixed.
+        /// </summary>
+        /// <param name="typeName">Name of the type.</param>
+        /// <returns><c>true</c> if the type has a fixed length, otherwise <c>false</c>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <c>null</c>, empty or whitespace.</exception>
         protected static bool GetIsFixedLength(Identifier typeName)
         {
             if (typeName == null)
@@ -81,6 +103,13 @@ namespace SJP.Schematic.Oracle
             return FixedLengthTypes.Contains(typeName.LocalName);
         }
 
+        /// <summary>
+        /// Gets the default name of the type.
+        /// </summary>
+        /// <param name="typeMetadata">The type metadata.</param>
+        /// <returns>A type name for the given type metadata.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when a type is unknown or failed to be parsed.</exception>
         protected static Identifier GetDefaultTypeName(ColumnTypeMetadata typeMetadata)
         {
             if (typeMetadata == null)
@@ -129,6 +158,13 @@ namespace SJP.Schematic.Oracle
             }
         }
 
+        /// <summary>
+        /// Gets the name of the formatted type.
+        /// </summary>
+        /// <param name="typeMetadata">The type metadata.</param>
+        /// <returns>A string representing a type name.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">Thrown when a type name is missing.</exception>
         protected static string GetFormattedTypeName(ColumnTypeMetadata typeMetadata)
         {
             if (typeMetadata == null)
@@ -172,6 +208,12 @@ namespace SJP.Schematic.Oracle
             return builder.GetStringAndRelease();
         }
 
+        /// <summary>
+        /// Gets the type of the data.
+        /// </summary>
+        /// <param name="typeName">Name of the type.</param>
+        /// <returns>A general data type class.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <c>null</c>, empty or whitespace.</exception>
         protected static DataType GetDataType(Identifier typeName)
         {
             if (typeName == null)
@@ -182,6 +224,12 @@ namespace SJP.Schematic.Oracle
                 : DataType.Unknown;
         }
 
+        /// <summary>
+        /// Gets the CLR type for the associated type name.
+        /// </summary>
+        /// <param name="typeName">A type name.</param>
+        /// <returns>A CLR type for the associated database type.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <c>null</c>, empty or whitespace.</exception>
         protected static Type GetClrType(Identifier typeName)
         {
             if (typeName == null)
@@ -192,6 +240,12 @@ namespace SJP.Schematic.Oracle
                 : typeof(object);
         }
 
+        /// <summary>
+        /// Quotes an identifier component.
+        /// </summary>
+        /// <param name="identifier">An identifier component.</param>
+        /// <returns>A quoted identifier component.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <c>null</c>, empty or whitespace.</exception>
         protected static string QuoteIdentifier(string identifier)
         {
             if (identifier.IsNullOrWhiteSpace())
@@ -200,6 +254,12 @@ namespace SJP.Schematic.Oracle
             return "\"" + identifier + "\"";
         }
 
+        /// <summary>
+        /// Quotes a type name.
+        /// </summary>
+        /// <param name="name">A type name.</param>
+        /// <returns>A quoted type name.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>.</exception>
         protected static string QuoteName(Identifier name)
         {
             if (name == null)

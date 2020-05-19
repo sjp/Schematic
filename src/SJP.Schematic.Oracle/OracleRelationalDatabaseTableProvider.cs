@@ -143,6 +143,13 @@ order by t.OWNER, t.TABLE_NAME";
                 .ToOption();
         }
 
+        /// <summary>
+        /// Gets the resolved name of the table without name resolution. i.e. the name must match strictly to return a result.
+        /// </summary>
+        /// <param name="tableName">A table name that will be resolved.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A table name that, if available, can be assumed to exist and applied strictly.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         protected OptionAsync<Identifier> GetResolvedTableNameStrict(Identifier tableName, CancellationToken cancellationToken)
         {
             if (tableName == null)

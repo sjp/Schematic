@@ -227,7 +227,17 @@ namespace SJP.Schematic.MySql
             "bit",
             "tinyint",
             "smallint",
-            "mediumint",
+            "mediumint",/// <summary>
+        /// Gets the CLR type for the associated type name.
+        /// </summary>
+        /// <param name="typeName">A type name.</param>
+        /// <returns>A CLR type for the associated database type.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <c>null</c>, empty or whitespace.</exception>/// <summary>
+        /// Gets the CLR type for the associated type name.
+        /// </summary>
+        /// <param name="typeName">A type name.</param>
+        /// <returns>A CLR type for the associated database type.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <c>null</c>, empty or whitespace.</exception>
             "int",
             "bigint",
             "double",
