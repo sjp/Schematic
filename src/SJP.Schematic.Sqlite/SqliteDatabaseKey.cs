@@ -60,7 +60,7 @@ namespace SJP.Schematic.Sqlite
         /// Indicates whether this instance is enabled. Always <c>true</c>.
         /// </summary>
         /// <value>Always <c>true</c>.</value>
-        public bool IsEnabled { get; }
+        public bool IsEnabled { get; } = true;
 
         /// <summary>
         /// Returns a string that provides a basic string representation of this object.
