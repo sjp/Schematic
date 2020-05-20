@@ -48,7 +48,7 @@ namespace SJP.Schematic.PostgreSql
         /// Indicates whether the constraint is enabled. Always <c>true</c>.
         /// </summary>
         /// <value>Always <c>true</c>.</value>
-        public bool IsEnabled { get; }
+        public bool IsEnabled { get; } = true;
 
         /// <summary>
         /// Returns a string that provides a basic string representation of this object.

@@ -185,8 +185,15 @@ namespace SJP.Schematic.Oracle
 
                 var result = IsValidBase64String(base64Remainder);
                 if (result)
-                    payload = base64Remainder;
-                return result;
+                {
+                    payload = base64Remainder!;
+                    return true;
+                }
+                else
+                {
+                    payload = null;
+                    return false;
+                }
             }
         }
 
