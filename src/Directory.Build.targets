@@ -1,6 +1,6 @@
 <Project>
     <!-- https://www.meziantou.net/declaring-internalsvisibleto-in-the-csproj.htm -->
-    <Target Name="AddInternalsVisibleTo" BeforeTargets="CoreCompile">
+    <Target Name="AddInternalsVisibleTo" BeforeTargets="BeforeBuild">
         <!-- Add default suffix if there is no InternalsVisibleTo or InternalsVisibleToSuffix defined -->
         <ItemGroup Condition="@(InternalsVisibleToSuffix->Count()) == 0 AND @(InternalsVisibleTo->Count()) == 0">
             <InternalsVisibleToSuffix Include=".Tests" />
