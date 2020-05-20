@@ -10,8 +10,19 @@ using SJP.Schematic.Oracle.Query;
 
 namespace SJP.Schematic.Oracle
 {
+    /// <summary>
+    /// A database synonym provider for Oracle databases.
+    /// </summary>
+    /// <seealso cref="IDatabaseSynonymProvider" />
     public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OracleDatabaseSynonymProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection factory.</param>
+        /// <param name="identifierDefaults">Database identifier defaults.</param>
+        /// <param name="identifierResolver">An identifier resolver.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
         public OracleDatabaseSynonymProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -31,6 +42,10 @@ namespace SJP.Schematic.Oracle
         /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// Gets an identifier resolver that enables more relaxed matching against database object names.
+        /// </summary>
+        /// <value>An identifier resolver.</value>
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
         /// <summary>
@@ -120,6 +135,13 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
                 .FirstSome(cancellationToken);
         }
 
+        /// <summary>
+        /// Gets the resolved synonym name strictly. If there is no match, the synonym does not exist.
+        /// </summary>
+        /// <param name="synonymName">A synonym name to be strictly matched.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A resolved synonym name, if available.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
         protected OptionAsync<Identifier> GetResolvedSynonymNameStrict(Identifier synonymName, CancellationToken cancellationToken)
         {
             if (synonymName == null)

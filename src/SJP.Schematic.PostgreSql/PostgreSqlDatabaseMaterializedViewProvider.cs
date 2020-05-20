@@ -43,6 +43,10 @@ namespace SJP.Schematic.PostgreSql
         /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// Gets an identifier resolver that enables more relaxed matching against database object names.
+        /// </summary>
+        /// <value>An identifier resolver.</value>
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
         /// <summary>

@@ -11,8 +11,19 @@ using SJP.Schematic.Oracle.Query;
 
 namespace SJP.Schematic.Oracle
 {
+    /// <summary>
+    /// A routine provider for Oracle databases that access routines (but not packages).
+    /// </summary>
+    /// <seealso cref="IDatabaseRoutineProvider" />
     public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OracleDatabaseSimpleRoutineProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection factory.</param>
+        /// <param name="identifierDefaults">Database identifier defaults.</param>
+        /// <param name="identifierResolver">An identifier resolver.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
         public OracleDatabaseSimpleRoutineProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -32,6 +43,10 @@ namespace SJP.Schematic.Oracle
         /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// Gets an identifier resolver that enables more relaxed matching against database object names.
+        /// </summary>
+        /// <value>An identifier resolver.</value>
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
         /// <summary>
@@ -66,6 +81,10 @@ namespace SJP.Schematic.Oracle
                 yield return routine;
         }
 
+        /// <summary>
+        /// Gets a query that retrieves routine information for all routines.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string AllSourcesQuery => AllSourcesQuerySql;
 
         private const string AllSourcesQuerySql = @"
@@ -221,6 +240,10 @@ where OWNER = :SchemaName and OBJECT_NAME = :RoutineName
             return OracleUnwrapper.Unwrap(definition);
         }
 
+        /// <summary>
+        /// Gets a query that retrieves the routine definition for a given routine name.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string DefinitionQuery => DefinitionQuerySql;
 
         private const string DefinitionQuerySql = @"
@@ -230,6 +253,10 @@ where OWNER = :SchemaName and NAME = :RoutineName
     AND TYPE IN ('FUNCTION', 'PROCEDURE')
 order by LINE";
 
+        /// <summary>
+        /// Gets a query that retrieves the routine definition for a given routine name in the user's schema.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string UserDefinitionQuery => UserDefinitionQuerySql;
 
         private const string UserDefinitionQuerySql = @"

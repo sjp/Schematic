@@ -8,9 +8,27 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Oracle
 {
+    /// <summary>
+    /// Describes a foreign key relationship in Oracle databases.
+    /// </summary>
+    /// <seealso cref="IDatabaseRelationalKey" />
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class OracleRelationalKey : IDatabaseRelationalKey
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OracleRelationalKey"/> class.
+        /// </summary>
+        /// <param name="childTableName">The child table name.</param>
+        /// <param name="childKey">The child key.</param>
+        /// <param name="parentTableName">The parent table name.</param>
+        /// <param name="parentKey">The parent key.</param>
+        /// <param name="deleteAction">The delete action.</param>
+        /// <exception cref="ArgumentException">
+        /// <paramref name="deleteAction"/> will throw this exception if given an invalid enum value.
+        /// Alternatively if the child key is not a foreign key this will also be thrown.
+        /// Furthermore, if the parent key is not a unique or primary key, this will also be thrown.
+        /// </exception>
+        /// <exception cref="ArgumentNullException"><paramref name="parentTableName"/> or <paramref name="childTableName"/> or <paramref name="parentKey"/> or <paramref name="childKey"/> is <c>null</c></exception>
         public OracleRelationalKey(Identifier childTableName, IDatabaseKey childKey, Identifier parentTableName, IDatabaseKey parentKey, ReferentialAction deleteAction)
         {
             if (!deleteAction.IsValid())
@@ -29,16 +47,40 @@ namespace SJP.Schematic.Oracle
             DeleteAction = deleteAction;
         }
 
+        /// <summary>
+        /// The child table name.
+        /// </summary>
+        /// <value>A table name.</value>
         public Identifier ChildTable { get; }
 
+        /// <summary>
+        /// The foreign key defined in the child table.
+        /// </summary>
+        /// <value>The child foreign key.</value>
         public IDatabaseKey ChildKey { get; }
 
+        /// <summary>
+        /// The parent table name.
+        /// </summary>
+        /// <value>A table name.</value>
         public Identifier ParentTable { get; }
 
+        /// <summary>
+        /// The primary or unique key being referred to in the relationship.
+        /// </summary>
+        /// <value>The parent primary or unique key.</value>
         public IDatabaseKey ParentKey { get; }
 
+        /// <summary>
+        /// The action to perform if the parent key's value is deleted.
+        /// </summary>
+        /// <value>The delete action.</value>
         public ReferentialAction DeleteAction { get; }
 
+        /// <summary>
+        /// The action to perform if the parent key's value is updated. Always <see cref="ReferentialAction.NoAction"/>.
+        /// </summary>
+        /// <value>Always <see cref="ReferentialAction.NoAction"/>.</value>
         public ReferentialAction UpdateAction { get; }
 
         /// <summary>

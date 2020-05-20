@@ -7,8 +7,19 @@ using SJP.Schematic.Core.Comments;
 
 namespace SJP.Schematic.PostgreSql.Comments
 {
+    /// <summary>
+    /// A database object comment provider for Oracle databases.
+    /// </summary>
+    /// <seealso cref="IRelationalDatabaseCommentProvider" />
     public class PostgreSqlDatabaseCommentProvider : IRelationalDatabaseCommentProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PostgreSqlDatabaseCommentProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection factory.</param>
+        /// <param name="identifierDefaults">Database identifier defaults.</param>
+        /// <param name="identifierResolver">An identifier resolver.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
         public PostgreSqlDatabaseCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             if (connection == null)

@@ -11,8 +11,19 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.PostgreSql
 {
+    /// <summary>
+    /// A database table provider for PostgreSQL.
+    /// </summary>
+    /// <seealso cref="IRelationalDatabaseTableProvider" />
     public class PostgreSqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PostgreSqlRelationalDatabaseTableProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A schematic connection.</param>
+        /// <param name="identifierDefaults">Database identifier defaults.</param>
+        /// <param name="identifierResolver">A database identifier resolver.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
         public PostgreSqlRelationalDatabaseTableProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -34,6 +45,10 @@ namespace SJP.Schematic.PostgreSql
         /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// Gets an identifier resolver that enables more relaxed matching against database object names.
+        /// </summary>
+        /// <value>An identifier resolver.</value>
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
         /// <summary>

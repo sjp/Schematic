@@ -5,8 +5,18 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Oracle
 {
+    /// <summary>
+    /// An identifier resolver that applies the same resolution rules as Oracle databases.
+    /// </summary>
+    /// <seealso cref="IIdentifierResolutionStrategy" />
     public class DefaultOracleIdentifierResolutionStrategy : IIdentifierResolutionStrategy
     {
+        /// <summary>
+        /// Constructs the set of identifiers (in order) that should be used to query the database for an object.
+        /// </summary>
+        /// <param name="identifier">A database identifier.</param>
+        /// <returns>A set of identifiers to query with.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <c>null</c>.</exception>
         public IEnumerable<Identifier> GetResolutionOrder(Identifier identifier)
         {
             if (identifier == null)

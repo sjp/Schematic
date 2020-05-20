@@ -43,6 +43,10 @@ namespace SJP.Schematic.PostgreSql
         /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// Gets an identifier resolver that enables more relaxed matching against database object names.
+        /// </summary>
+        /// <value>An identifier resolver.</value>
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
         /// <summary>
@@ -85,6 +89,13 @@ from pg_catalog.pg_views
 where schemaname not in ('pg_catalog', 'information_schema')
 order by schemaname, viewname";
 
+        /// <summary>
+        /// Gets a database view.
+        /// </summary>
+        /// <param name="viewName">A database view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database view in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
         {
             if (viewName == null)

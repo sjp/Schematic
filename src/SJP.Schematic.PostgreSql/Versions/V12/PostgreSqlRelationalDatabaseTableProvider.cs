@@ -9,8 +9,19 @@ using SJP.Schematic.PostgreSql.Query;
 
 namespace SJP.Schematic.PostgreSql.Versions.V12
 {
+    /// <summary>
+    /// A database table provider for PostgreSQL v12 and higher.
+    /// </summary>
+    /// <seealso cref="V11.PostgreSqlRelationalDatabaseTableProvider" />
     public class PostgreSqlRelationalDatabaseTableProvider : V11.PostgreSqlRelationalDatabaseTableProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PostgreSqlRelationalDatabaseTableProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A schematic connection.</param>
+        /// <param name="identifierDefaults">Database identifier defaults.</param>
+        /// <param name="identifierResolver">A database identifier resolver.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
         public PostgreSqlRelationalDatabaseTableProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
             : base(connection, identifierDefaults, identifierResolver)
         {
@@ -90,6 +101,10 @@ namespace SJP.Schematic.PostgreSql.Versions.V12
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves column definitions.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected override string ColumnsQuery => ColumnsQuerySql;
 
         // a little bit convoluted due to the quote_ident() being required.
@@ -175,6 +190,10 @@ order by ordinal_position";
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves check constraint information for a table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected override string ChecksQuery => ChecksQuerySql;
 
         private const string ChecksQuerySql = @"

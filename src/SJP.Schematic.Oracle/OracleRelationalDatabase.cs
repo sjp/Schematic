@@ -12,6 +12,13 @@ namespace SJP.Schematic.Oracle
     /// <seealso cref="IRelationalDatabase"/>
     public class OracleRelationalDatabase : IRelationalDatabase
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OracleRelationalDatabase"/> class.
+        /// </summary>
+        /// <param name="connection">A schematic connection.</param>
+        /// <param name="identifierDefaults">Database identifier defaults.</param>
+        /// <param name="identifierResolver">An identifier resolver.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
         public OracleRelationalDatabase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
@@ -64,6 +71,13 @@ namespace SJP.Schematic.Oracle
             return _viewProvider.GetAllViews(cancellationToken);
         }
 
+        /// <summary>
+        /// Gets a database view.
+        /// </summary>
+        /// <param name="viewName">A database view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A database view in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
         {
             if (viewName == null)

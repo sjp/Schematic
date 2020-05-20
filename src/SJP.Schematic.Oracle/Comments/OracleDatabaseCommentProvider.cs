@@ -7,8 +7,19 @@ using SJP.Schematic.Core.Comments;
 
 namespace SJP.Schematic.Oracle.Comments
 {
+    /// <summary>
+    /// A comment provider for Oracle database objects.
+    /// </summary>
+    /// <seealso cref="IRelationalDatabaseCommentProvider" />
     public class OracleDatabaseCommentProvider : IRelationalDatabaseCommentProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OracleDatabaseCommentProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection.</param>
+        /// <param name="identifierDefaults">Identifier defaults for the associated database.</param>
+        /// <param name="identifierResolver">An identifier resolver.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
         public OracleDatabaseCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             if (connection == null)

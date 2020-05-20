@@ -11,8 +11,19 @@ using SJP.Schematic.PostgreSql.Query;
 
 namespace SJP.Schematic.PostgreSql.Comments
 {
+    /// <summary>
+    /// A database sequence comment provider for PostgreSQL.
+    /// </summary>
+    /// <seealso cref="IDatabaseSequenceCommentProvider" />
     public class PostgreSqlSequenceCommentProvider : IDatabaseSequenceCommentProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PostgreSqlSequenceCommentProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection factory.</param>
+        /// <param name="identifierDefaults">Database identifier defaults.</param>
+        /// <param name="identifierResolver">An identifier resolver.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
         public PostgreSqlSequenceCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -32,6 +43,10 @@ namespace SJP.Schematic.PostgreSql.Comments
         /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// Gets an identifier resolver that enables more relaxed matching against database object names.
+        /// </summary>
+        /// <value>An identifier resolver.</value>
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
         /// <summary>

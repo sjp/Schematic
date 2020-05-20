@@ -18,6 +18,13 @@ namespace SJP.Schematic.Oracle
     /// <seealso cref="IDatabaseViewProvider" />
     public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OracleDatabaseMaterializedViewProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A schematic connection.</param>
+        /// <param name="identifierDefaults">Database identifier defaults.</param>
+        /// <param name="identifierResolver">An identifier resolver.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
         public OracleDatabaseMaterializedViewProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -37,6 +44,10 @@ namespace SJP.Schematic.Oracle
         /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// Gets an identifier resolver that enables more relaxed matching against database object names.
+        /// </summary>
+        /// <value>An identifier resolver.</value>
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
         /// <summary>
@@ -82,6 +93,13 @@ inner join SYS.ALL_OBJECTS o on mv.OWNER = o.OWNER and mv.MVIEW_NAME = o.OBJECT_
 where o.ORACLE_MAINTAINED <> 'Y' and o.OBJECT_TYPE <> 'TABLE'
 order by mv.OWNER, mv.MVIEW_NAME";
 
+        /// <summary>
+        /// Gets a materialized view.
+        /// </summary>
+        /// <param name="viewName">A materialized view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A materialized view in the 'some' state if found; otherwise 'none'.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
         public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
         {
             if (viewName == null)
@@ -287,6 +305,14 @@ from SYS.ALL_TAB_COLS atc
 where OWNER = :SchemaName and TABLE_NAME = :ViewName
 order by atc.COLUMN_ID";
 
+        /// <summary>
+        /// Retrieves the names all of the not-null constrained columns in a given materialized view.
+        /// </summary>
+        /// <param name="viewName">A materialized view name.</param>
+        /// <param name="columnNames">The column names for the given materialized view.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of not-null constrained column names.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="viewName"/> or <paramref name="columnNames"/> are <c>null</c>.</exception>
         protected Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsync(Identifier viewName, IEnumerable<string> columnNames, CancellationToken cancellationToken)
         {
             if (viewName == null)
@@ -332,6 +358,12 @@ select
 from SYS.ALL_CONSTRAINTS
 where OWNER = :SchemaName and TABLE_NAME = :ViewName and CONSTRAINT_TYPE = 'C'";
 
+        /// <summary>
+        /// Creates a not null constraint definition, used to determine whether a constraint is a <c>NOT NULL</c> constraint.
+        /// </summary>
+        /// <param name="columnName">A column name.</param>
+        /// <returns>A <c>NOT NULL</c> constraint definition for the given column.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
         protected string GenerateNotNullDefinition(string columnName)
         {
             if (columnName.IsNullOrWhiteSpace())

@@ -40,9 +40,7 @@ namespace SJP.Schematic.Core
         /// <summary>
         /// The definition of the check constraint.
         /// </summary>
-        /// <value>
-        /// The check constraint definition.
-        /// </value>
+        /// <value>The check constraint definition.</value>
         public string Definition { get; }
 
         /// <summary>

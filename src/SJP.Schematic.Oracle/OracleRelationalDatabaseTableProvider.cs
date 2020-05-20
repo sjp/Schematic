@@ -20,6 +20,13 @@ namespace SJP.Schematic.Oracle
     /// <seealso cref="IRelationalDatabaseTableProvider" />
     public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTableProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OracleRelationalDatabaseTableProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A schematic connection.</param>
+        /// <param name="identifierDefaults">Database identifier defaults.</param>
+        /// <param name="identifierResolver">An identifier resolver.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
         public OracleRelationalDatabaseTableProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -39,6 +46,10 @@ namespace SJP.Schematic.Oracle
         /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// Gets an identifier resolver that enables more relaxed matching against database object names.
+        /// </summary>
+        /// <value>An identifier resolver.</value>
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
         /// <summary>
@@ -53,6 +64,10 @@ namespace SJP.Schematic.Oracle
         /// <value>A database dialect.</value>
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
+        /// <summary>
+        /// Gets a database column type provider.
+        /// </summary>
+        /// <value>A type provider.</value>
         protected IDbTypeProvider TypeProvider => Dialect.TypeProvider;
 
         /// <summary>
@@ -911,6 +926,14 @@ select
 from SYS.ALL_TRIGGERS
 where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE = 'TABLE'";
 
+        /// <summary>
+        /// Retrieves the names all of the not-null constrained columns in a given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="columnNames">The column names for the given table.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of not-null constrained column names.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="columnNames"/> are <c>null</c>.</exception>
         protected Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsync(Identifier tableName, IEnumerable<string> columnNames, CancellationToken cancellationToken)
         {
             if (tableName == null)
@@ -942,6 +965,12 @@ where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE
                 .ToList();
         }
 
+        /// <summary>
+        /// Creates a not null constraint definition, used to determine whether a constraint is a <c>NOT NULL</c> constraint.
+        /// </summary>
+        /// <param name="columnName">A column name.</param>
+        /// <returns>A <c>NOT NULL</c> constraint definition for the given column.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
         protected string GenerateNotNullDefinition(string columnName)
         {
             if (columnName.IsNullOrWhiteSpace())

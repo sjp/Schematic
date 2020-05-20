@@ -9,8 +9,19 @@ using SJP.Schematic.PostgreSql.Query;
 
 namespace SJP.Schematic.PostgreSql.Versions.V11
 {
+    /// <summary>
+    /// A database table provider for PostgreSQL v11 and higher.
+    /// </summary>
+    /// <seealso cref="V11.PostgreSqlRelationalDatabaseTableProvider" />
     public class PostgreSqlRelationalDatabaseTableProvider : V10.PostgreSqlRelationalDatabaseTableProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PostgreSqlRelationalDatabaseTableProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A schematic connection.</param>
+        /// <param name="identifierDefaults">Database identifier defaults.</param>
+        /// <param name="identifierResolver">A database identifier resolver.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
         public PostgreSqlRelationalDatabaseTableProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
             : base(connection, identifierDefaults, identifierResolver)
         {
@@ -92,6 +103,10 @@ namespace SJP.Schematic.PostgreSql.Versions.V11
             return result;
         }
 
+        /// <summary>
+        /// A SQL query that retrieves information on indexes for a given table.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected override string IndexesQuery => IndexesQuerySql;
 
         private const string IndexesQuerySql = @"

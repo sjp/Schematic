@@ -6,8 +6,16 @@ using SJP.Schematic.Oracle.Parsing;
 
 namespace SJP.Schematic.Oracle
 {
+    /// <summary>
+    /// A dependency provider for Oracle database objects.
+    /// </summary>
+    /// <seealso cref="IDependencyProvider" />
     public sealed class OracleDependencyProvider : IDependencyProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OracleDependencyProvider"/> class.
+        /// </summary>
+        /// <param name="comparer">A comparer.</param>
         public OracleDependencyProvider(IEqualityComparer<Identifier>? comparer = null)
         {
             Comparer = comparer ?? IdentifierComparer.Ordinal;

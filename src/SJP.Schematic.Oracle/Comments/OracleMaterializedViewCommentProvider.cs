@@ -12,8 +12,19 @@ using SJP.Schematic.Oracle.Query;
 
 namespace SJP.Schematic.Oracle.Comments
 {
+    /// <summary>
+    /// A materialized view comment provider for Oracle databases.
+    /// </summary>
+    /// <seealso cref="IDatabaseViewCommentProvider" />
     public class OracleMaterializedViewCommentProvider : IDatabaseViewCommentProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OracleMaterializedViewCommentProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection factory.</param>
+        /// <param name="identifierDefaults">Database identifier defaults.</param>
+        /// <param name="identifierResolver">An identifier resolver.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
         public OracleMaterializedViewCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -33,6 +44,10 @@ namespace SJP.Schematic.Oracle.Comments
         /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// Gets an identifier resolver that enables more relaxed matching against database object names.
+        /// </summary>
+        /// <value>An identifier resolver.</value>
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
         /// <summary>
@@ -228,6 +243,10 @@ left join SYS.ALL_COL_COMMENTS c on c.OWNER = vc.OWNER and c.TABLE_NAME = vc.TAB
 where v.OWNER = :SchemaName and v.MVIEW_NAME = :ViewName and o.ORACLE_MAINTAINED <> 'Y'
 ";
 
+        /// <summary>
+        /// Gets a query that retrieves comments for a single materialized view in the user's schema.
+        /// </summary>
+        /// <value>A SQL query.</value>
         protected virtual string UserViewCommentsQuery => UserViewCommentsQuerySql;
 
         private const string UserViewCommentsQuerySql = @"

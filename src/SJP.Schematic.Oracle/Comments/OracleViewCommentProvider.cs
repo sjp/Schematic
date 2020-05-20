@@ -10,8 +10,19 @@ using SJP.Schematic.Core.Comments;
 
 namespace SJP.Schematic.Oracle.Comments
 {
+    /// <summary>
+    /// A view comment provider for Oracle.
+    /// </summary>
+    /// <seealso cref="IDatabaseViewCommentProvider" />
     public class OracleViewCommentProvider : IDatabaseViewCommentProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OracleViewCommentProvider"/> class.
+        /// </summary>
+        /// <param name="connection">A database connection factory.</param>
+        /// <param name="identifierDefaults">Database identifier defaults.</param>
+        /// <param name="identifierResolver">An identifier resolver.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
         public OracleViewCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             if (connection == null)
@@ -25,8 +36,16 @@ namespace SJP.Schematic.Oracle.Comments
             MaterializedViewCommentProvider = new OracleMaterializedViewCommentProvider(connection, identifierDefaults, identifierResolver);
         }
 
+        /// <summary>
+        /// Gets a query view comment provider that does not return any materialized view comments.
+        /// </summary>
+        /// <value>A query view comment provider.</value>
         protected IDatabaseViewCommentProvider QueryViewCommentProvider { get; }
 
+        /// <summary>
+        /// Gets a materialized view comment provider, that does not return any simple query view comments.
+        /// </summary>
+        /// <value>A materialized view comment provider.</value>
         protected IDatabaseViewCommentProvider MaterializedViewCommentProvider { get; }
 
         /// <summary>

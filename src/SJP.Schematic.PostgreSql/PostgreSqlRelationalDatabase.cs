@@ -12,6 +12,13 @@ namespace SJP.Schematic.PostgreSql
     /// <seealso cref="IRelationalDatabase"/>
     public class PostgreSqlRelationalDatabase : IRelationalDatabase
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PostgreSqlRelationalDatabase"/> class.
+        /// </summary>
+        /// <param name="connection">A schematic connection.</param>
+        /// <param name="identifierDefaults">Database identifier defaults.</param>
+        /// <param name="identifierResolver">An identifier resolver.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
         public PostgreSqlRelationalDatabase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));

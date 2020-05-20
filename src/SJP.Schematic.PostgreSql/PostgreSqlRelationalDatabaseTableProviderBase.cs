@@ -20,6 +20,13 @@ namespace SJP.Schematic.PostgreSql
     /// <seealso cref="IRelationalDatabaseTableProvider" />
     public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabaseTableProvider
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PostgreSqlRelationalDatabaseTableProviderBase"/> class.
+        /// </summary>
+        /// <param name="connection">A schematic connection.</param>
+        /// <param name="identifierDefaults">Database identifier defaults.</param>
+        /// <param name="identifierResolver">An identifier resolver.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
         public PostgreSqlRelationalDatabaseTableProviderBase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -39,6 +46,10 @@ namespace SJP.Schematic.PostgreSql
         /// <value>Identifier defaults.</value>
         protected IIdentifierDefaults IdentifierDefaults { get; }
 
+        /// <summary>
+        /// Gets an identifier resolver that enables more relaxed matching against database object names.
+        /// </summary>
+        /// <value>An identifier resolver.</value>
         protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
         /// <summary>
@@ -53,6 +64,10 @@ namespace SJP.Schematic.PostgreSql
         /// <value>A database dialect.</value>
         protected IDatabaseDialect Dialect => Connection.Dialect;
 
+        /// <summary>
+        /// Gets a database column type provider.
+        /// </summary>
+        /// <value>A type provider.</value>
         protected IDbTypeProvider TypeProvider => Dialect.TypeProvider;
 
         /// <summary>
@@ -1002,6 +1017,13 @@ where t.relkind = 'r'
             return result;
         }
 
+        /// <summary>
+        /// Creates a numeric precision given a base.
+        /// </summary>
+        /// <param name="precision">The numeric precision.</param>
+        /// <param name="radix">The radix.</param>
+        /// <returns>A numeric precision object.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="radix"/> is less than zero.</exception>
         protected static int CreatePrecisionFromBase(int precision, int radix)
         {
             if (precision <= 0)
@@ -1015,6 +1037,14 @@ where t.relkind = 'r'
             return newPrecisionStr.Length;
         }
 
+        /// <summary>
+        /// Creates a numeric precision with scale, given a base.
+        /// </summary>
+        /// <param name="precision">The numeric precision.</param>
+        /// <param name="scale">The numeric scale.</param>
+        /// <param name="radix">The radix.</param>
+        /// <returns>A numeric precision object.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="precision"/> or <paramref name="scale"/> or <paramref name="radix"/> are less than zero.</exception>
         protected static INumericPrecision CreatePrecisionWithScaleFromBase(int precision, int scale, int radix)
         {
             if (precision < 0)
