@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
@@ -39,7 +40,7 @@ namespace SJP.Schematic.Core.Extensions
 
             using var context = await QueryContext.CreateAsync(connectionFactory, new QueryLoggingContext(connectionFactory, sql, null), cancellationToken).ConfigureAwait(false);
             var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-            using var _ = connection.WithDispose(connectionFactory);
+            await using var _ = connection.WithDispose(connectionFactory);
 
             return await connection.QueryAsync<T>(command).ConfigureAwait(false);
         }
@@ -73,7 +74,7 @@ namespace SJP.Schematic.Core.Extensions
 
             using var context = await QueryContext.CreateAsync(connectionFactory, new QueryLoggingContext(connectionFactory, sql, parameters), cancellationToken).ConfigureAwait(false);
             var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-            using var _ = connection.WithDispose(connectionFactory);
+            await using var _ = connection.WithDispose(connectionFactory);
 
             return await connection.QueryAsync<T>(command).ConfigureAwait(false);
         }
@@ -104,7 +105,7 @@ namespace SJP.Schematic.Core.Extensions
 
             using var context = await QueryContext.CreateAsync(connectionFactory, new QueryLoggingContext(connectionFactory, sql, null), cancellationToken).ConfigureAwait(false);
             var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-            using var _ = connection.WithDispose(connectionFactory);
+            await using var _ = connection.WithDispose(connectionFactory);
 
             return await connection.ExecuteScalarAsync<T>(command).ConfigureAwait(false);
         }
@@ -138,7 +139,7 @@ namespace SJP.Schematic.Core.Extensions
 
             using var context = await QueryContext.CreateAsync(connectionFactory, new QueryLoggingContext(connectionFactory, sql, parameters), cancellationToken).ConfigureAwait(false);
             var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-            using var _ = connection.WithDispose(connectionFactory);
+            await using var _ = connection.WithDispose(connectionFactory);
 
             return await connection.ExecuteScalarAsync<T>(command).ConfigureAwait(false);
         }
@@ -167,7 +168,7 @@ namespace SJP.Schematic.Core.Extensions
 
             using var context = await QueryContext.CreateAsync(connectionFactory, new QueryLoggingContext(connectionFactory, sql, null), cancellationToken).ConfigureAwait(false);
             var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-            using var _ = connection.WithDispose(connectionFactory);
+            await using var _ = connection.WithDispose(connectionFactory);
 
             return await connection.ExecuteAsync(command).ConfigureAwait(false);
         }
@@ -199,7 +200,7 @@ namespace SJP.Schematic.Core.Extensions
 
             using var context = await QueryContext.CreateAsync(connectionFactory, new QueryLoggingContext(connectionFactory, sql, parameters), cancellationToken).ConfigureAwait(false);
             var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-            using var _ = connection.WithDispose(connectionFactory);
+            await using var _ = connection.WithDispose(connectionFactory);
 
             return await connection.ExecuteAsync(command).ConfigureAwait(false);
         }
@@ -232,7 +233,7 @@ namespace SJP.Schematic.Core.Extensions
 
             using var context = await QueryContext.CreateAsync(connectionFactory, new QueryLoggingContext(connectionFactory, sql, null), cancellationToken).ConfigureAwait(false);
             var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-            using var _ = connection.WithDispose(connectionFactory);
+            await using var _ = connection.WithDispose(connectionFactory);
 
             var result = await connection.QueryFirstOrDefaultAsync<T>(command).ConfigureAwait(false);
             return result != null
@@ -271,7 +272,7 @@ namespace SJP.Schematic.Core.Extensions
 
             using var context = await QueryContext.CreateAsync(connectionFactory, new QueryLoggingContext(connectionFactory, sql, parameters), cancellationToken).ConfigureAwait(false);
             var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-            using var _ = connection.WithDispose(connectionFactory);
+            await using var _ = connection.WithDispose(connectionFactory);
 
             var result = await connection.QueryFirstOrDefaultAsync<T>(command).ConfigureAwait(false);
             return result != null
@@ -306,7 +307,7 @@ namespace SJP.Schematic.Core.Extensions
 
             using var context = await QueryContext.CreateAsync(connectionFactory, new QueryLoggingContext(connectionFactory, sql, null), cancellationToken).ConfigureAwait(false);
             var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-            using var _ = connection.WithDispose(connectionFactory);
+            await using var _ = connection.WithDispose(connectionFactory);
 
             return await connection.QuerySingleAsync<T>(command).ConfigureAwait(false);
         }
@@ -341,7 +342,7 @@ namespace SJP.Schematic.Core.Extensions
 
             using var context = await QueryContext.CreateAsync(connectionFactory, new QueryLoggingContext(connectionFactory, sql, parameters), cancellationToken).ConfigureAwait(false);
             var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-            using var _ = connection.WithDispose(connectionFactory);
+            await using var _ = connection.WithDispose(connectionFactory);
 
             return await connection.QuerySingleAsync<T>(command).ConfigureAwait(false);
         }
@@ -375,7 +376,7 @@ namespace SJP.Schematic.Core.Extensions
 
                 using var context = await QueryContext.CreateAsync(connectionFactory, new QueryLoggingContext(connectionFactory, sql, null), cancellationToken).ConfigureAwait(false);
                 var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-                using var _ = connection.WithDispose(connectionFactory);
+                await using var _ = connection.WithDispose(connectionFactory);
 
                 var result = await connection.QuerySingleOrDefaultAsync<T>(command).ConfigureAwait(false);
                 return result != null
@@ -420,7 +421,7 @@ namespace SJP.Schematic.Core.Extensions
 
                 using var context = await QueryContext.CreateAsync(connectionFactory, new QueryLoggingContext(connectionFactory, sql, parameters), cancellationToken).ConfigureAwait(false);
                 var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-                using var _ = connection.WithDispose(connectionFactory);
+                await using var _ = connection.WithDispose(connectionFactory);
 
                 var result = await connection.QuerySingleOrDefaultAsync<T>(command).ConfigureAwait(false);
                 return result != null
@@ -433,9 +434,9 @@ namespace SJP.Schematic.Core.Extensions
             }
         }
 
-        private static IDisposable WithDispose(this IDbConnection connection, IDbConnectionFactory factory) => new ConnectionDisposer(connection, factory);
+        private static IAsyncDisposable WithDispose(this IDbConnection connection, IDbConnectionFactory factory) => new ConnectionDisposer(connection, factory);
 
-        private sealed class ConnectionDisposer : IDisposable
+        private sealed class ConnectionDisposer : IAsyncDisposable
         {
             public ConnectionDisposer(IDbConnection connection, IDbConnectionFactory factory)
             {
@@ -446,12 +447,23 @@ namespace SJP.Schematic.Core.Extensions
                 _shouldDispose = factory.DisposeConnection;
             }
 
-            public void Dispose()
+            public async ValueTask DisposeAsync()
             {
+                if (_disposed)
+                    return;
+
                 if (_shouldDispose)
-                    _connection.Dispose();
+                {
+                    if (_connection is DbConnection dbConnection)
+                        await dbConnection.DisposeAsync().ConfigureAwait(false);
+                    else
+                        _connection.Dispose();
+
+                    _disposed = true;
+                }
             }
 
+            private bool _disposed;
             private readonly IDbConnection _connection;
             private readonly bool _shouldDispose;
         }
