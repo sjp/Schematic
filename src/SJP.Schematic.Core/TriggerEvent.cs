@@ -16,16 +16,16 @@ namespace SJP.Schematic.Core
         /// <summary>
         /// An <c>INSERT</c> operation on a table.
         /// </summary>
-        Insert = 1,
+        Insert = 1 << 0,
 
         /// <summary>
         /// An <c>UPDATE</c> operation on a table.
         /// </summary>
-        Update = 2,
+        Update = 1 << 1,
 
         /// <summary>
         /// An <c>DELETE</c> operation on a table.
         /// </summary>
-        Delete = 4
+        Delete = 1 << 2
     }
 }

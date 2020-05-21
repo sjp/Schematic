@@ -16,21 +16,21 @@ namespace SJP.Schematic.Sqlite.Pragma
         /// <summary>
         /// The deterministic flag means that the new function always gives the same output when the input parameters are the same.
         /// </summary>
-        Deterministic = 0x000000800,
+        Deterministic = 1 << 11, // 0x000000800
 
         /// <summary>
         /// The direct only flag means that the function may only be invoked from top-level SQL, and cannot be used in VIEWs or TRIGGERs nor in schema structures such as CHECK constraints, DEFAULT clauses, expression indexes, partial indexes, or generated columns.
         /// </summary>
-        DirectOnly = 0x000080000,
+        DirectOnly = 1 << 23, // 0x000080000
 
         /// <summary>
         /// The sub type flag indicates to SQLite that a function may call <c>sqlite3_value_subtype()</c> to inspect the sub-types of its arguments.
         /// </summary>
-        SubType = 0x000100000,
+        SubType = 1 << 24, // 0x000100000
 
         /// <summary>
         /// The innocuous flag means that the function is unlikely to cause problems even if misused.
         /// </summary>
-        Innocuous = 0x000200000
+        Innocuous = 1 << 25 // 0x000200000
     }
 }

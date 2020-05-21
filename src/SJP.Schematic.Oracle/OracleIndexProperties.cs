@@ -12,86 +12,86 @@ namespace SJP.Schematic.Oracle
         /// <summary>
         /// No properties defined.
         /// </summary>
-        None                            = 0x0000,
+        None                            = 0,
 
         /// <summary>
         /// Whether the index is unique.
         /// </summary>
-        Unique                          = 0x0001,
+        Unique                          = 1 << 0,
 
         /// <summary>
         /// When set, the index is partitioned.
         /// </summary>
-        Partitioned                     = 0x0002,
+        Partitioned                     = 1 << 1,
 
         /// <summary>
         /// Reverse
         /// </summary>
-        Reverse                         = 0x0004,
+        Reverse                         = 1 << 2,
 
         /// <summary>
         /// When set, the index is compressed.
         /// </summary>
-        Compressed                      = 0x0008,
+        Compressed                      = 1 << 3,
 
         /// <summary>
         /// The index is a function-based index.
         /// </summary>
-        Functional                      = 0x0010,
+        Functional                      = 1 << 4,
 
         /// <summary>
         /// The index is an index on a temporary table.
         /// </summary>
-        TempTableIndex                  = 0x0020,
+        TempTableIndex                  = 1 << 5,
 
         /// <summary>
         /// The index is a session-specific index on a temporary table.
         /// </summary>
-        SessionSpecificTempTableIndex   = 0x0040,
+        SessionSpecificTempTableIndex   = 1 << 6,
 
         /// <summary>
         /// EmbeddedAdtIndex
         /// </summary>
-        EmbeddedAdtIndex                = 0x0080,
+        EmbeddedAdtIndex                = 1 << 7,
 
         /// <summary>
         /// MaxLengthCheck
         /// </summary>
-        MaxLengthCheck                  = 0x0100,
+        MaxLengthCheck                  = 1 << 8,
 
         /// <summary>
         /// DomainIndexForIot
         /// </summary>
-        DomainIndexForIot               = 0x0200,
+        DomainIndexForIot               = 1 << 9,
 
         /// <summary>
         /// JoinIndex
         /// </summary>
-        JoinIndex                       = 0x0400,
+        JoinIndex                       = 1 << 10,
 
         /// <summary>
         /// SystemManagedDomainIndex
         /// </summary>
-        SystemManagedDomainIndex        = 0x0800,
+        SystemManagedDomainIndex        = 1 << 11,
 
         /// <summary>
         /// When set, the index was created by a constraint, and not explicitly.
         /// </summary>
-        CreatedByConstraint             = 0x1000,
+        CreatedByConstraint             = 1 << 12,
 
         /// <summary>
         /// When set, the index was created by a materialized view, and not explicitly.
         /// </summary>
-        CreatedByMaterializedView       = 0x2000,
+        CreatedByMaterializedView       = 1 << 13,
 
         /// <summary>
         /// Unknown -- to be determined what this actually does.
         /// </summary>
-        Unknown                         = 0x4000,
+        Unknown                         = 1 << 14,
 
         /// <summary>
         /// CompositeDomainIndex
         /// </summary>
-        CompositeDomainIndex            = 0x8000
+        CompositeDomainIndex            = 1 << 15
     }
 }

@@ -16,21 +16,21 @@ namespace SJP.Schematic.Sqlite.Pragma
         /// <summary>
         /// Debugging mode. Do not actually perform any optimizations but instead return one line of text for each optimization that would have been done. Off by default.
         /// </summary>
-        Debug = 1,
+        Debug = 1 << 0,
 
         /// <summary>
         /// Run <c>ANALYZE</c> on tables that might benefit. On by default.
         /// </summary>
-        Analyze = 2,
+        Analyze = 1 << 1,
 
         /// <summary>
         /// Not yet implemented. Record usage and performance information from the current session in the database file so that it will be available to "optimize" pragmas run by future database connections.
         /// </summary>
-        RecordUsage = 4,
+        RecordUsage = 1 << 2,
 
         /// <summary>
         /// Not yet implemented. Create indexes that might have been helpful to recent queries.
         /// </summary>
-        CreateIndexes = 8
+        CreateIndexes = 1 << 3
     }
 }
