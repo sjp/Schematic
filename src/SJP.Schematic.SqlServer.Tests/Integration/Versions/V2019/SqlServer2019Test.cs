@@ -30,7 +30,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2019
     [DatabaseTestFixture(typeof(Config2019), nameof(Config2019.ConnectionFactory), "No SQL Server 2019 DB available")]
     internal abstract class SqlServer2019Test
     {
-        protected ISchematicConnection Connection { get; } = Config2019.SchematicConnection;
+        protected ISchematicConnection Connection => _connection.Value;
 
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
@@ -38,6 +38,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2019
 
         protected IIdentifierDefaults IdentifierDefaults => _defaults.Value;
 
+        private readonly Lazy<ISchematicConnection> _connection = new Lazy<ISchematicConnection>(() => Config2019.SchematicConnection);
         private readonly Lazy<IIdentifierDefaults> _defaults = new Lazy<IIdentifierDefaults>(() => Config2019.SchematicConnection.Dialect.GetIdentifierDefaultsAsync(Config2019.SchematicConnection).GetAwaiter().GetResult());
     }
 }

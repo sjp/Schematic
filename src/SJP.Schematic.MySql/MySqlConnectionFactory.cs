@@ -46,7 +46,10 @@ namespace SJP.Schematic.MySql
         public IDbConnection OpenConnection()
         {
             var connection = new MySqlConnection(ConnectionString);
-            connection.Open();
+
+            if (connection.State != ConnectionState.Open)
+                connection.Open();
+
             return connection;
         }
 
@@ -58,7 +61,10 @@ namespace SJP.Schematic.MySql
         public async Task<IDbConnection> OpenConnectionAsync(CancellationToken cancellationToken = default)
         {
             var connection = new MySqlConnection(ConnectionString);
-            await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+
+            if (connection.State != ConnectionState.Open)
+                await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+
             return connection;
         }
 

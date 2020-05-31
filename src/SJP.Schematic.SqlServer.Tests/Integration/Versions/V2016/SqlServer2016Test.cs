@@ -30,7 +30,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2016
     [DatabaseTestFixture(typeof(Config2016), nameof(Config2016.ConnectionFactory), "No SQL Server 2016 DB available")]
     internal abstract class SqlServer2016Test
     {
-        protected ISchematicConnection Connection => Config2016.SchematicConnection;
+        protected ISchematicConnection Connection => _connection.Value;
 
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
@@ -38,6 +38,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2016
 
         protected IIdentifierDefaults IdentifierDefaults => _defaults.Value;
 
+        private readonly Lazy<ISchematicConnection> _connection = new Lazy<ISchematicConnection>(() => Config2016.SchematicConnection);
         private readonly Lazy<IIdentifierDefaults> _defaults = new Lazy<IIdentifierDefaults>(() => Config2016.SchematicConnection.Dialect.GetIdentifierDefaultsAsync(Config2016.SchematicConnection).GetAwaiter().GetResult());
     }
 }

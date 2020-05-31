@@ -30,7 +30,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2014
     [DatabaseTestFixture(typeof(Config2014), nameof(Config2014.ConnectionFactory), "No SQL Server 2014 DB available")]
     internal abstract class SqlServer2014Test
     {
-        protected ISchematicConnection Connection { get; } = Config2014.SchematicConnection;
+        protected ISchematicConnection Connection => _connection.Value;
 
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
@@ -38,6 +38,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2014
 
         protected IIdentifierDefaults IdentifierDefaults => _defaults.Value;
 
+        private readonly Lazy<ISchematicConnection> _connection = new Lazy<ISchematicConnection>(() => Config2014.SchematicConnection);
         private readonly Lazy<IIdentifierDefaults> _defaults = new Lazy<IIdentifierDefaults>(() => Config2014.SchematicConnection.Dialect.GetIdentifierDefaultsAsync(Config2014.SchematicConnection).GetAwaiter().GetResult());
     }
 }

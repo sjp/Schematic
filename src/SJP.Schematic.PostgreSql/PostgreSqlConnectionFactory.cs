@@ -46,7 +46,10 @@ namespace SJP.Schematic.PostgreSql
         public IDbConnection OpenConnection()
         {
             var connection = new NpgsqlConnection(ConnectionString);
-            connection.Open();
+
+            if (connection.State != ConnectionState.Open)
+                connection.Open();
+
             return connection;
         }
 
@@ -58,7 +61,10 @@ namespace SJP.Schematic.PostgreSql
         public async Task<IDbConnection> OpenConnectionAsync(CancellationToken cancellationToken = default)
         {
             var connection = new NpgsqlConnection(ConnectionString);
-            await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+
+            if (connection.State != ConnectionState.Open)
+                await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+
             return connection;
         }
 

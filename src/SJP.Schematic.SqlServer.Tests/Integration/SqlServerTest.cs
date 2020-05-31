@@ -27,7 +27,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
     [DatabaseTestFixture(typeof(Config), nameof(Config.ConnectionFactory), "No SQL Server DB available")]
     internal abstract class SqlServerTest
     {
-        protected ISchematicConnection Connection => Config.SchematicConnection;
+        protected ISchematicConnection Connection => _connection.Value;
 
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
@@ -35,6 +35,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
 
         protected IIdentifierDefaults IdentifierDefaults => _defaults.Value;
 
+        private readonly Lazy<ISchematicConnection> _connection = new Lazy<ISchematicConnection>(() => Config.SchematicConnection);
         private readonly Lazy<IIdentifierDefaults> _defaults = new Lazy<IIdentifierDefaults>(() => Config.SchematicConnection.Dialect.GetIdentifierDefaultsAsync(Config.SchematicConnection).GetAwaiter().GetResult());
     }
 }

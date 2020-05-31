@@ -30,7 +30,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2008R2
     [DatabaseTestFixture(typeof(Config2008R2), nameof(Config2008R2.ConnectionFactory), "No SQL Server 2008R2 DB available")]
     internal abstract class SqlServer2008R2Test
     {
-        protected ISchematicConnection Connection { get; } = Config2008R2.SchematicConnection;
+        protected ISchematicConnection Connection => _connection.Value;
 
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
@@ -38,6 +38,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration.Versions.V2008R2
 
         protected IIdentifierDefaults IdentifierDefaults => _defaults.Value;
 
+        private readonly Lazy<ISchematicConnection> _connection = new Lazy<ISchematicConnection>(() => Config2008R2.SchematicConnection);
         private readonly Lazy<IIdentifierDefaults> _defaults = new Lazy<IIdentifierDefaults>(() => Config2008R2.SchematicConnection.Dialect.GetIdentifierDefaultsAsync(Config2008R2.SchematicConnection).GetAwaiter().GetResult());
     }
 }
