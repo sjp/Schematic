@@ -31,21 +31,21 @@ namespace SJP.Schematic.PostgreSql.Versions.V11
         /// Retrieves indexes that relate to the given table.
         /// </summary>
         /// <param name="tableName">A table name.</param>
-        /// <param name="columns">Columns for the given table.</param>
+        /// <param name="queryCache">A query cache for the given context.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A collection of indexes.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="columns"/> are <c>null</c>.</exception>
-        protected override Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+        protected override Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
+            if (queryCache == null)
+                throw new ArgumentNullException(nameof(queryCache));
 
-            return LoadIndexesAsyncCore(tableName, columns, cancellationToken);
+            return LoadIndexesAsyncCore(tableName, queryCache, cancellationToken);
         }
 
-        private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             var queryResult = await DbConnection.QueryAsync<IndexColumns>(
                 IndexesQuery,
@@ -60,6 +60,9 @@ namespace SJP.Schematic.PostgreSql.Versions.V11
             if (indexColumns.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
+            var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+            var columnLookup = GetColumnLookup(columns);
+
             var result = new List<IDatabaseIndex>(indexColumns.Count);
             foreach (var indexInfo in indexColumns)
             {
@@ -73,8 +76,8 @@ namespace SJP.Schematic.PostgreSql.Versions.V11
                     {
                         row.IsDescending,
                         Expression = row.IndexColumnExpression,
-                        Column = row.IndexColumnExpression != null && columns.ContainsKey(row.IndexColumnExpression)
-                            ? columns[row.IndexColumnExpression]
+                        Column = row.IndexColumnExpression != null && columnLookup.ContainsKey(row.IndexColumnExpression)
+                            ? columnLookup[row.IndexColumnExpression]
                             : null
                     })
                     .Select(row =>
@@ -92,8 +95,8 @@ namespace SJP.Schematic.PostgreSql.Versions.V11
                 var includedCols = indexInfo
                     .OrderBy(row => row.IndexColumnId)
                     .Skip(indexInfo.Key.KeyColumnCount)
-                    .Where(row => row.IndexColumnExpression != null && columns.ContainsKey(row.IndexColumnExpression))
-                    .Select(row => columns[row.IndexColumnExpression!])
+                    .Where(row => row.IndexColumnExpression != null && columnLookup.ContainsKey(row.IndexColumnExpression))
+                    .Select(row => columnLookup[row.IndexColumnExpression!])
                     .ToList();
 
                 var index = new PostgreSqlDatabaseIndex(indexName, isUnique, indexCols, includedCols);

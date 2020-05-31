@@ -169,27 +169,25 @@ where schema_id = schema_id(@SchemaName) and name = @TableName and is_ms_shipped
 
         private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
-            var columnLookup = GetColumnLookup(columns);
-
+            var columnsTask = queryCache.GetColumnsAsync(tableName, cancellationToken);
             var checksTask = LoadChecksAsync(tableName, cancellationToken);
             var triggersTask = LoadTriggersAsync(tableName, cancellationToken);
-            await Task.WhenAll(checksTask, triggersTask).ConfigureAwait(false);
-
-            var checks = await checksTask.ConfigureAwait(false);
-            var triggers = await triggersTask.ConfigureAwait(false);
-
             var primaryKeyTask = queryCache.GetPrimaryKeyAsync(tableName, cancellationToken);
             var uniqueKeysTask = queryCache.GetUniqueKeysAsync(tableName, cancellationToken);
-            var indexesTask = LoadIndexesAsync(tableName, columnLookup, cancellationToken);
-            await Task.WhenAll(primaryKeyTask, uniqueKeysTask, indexesTask).ConfigureAwait(false);
+            var indexesTask = LoadIndexesAsync(tableName, queryCache, cancellationToken);
+            var parentKeysTask = queryCache.GetForeignKeysAsync(tableName, cancellationToken);
+            var childKeysTask = LoadChildKeysAsync(tableName, queryCache, cancellationToken);
 
+            await Task.WhenAll(columnsTask, checksTask, triggersTask, primaryKeyTask, uniqueKeysTask, indexesTask, parentKeysTask, childKeysTask).ConfigureAwait(false);
+
+            var columns = await columnsTask.ConfigureAwait(false);
+            var checks = await checksTask.ConfigureAwait(false);
+            var triggers = await triggersTask.ConfigureAwait(false);
             var primaryKey = await primaryKeyTask.ConfigureAwait(false);
             var uniqueKeys = await uniqueKeysTask.ConfigureAwait(false);
             var indexes = await indexesTask.ConfigureAwait(false);
-
-            var parentKeys = await queryCache.GetForeignKeysAsync(tableName, cancellationToken).ConfigureAwait(false);
-            var childKeys = await LoadChildKeysAsync(tableName, queryCache, cancellationToken).ConfigureAwait(false);
+            var parentKeys = await parentKeysTask.ConfigureAwait(false);
+            var childKeys = await childKeysTask.ConfigureAwait(false);
 
             return new RelationalDatabaseTable(
                 tableName,
@@ -280,21 +278,21 @@ order by ic.key_ordinal";
         /// Retrieves indexes that relate to the given table.
         /// </summary>
         /// <param name="tableName">A table name.</param>
-        /// <param name="columns">Columns for the given table.</param>
+        /// <param name="queryCache">A query cache for the given context.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A collection of indexes.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="columns"/> are <c>null</c>.</exception>
-        protected virtual Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+        protected virtual Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
+            if (queryCache == null)
+                throw new ArgumentNullException(nameof(queryCache));
 
-            return LoadIndexesAsyncCore(tableName, columns, cancellationToken);
+            return LoadIndexesAsyncCore(tableName, queryCache, cancellationToken);
         }
 
-        private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             var queryResult = await DbConnection.QueryAsync<IndexColumns>(
                 IndexesQuery,
@@ -309,6 +307,9 @@ order by ic.key_ordinal";
             if (indexColumns.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
+            var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+            var columnLookup = GetColumnLookup(columns);
+
             var result = new List<IDatabaseIndex>(indexColumns.Count);
             foreach (var indexInfo in indexColumns)
             {
@@ -317,10 +318,10 @@ order by ic.key_ordinal";
                 var isEnabled = !indexInfo.Key.IsDisabled;
 
                 var indexCols = indexInfo
-                    .Where(row => !row.IsIncludedColumn && columns.ContainsKey(row.ColumnName))
+                    .Where(row => !row.IsIncludedColumn && columnLookup.ContainsKey(row.ColumnName))
                     .OrderBy(row => row.KeyOrdinal)
                     .ThenBy(row => row.IndexColumnId)
-                    .Select(row => new { row.IsDescending, Column = columns[row.ColumnName] })
+                    .Select(row => new { row.IsDescending, Column = columnLookup[row.ColumnName] })
                     .Select(row =>
                     {
                         var order = row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
@@ -331,10 +332,10 @@ order by ic.key_ordinal";
                     .ToList();
 
                 var includedCols = indexInfo
-                    .Where(row => row.IsIncludedColumn && columns.ContainsKey(row.ColumnName))
+                    .Where(row => row.IsIncludedColumn && columnLookup.ContainsKey(row.ColumnName))
                     .OrderBy(row => row.KeyOrdinal)
                     .ThenBy(row => row.ColumnName) // matches SSMS behaviour
-                    .Select(row => columns[row.ColumnName])
+                    .Select(row => columnLookup[row.ColumnName])
                     .ToList();
 
                 var index = new DatabaseIndex(indexName, isUnique, indexCols, includedCols, isEnabled);

@@ -222,21 +222,17 @@ where
         {
             var columnsTask = queryCache.GetColumnsAsync(tableName, cancellationToken);
             var triggersTask = LoadTriggersAsync(tableName, cancellationToken);
-            await Task.WhenAll(columnsTask, triggersTask).ConfigureAwait(false);
-
-            var columns = await columnsTask.ConfigureAwait(false);
-            var columnLookup = GetColumnLookup(columns);
-            var triggers = await triggersTask.ConfigureAwait(false);
-
             var primaryKeyTask = queryCache.GetPrimaryKeyAsync(tableName, cancellationToken);
             var uniqueKeysTask = queryCache.GetUniqueKeysAsync(tableName, cancellationToken);
-            var indexesTask = LoadIndexesAsync(tableName, columnLookup, cancellationToken);
-            var checksTask = LoadChecksAsync(tableName, columnLookup, cancellationToken);
+            var indexesTask = LoadIndexesAsync(tableName, queryCache, cancellationToken);
+            var checksTask = LoadChecksAsync(tableName, queryCache, cancellationToken);
             var childKeysTask = LoadChildKeysAsync(tableName, queryCache, cancellationToken);
             var parentKeysTask = queryCache.GetForeignKeysAsync(tableName, cancellationToken);
 
-            await Task.WhenAll(primaryKeyTask, checksTask, uniqueKeysTask, indexesTask, childKeysTask, parentKeysTask).ConfigureAwait(false);
+            await Task.WhenAll(columnsTask, triggersTask, primaryKeyTask, uniqueKeysTask, indexesTask, checksTask, childKeysTask, parentKeysTask).ConfigureAwait(false);
 
+            var columns = await columnsTask.ConfigureAwait(false);
+            var triggers = await triggersTask.ConfigureAwait(false);
             var primaryKey = await primaryKeyTask.ConfigureAwait(false);
             var uniqueKeys = await uniqueKeysTask.ConfigureAwait(false);
             var indexes = await indexesTask.ConfigureAwait(false);
@@ -328,21 +324,21 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
         /// Retrieves indexes that relate to the given table.
         /// </summary>
         /// <param name="tableName">A table name.</param>
-        /// <param name="columns">Columns for the given table.</param>
+        /// <param name="queryCache">A query cache for the given context.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A collection of indexes.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="columns"/> are <c>null</c>.</exception>
-        protected virtual Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+        protected virtual Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
+            if (queryCache == null)
+                throw new ArgumentNullException(nameof(queryCache));
 
-            return LoadIndexesAsyncCore(tableName, columns, cancellationToken);
+            return LoadIndexesAsyncCore(tableName, queryCache, cancellationToken);
         }
 
-        private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             var queryResult = await DbConnection.QueryAsync<IndexColumns>(
                 IndexesQuery,
@@ -356,6 +352,9 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
             var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IndexProperty, row.Uniqueness }).ToList();
             if (indexColumns.Empty())
                 return Array.Empty<IDatabaseIndex>();
+
+            var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+            var columnLookup = GetColumnLookup(columns);
 
             var result = new List<IDatabaseIndex>(indexColumns.Count);
             foreach (var indexInfo in indexColumns)
@@ -371,8 +370,8 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                     .Select(row =>
                     {
                         var order = row.IsDescending == Constants.Y ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
-                        var indexColumns = columns.ContainsKey(row.Column)
-                            ? new[] { columns[row.Column] }
+                        var indexColumns = columnLookup.ContainsKey(row.Column)
+                            ? new[] { columnLookup[row.Column] }
                             : Array.Empty<IDatabaseColumn>();
                         var expression = Dialect.QuoteName(row.Column);
                         return new DatabaseIndexColumn(expression, indexColumns, order);
@@ -580,21 +579,21 @@ where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_
         /// Retrieves check constraints defined on a given table.
         /// </summary>
         /// <param name="tableName">A table name.</param>
-        /// <param name="columns">Columns from the associated table.</param>
+        /// <param name="queryCache">A query cache for the given context.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A collection of check constraints.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
-        protected virtual Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        protected virtual Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
+            if (queryCache == null)
+                throw new ArgumentNullException(nameof(queryCache));
 
-            return LoadChecksAsyncCore(tableName, columns, cancellationToken);
+            return LoadChecksAsyncCore(tableName, queryCache, cancellationToken);
         }
 
-        private async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsyncCore(Identifier tableName, IReadOnlyDictionary<Identifier, IDatabaseColumn> columns, CancellationToken cancellationToken)
+        private async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsyncCore(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
         {
             var checks = await DbConnection.QueryAsync<CheckConstraintData>(
                 ChecksQuery,
@@ -605,7 +604,10 @@ where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_
             if (checks.Empty())
                 return Array.Empty<IDatabaseCheckConstraint>();
 
-            var columnNotNullConstraints = columns.Keys
+            var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+            var columnLookup = GetColumnLookup(columns);
+
+            var columnNotNullConstraints = columnLookup.Keys
                 .Select(k => k.LocalName)
                 .Select(GenerateNotNullDefinition)
                 .ToList();
