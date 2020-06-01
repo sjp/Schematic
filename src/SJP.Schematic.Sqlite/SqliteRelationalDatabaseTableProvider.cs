@@ -280,26 +280,14 @@ namespace SJP.Schematic.Sqlite
 
         private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var parsedTableTask = queryCache.GetParsedTableAsync(tableName, cancellationToken);
-            var columnsTask = queryCache.GetColumnsAsync(tableName, cancellationToken);
-            var triggersTask = LoadTriggersAsync(tableName, cancellationToken);
-            var primaryKeyTask = LoadPrimaryKeyAsync(tableName, queryCache, cancellationToken);
-            var uniqueKeysTask = LoadUniqueKeysAsync(tableName, queryCache, cancellationToken);
-            var indexesTask = LoadIndexesAsync(tableName, queryCache, cancellationToken);
-            var parentKeysTask = queryCache.GetForeignKeysAsync(tableName, cancellationToken);
-            var childKeysTask = LoadChildKeysAsync(tableName, queryCache, cancellationToken);
-
-            await Task.WhenAll(parsedTableTask, columnsTask, triggersTask, primaryKeyTask, uniqueKeysTask, indexesTask, parentKeysTask, childKeysTask).ConfigureAwait(false);
-
-            var parsedTable = await parsedTableTask.ConfigureAwait(false);
-            var columns = await columnsTask.ConfigureAwait(false);
-            var triggers = await triggersTask.ConfigureAwait(false);
-            var primaryKey = await primaryKeyTask.ConfigureAwait(false);
-            var uniqueKeys = await uniqueKeysTask.ConfigureAwait(false);
-            var indexes = await indexesTask.ConfigureAwait(false);
-            var parentKeys = await parentKeysTask.ConfigureAwait(false);
-            var childKeys = await childKeysTask.ConfigureAwait(false);
-
+            var parsedTable = await queryCache.GetParsedTableAsync(tableName, cancellationToken).ConfigureAwait(false);
+            var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+            var triggers = await LoadTriggersAsync(tableName, cancellationToken).ConfigureAwait(false);
+            var primaryKey = await LoadPrimaryKeyAsync(tableName, queryCache, cancellationToken).ConfigureAwait(false);
+            var uniqueKeys = await LoadUniqueKeysAsync(tableName, queryCache, cancellationToken).ConfigureAwait(false);
+            var indexes = await LoadIndexesAsync(tableName, queryCache, cancellationToken).ConfigureAwait(false);
+            var parentKeys = await queryCache.GetForeignKeysAsync(tableName, cancellationToken).ConfigureAwait(false);
+            var childKeys = await LoadChildKeysAsync(tableName, queryCache, cancellationToken).ConfigureAwait(false);
             var checks = LoadChecks(parsedTable);
 
             return new RelationalDatabaseTable(

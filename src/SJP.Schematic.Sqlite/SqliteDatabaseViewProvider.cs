@@ -246,12 +246,8 @@ namespace SJP.Schematic.Sqlite
         {
             var databasePragma = GetDatabasePragma(viewName.Schema!);
 
-            var columnsTask = LoadColumnsAsync(databasePragma, viewName, cancellationToken);
-            var definitionTask = LoadDefinitionAsync(viewName, cancellationToken);
-            await Task.WhenAll(columnsTask, definitionTask).ConfigureAwait(false);
-
-            var columns = await columnsTask.ConfigureAwait(false);
-            var definition = await definitionTask.ConfigureAwait(false);
+            var columns = await LoadColumnsAsync(databasePragma, viewName, cancellationToken).ConfigureAwait(false);
+            var definition = await LoadDefinitionAsync(viewName, cancellationToken).ConfigureAwait(false);
 
             return new DatabaseView(viewName, definition, columns);
         }
