@@ -65,6 +65,31 @@ namespace SJP.Schematic.Core
                 ConnectionLoggerLookup.Remove(connection.DbConnection);
         }
 
+        internal static void LogCommandRetry(IDbConnectionFactory connectionFactory, Guid commandId, string sql, object? param, int retryAttempt, TimeSpan delay)
+        {
+            if (connectionFactory == null)
+                throw new ArgumentNullException(nameof(connectionFactory));
+            if (sql.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(sql));
+            if (!ConnectionLoggerLookup.TryGetValue(connectionFactory, out var loggingConfig))
+                return;
+            if (!ConnectionRegistry.TryGetConnectionId(connectionFactory, out var connectionId))
+                connectionId = Guid.Empty;
+
+            var parameters = ToDictionary(param);
+
+            loggingConfig.Logger.Log(
+                loggingConfig.LogLevel,
+                "Connection {connectionId} is retrying {commandId}, attempt #{retryAttempt} after a delay of {delay}. Attempting to execute {sql} with parameters {@parameters}.",
+                connectionId,
+                commandId,
+                retryAttempt,
+                delay,
+                sql,
+                parameters
+            );
+        }
+
         internal static void LogCommandExecuting(IDbConnectionFactory connectionFactory, Guid commandId, string sql, object? param)
         {
             if (connectionFactory == null)

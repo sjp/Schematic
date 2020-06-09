@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
+using Polly;
 
 namespace SJP.Schematic.Core
 {
@@ -33,5 +34,11 @@ namespace SJP.Schematic.Core
         /// </summary>
         /// <value><c>true</c> if connection instances should be disposed; otherwise, <c>false</c>.</value>
         bool DisposeConnection { get; }
+
+        /// <summary>
+        /// Gets a database command retry policy builder.
+        /// </summary>
+        /// <value>A retry policy builder.</value>
+        PolicyBuilder RetryPolicy { get; }
     }
 }

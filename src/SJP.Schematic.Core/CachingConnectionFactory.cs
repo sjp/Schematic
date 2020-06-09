@@ -3,6 +3,7 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using Polly;
 
 namespace SJP.Schematic.Core
 {
@@ -83,5 +84,11 @@ namespace SJP.Schematic.Core
         /// <value>Always <c>false</c>.</value>
         /// <remarks>Not intended to be used directly, used for internals.</remarks>
         public bool DisposeConnection { get; }
+
+        /// <summary>
+        /// Gets a database command retry policy.
+        /// </summary>
+        /// <value>A retry policy.</value>
+        public PolicyBuilder RetryPolicy => _connectionFactory.RetryPolicy;
     }
 }

@@ -35,6 +35,15 @@ namespace SJP.Schematic.Core
             Logging.LogCommandExecuted(_connectionFactory, _id, _sql, _param, _stopWatch?.Elapsed ?? TimeSpan.Zero);
         }
 
+        public void Retry(int retryAttempt, TimeSpan delay)
+        {
+            _started = false;
+            _stopWatch = null;
+
+            if (Logging.IsLoggingConfigured(_connectionFactory))
+                Logging.LogCommandRetry(_connectionFactory, _id, _sql, _param, retryAttempt, delay);
+        }
+
         private bool _started;
         private Stopwatch? _stopWatch;
         private readonly IDbConnectionFactory _connectionFactory;

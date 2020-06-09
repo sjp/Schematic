@@ -3,6 +3,7 @@ using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
+using Polly;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -45,7 +46,7 @@ namespace SJP.Schematic.Sqlite
         /// <returns>An object representing a database connection.</returns>
         public IDbConnection OpenConnection()
         {
-            var connection = new SqliteConnection(ConnectionString);
+            var connection = CreateConnection();
 
             if (connection.State != ConnectionState.Open)
                 connection.Open();
@@ -73,5 +74,11 @@ namespace SJP.Schematic.Sqlite
         /// </summary>
         /// <value>Always <c>true</c>.</value>
         public bool DisposeConnection { get; } = true;
+
+        /// <summary>
+        /// Gets a database command retry policy builder.
+        /// </summary>
+        /// <value>A retry policy builder.</value>
+        public PolicyBuilder RetryPolicy => Policy.Handle<TimeoutException>();
     }
 }

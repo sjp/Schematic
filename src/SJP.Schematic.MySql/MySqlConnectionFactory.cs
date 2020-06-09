@@ -3,6 +3,7 @@ using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
+using Polly;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -73,5 +74,29 @@ namespace SJP.Schematic.MySql
         /// </summary>
         /// <value>Always <c>true</c>.</value>
         public bool DisposeConnection { get; } = true;
+
+        /// <summary>
+        /// Gets a database command retry policy builder.
+        /// </summary>
+        /// <value>A retry policy builder.</value>
+        public PolicyBuilder RetryPolicy => Policy
+            .Handle<MySqlException>(IsTransientError)
+            .Or<TimeoutException>();
+
+        private static bool IsTransientError(MySqlException mysqlEx)
+        {
+            switch (mysqlEx.Number)
+            {
+                case 1042: // ER_BAD_HOST_ERROR
+                case 2002: // CR_CONNECTION_ERROR
+                case 2003: // CR_CONN_HOST_ERROR
+                case 2006: // CR_SERVER_GONE_ERROR
+                case 2009: // CR_WRONG_HOST_INFO
+                case 2013: // CR_SERVER_LOST
+                    return true;
+                default:
+                    return false;
+            }
+        }
     }
 }
