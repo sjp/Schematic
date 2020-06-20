@@ -1,6 +1,5 @@
 #tool nuget:?package=Codecov&version=1.10.0
 #addin nuget:?package=Cake.Codecov&version=0.8.0
-#addin nuget:?package=Cake.Coverlet&version=2.4.2
 #tool nuget:?package=docfx.console&version=2.51.0
 #addin nuget:?package=Cake.DocFx&version=0.13.1
 
@@ -72,43 +71,41 @@ Task("Run-Unit-Tests")
     .IsDependentOn("Build")
     .DoesForEach(testProjects.Value, testProject =>
 {
-    var tempDirectory = System.IO.Path.Combine(System.IO.Path.GetTempPath(), System.IO.Path.GetRandomFileName());
-    CreateDirectory(tempDirectory);
+    var deleteDirSettings = new DeleteDirectorySettings
+    {
+        Force = true,
+        Recursive = true
+    };
+    var dirs = GetDirectories("./**/TestResults");
+    DeleteDirectories(dirs, deleteDirSettings);
+
     try
     {
-        try
+        var testSettings = new DotNetCoreTestSettings
         {
-            var testSettings = new DotNetCoreTestSettings
+            Configuration = configuration,
+            ArgumentCustomization = builder =>
             {
-                Configuration = configuration
-            };
-
-            var coverletSettings = new CoverletSettings
-            {
-                CollectCoverage = reportCoverage,
-                CoverletOutputFormat = CoverletOutputFormat.opencover,
-                CoverletOutputDirectory = Directory(tempDirectory),
-                CoverletOutputName = "coverage.xml"
-            };
-
-            DotNetCoreTest(testProject, testSettings, coverletSettings);
-        }
-        finally
-        {
-            if (AppVeyor.IsRunningOnAppVeyor)
-            {
-                // Upload coverage report
-                if (reportCoverage)
-                {
-                    var coverageReport = GetFiles(tempDirectory + "/**/coverage.xml").First().FullPath;
-                    Codecov(coverageReport);
-                }
+                return builder.AppendSwitchQuoted("--collect", "XPlat Code Coverage");
             }
-        }
+        };
+
+        DotNetCoreTest(testProject, testSettings);
     }
     finally
     {
-        DeleteDirectory(tempDirectory, new DeleteDirectorySettings { Recursive = true });
+        if (AppVeyor.IsRunningOnAppVeyor)
+        {
+            // Upload coverage report
+            if (reportCoverage)
+            {
+                var coverageReport = GetFiles("./**/coverage.cobertura.xml").First().FullPath;
+                Codecov(coverageReport);
+            }
+        }
+
+        dirs = GetDirectories("./**/TestResults");
+        DeleteDirectories(dirs, deleteDirSettings);
     }
 })
 .DeferOnError();
