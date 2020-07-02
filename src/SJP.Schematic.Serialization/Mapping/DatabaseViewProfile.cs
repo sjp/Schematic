@@ -18,7 +18,8 @@ namespace SJP.Schematic.Serialization.Mapping
                         : new DatabaseView(
                             ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.ViewName),
                             dto.Definition,
-                            ctx.Mapper.Map<IEnumerable<Dto.DatabaseColumn>, List<DatabaseColumn>>(dto.Columns)));
+                            ctx.Mapper.Map<IEnumerable<Dto.DatabaseColumn>, List<DatabaseColumn>>(dto.Columns)))
+                .ForAllMembers(cfg => cfg.Ignore());
 
             CreateMap<IDatabaseView, Dto.DatabaseView>()
                 .ForMember(dest => dest.ViewName, src => src.MapFrom(v => v.Name));

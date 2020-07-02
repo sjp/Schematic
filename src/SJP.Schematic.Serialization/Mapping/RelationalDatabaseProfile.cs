@@ -17,7 +17,8 @@ namespace SJP.Schematic.Serialization.Mapping
                     ctx.Mapper.Map<IEnumerable<Dto.DatabaseSequence>, IEnumerable<DatabaseSequence>>(dto.Sequences),
                     ctx.Mapper.Map<IEnumerable<Dto.DatabaseSynonym>, IEnumerable<DatabaseSynonym>>(dto.Synonyms),
                     ctx.Mapper.Map<IEnumerable<Dto.DatabaseRoutine>, IEnumerable<DatabaseRoutine>>(dto.Routines)
-                ));
+                ))
+                .ForAllMembers(cfg => cfg.Ignore());
         }
     }
 }

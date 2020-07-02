@@ -15,7 +15,8 @@ namespace SJP.Schematic.Serialization.Mapping
                     ctx.Mapper.Map<IEnumerable<Dto.DatabaseIndexColumn>, List<DatabaseIndexColumn>>(dto.Columns),
                     ctx.Mapper.Map<IEnumerable<Dto.DatabaseColumn>, List<DatabaseColumn>>(dto.IncludedColumns),
                     dto.IsEnabled
-                ));
+                ))
+                .ForAllMembers(cfg => cfg.Ignore());
             CreateMap<IDatabaseIndex, Dto.DatabaseIndex>()
                 .ForMember(dest => dest.IndexName, src => src.MapFrom(i => i.Name));
         }

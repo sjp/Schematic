@@ -20,7 +20,8 @@ namespace SJP.Schematic.Serialization.Mapping
                     ctx.Mapper.Map<IEnumerable<Dto.DatabaseIndex>, List<DatabaseIndex>>(dto.Indexes),
                     ctx.Mapper.Map<IEnumerable<Dto.DatabaseCheckConstraint>, List<DatabaseCheckConstraint>>(dto.Checks),
                     ctx.Mapper.Map<IEnumerable<Dto.DatabaseTrigger>, List<DatabaseTrigger>>(dto.Triggers)
-                ));
+                ))
+                .ForAllMembers(cfg => cfg.Ignore());
             CreateMap<IRelationalDatabaseTable, Dto.RelationalDatabaseTable>()
                 .ForMember(dest => dest.TableName, src => src.MapFrom(t => t.Name));
         }

@@ -13,7 +13,8 @@ namespace SJP.Schematic.Serialization.Mapping
                     dto.Expression!,
                     ctx.Mapper.Map<IEnumerable<Dto.DatabaseColumn>, IEnumerable<DatabaseColumn>>(dto.DependentColumns),
                     dto.Order
-                ));
+                ))
+                .ForAllMembers(cfg => cfg.Ignore());
             CreateMap<IDatabaseIndexColumn, Dto.DatabaseIndexColumn>();
         }
     }

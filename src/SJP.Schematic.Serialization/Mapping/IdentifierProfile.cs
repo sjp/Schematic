@@ -12,7 +12,8 @@ namespace SJP.Schematic.Serialization.Mapping
                 .ConstructUsing(dto =>
                     dto == null
                         ? Option<Identifier>.None
-                        : Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(dto.Server, dto.Database, dto.Schema, dto.LocalName)));
+                        : Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(dto.Server, dto.Database, dto.Schema, dto.LocalName)))
+                .ForAllMembers(cfg => cfg.Ignore());
 
             CreateMap<Option<Identifier>, Dto.Identifier>()
                 .ConstructUsing(identifier =>
@@ -25,7 +26,8 @@ namespace SJP.Schematic.Serialization.Mapping
                             LocalName = ident.LocalName
                         },
                         () => default!
-                    ));
+                    ))
+                .ForAllMembers(cfg => cfg.Ignore());
 
             CreateMap<Identifier, Dto.Identifier>();
             CreateMap<Dto.Identifier, Identifier>()

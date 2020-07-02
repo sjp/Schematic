@@ -11,7 +11,8 @@ namespace SJP.Schematic.Serialization.Mapping
                 .ConstructUsing((dto, ctx) => new DatabaseRoutine(
                     ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.RoutineName!),
                     dto.Definition!
-                ));
+                ))
+                .ForAllMembers(cfg => cfg.Ignore());
             CreateMap<IDatabaseRoutine, Dto.DatabaseRoutine>()
                 .ForMember(dest => dest.RoutineName, src => src.MapFrom(r => r.Name));
         }

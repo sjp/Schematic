@@ -19,7 +19,8 @@ namespace SJP.Schematic.Serialization.Mapping
                     dto.MaxLength,
                     ctx.Mapper.Map<Dto.NumericPrecision?, Option<INumericPrecision>>(dto.NumericPrecision),
                     ctx.Mapper.Map<Dto.Identifier?, Option<Identifier>>(dto.Collation)
-                ));
+                ))
+                .ForAllMembers(cfg => cfg.Ignore());
 
             CreateMap<IDbType, Dto.DbType>()
                 .ForMember(dest => dest.ClrTypeName, src => src.MapFrom(dbType => dbType.ClrType.ToString()));

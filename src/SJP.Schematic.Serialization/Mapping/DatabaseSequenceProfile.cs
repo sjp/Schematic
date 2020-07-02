@@ -17,7 +17,8 @@ namespace SJP.Schematic.Serialization.Mapping
                     ctx.Mapper.Map<decimal?, Option<decimal>>(dto.MaxValue),
                     dto.Cycle,
                     dto.Cache
-                ));
+                ))
+                .ForAllMembers(cfg => cfg.Ignore());
             CreateMap<IDatabaseSequence, Dto.DatabaseSequence>()
                 .ForMember(dest => dest.SequenceName, src => src.MapFrom(s => s.Name));
         }

@@ -15,7 +15,8 @@ namespace SJP.Schematic.Serialization.Mapping
                     dto.KeyType,
                     ctx.Mapper.Map<IEnumerable<Dto.DatabaseColumn>, List<DatabaseColumn>>(dto.Columns),
                     dto.IsEnabled
-                ));
+                ))
+                .ForAllMembers(cfg => cfg.Ignore());
             CreateMap<IDatabaseKey, Dto.DatabaseKey>();
 
             CreateMap<Option<IDatabaseKey>, Dto.DatabaseKey?>()
@@ -25,7 +26,8 @@ namespace SJP.Schematic.Serialization.Mapping
             CreateMap<Dto.DatabaseKey?, Option<IDatabaseKey>>()
                 .ConstructUsing((dto, ctx) => dto == null
                     ? Option<IDatabaseKey>.None
-                    : Option<IDatabaseKey>.Some(ctx.Mapper.Map<Dto.DatabaseKey, DatabaseKey>(dto)));
+                    : Option<IDatabaseKey>.Some(ctx.Mapper.Map<Dto.DatabaseKey, DatabaseKey>(dto)))
+                .ForAllMembers(cfg => cfg.Ignore());
         }
     }
 }

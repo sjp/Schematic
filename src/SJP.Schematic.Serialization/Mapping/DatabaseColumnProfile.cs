@@ -24,7 +24,8 @@ namespace SJP.Schematic.Serialization.Mapping
                         ctx.Mapper.Map<string?, Option<string>>(dto.DefaultValue),
                         ctx.Mapper.Map<Dto.AutoIncrement?, Option<IAutoIncrement>>(dto.AutoIncrement)
                       )
-                );
+                )
+                .ForAllMembers(cfg => cfg.Ignore());
             CreateMap<IDatabaseColumn, Dto.DatabaseColumn>()
                 .ForMember(dto => dto.ColumnName, src => src.MapFrom(c => c.Name));
             CreateMap<IDatabaseComputedColumn, Dto.DatabaseColumn>()

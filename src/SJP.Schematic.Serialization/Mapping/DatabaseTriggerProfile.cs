@@ -14,7 +14,8 @@ namespace SJP.Schematic.Serialization.Mapping
                     dto.QueryTiming,
                     dto.TriggerEvent,
                     dto.IsEnabled
-                ));
+                ))
+                .ForAllMembers(cfg => cfg.Ignore());
             CreateMap<IDatabaseTrigger, Dto.DatabaseTrigger>()
                 .ForMember(dest => dest.TriggerName, src => src.MapFrom(tr => tr.Name));
         }

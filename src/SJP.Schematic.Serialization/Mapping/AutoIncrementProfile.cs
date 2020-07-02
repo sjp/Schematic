@@ -13,7 +13,8 @@ namespace SJP.Schematic.Serialization.Mapping
                     dto == null
                         ? Option<IAutoIncrement>.None
                         : Option<IAutoIncrement>.Some(new AutoIncrement(dto.InitialValue, dto.Increment))
-                );
+                )
+                .ForAllMembers(cfg => cfg.Ignore());
 
             CreateMap<Option<IAutoIncrement>, Dto.AutoIncrement?>()
                 .ConstructUsing(ai =>
@@ -25,7 +26,8 @@ namespace SJP.Schematic.Serialization.Mapping
                         },
                         () => (Dto.AutoIncrement?)null
                     )
-                );
+                )
+                .ForAllMembers(cfg => cfg.Ignore());
         }
     }
 }

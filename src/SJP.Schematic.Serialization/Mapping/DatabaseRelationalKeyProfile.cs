@@ -15,7 +15,8 @@ namespace SJP.Schematic.Serialization.Mapping
                     ctx.Mapper.Map<Dto.DatabaseKey, DatabaseKey>(dto.ParentKey!),
                     dto.DeleteAction,
                     dto.UpdateAction
-                ));
+                ))
+                .ForAllMembers(cfg => cfg.Ignore());
             CreateMap<IDatabaseRelationalKey, Dto.DatabaseRelationalKey>();
         }
     }
