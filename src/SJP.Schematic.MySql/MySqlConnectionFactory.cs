@@ -2,7 +2,7 @@
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using Polly;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
