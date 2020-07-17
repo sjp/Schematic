@@ -55,7 +55,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         {
             var rule = new PrimaryKeyNotIntegerRule(RuleLevel.Error);
 
-            var dataTypeMock = new Mock<IDbType>();
+            var dataTypeMock = new Mock<IDbType>(MockBehavior.Strict);
             dataTypeMock.Setup(t => t.DataType).Returns(DataType.Integer);
 
             var testColumn = new DatabaseColumn(
@@ -95,7 +95,7 @@ namespace SJP.Schematic.Lint.Tests.Rules
         {
             var rule = new PrimaryKeyNotIntegerRule(RuleLevel.Error);
 
-            var dataTypeMock = new Mock<IDbType>();
+            var dataTypeMock = new Mock<IDbType>(MockBehavior.Strict);
             dataTypeMock.Setup(t => t.DataType).Returns(DataType.Binary);
 
             var testColumn = new DatabaseColumn(

@@ -39,7 +39,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         [Test]
         public static void Ctor_GivenTableTypeWithNoDefaultCtor_ThrowsArgumentException()
         {
-            var databaseMock = new Mock<IRelationalDatabase>();
+            var databaseMock = new Mock<IRelationalDatabase>(MockBehavior.Strict);
             databaseMock.Setup(db => db.IdentifierDefaults).Returns(new IdentifierDefaults("a", "b", "c"));
 
             Assert.That(() => new ReflectionTable(databaseMock.Object, new FakeDialect(), typeof(TableTypeWithBadCtor)), Throws.ArgumentException);
@@ -48,7 +48,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         [Test]
         public static void Ctor_GivenTableTypeWithNoAutoProperty_ThrowsArgumentException()
         {
-            var databaseMock = new Mock<IRelationalDatabase>();
+            var databaseMock = new Mock<IRelationalDatabase>(MockBehavior.Strict);
             databaseMock.Setup(db => db.IdentifierDefaults).Returns(new IdentifierDefaults("a", "b", "c"));
 
             Assert.That(() => new ReflectionTable(databaseMock.Object, new FakeDialect(), typeof(TableTypeWithBadColumns)), Throws.ArgumentException);

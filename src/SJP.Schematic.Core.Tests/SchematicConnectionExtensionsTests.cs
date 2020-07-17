@@ -38,7 +38,7 @@ namespace SJP.Schematic.Core.Tests
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = new SchematicConnection(dbConnection, dialect);
 
-            var loggerFactory = new Mock<ILoggerFactory>();
+            var loggerFactory = new Mock<ILoggerFactory>(MockBehavior.Strict);
             loggerFactory.Setup(factory => factory.CreateLogger(It.IsAny<string>())).Returns(Mock.Of<ILogger>());
 
             Assert.That(() => connection.AddLogging(loggerFactory.Object, LogLevel.Information), Throws.Nothing);
@@ -61,7 +61,7 @@ namespace SJP.Schematic.Core.Tests
             var dialect = Mock.Of<IDatabaseDialect>();
             var connection = new SchematicConnection(dbConnection, dialect);
 
-            var loggerFactory = new Mock<ILoggerFactory>();
+            var loggerFactory = new Mock<ILoggerFactory>(MockBehavior.Strict);
             loggerFactory.Setup(factory => factory.CreateLogger(It.IsAny<string>())).Returns(Mock.Of<ILogger>());
 
             connection.AddLogging(loggerFactory.Object, LogLevel.Information);

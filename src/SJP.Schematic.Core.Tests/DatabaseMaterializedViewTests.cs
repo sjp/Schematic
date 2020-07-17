@@ -66,8 +66,8 @@ namespace SJP.Schematic.Core.Tests
             const string definition = "select * from test";
 
             Identifier columnName = "star";
-            var columnMock = new Mock<IDatabaseColumn>();
-            columnMock.SetupGet(c => c.Name).Returns(columnName);
+            var columnMock = new Mock<IDatabaseColumn>(MockBehavior.Strict);
+            columnMock.Setup(c => c.Name).Returns(columnName);
             var columns = new[] { columnMock.Object };
 
             var view = new DatabaseMaterializedView(viewName, definition, columns);

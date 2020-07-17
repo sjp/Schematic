@@ -19,7 +19,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [Test]
         public static void CreateConnection_WhenCalledTwice_OnlyCreatesConnectionOnce()
         {
-            var factory = new Mock<IDbConnectionFactory>();
+            var factory = new Mock<IDbConnectionFactory>(MockBehavior.Strict);
             factory.Setup(f => f.CreateConnection()).Returns(Mock.Of<IDbConnection>);
 
             var cachingFactory = factory.Object.AsCachingFactory();
@@ -33,7 +33,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [Test]
         public static void OpenConnection_WhenCalledTwice_OnlyCreatesConnectionOnce()
         {
-            var factory = new Mock<IDbConnectionFactory>();
+            var factory = new Mock<IDbConnectionFactory>(MockBehavior.Strict);
             factory.Setup(f => f.CreateConnection()).Returns(Mock.Of<IDbConnection>);
 
             var cachingFactory = factory.Object.AsCachingFactory();
@@ -47,7 +47,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [Test]
         public static async Task OpenConnectionAsync_WhenCalledTwice_OnlyCreatesConnectionOnce()
         {
-            var factory = new Mock<IDbConnectionFactory>();
+            var factory = new Mock<IDbConnectionFactory>(MockBehavior.Strict);
             factory.Setup(f => f.CreateConnection()).Returns(Mock.Of<DbConnection>);
 
             var cachingFactory = factory.Object.AsCachingFactory();

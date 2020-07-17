@@ -26,7 +26,7 @@ namespace SJP.Schematic.Sqlite.Tests.Pragma
         [Test]
         public static void SchemaName_PropertyGet_MatchesCtorArg()
         {
-            var dialectMock = new Mock<IDatabaseDialect>();
+            var dialectMock = new Mock<IDatabaseDialect>(MockBehavior.Strict);
             dialectMock.Setup(dialect => dialect.QuoteIdentifier(It.IsAny<string>())).Returns("test");
             var connection = new SchematicConnection(Mock.Of<IDbConnectionFactory>(), dialectMock.Object);
 

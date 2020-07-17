@@ -27,8 +27,8 @@ namespace SJP.Schematic.Core.Tests.Extensions
                 new DatabaseColumn("test_column_2", testColumnType, false, Option<string>.None, Option<IAutoIncrement>.None)
             };
 
-            var viewMock = new Mock<IDatabaseView>();
-            viewMock.SetupGet(v => v.Name).Returns(viewName);
+            var viewMock = new Mock<IDatabaseView>(MockBehavior.Strict);
+            viewMock.Setup(v => v.Name).Returns(viewName);
             viewMock.Setup(v => v.Columns).Returns(columns);
 
             return viewMock.Object;

@@ -62,8 +62,8 @@ namespace SJP.Schematic.Core.Tests.Extensions
                 new DatabaseTrigger("test_trigger_2", "test_definition", TriggerQueryTiming.After, TriggerEvent.Delete, true)
             };
 
-            var tableMock = new Mock<IRelationalDatabaseTable>();
-            tableMock.SetupGet(t => t.Name).Returns(tableName);
+            var tableMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
+            tableMock.Setup(t => t.Name).Returns(tableName);
             tableMock.Setup(t => t.Checks).Returns(checks);
             tableMock.Setup(t => t.Columns).Returns(columns);
             tableMock.Setup(t => t.Indexes).Returns(indexes);

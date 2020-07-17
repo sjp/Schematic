@@ -15,14 +15,14 @@ namespace SJP.Schematic.Lint.Tests.Rules
     {
         private static IDatabaseColumn GetColumn(Identifier columnName)
         {
-            var columnMock = new Mock<IDatabaseColumn>();
+            var columnMock = new Mock<IDatabaseColumn>(MockBehavior.Strict);
             columnMock.Setup(c => c.Name).Returns(columnName);
             return columnMock.Object;
         }
 
         private static IDatabaseIndexColumn GetIndexColumn(Identifier columnName)
         {
-            var indexColumnMock = new Mock<IDatabaseIndexColumn>();
+            var indexColumnMock = new Mock<IDatabaseIndexColumn>(MockBehavior.Strict);
             indexColumnMock.Setup(c => c.DependentColumns).Returns(new[] { GetColumn(columnName) });
             return indexColumnMock.Object;
         }

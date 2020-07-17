@@ -73,11 +73,11 @@ namespace SJP.Schematic.Oracle.Tests
             const string parentTableName = "parent_table";
             const ReferentialAction deleteAction = ReferentialAction.NoAction;
 
-            var childKeyMock = new Mock<IDatabaseKey>();
+            var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
             childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
             var childKey = childKeyMock.Object;
 
-            var parentKeyMock = new Mock<IDatabaseKey>();
+            var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
             var parentKey = parentKeyMock.Object;
 
@@ -94,12 +94,12 @@ namespace SJP.Schematic.Oracle.Tests
             const ReferentialAction deleteAction = ReferentialAction.Cascade;
             Identifier keyName = "test_child_key";
 
-            var childKeyMock = new Mock<IDatabaseKey>();
+            var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
             childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
             childKeyMock.Setup(k => k.Name).Returns(keyName);
             var childKey = childKeyMock.Object;
 
-            var parentKeyMock = new Mock<IDatabaseKey>();
+            var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
             var parentKey = parentKeyMock.Object;
 
@@ -119,11 +119,11 @@ namespace SJP.Schematic.Oracle.Tests
             const string parentTableName = "parent_table";
             const ReferentialAction deleteAction = ReferentialAction.NoAction;
 
-            var childKeyMock = new Mock<IDatabaseKey>();
+            var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
             childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
             var childKey = childKeyMock.Object;
 
-            var parentKeyMock = new Mock<IDatabaseKey>();
+            var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
             var parentKey = parentKeyMock.Object;
 
@@ -140,11 +140,11 @@ namespace SJP.Schematic.Oracle.Tests
             const ReferentialAction deleteAction = ReferentialAction.Cascade;
             Identifier keyName = "test_parent_key";
 
-            var childKeyMock = new Mock<IDatabaseKey>();
+            var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
             childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
             var childKey = childKeyMock.Object;
 
-            var parentKeyMock = new Mock<IDatabaseKey>();
+            var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
             parentKeyMock.Setup(t => t.Name).Returns(keyName);
             var parentKey = parentKeyMock.Object;
@@ -165,11 +165,11 @@ namespace SJP.Schematic.Oracle.Tests
             const string parentTableName = "parent_table";
             const ReferentialAction deleteAction = ReferentialAction.Cascade;
 
-            var childKeyMock = new Mock<IDatabaseKey>();
+            var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
             childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
             var childKey = childKeyMock.Object;
 
-            var parentKeyMock = new Mock<IDatabaseKey>();
+            var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
             var parentKey = parentKeyMock.Object;
 
@@ -185,11 +185,11 @@ namespace SJP.Schematic.Oracle.Tests
             const string parentTableName = "parent_table";
             const ReferentialAction deleteAction = ReferentialAction.Cascade;
 
-            var childKeyMock = new Mock<IDatabaseKey>();
+            var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
             childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
             var childKey = childKeyMock.Object;
 
-            var parentKeyMock = new Mock<IDatabaseKey>();
+            var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
             var parentKey = parentKeyMock.Object;
 
@@ -204,9 +204,9 @@ namespace SJP.Schematic.Oracle.Tests
             const string childTableName = "child_table";
             const string parentTableName = "parent_table";
 
-            var childKeyMock = new Mock<IDatabaseKey>();
+            var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
             childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
-            var parentKeyMock = new Mock<IDatabaseKey>();
+            var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
             const ReferentialAction deleteAction = ReferentialAction.NoAction;
 
@@ -219,9 +219,9 @@ namespace SJP.Schematic.Oracle.Tests
             const string childTableName = "child_table";
             const string parentTableName = "parent_table";
 
-            var childKeyMock = new Mock<IDatabaseKey>();
+            var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
             childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
-            var parentKeyMock = new Mock<IDatabaseKey>();
+            var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
             const ReferentialAction deleteAction = ReferentialAction.NoAction;
 
@@ -258,11 +258,11 @@ namespace SJP.Schematic.Oracle.Tests
                 ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(parentKeyName))
                 : Option<Identifier>.None;
 
-            var childKeyMock = new Mock<IDatabaseKey>();
+            var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
             childKeyMock.Setup(k => k.Name).Returns(childKeyIdentifier);
             childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
 
-            var parentKeyMock = new Mock<IDatabaseKey>();
+            var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
             parentKeyMock.Setup(k => k.Name).Returns(parentKeyIdentifier);
             parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
 

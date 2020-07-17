@@ -31,16 +31,16 @@ namespace SJP.Schematic.Core.Tests.Utilities
         {
             var cycleDetector = new CycleDetector();
 
-            var mockChildKey = new Mock<IDatabaseKey>();
+            var mockChildKey = new Mock<IDatabaseKey>(MockBehavior.Strict);
             mockChildKey.Setup(c => c.KeyType).Returns(DatabaseKeyType.Foreign);
             var childKey = mockChildKey.Object;
 
-            var mockParentKey = new Mock<IDatabaseKey>();
+            var mockParentKey = new Mock<IDatabaseKey>(MockBehavior.Strict);
             mockParentKey.Setup(p => p.KeyType).Returns(DatabaseKeyType.Primary);
             var parentKey = mockParentKey.Object;
 
             // create tables with no cycle where the path is a -> b -> c
-            var tableAMock = new Mock<IRelationalDatabaseTable>();
+            var tableAMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
             tableAMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("a"));
             tableAMock.Setup(t => t.ParentKeys).Returns(new[]
             {
@@ -54,7 +54,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
                 )
             });
 
-            var tableBMock = new Mock<IRelationalDatabaseTable>();
+            var tableBMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
             tableBMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("b"));
             tableBMock.Setup(t => t.ParentKeys).Returns(new[]
             {
@@ -68,7 +68,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
                 )
             });
 
-            var tableCMock = new Mock<IRelationalDatabaseTable>();
+            var tableCMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
             tableCMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("c"));
             tableCMock.Setup(t => t.ParentKeys).Returns(Array.Empty<IDatabaseRelationalKey>());
 
@@ -89,16 +89,16 @@ namespace SJP.Schematic.Core.Tests.Utilities
         {
             var cycleDetector = new CycleDetector();
 
-            var mockChildKey = new Mock<IDatabaseKey>();
+            var mockChildKey = new Mock<IDatabaseKey>(MockBehavior.Strict);
             mockChildKey.Setup(c => c.KeyType).Returns(DatabaseKeyType.Foreign);
             var childKey = mockChildKey.Object;
 
-            var mockParentKey = new Mock<IDatabaseKey>();
+            var mockParentKey = new Mock<IDatabaseKey>(MockBehavior.Strict);
             mockParentKey.Setup(p => p.KeyType).Returns(DatabaseKeyType.Primary);
             var parentKey = mockParentKey.Object;
 
             // create tables with no cycle where the path is a -> b -> c -> a
-            var tableAMock = new Mock<IRelationalDatabaseTable>();
+            var tableAMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
             tableAMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("a"));
             tableAMock.Setup(t => t.ParentKeys).Returns(new[]
             {
@@ -112,7 +112,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
                 )
             });
 
-            var tableBMock = new Mock<IRelationalDatabaseTable>();
+            var tableBMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
             tableBMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("b"));
             tableBMock.Setup(t => t.ParentKeys).Returns(new[]
             {
@@ -126,7 +126,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
                 )
             });
 
-            var tableCMock = new Mock<IRelationalDatabaseTable>();
+            var tableCMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
             tableCMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("c"));
             tableCMock.Setup(t => t.ParentKeys).Returns(new[]
             {

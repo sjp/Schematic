@@ -237,7 +237,7 @@ namespace SJP.Schematic.Core.Tests
             var identifierResolver = new VerbatimIdentifierResolutionStrategy();
 
             var testTableName = Identifier.CreateQualifiedIdentifier("test_table_name");
-            var table = new Mock<IRelationalDatabaseTable>();
+            var table = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
             table.Setup(t => t.Name).Returns(testTableName);
             var tables = new[] { table.Object };
 
@@ -269,7 +269,7 @@ namespace SJP.Schematic.Core.Tests
             var identifierResolver = new VerbatimIdentifierResolutionStrategy();
 
             var testTableName = Identifier.CreateQualifiedIdentifier("test_table_name");
-            var table = new Mock<IRelationalDatabaseTable>();
+            var table = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
             table.Setup(t => t.Name).Returns(testTableName);
             var tables = new[] { table.Object };
 
@@ -305,7 +305,7 @@ namespace SJP.Schematic.Core.Tests
             var identifierResolver = new VerbatimIdentifierResolutionStrategy();
 
             var testTableName = Identifier.CreateQualifiedIdentifier("test_table_name");
-            var table = new Mock<IRelationalDatabaseTable>();
+            var table = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
             table.Setup(t => t.Name).Returns(testTableName);
             var tables = new[] { table.Object };
 
@@ -340,7 +340,7 @@ namespace SJP.Schematic.Core.Tests
             var routines = Array.Empty<IDatabaseRoutine>();
 
             var testViewName = Identifier.CreateQualifiedIdentifier("test_view_name");
-            var view = new Mock<IDatabaseView>();
+            var view = new Mock<IDatabaseView>(MockBehavior.Strict);
             view.Setup(t => t.Name).Returns(testViewName);
             var views = new[] { view.Object };
 
@@ -369,7 +369,7 @@ namespace SJP.Schematic.Core.Tests
             var tables = Array.Empty<IRelationalDatabaseTable>();
 
             var testViewName = Identifier.CreateQualifiedIdentifier("test_view_name");
-            var view = new Mock<IDatabaseView>();
+            var view = new Mock<IDatabaseView>(MockBehavior.Strict);
             view.Setup(t => t.Name).Returns(testViewName);
             var views = new[] { view.Object };
 
@@ -406,7 +406,7 @@ namespace SJP.Schematic.Core.Tests
             var tables = Array.Empty<IRelationalDatabaseTable>();
 
             var testViewName = Identifier.CreateQualifiedIdentifier("test_view_name");
-            var view = new Mock<IDatabaseView>();
+            var view = new Mock<IDatabaseView>(MockBehavior.Strict);
             view.Setup(t => t.Name).Returns(testViewName);
             var views = new[] { view.Object };
 
@@ -440,7 +440,7 @@ namespace SJP.Schematic.Core.Tests
             var routines = Array.Empty<IDatabaseRoutine>();
 
             var testSequenceName = Identifier.CreateQualifiedIdentifier("test_sequence_name");
-            var sequence = new Mock<IDatabaseSequence>();
+            var sequence = new Mock<IDatabaseSequence>(MockBehavior.Strict);
             sequence.Setup(t => t.Name).Returns(testSequenceName);
             var sequences = new[] { sequence.Object };
 
@@ -470,7 +470,7 @@ namespace SJP.Schematic.Core.Tests
             var views = Array.Empty<IDatabaseView>();
 
             var testSequenceName = Identifier.CreateQualifiedIdentifier("test_sequence_name");
-            var sequence = new Mock<IDatabaseSequence>();
+            var sequence = new Mock<IDatabaseSequence>(MockBehavior.Strict);
             sequence.Setup(t => t.Name).Returns(testSequenceName);
             var sequences = new[] { sequence.Object };
 
@@ -507,7 +507,7 @@ namespace SJP.Schematic.Core.Tests
             var views = Array.Empty<IDatabaseView>();
 
             var testSequenceName = Identifier.CreateQualifiedIdentifier("test_sequence_name");
-            var sequence = new Mock<IDatabaseSequence>();
+            var sequence = new Mock<IDatabaseSequence>(MockBehavior.Strict);
             sequence.Setup(t => t.Name).Returns(testSequenceName);
             var sequences = new[] { sequence.Object };
 
@@ -540,7 +540,7 @@ namespace SJP.Schematic.Core.Tests
             var routines = Array.Empty<IDatabaseRoutine>();
 
             var testSynonymName = Identifier.CreateQualifiedIdentifier("test_synonym_name");
-            var synonym = new Mock<IDatabaseSynonym>();
+            var synonym = new Mock<IDatabaseSynonym>(MockBehavior.Strict);
             synonym.Setup(t => t.Name).Returns(testSynonymName);
             var synonyms = new[] { synonym.Object };
 
@@ -571,7 +571,7 @@ namespace SJP.Schematic.Core.Tests
             var sequences = Array.Empty<IDatabaseSequence>();
 
             var testSynonymName = Identifier.CreateQualifiedIdentifier("test_synonym_name");
-            var synonym = new Mock<IDatabaseSynonym>();
+            var synonym = new Mock<IDatabaseSynonym>(MockBehavior.Strict);
             synonym.Setup(t => t.Name).Returns(testSynonymName);
             var synonyms = new[] { synonym.Object };
 
@@ -608,7 +608,7 @@ namespace SJP.Schematic.Core.Tests
             var sequences = Array.Empty<IDatabaseSequence>();
 
             var testSynonymName = Identifier.CreateQualifiedIdentifier("test_synonym_name");
-            var synonym = new Mock<IDatabaseSynonym>();
+            var synonym = new Mock<IDatabaseSynonym>(MockBehavior.Strict);
             synonym.Setup(t => t.Name).Returns(testSynonymName);
             var synonyms = new[] { synonym.Object };
 
@@ -640,7 +640,7 @@ namespace SJP.Schematic.Core.Tests
             var synonyms = Array.Empty<IDatabaseSynonym>();
 
             var testRoutineName = Identifier.CreateQualifiedIdentifier("test_routine_name");
-            var routine = new Mock<IDatabaseRoutine>();
+            var routine = new Mock<IDatabaseRoutine>(MockBehavior.Strict);
             routine.Setup(t => t.Name).Returns(testRoutineName);
             var routines = new[] { routine.Object };
 
@@ -672,7 +672,7 @@ namespace SJP.Schematic.Core.Tests
             var synonyms = Array.Empty<IDatabaseSynonym>();
 
             var testRoutineName = Identifier.CreateQualifiedIdentifier("test_routine_name");
-            var routine = new Mock<IDatabaseRoutine>();
+            var routine = new Mock<IDatabaseRoutine>(MockBehavior.Strict);
             routine.Setup(t => t.Name).Returns(testRoutineName);
             var routines = new[] { routine.Object };
 
@@ -708,7 +708,7 @@ namespace SJP.Schematic.Core.Tests
             var synonyms = Array.Empty<IDatabaseSynonym>();
 
             var testRoutineName = Identifier.CreateQualifiedIdentifier("test_routine_name");
-            var routine = new Mock<IDatabaseRoutine>();
+            var routine = new Mock<IDatabaseRoutine>(MockBehavior.Strict);
             routine.Setup(t => t.Name).Returns(testRoutineName);
             var routines = new[] { routine.Object };
 
@@ -760,27 +760,27 @@ namespace SJP.Schematic.Core.Tests
             var identifierResolver = new VerbatimIdentifierResolutionStrategy();
 
             var testTableName = Identifier.CreateQualifiedIdentifier("test_table_name");
-            var table = new Mock<IRelationalDatabaseTable>();
+            var table = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
             table.Setup(t => t.Name).Returns(testTableName);
             var tables = new[] { table.Object };
 
             var testViewName = Identifier.CreateQualifiedIdentifier("test_view_name");
-            var view = new Mock<IDatabaseView>();
+            var view = new Mock<IDatabaseView>(MockBehavior.Strict);
             view.Setup(t => t.Name).Returns(testViewName);
             var views = new[] { view.Object };
 
             var testSequenceName = Identifier.CreateQualifiedIdentifier("test_sequence_name");
-            var sequence = new Mock<IDatabaseSequence>();
+            var sequence = new Mock<IDatabaseSequence>(MockBehavior.Strict);
             sequence.Setup(t => t.Name).Returns(testSequenceName);
             var sequences = new[] { sequence.Object };
 
             var testSynonymName = Identifier.CreateQualifiedIdentifier("test_synonym_name");
-            var synonym = new Mock<IDatabaseSynonym>();
+            var synonym = new Mock<IDatabaseSynonym>(MockBehavior.Strict);
             synonym.Setup(t => t.Name).Returns(testSynonymName);
             var synonyms = new[] { synonym.Object };
 
             var testRoutineName = Identifier.CreateQualifiedIdentifier("test_routine_name");
-            var routine = new Mock<IDatabaseRoutine>();
+            var routine = new Mock<IDatabaseRoutine>(MockBehavior.Strict);
             routine.Setup(t => t.Name).Returns(testRoutineName);
             var routines = new[] { routine.Object };
 
@@ -818,27 +818,27 @@ namespace SJP.Schematic.Core.Tests
             var identifierResolver = new VerbatimIdentifierResolutionStrategy();
 
             var testTableName = Identifier.CreateQualifiedIdentifier("test_table_name");
-            var table = new Mock<IRelationalDatabaseTable>();
+            var table = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
             table.Setup(t => t.Name).Returns(testTableName);
             var tables = new[] { table.Object };
 
             var testViewName = Identifier.CreateQualifiedIdentifier("test_view_name");
-            var view = new Mock<IDatabaseView>();
+            var view = new Mock<IDatabaseView>(MockBehavior.Strict);
             view.Setup(t => t.Name).Returns(testViewName);
             var views = new[] { view.Object };
 
             var testSequenceName = Identifier.CreateQualifiedIdentifier("test_sequence_name");
-            var sequence = new Mock<IDatabaseSequence>();
+            var sequence = new Mock<IDatabaseSequence>(MockBehavior.Strict);
             sequence.Setup(t => t.Name).Returns(testSequenceName);
             var sequences = new[] { sequence.Object };
 
             var testSynonymName = Identifier.CreateQualifiedIdentifier("test_synonym_name");
-            var synonym = new Mock<IDatabaseSynonym>();
+            var synonym = new Mock<IDatabaseSynonym>(MockBehavior.Strict);
             synonym.Setup(t => t.Name).Returns(testSynonymName);
             var synonyms = new[] { synonym.Object };
 
             var testRoutineName = Identifier.CreateQualifiedIdentifier("test_routine_name");
-            var routine = new Mock<IDatabaseRoutine>();
+            var routine = new Mock<IDatabaseRoutine>(MockBehavior.Strict);
             routine.Setup(t => t.Name).Returns(testRoutineName);
             var routines = new[] { routine.Object };
 
