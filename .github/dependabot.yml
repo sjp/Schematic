@@ -4,5 +4,10 @@ updates:
   directory: "/"
   schedule:
     interval: daily
-    time: "17:00"
-  open-pull-requests-limit: 10
+  open-pull-requests-limit: 50
+- package-ecosystem: npm
+  directory: "/src/SJP.Schematic.Reporting"
+  schedule:
+    interval: daily
+  versioning-strategy: increase
+  open-pull-requests-limit: 50
