@@ -11,7 +11,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.6.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.6.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="3.6.0" />
-    <PackageReference Include="System.IO.Abstractions" Version="12.0.13" />
+    <PackageReference Include="System.IO.Abstractions" Version="12.1.1" />
   </ItemGroup>
 
   <ItemGroup>
