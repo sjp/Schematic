@@ -104,8 +104,8 @@ namespace SJP.Schematic.SqlServer.Comments
         /// <value>A SQL query.</value>
         protected virtual string SequenceNameQuery => SequenceNameQuerySql;
 
-        private const string SequenceNameQuerySql = @"
-select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
+        private static readonly string SequenceNameQuerySql = @$"
+select top 1 schema_name(schema_id) as [{ nameof(QualifiedName.SchemaName) }], name as [{ nameof(QualifiedName.ObjectName) }]
 from sys.sequences
 where schema_id = schema_id(@SchemaName) and name = @SequenceName and is_ms_shipped = 0";
 
@@ -161,8 +161,13 @@ where schema_id = schema_id(@SchemaName) and name = @SequenceName and is_ms_ship
         /// <value>A SQL query.</value>
         protected virtual string AllSequenceCommentsQuery => AllSequenceCommentsQuerySql;
 
-        private const string AllSequenceCommentsQuerySql = @"
-select SCHEMA_NAME(s.schema_id) as SchemaName, s.name as TableName, 'SEQUENCE' as ObjectType, s.name as ObjectName, ep.value as Comment
+        private static readonly string AllSequenceCommentsQuerySql = @$"
+select
+    SCHEMA_NAME(s.schema_id) as [{ nameof(CommentsData.SchemaName) }],
+    s.name as [{ nameof(CommentsData.TableName) }],
+    'SEQUENCE' as [{ nameof(CommentsData.ObjectType) }],
+    s.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.sequences s
 left join sys.extended_properties ep on s.object_id = ep.major_id and ep.name = @CommentProperty and ep.minor_id = 0
 where s.is_ms_shipped = 0
@@ -175,8 +180,11 @@ order by SCHEMA_NAME(s.schema_id), s.name
         /// <value>A SQL query.</value>
         protected virtual string SequenceCommentsQuery => SequenceCommentsQuerySql;
 
-        private const string SequenceCommentsQuerySql = @"
-select 'SEQUENCE' as ObjectType, s.name as ObjectName, ep.value as Comment
+        private static readonly string SequenceCommentsQuerySql = @$"
+select
+    'SEQUENCE' as [{ nameof(CommentsData.ObjectType) }],
+    s.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.sequences s
 left join sys.extended_properties ep on s.object_id = ep.major_id and ep.name = @CommentProperty and ep.minor_id = 0
 where s.schema_id = SCHEMA_ID(@SchemaName) and s.name = @SequenceName and s.is_ms_shipped = 0

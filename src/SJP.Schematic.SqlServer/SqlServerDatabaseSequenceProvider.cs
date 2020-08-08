@@ -65,17 +65,17 @@ namespace SJP.Schematic.SqlServer
         /// <value>A SQL query.</value>
         protected virtual string SequencesQuery => SequencesQuerySql;
 
-        private const string SequencesQuerySql = @"
+        private static readonly string SequencesQuerySql = @$"
 select
-    schema_name(schema_id) as SchemaName,
-    name as ObjectName,
-    start_value as StartValue,
-    increment as Increment,
-    minimum_value as MinValue,
-    maximum_value as MaxValue,
-    is_cycling as Cycle,
-    is_cached as IsCached,
-    cache_size as CacheSize
+    schema_name(schema_id) as [{ nameof(SequenceData.SchemaName) }],
+    name as [{ nameof(SequenceData.ObjectName) }],
+    start_value as [{ nameof(SequenceData.StartValue) }],
+    increment as [{ nameof(SequenceData.Increment) }],
+    minimum_value as [{ nameof(SequenceData.MinValue) }],
+    maximum_value as [{ nameof(SequenceData.MaxValue) }],
+    is_cycling as [{ nameof(SequenceData.Cycle) }],
+    is_cached as [{ nameof(SequenceData.IsCached) }],
+    cache_size as [{ nameof(SequenceData.CacheSize) }]
 from sys.sequences
 where is_ms_shipped = 0
 order by schema_name(schema_id), name";
@@ -124,8 +124,8 @@ order by schema_name(schema_id), name";
         /// <value>A SQL query.</value>
         protected virtual string SequenceNameQuery => SequenceNameQuerySql;
 
-        private const string SequenceNameQuerySql = @"
-select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
+        private static readonly string SequenceNameQuerySql = @$"
+select top 1 schema_name(schema_id) as [{ nameof(QualifiedName.SchemaName) }], name as [{ nameof(QualifiedName.ObjectName) }]
 from sys.sequences
 where schema_id = schema_id(@SchemaName) and name = @SequenceName and is_ms_shipped = 0";
 
@@ -153,15 +153,15 @@ where schema_id = schema_id(@SchemaName) and name = @SequenceName and is_ms_ship
         /// <value>A SQL query.</value>
         protected virtual string SequenceQuery => SequenceQuerySql;
 
-        private const string SequenceQuerySql = @"
+        private static readonly string SequenceQuerySql = @$"
 select
-    start_value as StartValue,
-    increment as Increment,
-    minimum_value as MinValue,
-    maximum_value as MaxValue,
-    is_cycling as Cycle,
-    is_cached as IsCached,
-    cache_size as CacheSize
+    start_value as [{ nameof(SequenceData.StartValue) }],
+    increment as [{ nameof(SequenceData.Increment) }],
+    minimum_value as [{ nameof(SequenceData.MinValue) }],
+    maximum_value as [{ nameof(SequenceData.MaxValue) }],
+    is_cycling as [{ nameof(SequenceData.Cycle) }],
+    is_cached as [{ nameof(SequenceData.IsCached) }],
+    cache_size as [{ nameof(SequenceData.CacheSize) }]
 from sys.sequences
 where schema_name(schema_id) = @SchemaName and name = @SequenceName and is_ms_shipped = 0";
 

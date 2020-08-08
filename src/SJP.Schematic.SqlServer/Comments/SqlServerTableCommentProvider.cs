@@ -122,8 +122,8 @@ namespace SJP.Schematic.SqlServer.Comments
         /// <value>A SQL query.</value>
         protected virtual string TableNameQuery => TableNameQuerySql;
 
-        private const string TableNameQuerySql = @"
-select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
+        private static readonly string TableNameQuerySql = @$"
+select top 1 schema_name(schema_id) as [{ nameof(QualifiedName.SchemaName) }], name as [{ nameof(QualifiedName.ObjectName) }]
 from sys.tables
 where schema_id = schema_id(@SchemaName) and name = @TableName
     and is_ms_shipped = 0";
@@ -198,10 +198,15 @@ where schema_id = schema_id(@SchemaName) and name = @TableName
         /// <value>A SQL query.</value>
         protected virtual string AllTableCommentsQuery => AllTableCommentsQuerySql;
 
-        private const string AllTableCommentsQuerySql = @"
+        private static readonly string AllTableCommentsQuerySql = @$"
 select wrapped.* from (
 -- table
-select SCHEMA_NAME(t.schema_id) as SchemaName, t.name as TableName, 'TABLE' as ObjectType, t.name as ObjectName, ep.value as Comment
+select
+    SCHEMA_NAME(t.schema_id) as [{ nameof(CommentsData.SchemaName) }],
+    t.name as [{ nameof(CommentsData.TableName) }],
+    'TABLE' as [{ nameof(CommentsData.ObjectType) }],
+    t.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.tables t
 left join sys.extended_properties ep on t.object_id = ep.major_id and ep.name = @CommentProperty and ep.minor_id = 0
 where t.is_ms_shipped = 0
@@ -209,7 +214,12 @@ where t.is_ms_shipped = 0
 union
 
 -- columns
-select SCHEMA_NAME(t.schema_id) as SchemaName, t.name as TableName, 'COLUMN' as ObjectType, c.name as ObjectName, ep.value as Comment
+select
+    SCHEMA_NAME(t.schema_id) as [{ nameof(CommentsData.SchemaName) }],
+    t.name as [{ nameof(CommentsData.TableName) }],
+    'COLUMN' as [{ nameof(CommentsData.ObjectType) }],
+    c.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.tables t
 inner join sys.columns c on t.object_id = c.object_id
 left join sys.extended_properties ep on t.object_id = ep.major_id and c.column_id = ep.minor_id and ep.name = @CommentProperty
@@ -218,7 +228,12 @@ where t.is_ms_shipped = 0
 union
 
 -- checks
-select SCHEMA_NAME(t.schema_id) as SchemaName, t.name as TableName, 'CHECK' as ObjectType, cc.name as ObjectName, ep.value as Comment
+select
+    SCHEMA_NAME(t.schema_id) as [{ nameof(CommentsData.SchemaName) }],
+    t.name as [{ nameof(CommentsData.TableName) }],
+    'CHECK' as [{ nameof(CommentsData.ObjectType) }],
+    cc.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.tables t
 inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
 left join sys.extended_properties ep on cc.object_id = ep.major_id and ep.name = @CommentProperty
@@ -227,7 +242,12 @@ where t.is_ms_shipped = 0
 union
 
 -- foreign keys
-select SCHEMA_NAME(t.schema_id) as SchemaName, t.name as TableName, 'FOREIGN KEY' as ObjectType, fk.name as ObjectName, ep.value as Comment
+select
+    SCHEMA_NAME(t.schema_id) as [{ nameof(CommentsData.SchemaName) }],
+    t.name as [{ nameof(CommentsData.TableName) }],
+    'FOREIGN KEY' as [{ nameof(CommentsData.ObjectType) }],
+    fk.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.tables t
 inner join sys.foreign_keys fk on t.object_id = fk.parent_object_id
 left join sys.extended_properties ep on fk.object_id = ep.major_id and ep.name = @CommentProperty
@@ -236,7 +256,12 @@ where t.is_ms_shipped = 0
 union
 
 -- unique keys
-select SCHEMA_NAME(t.schema_id) as SchemaName, t.name as TableName, 'UNIQUE' as ObjectType, kc.name as ObjectName, ep.value as Comment
+select
+    SCHEMA_NAME(t.schema_id) as [{ nameof(CommentsData.SchemaName) }],
+    t.name as [{ nameof(CommentsData.TableName) }],
+    'UNIQUE' as [{ nameof(CommentsData.ObjectType) }],
+    kc.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.tables t
 inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
 left join sys.extended_properties ep on kc.object_id = ep.major_id and ep.name = @CommentProperty
@@ -245,7 +270,12 @@ where t.is_ms_shipped = 0 and kc.type = 'UQ'
 union
 
 -- primary key
-select SCHEMA_NAME(t.schema_id) as SchemaName, t.name as TableName, 'PRIMARY' as ObjectType, kc.name as ObjectName, ep.value as Comment
+select
+    SCHEMA_NAME(t.schema_id) as [{ nameof(CommentsData.SchemaName) }],
+    t.name as [{ nameof(CommentsData.TableName) }],
+    'PRIMARY' as [{ nameof(CommentsData.ObjectType) }],
+    kc.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.tables t
 inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
 left join sys.extended_properties ep on kc.object_id = ep.major_id and ep.name = @CommentProperty
@@ -254,7 +284,12 @@ where t.is_ms_shipped = 0 and kc.type = 'PK'
 union
 
 -- indexes
-select SCHEMA_NAME(t.schema_id) as SchemaName, t.name as TableName, 'INDEX' as ObjectType, i.name as ObjectName, ep.value as Comment
+select
+    SCHEMA_NAME(t.schema_id) as [{ nameof(CommentsData.SchemaName) }],
+    t.name as [{ nameof(CommentsData.TableName) }],
+    'INDEX' as [{ nameof(CommentsData.ObjectType) }],
+    i.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.tables t
 inner join sys.indexes i on t.object_id = i.object_id
 left join sys.extended_properties ep on t.object_id = ep.major_id and i.index_id = ep.minor_id and ep.name = @CommentProperty
@@ -264,7 +299,12 @@ where t.is_ms_shipped = 0 and i.is_primary_key = 0 and i.is_unique_constraint = 
 union
 
 -- triggers
-select SCHEMA_NAME(t.schema_id) as SchemaName, t.name as TableName, 'TRIGGER' as ObjectType, tr.name as ObjectName, ep.value as Comment
+select
+    SCHEMA_NAME(t.schema_id) as [{ nameof(CommentsData.SchemaName) }],
+    t.name as [{ nameof(CommentsData.TableName) }],
+    'TRIGGER' as [{ nameof(CommentsData.ObjectType) }],
+    tr.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.tables t
 inner join sys.triggers tr on t.object_id = tr.parent_id
 left join sys.extended_properties ep on tr.object_id = ep.major_id and ep.name = @CommentProperty
@@ -277,9 +317,12 @@ where t.is_ms_shipped = 0
         /// <value>A SQL query.</value>
         protected virtual string TableCommentsQuery => TableCommentsQuerySql;
 
-        private const string TableCommentsQuerySql = @"
+        private static readonly string TableCommentsQuerySql = @$"
 -- table
-select 'TABLE' as ObjectType, t.name as ObjectName, ep.value as Comment
+select
+    'TABLE' as [{ nameof(CommentsData.ObjectType) }],
+    t.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.tables t
 left join sys.extended_properties ep on t.object_id = ep.major_id and ep.name = @CommentProperty and ep.minor_id = 0
 where t.schema_id = SCHEMA_ID(@SchemaName) and t.name = @TableName and t.is_ms_shipped = 0
@@ -287,7 +330,10 @@ where t.schema_id = SCHEMA_ID(@SchemaName) and t.name = @TableName and t.is_ms_s
 union
 
 -- columns
-select 'COLUMN' as ObjectType, c.name as ObjectName, ep.value as Comment
+select
+    'COLUMN' as [{ nameof(CommentsData.ObjectType) }],
+    c.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.tables t
 inner join sys.columns c on t.object_id = c.object_id
 left join sys.extended_properties ep on t.object_id = ep.major_id and c.column_id = ep.minor_id and ep.name = @CommentProperty
@@ -296,7 +342,10 @@ where t.schema_id = SCHEMA_ID(@SchemaName) and t.name = @TableName and t.is_ms_s
 union
 
 -- checks
-select 'CHECK' as ObjectType, cc.name as ObjectName, ep.value as Comment
+select
+    'CHECK' as [{ nameof(CommentsData.ObjectType) }],
+    cc.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.tables t
 inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
 left join sys.extended_properties ep on cc.object_id = ep.major_id and ep.name = @CommentProperty
@@ -305,7 +354,10 @@ where t.schema_id = SCHEMA_ID(@SchemaName) and t.name = @TableName and t.is_ms_s
 union
 
 -- foreign keys
-select 'FOREIGN KEY' as ObjectType, fk.name as ObjectName, ep.value as Comment
+select
+    'FOREIGN KEY' as [{ nameof(CommentsData.ObjectType) }],
+    fk.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.tables t
 inner join sys.foreign_keys fk on t.object_id = fk.parent_object_id
 left join sys.extended_properties ep on fk.object_id = ep.major_id and ep.name = @CommentProperty
@@ -314,7 +366,10 @@ where t.schema_id = SCHEMA_ID(@SchemaName) and t.name = @TableName and t.is_ms_s
 union
 
 -- unique keys
-select 'UNIQUE' as ObjectType, kc.name as ObjectName, ep.value as Comment
+select
+    'UNIQUE' as [{ nameof(CommentsData.ObjectType) }],
+    kc.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.tables t
 inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
 left join sys.extended_properties ep on kc.object_id = ep.major_id and ep.name = @CommentProperty
@@ -324,7 +379,10 @@ where t.schema_id = SCHEMA_ID(@SchemaName) and t.name = @TableName
 union
 
 -- primary key
-select 'PRIMARY' as ObjectType, kc.name as ObjectName, ep.value as Comment
+select
+    'PRIMARY' as [{ nameof(CommentsData.ObjectType) }],
+    kc.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.tables t
 inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
 left join sys.extended_properties ep on kc.object_id = ep.major_id and ep.name = @CommentProperty
@@ -334,7 +392,10 @@ where t.schema_id = SCHEMA_ID(@SchemaName) and t.name = @TableName
 union
 
 -- indexes
-select 'INDEX' as ObjectType, i.name as ObjectName, ep.value as Comment
+select
+    'INDEX' as [{ nameof(CommentsData.ObjectType) }],
+    i.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.tables t
 inner join sys.indexes i on t.object_id = i.object_id
 left join sys.extended_properties ep on t.object_id = ep.major_id and i.index_id = ep.minor_id and ep.name = @CommentProperty
@@ -345,7 +406,10 @@ where t.schema_id = SCHEMA_ID(@SchemaName) and t.name = @TableName and t.is_ms_s
 union
 
 -- triggers
-select 'TRIGGER' as ObjectType, tr.name as ObjectName, ep.value as Comment
+select
+    'TRIGGER' as [{ nameof(CommentsData.ObjectType) }],
+    tr.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.tables t
 inner join sys.triggers tr on t.object_id = tr.parent_id
 left join sys.extended_properties ep on tr.object_id = ep.major_id and ep.name = @CommentProperty

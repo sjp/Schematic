@@ -90,8 +90,8 @@ namespace SJP.Schematic.SqlServer
         /// <value>A SQL query.</value>
         protected virtual string TablesQuery => TablesQuerySql;
 
-        private const string TablesQuerySql = @"
-select schema_name(schema_id) as SchemaName, name as ObjectName
+        private static readonly string TablesQuerySql = @$"
+select schema_name(schema_id) as [{ nameof(QualifiedName.SchemaName) }], name as [{ nameof(QualifiedName.ObjectName) }]
 from sys.tables
 where is_ms_shipped = 0
 order by schema_name(schema_id), name";
@@ -142,8 +142,8 @@ order by schema_name(schema_id), name";
         /// <value>A SQL query.</value>
         protected virtual string TableNameQuery => TableNameQuerySql;
 
-        private const string TableNameQuerySql = @"
-select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
+        private static readonly string TableNameQuerySql = @$"
+select top 1 schema_name(schema_id) as [{ nameof(QualifiedName.SchemaName) }], name as [{ nameof(QualifiedName.ObjectName) }]
 from sys.tables
 where schema_id = schema_id(@SchemaName) and name = @TableName and is_ms_shipped = 0";
 
@@ -259,11 +259,11 @@ where schema_id = schema_id(@SchemaName) and name = @TableName and is_ms_shipped
         /// <value>A SQL query.</value>
         protected virtual string PrimaryKeyQuery => PrimaryKeyQuerySql;
 
-        private const string PrimaryKeyQuerySql = @"
+        private static readonly string PrimaryKeyQuerySql = @$"
 select
-    kc.name as ConstraintName,
-    c.name as ColumnName,
-    i.is_disabled as IsDisabled
+    kc.name as [{ nameof(ConstraintColumnMapping.ConstraintName) }],
+    c.name as [{ nameof(ConstraintColumnMapping.ColumnName) }],
+    i.is_disabled as [{ nameof(ConstraintColumnMapping.IsDisabled) }]
 from sys.tables t
 inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
 inner join sys.indexes i on kc.parent_object_id = i.object_id and kc.unique_index_id = i.index_id
@@ -351,16 +351,16 @@ order by ic.key_ordinal";
         /// <value>A SQL query.</value>
         protected virtual string IndexesQuery => IndexesQuerySql;
 
-        private const string IndexesQuerySql = @"
+        private static readonly string IndexesQuerySql = @$"
 select
-    i.name as IndexName,
-    i.is_unique as IsUnique,
-    ic.key_ordinal as KeyOrdinal,
-    ic.index_column_id as IndexColumnId,
-    ic.is_included_column as IsIncludedColumn,
-    ic.is_descending_key as IsDescending,
-    c.name as ColumnName,
-    i.is_disabled as IsDisabled
+    i.name as [{ nameof(IndexColumns.IndexName) }],
+    i.is_unique as [{ nameof(IndexColumns.IsUnique) }],
+    ic.key_ordinal as [{ nameof(IndexColumns.KeyOrdinal) }],
+    ic.index_column_id as [{ nameof(IndexColumns.IndexColumnId) }],
+    ic.is_included_column as [{ nameof(IndexColumns.IsIncludedColumn) }],
+    ic.is_descending_key as [{ nameof(IndexColumns.IsDescending) }],
+    c.name as [{ nameof(IndexColumns.ColumnName) }],
+    i.is_disabled as [{ nameof(IndexColumns.IsDisabled) }]
 from sys.tables t
 inner join sys.indexes i on t.object_id = i.object_id
 inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
@@ -432,11 +432,11 @@ order by ic.index_id, ic.key_ordinal, ic.index_column_id";
         /// <value>A SQL query.</value>
         protected virtual string UniqueKeysQuery => UniqueKeysQuerySql;
 
-        private const string UniqueKeysQuerySql = @"
+        private static readonly string UniqueKeysQuerySql = @$"
 select
-    kc.name as ConstraintName,
-    c.name as ColumnName,
-    i.is_disabled as IsDisabled
+    kc.name as [{ nameof(ConstraintColumnMapping.ConstraintName) }],
+    c.name as [{ nameof(ConstraintColumnMapping.ColumnName) }],
+    i.is_disabled as [{ nameof(ConstraintColumnMapping.IsDisabled) }]
 from sys.tables t
 inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
 inner join sys.indexes i on kc.parent_object_id = i.object_id and kc.unique_index_id = i.index_id
@@ -542,15 +542,15 @@ order by ic.key_ordinal";
         /// <value>A SQL query.</value>
         protected virtual string ChildKeysQuery => ChildKeysQuerySql;
 
-        private const string ChildKeysQuerySql = @"
+        private static readonly string ChildKeysQuerySql = @$"
 select
-    schema_name(child_t.schema_id) as ChildTableSchema,
-    child_t.name as ChildTableName,
-    fk.name as ChildKeyName,
-    kc.name as ParentKeyName,
-    kc.type as ParentKeyType,
-    fk.delete_referential_action as DeleteAction,
-    fk.update_referential_action as UpdateAction
+    schema_name(child_t.schema_id) as [{ nameof(ChildKeyData.ChildTableSchema) }],
+    child_t.name as [{ nameof(ChildKeyData.ChildTableName) }],
+    fk.name as [{ nameof(ChildKeyData.ChildKeyName) }],
+    kc.name as [{ nameof(ChildKeyData.ParentKeyName) }],
+    kc.type as [{ nameof(ChildKeyData.ParentKeyType) }],
+    fk.delete_referential_action as [{ nameof(ChildKeyData.DeleteAction) }],
+    fk.update_referential_action as [{ nameof(ChildKeyData.UpdateAction) }]
 from sys.tables parent_t
 inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
 inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
@@ -601,11 +601,11 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
         /// <value>A SQL query.</value>
         protected virtual string ChecksQuery => ChecksQuerySql;
 
-        private const string ChecksQuerySql = @"
+        private static readonly string ChecksQuerySql = @$"
 select
-    cc.name as ConstraintName,
-    cc.definition as Definition,
-    cc.is_disabled as IsDisabled
+    cc.name as [{ nameof(CheckConstraintData.ConstraintName) }],
+    cc.definition as [{ nameof(CheckConstraintData.Definition) }],
+    cc.is_disabled as [{ nameof(CheckConstraintData.IsDisabled) }]
 from sys.tables t
 inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
 where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms_shipped = 0";
@@ -713,18 +713,18 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
         /// <value>A SQL query.</value>
         protected virtual string ParentKeysQuery => ParentKeysQuerySql;
 
-        private const string ParentKeysQuerySql = @"
+        private static readonly string ParentKeysQuerySql = @$"
 select
-    schema_name(parent_t.schema_id) as ParentTableSchema,
-    parent_t.name as ParentTableName,
-    fk.name as ChildKeyName,
-    c.name as ColumnName,
-    fkc.constraint_column_id as ConstraintColumnId,
-    kc.name as ParentKeyName,
-    kc.type as ParentKeyType,
-    fk.delete_referential_action as DeleteAction,
-    fk.update_referential_action as UpdateAction,
-    fk.is_disabled as IsDisabled
+    schema_name(parent_t.schema_id) as [{ nameof(ForeignKeyData.ParentTableSchema) }],
+    parent_t.name as [{ nameof(ForeignKeyData.ParentTableName) }],
+    fk.name as [{ nameof(ForeignKeyData.ChildKeyName) }],
+    c.name as [{ nameof(ForeignKeyData.ColumnName) }],
+    fkc.constraint_column_id as [{ nameof(ForeignKeyData.ConstraintColumnId) }],
+    kc.name as [{ nameof(ForeignKeyData.ParentKeyName) }],
+    kc.type as [{ nameof(ForeignKeyData.ParentKeyType) }],
+    fk.delete_referential_action as [{ nameof(ForeignKeyData.DeleteAction) }],
+    fk.update_referential_action as [{ nameof(ForeignKeyData.UpdateAction) }],
+    fk.is_disabled as [{ nameof(ForeignKeyData.IsDisabled) }]
 from sys.tables parent_t
 inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
 inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
@@ -801,22 +801,22 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
         /// <value>A SQL query.</value>
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
-        private const string ColumnsQuerySql = @"
+        private static readonly string ColumnsQuerySql = @$"
 select
-    c.name as ColumnName,
-    schema_name(st.schema_id) as ColumnTypeSchema,
-    st.name as ColumnTypeName,
-    c.max_length as MaxLength,
-    c.precision as Precision,
-    c.scale as Scale,
-    c.collation_name as Collation,
-    c.is_computed as IsComputed,
-    c.is_nullable as IsNullable,
-    dc.parent_column_id as HasDefaultValue,
-    dc.definition as DefaultValue,
-    cc.definition as ComputedColumnDefinition,
-    (convert(bigint, ic.seed_value)) as IdentitySeed,
-    (convert(bigint, ic.increment_value)) as IdentityIncrement
+    c.name as [{ nameof(ColumnData.ColumnName) }],
+    schema_name(st.schema_id) as [{ nameof(ColumnData.ColumnTypeSchema) }],
+    st.name as [{ nameof(ColumnData.ColumnTypeName) }],
+    c.max_length as [{ nameof(ColumnData.MaxLength) }],
+    c.precision as [{ nameof(ColumnData.Precision) }],
+    c.scale as [{ nameof(ColumnData.Scale) }],
+    c.collation_name as [{ nameof(ColumnData.Collation) }],
+    c.is_computed as [{ nameof(ColumnData.IsComputed) }],
+    c.is_nullable as [{ nameof(ColumnData.IsNullable) }],
+    dc.parent_column_id as [{ nameof(ColumnData.HasDefaultValue) }],
+    dc.definition as [{ nameof(ColumnData.DefaultValue) }],
+    cc.definition as [{ nameof(ColumnData.ComputedColumnDefinition) }],
+    (convert(bigint, ic.seed_value)) as [{ nameof(ColumnData.IdentitySeed) }],
+    (convert(bigint, ic.increment_value)) as [{ nameof(ColumnData.IdentityIncrement) }]
 from sys.tables t
 inner join sys.columns c on t.object_id = c.object_id
 left join sys.default_constraints dc on c.object_id = dc.parent_object_id and c.column_id = dc.parent_column_id
@@ -896,13 +896,13 @@ order by c.column_id";
         /// <value>A SQL query.</value>
         protected virtual string TriggersQuery => TriggersQuerySql;
 
-        private const string TriggersQuerySql = @"
+        private static readonly string TriggersQuerySql = @$"
 select
-    st.name as TriggerName,
-    sm.definition as Definition,
-    st.is_instead_of_trigger as IsInsteadOfTrigger,
-    te.type_desc as TriggerEvent,
-    st.is_disabled as IsDisabled
+    st.name as [{ nameof(TriggerData.TriggerName) }],
+    sm.definition as [{ nameof(TriggerData.Definition) }],
+    st.is_instead_of_trigger as [{ nameof(TriggerData.IsInsteadOfTrigger) }],
+    te.type_desc as [{ nameof(TriggerData.TriggerEvent) }],
+    st.is_disabled as [{ nameof(TriggerData.IsDisabled) }]
 from sys.tables t
 inner join sys.triggers st on t.object_id = st.parent_id
 inner join sys.sql_modules sm on st.object_id = sm.object_id

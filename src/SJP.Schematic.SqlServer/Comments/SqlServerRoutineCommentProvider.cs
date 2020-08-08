@@ -104,8 +104,8 @@ namespace SJP.Schematic.SqlServer.Comments
         /// <value>A SQL query.</value>
         protected virtual string RoutineNameQuery => RoutineNameQuerySql;
 
-        private const string RoutineNameQuerySql = @"
-select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
+        private static readonly string RoutineNameQuerySql = @$"
+select top 1 schema_name(schema_id) as [{ nameof(QualifiedName.SchemaName) }], name as [{ nameof(QualifiedName.ObjectName) }]
 from sys.objects
 where schema_id = schema_id(@SchemaName) and name = @RoutineName
     and type in ('P', 'FN', 'IF', 'TF') and is_ms_shipped = 0";
@@ -162,8 +162,13 @@ where schema_id = schema_id(@SchemaName) and name = @RoutineName
         /// <value>A SQL query.</value>
         protected virtual string AllRoutineCommentsQuery => AllRoutineCommentsQuerySql;
 
-        private const string AllRoutineCommentsQuerySql = @"
-select SCHEMA_NAME(r.schema_id) as SchemaName, r.name as TableName, 'ROUTINE' as ObjectType, r.name as ObjectName, ep.value as Comment
+        private static readonly string AllRoutineCommentsQuerySql = @$"
+select
+    SCHEMA_NAME(r.schema_id) as [{ nameof(CommentsData.SchemaName) }],
+    r.name as [{ nameof(CommentsData.TableName) }],
+    'ROUTINE' as [{ nameof(CommentsData.ObjectType) }],
+    r.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.objects r
 left join sys.extended_properties ep on r.object_id = ep.major_id and ep.name = @CommentProperty and ep.minor_id = 0
 where r.is_ms_shipped = 0 and r.type in ('P', 'FN', 'IF', 'TF')
@@ -176,8 +181,11 @@ order by SCHEMA_NAME(r.schema_id), r.name
         /// <value>A SQL query.</value>
         protected virtual string RoutineCommentsQuery => RoutineCommentsQuerySql;
 
-        private const string RoutineCommentsQuerySql = @"
-select 'ROUTINE' as ObjectType, r.name as ObjectName, ep.value as Comment
+        private static readonly string RoutineCommentsQuerySql = @$"
+select
+    'ROUTINE' as [{ nameof(CommentsData.ObjectType) }],
+    r.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.objects r
 left join sys.extended_properties ep on r.object_id = ep.major_id and ep.name = @CommentProperty and ep.minor_id = 0
 where r.schema_id = SCHEMA_ID(@SchemaName) and r.name = @RoutineName and r.is_ms_shipped = 0

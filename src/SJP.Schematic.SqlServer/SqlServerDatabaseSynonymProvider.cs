@@ -70,14 +70,14 @@ namespace SJP.Schematic.SqlServer
         /// <value>A SQL query.</value>
         protected virtual string SynonymsQuery => SynonymsQuerySql;
 
-        private const string SynonymsQuerySql = @"
+        private static readonly string SynonymsQuerySql = @$"
 select
-    schema_name(schema_id) as SchemaName,
-    name as ObjectName,
-    PARSENAME(base_object_name, 4) as TargetServerName,
-    PARSENAME(base_object_name, 3) as TargetDatabaseName,
-    PARSENAME(base_object_name, 2) as TargetSchemaName,
-    PARSENAME(base_object_name, 1) as TargetObjectName
+    schema_name(schema_id) as [{ nameof(SynonymData.SchemaName) }],
+    name as [{ nameof(SynonymData.ObjectName) }],
+    PARSENAME(base_object_name, 4) as [{ nameof(SynonymData.TargetServerName) }],
+    PARSENAME(base_object_name, 3) as [{ nameof(SynonymData.TargetDatabaseName) }],
+    PARSENAME(base_object_name, 2) as [{ nameof(SynonymData.TargetSchemaName) }],
+    PARSENAME(base_object_name, 1) as [{ nameof(SynonymData.TargetObjectName) }]
 from sys.synonyms
 where is_ms_shipped = 0
 order by schema_name(schema_id), name";
@@ -126,8 +126,8 @@ order by schema_name(schema_id), name";
         /// <value>A SQL query.</value>
         protected virtual string SynonymNameQuery => SynonymNameQuerySql;
 
-        private const string SynonymNameQuerySql = @"
-select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
+        private static readonly string SynonymNameQuerySql = @$"
+select top 1 schema_name(schema_id) as [{ nameof(QualifiedName.SchemaName) }], name as [{ nameof(QualifiedName.ObjectName) }]
 from sys.synonyms
 where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipped = 0";
 
@@ -172,12 +172,12 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipp
         /// <value>A SQL query.</value>
         protected virtual string LoadSynonymQuery => LoadSynonymQuerySql;
 
-        private const string LoadSynonymQuerySql = @"
+        private static readonly string LoadSynonymQuerySql = @$"
 select
-    PARSENAME(base_object_name, 4) as TargetServerName,
-    PARSENAME(base_object_name, 3) as TargetDatabaseName,
-    PARSENAME(base_object_name, 2) as TargetSchemaName,
-    PARSENAME(base_object_name, 1) as TargetObjectName
+    PARSENAME(base_object_name, 4) as [{ nameof(SynonymData.TargetServerName) }],
+    PARSENAME(base_object_name, 3) as [{ nameof(SynonymData.TargetDatabaseName) }],
+    PARSENAME(base_object_name, 2) as [{ nameof(SynonymData.TargetSchemaName) }],
+    PARSENAME(base_object_name, 1) as [{ nameof(SynonymData.TargetObjectName) }]
 from sys.synonyms
 where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipped = 0";
 

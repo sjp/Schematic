@@ -106,8 +106,8 @@ namespace SJP.Schematic.SqlServer.Comments
         /// <value>A SQL query.</value>
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
-        private const string ViewNameQuerySql = @"
-select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
+        private static readonly string ViewNameQuerySql = @$"
+select top 1 schema_name(schema_id) as [{ nameof(QualifiedName.SchemaName) }], name as [{ nameof(QualifiedName.ObjectName) }]
 from sys.views
 where schema_id = schema_id(@SchemaName) and name = @ViewName
     and is_ms_shipped = 0";
@@ -165,10 +165,15 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName
         /// <value>A SQL query.</value>
         protected virtual string AllViewCommentsQuery => AllViewCommentsQuerySql;
 
-        private const string AllViewCommentsQuerySql = @"
+        private static readonly string AllViewCommentsQuerySql = @$"
 select wrapped.* from (
 -- view
-select SCHEMA_NAME(v.schema_id) as SchemaName, v.name as TableName, 'VIEW' as ObjectType, v.name as ObjectName, ep.value as Comment
+select
+    SCHEMA_NAME(v.schema_id) as [{ nameof(CommentsData.SchemaName) }],
+    v.name as [{ nameof(CommentsData.TableName) }],
+    'VIEW' as [{ nameof(CommentsData.ObjectType) }],
+    v.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.views v
 left join sys.extended_properties ep on v.object_id = ep.major_id and ep.name = @CommentProperty and ep.minor_id = 0
 where v.is_ms_shipped = 0
@@ -176,7 +181,12 @@ where v.is_ms_shipped = 0
 union
 
 -- columns
-select SCHEMA_NAME(v.schema_id) as SchemaName, v.name as TableName, 'COLUMN' as ObjectType, c.name as ObjectName, ep.value as Comment
+select
+    SCHEMA_NAME(v.schema_id) as [{ nameof(CommentsData.SchemaName) }],
+    v.name as [{ nameof(CommentsData.TableName) }],
+    'COLUMN' as [{ nameof(CommentsData.ObjectType) }],
+    c.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.views v
 inner join sys.columns c on v.object_id = c.object_id
 left join sys.extended_properties ep on v.object_id = ep.major_id and c.column_id = ep.minor_id and ep.name = @CommentProperty
@@ -190,9 +200,12 @@ where v.is_ms_shipped = 0
         /// <value>A SQL query.</value>
         protected virtual string ViewCommentsQuery => ViewCommentsQuerySql;
 
-        private const string ViewCommentsQuerySql = @"
+        private static readonly string ViewCommentsQuerySql = @$"
 -- view
-select 'VIEW' as ObjectType, v.name as ObjectName, ep.value as Comment
+select
+    'VIEW' as [{ nameof(CommentsData.ObjectType) }],
+    v.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.views v
 left join sys.extended_properties ep on v.object_id = ep.major_id and ep.name = @CommentProperty and ep.minor_id = 0
 where v.schema_id = SCHEMA_ID(@SchemaName) and v.name = @ViewName and v.is_ms_shipped = 0
@@ -200,7 +213,10 @@ where v.schema_id = SCHEMA_ID(@SchemaName) and v.name = @ViewName and v.is_ms_sh
 union
 
 -- columns
-select 'COLUMN' as ObjectType, c.name as ObjectName, ep.value as Comment
+select
+    'COLUMN' as [{ nameof(CommentsData.ObjectType) }],
+    c.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.views v
 inner join sys.columns c on v.object_id = c.object_id
 left join sys.extended_properties ep on v.object_id = ep.major_id and c.column_id = ep.minor_id and ep.name = @CommentProperty

@@ -104,8 +104,8 @@ namespace SJP.Schematic.SqlServer.Comments
         /// <value>A SQL query.</value>
         protected virtual string SynonymNameQuery => SynonymNameQuerySql;
 
-        private const string SynonymNameQuerySql = @"
-select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
+        private static readonly string SynonymNameQuerySql = @$"
+select top 1 schema_name(schema_id) as [{ nameof(QualifiedName.SchemaName) }], name as [{ nameof(QualifiedName.ObjectName) }]
 from sys.synonyms
 where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipped = 0";
 
@@ -161,8 +161,13 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipp
         /// <value>A SQL query.</value>
         protected virtual string AllSynonymCommentsQuery => AllSynonymCommentsQuerySql;
 
-        private const string AllSynonymCommentsQuerySql = @"
-select SCHEMA_NAME(s.schema_id) as SchemaName, s.name as TableName, 'SYNONYM' as ObjectType, s.name as ObjectName, ep.value as Comment
+        private static readonly string AllSynonymCommentsQuerySql = @$"
+select
+    SCHEMA_NAME(s.schema_id) as [{ nameof(CommentsData.SchemaName) }],
+    s.name as [{ nameof(CommentsData.TableName) }],
+    'SYNONYM' as [{ nameof(CommentsData.ObjectType) }],
+    s.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.synonyms s
 left join sys.extended_properties ep on s.object_id = ep.major_id and ep.name = @CommentProperty and ep.minor_id = 0
 where s.is_ms_shipped = 0
@@ -175,8 +180,11 @@ order by SCHEMA_NAME(s.schema_id), s.name
         /// <value>A SQL query.</value>
         protected virtual string SynonymCommentsQuery => SynonymCommentsQuerySql;
 
-        private const string SynonymCommentsQuerySql = @"
-select 'SYNONYM' as ObjectType, s.name as ObjectName, ep.value as Comment
+        private static readonly string SynonymCommentsQuerySql = @$"
+select
+    'SYNONYM' as [{ nameof(CommentsData.ObjectType) }],
+    s.name as [{ nameof(CommentsData.ObjectName) }],
+    ep.value as [{ nameof(CommentsData.Comment) }]
 from sys.synonyms s
 left join sys.extended_properties ep on s.object_id = ep.major_id and ep.name = @CommentProperty and ep.minor_id = 0
 where s.schema_id = SCHEMA_ID(@SchemaName) and s.name = @SynonymName and s.is_ms_shipped = 0

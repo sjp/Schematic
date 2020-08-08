@@ -75,8 +75,8 @@ namespace SJP.Schematic.SqlServer
         /// <value>A SQL query.</value>
         protected virtual string ViewsQuery => ViewsQuerySql;
 
-        private const string ViewsQuerySql = @"
-select schema_name(schema_id) as SchemaName, name as ObjectName
+        private static readonly string ViewsQuerySql = @$"
+select schema_name(schema_id) as [{ nameof(QualifiedName.SchemaName) }], name as [{ nameof(QualifiedName.ObjectName) }]
 from sys.views
 where is_ms_shipped = 0
 order by schema_name(schema_id), name";
@@ -125,8 +125,8 @@ order by schema_name(schema_id), name";
         /// <value>A SQL query.</value>
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
-        private const string ViewNameQuerySql = @"
-select top 1 schema_name(schema_id) as SchemaName, name as ObjectName
+        private static readonly string ViewNameQuerySql = @$"
+select top 1 schema_name(schema_id) as [{ nameof(QualifiedName.SchemaName) }], name as [{ nameof(QualifiedName.ObjectName) }]
 from sys.views
 where schema_id = schema_id(@SchemaName) and name = @ViewName and is_ms_shipped = 0";
 
@@ -287,22 +287,22 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName and v.is_ms_
         /// <value>A SQL query.</value>
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
-        private const string ColumnsQuerySql = @"
+        private static readonly string ColumnsQuerySql = @$"
 select
-    c.name as ColumnName,
-    schema_name(st.schema_id) as ColumnTypeSchema,
-    st.name as ColumnTypeName,
-    c.max_length as MaxLength,
-    c.precision as Precision,
-    c.scale as Scale,
-    c.collation_name as Collation,
-    c.is_computed as IsComputed,
-    c.is_nullable as IsNullable,
-    dc.parent_column_id as HasDefaultValue,
-    dc.definition as DefaultValue,
-    cc.definition as ComputedColumnDefinition,
-    (convert(bigint, ic.seed_value)) as IdentitySeed,
-    (convert(bigint, ic.increment_value)) as IdentityIncrement
+    c.name as [{ nameof(ColumnData.ColumnName) }],
+    schema_name(st.schema_id) as [{ nameof(ColumnData.ColumnTypeSchema) }],
+    st.name as [{ nameof(ColumnData.ColumnTypeName) }],
+    c.max_length as [{ nameof(ColumnData.MaxLength) }],
+    c.precision as [{ nameof(ColumnData.Precision) }],
+    c.scale as [{ nameof(ColumnData.Scale) }],
+    c.collation_name as [{ nameof(ColumnData.Collation) }],
+    c.is_computed as [{ nameof(ColumnData.IsComputed) }],
+    c.is_nullable as [{ nameof(ColumnData.IsNullable) }],
+    dc.parent_column_id as [{ nameof(ColumnData.HasDefaultValue) }],
+    dc.definition as [{ nameof(ColumnData.DefaultValue) }],
+    cc.definition as [{ nameof(ColumnData.ComputedColumnDefinition) }],
+    (convert(bigint, ic.seed_value)) as [{ nameof(ColumnData.IdentitySeed) }],
+    (convert(bigint, ic.increment_value)) as [{ nameof(ColumnData.IdentityIncrement) }]
 from sys.views v
 inner join sys.columns c on v.object_id = c.object_id
 left join sys.default_constraints dc on c.object_id = dc.parent_object_id and c.column_id = dc.parent_column_id

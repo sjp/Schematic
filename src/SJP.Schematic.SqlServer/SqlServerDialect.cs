@@ -38,11 +38,11 @@ namespace SJP.Schematic.SqlServer
             return await connection.DbConnection.QuerySingleAsync<SqlIdentifierDefaults>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
         }
 
-        private const string IdentifierDefaultsQuerySql = @"
+        private static readonly string IdentifierDefaultsQuerySql = @$"
 select
-    @@SERVERNAME as [Server],
-    db_name() as [Database],
-    schema_name() as [Schema]";
+    @@SERVERNAME as [{ nameof(SqlIdentifierDefaults.Server) }],
+    db_name() as [{ nameof(SqlIdentifierDefaults.Database) }],
+    schema_name() as [{ nameof(SqlIdentifierDefaults.Schema) }]";
 
         /// <summary>
         /// Gets the database display version. Usually a more user-friendly form of the database version.
