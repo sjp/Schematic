@@ -214,7 +214,7 @@ inner join pg_catalog.pg_attribute a on a.attrelid = c.oid
 left join pg_description d on c.oid = d.objoid and a.attnum = d.objsubid
 where c.relkind = 'm' and n.nspname not in ('pg_catalog', 'information_schema')
     and a.attnum > 0 and not a.attisdropped
-) wrapped order by wrapped.SchemaName, wrapped.ViewName
+) wrapped order by wrapped.""{ nameof(ViewCommentsData.SchemaName) }"", wrapped.""{ nameof(ViewCommentsData.ViewName) }""
 ";
 
         /// <summary>

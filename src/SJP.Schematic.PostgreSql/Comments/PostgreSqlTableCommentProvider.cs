@@ -345,7 +345,7 @@ inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 inner join pg_catalog.pg_trigger tr on tr.tgrelid = t.oid
 left join pg_catalog.pg_description d on d.objoid = tr.oid
 where t.relkind = 'r' and ns.nspname not in ('pg_catalog', 'information_schema')
-) wrapped order by wrapped.SchemaName, wrapped.TableName
+) wrapped order by wrapped.""{ nameof(TableCommentsData.SchemaName) }"", wrapped.""{ nameof(TableCommentsData.TableName) }""
 ";
 
         /// <summary>
