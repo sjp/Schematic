@@ -120,8 +120,8 @@ namespace SJP.Schematic.PostgreSql.Comments
         /// <value>A SQL query.</value>
         protected virtual string SequenceNameQuery => SequenceNameQuerySql;
 
-        private const string SequenceNameQuerySql = @"
-select sequence_schema as SchemaName, sequence_name as ObjectName
+        private static readonly string SequenceNameQuerySql = @$"
+select sequence_schema as ""{ nameof(QualifiedName.SchemaName) }"", sequence_name as ""{ nameof(QualifiedName.ObjectName) }""
 from information_schema.sequences
 where sequence_schema = @SchemaName and sequence_name = @SequenceName
     and sequence_schema not in ('pg_catalog', 'information_schema')
@@ -179,11 +179,11 @@ limit 1";
         /// <value>A SQL query.</value>
         protected virtual string AllSequenceCommentsQuery => AllSequenceCommentsQuerySql;
 
-        private const string AllSequenceCommentsQuerySql = @"
+        private static readonly string AllSequenceCommentsQuerySql = @$"
 select
-    nc.nspname as SchemaName,
-    c.relname as ObjectName,
-    d.description as Comment
+    nc.nspname as ""{ nameof(CommentsData.SchemaName) }"",
+    c.relname as ""{ nameof(CommentsData.ObjectName) }"",
+    d.description as ""{ nameof(CommentsData.Comment) }""
 from pg_catalog.pg_namespace nc
 inner join pg_catalog.pg_class c on c.relnamespace = nc.oid
 left join pg_catalog.pg_description d on d.objoid = c.oid
@@ -196,11 +196,11 @@ order by nc.nspname, c.relname";
         /// <value>A SQL query.</value>
         protected virtual string SequenceCommentsQuery => SequenceCommentsQuerySql;
 
-        private const string SequenceCommentsQuerySql = @"
+        private static readonly string SequenceCommentsQuerySql = @$"
 select
-    nc.nspname as SchemaName,
-    c.relname as ObjectName,
-    d.description as Comment
+    nc.nspname as ""{ nameof(CommentsData.SchemaName) }"",
+    c.relname as ""{ nameof(CommentsData.ObjectName) }"",
+    d.description as ""{ nameof(CommentsData.Comment) }""
 from pg_catalog.pg_namespace nc
 inner join pg_catalog.pg_class c on c.relnamespace = nc.oid
 left join pg_catalog.pg_description d on d.objoid = c.oid

@@ -42,11 +42,11 @@ namespace SJP.Schematic.PostgreSql
             return result;
         }
 
-        private const string IdentifierDefaultsQuerySql = @"
+        private static readonly string IdentifierDefaultsQuerySql = @$"
 select
-    pg_catalog.host(pg_catalog.inet_server_addr()) as Server,
-    pg_catalog.current_database() as Database,
-    pg_catalog.current_schema() as Schema";
+    pg_catalog.host(pg_catalog.inet_server_addr()) as ""{ nameof(PgIdentifierDefaults.Server) }"",
+    pg_catalog.current_database() as ""{ nameof(PgIdentifierDefaults.Database) }"",
+    pg_catalog.current_schema() as ""{ nameof(PgIdentifierDefaults.Schema) }""";
 
         /// <summary>
         /// Gets the database display version. Usually a more user-friendly form of the database version.

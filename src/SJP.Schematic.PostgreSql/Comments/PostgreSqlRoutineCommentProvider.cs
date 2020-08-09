@@ -122,10 +122,10 @@ namespace SJP.Schematic.PostgreSql.Comments
         /// <value>A SQL query.</value>
         protected virtual string RoutineNameQuery => RoutineNameQuerySql;
 
-        private const string RoutineNameQuerySql = @"
+        private static readonly string RoutineNameQuerySql = @$"
 select
-    ROUTINE_SCHEMA as SchemaName,
-    ROUTINE_NAME as ObjectName
+    ROUTINE_SCHEMA as ""{ nameof(QualifiedName.SchemaName) }"",
+    ROUTINE_NAME as ""{ nameof(QualifiedName.ObjectName) }""
 from information_schema.routines
 where ROUTINE_SCHEMA = @SchemaName and ROUTINE_NAME = @RoutineName
     and ROUTINE_SCHEMA not in ('pg_catalog', 'information_schema')
@@ -184,8 +184,11 @@ limit 1";
         /// <value>A SQL query.</value>
         protected virtual string AllRoutineCommentsQuery => AllRoutineCommentsQuerySql;
 
-        private const string AllRoutineCommentsQuerySql = @"
-select n.nspname as SchemaName, p.proname as ObjectName, d.description as Comment
+        private static readonly string AllRoutineCommentsQuerySql = @$"
+select
+    n.nspname as ""{ nameof(CommentsData.SchemaName) }"",
+    p.proname as ""{ nameof(CommentsData.ObjectName) }"",
+    d.description as ""{ nameof(CommentsData.Comment) }""
 from pg_catalog.pg_proc p
 inner join pg_namespace n on n.oid = p.pronamespace
 left join pg_catalog.pg_description d on p.oid = d.objoid
@@ -199,8 +202,11 @@ order by n.nspname, p.proname
         /// <value>A SQL query.</value>
         protected virtual string RoutineCommentsQuery => RoutineCommentsQuerySql;
 
-        private const string RoutineCommentsQuerySql = @"
-select n.nspname as SchemaName, p.proname as ObjectName, d.description as Comment
+        private static readonly string RoutineCommentsQuerySql = @$"
+select
+    n.nspname as ""{ nameof(CommentsData.SchemaName) }"",
+    p.proname as ""{ nameof(CommentsData.ObjectName) }"",
+    d.description as ""{ nameof(CommentsData.Comment) }""
 from pg_catalog.pg_proc p
 inner join pg_namespace n on n.oid = p.pronamespace
 left join pg_catalog.pg_description d on p.oid = d.objoid

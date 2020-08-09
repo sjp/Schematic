@@ -73,16 +73,16 @@ namespace SJP.Schematic.PostgreSql
         /// <value>A SQL query.</value>
         protected virtual string SequencesQuery => SequencesQuerySql;
 
-        private const string SequencesQuerySql = @"
+        private static readonly string SequencesQuerySql = @$"
 select
-    nc.nspname as SchemaName,
-    c.relname as SequenceName,
-    p.start_value as StartValue,
-    p.minimum_value as MinValue,
-    p.maximum_value as MaxValue,
-    p.increment as Increment,
-    1 as CacheSize,
-    p.cycle_option as Cycle
+    nc.nspname as ""{ nameof(SequenceData.SchemaName) }"",
+    c.relname as ""{ nameof(SequenceData.SequenceName) }"",
+    p.start_value as ""{ nameof(SequenceData.StartValue) }"",
+    p.minimum_value as ""{ nameof(SequenceData.MinValue) }"",
+    p.maximum_value as ""{ nameof(SequenceData.MaxValue) }"",
+    p.increment as ""{ nameof(SequenceData.Increment) }"",
+    1 as ""{ nameof(SequenceData.CacheSize) }"",
+    p.cycle_option as ""{ nameof(SequenceData.Cycle) }""
 from pg_catalog.pg_namespace nc, pg_catalog.pg_class c, lateral pg_catalog.pg_sequence_parameters(c.oid) p
 where c.relnamespace = nc.oid and c.relkind = 'S'
 order by nc.nspname, c.relname";
@@ -152,8 +152,8 @@ order by nc.nspname, c.relname";
         /// <value>A SQL query.</value>
         protected virtual string SequenceNameQuery => SequenceNameQuerySql;
 
-        private const string SequenceNameQuerySql = @"
-select sequence_schema as SchemaName, sequence_name as ObjectName
+        private static readonly string SequenceNameQuerySql = @$"
+select sequence_schema as ""{ nameof(QualifiedName.SchemaName) }"", sequence_name as ""{ nameof(QualifiedName.ObjectName) }""
 from information_schema.sequences
 where sequence_schema = @SchemaName and sequence_name = @SequenceName
     and sequence_schema not in ('pg_catalog', 'information_schema')
@@ -165,14 +165,14 @@ limit 1";
         /// <value>A SQL query.</value>
         protected virtual string SequenceQuery => SequenceQuerySql;
 
-        private const string SequenceQuerySql = @"
+        private static readonly string SequenceQuerySql = @$"
 select
-    p.start_value as StartValue,
-    p.minimum_value as MinValue,
-    p.maximum_value as MaxValue,
-    p.increment as Increment,
-    1 as CacheSize,
-    p.cycle_option as Cycle
+    p.start_value as ""{ nameof(SequenceData.StartValue) }"",
+    p.minimum_value as ""{ nameof(SequenceData.MinValue) }"",
+    p.maximum_value as ""{ nameof(SequenceData.MaxValue) }"",
+    p.increment as ""{ nameof(SequenceData.Increment) }"",
+    1 as ""{ nameof(SequenceData.CacheSize) }"",
+    p.cycle_option as ""{ nameof(SequenceData.Cycle) }""
 from pg_catalog.pg_namespace nc, pg_catalog.pg_class c, lateral pg_catalog.pg_sequence_parameters(c.oid) p
 where c.relnamespace = nc.oid
     and c.relkind = 'S'

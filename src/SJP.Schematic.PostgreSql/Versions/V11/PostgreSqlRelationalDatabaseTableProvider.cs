@@ -112,24 +112,24 @@ namespace SJP.Schematic.PostgreSql.Versions.V11
         /// <value>A SQL query.</value>
         protected override string IndexesQuery => IndexesQuerySql;
 
-        private const string IndexesQuerySql = @"
+        private static readonly string IndexesQuerySql = @$"
 select
-    i.relname as IndexName,
-    idx.indisunique as IsUnique,
-    idx.indisprimary as IsPrimary,
-    idx.indnkeyatts as KeyColumnCount,
-    pg_catalog.generate_subscripts(idx.indkey, 1) as IndexColumnId,
+    i.relname as ""{ nameof(IndexColumns.IndexName) }"",
+    idx.indisunique as ""{ nameof(IndexColumns.IsUnique) }"",
+    idx.indisprimary as ""{ nameof(IndexColumns.IsPrimary) }"",
+    idx.indnkeyatts as ""{ nameof(IndexColumns.KeyColumnCount) }"",
+    pg_catalog.generate_subscripts(idx.indkey, 1) as ""{ nameof(IndexColumns.IndexColumnId) }"",
     pg_catalog.unnest(array(
         select pg_catalog.pg_get_indexdef(idx.indexrelid, k + 1, true)
         from pg_catalog.generate_subscripts(idx.indkey, 1) k
         order by k
-    )) as IndexColumnExpression,
+    )) as ""{ nameof(IndexColumns.IndexColumnExpression) }"",
     pg_catalog.unnest(array(
         select pg_catalog.pg_index_column_has_property(idx.indexrelid, k + 1, 'desc')
         from pg_catalog.generate_subscripts(idx.indkey, 1) k
         order by k
-    )) as IsDescending,
-    (idx.indexprs is not null) or (idx.indkey::int[] @> array[0]) as IsFunctional
+    )) as ""{ nameof(IndexColumns.IsDescending) }"",
+    (idx.indexprs is not null) or (idx.indkey::int[] @> array[0]) as ""{ nameof(IndexColumns.IsFunctional) }""
 from pg_catalog.pg_index idx
     inner join pg_catalog.pg_class t on idx.indrelid = t.oid
     inner join pg_catalog.pg_namespace ns on ns.oid = t.relnamespace

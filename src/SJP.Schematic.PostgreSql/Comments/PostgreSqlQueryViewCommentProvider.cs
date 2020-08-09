@@ -125,8 +125,8 @@ namespace SJP.Schematic.PostgreSql.Comments
         /// <value>A SQL query.</value>
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
-        private const string ViewNameQuerySql = @"
-select schemaname as SchemaName, viewname as ObjectName
+        private static readonly string ViewNameQuerySql = @$"
+select schemaname as ""{ nameof(QualifiedName.SchemaName) }"", viewname as ""{ nameof(QualifiedName.ObjectName) }""
 from pg_catalog.pg_views
 where schemaname = @SchemaName and viewname = @ViewName
     and schemaname not in ('pg_catalog', 'information_schema')
@@ -185,10 +185,15 @@ limit 1";
         /// <value>A SQL query.</value>
         protected virtual string AllViewCommentsQuery => AllViewCommentsQuerySql;
 
-        private const string AllViewCommentsQuerySql = @"
+        private static readonly string AllViewCommentsQuerySql = @$"
 select wrapped.* from (
 -- view
-select n.nspname as SchemaName, c.relname as ViewName, 'VIEW' as ObjectType, c.relname as ObjectName, d.description as Comment
+select
+    n.nspname as ""{ nameof(ViewCommentsData.SchemaName) }"",
+    c.relname as ""{ nameof(ViewCommentsData.ViewName) }"",
+    'VIEW' as ""{ nameof(ViewCommentsData.ObjectType) }"",
+    c.relname as ""{ nameof(ViewCommentsData.ObjectName) }"",
+    d.description as ""{ nameof(ViewCommentsData.Comment) }""
 from pg_catalog.pg_class c
 inner join pg_catalog.pg_namespace n on c.relnamespace = n.oid
 left join pg_catalog.pg_description d on c.oid = d.objoid and d.objsubid = 0
@@ -197,7 +202,12 @@ where c.relkind = 'v' and n.nspname not in ('pg_catalog', 'information_schema')
 union
 
 -- columns
-select n.nspname as SchemaName, c.relname as ViewName, 'COLUMN' as ObjectType, a.attname as ObjectName, d.description as Comment
+select
+    n.nspname as ""{ nameof(ViewCommentsData.SchemaName) }"",
+    c.relname as ""{ nameof(ViewCommentsData.ViewName) }"",
+    'COLUMN' as ""{ nameof(ViewCommentsData.ObjectType) }"",
+    a.attname as ""{ nameof(ViewCommentsData.ObjectName) }"",
+    d.description as ""{ nameof(ViewCommentsData.Comment) }""
 from pg_catalog.pg_class c
 inner join pg_catalog.pg_namespace n on c.relnamespace = n.oid
 inner join pg_catalog.pg_attribute a on a.attrelid = c.oid
@@ -213,9 +223,12 @@ where c.relkind = 'v' and n.nspname not in ('pg_catalog', 'information_schema')
         /// <value>A SQL query.</value>
         protected virtual string ViewCommentsQuery => ViewCommentsQuerySql;
 
-        private const string ViewCommentsQuerySql = @"
+        private static readonly string ViewCommentsQuerySql = @$"
 -- view
-select 'VIEW' as ObjectType, c.relname as ObjectName, d.description as Comment
+select
+    'VIEW' as ""{ nameof(ViewCommentsData.ObjectType) }"",
+    c.relname as ""{ nameof(ViewCommentsData.ObjectName) }"",
+    d.description as ""{ nameof(ViewCommentsData.Comment) }""
 from pg_catalog.pg_class c
 inner join pg_catalog.pg_namespace n on c.relnamespace = n.oid
 left join pg_catalog.pg_description d on c.oid = d.objoid and d.objsubid = 0
@@ -225,7 +238,10 @@ where n.nspname = @SchemaName and c.relname = @ViewName
 union
 
 -- columns
-select 'COLUMN' as ObjectType, a.attname as ObjectName, d.description as Comment
+select
+    'COLUMN' as ""{ nameof(ViewCommentsData.ObjectType) }"",
+    a.attname as ""{ nameof(ViewCommentsData.ObjectName) }"",
+    d.description as ""{ nameof(ViewCommentsData.Comment) }""
 from pg_catalog.pg_class c
 inner join pg_catalog.pg_namespace n on c.relnamespace = n.oid
 inner join pg_catalog.pg_attribute a on a.attrelid = c.oid

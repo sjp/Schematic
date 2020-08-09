@@ -110,41 +110,41 @@ namespace SJP.Schematic.PostgreSql.Versions.V12
         // a little bit convoluted due to the quote_ident() being required.
         // when missing, case folding will occur (we should have guaranteed that this is already done)
         // additionally the default behaviour misses the schema which may be necessary
-        private const string ColumnsQuerySql = @"
+        private static readonly string ColumnsQuerySql = @$"
 select
-    column_name,
-    ordinal_position,
-    column_default,
-    is_nullable,
-    data_type,
-    character_maximum_length,
-    character_octet_length,
-    numeric_precision,
-    numeric_precision_radix,
-    numeric_scale,
-    datetime_precision,
-    interval_type,
-    collation_catalog,
-    collation_schema,
-    collation_name,
-    domain_catalog,
-    domain_schema,
-    domain_name,
-    udt_catalog,
-    udt_schema,
-    udt_name,
-    dtd_identifier,
-    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[1] as serial_sequence_schema_name,
-    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[2] as serial_sequence_local_name,
-    is_identity,
-    identity_generation,
-    identity_start,
-    identity_increment,
-    identity_maximum,
-    identity_minimum,
-    identity_cycle,
-    is_generated,
-    generation_expression
+    column_name as ""{ nameof(ColumnDataV12.column_name) }"",
+    ordinal_position as ""{ nameof(ColumnDataV12.ordinal_position) }"",
+    column_default as ""{ nameof(ColumnDataV12.column_default) }"",
+    is_nullable as ""{ nameof(ColumnDataV12.is_nullable) }"",
+    data_type as ""{ nameof(ColumnDataV12.data_type) }"",
+    character_maximum_length as ""{ nameof(ColumnDataV12.character_maximum_length) }"",
+    character_octet_length as ""{ nameof(ColumnDataV12.character_octet_length) }"",
+    numeric_precision as ""{ nameof(ColumnDataV12.numeric_precision) }"",
+    numeric_precision_radix as ""{ nameof(ColumnDataV12.numeric_precision_radix) }"",
+    numeric_scale as ""{ nameof(ColumnDataV12.numeric_scale) }"",
+    datetime_precision as ""{ nameof(ColumnDataV12.datetime_precision) }"",
+    interval_type as ""{ nameof(ColumnDataV12.interval_type) }"",
+    collation_catalog as ""{ nameof(ColumnDataV12.collation_catalog) }"",
+    collation_schema as ""{ nameof(ColumnDataV12.collation_schema) }"",
+    collation_name as ""{ nameof(ColumnDataV12.collation_name) }"",
+    domain_catalog as ""{ nameof(ColumnDataV12.domain_catalog) }"",
+    domain_schema as ""{ nameof(ColumnDataV12.domain_schema) }"",
+    domain_name as ""{ nameof(ColumnDataV12.domain_name) }"",
+    udt_catalog as ""{ nameof(ColumnDataV12.udt_catalog) }"",
+    udt_schema as ""{ nameof(ColumnDataV12.udt_schema) }"",
+    udt_name as ""{ nameof(ColumnDataV12.udt_name) }"",
+    dtd_identifier as ""{ nameof(ColumnDataV12.dtd_identifier) }"",
+    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[1] as ""{ nameof(ColumnDataV12.serial_sequence_schema_name) }"",
+    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[2] as ""{ nameof(ColumnDataV12.serial_sequence_local_name) }"",
+    is_identity as ""{ nameof(ColumnDataV12.is_identity) }"",
+    identity_generation as ""{ nameof(ColumnDataV12.identity_generation) }"",
+    identity_start as ""{ nameof(ColumnDataV12.identity_start) }"",
+    identity_increment as ""{ nameof(ColumnDataV12.identity_increment) }"",
+    identity_maximum as ""{ nameof(ColumnDataV12.identity_maximum) }"",
+    identity_minimum as ""{ nameof(ColumnDataV12.identity_minimum) }"",
+    identity_cycle as ""{ nameof(ColumnDataV12.identity_cycle) }"",
+    is_generated as ""{ nameof(ColumnDataV12.is_generated) }"",
+    generation_expression as ""{ nameof(ColumnDataV12.generation_expression) }""
 from information_schema.columns
 where table_schema = @SchemaName and table_name = @TableName
 order by ordinal_position";
@@ -196,10 +196,10 @@ order by ordinal_position";
         /// <value>A SQL query.</value>
         protected override string ChecksQuery => ChecksQuerySql;
 
-        private const string ChecksQuerySql = @"
+        private static readonly string ChecksQuerySql = @$"
 select
-    c.conname as ConstraintName,
-    pg_catalog.pg_get_constraintdef(c.oid) as Definition
+    c.conname as ""{ nameof(CheckConstraintData.ConstraintName) }"",
+    pg_catalog.pg_get_constraintdef(c.oid) as ""{ nameof(CheckConstraintData.Definition) }""
 from pg_catalog.pg_namespace ns
 inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid

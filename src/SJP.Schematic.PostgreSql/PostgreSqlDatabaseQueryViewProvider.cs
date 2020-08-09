@@ -83,8 +83,8 @@ namespace SJP.Schematic.PostgreSql
         /// <value>A SQL query.</value>
         protected virtual string ViewsQuery => ViewsQuerySql;
 
-        private const string ViewsQuerySql = @"
-select schemaname as SchemaName, viewname as ObjectName
+        private static string ViewsQuerySql = @$"
+select schemaname as ""{ nameof(QualifiedName.SchemaName) }"", viewname as ""{ nameof(QualifiedName.ObjectName) }""
 from pg_catalog.pg_views
 where schemaname not in ('pg_catalog', 'information_schema')
 order by schemaname, viewname";
@@ -154,8 +154,8 @@ order by schemaname, viewname";
         /// <value>A SQL query.</value>
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
-        private const string ViewNameQuerySql = @"
-select schemaname as SchemaName, viewname as ObjectName
+        private static readonly string ViewNameQuerySql = @$"
+select schemaname as ""{ nameof(QualifiedName.SchemaName) }"", viewname as ""{ nameof(QualifiedName.ObjectName) }""
 from pg_catalog.pg_views
 where schemaname = @SchemaName and viewname = @ViewName
     and schemaname not in ('pg_catalog', 'information_schema')
@@ -280,30 +280,30 @@ where table_schema = @SchemaName and table_name = @ViewName";
         /// <value>A SQL query.</value>
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
-        private const string ColumnsQuerySql = @"
+        private static readonly string ColumnsQuerySql = @$"
 select
-    column_name,
-    ordinal_position,
-    column_default,
-    is_nullable,
-    data_type,
-    character_maximum_length,
-    character_octet_length,
-    numeric_precision,
-    numeric_precision_radix,
-    numeric_scale,
-    datetime_precision,
-    interval_type,
-    collation_catalog,
-    collation_schema,
-    collation_name,
-    domain_catalog,
-    domain_schema,
-    domain_name,
-    udt_catalog,
-    udt_schema,
-    udt_name,
-    dtd_identifier
+    column_name as ""{ nameof(ColumnData.column_name) }"",
+    ordinal_position as ""{ nameof(ColumnData.ordinal_position) }"",
+    column_default as ""{ nameof(ColumnData.column_default) }"",
+    is_nullable as ""{ nameof(ColumnData.is_nullable) }"",
+    data_type as ""{ nameof(ColumnData.data_type) }"",
+    character_maximum_length as ""{ nameof(ColumnData.character_maximum_length) }"",
+    character_octet_length as ""{ nameof(ColumnData.character_octet_length) }"",
+    numeric_precision as ""{ nameof(ColumnData.numeric_precision) }"",
+    numeric_precision_radix as ""{ nameof(ColumnData.numeric_precision_radix) }"",
+    numeric_scale as ""{ nameof(ColumnData.numeric_scale) }"",
+    datetime_precision as ""{ nameof(ColumnData.datetime_precision) }"",
+    interval_type as ""{ nameof(ColumnData.interval_type) }"",
+    collation_catalog as ""{ nameof(ColumnData.collation_catalog) }"",
+    collation_schema as ""{ nameof(ColumnData.collation_schema) }"",
+    collation_name as ""{ nameof(ColumnData.collation_name) }"",
+    domain_catalog as ""{ nameof(ColumnData.domain_catalog) }"",
+    domain_schema as ""{ nameof(ColumnData.domain_schema) }"",
+    domain_name as ""{ nameof(ColumnData.domain_name) }"",
+    udt_catalog as ""{ nameof(ColumnData.udt_catalog) }"",
+    udt_schema as ""{ nameof(ColumnData.udt_schema) }"",
+    udt_name as ""{ nameof(ColumnData.udt_name) }"",
+    dtd_identifier as ""{ nameof(ColumnData.dtd_identifier) }""
 from information_schema.columns
 where table_schema = @SchemaName and table_name = @ViewName
 order by ordinal_position";

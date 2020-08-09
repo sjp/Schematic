@@ -83,8 +83,8 @@ namespace SJP.Schematic.PostgreSql
         /// <value>A SQL query.</value>
         protected virtual string ViewsQuery => ViewsQuerySql;
 
-        private const string ViewsQuerySql = @"
-select schemaname as SchemaName, matviewname as ObjectName
+        private static readonly string ViewsQuerySql = @$"
+select schemaname as ""{ nameof(QualifiedName.SchemaName) }"", matviewname as ""{ nameof(QualifiedName.ObjectName) }""
 from pg_catalog.pg_matviews
 where schemaname not in ('pg_catalog', 'information_schema')
 order by schemaname, matviewname
@@ -155,8 +155,8 @@ order by schemaname, matviewname
         /// <value>A SQL query.</value>
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
-        private const string ViewNameQuerySql = @"
-select schemaname as SchemaName, matviewname as ObjectName
+        private static readonly string ViewNameQuerySql = @$"
+select schemaname as ""{ nameof(QualifiedName.SchemaName) }"", matviewname as ""{ nameof(QualifiedName.ObjectName) }""
 from pg_catalog.pg_matviews
 where schemaname = @SchemaName and matviewname = @ViewName
     and schemaname not in ('pg_catalog', 'information_schema')
@@ -282,13 +282,13 @@ where schemaname = @SchemaName and matviewname = @ViewName";
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
         // taken largely from information_schema.sql for postgres (but modified to work with matviews)
-        private const string ColumnsQuerySql = @"
+        private static readonly string ColumnsQuerySql = @$"
 SELECT
-    a.attname AS column_name,
-    a.attnum AS ordinal_position,
-    pg_catalog.pg_get_expr(ad.adbin, ad.adrelid) AS column_default,
+    a.attname AS ""{ nameof(ColumnData.column_name) }"",
+    a.attnum AS ""{ nameof(ColumnData.ordinal_position) }"",
+    pg_catalog.pg_get_expr(ad.adbin, ad.adrelid) AS ""{ nameof(ColumnData.column_default) }"",
     CASE WHEN a.attnotnull OR (t.typtype = 'd' AND t.typnotnull) THEN 'NO' ELSE 'YES' END
-        AS is_nullable,
+        AS ""{ nameof(ColumnData.is_nullable) }"",
 
     CASE WHEN t.typtype = 'd' THEN
     CASE WHEN bt.typelem <> 0 AND bt.typlen = -1 THEN 'ARRAY'
@@ -299,46 +299,45 @@ SELECT
         WHEN nt.nspname = 'pg_catalog' THEN format_type(a.atttypid, null)
         ELSE 'USER-DEFINED' END
     END
-    AS data_type,
+    AS ""{ nameof(ColumnData.data_type) }"",
 
-    " + PgCharMaxLength + @"
-    AS character_maximum_length,
+    " + PgCharMaxLength + @$"
+    AS ""{ nameof(ColumnData.character_maximum_length) }"",
 
-    " + PgCharOctetLength + @"
-    AS character_octet_length,
+    " + PgCharOctetLength + @$"
+    AS ""{ nameof(ColumnData.character_octet_length) }"",
 
-    " + PgNumericPrecision + @"
-    AS numeric_precision,
+    " + PgNumericPrecision + @$"
+    AS ""{ nameof(ColumnData.numeric_precision) }"",
 
-    " + PgNumericPrecisionRadix + @"
-    AS numeric_precision_radix,
+    " + PgNumericPrecisionRadix + @$"
+    AS ""{ nameof(ColumnData.numeric_precision_radix) }"",
 
-    " + PgNumericScale + @"
-    AS numeric_scale,
+    " + PgNumericScale + @$"
+    AS ""{ nameof(ColumnData.numeric_scale) }"",
 
-    " + PgDatetimePrecision + @"
-    AS datetime_precision,
+    " + PgDatetimePrecision + @$"
+    AS ""{ nameof(ColumnData.datetime_precision) }"",
 
-    " + PgIntervalType + @"
-    AS interval_type,
-    null AS interval_precision,
+    " + PgIntervalType + @$"
+    AS ""{ nameof(ColumnData.interval_type) }"",
 
-    CASE WHEN nco.nspname IS NOT NULL THEN current_database() END AS collation_catalog,
-    nco.nspname AS collation_schema,
-    co.collname AS collation_name,
+    CASE WHEN nco.nspname IS NOT NULL THEN current_database() END AS ""{ nameof(ColumnData.collation_catalog) }"",
+    nco.nspname AS ""{ nameof(ColumnData.collation_schema) }"",
+    co.collname AS ""{ nameof(ColumnData.collation_name) }"",
 
     CASE WHEN t.typtype = 'd' THEN current_database() ELSE null END
-        AS domain_catalog,
+        AS ""{ nameof(ColumnData.domain_catalog) }"",
     CASE WHEN t.typtype = 'd' THEN nt.nspname ELSE null END
-        AS domain_schema,
+        AS ""{ nameof(ColumnData.domain_schema) }"",
     CASE WHEN t.typtype = 'd' THEN t.typname ELSE null END
-        AS domain_name,
+        AS ""{ nameof(ColumnData.domain_name) }"",
 
-    current_database() AS udt_catalog,
-    coalesce(nbt.nspname, nt.nspname) AS udt_schema,
-    coalesce(bt.typname, t.typname) AS udt_name,
+    current_database() AS ""{ nameof(ColumnData.udt_catalog) }"",
+    coalesce(nbt.nspname, nt.nspname) AS ""{ nameof(ColumnData.udt_schema) }"",
+    coalesce(bt.typname, t.typname) AS ""{ nameof(ColumnData.udt_name) }"",
 
-    a.attnum AS dtd_identifier
+    a.attnum AS ""{ nameof(ColumnData.dtd_identifier) }""
 
 FROM (pg_catalog.pg_attribute a LEFT JOIN pg_catalog.pg_attrdef ad ON attrelid = adrelid AND attnum = adnum)
     JOIN (pg_catalog.pg_class c JOIN pg_catalog.pg_namespace nc ON (c.relnamespace = nc.oid)) ON a.attrelid = c.oid

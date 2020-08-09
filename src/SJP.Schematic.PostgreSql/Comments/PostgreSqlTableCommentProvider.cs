@@ -142,8 +142,8 @@ namespace SJP.Schematic.PostgreSql.Comments
         /// <value>A SQL query.</value>
         protected virtual string TableNameQuery => TableNameQuerySql;
 
-        private const string TableNameQuerySql = @"
-select schemaname as SchemaName, tablename as ObjectName
+        private static readonly string TableNameQuerySql = @$"
+select schemaname as ""{ nameof(QualifiedName.SchemaName) }"", tablename as ""{ nameof(QualifiedName.ObjectName) }""
 from pg_catalog.pg_tables
 where schemaname = @SchemaName and tablename = @TableName
     and schemaname not in ('pg_catalog', 'information_schema')
@@ -221,10 +221,15 @@ limit 1";
         /// <value>A SQL query.</value>
         protected virtual string AllTableCommentsQuery => AllTableCommentsQuerySql;
 
-        private const string AllTableCommentsQuerySql = @"
+        private static readonly string AllTableCommentsQuerySql = @$"
 select wrapped.* from (
 -- table
-select ns.nspname as SchemaName, t.relname as TableName, 'TABLE' as ObjectType, t.relname as ObjectName, d.description as Comment
+select
+    ns.nspname as ""{ nameof(TableCommentsData.SchemaName) }"",
+    t.relname as ""{ nameof(TableCommentsData.TableName) }"",
+    'TABLE' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    t.relname as ""{ nameof(TableCommentsData.ObjectName) }"",
+    d.description as ""{ nameof(TableCommentsData.Comment) }""
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 left join pg_catalog.pg_description d on d.objoid = t.oid and d.objsubid = 0
@@ -233,7 +238,12 @@ where t.relkind = 'r' and ns.nspname not in ('pg_catalog', 'information_schema')
 union
 
 -- columns
-select ns.nspname as SchemaName, t.relname as TableName, 'COLUMN' as ObjectType, a.attname as ObjectName, d.description as Comment
+select
+    ns.nspname as ""{ nameof(TableCommentsData.SchemaName) }"",
+    t.relname as ""{ nameof(TableCommentsData.TableName) }"",
+    'COLUMN' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    a.attname as ""{ nameof(TableCommentsData.ObjectName) }"",
+    d.description as ""{ nameof(TableCommentsData.Comment) }""
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 inner join pg_catalog.pg_attribute a on a.attrelid = t.oid
@@ -244,7 +254,12 @@ where t.relkind = 'r' and ns.nspname not in ('pg_catalog', 'information_schema')
 union
 
 -- checks
-select ns.nspname as SchemaName, t.relname as TableName, 'CHECK' as ObjectType, c.conname as ObjectName, d.description as Comment
+select
+    ns.nspname as ""{ nameof(TableCommentsData.SchemaName) }"",
+    t.relname as ""{ nameof(TableCommentsData.TableName) }"",
+    'CHECK' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    c.conname as ""{ nameof(TableCommentsData.ObjectName) }"",
+    d.description as ""{ nameof(TableCommentsData.Comment) }""
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
@@ -255,7 +270,12 @@ where t.relkind = 'r' and ns.nspname not in ('pg_catalog', 'information_schema')
 union
 
 -- foreign keys
-select ns.nspname as SchemaName, t.relname as TableName, 'FOREIGN KEY' as ObjectType, c.conname as ObjectName, d.description as Comment
+select
+    ns.nspname as ""{ nameof(TableCommentsData.SchemaName) }"",
+    t.relname as ""{ nameof(TableCommentsData.TableName) }"",
+    'FOREIGN KEY' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    c.conname as ""{ nameof(TableCommentsData.ObjectName) }"",
+    d.description as ""{ nameof(TableCommentsData.Comment) }""
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
@@ -266,7 +286,12 @@ where t.relkind = 'r' and ns.nspname not in ('pg_catalog', 'information_schema')
 union
 
 -- unique keys
-select ns.nspname as SchemaName, t.relname as TableName, 'UNIQUE' as ObjectType, c.conname as ObjectName, d.description as Comment
+select
+    ns.nspname as ""{ nameof(TableCommentsData.SchemaName) }"",
+    t.relname as ""{ nameof(TableCommentsData.TableName) }"",
+    'UNIQUE' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    c.conname as ""{ nameof(TableCommentsData.ObjectName) }"",
+    d.description as ""{ nameof(TableCommentsData.Comment) }""
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
@@ -277,7 +302,12 @@ where t.relkind = 'r' and ns.nspname not in ('pg_catalog', 'information_schema')
 union
 
 -- primary key
-select ns.nspname as SchemaName, t.relname as TableName, 'PRIMARY' as ObjectType, c.conname as ObjectName, d.description as Comment
+select
+    ns.nspname as ""{ nameof(TableCommentsData.SchemaName) }"",
+    t.relname as ""{ nameof(TableCommentsData.TableName) }"",
+    'PRIMARY' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    c.conname as ""{ nameof(TableCommentsData.ObjectName) }"",
+    d.description as ""{ nameof(TableCommentsData.Comment) }""
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
@@ -288,7 +318,12 @@ where t.relkind = 'r' and ns.nspname not in ('pg_catalog', 'information_schema')
 union
 
 -- indexes
-select ns.nspname as SchemaName, t.relname as TableName, 'INDEX' as ObjectType, ci.relname as ObjectName, d.description as Comment
+select
+    ns.nspname as ""{ nameof(TableCommentsData.SchemaName) }"",
+    t.relname as ""{ nameof(TableCommentsData.TableName) }"",
+    'INDEX' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    ci.relname as ""{ nameof(TableCommentsData.ObjectName) }"",
+    d.description as ""{ nameof(TableCommentsData.Comment) }""
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 inner join pg_catalog.pg_index i on i.indrelid = t.oid
@@ -299,7 +334,12 @@ where t.relkind = 'r' and ns.nspname not in ('pg_catalog', 'information_schema')
 union
 
 -- triggers
-select ns.nspname as SchemaName, t.relname as TableName, 'TRIGGER' as ObjectType, tr.tgname as ObjectName, d.description as Comment
+select
+    ns.nspname as ""{ nameof(TableCommentsData.SchemaName) }"",
+    t.relname as ""{ nameof(TableCommentsData.TableName) }"",
+    'TRIGGER' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    tr.tgname as ""{ nameof(TableCommentsData.ObjectName) }"",
+    d.description as ""{ nameof(TableCommentsData.Comment) }""
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 inner join pg_catalog.pg_trigger tr on tr.tgrelid = t.oid
@@ -314,9 +354,12 @@ where t.relkind = 'r' and ns.nspname not in ('pg_catalog', 'information_schema')
         /// <value>A SQL query.</value>
         protected virtual string TableCommentsQuery => TableCommentsQuerySql;
 
-        private const string TableCommentsQuerySql = @"
+        private static readonly string TableCommentsQuerySql = @$"
 -- table
-select 'TABLE' as ObjectType, t.relname as ObjectName, d.description as Comment
+select
+    'TABLE' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    t.relname as ""{ nameof(TableCommentsData.ObjectName) }"",
+    d.description as ""{ nameof(TableCommentsData.Comment) }""
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 left join pg_catalog.pg_description d on d.objoid = t.oid and d.objsubid = 0
@@ -326,7 +369,10 @@ where t.relkind = 'r' and ns.nspname = @SchemaName and t.relname = @TableName
 union
 
 -- columns
-select 'COLUMN' as ObjectType, a.attname as ObjectName, d.description as Comment
+select
+    'COLUMN' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    a.attname as ""{ nameof(TableCommentsData.ObjectName) }"",
+    d.description as ""{ nameof(TableCommentsData.Comment) }""
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 inner join pg_catalog.pg_attribute a on a.attrelid = t.oid
@@ -338,7 +384,10 @@ where t.relkind = 'r' and ns.nspname = @SchemaName and t.relname = @TableName
 union
 
 -- checks
-select 'CHECK' as ObjectType, c.conname as ObjectName, d.description as Comment
+select
+    'CHECK' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    c.conname as ""{ nameof(TableCommentsData.ObjectName) }"",
+    d.description as ""{ nameof(TableCommentsData.Comment) }""
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
@@ -350,7 +399,10 @@ where t.relkind = 'r' and ns.nspname = @SchemaName and t.relname = @TableName
 union
 
 -- foreign keys
-select 'FOREIGN KEY' as ObjectType, c.conname as ObjectName, d.description as Comment
+select
+    'FOREIGN KEY' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    c.conname as ""{ nameof(TableCommentsData.ObjectName) }"",
+    d.description as ""{ nameof(TableCommentsData.Comment) }""
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
@@ -362,7 +414,10 @@ where t.relkind = 'r' and ns.nspname = @SchemaName and t.relname = @TableName
 union
 
 -- unique keys
-select 'UNIQUE' as ObjectType, c.conname as ObjectName, d.description as Comment
+select
+    'UNIQUE' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    c.conname as ""{ nameof(TableCommentsData.ObjectName) }"",
+    d.description as ""{ nameof(TableCommentsData.Comment) }""
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
@@ -374,7 +429,10 @@ where t.relkind = 'r' and ns.nspname = @SchemaName and t.relname = @TableName
 union
 
 -- primary key
-select 'PRIMARY' as ObjectType, c.conname as ObjectName, d.description as Comment
+select
+    'PRIMARY' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    c.conname as ""{ nameof(TableCommentsData.ObjectName) }"",
+    d.description as ""{ nameof(TableCommentsData.Comment) }""
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
@@ -386,7 +444,10 @@ where t.relkind = 'r' and ns.nspname = @SchemaName and t.relname = @TableName
 union
 
 -- indexes
-select 'INDEX' as ObjectType, ci.relname as ObjectName, d.description as Comment
+select
+    'INDEX' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    ci.relname as ""{ nameof(TableCommentsData.ObjectName) }"",
+    d.description as ""{ nameof(TableCommentsData.Comment) }""
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 inner join pg_catalog.pg_index i on i.indrelid = t.oid and i.indisprimary = false
@@ -398,7 +459,10 @@ where t.relkind = 'r' and ns.nspname = @SchemaName and t.relname = @TableName
 union
 
 -- triggers
-select 'TRIGGER' as ObjectType, tr.tgname as ObjectName, d.description as Comment
+select
+    'TRIGGER' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    tr.tgname as ""{ nameof(TableCommentsData.ObjectName) }"",
+    d.description as ""{ nameof(TableCommentsData.Comment) }""
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 inner join pg_catalog.pg_trigger tr on tr.tgrelid = t.oid and tr.tgisinternal = false

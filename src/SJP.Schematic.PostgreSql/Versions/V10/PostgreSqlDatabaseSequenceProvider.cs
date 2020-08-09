@@ -1,4 +1,5 @@
 ﻿using SJP.Schematic.Core;
+using SJP.Schematic.PostgreSql.Query;
 
 namespace SJP.Schematic.PostgreSql.Versions.V10
 {
@@ -25,16 +26,16 @@ namespace SJP.Schematic.PostgreSql.Versions.V10
         /// <value>A SQL query.</value>
         protected override string SequencesQuery => SequencesQuerySql;
 
-        private const string SequencesQuerySql = @"
+        private static readonly string SequencesQuerySql = @$"
 select
-    schemaname as SchemaName,
-    sequencename as SequenceName,
-    start_value as StartValue,
-    min_value as MinValue,
-    max_value as MaxValue,
-    increment_by as Increment,
-    cycle as Cycle,
-    cache_size as CacheSize
+    schemaname as ""{ nameof(SequenceData.SchemaName) }"",
+    sequencename as ""{ nameof(SequenceData.SequenceName) }"",
+    start_value as ""{ nameof(SequenceData.StartValue) }"",
+    min_value as ""{ nameof(SequenceData.MinValue) }"",
+    max_value as ""{ nameof(SequenceData.MaxValue) }"",
+    increment_by as ""{ nameof(SequenceData.Increment) }"",
+    cycle as ""{ nameof(SequenceData.Cycle) }"",
+    cache_size as ""{ nameof(SequenceData.CacheSize) }""
 from pg_catalog.pg_sequences
 order by schemaname, sequencename";
 
@@ -44,14 +45,14 @@ order by schemaname, sequencename";
         /// <value>A SQL query.</value>
         protected override string SequenceQuery => SequenceQuerySql;
 
-        private const string SequenceQuerySql = @"
+        private static readonly string SequenceQuerySql = @$"
 select
-    start_value as StartValue,
-    min_value as MinValue,
-    max_value as MaxValue,
-    increment_by as Increment,
-    cycle as Cycle,
-    cache_size as CacheSize
+    start_value as ""{ nameof(SequenceData.StartValue) }"",
+    min_value as ""{ nameof(SequenceData.MinValue) }"",
+    max_value as ""{ nameof(SequenceData.MaxValue) }"",
+    increment_by as ""{ nameof(SequenceData.Increment) }"",
+    cycle as ""{ nameof(SequenceData.Cycle) }"",
+    cache_size as ""{ nameof(SequenceData.CacheSize) }""
 from pg_catalog.pg_sequences
 where schemaname = @SchemaName and sequencename = @SequenceName";
     }

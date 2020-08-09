@@ -105,10 +105,10 @@ namespace SJP.Schematic.PostgreSql
         /// <value>A SQL query.</value>
         protected virtual string TablesQuery => TablesQuerySql;
 
-        private const string TablesQuerySql = @"
+        private static readonly string TablesQuerySql = @$"
 select
-    schemaname as SchemaName,
-    tablename as ObjectName
+    schemaname as ""{ nameof(QualifiedName.SchemaName) }"",
+    tablename as ""{ nameof(QualifiedName.ObjectName) }""
 from pg_catalog.pg_tables
 where schemaname not in ('pg_catalog', 'information_schema')
 order by schemaname, tablename";
@@ -180,8 +180,10 @@ order by schemaname, tablename";
         /// <value>A SQL query.</value>
         protected virtual string TableNameQuery => TableNameQuerySql;
 
-        private const string TableNameQuerySql = @"
-select schemaname as SchemaName, tablename as ObjectName
+        private static readonly string TableNameQuerySql = @$"
+select
+    schemaname as ""{ nameof(QualifiedName.SchemaName) }"",
+    tablename as ""{ nameof(QualifiedName.ObjectName) }""
 from pg_catalog.pg_tables
 where schemaname = @SchemaName and tablename = @TableName
     and schemaname not in ('pg_catalog', 'information_schema')
@@ -297,11 +299,11 @@ limit 1";
         /// <value>A SQL query.</value>
         protected virtual string PrimaryKeyQuery => PrimaryKeyQuerySql;
 
-        private const string PrimaryKeyQuerySql = @"
+        private static readonly string PrimaryKeyQuerySql = @$"
 select
-    kc.constraint_name as ConstraintName,
-    kc.column_name as ColumnName,
-    kc.ordinal_position as OrdinalPosition
+    kc.constraint_name as ""{ nameof(ConstraintColumnMapping.ConstraintName) }"",
+    kc.column_name as ""{ nameof(ConstraintColumnMapping.ColumnName) }"",
+    kc.ordinal_position as ""{ nameof(ConstraintColumnMapping.OrdinalPosition) }""
 from information_schema.table_constraints tc
 inner join information_schema.key_column_usage kc
     on tc.constraint_catalog = kc.constraint_catalog
@@ -388,23 +390,23 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
         /// <value>A SQL query.</value>
         protected virtual string IndexesQuery => IndexesQuerySql;
 
-        private const string IndexesQuerySql = @"
+        private static readonly string IndexesQuerySql = @$"
 select
-    i.relname as IndexName,
-    idx.indisunique as IsUnique,
-    idx.indisprimary as IsPrimary,
-    pg_catalog.generate_subscripts(idx.indkey, 1) as IndexColumnId,
+    i.relname as ""{ nameof(IndexColumns.IndexName) }"",
+    idx.indisunique as ""{ nameof(IndexColumns.IsUnique) }"",
+    idx.indisprimary as ""{ nameof(IndexColumns.IsPrimary) }"",
+    pg_catalog.generate_subscripts(idx.indkey, 1) as ""{ nameof(IndexColumns.IndexColumnId) }"",
     pg_catalog.unnest(array(
         select pg_catalog.pg_get_indexdef(idx.indexrelid, k + 1, true)
         from pg_catalog.generate_subscripts(idx.indkey, 1) k
         order by k
-    )) as IndexColumnExpression,
+    )) as ""{ nameof(IndexColumns.IndexColumnExpression) }"",
     pg_catalog.unnest(array(
         select pg_catalog.pg_index_column_has_property(idx.indexrelid, k + 1, 'desc')
         from pg_catalog.generate_subscripts(idx.indkey, 1) k
         order by k
-    )) as IsDescending,
-    (idx.indexprs is not null) or (idx.indkey::int[] @> array[0]) as IsFunctional
+    )) as ""{ nameof(IndexColumns.IsDescending) }"",
+    (idx.indexprs is not null) or (idx.indkey::int[] @> array[0]) as ""{ nameof(IndexColumns.IsFunctional) }""
 from pg_catalog.pg_index idx
     inner join pg_catalog.pg_class t on idx.indrelid = t.oid
     inner join pg_catalog.pg_namespace ns on ns.oid = t.relnamespace
@@ -476,11 +478,11 @@ where
         /// <value>A SQL query.</value>
         protected virtual string UniqueKeysQuery => UniqueKeysQuerySql;
 
-        private const string UniqueKeysQuerySql = @"
+        private static readonly string UniqueKeysQuerySql = @$"
 select
-    kc.constraint_name as ConstraintName,
-    kc.column_name as ColumnName,
-    kc.ordinal_position as OrdinalPosition
+    kc.constraint_name as ""{ nameof(ConstraintColumnMapping.ConstraintName) }"",
+    kc.column_name as ""{ nameof(ConstraintColumnMapping.ColumnName) }"",
+    kc.ordinal_position as ""{ nameof(ConstraintColumnMapping.OrdinalPosition) }""
 from information_schema.table_constraints tc
 inner join information_schema.key_column_usage kc
     on tc.constraint_catalog = kc.constraint_catalog
@@ -581,15 +583,15 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
         /// <value>A SQL query.</value>
         protected virtual string ChildKeysQuery => ChildKeysQuerySql;
 
-        private const string ChildKeysQuerySql = @"
+        private static readonly string ChildKeysQuerySql = @$"
 select
-    ns.nspname as ChildTableSchema,
-    t.relname as ChildTableName,
-    c.conname as ChildKeyName,
-    pkc.contype as ParentKeyType,
-    pkc.conname as ParentKeyName,
-    c.confupdtype as UpdateAction,
-    c.confdeltype as DeleteAction
+    ns.nspname as ""{ nameof(ChildKeyData.ChildTableSchema) }"",
+    t.relname as ""{ nameof(ChildKeyData.ChildTableName) }"",
+    c.conname as ""{ nameof(ChildKeyData.ChildKeyName) }"",
+    pkc.contype as ""{ nameof(ChildKeyData.ParentKeyType) }"",
+    pkc.conname as ""{ nameof(ChildKeyData.ParentKeyName) }"",
+    c.confupdtype as ""{ nameof(ChildKeyData.UpdateAction) }"",
+    c.confdeltype as ""{ nameof(ChildKeyData.DeleteAction) }""
 from pg_catalog.pg_namespace ns
 inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid and c.contype = 'f'
@@ -651,10 +653,10 @@ where pt.relname = @TableName and pns.nspname = @SchemaName";
         /// <value>A SQL query.</value>
         protected virtual string ChecksQuery => ChecksQuerySql;
 
-        private const string ChecksQuerySql = @"
+        private static readonly string ChecksQuerySql = @$"
 select
-    c.conname as ConstraintName,
-    c.consrc as Definition
+    c.conname as ""{ nameof(CheckConstraintData.ConstraintName) }"",
+    c.consrc as ""{ nameof(CheckConstraintData.Definition) }""
 from pg_catalog.pg_namespace ns
 inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
@@ -766,17 +768,17 @@ where
         /// <value>A SQL query.</value>
         protected virtual string ParentKeysQuery => ParentKeysQuerySql;
 
-        private const string ParentKeysQuerySql = @"
+        private static readonly string ParentKeysQuerySql = @$"
 select
-    c.conname as ChildKeyName,
-    tc.attname as ColumnName,
-    child_cols.con_index as ConstraintColumnId,
-    pns.nspname as ParentSchemaName,
-    pt.relname as ParentTableName,
-    pkc.contype as ParentKeyType,
-    pkc.conname as ParentKeyName,
-    c.confupdtype as UpdateAction,
-    c.confdeltype as DeleteAction
+    c.conname as ""{ nameof(ForeignKeyData.ChildKeyName) }"",
+    tc.attname as ""{ nameof(ForeignKeyData.ColumnName) }"",
+    child_cols.con_index as ""{ nameof(ForeignKeyData.ConstraintColumnId) }"",
+    pns.nspname as ""{ nameof(ForeignKeyData.ParentSchemaName) }"",
+    pt.relname as ""{ nameof(ForeignKeyData.ParentTableName) }"",
+    pkc.contype as ""{ nameof(ForeignKeyData.ParentKeyType) }"",
+    pkc.conname as ""{ nameof(ForeignKeyData.ParentKeyName) }"",
+    c.confupdtype as ""{ nameof(ForeignKeyData.UpdateAction) }"",
+    c.confdeltype as ""{ nameof(ForeignKeyData.DeleteAction) }""
 from pg_catalog.pg_namespace ns
 inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid and c.contype = 'f'
@@ -869,32 +871,32 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
         // a little bit convoluted due to the quote_ident() being required.
         // when missing, case folding will occur (we should have guaranteed that this is already done)
         // additionally the default behaviour misses the schema which may be necessary
-        private const string ColumnsQuerySql = @"
+        private static readonly string ColumnsQuerySql = @$"
 select
-    column_name,
-    ordinal_position,
-    column_default,
-    is_nullable,
-    data_type,
-    character_maximum_length,
-    character_octet_length,
-    numeric_precision,
-    numeric_precision_radix,
-    numeric_scale,
-    datetime_precision,
-    interval_type,
-    collation_catalog,
-    collation_schema,
-    collation_name,
-    domain_catalog,
-    domain_schema,
-    domain_name,
-    udt_catalog,
-    udt_schema,
-    udt_name,
-    dtd_identifier,
-    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[1] as serial_sequence_schema_name,
-    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[2] as serial_sequence_local_name
+    column_name as ""{ nameof(ColumnData.column_name) }"",
+    ordinal_position as ""{ nameof(ColumnData.ordinal_position) }"",
+    column_default as ""{ nameof(ColumnData.column_default) }"",
+    is_nullable as ""{ nameof(ColumnData.is_nullable) }"",
+    data_type as ""{ nameof(ColumnData.data_type) }"",
+    character_maximum_length as ""{ nameof(ColumnData.character_maximum_length) }"",
+    character_octet_length as ""{ nameof(ColumnData.character_octet_length) }"",
+    numeric_precision as ""{ nameof(ColumnData.numeric_precision) }"",
+    numeric_precision_radix as ""{ nameof(ColumnData.numeric_precision_radix) }"",
+    numeric_scale as ""{ nameof(ColumnData.numeric_scale) }"",
+    datetime_precision as ""{ nameof(ColumnData.datetime_precision) }"",
+    interval_type as ""{ nameof(ColumnData.interval_type) }"",
+    collation_catalog as ""{ nameof(ColumnData.collation_catalog) }"",
+    collation_schema as ""{ nameof(ColumnData.collation_schema) }"",
+    collation_name as ""{ nameof(ColumnData.collation_name) }"",
+    domain_catalog as ""{ nameof(ColumnData.domain_catalog) }"",
+    domain_schema as ""{ nameof(ColumnData.domain_schema) }"",
+    domain_name as ""{ nameof(ColumnData.domain_name) }"",
+    udt_catalog as ""{ nameof(ColumnData.udt_catalog) }"",
+    udt_schema as ""{ nameof(ColumnData.udt_schema) }"",
+    udt_name as ""{ nameof(ColumnData.udt_name) }"",
+    dtd_identifier as ""{ nameof(ColumnData.dtd_identifier) }"",
+    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[1] as ""{ nameof(ColumnData.serial_sequence_schema_name) }"",
+    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[2] as ""{ nameof(ColumnData.serial_sequence_local_name) }""
 from information_schema.columns
 where table_schema = @SchemaName and table_name = @TableName
 order by ordinal_position";
@@ -969,13 +971,13 @@ order by ordinal_position";
         /// <value>A SQL query.</value>
         protected virtual string TriggersQuery => TriggersQuerySql;
 
-        private const string TriggersQuerySql = @"
+        private static readonly string TriggersQuerySql = @$"
 select
-    tr.tgname as TriggerName,
-    tgenabled as EnabledFlag,
-    itr.action_statement as Definition,
-    itr.action_timing as Timing,
-    itr.event_manipulation as TriggerEvent
+    tr.tgname as ""{ nameof(TriggerData.TriggerName) }"",
+    tgenabled as ""{ nameof(TriggerData.EnabledFlag) }"",
+    itr.action_statement as ""{ nameof(TriggerData.Definition) }"",
+    itr.action_timing as ""{ nameof(TriggerData.Timing) }"",
+    itr.event_manipulation as ""{ nameof(TriggerData.TriggerEvent) }""
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on ns.oid = t.relnamespace
 inner join pg_catalog.pg_trigger tr on t.oid = tr.tgrelid
