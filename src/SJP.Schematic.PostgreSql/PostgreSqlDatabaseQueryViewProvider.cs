@@ -83,7 +83,7 @@ namespace SJP.Schematic.PostgreSql
         /// <value>A SQL query.</value>
         protected virtual string ViewsQuery => ViewsQuerySql;
 
-        private static string ViewsQuerySql = @$"
+        private static readonly string ViewsQuerySql = @$"
 select schemaname as ""{ nameof(QualifiedName.SchemaName) }"", viewname as ""{ nameof(QualifiedName.ObjectName) }""
 from pg_catalog.pg_views
 where schemaname not in ('pg_catalog', 'information_schema')

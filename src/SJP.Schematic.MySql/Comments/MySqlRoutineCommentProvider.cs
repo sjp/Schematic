@@ -100,10 +100,10 @@ namespace SJP.Schematic.MySql.Comments
         /// <value>A SQL query.</value>
         protected virtual string RoutineNameQuery => RoutineNameQuerySql;
 
-        private const string RoutineNameQuerySql = @"
+        private static readonly string RoutineNameQuerySql = @$"
 select
-    ROUTINE_SCHEMA as SchemaName,
-    ROUTINE_NAME as ObjectName
+    ROUTINE_SCHEMA as `{ nameof(QualifiedName.SchemaName) }`,
+    ROUTINE_NAME as `{ nameof(QualifiedName.ObjectName) }`
 from information_schema.routines
 where ROUTINE_SCHEMA = @SchemaName and ROUTINE_NAME = @RoutineName
 limit 1";
@@ -162,11 +162,11 @@ limit 1";
         /// <value>A SQL query.</value>
         protected virtual string AllRoutineCommentsQuery => AllRoutineCommentsQuerySql;
 
-        private const string AllRoutineCommentsQuerySql = @"
+        private static readonly string AllRoutineCommentsQuerySql = @$"
 select
-    ROUTINE_SCHEMA as SchemaName,
-    ROUTINE_NAME as ObjectName,
-    ROUTINE_COMMENT as Comment
+    ROUTINE_SCHEMA as `{ nameof(CommentsData.SchemaName) }`,
+    ROUTINE_NAME as `{ nameof(CommentsData.ObjectName) }`,
+    ROUTINE_COMMENT as `{ nameof(CommentsData.Comment) }`
 from INFORMATION_SCHEMA.ROUTINES
 where ROUTINE_SCHEMA = @SchemaName
 order by ROUTINE_SCHEMA, ROUTINE_NAME";

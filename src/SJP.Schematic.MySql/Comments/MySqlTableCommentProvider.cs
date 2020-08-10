@@ -117,8 +117,8 @@ namespace SJP.Schematic.MySql.Comments
         /// <value>A SQL query.</value>
         protected virtual string TableNameQuery => TableNameQuerySql;
 
-        private const string TableNameQuerySql = @"
-select table_schema as SchemaName, table_name as ObjectName
+        private static readonly string TableNameQuerySql = @$"
+select table_schema as `{ nameof(QualifiedName.SchemaName) }`, table_name as `{ nameof(QualifiedName.ObjectName) }`
 from information_schema.tables
 where table_schema = @SchemaName and table_name = @TableName
 limit 1";
@@ -193,17 +193,27 @@ limit 1";
         /// <value>A SQL query.</value>
         protected virtual string AllTableCommentsQuery => AllTableCommentsQuerySql;
 
-        private const string AllTableCommentsQuerySql = @"
+        private static readonly string AllTableCommentsQuerySql = @$"
 select wrapped.* from (
 -- table
-select TABLE_SCHEMA as SchemaName, TABLE_NAME as TableName, 'TABLE' as ObjectType, TABLE_NAME as ObjectName, TABLE_COMMENT as Comment
+select
+    TABLE_SCHEMA as `{ nameof(TableCommentsData.SchemaName) }`,
+    TABLE_NAME as `{ nameof(TableCommentsData.TableName) }`,
+    'TABLE' as `{ nameof(TableCommentsData.ObjectType) }`,
+    TABLE_NAME as `{ nameof(TableCommentsData.ObjectName) }`,
+    TABLE_COMMENT as `{ nameof(TableCommentsData.Comment) }`
 from INFORMATION_SCHEMA.TABLES
 where TABLE_SCHEMA = @SchemaName
 
 union
 
 -- columns
-select c.TABLE_SCHEMA as SchemaName, c.TABLE_NAME as ObjectName, 'COLUMN' as ObjectType, c.COLUMN_NAME as ObjectName, c.COLUMN_COMMENT as Comment
+select
+    c.TABLE_SCHEMA as `{ nameof(TableCommentsData.SchemaName) }`,
+    c.TABLE_NAME as `{ nameof(TableCommentsData.TableName) }`,
+    'COLUMN' as `{ nameof(TableCommentsData.ObjectType) }`,
+    c.COLUMN_NAME as `{ nameof(TableCommentsData.ObjectName) }`,
+    c.COLUMN_COMMENT as `{ nameof(TableCommentsData.Comment) }`
 from INFORMATION_SCHEMA.COLUMNS c
 inner join INFORMATION_SCHEMA.TABLES t on c.TABLE_SCHEMA = t.TABLE_SCHEMA and c.TABLE_NAME = t.TABLE_NAME
 where c.TABLE_SCHEMA = @SchemaName
@@ -211,7 +221,12 @@ where c.TABLE_SCHEMA = @SchemaName
 union
 
 -- indexes
-select s.TABLE_SCHEMA as SchemaName, s.TABLE_NAME as ObjectName, 'INDEX' as ObjectType, s.INDEX_NAME as ObjectName, s.INDEX_COMMENT as Comment
+select
+    s.TABLE_SCHEMA as `{ nameof(TableCommentsData.SchemaName) }`,
+    s.TABLE_NAME as `{ nameof(TableCommentsData.TableName) }`,
+    'INDEX' as `{ nameof(TableCommentsData.ObjectType) }`,
+    s.INDEX_NAME as `{ nameof(TableCommentsData.ObjectName) }`,
+    s.INDEX_COMMENT as `{ nameof(TableCommentsData.Comment) }`
 from INFORMATION_SCHEMA.STATISTICS s
 inner join INFORMATION_SCHEMA.TABLES t on s.TABLE_SCHEMA = t.TABLE_SCHEMA and s.TABLE_NAME = t.TABLE_NAME
 where s.TABLE_SCHEMA = @SchemaName
@@ -224,16 +239,22 @@ where s.TABLE_SCHEMA = @SchemaName
         /// <value>A SQL query.</value>
         protected virtual string TableCommentsQuery => TableCommentsQuerySql;
 
-        private const string TableCommentsQuerySql = @"
+        private static readonly string TableCommentsQuerySql = @$"
 -- table
-select 'TABLE' as ObjectType, TABLE_NAME as ObjectName, TABLE_COMMENT as Comment
+select
+    'TABLE' as `{ nameof(TableCommentsData.ObjectType) }`,
+    TABLE_NAME as `{ nameof(TableCommentsData.ObjectName) }`,
+    TABLE_COMMENT as `{ nameof(TableCommentsData.Comment) }`
 from INFORMATION_SCHEMA.TABLES
 where TABLE_SCHEMA = @SchemaName and TABLE_NAME = @TableName
 
 union
 
 -- columns
-select 'COLUMN' as ObjectType, c.COLUMN_NAME as ObjectName, c.COLUMN_COMMENT as Comment
+select
+    'COLUMN' as `{ nameof(TableCommentsData.ObjectType) }`,
+    c.COLUMN_NAME as `{ nameof(TableCommentsData.ObjectName) }`,
+    c.COLUMN_COMMENT as `{ nameof(TableCommentsData.Comment) }`
 from INFORMATION_SCHEMA.COLUMNS c
 inner join INFORMATION_SCHEMA.TABLES t on c.TABLE_SCHEMA = t.TABLE_SCHEMA and c.TABLE_NAME = t.TABLE_NAME
 where c.TABLE_SCHEMA = @SchemaName and c.TABLE_NAME = @TableName
@@ -241,7 +262,10 @@ where c.TABLE_SCHEMA = @SchemaName and c.TABLE_NAME = @TableName
 union
 
 -- indexes
-select 'INDEX' as ObjectType, s.INDEX_NAME as ObjectName, s.INDEX_COMMENT as Comment
+select
+    'INDEX' as `{ nameof(TableCommentsData.ObjectType) }`,
+    s.INDEX_NAME as `{ nameof(TableCommentsData.ObjectName) }`,
+    s.INDEX_COMMENT as `{ nameof(TableCommentsData.Comment) }`
 from INFORMATION_SCHEMA.STATISTICS s
 inner join INFORMATION_SCHEMA.TABLES t on s.TABLE_SCHEMA = t.TABLE_SCHEMA and s.TABLE_NAME = t.TABLE_NAME
 where s.TABLE_SCHEMA = @SchemaName and s.TABLE_NAME = @TableName

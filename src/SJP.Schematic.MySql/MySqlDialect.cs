@@ -52,11 +52,11 @@ namespace SJP.Schematic.MySql
             return await connection.DbConnection.QuerySingleAsync<MySqlIdentifierDefaults>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
         }
 
-        private const string IdentifierDefaultsQuerySql = @"
+        private static readonly string IdentifierDefaultsQuerySql = @$"
 select
-    @@hostname as `Server`,
-    database() as `Database`,
-    schema() as `Schema`";
+    @@hostname as `{ nameof(MySqlIdentifierDefaults.Server) }`,
+    database() as `{ nameof(MySqlIdentifierDefaults.Database) }`,
+    schema() as `{ nameof(MySqlIdentifierDefaults.Schema) }`";
 
         /// <summary>
         /// Gets the database display version. Usually a more user-friendly form of the database version.

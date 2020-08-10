@@ -80,10 +80,10 @@ namespace SJP.Schematic.MySql
         /// <value>A SQL query.</value>
         protected virtual string ViewsQuery => ViewsQuerySql;
 
-        private const string ViewsQuerySql = @"
+        private static readonly string ViewsQuerySql = @$"
 select
-    TABLE_SCHEMA as SchemaName,
-    TABLE_NAME as ObjectName
+    TABLE_SCHEMA as `{ nameof(QualifiedName.SchemaName) }`,
+    TABLE_NAME as `{ nameof(QualifiedName.ObjectName) }`
 from information_schema.views
 where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
 
@@ -131,8 +131,10 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
         /// <value>A SQL query.</value>
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
-        private const string ViewNameQuerySql = @"
-select table_schema as SchemaName, table_name as ObjectName
+        private static readonly string ViewNameQuerySql = @$"
+select
+    table_schema as `{ nameof(QualifiedName.SchemaName) }`,
+    table_name as `{ nameof(QualifiedName.ObjectName) }`
 from information_schema.views
 where table_schema = @SchemaName and table_name = @ViewName
 limit 1";
@@ -263,19 +265,19 @@ where table_schema = @SchemaName and table_name = @ViewName";
         /// <value>A SQL query.</value>
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
-        private const string ColumnsQuerySql = @"
+        private static readonly string ColumnsQuerySql = @$"
 select
-    column_name as ColumnName,
-    data_type as DataTypeName,
-    character_maximum_length as CharacterMaxLength,
-    numeric_precision as `Precision`,
-    numeric_scale as `Scale`,
-    datetime_precision as `DateTimePrecision`,
-    collation_name as Collation,
-    is_nullable as IsNullable,
-    column_default as DefaultValue,
-    generation_expression as ComputedColumnDefinition,
-    extra as ExtraInformation
+    column_name as `{ nameof(ColumnData.ColumnName) }`,
+    data_type as `{ nameof(ColumnData.DataTypeName) }`,
+    character_maximum_length as `{ nameof(ColumnData.CharacterMaxLength) }`,
+    numeric_precision as `{ nameof(ColumnData.Precision) }`,
+    numeric_scale as `{ nameof(ColumnData.Scale) }`,
+    datetime_precision as `{ nameof(ColumnData.DateTimePrecision) }`,
+    collation_name as `{ nameof(ColumnData.Collation) }`,
+    is_nullable as `{ nameof(ColumnData.IsNullable) }`,
+    column_default as `{ nameof(ColumnData.DefaultValue) }`,
+    generation_expression as `{ nameof(ColumnData.ComputedColumnDefinition) }`,
+    extra as `{ nameof(ColumnData.ExtraInformation) }`
 from information_schema.columns
 where table_schema = @SchemaName and table_name = @ViewName
 order by ordinal_position";

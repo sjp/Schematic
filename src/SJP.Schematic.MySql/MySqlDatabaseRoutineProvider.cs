@@ -78,11 +78,11 @@ namespace SJP.Schematic.MySql
         /// <value>A SQL query definition.</value>
         protected virtual string RoutinesQuery => RoutinesQuerySql;
 
-        private const string RoutinesQuerySql = @"
+        private static readonly string RoutinesQuerySql = @$"
 select
-    ROUTINE_SCHEMA as SchemaName,
-    ROUTINE_NAME as ObjectName,
-    ROUTINE_DEFINITION as Definition
+    ROUTINE_SCHEMA as `{ nameof(RoutineData.SchemaName) }`,
+    ROUTINE_NAME as `{ nameof(RoutineData.ObjectName) }`,
+    ROUTINE_DEFINITION as `{ nameof(RoutineData.Definition) }`
 from information_schema.routines
 where ROUTINE_SCHEMA = @SchemaName
 order by ROUTINE_SCHEMA, ROUTINE_NAME";
@@ -131,10 +131,10 @@ order by ROUTINE_SCHEMA, ROUTINE_NAME";
         /// <value>A SQL query.</value>
         protected virtual string RoutineNameQuery => RoutineNameQuerySql;
 
-        private const string RoutineNameQuerySql = @"
+        private static readonly string RoutineNameQuerySql = @$"
 select
-    ROUTINE_SCHEMA as SchemaName,
-    ROUTINE_NAME as ObjectName
+    ROUTINE_SCHEMA as `{ nameof(QualifiedName.SchemaName) }`,
+    ROUTINE_NAME as `{ nameof(QualifiedName.ObjectName) }`
 from information_schema.routines
 where ROUTINE_SCHEMA = @SchemaName and ROUTINE_NAME = @RoutineName
 limit 1";

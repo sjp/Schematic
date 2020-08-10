@@ -97,10 +97,10 @@ namespace SJP.Schematic.MySql
         /// <value>A SQL query.</value>
         protected virtual string TablesQuery => TablesQuerySql;
 
-        private const string TablesQuerySql = @"
+        private static readonly string TablesQuerySql = @$"
 select
-    TABLE_SCHEMA as SchemaName,
-    TABLE_NAME as ObjectName
+    TABLE_SCHEMA as `{ nameof(QualifiedName.SchemaName) }`,
+    TABLE_NAME as `{ nameof(QualifiedName.ObjectName) }`
 from information_schema.tables
 where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
 
@@ -151,8 +151,8 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
         /// <value>A SQL query.</value>
         protected virtual string TableNameQuery => TableNameQuerySql;
 
-        private const string TableNameQuerySql = @"
-select table_schema as SchemaName, table_name as ObjectName
+        private static readonly string TableNameQuerySql = @$"
+select table_schema as `{ nameof(QualifiedName.SchemaName) }`, table_name as `{ nameof(QualifiedName.ObjectName) }`
 from information_schema.tables
 where table_schema = @SchemaName and table_name = @TableName
 limit 1";
@@ -263,10 +263,10 @@ limit 1";
         /// <value>A SQL query.</value>
         protected virtual string PrimaryKeyQuery => PrimaryKeyQuerySql;
 
-        private const string PrimaryKeyQuerySql = @"
+        private static readonly string PrimaryKeyQuerySql = @$"
 select
-    kc.constraint_name as ConstraintName,
-    kc.column_name as ColumnName
+    kc.constraint_name as `{ nameof(ConstraintColumnMapping.ConstraintName) }`,
+    kc.column_name as `{ nameof(ConstraintColumnMapping.ColumnName) }`
 from information_schema.tables t
 inner join information_schema.table_constraints tc on t.table_schema = tc.table_schema and t.table_name = tc.table_name
 inner join information_schema.key_column_usage kc
@@ -344,12 +344,12 @@ order by kc.ordinal_position";
         /// <value>A SQL query.</value>
         protected virtual string IndexesQuery => IndexesQuerySql;
 
-        private const string IndexesQuerySql = @"
+        private static readonly string IndexesQuerySql = @$"
 select
-    index_name as IndexName,
-    non_unique as IsNonUnique,
-    seq_in_index as ColumnOrdinal,
-    column_name as ColumnName
+    index_name as `{ nameof(IndexColumns.IndexName) }`,
+    non_unique as `{ nameof(IndexColumns.IsNonUnique) }`,
+    seq_in_index as `{ nameof(IndexColumns.ColumnOrdinal) }`,
+    column_name as `{ nameof(IndexColumns.ColumnName) }`
 from information_schema.statistics
 where table_schema = @SchemaName and table_name = @TableName";
 
@@ -411,10 +411,10 @@ where table_schema = @SchemaName and table_name = @TableName";
         /// <value>A SQL query.</value>
         protected virtual string UniqueKeysQuery => UniqueKeysQuerySql;
 
-        private const string UniqueKeysQuerySql = @"
+        private static readonly string UniqueKeysQuerySql = @$"
 select
-    kc.constraint_name as ConstraintName,
-    kc.column_name as ColumnName
+    kc.constraint_name as `{ nameof(ConstraintColumnMapping.ConstraintName) }`,
+    kc.column_name as `{ nameof(ConstraintColumnMapping.ColumnName) }`
 from information_schema.tables t
 inner join information_schema.table_constraints tc on t.table_schema = tc.table_schema and t.table_name = tc.table_name
 inner join information_schema.key_column_usage kc
@@ -523,17 +523,15 @@ order by kc.ordinal_position";
         /// <value>A SQL query.</value>
         protected virtual string ChildKeysQuery => ChildKeysQuerySql;
 
-        private const string ChildKeysQuerySql = @"
+        private static readonly string ChildKeysQuerySql = @$"
 select
-    t.table_schema as ChildTableSchema,
-    t.table_name as ChildTableName,
-    pt.table_schema as ParentTableSchema,
-    pt.table_name as ParentTableName,
-    rc.constraint_name as ChildKeyName,
-    rc.unique_constraint_name as ParentKeyName,
-    ptc.constraint_type as ParentKeyType,
-    rc.delete_rule as DeleteAction,
-    rc.update_rule as UpdateAction
+    t.table_schema as `{ nameof(ChildKeyData.ChildTableSchema) }`,
+    t.table_name as `{ nameof(ChildKeyData.ChildTableName) }`,
+    rc.constraint_name as `{ nameof(ChildKeyData.ChildKeyName) }`,
+    rc.unique_constraint_name as `{ nameof(ChildKeyData.ParentKeyName) }`,
+    ptc.constraint_type as `{ nameof(ChildKeyData.ParentKeyType) }`,
+    rc.delete_rule as `{ nameof(ChildKeyData.DeleteAction) }`,
+    rc.update_rule as `{ nameof(ChildKeyData.UpdateAction) }`
 from information_schema.tables t
 inner join information_schema.referential_constraints rc on t.table_schema = rc.constraint_schema and t.table_name = rc.table_name
 inner join information_schema.key_column_usage kc on t.table_schema = kc.table_schema and t.table_name = kc.table_name
@@ -589,11 +587,11 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
         /// <value>A SQL query.</value>
         protected virtual string ChecksQuery => ChecksQuerySql;
 
-        private const string ChecksQuerySql = @"
+        private static readonly string ChecksQuerySql = @$"
 select
-    cc.constraint_name as ConstraintName,
-    cc.check_clause as Definition,
-    tc.enforced as Enforced
+    cc.constraint_name as `{ nameof(CheckData.ConstraintName) }`,
+    cc.check_clause as `{ nameof(CheckData.Definition) }`,
+    tc.enforced as `{ nameof(CheckData.Enforced) }`
 from information_schema.table_constraints tc
 inner join information_schema.check_constraints cc on tc.table_schema = cc.constraint_schema and tc.constraint_name = cc.constraint_name
 where tc.table_schema = @SchemaName and tc.table_name = @TableName and tc.constraint_type = 'CHECK'";
@@ -699,17 +697,17 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName and tc.constr
         /// <value>A SQL query.</value>
         protected virtual string ParentKeysQuery => ParentKeysQuerySql;
 
-        private const string ParentKeysQuerySql = @"
+        private static readonly string ParentKeysQuerySql = @$"
 select
-    pt.table_schema as ParentTableSchema,
-    pt.table_name as ParentTableName,
-    rc.constraint_name as ChildKeyName,
-    rc.unique_constraint_name as ParentKeyName,
-    kc.column_name as ColumnName,
-    kc.ordinal_position as ConstraintColumnId,
-    ptc.constraint_type as ParentKeyType,
-    rc.delete_rule as DeleteAction,
-    rc.update_rule as UpdateAction
+    pt.table_schema as `{ nameof(ForeignKeyData.ParentTableSchema) }`,
+    pt.table_name as `{ nameof(ForeignKeyData.ParentTableName) }`,
+    rc.constraint_name as `{ nameof(ForeignKeyData.ChildKeyName) }`,
+    rc.unique_constraint_name as `{ nameof(ForeignKeyData.ParentKeyName) }`,
+    kc.column_name as `{ nameof(ForeignKeyData.ColumnName) }`,
+    kc.ordinal_position as `{ nameof(ForeignKeyData.ConstraintColumnId) }`,
+    ptc.constraint_type as `{ nameof(ForeignKeyData.ParentKeyType) }`,
+    rc.delete_rule as `{ nameof(ForeignKeyData.DeleteAction) }`,
+    rc.update_rule as `{ nameof(ForeignKeyData.UpdateAction) }`
 from information_schema.tables t
 inner join information_schema.referential_constraints rc on t.table_schema = rc.constraint_schema and t.table_name = rc.table_name
 inner join information_schema.key_column_usage kc on t.table_schema = kc.table_schema and t.table_name = kc.table_name
@@ -786,19 +784,19 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
         /// <value>A SQL query.</value>
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
-        private const string ColumnsQuerySql = @"
+        private static readonly string ColumnsQuerySql = @$"
 select
-    column_name as ColumnName,
-    data_type as DataTypeName,
-    character_maximum_length as CharacterMaxLength,
-    numeric_precision as `Precision`,
-    numeric_scale as `Scale`,
-    datetime_precision as `DateTimePrecision`,
-    collation_name as Collation,
-    is_nullable as IsNullable,
-    column_default as DefaultValue,
-    generation_expression as ComputedColumnDefinition,
-    extra as ExtraInformation
+    column_name as `{ nameof(ColumnData.ColumnName) }`,
+    data_type as `{ nameof(ColumnData.DataTypeName) }`,
+    character_maximum_length as `{ nameof(ColumnData.CharacterMaxLength) }`,
+    numeric_precision as `{ nameof(ColumnData.Precision) }`,
+    numeric_scale as `{ nameof(ColumnData.Scale) }`,
+    datetime_precision as `{ nameof(ColumnData.DateTimePrecision) }`,
+    collation_name as `{ nameof(ColumnData.Collation) }`,
+    is_nullable as `{ nameof(ColumnData.IsNullable) }`,
+    column_default as `{ nameof(ColumnData.DefaultValue) }`,
+    generation_expression as `{ nameof(ColumnData.ComputedColumnDefinition) }`,
+    extra as `{ nameof(ColumnData.ExtraInformation) }`
 from information_schema.columns
 where table_schema = @SchemaName and table_name = @TableName
 order by ordinal_position";
@@ -871,12 +869,12 @@ order by ordinal_position";
         /// <value>A SQL query.</value>
         protected virtual string TriggersQuery => TriggersQuerySql;
 
-        private const string TriggersQuerySql = @"
+        private static readonly string TriggersQuerySql = @$"
 select
-    tr.trigger_name as TriggerName,
-    tr.action_statement as Definition,
-    tr.action_timing as Timing,
-    tr.event_manipulation as TriggerEvent
+    tr.trigger_name as `{ nameof(TriggerData.TriggerName) }`,
+    tr.action_statement as `{ nameof(TriggerData.Definition) }`,
+    tr.action_timing as `{ nameof(TriggerData.Timing) }`,
+    tr.event_manipulation as `{ nameof(TriggerData.TriggerEvent) }`
 from information_schema.triggers tr
 where tr.event_object_schema = @SchemaName and tr.event_object_table = @TableName";
 
