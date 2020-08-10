@@ -250,24 +250,24 @@ where table_schema = @SchemaName and table_name = @ViewName";
             {
                 var typeMetadata = new ColumnTypeMetadata
                 {
-                    TypeName = Identifier.CreateQualifiedIdentifier(row.data_type),
-                    Collation = !row.collation_name.IsNullOrWhiteSpace()
-                        ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.collation_catalog, row.collation_schema, row.collation_name))
+                    TypeName = Identifier.CreateQualifiedIdentifier(row.DataType),
+                    Collation = !row.CollationName.IsNullOrWhiteSpace()
+                        ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.CollationCatalog, row.CollationSchema, row.CollationName))
                         : Option<Identifier>.None,
                     //TODO -- need to fix max length as it's different for char-like objects and numeric
                     //MaxLength = row.,
                     // TODO: numeric_precision has a base, can be either binary or decimal, need to use the correct one
-                    NumericPrecision = new NumericPrecision(row.numeric_precision, row.numeric_scale)
+                    NumericPrecision = new NumericPrecision(row.NumericPrecision, row.NumericScale)
                 };
 
                 var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
-                var columnName = Identifier.CreateQualifiedIdentifier(row.column_name);
+                var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
                 var autoIncrement = Option<IAutoIncrement>.None;
-                var defaultValue = !row.column_default.IsNullOrWhiteSpace()
-                     ? Option<string>.Some(row.column_default)
+                var defaultValue = !row.ColumnDefault.IsNullOrWhiteSpace()
+                     ? Option<string>.Some(row.ColumnDefault)
                      : Option<string>.None;
 
-                var column = new DatabaseColumn(columnName, columnType, row.is_nullable == Constants.Yes, defaultValue, autoIncrement);
+                var column = new DatabaseColumn(columnName, columnType, row.IsNullable == Constants.Yes, defaultValue, autoIncrement);
                 result.Add(column);
             }
 
@@ -282,28 +282,28 @@ where table_schema = @SchemaName and table_name = @ViewName";
 
         private static readonly string ColumnsQuerySql = @$"
 select
-    column_name as ""{ nameof(ColumnData.column_name) }"",
-    ordinal_position as ""{ nameof(ColumnData.ordinal_position) }"",
-    column_default as ""{ nameof(ColumnData.column_default) }"",
-    is_nullable as ""{ nameof(ColumnData.is_nullable) }"",
-    data_type as ""{ nameof(ColumnData.data_type) }"",
-    character_maximum_length as ""{ nameof(ColumnData.character_maximum_length) }"",
-    character_octet_length as ""{ nameof(ColumnData.character_octet_length) }"",
-    numeric_precision as ""{ nameof(ColumnData.numeric_precision) }"",
-    numeric_precision_radix as ""{ nameof(ColumnData.numeric_precision_radix) }"",
-    numeric_scale as ""{ nameof(ColumnData.numeric_scale) }"",
-    datetime_precision as ""{ nameof(ColumnData.datetime_precision) }"",
-    interval_type as ""{ nameof(ColumnData.interval_type) }"",
-    collation_catalog as ""{ nameof(ColumnData.collation_catalog) }"",
-    collation_schema as ""{ nameof(ColumnData.collation_schema) }"",
-    collation_name as ""{ nameof(ColumnData.collation_name) }"",
-    domain_catalog as ""{ nameof(ColumnData.domain_catalog) }"",
-    domain_schema as ""{ nameof(ColumnData.domain_schema) }"",
-    domain_name as ""{ nameof(ColumnData.domain_name) }"",
-    udt_catalog as ""{ nameof(ColumnData.udt_catalog) }"",
-    udt_schema as ""{ nameof(ColumnData.udt_schema) }"",
-    udt_name as ""{ nameof(ColumnData.udt_name) }"",
-    dtd_identifier as ""{ nameof(ColumnData.dtd_identifier) }""
+    column_name as ""{ nameof(ColumnData.ColumnName) }"",
+    ordinal_position as ""{ nameof(ColumnData.OrdinalPosition) }"",
+    column_default as ""{ nameof(ColumnData.ColumnDefault) }"",
+    is_nullable as ""{ nameof(ColumnData.IsNullable) }"",
+    data_type as ""{ nameof(ColumnData.DataType) }"",
+    character_maximum_length as ""{ nameof(ColumnData.CharacterMaximumLength) }"",
+    character_octet_length as ""{ nameof(ColumnData.CharacterOctetLength) }"",
+    numeric_precision as ""{ nameof(ColumnData.NumericPrecision) }"",
+    numeric_precision_radix as ""{ nameof(ColumnData.NumericPrecisionRadix) }"",
+    numeric_scale as ""{ nameof(ColumnData.NumericScale) }"",
+    datetime_precision as ""{ nameof(ColumnData.DatetimePrecision) }"",
+    interval_type as ""{ nameof(ColumnData.IntervalType) }"",
+    collation_catalog as ""{ nameof(ColumnData.CollationCatalog) }"",
+    collation_schema as ""{ nameof(ColumnData.CollationSchema) }"",
+    collation_name as ""{ nameof(ColumnData.CollationName) }"",
+    domain_catalog as ""{ nameof(ColumnData.DomainCatalog) }"",
+    domain_schema as ""{ nameof(ColumnData.DomainSchema) }"",
+    domain_name as ""{ nameof(ColumnData.DomainName) }"",
+    udt_catalog as ""{ nameof(ColumnData.UdtCatalog) }"",
+    udt_schema as ""{ nameof(ColumnData.UdtSchema) }"",
+    udt_name as ""{ nameof(ColumnData.UdtName) }"",
+    dtd_identifier as ""{ nameof(ColumnData.DtdIdentifier) }""
 from information_schema.columns
 where table_schema = @SchemaName and table_name = @ViewName
 order by ordinal_position";

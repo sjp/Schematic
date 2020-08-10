@@ -831,29 +831,29 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
             {
                 var typeMetadata = new ColumnTypeMetadata
                 {
-                    TypeName = Identifier.CreateQualifiedIdentifier(Constants.PgCatalog, row.data_type),
-                    Collation = !row.collation_name.IsNullOrWhiteSpace()
-                        ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.collation_catalog, row.collation_schema, row.collation_name))
+                    TypeName = Identifier.CreateQualifiedIdentifier(Constants.PgCatalog, row.DataType),
+                    Collation = !row.CollationName.IsNullOrWhiteSpace()
+                        ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.CollationCatalog, row.CollationSchema, row.CollationName))
                         : Option<Identifier>.None,
-                    MaxLength = row.character_maximum_length > 0
-                        ? row.character_maximum_length
-                        : CreatePrecisionFromBase(row.numeric_precision, row.numeric_precision_radix),
-                    NumericPrecision = row.numeric_precision_radix > 0
-                        ? Option<INumericPrecision>.Some(CreatePrecisionWithScaleFromBase(row.numeric_precision, row.numeric_scale, row.numeric_precision_radix))
+                    MaxLength = row.CharacterMaximumLength > 0
+                        ? row.CharacterMaximumLength
+                        : CreatePrecisionFromBase(row.NumericPrecision, row.NumericPrecisionRadix),
+                    NumericPrecision = row.NumericPrecisionRadix > 0
+                        ? Option<INumericPrecision>.Some(CreatePrecisionWithScaleFromBase(row.NumericPrecision, row.NumericScale, row.NumericPrecisionRadix))
                         : Option<INumericPrecision>.None
                 };
 
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
-                var columnName = Identifier.CreateQualifiedIdentifier(row.column_name);
+                var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
 
-                var isAutoIncrement = !row.serial_sequence_schema_name.IsNullOrWhiteSpace() && !row.serial_sequence_local_name.IsNullOrWhiteSpace();
+                var isAutoIncrement = !row.SerialSequenceSchemaName.IsNullOrWhiteSpace() && !row.SerialSequenceLocalName.IsNullOrWhiteSpace();
                 var autoIncrement = isAutoIncrement
                     ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
                     : Option<IAutoIncrement>.None;
-                var defaultValue = !row.column_default.IsNullOrWhiteSpace()
-                    ? Option<string>.Some(row.column_default)
+                var defaultValue = !row.ColumnDefault.IsNullOrWhiteSpace()
+                    ? Option<string>.Some(row.ColumnDefault)
                     : Option<string>.None;
-                var isNullable = row.is_nullable == Constants.Yes;
+                var isNullable = row.IsNullable == Constants.Yes;
 
                 var column = new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement);
                 result.Add(column);
@@ -873,30 +873,30 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
         // additionally the default behaviour misses the schema which may be necessary
         private static readonly string ColumnsQuerySql = @$"
 select
-    column_name as ""{ nameof(ColumnData.column_name) }"",
-    ordinal_position as ""{ nameof(ColumnData.ordinal_position) }"",
-    column_default as ""{ nameof(ColumnData.column_default) }"",
-    is_nullable as ""{ nameof(ColumnData.is_nullable) }"",
-    data_type as ""{ nameof(ColumnData.data_type) }"",
-    character_maximum_length as ""{ nameof(ColumnData.character_maximum_length) }"",
-    character_octet_length as ""{ nameof(ColumnData.character_octet_length) }"",
-    numeric_precision as ""{ nameof(ColumnData.numeric_precision) }"",
-    numeric_precision_radix as ""{ nameof(ColumnData.numeric_precision_radix) }"",
-    numeric_scale as ""{ nameof(ColumnData.numeric_scale) }"",
-    datetime_precision as ""{ nameof(ColumnData.datetime_precision) }"",
-    interval_type as ""{ nameof(ColumnData.interval_type) }"",
-    collation_catalog as ""{ nameof(ColumnData.collation_catalog) }"",
-    collation_schema as ""{ nameof(ColumnData.collation_schema) }"",
-    collation_name as ""{ nameof(ColumnData.collation_name) }"",
-    domain_catalog as ""{ nameof(ColumnData.domain_catalog) }"",
-    domain_schema as ""{ nameof(ColumnData.domain_schema) }"",
-    domain_name as ""{ nameof(ColumnData.domain_name) }"",
-    udt_catalog as ""{ nameof(ColumnData.udt_catalog) }"",
-    udt_schema as ""{ nameof(ColumnData.udt_schema) }"",
-    udt_name as ""{ nameof(ColumnData.udt_name) }"",
-    dtd_identifier as ""{ nameof(ColumnData.dtd_identifier) }"",
-    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[1] as ""{ nameof(ColumnData.serial_sequence_schema_name) }"",
-    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[2] as ""{ nameof(ColumnData.serial_sequence_local_name) }""
+    column_name as ""{ nameof(ColumnData.ColumnName) }"",
+    ordinal_position as ""{ nameof(ColumnData.OrdinalPosition) }"",
+    column_default as ""{ nameof(ColumnData.ColumnDefault) }"",
+    is_nullable as ""{ nameof(ColumnData.IsNullable) }"",
+    data_type as ""{ nameof(ColumnData.DataType) }"",
+    character_maximum_length as ""{ nameof(ColumnData.CharacterMaximumLength) }"",
+    character_octet_length as ""{ nameof(ColumnData.CharacterOctetLength) }"",
+    numeric_precision as ""{ nameof(ColumnData.NumericPrecision) }"",
+    numeric_precision_radix as ""{ nameof(ColumnData.NumericPrecisionRadix) }"",
+    numeric_scale as ""{ nameof(ColumnData.NumericScale) }"",
+    datetime_precision as ""{ nameof(ColumnData.DatetimePrecision) }"",
+    interval_type as ""{ nameof(ColumnData.IntervalType) }"",
+    collation_catalog as ""{ nameof(ColumnData.CollationCatalog) }"",
+    collation_schema as ""{ nameof(ColumnData.CollationSchema) }"",
+    collation_name as ""{ nameof(ColumnData.CollationName) }"",
+    domain_catalog as ""{ nameof(ColumnData.DomainCatalog) }"",
+    domain_schema as ""{ nameof(ColumnData.DomainSchema) }"",
+    domain_name as ""{ nameof(ColumnData.DomainName) }"",
+    udt_catalog as ""{ nameof(ColumnData.UdtCatalog) }"",
+    udt_schema as ""{ nameof(ColumnData.UdtSchema) }"",
+    udt_name as ""{ nameof(ColumnData.UdtName) }"",
+    dtd_identifier as ""{ nameof(ColumnData.DtdIdentifier) }"",
+    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[1] as ""{ nameof(ColumnData.SerialSequenceSchemaName) }"",
+    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[2] as ""{ nameof(ColumnData.SerialSequenceLocalName) }""
 from information_schema.columns
 where table_schema = @SchemaName and table_name = @TableName
 order by ordinal_position";

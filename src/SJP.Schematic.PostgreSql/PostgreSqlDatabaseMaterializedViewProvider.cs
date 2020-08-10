@@ -251,24 +251,24 @@ where schemaname = @SchemaName and matviewname = @ViewName";
             {
                 var typeMetadata = new ColumnTypeMetadata
                 {
-                    TypeName = Identifier.CreateQualifiedIdentifier(row.data_type),
-                    Collation = !row.collation_name.IsNullOrWhiteSpace()
-                        ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.collation_catalog, row.collation_schema, row.collation_name))
+                    TypeName = Identifier.CreateQualifiedIdentifier(row.DataType),
+                    Collation = !row.CollationName.IsNullOrWhiteSpace()
+                        ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.CollationCatalog, row.CollationSchema, row.CollationName))
                         : Option<Identifier>.None,
                     //TODO -- need to fix max length as it's different for char-like objects and numeric
                     //MaxLength = row.,
                     // TODO: numeric_precision has a base, can be either binary or decimal, need to use the correct one
-                    NumericPrecision = new NumericPrecision(row.numeric_precision, row.numeric_scale)
+                    NumericPrecision = new NumericPrecision(row.NumericPrecision, row.NumericScale)
                 };
 
                 var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
-                var columnName = Identifier.CreateQualifiedIdentifier(row.column_name);
+                var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
                 var autoIncrement = Option<IAutoIncrement>.None;
-                var defaultValue = !row.column_default.IsNullOrWhiteSpace()
-                    ? Option<string>.Some(row.column_default)
+                var defaultValue = !row.ColumnDefault.IsNullOrWhiteSpace()
+                    ? Option<string>.Some(row.ColumnDefault)
                     : Option<string>.None;
 
-                var column = new DatabaseColumn(columnName, columnType, row.is_nullable == Constants.Yes, defaultValue, autoIncrement);
+                var column = new DatabaseColumn(columnName, columnType, row.IsNullable == Constants.Yes, defaultValue, autoIncrement);
                 result.Add(column);
             }
 
@@ -284,11 +284,11 @@ where schemaname = @SchemaName and matviewname = @ViewName";
         // taken largely from information_schema.sql for postgres (but modified to work with matviews)
         private static readonly string ColumnsQuerySql = @$"
 SELECT
-    a.attname AS ""{ nameof(ColumnData.column_name) }"",
-    a.attnum AS ""{ nameof(ColumnData.ordinal_position) }"",
-    pg_catalog.pg_get_expr(ad.adbin, ad.adrelid) AS ""{ nameof(ColumnData.column_default) }"",
+    a.attname AS ""{ nameof(ColumnData.ColumnName) }"",
+    a.attnum AS ""{ nameof(ColumnData.OrdinalPosition) }"",
+    pg_catalog.pg_get_expr(ad.adbin, ad.adrelid) AS ""{ nameof(ColumnData.ColumnDefault) }"",
     CASE WHEN a.attnotnull OR (t.typtype = 'd' AND t.typnotnull) THEN 'NO' ELSE 'YES' END
-        AS ""{ nameof(ColumnData.is_nullable) }"",
+        AS ""{ nameof(ColumnData.IsNullable) }"",
 
     CASE WHEN t.typtype = 'd' THEN
     CASE WHEN bt.typelem <> 0 AND bt.typlen = -1 THEN 'ARRAY'
@@ -299,45 +299,45 @@ SELECT
         WHEN nt.nspname = 'pg_catalog' THEN format_type(a.atttypid, null)
         ELSE 'USER-DEFINED' END
     END
-    AS ""{ nameof(ColumnData.data_type) }"",
+    AS ""{ nameof(ColumnData.DataType) }"",
 
     " + PgCharMaxLength + @$"
-    AS ""{ nameof(ColumnData.character_maximum_length) }"",
+    AS ""{ nameof(ColumnData.CharacterMaximumLength) }"",
 
     " + PgCharOctetLength + @$"
-    AS ""{ nameof(ColumnData.character_octet_length) }"",
+    AS ""{ nameof(ColumnData.CharacterOctetLength) }"",
 
     " + PgNumericPrecision + @$"
-    AS ""{ nameof(ColumnData.numeric_precision) }"",
+    AS ""{ nameof(ColumnData.NumericPrecision) }"",
 
     " + PgNumericPrecisionRadix + @$"
-    AS ""{ nameof(ColumnData.numeric_precision_radix) }"",
+    AS ""{ nameof(ColumnData.NumericPrecisionRadix) }"",
 
     " + PgNumericScale + @$"
-    AS ""{ nameof(ColumnData.numeric_scale) }"",
+    AS ""{ nameof(ColumnData.NumericScale) }"",
 
     " + PgDatetimePrecision + @$"
-    AS ""{ nameof(ColumnData.datetime_precision) }"",
+    AS ""{ nameof(ColumnData.DatetimePrecision) }"",
 
     " + PgIntervalType + @$"
-    AS ""{ nameof(ColumnData.interval_type) }"",
+    AS ""{ nameof(ColumnData.IntervalType) }"",
 
-    CASE WHEN nco.nspname IS NOT NULL THEN current_database() END AS ""{ nameof(ColumnData.collation_catalog) }"",
-    nco.nspname AS ""{ nameof(ColumnData.collation_schema) }"",
-    co.collname AS ""{ nameof(ColumnData.collation_name) }"",
+    CASE WHEN nco.nspname IS NOT NULL THEN current_database() END AS ""{ nameof(ColumnData.CollationCatalog) }"",
+    nco.nspname AS ""{ nameof(ColumnData.CollationSchema) }"",
+    co.collname AS ""{ nameof(ColumnData.CollationName) }"",
 
     CASE WHEN t.typtype = 'd' THEN current_database() ELSE null END
-        AS ""{ nameof(ColumnData.domain_catalog) }"",
+        AS ""{ nameof(ColumnData.DomainCatalog) }"",
     CASE WHEN t.typtype = 'd' THEN nt.nspname ELSE null END
-        AS ""{ nameof(ColumnData.domain_schema) }"",
+        AS ""{ nameof(ColumnData.DomainSchema) }"",
     CASE WHEN t.typtype = 'd' THEN t.typname ELSE null END
-        AS ""{ nameof(ColumnData.domain_name) }"",
+        AS ""{ nameof(ColumnData.DomainName) }"",
 
-    current_database() AS ""{ nameof(ColumnData.udt_catalog) }"",
-    coalesce(nbt.nspname, nt.nspname) AS ""{ nameof(ColumnData.udt_schema) }"",
-    coalesce(bt.typname, t.typname) AS ""{ nameof(ColumnData.udt_name) }"",
+    current_database() AS ""{ nameof(ColumnData.UdtCatalog) }"",
+    coalesce(nbt.nspname, nt.nspname) AS ""{ nameof(ColumnData.UdtSchema) }"",
+    coalesce(bt.typname, t.typname) AS ""{ nameof(ColumnData.UdtName) }"",
 
-    a.attnum AS ""{ nameof(ColumnData.dtd_identifier) }""
+    a.attnum AS ""{ nameof(ColumnData.DtdIdentifier) }""
 
 FROM (pg_catalog.pg_attribute a LEFT JOIN pg_catalog.pg_attrdef ad ON attrelid = adrelid AND attnum = adnum)
     JOIN (pg_catalog.pg_class c JOIN pg_catalog.pg_namespace nc ON (c.relnamespace = nc.oid)) ON a.attrelid = c.oid

@@ -5,11 +5,11 @@
         /// <summary>
         /// If the column is a generated column, then <c>ALWAYS</c>, else <c>NEVER</c>.
         /// </summary>
-        public string? is_generated { get; set; }
+        public string? IsGenerated { get; set; }
 
         /// <summary>
         /// If the column is a generated column, then the generation expression, else null.
         /// </summary>
-        public string? generation_expression { get; set; }
+        public string? GenerationExpression { get; set; }
     }
 }
