@@ -86,13 +86,13 @@ namespace SJP.Schematic.Oracle
         /// <value>A SQL query.</value>
         protected virtual string SynonymsQuery => SynonymsQuerySql;
 
-        private const string SynonymsQuerySql = @"
+        private static readonly string SynonymsQuerySql = @$"
 select distinct
-    s.OWNER as SchemaName,
-    s.SYNONYM_NAME as SynonymName,
-    s.DB_LINK as TargetDatabaseName,
-    s.TABLE_OWNER as TargetSchemaName,
-    s.TABLE_NAME as TargetObjectName
+    s.OWNER as ""{ nameof(SynonymData.SchemaName) }"",
+    s.SYNONYM_NAME as ""{ nameof(SynonymData.SynonymName) }"",
+    s.DB_LINK as ""{ nameof(SynonymData.TargetDatabaseName) }"",
+    s.TABLE_OWNER as ""{ nameof(SynonymData.TargetSchemaName) }"",
+    s.TABLE_NAME as ""{ nameof(SynonymData.TargetObjectName) }""
 from SYS.ALL_SYNONYMS s
 inner join SYS.ALL_OBJECTS o on s.OWNER = o.OWNER and s.SYNONYM_NAME = o.OBJECT_NAME
 where o.ORACLE_MAINTAINED <> 'Y'
@@ -177,8 +177,8 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
         /// <value>A SQL query.</value>
         protected virtual string SynonymNameQuery => SynonymNameQuerySql;
 
-        private const string SynonymNameQuerySql = @"
-select s.OWNER as SchemaName, s.SYNONYM_NAME as ObjectName
+        private static readonly string SynonymNameQuerySql = @$"
+select s.OWNER as ""{ nameof(QualifiedName.SchemaName) }"", s.SYNONYM_NAME as ""{ nameof(QualifiedName.ObjectName) }""
 from SYS.ALL_SYNONYMS s
 inner join SYS.ALL_OBJECTS o on s.OWNER = o.OWNER and s.SYNONYM_NAME = o.OBJECT_NAME
 where s.OWNER = :SchemaName and s.SYNONYM_NAME = :SynonymName and o.ORACLE_MAINTAINED <> 'Y'";
@@ -229,11 +229,11 @@ where o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and s.SYNONYM_NAME = :Syn
         /// <value>A SQL query.</value>
         protected virtual string LoadSynonymQuery => LoadSynonymQuerySql;
 
-        private const string LoadSynonymQuerySql = @"
+        private static readonly string LoadSynonymQuerySql = @$"
 select distinct
-    s.DB_LINK as TargetDatabaseName,
-    s.TABLE_OWNER as TargetSchemaName,
-    s.TABLE_NAME as TargetObjectName
+    s.DB_LINK as ""{ nameof(TargetSynonymData.TargetDatabaseName) }"",
+    s.TABLE_OWNER as ""{ nameof(TargetSynonymData.TargetSchemaName) }"",
+    s.TABLE_NAME as ""{ nameof(TargetSynonymData.TargetObjectName) }""
 from SYS.ALL_SYNONYMS s
 inner join SYS.ALL_OBJECTS o on s.OWNER = o.OWNER and s.SYNONYM_NAME = o.OBJECT_NAME
 where s.OWNER = :SchemaName and s.SYNONYM_NAME = :SynonymName and o.ORACLE_MAINTAINED <> 'Y'";
@@ -244,11 +244,11 @@ where s.OWNER = :SchemaName and s.SYNONYM_NAME = :SynonymName and o.ORACLE_MAINT
         /// <value>A SQL query.</value>
         protected virtual string LoadUserSynonymQuery => LoadUserSynonymQuerySql;
 
-        private const string LoadUserSynonymQuerySql = @"
+        private static readonly string LoadUserSynonymQuerySql = @$"
 select distinct
-    s.DB_LINK as TargetDatabaseName,
-    s.TABLE_OWNER as TargetSchemaName,
-    s.TABLE_NAME as TargetObjectName
+    s.DB_LINK as ""{ nameof(TargetSynonymData.TargetDatabaseName) }"",
+    s.TABLE_OWNER as ""{ nameof(TargetSynonymData.TargetSchemaName) }"",
+    s.TABLE_NAME as ""{ nameof(TargetSynonymData.TargetObjectName) }""
 from SYS.USER_SYNONYMS s
 inner join SYS.ALL_OBJECTS o on s.SYNONYM_NAME = o.OBJECT_NAME
 where s.SYNONYM_NAME = :SynonymName and o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and o.ORACLE_MAINTAINED <> 'Y'";

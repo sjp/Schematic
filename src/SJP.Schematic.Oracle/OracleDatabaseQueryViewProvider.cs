@@ -84,10 +84,10 @@ namespace SJP.Schematic.Oracle
         /// <value>A SQL query.</value>
         protected virtual string ViewsQuery => ViewsQuerySql;
 
-        private const string ViewsQuerySql = @"
+        private static readonly string ViewsQuerySql = @$"
 select
-    v.OWNER as SchemaName,
-    v.VIEW_NAME as ObjectName
+    v.OWNER as ""{ nameof(QualifiedName.SchemaName) }"",
+    v.VIEW_NAME as ""{ nameof(QualifiedName.ObjectName) }""
 from SYS.ALL_VIEWS v
 inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.VIEW_NAME = o.OBJECT_NAME
 where o.ORACLE_MAINTAINED <> 'Y'
@@ -158,8 +158,8 @@ order by v.OWNER, v.VIEW_NAME";
         /// <value>A SQL query.</value>
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
-        private const string ViewNameQuerySql = @"
-select v.OWNER as SchemaName, v.VIEW_NAME as ObjectName
+        private static readonly string ViewNameQuerySql = @$"
+select v.OWNER as ""{ nameof(QualifiedName.SchemaName) }"", v.VIEW_NAME as ""{ nameof(QualifiedName.ObjectName) }""
 from SYS.ALL_VIEWS v
 inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.VIEW_NAME = o.OBJECT_NAME
 where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED <> 'Y'";
@@ -289,19 +289,18 @@ where OWNER = :SchemaName and VIEW_NAME = :ViewName";
         /// <value>A SQL query.</value>
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
-        private const string ColumnsQuerySql = @"
+        private static readonly string ColumnsQuerySql = @$"
 select
-    atc.COLUMN_NAME as ColumnName,
-    atc.DATA_TYPE_OWNER as ColumnTypeSchema,
-    atc.DATA_TYPE as ColumnTypeName,
-    atc.DATA_LENGTH as DataLength,
-    atc.DATA_PRECISION as Precision,
-    atc.DATA_SCALE as Scale,
-    atc.NULLABLE as IsNullable,
-    atc.DATA_DEFAULT as DefaultValue,
-    atc.CHAR_LENGTH as CharacterLength,
-    atc.CHARACTER_SET_NAME as Collation,
-    atc.VIRTUAL_COLUMN as IsComputed
+    atc.COLUMN_NAME as ""{ nameof(ColumnData.ColumnName) }"",
+    atc.DATA_TYPE_OWNER as ""{ nameof(ColumnData.ColumnTypeSchema) }"",
+    atc.DATA_TYPE as ""{ nameof(ColumnData.ColumnTypeName) }"",
+    atc.DATA_LENGTH as ""{ nameof(ColumnData.DataLength) }"",
+    atc.DATA_PRECISION as ""{ nameof(ColumnData.Precision) }"",
+    atc.DATA_SCALE as ""{ nameof(ColumnData.Scale) }"",
+    atc.DATA_DEFAULT as ""{ nameof(ColumnData.DefaultValue) }"",
+    atc.CHAR_LENGTH as ""{ nameof(ColumnData.CharacterLength) }"",
+    atc.CHARACTER_SET_NAME as ""{ nameof(ColumnData.Collation) }"",
+    atc.VIRTUAL_COLUMN as ""{ nameof(ColumnData.IsComputed) }""
 from SYS.ALL_TAB_COLS atc
 where OWNER = :SchemaName and TABLE_NAME = :ViewName
 order by atc.COLUMN_ID";
@@ -351,11 +350,11 @@ order by atc.COLUMN_ID";
         /// <value>A SQL query.</value>
         protected virtual string ChecksQuery => ChecksQuerySql;
 
-        private const string ChecksQuerySql = @"
+        private static readonly string ChecksQuerySql = @$"
 select
-    CONSTRAINT_NAME as ConstraintName,
-    SEARCH_CONDITION as Definition,
-    STATUS as EnabledStatus
+    CONSTRAINT_NAME as ""{ nameof(CheckConstraintData.ConstraintName) }"",
+    SEARCH_CONDITION as ""{ nameof(CheckConstraintData.Definition) }"",
+    STATUS as ""{ nameof(CheckConstraintData.EnabledStatus) }""
 from SYS.ALL_CONSTRAINTS
 where OWNER = :SchemaName and TABLE_NAME = :ViewName and CONSTRAINT_TYPE = 'C'";
 

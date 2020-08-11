@@ -105,10 +105,10 @@ namespace SJP.Schematic.Oracle
         /// <value>A SQL query.</value>
         protected virtual string TablesQuery => TablesQuerySql;
 
-        private const string TablesQuerySql = @"
+        private static readonly string TablesQuerySql = @$"
 select
-    t.OWNER as SchemaName,
-    t.TABLE_NAME as ObjectName
+    t.OWNER as ""{ nameof(QualifiedName.SchemaName) }"",
+    t.TABLE_NAME as ""{ nameof(QualifiedName.ObjectName) }""
 from SYS.ALL_TABLES t
 inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
 left join SYS.ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
@@ -186,8 +186,8 @@ order by t.OWNER, t.TABLE_NAME";
         /// <value>A SQL query.</value>
         protected virtual string TableNameQuery => TableNameQuerySql;
 
-        private const string TableNameQuerySql = @"
-select t.OWNER as SchemaName, t.TABLE_NAME as ObjectName
+        private static readonly string TableNameQuerySql = @$"
+select t.OWNER as ""{ nameof(QualifiedName.SchemaName) }"", t.TABLE_NAME as ""{ nameof(QualifiedName.ObjectName) }""
 from SYS.ALL_TABLES t
 inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
 left join SYS.ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
@@ -310,12 +310,12 @@ where
         /// <value>A SQL query.</value>
         protected virtual string PrimaryKeyQuery => PrimaryKeyQuerySql;
 
-        private const string PrimaryKeyQuerySql = @"
+        private static readonly string PrimaryKeyQuerySql = @$"
 select
-    ac.CONSTRAINT_NAME as ConstraintName,
-    ac.STATUS as EnabledStatus,
-    acc.COLUMN_NAME as ColumnName,
-    acc.POSITION as ColumnPosition
+    ac.CONSTRAINT_NAME as ""{ nameof(ConstraintColumnMapping.ConstraintName) }"",
+    ac.STATUS as ""{ nameof(ConstraintColumnMapping.EnabledStatus) }"",
+    acc.COLUMN_NAME as ""{ nameof(ConstraintColumnMapping.ColumnName) }"",
+    acc.POSITION as ""{ nameof(ConstraintColumnMapping.ColumnPosition) }""
 from SYS.ALL_CONSTRAINTS ac
 inner join SYS.ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
 where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'P'";
@@ -391,15 +391,15 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
         /// <value>A SQL query.</value>
         protected virtual string IndexesQuery => IndexesQuerySql;
 
-        private const string IndexesQuerySql = @"
+        private static readonly string IndexesQuerySql = @$"
 select
-    ai.OWNER as IndexOwner,
-    ai.INDEX_NAME as IndexName,
-    ai.UNIQUENESS as Uniqueness,
-    ind.PROPERTY as IndexProperty,
-    aic.COLUMN_NAME as ColumnName,
-    aic.COLUMN_POSITION as ColumnPosition,
-    aic.DESCEND as IsDescending
+    ai.OWNER as ""{ nameof(IndexColumns.IndexOwner) }"",
+    ai.INDEX_NAME as ""{ nameof(IndexColumns.IndexName) }"",
+    ai.UNIQUENESS as ""{ nameof(IndexColumns.Uniqueness) }"",
+    ind.PROPERTY as ""{ nameof(IndexColumns.IndexProperty) }"",
+    aic.COLUMN_NAME as ""{ nameof(IndexColumns.ColumnName) }"",
+    aic.COLUMN_POSITION as ""{ nameof(IndexColumns.ColumnPosition) }"",
+    aic.DESCEND as ""{ nameof(IndexColumns.IsDescending) }""
 from SYS.ALL_INDEXES ai
 inner join SYS.ALL_OBJECTS ao on ai.OWNER = ao.OWNER and ai.INDEX_NAME = ao.OBJECT_NAME
 inner join SYS.IND$ ind on ao.OBJECT_ID = ind.OBJ#
@@ -470,12 +470,12 @@ order by aic.COLUMN_POSITION";
         /// <value>A SQL query.</value>
         protected virtual string UniqueKeysQuery => UniqueKeysQuerySql;
 
-        private const string UniqueKeysQuerySql = @"
+        private static readonly string UniqueKeysQuerySql = @$"
 select
-    ac.CONSTRAINT_NAME as ConstraintName,
-    ac.STATUS as EnabledStatus,
-    acc.COLUMN_NAME as ColumnName,
-    acc.POSITION as ColumnPosition
+    ac.CONSTRAINT_NAME as ""{ nameof(ConstraintColumnMapping.ConstraintName) }"",
+    ac.STATUS as ""{ nameof(ConstraintColumnMapping.EnabledStatus) }"",
+    acc.COLUMN_NAME as ""{ nameof(ConstraintColumnMapping.ColumnName) }"",
+    acc.POSITION as ""{ nameof(ConstraintColumnMapping.ColumnPosition) }""
 from SYS.ALL_CONSTRAINTS ac
 inner join SYS.ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
 where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'U'";
@@ -562,15 +562,15 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
         /// <value>A SQL query.</value>
         protected virtual string ChildKeysQuery => ChildKeysQuerySql;
 
-        private const string ChildKeysQuerySql = @"
+        private static readonly string ChildKeysQuerySql = @$"
 select
-    ac.OWNER as ChildTableSchema,
-    ac.TABLE_NAME as ChildTableName,
-    ac.CONSTRAINT_NAME as ChildKeyName,
-    ac.STATUS as EnabledStatus,
-    ac.DELETE_RULE as DeleteAction,
-    pac.CONSTRAINT_NAME as ParentKeyName,
-    pac.CONSTRAINT_TYPE as ParentKeyType
+    ac.OWNER as ""{ nameof(ChildKeyData.ChildTableSchema) }"",
+    ac.TABLE_NAME as ""{ nameof(ChildKeyData.ChildTableName) }"",
+    ac.CONSTRAINT_NAME as ""{ nameof(ChildKeyData.ChildKeyName) }"",
+    ac.STATUS as ""{ nameof(ChildKeyData.EnabledStatus) }"",
+    ac.DELETE_RULE as ""{ nameof(ChildKeyData.DeleteAction) }"",
+    pac.CONSTRAINT_NAME as ""{ nameof(ChildKeyData.ParentKeyName) }"",
+    pac.CONSTRAINT_TYPE as ""{ nameof(ChildKeyData.ParentKeyType) }""
 from SYS.ALL_CONSTRAINTS ac
 inner join SYS.ALL_CONSTRAINTS pac on pac.OWNER = ac.R_OWNER and pac.CONSTRAINT_NAME = ac.R_CONSTRAINT_NAME
 where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'R' and pac.CONSTRAINT_TYPE in ('P', 'U')";
@@ -636,11 +636,11 @@ where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_
         /// <value>A SQL query.</value>
         protected virtual string ChecksQuery => ChecksQuerySql;
 
-        private const string ChecksQuerySql = @"
+        private static readonly string ChecksQuerySql = @$"
 select
-    CONSTRAINT_NAME as ConstraintName,
-    SEARCH_CONDITION as Definition,
-    STATUS as EnabledStatus
+    CONSTRAINT_NAME as ""{ nameof(CheckConstraintData.ConstraintName) }"",
+    SEARCH_CONDITION as ""{ nameof(CheckConstraintData.Definition) }"",
+    STATUS as ""{ nameof(CheckConstraintData.EnabledStatus) }""
 from SYS.ALL_CONSTRAINTS
 where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'";
 
@@ -744,17 +744,17 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
         /// <value>A SQL query.</value>
         protected virtual string ParentKeysQuery => ParentKeysQuerySql;
 
-        private const string ParentKeysQuerySql = @"
+        private static readonly string ParentKeysQuerySql = @$"
 select
-    ac.CONSTRAINT_NAME as ConstraintName,
-    ac.STATUS as EnabledStatus,
-    ac.DELETE_RULE as DeleteAction,
-    pac.OWNER as ParentTableSchema,
-    pac.TABLE_NAME as ParentTableName,
-    pac.CONSTRAINT_NAME as ParentConstraintName,
-    pac.CONSTRAINT_TYPE as ParentKeyType,
-    acc.COLUMN_NAME as ColumnName,
-    acc.POSITION as ColumnPosition
+    ac.CONSTRAINT_NAME as ""{ nameof(ForeignKeyData.ConstraintName) }"",
+    ac.STATUS as ""{ nameof(ForeignKeyData.EnabledStatus) }"",
+    ac.DELETE_RULE as ""{ nameof(ForeignKeyData.DeleteAction) }"",
+    pac.OWNER as ""{ nameof(ForeignKeyData.ParentTableSchema) }"",
+    pac.TABLE_NAME as ""{ nameof(ForeignKeyData.ParentTableName) }"",
+    pac.CONSTRAINT_NAME as ""{ nameof(ForeignKeyData.ParentConstraintName) }"",
+    pac.CONSTRAINT_TYPE as ""{ nameof(ForeignKeyData.ParentKeyType) }"",
+    acc.COLUMN_NAME as ""{ nameof(ForeignKeyData.ColumnName) }"",
+    acc.POSITION as ""{ nameof(ForeignKeyData.ColumnPosition) }""
 from SYS.ALL_CONSTRAINTS ac
 inner join SYS.ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
 inner join SYS.ALL_CONSTRAINTS pac on pac.OWNER = ac.R_OWNER and pac.CONSTRAINT_NAME = ac.R_CONSTRAINT_NAME
@@ -831,18 +831,18 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
         /// <value>A SQL query.</value>
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
-        private const string ColumnsQuerySql = @"
+        private static readonly string ColumnsQuerySql = @$"
 select
-    COLUMN_NAME as ColumnName,
-    DATA_TYPE_OWNER as ColumnTypeSchema,
-    DATA_TYPE as ColumnTypeName,
-    DATA_LENGTH as DataLength,
-    DATA_PRECISION as Precision,
-    DATA_SCALE as Scale,
-    DATA_DEFAULT as DefaultValue,
-    CHAR_LENGTH as CharacterLength,
-    CHARACTER_SET_NAME as Collation,
-    VIRTUAL_COLUMN as IsComputed
+    COLUMN_NAME as ""{ nameof(ColumnData.ColumnName) }"",
+    DATA_TYPE_OWNER as ""{ nameof(ColumnData.ColumnTypeSchema) }"",
+    DATA_TYPE as ""{ nameof(ColumnData.ColumnTypeName) }"",
+    DATA_LENGTH as ""{ nameof(ColumnData.DataLength) }"",
+    DATA_PRECISION as ""{ nameof(ColumnData.Precision) }"",
+    DATA_SCALE as ""{ nameof(ColumnData.Scale) }"",
+    DATA_DEFAULT as ""{ nameof(ColumnData.DefaultValue) }"",
+    CHAR_LENGTH as ""{ nameof(ColumnData.CharacterLength) }"",
+    CHARACTER_SET_NAME as ""{ nameof(ColumnData.Collation) }"",
+    VIRTUAL_COLUMN as ""{ nameof(ColumnData.IsComputed) }""
 from SYS.ALL_TAB_COLS
 where OWNER = :SchemaName and TABLE_NAME = :TableName
 order by COLUMN_ID";
@@ -917,14 +917,14 @@ order by COLUMN_ID";
         /// <value>A SQL query.</value>
         protected virtual string TriggersQuery => TriggersQuerySql;
 
-        private const string TriggersQuerySql = @"
+        private static readonly string TriggersQuerySql = @$"
 select
-    OWNER as TriggerSchema,
-    TRIGGER_NAME as TriggerName,
-    TRIGGER_TYPE as TriggerType,
-    TRIGGERING_EVENT as TriggerEvent,
-    TRIGGER_BODY as Definition,
-    STATUS as EnabledStatus
+    OWNER as ""{ nameof(TriggerData.TriggerSchema) }"",
+    TRIGGER_NAME as ""{ nameof(TriggerData.TriggerName) }"",
+    TRIGGER_TYPE as ""{ nameof(TriggerData.TriggerType) }"",
+    TRIGGERING_EVENT as ""{ nameof(TriggerData.TriggerEvent) }"",
+    TRIGGER_BODY as ""{ nameof(TriggerData.Definition) }"",
+    STATUS as ""{ nameof(TriggerData.EnabledStatus) }""
 from SYS.ALL_TRIGGERS
 where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE = 'TABLE'";
 

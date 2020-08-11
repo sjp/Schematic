@@ -87,13 +87,13 @@ namespace SJP.Schematic.Oracle
         /// <value>A SQL query.</value>
         protected virtual string AllSourcesQuery => AllSourcesQuerySql;
 
-        private const string AllSourcesQuerySql = @"
+        private static readonly string AllSourcesQuerySql = @$"
 SELECT
-    OWNER as SchemaName,
-    NAME as RoutineName,
-    TYPE as RoutineType,
-    LINE as LineNumber,
-    TEXT as Text
+    OWNER as ""{ nameof(RoutineData.SchemaName) }"",
+    NAME as ""{ nameof(RoutineData.RoutineName) }"",
+    TYPE as ""{ nameof(RoutineData.RoutineType) }"",
+    LINE as ""{ nameof(RoutineData.LineNumber) }"",
+    TEXT as ""{ nameof(RoutineData.Text) }""
 FROM SYS.ALL_SOURCE
     WHERE TYPE in ('FUNCTION', 'PROCEDURE')
 ORDER BY OWNER, NAME, LINE";
@@ -163,10 +163,10 @@ ORDER BY OWNER, NAME, LINE";
         /// <value>A SQL query.</value>
         protected virtual string RoutineNameQuery => RoutineNameQuerySql;
 
-        private const string RoutineNameQuerySql = @"
+        private static readonly string RoutineNameQuerySql = @$"
 select
-    OWNER as SchemaName,
-    OBJECT_NAME as ObjectName
+    OWNER as ""{ nameof(QualifiedName.SchemaName) }"",
+    OBJECT_NAME as ""{ nameof(QualifiedName.ObjectName) }""
 from SYS.ALL_OBJECTS
 where OWNER = :SchemaName and OBJECT_NAME = :RoutineName
     and ORACLE_MAINTAINED <> 'Y' and OBJECT_TYPE in ('FUNCTION', 'PROCEDURE')";

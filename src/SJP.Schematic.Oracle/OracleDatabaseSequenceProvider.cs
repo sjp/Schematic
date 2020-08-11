@@ -70,15 +70,15 @@ namespace SJP.Schematic.Oracle
         /// <value>A SQL query.</value>
         protected virtual string SequencesQuery => SequencesQuerySql;
 
-        private const string SequencesQuerySql = @"
+        private static readonly string SequencesQuerySql = @$"
 select
-    s.SEQUENCE_OWNER as SchemaName,
-    s.SEQUENCE_NAME as ObjectName,
-    INCREMENT_BY as ""Increment"",
-    MIN_VALUE as ""MinValue"",
-    MAX_VALUE as ""MaxValue"",
-    CYCLE_FLAG as ""Cycle"",
-    CACHE_SIZE as CacheSize
+    s.SEQUENCE_OWNER as ""{ nameof(SequenceData.SchemaName) }"",
+    s.SEQUENCE_NAME as ""{ nameof(SequenceData.ObjectName) }"",
+    INCREMENT_BY as ""{ nameof(SequenceData.Increment) }"",
+    MIN_VALUE as ""{ nameof(SequenceData.MinValue) }"",
+    MAX_VALUE as ""{ nameof(SequenceData.MaxValue) }"",
+    CYCLE_FLAG as ""{ nameof(SequenceData.Cycle) }"",
+    CACHE_SIZE as ""{ nameof(SequenceData.CacheSize) }""
 from SYS.ALL_SEQUENCES s
 inner join SYS.ALL_OBJECTS o on s.SEQUENCE_OWNER = o.OWNER and s.SEQUENCE_NAME = o.OBJECT_NAME
 where o.ORACLE_MAINTAINED <> 'Y'
@@ -149,8 +149,8 @@ order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
         /// <value>A SQL query.</value>
         protected virtual string SequenceNameQuery => SequenceNameQuerySql;
 
-        private const string SequenceNameQuerySql = @"
-select s.SEQUENCE_OWNER as SchemaName, s.SEQUENCE_NAME as ObjectName
+        private static readonly string SequenceNameQuerySql = @$"
+select s.SEQUENCE_OWNER as ""{ nameof(QualifiedName.SchemaName) }"", s.SEQUENCE_NAME as ""{ nameof(QualifiedName.ObjectName) }""
 from SYS.ALL_SEQUENCES s
 inner join SYS.ALL_OBJECTS o on s.SEQUENCE_OWNER = o.OWNER and s.SEQUENCE_NAME = o.OBJECT_NAME
 where s.SEQUENCE_OWNER = :SchemaName and s.SEQUENCE_NAME = :SequenceName and o.ORACLE_MAINTAINED <> 'Y'";
@@ -161,13 +161,13 @@ where s.SEQUENCE_OWNER = :SchemaName and s.SEQUENCE_NAME = :SequenceName and o.O
         /// <value>A SQL query.</value>
         protected virtual string SequenceQuery => SequenceQuerySql;
 
-        private const string SequenceQuerySql = @"
+        private static readonly string SequenceQuerySql = @$"
 select
-    INCREMENT_BY as ""Increment"",
-    MIN_VALUE as ""MinValue"",
-    MAX_VALUE as ""MaxValue"",
-    CYCLE_FLAG as ""Cycle"",
-    CACHE_SIZE as CacheSize
+    INCREMENT_BY as ""{ nameof(SequenceData.Increment) }"",
+    MIN_VALUE as ""{ nameof(SequenceData.MinValue) }"",
+    MAX_VALUE as ""{ nameof(SequenceData.MaxValue) }"",
+    CYCLE_FLAG as ""{ nameof(SequenceData.Cycle) }"",
+    CACHE_SIZE as ""{ nameof(SequenceData.CacheSize) }""
 from SYS.ALL_SEQUENCES
 where SEQUENCE_OWNER = :SchemaName and SEQUENCE_NAME = :SequenceName";
 

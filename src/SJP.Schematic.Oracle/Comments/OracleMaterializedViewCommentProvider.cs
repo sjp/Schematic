@@ -125,8 +125,8 @@ namespace SJP.Schematic.Oracle.Comments
         /// <value>A SQL query.</value>
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
-        private const string ViewNameQuerySql = @"
-select mv.OWNER as SchemaName, mv.MVIEW_NAME as ObjectName
+        private static readonly string ViewNameQuerySql = @$"
+select mv.OWNER as ""{ nameof(QualifiedName.SchemaName) }"", mv.MVIEW_NAME as ""{ nameof(QualifiedName.ObjectName) }""
 from SYS.ALL_MVIEWS mv
 inner join SYS.ALL_OBJECTS o on mv.OWNER = o.OWNER and mv.MVIEW_NAME = o.OBJECT_NAME
 where mv.OWNER = :SchemaName and mv.MVIEW_NAME = :ViewName
@@ -197,10 +197,15 @@ where mv.OWNER = :SchemaName and mv.MVIEW_NAME = :ViewName
         /// <value>A SQL query.</value>
         protected virtual string AllViewCommentsQuery => AllViewCommentsQuerySql;
 
-        private const string AllViewCommentsQuerySql = @"
+        private static readonly string AllViewCommentsQuerySql = @$"
 select wrapped.* from (
 -- view
-select v.OWNER as SchemaName, v.MVIEW_NAME as ObjectName, 'VIEW' as ObjectType, NULL as ColumnName, c.COMMENTS as ""Comment""
+select
+    v.OWNER as ""{ nameof(TableCommentsData.SchemaName) }"",
+    v.MVIEW_NAME as ""{ nameof(TableCommentsData.ObjectName) }"",
+    'VIEW' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    NULL as ""{ nameof(TableCommentsData.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
 from SYS.ALL_MVIEWS v
 inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.MVIEW_NAME = o.OBJECT_NAME
 left join SYS.ALL_MVIEW_COMMENTS c on v.OWNER = c.OWNER and v.MVIEW_NAME = c.MVIEW_NAME
@@ -209,7 +214,12 @@ where o.ORACLE_MAINTAINED <> 'Y'
 union
 
 -- columns
-select v.OWNER as SchemaName, v.MVIEW_NAME as ObjectName, 'COLUMN' as ObjectType, vc.COLUMN_NAME as ColumnName, c.COMMENTS as ""Comment""
+select
+    v.OWNER as ""{ nameof(TableCommentsData.SchemaName) }"",
+    v.MVIEW_NAME as ""{ nameof(TableCommentsData.ObjectName) }"",
+    'COLUMN' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    vc.COLUMN_NAME as ""{ nameof(TableCommentsData.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
 from SYS.ALL_MVIEWS v
 inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.MVIEW_NAME = o.OBJECT_NAME
 inner join SYS.ALL_TAB_COLS vc on vc.OWNER = v.OWNER and vc.TABLE_NAME = v.MVIEW_NAME
@@ -224,9 +234,12 @@ where o.ORACLE_MAINTAINED <> 'Y'
         /// <value>A SQL query.</value>
         protected virtual string ViewCommentsQuery => ViewCommentsQuerySql;
 
-        private const string ViewCommentsQuerySql = @"
+        private static readonly string ViewCommentsQuerySql = @$"
 -- view
-select 'VIEW' as ObjectType, NULL as ColumnName, c.COMMENTS as ""Comment""
+select
+    'VIEW' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    NULL as ""{ nameof(TableCommentsData.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
 from SYS.ALL_MVIEWS v
 inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.MVIEW_NAME = o.OBJECT_NAME
 left join SYS.ALL_MVIEW_COMMENTS c on v.OWNER = c.OWNER and v.MVIEW_NAME = c.MVIEW_NAME
@@ -235,7 +248,10 @@ where v.OWNER = :SchemaName and v.MVIEW_NAME = :ViewName and o.ORACLE_MAINTAINED
 union
 
 -- columns
-select 'COLUMN' as ObjectType, vc.COLUMN_NAME as ColumnName, c.COMMENTS as ""Comment""
+select
+    'COLUMN' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    vc.COLUMN_NAME as ""{ nameof(TableCommentsData.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
 from SYS.ALL_MVIEWS v
 inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.MVIEW_NAME = o.OBJECT_NAME
 inner join SYS.ALL_TAB_COLS vc on vc.OWNER = v.OWNER and vc.TABLE_NAME = v.MVIEW_NAME
@@ -249,9 +265,12 @@ where v.OWNER = :SchemaName and v.MVIEW_NAME = :ViewName and o.ORACLE_MAINTAINED
         /// <value>A SQL query.</value>
         protected virtual string UserViewCommentsQuery => UserViewCommentsQuerySql;
 
-        private const string UserViewCommentsQuerySql = @"
+        private static readonly string UserViewCommentsQuerySql = @$"
 -- view
-select 'VIEW' as ObjectType, NULL as ColumnName, c.COMMENTS as ""Comment""
+select
+    'VIEW' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    NULL as ""{ nameof(TableCommentsData.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
 from SYS.USER_MVIEWS v
 left join SYS.USER_MVIEW_COMMENTS c on v.MVIEW_NAME = c.MVIEW_NAME
 where v.MVIEW_NAME = :ViewName
@@ -259,7 +278,10 @@ where v.MVIEW_NAME = :ViewName
 union
 
 -- columns
-select 'COLUMN' as ObjectType, vc.COLUMN_NAME as ColumnName, c.COMMENTS as ""Comment""
+select
+    'COLUMN' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    vc.COLUMN_NAME as ""{ nameof(TableCommentsData.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
 from SYS.USER_MVIEWS v
 inner join SYS.USER_TAB_COLS vc on vc.TABLE_NAME = v.MVIEW_NAME
 left join SYS.USER_COL_COMMENTS c on c.TABLE_NAME = vc.TABLE_NAME and c.COLUMN_NAME = vc.COLUMN_NAME

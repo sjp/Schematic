@@ -96,12 +96,12 @@ namespace SJP.Schematic.Oracle
             return new IdentifierDefaults(qualifiedServerName, dbName, defaultSchema);
         }
 
-        private const string IdentifierDefaultsQuerySql = @"
+        private static readonly string IdentifierDefaultsQuerySql = @$"
 select
-    SYS_CONTEXT('USERENV', 'SERVER_HOST') as ServerHost,
-    SYS_CONTEXT('USERENV', 'INSTANCE_NAME') as ServerSid,
-    SYS_CONTEXT('USERENV', 'DB_NAME') as DatabaseName,
-    SYS_CONTEXT('USERENV', 'CURRENT_USER') as DefaultSchema
+    SYS_CONTEXT('USERENV', 'SERVER_HOST') as ""{ nameof(DatabaseHost.ServerHost) }"",
+    SYS_CONTEXT('USERENV', 'INSTANCE_NAME') as ""{ nameof(DatabaseHost.ServerSid) }"",
+    SYS_CONTEXT('USERENV', 'DB_NAME') as ""{ nameof(DatabaseHost.DatabaseName) }"",
+    SYS_CONTEXT('USERENV', 'CURRENT_USER') as ""{ nameof(DatabaseHost.DefaultSchema) }""
 from DUAL";
 
         /// <summary>
@@ -167,10 +167,10 @@ from DUAL";
                     : Option<Version>.None;
         }
 
-        private const string DatabaseVersionQuerySql = @"
+        private static readonly string DatabaseVersionQuerySql = @$"
 select
-    PRODUCT as ProductName,
-    VERSION as VersionNumber
+    PRODUCT as ""{ nameof(DatabaseVersion.ProductName) }"",
+    VERSION as ""{ nameof(DatabaseVersion.VersionNumber) }""
 from PRODUCT_COMPONENT_VERSION
 where PRODUCT like 'Oracle Database%'";
 

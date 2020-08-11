@@ -99,13 +99,13 @@ namespace SJP.Schematic.Oracle
         /// <value>A SQL query.</value>
         protected virtual string AllSourcesQuery => AllSourcesQuerySql;
 
-        private const string AllSourcesQuerySql = @"
+        private static readonly string AllSourcesQuerySql = @$"
 SELECT
-    OWNER as SchemaName,
-    NAME as RoutineName,
-    TYPE as RoutineType,
-    LINE as LineNumber,
-    TEXT as Text
+    OWNER as ""{ nameof(RoutineData.SchemaName) }"",
+    NAME as ""{ nameof(RoutineData.RoutineName) }"",
+    TYPE as ""{ nameof(RoutineData.RoutineType) }"",
+    LINE as ""{ nameof(RoutineData.LineNumber) }"",
+    TEXT as ""{ nameof(RoutineData.Text) }""
 FROM SYS.ALL_SOURCE
     WHERE TYPE in ('PACKAGE', 'PACKAGE BODY')
 ORDER BY OWNER, NAME, LINE";
@@ -175,10 +175,10 @@ ORDER BY OWNER, NAME, LINE";
         /// <value>A SQL query.</value>
         protected virtual string PackageNameQuery => PackageNameQuerySql;
 
-        private const string PackageNameQuerySql = @"
+        private static readonly string PackageNameQuerySql = @$"
 select
-    OWNER as SchemaName,
-    OBJECT_NAME as ObjectName
+    OWNER as ""{ nameof(QualifiedName.SchemaName) }"",
+    OBJECT_NAME as ""{ nameof(QualifiedName.ObjectName) }""
 from SYS.ALL_OBJECTS
 where OWNER = :SchemaName and OBJECT_NAME = :PackageName
     and ORACLE_MAINTAINED <> 'Y' and OBJECT_TYPE = 'PACKAGE'";
@@ -269,11 +269,11 @@ where OWNER = :SchemaName and OBJECT_NAME = :PackageName
         /// <value>A SQL query.</value>
         protected virtual string PackageDefinitionQuery => PackageDefinitionQuerySql;
 
-        private const string PackageDefinitionQuerySql = @"
+        private static readonly string PackageDefinitionQuerySql = @$"
 select
-    TYPE as SourceType,
-    LINE as LineNumber,
-    TEXT as Text
+    TYPE as ""{ nameof(PackageData.SourceType) }"",
+    LINE as ""{ nameof(PackageData.LineNumber) }"",
+    TEXT as ""{ nameof(PackageData.Text) }""
 from SYS.ALL_SOURCE
 where OWNER = :SchemaName and NAME = :PackageName and TYPE in ('PACKAGE', 'PACKAGE BODY')
 order by LINE";
@@ -284,11 +284,11 @@ order by LINE";
         /// <value>A SQL query.</value>
         protected virtual string UserPackageDefinitionQuery => UserPackageDefinitionQuerySql;
 
-        private const string UserPackageDefinitionQuerySql = @"
+        private static readonly string UserPackageDefinitionQuerySql = @$"
 select
-    TYPE as SourceType,
-    LINE as LineNumber,
-    TEXT as Text
+    TYPE as ""{ nameof(PackageData.SourceType) }"",
+    LINE as ""{ nameof(PackageData.LineNumber) }"",
+    TEXT as ""{ nameof(PackageData.Text) }""
 from SYS.USER_SOURCE
 where NAME = :PackageName and TYPE in ('PACKAGE', 'PACKAGE BODY')
 order by LINE";

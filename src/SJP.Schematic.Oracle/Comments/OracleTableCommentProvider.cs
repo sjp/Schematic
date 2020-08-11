@@ -142,8 +142,8 @@ namespace SJP.Schematic.Oracle.Comments
         /// <value>A SQL query.</value>
         protected virtual string TableNameQuery => TableNameQuerySql;
 
-        private const string TableNameQuerySql = @"
-select t.OWNER as SchemaName, t.TABLE_NAME as ObjectName
+        private static readonly string TableNameQuerySql = @$"
+select t.OWNER as ""{ nameof(QualifiedName.SchemaName) }"", t.TABLE_NAME as ""{ nameof(QualifiedName.ObjectName) }""
 from SYS.ALL_TABLES t
 inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
 left join SYS.ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
@@ -236,10 +236,15 @@ where
         /// <value>A SQL query.</value>
         protected virtual string AllTableCommentsQuery => AllTableCommentsQuerySql;
 
-        private const string AllTableCommentsQuerySql = @"
+        private static readonly string AllTableCommentsQuerySql = @$"
 select wrapped.* from (
 -- table
-select t.OWNER as SchemaName, t.TABLE_NAME as ObjectName, 'TABLE' as ObjectType, NULL as ColumnName, c.COMMENTS as ""Comment""
+select
+    t.OWNER as ""{ nameof(TableCommentsData.SchemaName) }"",
+    t.TABLE_NAME as ""{ nameof(TableCommentsData.ObjectName) }"",
+    'TABLE' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    NULL as ""{ nameof(TableCommentsData.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
 from SYS.ALL_TABLES t
 left join SYS.ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
 inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
@@ -252,7 +257,12 @@ where o.ORACLE_MAINTAINED <> 'Y'
 union
 
 -- columns
-select t.OWNER as SchemaName, t.TABLE_NAME as ObjectName, 'COLUMN' as ObjectType, tc.COLUMN_NAME as ColumnName, c.COMMENTS as ""Comment""
+select
+    t.OWNER as ""{ nameof(TableCommentsData.SchemaName) }"",
+    t.TABLE_NAME as ""{ nameof(TableCommentsData.ObjectName) }"",
+    'COLUMN' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    tc.COLUMN_NAME as ""{ nameof(TableCommentsData.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
 from SYS.ALL_TABLES t
 left join SYS.ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
 inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
@@ -270,9 +280,12 @@ where o.ORACLE_MAINTAINED <> 'Y'
         /// <value>A SQL query.</value>
         protected virtual string TableCommentsQuery => TableCommentsQuerySql;
 
-        private const string TableCommentsQuerySql = @"
+        private static readonly string TableCommentsQuerySql = @$"
 -- table
-select 'TABLE' as ObjectType, NULL as ColumnName, c.COMMENTS as ""Comment""
+select
+    'TABLE' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    NULL as ""{ nameof(TableCommentsData.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
 from SYS.ALL_TABLES t
 left join SYS.ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
 inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
@@ -286,7 +299,10 @@ where t.OWNER = :SchemaName and t.TABLE_NAME = :TableName
 union
 
 -- columns
-select 'COLUMN' as ObjectType, tc.COLUMN_NAME as ColumnName, c.COMMENTS as ""Comment""
+select
+    'COLUMN' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    tc.COLUMN_NAME as ""{ nameof(TableCommentsData.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
 from SYS.ALL_TABLES t
 left join SYS.ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
 inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
@@ -305,9 +321,12 @@ where t.OWNER = :SchemaName and t.TABLE_NAME = :TableName
         /// <value>A SQL query.</value>
         protected virtual string UserTableCommentsQuery => UserTableCommentsQuerySql;
 
-        private const string UserTableCommentsQuerySql = @"
+        private static readonly string UserTableCommentsQuerySql = @$"
 -- table
-select 'TABLE' as ObjectType, NULL as ColumnName, c.COMMENTS as ""Comment""
+select
+    'TABLE' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    NULL as ""{ nameof(TableCommentsData.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
 from SYS.USER_TABLES t
 left join SYS.USER_MVIEWS mv on t.TABLE_NAME = mv.MVIEW_NAME
 left join SYS.USER_TAB_COMMENTS c on t.TABLE_NAME = c.TABLE_NAME and c.TABLE_TYPE = 'TABLE'
@@ -316,7 +335,10 @@ where t.TABLE_NAME = :TableName and mv.MVIEW_NAME is null
 union
 
 -- columns
-select 'COLUMN' as ObjectType, tc.COLUMN_NAME as ColumnName, c.COMMENTS as ""Comment""
+select
+    'COLUMN' as ""{ nameof(TableCommentsData.ObjectType) }"",
+    tc.COLUMN_NAME as ""{ nameof(TableCommentsData.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
 from SYS.USER_TABLES t
 left join SYS.USER_MVIEWS mv on t.TABLE_NAME = mv.MVIEW_NAME
 inner join SYS.USER_TAB_COLS tc on tc.TABLE_NAME = t.TABLE_NAME
