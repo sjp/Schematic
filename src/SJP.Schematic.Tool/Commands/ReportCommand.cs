@@ -16,7 +16,7 @@ namespace SJP.Schematic.Tool.Commands
                 description: "The directory to save the generated report."
             )
             {
-                Required = true
+                IsRequired = true
             };
             AddOption(outputOption);
 

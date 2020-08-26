@@ -25,7 +25,7 @@ namespace SJP.Schematic.Tool.Commands
                 description: "The file path used to save the generated .csproj, e.g. 'C:\\tmp\\Example.DataAccess.Poco.csproj'. Related files will use the same directory."
             )
             {
-                Required = true
+                IsRequired = true
             };
             AddOption(projectPathOption);
 
@@ -34,7 +34,7 @@ namespace SJP.Schematic.Tool.Commands
                 description: "A namespace to use that generated classes will belong in. e.g. 'Example.DataAccess.Poco'."
             )
             {
-                Required = true
+                IsRequired = true
             };
             AddOption(baseNamespaceOption);
 
