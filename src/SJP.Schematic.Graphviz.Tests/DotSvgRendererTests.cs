@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using NUnit.Framework;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Graphviz.Tests
 {
@@ -40,13 +41,13 @@ namespace SJP.Schematic.Graphviz.Tests
             Assert.That(() => Renderer.RenderToSvg(dot), Throws.ArgumentNullException);
         }
 
-        [Test]
+        [Test, TestPlatform.Windows]
         public void RenderToSvg_GivenInvalidDot_ThrowsGraphvizException()
         {
             Assert.That(() => Renderer.RenderToSvg("this is not dot"), Throws.TypeOf<GraphvizException>());
         }
 
-        [Test]
+        [Test, TestPlatform.Windows]
         public void RenderToSvg_GivenValidDot_ReturnsValidSvgXml()
         {
             var svg = Renderer.RenderToSvg("digraph g { a -> b }");
@@ -54,7 +55,7 @@ namespace SJP.Schematic.Graphviz.Tests
             Assert.That(() => _ = XDocument.Parse(svg, LoadOptions.PreserveWhitespace), Throws.Nothing);
         }
 
-        [Test]
+        [Test, TestPlatform.Windows]
         public void RenderToSvg_GivenVizJsGraphExample_ReturnsValidSvgXml()
         {
             var svg = Renderer.RenderToSvg(VizJsExample);
@@ -70,13 +71,13 @@ namespace SJP.Schematic.Graphviz.Tests
             Assert.That(() => Renderer.RenderToSvgAsync(dot), Throws.ArgumentNullException);
         }
 
-        [Test]
+        [Test, TestPlatform.Windows]
         public void RenderToSvgAsync_GivenInvalidDot_ThrowsGraphvizException()
         {
             Assert.That(async () => await Renderer.RenderToSvgAsync("this is not dot").ConfigureAwait(false), Throws.TypeOf<GraphvizException>());
         }
 
-        [Test]
+        [Test, TestPlatform.Windows]
         public async Task RenderToSvgAsync_GivenValidDot_ReturnsValidSvgXml()
         {
             var svg = await Renderer.RenderToSvgAsync("digraph g { a -> b }").ConfigureAwait(false);
@@ -84,7 +85,7 @@ namespace SJP.Schematic.Graphviz.Tests
             Assert.That(() => _ = XDocument.Parse(svg, LoadOptions.PreserveWhitespace), Throws.Nothing);
         }
 
-        [Test]
+        [Test, TestPlatform.Windows]
         public async Task RenderToSvgAsync_GivenVizJsGraphExample_ReturnsValidSvgXml()
         {
             var svg = await Renderer.RenderToSvgAsync(VizJsExample).ConfigureAwait(false);

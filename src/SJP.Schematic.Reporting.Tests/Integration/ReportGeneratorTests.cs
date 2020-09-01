@@ -7,7 +7,7 @@ namespace SJP.Schematic.Reporting.Tests.Integration
 {
     internal sealed class ReportGeneratorTests : SakilaTest
     {
-        [Test]
+        [Test, TestPlatform.Windows]
         public async Task GenerateAsync_GivenValidSqliteDatabase_GeneratesReportsWithoutError()
         {
             var database = GetDatabase();

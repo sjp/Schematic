@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SJP.Schematic.Graphviz\SJP.Schematic.Graphviz.csproj" />
+    <ProjectReference Include="..\SJP.Schematic.Tests.Utilities\SJP.Schematic.Tests.Utilities.csproj" />
   </ItemGroup>
 
 </Project>
