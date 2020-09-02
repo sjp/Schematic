@@ -307,7 +307,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var connPragma = CreateConnectionPragma(connection);
 
             await connPragma.OptimizeAsync().ConfigureAwait(false);
-            Assert.Pass();
         }
 
         [Test]
@@ -392,7 +391,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var connPragma = CreateConnectionPragma(connection);
 
             await connPragma.ShrinkMemoryAsync().ConfigureAwait(false);
-            Assert.Pass();
         }
 
         [Test]

@@ -230,7 +230,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             await dbPragma.IncrementalVacuumAsync(1000).ConfigureAwait(false);
-            Assert.Pass();
         }
 
         [Test]
@@ -240,7 +239,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             await dbPragma.IncrementalVacuumAsync(0).ConfigureAwait(false);
-            Assert.Pass();
         }
 
         [Test]
@@ -399,9 +397,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             _ = await dbPragma.LockingModeAsync().ConfigureAwait(false); // should be normal
             const LockingMode newValue = LockingMode.Exclusive;
             await dbPragma.LockingModeAsync(newValue).ConfigureAwait(false);
+            // not checking value as it's a once-only effect
             _ = await dbPragma.LockingModeAsync().ConfigureAwait(false);
-
-            Assert.Pass(); // not checking value as it's a once-only effect
         }
 
         [Test]
@@ -450,7 +447,6 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             await dbPragma.OptimizeAsync().ConfigureAwait(false);
-            Assert.Pass();
         }
 
         [Test]
