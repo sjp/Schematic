@@ -42,14 +42,16 @@ namespace SJP.Schematic.Tests.Utilities
             {
                 CreateNoWindow = true,
                 FileName = "dot",
-                WindowStyle = ProcessWindowStyle.Hidden
+                WindowStyle = ProcessWindowStyle.Hidden,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
             };
 
             try
             {
                 using var process = new Process { StartInfo = startInfo };
                 process.Start();
-                process.WaitForExit();
+                process.WaitForExit(300);
 
                 return true;
             }
