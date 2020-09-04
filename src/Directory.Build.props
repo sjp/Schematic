@@ -5,6 +5,7 @@
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
         <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
         <TreatSpecificWarningsAsErrors />
+        <Features>strict</Features>
         <Copyright>Copyright © Simon Potter 2020</Copyright>
         <RepositoryUrl>https://github.com/sjp/Schematic.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
