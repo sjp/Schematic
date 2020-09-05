@@ -6,6 +6,7 @@
         <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
         <TreatSpecificWarningsAsErrors />
         <Features>strict</Features>
+        <AnalysisLevel>latest</AnalysisLevel>
         <Copyright>Copyright © Simon Potter 2020</Copyright>
         <RepositoryUrl>https://github.com/sjp/Schematic.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
