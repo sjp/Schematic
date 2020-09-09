@@ -272,7 +272,7 @@ where o.ORACLE_MAINTAINED <> 'Y'
     and o.GENERATED <> 'Y'
     and o.SECONDARY <> 'Y'
     and mv.MVIEW_NAME is null
-) wrapped order by wrapped.SchemaName, wrapped.ObjectName";
+) wrapped order by wrapped.""{ nameof(TableCommentsData.SchemaName) }"", wrapped.""{ nameof(TableCommentsData.ObjectName) }""";
 
         /// <summary>
         /// A SQL query definition which retrieves all comment information for a particular table.
