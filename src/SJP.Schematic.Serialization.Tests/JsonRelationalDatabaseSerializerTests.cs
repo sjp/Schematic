@@ -11,9 +11,15 @@ namespace SJP.Schematic.Serialization.Tests
 {
     internal class JsonRelationalDatabaseSerializerTests : SakilaTest
     {
-        private static IMapper Mapper { get; } = new Mapper(
-            new MapperConfiguration(config => config.AddMaps(typeof(Mapping.RelationalDatabaseProfile).Assembly))
-        );
+        private static readonly Lazy<IMapper> _mapper = new Lazy<IMapper>(() =>
+        {
+            var config = new MapperConfiguration(config => config.AddMaps(typeof(Mapping.RelationalDatabaseProfile).Assembly));
+            config.AssertConfigurationIsValid();
+
+            return new Mapper(config);
+        });
+
+        private static IMapper Mapper { get; } = _mapper.Value;
 
         private static IRelationalDatabaseSerializer Serializer { get; } = new JsonRelationalDatabaseSerializer(Mapper);
 

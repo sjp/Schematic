@@ -17,12 +17,15 @@ namespace SJP.Schematic.Serialization.Mapping
                     dto.IsEnabled
                 ))
                 .ForAllMembers(cfg => cfg.Ignore());
+
             CreateMap<IDatabaseKey, Dto.DatabaseKey>();
 
             CreateMap<Option<IDatabaseKey>, Dto.DatabaseKey?>()
                 .ConstructUsing((key, ctx) => key.MatchUnsafe(
                     k => ctx.Mapper.Map<IDatabaseKey, Dto.DatabaseKey>(k),
-                    (Dto.DatabaseKey?)null));
+                    (Dto.DatabaseKey?)null))
+                .ForAllMembers(cfg => cfg.Ignore());
+
             CreateMap<Dto.DatabaseKey?, Option<IDatabaseKey>>()
                 .ConstructUsing((dto, ctx) => dto == null
                     ? Option<IDatabaseKey>.None

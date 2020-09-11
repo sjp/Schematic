@@ -26,10 +26,22 @@ namespace SJP.Schematic.Serialization.Mapping
                       )
                 )
                 .ForAllMembers(cfg => cfg.Ignore());
+
             CreateMap<IDatabaseColumn, Dto.DatabaseColumn>()
-                .ForMember(dto => dto.ColumnName, src => src.MapFrom(c => c.Name));
+                .ForMember(dto => dto.AutoIncrement, src => src.MapFrom(c => c.AutoIncrement))
+                .ForMember(dto => dto.ColumnName, src => src.MapFrom(c => c.Name))
+                .ForMember(dto => dto.DefaultValue, src => src.MapFrom(c => c.DefaultValue))
+                .ForMember(dto => dto.Definition, src => src.MapFrom(_ => (string?)null))
+                .ForMember(dto => dto.IsComputed, src => src.MapFrom(c => c.IsComputed))
+                .ForMember(dto => dto.IsNullable, src => src.MapFrom(c => c.IsNullable));
+
             CreateMap<IDatabaseComputedColumn, Dto.DatabaseColumn>()
-                .ForMember(dto => dto.ColumnName, src => src.MapFrom(c => c.Name));
+                .ForMember(dto => dto.AutoIncrement, src => src.MapFrom(c => c.AutoIncrement))
+                .ForMember(dto => dto.ColumnName, src => src.MapFrom(c => c.Name))
+                .ForMember(dto => dto.DefaultValue, src => src.MapFrom(c => c.DefaultValue))
+                .ForMember(dto => dto.Definition, src => src.MapFrom(c => c.Definition))
+                .ForMember(dto => dto.IsComputed, src => src.MapFrom(_ => true))
+                .ForMember(dto => dto.IsNullable, src => src.MapFrom(c => c.IsNullable));
         }
     }
 }
