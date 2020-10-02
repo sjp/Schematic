@@ -5,55 +5,63 @@ services:
         image: mysql:8.0
         container_name: schematic_mysql_v8
         command: --default-authentication-plugin=mysql_native_password
-        env_file: 
+        env_file:
             - ./mysql.env
         ports:
             - 3306:3306
-    
+
     postgres-9.6:
         image: postgres:9.6-alpine
         container_name: schematic_postgresql_v9_6
-        env_file: 
+        env_file:
             - ./postgres.env
-        ports: 
+        ports:
             - 5436:5432
 
     postgres-10:
         image: postgres:10-alpine
         container_name: schematic_postgresql_v10
-        env_file: 
+        env_file:
             - ./postgres.env
-        ports: 
+        ports:
             - 5410:5432
 
     postgres-11:
         image: postgres:11-alpine
         container_name: schematic_postgresql_v11
-        env_file: 
+        env_file:
             - ./postgres.env
-        ports: 
+        ports:
             - 5411:5432
 
     postgres-12:
         image: postgres:12-alpine
         container_name: schematic_postgresql_v12
-        env_file: 
+        env_file:
             - ./postgres.env
-        ports: 
+        ports:
             - 5412:5432
+
+    postgres-12:
+        image: postgres:13-alpine
+        container_name: schematic_postgresql_v13
+        env_file:
+            - ./postgres.env
+        ports:
+            - 5413:5432
 
     sql-server-2017:
         image: mcr.microsoft.com/mssql/server:2017-latest
         container_name: schematic_sqlserver_v2017
-        env_file: 
+        env_file:
             - ./sql-server.env
-        ports: 
+        ports:
             - 1417:1433
-    
+
     sql-server-2019:
         image: mcr.microsoft.com/mssql/server:2019-latest
         container_name: schematic_sqlserver_v2019
-        env_file: 
+        env_file:
             - ./sql-server.env
-        ports: 
+        ports:
             -  1419:1433
