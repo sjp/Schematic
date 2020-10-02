@@ -11,9 +11,9 @@ using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.PostgreSql.Comments;
 using SJP.Schematic.Tests.Utilities;
 
-namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12.Comments
+namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V13.Comments
 {
-    internal sealed class PostgreSqlRoutineCommentProviderTests : PostgreSql12Test
+    internal sealed class PostgreSqlRoutineCommentProviderTests : PostgreSql13Test
     {
         private IDatabaseRoutineCommentProvider RoutineCommentProvider => new PostgreSqlRoutineCommentProvider(DbConnection, IdentifierDefaults, IdentifierResolver);
 
@@ -21,45 +21,45 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12.Comments
         public async Task Init()
         {
             // func
-            await DbConnection.ExecuteAsync(@"CREATE FUNCTION v12_comment_test_routine_1(val integer)
+            await DbConnection.ExecuteAsync(@"CREATE FUNCTION v13_comment_test_routine_1(val integer)
 RETURNS integer AS $$
 BEGIN
     RETURN val + 1;
 END; $$
 LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
             // stored proc
-            await DbConnection.ExecuteAsync(@"CREATE PROCEDURE v12_comment_test_routine_2()
+            await DbConnection.ExecuteAsync(@"CREATE PROCEDURE v13_comment_test_routine_2()
 LANGUAGE PLPGSQL
 AS $$
 BEGIN
     COMMIT;
 END $$", CancellationToken.None).ConfigureAwait(false);
             // func
-            await DbConnection.ExecuteAsync(@"CREATE FUNCTION v12_comment_test_routine_3(val integer)
+            await DbConnection.ExecuteAsync(@"CREATE FUNCTION v13_comment_test_routine_3(val integer)
 RETURNS integer AS $$
 BEGIN
     RETURN val + 1;
 END; $$
 LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
             // stored proc
-            await DbConnection.ExecuteAsync(@"CREATE PROCEDURE v12_comment_test_routine_4()
+            await DbConnection.ExecuteAsync(@"CREATE PROCEDURE v13_comment_test_routine_4()
 LANGUAGE PLPGSQL
 AS $$
 BEGIN
     COMMIT;
 END $$", CancellationToken.None).ConfigureAwait(false);
 
-            await DbConnection.ExecuteAsync("comment on function v12_comment_test_routine_3 (integer) is 'This is a test function.'", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("comment on procedure v12_comment_test_routine_4 () is 'This is a test procedure.'", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("comment on function v13_comment_test_routine_3 (integer) is 'This is a test function.'", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("comment on procedure v13_comment_test_routine_4 () is 'This is a test procedure.'", CancellationToken.None).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
         public async Task CleanUp()
         {
-            await DbConnection.ExecuteAsync("drop function v12_comment_test_routine_1(integer)", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop procedure v12_comment_test_routine_2()", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop function v12_comment_test_routine_3(integer)", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop procedure v12_comment_test_routine_4()", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop function v13_comment_test_routine_1(integer)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop procedure v13_comment_test_routine_2()", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop function v13_comment_test_routine_3(integer)", CancellationToken.None).ConfigureAwait(false);
+            await DbConnection.ExecuteAsync("drop procedure v13_comment_test_routine_4()", CancellationToken.None).ConfigureAwait(false);
         }
 
         private Task<IDatabaseRoutineComments> GetRoutineCommentsAsync(Identifier routineName)
@@ -90,14 +90,14 @@ END $$", CancellationToken.None).ConfigureAwait(false);
         [Test]
         public async Task GetRoutineComments_WhenRoutinePresent_ReturnsRoutineComment()
         {
-            var routineIsSome = await RoutineCommentProvider.GetRoutineComments("v12_comment_test_routine_1").IsSome.ConfigureAwait(false);
+            var routineIsSome = await RoutineCommentProvider.GetRoutineComments("v13_comment_test_routine_1").IsSome.ConfigureAwait(false);
             Assert.That(routineIsSome, Is.True);
         }
 
         [Test]
         public async Task GetRoutineComments_WhenRoutinePresent_ReturnsRoutineWithCorrectName()
         {
-            const string routineName = "v12_comment_test_routine_1";
+            const string routineName = "v13_comment_test_routine_1";
             var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
             Assert.That(routineComments.RoutineName.LocalName, Is.EqualTo(routineName));
@@ -106,8 +106,8 @@ END $$", CancellationToken.None).ConfigureAwait(false);
         [Test]
         public async Task GetRoutineComments_WhenRoutinePresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
-            var routineName = new Identifier("v12_comment_test_routine_1");
-            var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "v12_comment_test_routine_1");
+            var routineName = new Identifier("v13_comment_test_routine_1");
+            var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "v13_comment_test_routine_1");
 
             var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
@@ -117,8 +117,8 @@ END $$", CancellationToken.None).ConfigureAwait(false);
         [Test]
         public async Task GetRoutineComments_WhenRoutinePresentGivenSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
-            var routineName = new Identifier(IdentifierDefaults.Schema, "v12_comment_test_routine_1");
-            var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "v12_comment_test_routine_1");
+            var routineName = new Identifier(IdentifierDefaults.Schema, "v13_comment_test_routine_1");
+            var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "v13_comment_test_routine_1");
 
             var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
@@ -128,8 +128,8 @@ END $$", CancellationToken.None).ConfigureAwait(false);
         [Test]
         public async Task GetRoutineComments_WhenRoutinePresentGivenDatabaseAndSchemaAndLocalNameOnly_ShouldBeQualifiedCorrectly()
         {
-            var routineName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "v12_comment_test_routine_1");
-            var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "v12_comment_test_routine_1");
+            var routineName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "v13_comment_test_routine_1");
+            var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "v13_comment_test_routine_1");
 
             var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
@@ -139,7 +139,7 @@ END $$", CancellationToken.None).ConfigureAwait(false);
         [Test]
         public async Task GetRoutineComments_WhenRoutinePresentGivenFullyQualifiedName_ShouldBeQualifiedCorrectly()
         {
-            var routineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "v12_comment_test_routine_1");
+            var routineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "v13_comment_test_routine_1");
 
             var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
@@ -149,8 +149,8 @@ END $$", CancellationToken.None).ConfigureAwait(false);
         [Test]
         public async Task GetRoutineComments_WhenRoutinePresentGivenFullyQualifiedNameWithDifferentServer_ShouldBeQualifiedCorrectly()
         {
-            var routineName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "v12_comment_test_routine_1");
-            var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "v12_comment_test_routine_1");
+            var routineName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "v13_comment_test_routine_1");
+            var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "v13_comment_test_routine_1");
 
             var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
@@ -160,8 +160,8 @@ END $$", CancellationToken.None).ConfigureAwait(false);
         [Test]
         public async Task GetRoutineComments_WhenRoutinePresentGivenFullyQualifiedNameWithDifferentServerAndDatabase_ShouldBeQualifiedCorrectly()
         {
-            var routineName = new Identifier("A", "B", IdentifierDefaults.Schema, "v12_comment_test_routine_1");
-            var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "v12_comment_test_routine_1");
+            var routineName = new Identifier("A", "B", IdentifierDefaults.Schema, "v13_comment_test_routine_1");
+            var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "v13_comment_test_routine_1");
 
             var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
@@ -171,8 +171,8 @@ END $$", CancellationToken.None).ConfigureAwait(false);
         [Test]
         public async Task GetRoutineComments_WhenRoutinePresentGivenDifferentCasedName_ShouldBeResolvedCorrectly()
         {
-            var routineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "V12_COMMENT_TEST_ROUTINE_1");
-            var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "v12_comment_test_routine_1");
+            var routineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "V13_COMMENT_TEST_ROUTINE_1");
+            var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "v13_comment_test_routine_1");
 
             var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
 
@@ -200,7 +200,7 @@ END $$", CancellationToken.None).ConfigureAwait(false);
         public async Task GetAllRoutineComments_WhenEnumerated_ContainsTestRoutineComment()
         {
             var containsTestRoutine = await RoutineCommentProvider.GetAllRoutineComments()
-                .AnyAsync(t => t.RoutineName.LocalName == "v12_comment_test_routine_1")
+                .AnyAsync(t => t.RoutineName.LocalName == "v13_comment_test_routine_1")
                 .ConfigureAwait(false);
 
             Assert.That(containsTestRoutine, Is.True);
@@ -209,7 +209,7 @@ END $$", CancellationToken.None).ConfigureAwait(false);
         [Test]
         public async Task GetRoutineComments_WhenFunctionMissingComment_ReturnsNone()
         {
-            var comments = await GetRoutineCommentsAsync("v12_comment_test_routine_1").ConfigureAwait(false);
+            var comments = await GetRoutineCommentsAsync("v13_comment_test_routine_1").ConfigureAwait(false);
 
             Assert.That(comments.Comment.IsNone, Is.True);
         }
@@ -218,7 +218,7 @@ END $$", CancellationToken.None).ConfigureAwait(false);
         public async Task GetRoutineComments_WhenFunctionContainsComment_ReturnsExpectedValue()
         {
             const string expectedComment = "This is a test function.";
-            var comments = await GetRoutineCommentsAsync("v12_comment_test_routine_3").ConfigureAwait(false);
+            var comments = await GetRoutineCommentsAsync("v13_comment_test_routine_3").ConfigureAwait(false);
 
             var routineComment = comments.Comment.UnwrapSome();
 
@@ -228,7 +228,7 @@ END $$", CancellationToken.None).ConfigureAwait(false);
         [Test]
         public async Task GetRoutineComments_WhenStoredProcedureMissingComment_ReturnsNone()
         {
-            var comments = await GetRoutineCommentsAsync("v12_comment_test_routine_2").ConfigureAwait(false);
+            var comments = await GetRoutineCommentsAsync("v13_comment_test_routine_2").ConfigureAwait(false);
 
             Assert.That(comments.Comment.IsNone, Is.True);
         }
@@ -237,7 +237,7 @@ END $$", CancellationToken.None).ConfigureAwait(false);
         public async Task GetRoutineComments_WhenStoredProcedureContainsComment_ReturnsExpectedValue()
         {
             const string expectedComment = "This is a test procedure.";
-            var comments = await GetRoutineCommentsAsync("v12_comment_test_routine_4").ConfigureAwait(false);
+            var comments = await GetRoutineCommentsAsync("v13_comment_test_routine_4").ConfigureAwait(false);
 
             var routineComment = comments.Comment.UnwrapSome();
 
