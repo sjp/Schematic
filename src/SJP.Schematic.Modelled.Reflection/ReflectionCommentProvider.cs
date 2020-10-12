@@ -372,7 +372,7 @@ namespace SJP.Schematic.Modelled.Reflection
             }
             else if (type.IsByRef)
             {
-                var typeName = type.Name.Replace("&", "@");
+                var typeName = type.Name.Replace("&", "@", StringComparison.Ordinal);
                 builder.Append(typeName);
             }
             else
@@ -451,7 +451,7 @@ namespace SJP.Schematic.Modelled.Reflection
             if (constructorInfo == null)
                 throw new ArgumentNullException(nameof(constructorInfo));
 
-            builder.Append(constructorInfo.Name.Replace(".", "#"));
+            builder.Append(constructorInfo.Name.Replace(".", "#", StringComparison.Ordinal));
 
             var parameters = constructorInfo.GetParameters();
             if (parameters.Length == 0)
@@ -520,7 +520,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentNullException(nameof(methodInfo));
 
             return methodInfo.IsSpecialName
-                && (methodInfo.Name.StartsWith("op_Explicit") || methodInfo.Name.StartsWith("op_Implicit"));
+                && (methodInfo.Name.StartsWith("op_Explicit", StringComparison.Ordinal) || methodInfo.Name.StartsWith("op_Implicit", StringComparison.Ordinal));
         }
 
         private const string EmptyDoc = "<doc></doc>";

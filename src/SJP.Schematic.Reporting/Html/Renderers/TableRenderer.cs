@@ -90,9 +90,9 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                         svgRoot.Attribute("width")?.Remove();
                         svgRoot.Attribute("height")?.Remove();
 
-                        svgRoot.Save(writer, SaveOptions.DisableFormatting);
+                        await svgRoot.SaveAsync(writer, SaveOptions.DisableFormatting, cancellationToken).ConfigureAwait(false);
                         var svgText = writer.ToString();
-                        if (svgText.StartsWith(XmlDeclaration))
+                        if (svgText.StartsWith(XmlDeclaration, StringComparison.Ordinal))
                             svgText = svgText.Substring(XmlDeclaration.Length);
                         diagram.Svg = svgText;
                     }
@@ -105,8 +105,8 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                         linkNode.Name = svgNs + "g";
                     }
 
-                    using (var writer = File.CreateText(svgFilePath))
-                        doc.Save(writer, SaveOptions.DisableFormatting);
+                    using var svgFileStream = File.OpenWrite(svgFilePath);
+                    await doc.SaveAsync(svgFileStream, SaveOptions.DisableFormatting, cancellationToken).ConfigureAwait(false);
                 }
 
                 var renderedTable = await Formatter.RenderTemplateAsync(tableModel, cancellationToken).ConfigureAwait(false);

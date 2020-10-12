@@ -11,7 +11,7 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.MySql.Tests.Integration
 {
-    internal partial class MySqlRelationalDatabaseTableProviderTests : MySqlTest
+    internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlTest
     {
         private IRelationalDatabaseTableProvider TableProvider => new MySqlRelationalDatabaseTableProvider(Connection, IdentifierDefaults);
 
@@ -276,7 +276,7 @@ end
                     _tablesCache[tableName] = lazyTable;
                 }
 
-                return await lazyTable;
+                return await lazyTable.ConfigureAwait(false);
             }
         }
 

@@ -11,8 +11,8 @@ namespace SJP.Schematic.Dot
             if (identifier.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(identifier));
 
-            _identifier = "\"" + identifier.Replace("\"", "\\\"") + "\"";
-            _hash = _identifier.GetHashCode();
+            _identifier = "\"" + identifier.Replace("\"", "\\\"", StringComparison.Ordinal) + "\"";
+            _hash = _identifier.GetHashCode(StringComparison.Ordinal);
         }
 
         public override string ToString() => _identifier;
@@ -38,7 +38,7 @@ namespace SJP.Schematic.Dot
             if (ReferenceEquals(this, other))
                 return true;
 
-            return _identifier == other.ToString();
+            return string.Equals(_identifier, other.ToString(), StringComparison.Ordinal);
         }
 
         private readonly string _identifier;

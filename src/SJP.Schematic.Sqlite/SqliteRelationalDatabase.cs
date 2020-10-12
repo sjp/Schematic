@@ -213,7 +213,7 @@ namespace SJP.Schematic.Sqlite
                 throw new ArgumentException("'main' is not a valid name to assign to an attached database. It will always be present.", nameof(schemaName));
 
             var quotedSchemaName = Dialect.QuoteIdentifier(schemaName);
-            var escapedFileName = fileName.Replace("'", "''");
+            var escapedFileName = fileName.Replace("'", "''", StringComparison.Ordinal);
 
             return $"ATTACH DATABASE '{ escapedFileName }' AS { quotedSchemaName }";
         }
@@ -341,7 +341,7 @@ namespace SJP.Schematic.Sqlite
             if (filePath.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(filePath));
 
-            return "VACUUM INTO '" + filePath.Replace("'", "''") + "'";
+            return "VACUUM INTO '" + filePath.Replace("'", "''", StringComparison.Ordinal) + "'";
         }
 
         /// <summary>
@@ -356,7 +356,7 @@ namespace SJP.Schematic.Sqlite
             if (schemaName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(schemaName));
 
-            return "VACUUM " + Dialect.QuoteIdentifier(schemaName) + " INTO '" + filePath.Replace("'", "''") + "'";
+            return "VACUUM " + Dialect.QuoteIdentifier(schemaName) + " INTO '" + filePath.Replace("'", "''", StringComparison.Ordinal) + "'";
         }
 
         private readonly IRelationalDatabaseTableProvider _tableProvider;

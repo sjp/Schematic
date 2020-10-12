@@ -195,11 +195,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
             const string expected = @" SELECT matview_view_test_table_1.table_id AS test
    FROM matview_view_test_table_1;";
 
-            // line endings may differ depending on platform, ignore them
-            var cleanedDefinition = definition.Replace("\r", string.Empty).Replace("\n", string.Empty);
-            var cleanedExpected = expected.Replace("\r", string.Empty).Replace("\n", string.Empty);
-
-            Assert.That(cleanedDefinition, Is.EqualTo(cleanedExpected));
+            Assert.That(definition, Is.EqualTo(expected).Using(new LineEndingInvariantStringComparer()));
         }
 
         [Test]

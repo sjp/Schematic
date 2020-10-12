@@ -73,7 +73,7 @@ namespace SJP.Schematic.DataAccess
                 : CreateValidIdentifier(className, columnName);
 
             var result = columnIdentifier.Camelize();
-            return result == className
+            return string.Equals(result, className, StringComparison.Ordinal)
                 ? result + "_"
                 : result;
         }

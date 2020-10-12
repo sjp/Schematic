@@ -16,7 +16,7 @@ namespace SJP.Schematic.Dot
                 throw new ArgumentNullException(nameof(attrValue));
 
             _attr = attrName + "=" + attrValue;
-            _hashCode = _attr.GetHashCode();
+            _hashCode = _attr.GetHashCode(StringComparison.Ordinal);
         }
 
         public override string ToString() => _attr;
@@ -42,7 +42,7 @@ namespace SJP.Schematic.Dot
             if (ReferenceEquals(this, other))
                 return true;
 
-            return _attr == other.ToString();
+            return string.Equals(_attr, other.ToString(), StringComparison.Ordinal);
         }
 
         public static NodeAttribute URL(Uri uri)
@@ -61,7 +61,7 @@ namespace SJP.Schematic.Dot
             if (tooltip.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(tooltip));
 
-            var escapedTooltip = "\"" + tooltip.Replace("\"", "\\\"") + "\"";
+            var escapedTooltip = "\"" + tooltip.Replace("\"", "\\\"", StringComparison.Ordinal) + "\"";
             return new NodeAttribute("tooltip", escapedTooltip);
         }
 

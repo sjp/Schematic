@@ -11,7 +11,7 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
-    internal partial class OracleRelationalDatabaseTableProviderTests : OracleTest
+    internal sealed partial class OracleRelationalDatabaseTableProviderTests : OracleTest
     {
         private IRelationalDatabaseTableProvider TableProvider => new OracleRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver);
         private AsyncLazy<List<IRelationalDatabaseTable>> _tables;
@@ -262,7 +262,7 @@ end;
                     _tablesCache[tableName] = lazyTable;
                 }
 
-                return await lazyTable;
+                return await lazyTable.ConfigureAwait(false);
             }
         }
 

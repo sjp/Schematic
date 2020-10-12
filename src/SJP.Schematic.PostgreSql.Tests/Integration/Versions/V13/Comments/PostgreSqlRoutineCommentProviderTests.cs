@@ -80,7 +80,7 @@ END $$", CancellationToken.None).ConfigureAwait(false);
                     _commentsCache[routineName] = lazyComment;
                 }
 
-                return await lazyComment;
+                return await lazyComment.ConfigureAwait(false);
             }
         }
 

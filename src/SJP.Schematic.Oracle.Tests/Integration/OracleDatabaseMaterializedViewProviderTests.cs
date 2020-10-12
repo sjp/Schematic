@@ -53,7 +53,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                     _viewsCache[viewName] = lazyView;
                 }
 
-                return await lazyView;
+                return await lazyView.ConfigureAwait(false);
             }
         }
 

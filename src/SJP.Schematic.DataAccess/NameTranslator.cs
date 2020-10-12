@@ -52,7 +52,7 @@ namespace SJP.Schematic.DataAccess
             if (identifier.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(identifier));
 
-            if (Keywords.Contains(identifier))
+            if (Keywords.Contains(identifier, StringComparer.OrdinalIgnoreCase))
                 return false;
 
             var firstChar = identifier[0];
@@ -108,7 +108,7 @@ namespace SJP.Schematic.DataAccess
             if (columnName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(columnName));
 
-            if (columnName == className)
+            if (string.Equals(columnName, className, StringComparison.Ordinal))
                 return columnName + "_";
 
             var firstChar = columnName[0];
@@ -148,7 +148,7 @@ namespace SJP.Schematic.DataAccess
             UnicodeCategory.Format
         };
 
-        private static readonly IEnumerable<string> Keywords = new HashSet<string>
+        private static readonly IEnumerable<string> Keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "abstract",
             "as",

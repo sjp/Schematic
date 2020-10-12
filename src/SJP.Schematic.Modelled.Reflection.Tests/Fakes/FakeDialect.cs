@@ -50,7 +50,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests.Fakes
             if (identifier.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(identifier));
 
-            return $"\"{ identifier.Replace("\"", "\"\"") }\"";
+            return $"\"{ identifier.Replace("\"", "\"\"", StringComparison.Ordinal) }\"";
         }
 
         public IDbTypeProvider TypeProvider => InnerTypeProvider;

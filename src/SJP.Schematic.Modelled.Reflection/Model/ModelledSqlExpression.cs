@@ -112,7 +112,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                         }
                         else if (variableValue is string stringVal)
                         {
-                            stringVal = "'" + stringVal.Replace("'", "''") + "'";
+                            stringVal = "'" + stringVal.Replace("'", "''", StringComparison.Ordinal) + "'";
                             yield return stringVal;
                         }
                         else

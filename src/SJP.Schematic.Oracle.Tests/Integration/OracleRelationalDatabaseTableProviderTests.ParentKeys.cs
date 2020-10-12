@@ -6,7 +6,7 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
-    internal partial class OracleRelationalDatabaseTableProviderTests : OracleTest
+    internal sealed partial class OracleRelationalDatabaseTableProviderTests : OracleTest
     {
         [Test]
         public async Task ParentKeys_WhenGivenTableWithNoForeignKeys_ReturnsEmptyCollection()

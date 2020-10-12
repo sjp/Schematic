@@ -59,7 +59,7 @@ END", CancellationToken.None).ConfigureAwait(false);
                     _routinesCache[routineName] = lazyRoutine;
                 }
 
-                return await lazyRoutine;
+                return await lazyRoutine.ConfigureAwait(false);
             }
         }
 

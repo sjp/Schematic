@@ -324,7 +324,7 @@ execute procedure v10_test_trigger_fn()", CancellationToken.None).ConfigureAwait
                     _tablesCache[tableName] = lazyTable;
                 }
 
-                return await lazyTable;
+                return await lazyTable.ConfigureAwait(false);
             }
         }
 

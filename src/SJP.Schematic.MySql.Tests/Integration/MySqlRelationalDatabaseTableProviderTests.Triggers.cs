@@ -5,7 +5,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.MySql.Tests.Integration
 {
-    internal partial class MySqlRelationalDatabaseTableProviderTests : MySqlTest
+    internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlTest
     {
         [Test]
         public async Task Triggers_GivenTableWithNoTriggers_ReturnsEmptyCollection()

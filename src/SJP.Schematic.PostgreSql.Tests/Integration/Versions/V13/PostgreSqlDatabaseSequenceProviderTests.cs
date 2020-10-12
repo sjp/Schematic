@@ -66,7 +66,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V13
                     _sequencesCache[sequenceName] = lazySequence;
                 }
 
-                return await lazySequence;
+                return await lazySequence.ConfigureAwait(false);
             }
         }
 

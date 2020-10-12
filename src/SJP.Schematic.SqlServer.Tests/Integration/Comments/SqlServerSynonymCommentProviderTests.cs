@@ -65,7 +65,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                     _commentsCache[synonymName] = lazyComment;
                 }
 
-                return await lazyComment;
+                return await lazyComment.ConfigureAwait(false);
             }
         }
 

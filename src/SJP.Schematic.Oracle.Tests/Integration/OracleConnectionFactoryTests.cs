@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
-    internal class OracleConnectionFactoryTests : OracleTest
+    internal sealed class OracleConnectionFactoryTests : OracleTest
     {
         [Test]
         public void OpenConnection_WhenInvoked_ReturnsConnectionInOpenState()

@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.MySql.Tests.Integration
 {
-    internal class MySqlConnectionFactoryTests : MySqlTest
+    internal sealed class MySqlConnectionFactoryTests : MySqlTest
     {
         [Test]
         public void OpenConnection_WhenInvoked_ReturnsConnectionInOpenState()

@@ -55,7 +55,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
                     _commentsCache[viewName] = lazyComment;
                 }
 
-                return await lazyComment;
+                return await lazyComment.ConfigureAwait(false);
             }
         }
 

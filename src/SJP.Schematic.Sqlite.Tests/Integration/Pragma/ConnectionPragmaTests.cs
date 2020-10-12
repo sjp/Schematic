@@ -15,7 +15,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
     {
         private static IDbConnectionFactory CreateConnectionFactory()
         {
-            var id = Guid.NewGuid().ToString().Replace("-", "_");
+            var id = Guid.NewGuid().ToString().Replace("-", "_", StringComparison.Ordinal);
             var connectionString = $"Data Source=InMemory_{id};Mode=Memory;Cache=Shared";
 
             return new CachingConnectionFactory(new SqliteConnectionFactory(connectionString));

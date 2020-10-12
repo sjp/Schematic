@@ -57,7 +57,7 @@ CREATE TABLE table_comment_table_2
                     _commentsCache[tableName] = lazyComment;
                 }
 
-                return await lazyComment;
+                return await lazyComment.ConfigureAwait(false);
             }
         }
 

@@ -236,7 +236,7 @@ namespace SJP.Schematic.PostgreSql
             if (identifier.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(identifier));
 
-            return $"\"{ identifier.Replace("\"", "\"\"") }\"";
+            return $"\"{ identifier.Replace("\"", "\"\"", StringComparison.Ordinal) }\"";
         }
 
         /// <summary>

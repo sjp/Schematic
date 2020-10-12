@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
-    internal partial class OracleRelationalDatabaseTableProviderTests : OracleTest
+    internal sealed partial class OracleRelationalDatabaseTableProviderTests : OracleTest
     {
         [Test]
         public async Task Indexes_WhenGivenTableWithNoIndexes_ReturnsEmptyCollection()

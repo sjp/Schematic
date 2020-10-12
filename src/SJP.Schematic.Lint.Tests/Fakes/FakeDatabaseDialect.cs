@@ -49,7 +49,7 @@ namespace SJP.Schematic.Lint.Tests.Fakes
             if (identifier.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(identifier));
 
-            return $"\"{ identifier.Replace("\"", "\"\"") }\"";
+            return $"\"{ identifier.Replace("\"", "\"\"", StringComparison.Ordinal) }\"";
         }
 
         public Task<IRelationalDatabase> GetRelationalDatabaseAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)

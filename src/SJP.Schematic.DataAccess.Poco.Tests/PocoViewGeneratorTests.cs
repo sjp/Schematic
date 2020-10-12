@@ -29,11 +29,11 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         [TestCase((string)null)]
         [TestCase("")]
         [TestCase("    ")]
-        public static void Ctor_GivenNullNamespace_ThrowsArgumentNullException(string ns)
+        public static void Ctor_GivenNullOrWhiteSpaceNamespace_ThrowsArgumentNullException(string ns)
         {
             var fileSystem = new MockFileSystem();
             var nameTranslator = new VerbatimNameTranslator();
-            Assert.That(() => new PocoViewGenerator(fileSystem, nameTranslator, null), Throws.ArgumentNullException);
+            Assert.That(() => new PocoViewGenerator(fileSystem, nameTranslator, ns), Throws.ArgumentNullException);
         }
 
         [Test]

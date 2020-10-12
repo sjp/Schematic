@@ -67,15 +67,15 @@ namespace SJP.Schematic.Oracle.Parsing
 
         private static string UnwrapIdentifier(string identifier)
         {
-            if (identifier.StartsWith("\""))
+            if (identifier.StartsWith("\"", StringComparison.Ordinal))
             {
                 var result = TrimWrappingChars(identifier);
-                return result.Replace("\"\"", "\"");
+                return result.Replace("\"\"", "\"", StringComparison.Ordinal);
             }
-            else if (identifier.StartsWith("["))
+            else if (identifier.StartsWith("[", StringComparison.Ordinal))
             {
                 var result = TrimWrappingChars(identifier);
-                return result.Replace("]]", "]");
+                return result.Replace("]]", "]", StringComparison.Ordinal);
             }
             else
             {

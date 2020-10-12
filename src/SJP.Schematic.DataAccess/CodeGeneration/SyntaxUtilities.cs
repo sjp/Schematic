@@ -45,7 +45,7 @@ namespace SJP.Schematic.DataAccess.CodeGeneration
         /// <returns>An attribute name definition.</returns>
         public static IdentifierNameSyntax AttributeName(string attributeName)
         {
-            var trimmedName = !attributeName.EndsWith(AttributeSuffix)
+            var trimmedName = !attributeName.EndsWith(AttributeSuffix, StringComparison.Ordinal)
                 ? attributeName
                 : attributeName.Substring(0, attributeName.Length - AttributeSuffix.Length);
 

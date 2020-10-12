@@ -65,7 +65,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
                     _sequencesCache[sequenceName] = lazySequence;
                 }
 
-                return await lazySequence;
+                return await lazySequence.ConfigureAwait(false);
             }
         }
 

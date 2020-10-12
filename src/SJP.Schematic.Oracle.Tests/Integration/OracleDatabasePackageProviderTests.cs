@@ -61,7 +61,7 @@ END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
                     _packagesCache[packageName] = lazyPackage;
                 }
 
-                return await lazyPackage;
+                return await lazyPackage.ConfigureAwait(false);
             }
         }
 

@@ -64,7 +64,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
         private static async Task<bool> ProjectBuildsSuccessfullyAsyncCore(string projectPath)
         {
             var projectDir = Path.GetDirectoryName(projectPath);
-            var escapedProjectPath = projectPath.Replace("\"", "\\\"");
+            var escapedProjectPath = projectPath.Replace("\"", "\\\"", StringComparison.Ordinal);
 
             var startInfo = new ProcessStartInfo
             {

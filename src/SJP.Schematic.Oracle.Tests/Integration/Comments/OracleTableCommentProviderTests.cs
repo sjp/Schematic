@@ -52,7 +52,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
                     _commentsCache[tableName] = lazyComment;
                 }
 
-                return await lazyComment;
+                return await lazyComment.ConfigureAwait(false);
             }
         }
 

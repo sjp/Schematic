@@ -5,7 +5,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Oracle.Tests.Integration
 {
-    internal partial class OracleRelationalDatabaseTableProviderTests : OracleTest
+    internal sealed partial class OracleRelationalDatabaseTableProviderTests : OracleTest
     {
         [Test]
         public async Task Triggers_GivenTableWithNoTriggers_ReturnsEmptyCollection()

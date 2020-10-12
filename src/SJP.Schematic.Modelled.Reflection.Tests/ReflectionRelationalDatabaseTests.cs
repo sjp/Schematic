@@ -69,7 +69,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         {
             public Table<TestTable1> FirstTestTable { get; }
 
-            public class TestTable1
+            public sealed class TestTable1
             {
                 public Column<BigInteger> TEST_TABLE_ID { get; }
 

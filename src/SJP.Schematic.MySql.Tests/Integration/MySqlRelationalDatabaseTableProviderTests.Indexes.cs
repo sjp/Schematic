@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.MySql.Tests.Integration
 {
-    internal partial class MySqlRelationalDatabaseTableProviderTests : MySqlTest
+    internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlTest
     {
         [Test]
         public async Task Indexes_WhenGivenTableWithNoIndexes_ReturnsEmptyCollection()

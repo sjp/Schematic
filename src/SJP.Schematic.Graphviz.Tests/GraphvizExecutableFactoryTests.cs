@@ -9,7 +9,8 @@ namespace SJP.Schematic.Graphviz.Tests
     [TestFixture]
     internal static class GraphvizExecutableFactoryTests
     {
-        public static void Ctor_GivenNullConfiguration_ThrowsArgNullException(string path)
+        [Test]
+        public static void Ctor_GivenNullConfiguration_ThrowsArgNullException()
         {
             Assert.That(() => new GraphvizExecutableFactory(null), Throws.ArgumentNullException);
         }

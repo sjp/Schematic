@@ -331,7 +331,7 @@ end", CancellationToken.None).ConfigureAwait(false);
                     _tablesCache[tableName] = lazyTable;
                 }
 
-                return await lazyTable;
+                return await lazyTable.ConfigureAwait(false);
             }
         }
 

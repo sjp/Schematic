@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace SJP.Schematic.DataAccess.Extensions
@@ -8,6 +9,12 @@ namespace SJP.Schematic.DataAccess.Extensions
     /// </summary>
     public static class StringExtensions
     {
+        private static readonly Regex _pascalizeRegex = new Regex("(?:^|_| +)(.)", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
+
+        private static readonly Regex _underscore1Regex = new Regex(@"([\p{Lu}]+)([\p{Lu}][\p{Ll}])", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
+        private static readonly Regex _underscore2Regex = new Regex(@"([\p{Ll}\d])([\p{Lu}])", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
+        private static readonly Regex _underscore3Regex = new Regex(@"[-\s]", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
+
         /// <summary>
         /// Same as <see cref="Pascalize(string)"/> except that the first character is lower case.
         /// </summary>
@@ -17,7 +24,7 @@ namespace SJP.Schematic.DataAccess.Extensions
                 throw new ArgumentNullException(nameof(input));
 
             var word = input.Pascalize();
-            return word.Length > 0 ? word.Substring(0, 1).ToLower() + word.Substring(1) : word;
+            return word.Length > 0 ? word.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + word.Substring(1) : word;
         }
 
         /// <summary>
@@ -28,7 +35,7 @@ namespace SJP.Schematic.DataAccess.Extensions
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
-            return Regex.Replace(input, "(?:^|_| +)(.)", match => match.Groups[1].Value.ToUpper());
+            return _pascalizeRegex.Replace(input, match => match.Groups[1].Value.ToUpper(CultureInfo.InvariantCulture));
         }
 
         /// <summary>
@@ -40,9 +47,10 @@ namespace SJP.Schematic.DataAccess.Extensions
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
-            return Regex.Replace(
-                Regex.Replace(
-                    Regex.Replace(input, @"([\p{Lu}]+)([\p{Lu}][\p{Ll}])", "$1_$2"), @"([\p{Ll}\d])([\p{Lu}])", "$1_$2"), @"[-\s]", "_").ToLower();
+            return _underscore3Regex.Replace(
+                _underscore2Regex.Replace(_underscore1Regex.Replace(input, "$1_$2"), "$1_$2"),
+                "_"
+            ).ToLower(CultureInfo.InvariantCulture);
         }
 
         /// <summary>

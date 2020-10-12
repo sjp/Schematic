@@ -127,7 +127,7 @@ namespace SJP.Schematic.Oracle
             var currentIndex = tokens.Value.Last().Span.Position.Absolute + tokens.Value.Last().Span.Length;
             const string magicPrefix = "a000000";
 
-            var magicPrefixIndex = input.IndexOf(magicPrefix, currentIndex);
+            var magicPrefixIndex = input.IndexOf(magicPrefix, currentIndex, StringComparison.Ordinal);
             if (magicPrefixIndex < 0)
                 return false;
 
@@ -141,14 +141,14 @@ namespace SJP.Schematic.Oracle
                 if (!int.TryParse(numberLine, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out _))
                     return false;
 
-                currentIndex = input.IndexOf(numberLine, currentIndex) + numberLine.Length;
+                currentIndex = input.IndexOf(numberLine, currentIndex, StringComparison.Ordinal) + numberLine.Length;
             }
 
             const string magicFiller = "abcd";
             const int fillerCount = 15;
             for (var i = 0; i < fillerCount; i++)
             {
-                var fillerIndex = input.IndexOf(magicFiller, currentIndex);
+                var fillerIndex = input.IndexOf(magicFiller, currentIndex, StringComparison.Ordinal);
                 if (fillerIndex < 0)
                     return false;
 

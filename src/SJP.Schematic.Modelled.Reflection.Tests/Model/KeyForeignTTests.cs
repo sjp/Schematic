@@ -131,7 +131,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
             Assert.That(() => foreignKey.KeySelector.Invoke(instance), Throws.InvalidOperationException);
         }
 
-        public class TestTable1
+        public sealed class TestTable1
         {
             private IModelledColumn TestColumn { get; } = Mock.Of<IModelledColumn>();
 

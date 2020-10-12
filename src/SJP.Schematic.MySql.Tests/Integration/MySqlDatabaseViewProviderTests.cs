@@ -53,7 +53,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
                     _viewsCache[viewName] = lazyView;
                 }
 
-                return await lazyView;
+                return await lazyView.ConfigureAwait(false);
             }
         }
 

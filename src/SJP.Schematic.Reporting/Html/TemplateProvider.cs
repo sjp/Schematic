@@ -8,7 +8,7 @@ using Microsoft.Extensions.FileProviders;
 
 namespace SJP.Schematic.Reporting.Html
 {
-    internal class TemplateProvider : ITemplateProvider
+    internal sealed class TemplateProvider : ITemplateProvider
     {
         public string GetTemplate(ReportTemplate template)
         {
@@ -30,7 +30,7 @@ namespace SJP.Schematic.Reporting.Html
             var templateFileName = templateKey + TemplateExtension;
 
             var resourceFiles = _fileProvider.GetDirectoryContents("/");
-            var templateResource = resourceFiles.FirstOrDefault(r => r.Name.EndsWith(templateFileName));
+            var templateResource = resourceFiles.FirstOrDefault(r => r.Name.EndsWith(templateFileName, StringComparison.Ordinal));
             if (templateResource == null)
                 throw new NotSupportedException($"The given template: { templateKey } is not a supported template.");
 

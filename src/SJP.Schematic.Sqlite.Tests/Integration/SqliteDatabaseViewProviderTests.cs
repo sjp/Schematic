@@ -57,7 +57,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
                     _viewsCache[viewName] = lazyView;
                 }
 
-                return await lazyView;
+                return await lazyView.ConfigureAwait(false);
             }
         }
 

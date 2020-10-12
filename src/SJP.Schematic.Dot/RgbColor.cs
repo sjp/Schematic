@@ -20,13 +20,13 @@ namespace SJP.Schematic.Dot
                 throw new ArgumentNullException(nameof(hex));
 
             // validate hex string
-            var hexOnly = hex.StartsWith("#") ? hex.Substring(1) : hex;
+            var hexOnly = hex.StartsWith("#", StringComparison.Ordinal) ? hex.Substring(1) : hex;
             var r = Convert.ToByte(hexOnly.Substring(0, 2), 16);
             var g = Convert.ToByte(hexOnly.Substring(2, 2), 16);
             var b = Convert.ToByte(hexOnly.Substring(4, 2), 16);
 
             _hex = ToRgbHex(r, g, b);
-            _hashCode = _hex.GetHashCode();
+            _hashCode = _hex.GetHashCode(StringComparison.Ordinal);
         }
 
         private static string ToRgbHex(byte red, byte green, byte blue)

@@ -70,9 +70,10 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 .Union(
                     view.Columns
                         .Select(c => c.Type.ClrType.Namespace)
-                        .Where(ns => ns != viewNamespace)
+                        .Where(ns => !string.Equals(ns, viewNamespace, StringComparison.Ordinal)),
+                    StringComparer.Ordinal
                 )
-                .Distinct()
+                .Distinct(StringComparer.Ordinal)
                 .OrderNamespaces()
                 .ToList();
 
@@ -124,7 +125,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var columnTypeSyntax = column.IsNullable
                 ? NullableType(ParseTypeName(clrType.FullName))
                 : ParseTypeName(clrType.FullName);
-            if (clrType.Namespace == nameof(System) && SyntaxUtilities.TypeSyntaxMap.ContainsKey(clrType.Name))
+            if (string.Equals(clrType.Namespace, nameof(System), StringComparison.Ordinal) && SyntaxUtilities.TypeSyntaxMap.ContainsKey(clrType.Name))
             {
                 columnTypeSyntax = column.IsNullable
                     ? NullableType(SyntaxUtilities.TypeSyntaxMap[clrType.Name])

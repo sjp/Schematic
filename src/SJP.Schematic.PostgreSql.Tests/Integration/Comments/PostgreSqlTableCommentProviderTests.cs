@@ -96,7 +96,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
                     _commentsCache[tableName] = lazyComment;
                 }
 
-                return await lazyComment;
+                return await lazyComment.ConfigureAwait(false);
             }
         }
 

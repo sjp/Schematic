@@ -374,7 +374,7 @@ end
                     _tablesCache[tableName] = lazyTable;
                 }
 
-                return await lazyTable;
+                return await lazyTable.ConfigureAwait(false);
             }
         }
 

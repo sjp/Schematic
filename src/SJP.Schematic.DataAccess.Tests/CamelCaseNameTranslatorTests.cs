@@ -153,7 +153,7 @@ namespace SJP.Schematic.DataAccess.Tests
         {
             const string className = "test";
             var nameTranslator = new CamelCaseNameTranslator();
-            Assert.That(() => nameTranslator.ColumnToPropertyName(className, null), Throws.ArgumentNullException);
+            Assert.That(() => nameTranslator.ColumnToPropertyName(className, columnName), Throws.ArgumentNullException);
         }
 
         [Test]

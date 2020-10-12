@@ -17,7 +17,7 @@ namespace SJP.Schematic.Dot
             builder.Add(key.KeyType.GetHashCode());
 
             foreach (var column in key.Columns)
-                builder.Add(column.Name?.LocalName?.GetHashCode() ?? 0);
+                builder.Add(column.Name?.LocalName?.GetHashCode(StringComparison.Ordinal) ?? 0);
 
             return builder.ToHashCode();
         }
