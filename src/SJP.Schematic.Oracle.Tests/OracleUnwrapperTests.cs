@@ -1,7 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using NUnit.Framework;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Oracle.Tests
 {
@@ -37,10 +36,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             _ = OracleUnwrapper.TryUnwrap(WrappedExample, out var unwrapped);
 
-            var cleanExpected = TrimNewlines(ExpectedUnwrappedExample);
-            var cleanResult = TrimNewlines(unwrapped);
-
-            Assert.That(cleanResult, Is.EqualTo(cleanExpected));
+            Assert.That(unwrapped, Is.EqualTo(ExpectedUnwrappedExample).Using(new LineEndingInvariantStringComparer()));
         }
 
         [Test]
@@ -72,10 +68,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             var result = OracleUnwrapper.Unwrap(WrappedExample);
 
-            var cleanExpected = TrimNewlines(ExpectedUnwrappedExample);
-            var cleanResult = TrimNewlines(result);
-
-            Assert.That(cleanResult, Is.EqualTo(cleanExpected));
+            Assert.That(result, Is.EqualTo(ExpectedUnwrappedExample).Using(new LineEndingInvariantStringComparer()));
         }
 
         [Test]
@@ -97,10 +90,7 @@ namespace SJP.Schematic.Oracle.Tests
         {
             var result = OracleUnwrapper.UnwrapUnsafe(WrappedExample);
 
-            var cleanExpected = TrimNewlines(ExpectedUnwrappedExample);
-            var cleanResult = TrimNewlines(result);
-
-            Assert.That(cleanResult, Is.EqualTo(cleanExpected));
+            Assert.That(result, Is.EqualTo(ExpectedUnwrappedExample).Using(new LineEndingInvariantStringComparer()));
         }
 
         [Test]
@@ -247,15 +237,6 @@ namespace SJP.Schematic.Oracle.Tests
             var isWrapped = OracleUnwrapper.IsWrappedDefinition(InvalidBase64Example);
 
             Assert.That(isWrapped, Is.False);
-        }
-
-        private static string TrimNewlines(string input)
-        {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-
-            var validChars = input.Where(c => c != '\r' && c != '\n').ToArray();
-            return new string(validChars);
         }
 
         private const string WrappedExample = @"PROCEDURE wrap_it wrapped
