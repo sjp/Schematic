@@ -17,7 +17,7 @@ namespace SJP.Schematic.Graphviz
             var asm = Assembly.GetExecutingAssembly();
             var namePrefix = asm.GetName().Name + ".";
             var validNames = GetResourceNames();
-            if (!validNames.Contains(namePrefix + resourceName))
+            if (!validNames.Contains(namePrefix + resourceName, StringComparer.Ordinal))
                 throw new FileNotFoundException("The given resource name '" + resourceName + "' does not exist within the assembly.");
 
             _resourceName = resourceName;

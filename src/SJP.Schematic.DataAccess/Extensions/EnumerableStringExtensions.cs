@@ -25,7 +25,7 @@ namespace SJP.Schematic.DataAccess.Extensions
 
             foreach (var ns in namespaces)
             {
-                var isSystem = ns == SystemNamespace || ns.StartsWith(SystemNamespacePrefix, StringComparison.Ordinal);
+                var isSystem = string.Equals(ns, SystemNamespace, StringComparison.Ordinal) || ns.StartsWith(SystemNamespacePrefix, StringComparison.Ordinal);
                 var group = isSystem ? system : nonSystem;
                 group.Add(ns);
             }

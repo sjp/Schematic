@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Web;
 using LanguageExt;
 using SJP.Schematic.Core;
@@ -190,8 +191,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
                 Start = start;
                 Increment = increment;
-                MinValueText = minValue.Match(mv => mv.ToString(), () => string.Empty);
-                MaxValueText = maxValue.Match(mv => mv.ToString(), () => string.Empty);
+                MinValueText = minValue.Match(mv => mv.ToString(CultureInfo.InvariantCulture), () => string.Empty);
+                MaxValueText = maxValue.Match(mv => mv.ToString(CultureInfo.InvariantCulture), () => string.Empty);
                 Cache = cache;
                 CycleText = cycle ? "✓" : "✗";
             }

@@ -70,7 +70,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
             var table = await GetTableAsync("v12_table_test_table_4").ConfigureAwait(false);
             var pk = table.PrimaryKey.UnwrapSome();
             var pkColumns = pk.Columns.ToList();
-            var pkColumnNames = pkColumns.Select(c => c.Name.LocalName).ToList();
+            var pkColumnNames = pkColumns.ConvertAll(c => c.Name.LocalName);
 
             Assert.Multiple(() =>
             {

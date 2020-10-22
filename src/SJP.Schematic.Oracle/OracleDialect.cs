@@ -229,7 +229,7 @@ where PRODUCT like 'Oracle Database%'";
             if (text.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(text));
 
-            return Keywords.Contains(text);
+            return Keywords.Contains(text, StringComparer.Ordinal);
         }
 
         /// <summary>

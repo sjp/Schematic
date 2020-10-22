@@ -492,8 +492,8 @@ namespace SJP.Schematic.Sqlite
                     .OrderBy(i => i.seqno)
                     .ToList();
                 var columnNames = orderedColumns
-                    .Select(i => i.name)
-                    .ToList();
+                    .ConvertAll(i => i.name)
+;
                 var keyColumns = orderedColumns
                     .Where(i => columnLookup.ContainsKey(i.name!))
                     .Select(i => columnLookup[i.name!])

@@ -152,7 +152,7 @@ namespace SJP.Schematic.DataAccess.CodeGeneration
         /// <summary>
         /// A type syntax lookup that translates from built-in C# types to Roslyn type definitions.
         /// </summary>
-        public static readonly IReadOnlyDictionary<string, TypeSyntax> TypeSyntaxMap = new Dictionary<string, TypeSyntax>
+        public static readonly IReadOnlyDictionary<string, TypeSyntax> TypeSyntaxMap = new Dictionary<string, TypeSyntax>(StringComparer.Ordinal)
         {
             [nameof(Boolean)] = PredefinedType(Token(SyntaxKind.BoolKeyword)),
             [nameof(Byte)] = PredefinedType(Token(SyntaxKind.ByteKeyword)),

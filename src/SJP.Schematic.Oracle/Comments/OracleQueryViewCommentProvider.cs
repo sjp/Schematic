@@ -167,7 +167,7 @@ where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED 
         private async Task<IDatabaseViewComments> LoadViewCommentsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             IEnumerable<TableCommentsData> commentsData;
-            if (viewName.Schema == IdentifierDefaults.Schema) // fast path
+            if (string.Equals(viewName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal)) // fast path
             {
                 commentsData = await Connection.QueryAsync<TableCommentsData>(
                     UserViewCommentsQuery,
@@ -291,7 +291,7 @@ where v.VIEW_NAME = :ViewName
                 throw new ArgumentNullException(nameof(commentsData));
 
             return commentsData
-                .Where(c => c.ObjectType == Constants.View)
+                .Where(c => string.Equals(c.ObjectType, Constants.View, StringComparison.Ordinal))
                 .Select(c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
                 .FirstOrDefault();
         }
@@ -302,7 +302,7 @@ where v.VIEW_NAME = :ViewName
                 throw new ArgumentNullException(nameof(commentsData));
 
             return commentsData
-                .Where(c => c.ObjectType == Constants.Column)
+                .Where(c => string.Equals(c.ObjectType, Constants.Column, StringComparison.Ordinal))
                 .Select(c => new KeyValuePair<Identifier, Option<string>>(
                     Identifier.CreateQualifiedIdentifier(c.ColumnName),
                     !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None

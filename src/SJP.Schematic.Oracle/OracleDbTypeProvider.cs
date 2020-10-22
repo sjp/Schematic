@@ -100,7 +100,7 @@ namespace SJP.Schematic.Oracle
             if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
 
-            return FixedLengthTypes.Contains(typeName.LocalName);
+            return FixedLengthTypes.Contains(typeName.LocalName, StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -179,7 +179,7 @@ namespace SJP.Schematic.Oracle
             else
                 builder.Append(QuoteName(typeName));
 
-            if (TypeNamesWithNoLengthAnnotation.Contains(typeName.LocalName))
+            if (TypeNamesWithNoLengthAnnotation.Contains(typeName.LocalName, StringComparer.OrdinalIgnoreCase))
                 return builder.GetStringAndRelease();
 
             var npWithPrecisionOrScale = typeMetadata.NumericPrecision.Filter(np => np.Precision > 0 || np.Scale > 0);

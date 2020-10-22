@@ -61,7 +61,7 @@ namespace SJP.Schematic.Lint.Rules
                 var childColumnsInfo = childColumns.Select(c => c.Type.Definition).ToList();
                 var parentColumnsInfo = parentColumns.Select(c => c.Type.Definition).ToList();
 
-                var columnsEqual = childColumnsInfo.SequenceEqual(parentColumnsInfo);
+                var columnsEqual = childColumnsInfo.SequenceEqual(parentColumnsInfo, StringComparer.Ordinal);
                 if (columnsEqual)
                     continue;
 

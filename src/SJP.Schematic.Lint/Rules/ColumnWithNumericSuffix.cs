@@ -58,8 +58,8 @@ namespace SJP.Schematic.Lint.Rules
                 return Array.Empty<IRuleMessage>();
 
             return columnsWithNumericSuffix
-                .Select(c => BuildMessage(table.Name, c))
-                .ToList();
+                .ConvertAll(c => BuildMessage(table.Name, c))
+;
         }
 
         /// <summary>
@@ -92,6 +92,6 @@ namespace SJP.Schematic.Lint.Rules
         /// <value>The rule title.</value>
         protected static string RuleTitle { get; } = "Column with a numeric suffix.";
 
-        private static readonly Regex NumericSuffixRegex = new Regex(".*[0-9]$");
+        private static readonly Regex NumericSuffixRegex = new Regex(".*[0-9]$", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
     }
 }

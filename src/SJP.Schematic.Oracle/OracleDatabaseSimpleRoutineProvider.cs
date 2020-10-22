@@ -67,11 +67,11 @@ namespace SJP.Schematic.Oracle
                 {
                     var name = Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, r.Key.SchemaName, r.Key.RoutineName);
 
-                    var lines = r
+                    var definition = r
                         .OrderBy(r => r.LineNumber)
                         .Where(r => r.Text != null)
-                        .Select(r => r.Text!);
-                    var definition = lines.Join(string.Empty);
+                        .Select(r => r.Text!)
+                        .Join(string.Empty);
                     var unwrappedDefinition = OracleUnwrapper.Unwrap(definition);
 
                     return new DatabaseRoutine(name, unwrappedDefinition);
@@ -212,7 +212,7 @@ where OWNER = :SchemaName and OBJECT_NAME = :RoutineName
         private async Task<string> LoadDefinitionAsyncCore(Identifier routineName, CancellationToken cancellationToken)
         {
             // fast path
-            if (routineName.Schema == IdentifierDefaults.Schema)
+            if (string.Equals(routineName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal))
             {
                 var userLines = await Connection.QueryAsync<string>(
                     UserDefinitionQuery,

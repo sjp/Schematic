@@ -371,7 +371,7 @@ end;
         {
             const string expectedTableName = "DB_TEST_TABLE_1";
             var tables = await GetAllTables().ConfigureAwait(false);
-            var containsTestTable = tables.Any(t => t.Name.LocalName == expectedTableName);
+            var containsTestTable = tables.Any(t => string.Equals(t.Name.LocalName, expectedTableName, StringComparison.Ordinal));
 
             Assert.That(containsTestTable, Is.True);
         }

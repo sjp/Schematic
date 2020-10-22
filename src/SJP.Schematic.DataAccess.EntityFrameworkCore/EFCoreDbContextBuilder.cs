@@ -102,7 +102,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
         private SyntaxTriviaList OnModelCreateComment { get; } = SyntaxUtilities.BuildCommentTriviaWithParams(
             new[] { XmlText(ModelBuilderMethodSummaryComment) },
-            new Dictionary<string, IEnumerable<XmlNodeSyntax>> { [ModelBuilderParameterName] = new[] { XmlText(ModelBuilderMethodParamComment) } }
+            new Dictionary<string, IEnumerable<XmlNodeSyntax>>(StringComparer.Ordinal) { [ModelBuilderParameterName] = new[] { XmlText(ModelBuilderMethodParamComment) } }
         );
 
         private ClassDeclarationSyntax BuildDbContext(IEnumerable<IRelationalDatabaseTable> tables, IEnumerable<IDatabaseView> views, IEnumerable<IDatabaseSequence> sequences)

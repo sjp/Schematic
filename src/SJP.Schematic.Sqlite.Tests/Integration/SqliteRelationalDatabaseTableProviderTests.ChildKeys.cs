@@ -6,7 +6,7 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
 {
-    internal partial class SqliteRelationalDatabaseTableProviderTests : SqliteTest
+    internal sealed partial class SqliteRelationalDatabaseTableProviderTests : SqliteTest
     {
         [Test]
         public async Task ChildKeys_WhenGivenTableWithNoChildKeys_ReturnsEmptyCollection()

@@ -40,7 +40,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var cycles = cycleDetector.GetCyclePaths(Tables);
             var hasCycles = cycles.Count > 0;
 
-            // TODO acutlly use the canellation tokens here
             await ExportInsertionOrderAsync(hasCycles, cancellationToken).ConfigureAwait(false);
             await ExportDeletionOrderAsync(hasCycles, cancellationToken).ConfigureAwait(false);
         }

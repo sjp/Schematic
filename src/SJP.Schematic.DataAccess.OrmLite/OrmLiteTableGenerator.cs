@@ -67,9 +67,9 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
             var namespaces = table.Columns
                 .Select(c => c.Type.ClrType.Namespace)
-                .Where(ns => ns != tableNamespace)
-                .Union(new[] { "ServiceStack.DataAnnotations" })
-                .Distinct()
+                .Where(ns => !string.Equals(ns, tableNamespace, StringComparison.Ordinal))
+                .Union(new[] { "ServiceStack.DataAnnotations" }, StringComparer.Ordinal)
+                .Distinct(StringComparer.Ordinal)
                 .OrderNamespaces()
                 .ToList();
 
@@ -126,7 +126,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             var columnTypeSyntax = column.IsNullable
                 ? NullableType(ParseTypeName(clrType.FullName))
                 : ParseTypeName(clrType.FullName);
-            if (clrType.Namespace == nameof(System) && SyntaxUtilities.TypeSyntaxMap.ContainsKey(clrType.Name))
+            if (string.Equals(clrType.Namespace, nameof(System), StringComparison.Ordinal) && SyntaxUtilities.TypeSyntaxMap.ContainsKey(clrType.Name))
             {
                 columnTypeSyntax = column.IsNullable
                     ? NullableType(SyntaxUtilities.TypeSyntaxMap[clrType.Name])
@@ -214,7 +214,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 attributes.Add(schemaAttribute);
             }
 
-            if (className != table.Name.LocalName)
+            if (!string.Equals(className, table.Name.LocalName, StringComparison.Ordinal))
             {
                 var aliasAttribute = AttributeList(
                     SingletonSeparatedList(
@@ -476,7 +476,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 attributes.Add(foreignKeyAttribute);
             }
 
-            if (propertyName != column.Name.LocalName)
+            if (!string.Equals(propertyName, column.Name.LocalName, StringComparison.Ordinal))
             {
                 var aliasAttribute = AttributeList(
                     SingletonSeparatedList(
@@ -510,7 +510,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
 
             return table.PrimaryKey
                 .Where(pk => pk.Columns.Count == 1
-                    && column.Name.LocalName == pk.Columns.First().Name.LocalName)
+                    && string.Equals(column.Name.LocalName, pk.Columns.First().Name.LocalName, StringComparison.Ordinal))
                 .IsSome;
         }
 
@@ -542,7 +542,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                     continue;
 
                 var childColumn = childColumns.First();
-                if (childColumn.Name.LocalName == column.Name.LocalName)
+                if (string.Equals(childColumn.Name.LocalName, column.Name.LocalName, StringComparison.Ordinal))
                     return true;
             }
 
@@ -577,7 +577,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                     continue;
 
                 var childColumn = childColumns.First();
-                if (childColumn.Name.LocalName == column.Name.LocalName)
+                if (string.Equals(childColumn.Name.LocalName, column.Name.LocalName, StringComparison.Ordinal))
                     return foreignKey;
             }
 
@@ -612,7 +612,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                     continue;
 
                 var dependentColumn = dependentColumns[0];
-                if (dependentColumn.Name.LocalName == column.Name.LocalName)
+                if (string.Equals(dependentColumn.Name.LocalName, column.Name.LocalName, StringComparison.Ordinal))
                     return true;
             }
 
@@ -649,7 +649,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                     continue;
 
                 var dependentColumn = dependentColumns[0];
-                if (dependentColumn.Name.LocalName == column.Name.LocalName)
+                if (string.Equals(dependentColumn.Name.LocalName, column.Name.LocalName, StringComparison.Ordinal))
                     return true;
             }
 
@@ -681,7 +681,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                     continue;
 
                 var ukColumn = ukColumns.First();
-                if (column.Name.LocalName == ukColumn.Name.LocalName)
+                if (string.Equals(column.Name.LocalName, ukColumn.Name.LocalName, StringComparison.Ordinal))
                     return true;
             }
 

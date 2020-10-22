@@ -66,9 +66,9 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 .Union(
                     view.Columns
                         .Select(c => c.Type.ClrType.Namespace)
-                        .Where(ns => ns != viewNamespace)
-                )
-                .Distinct()
+                        .Where(ns => !string.Equals(ns, viewNamespace, StringComparison.Ordinal))
+                    , StringComparer.Ordinal)
+                .Distinct(StringComparer.Ordinal)
                 .OrderNamespaces()
                 .ToList();
 
@@ -133,7 +133,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 attributes.Add(schemaAttribute);
             }
 
-            if (className != view.Name.LocalName)
+            if (!string.Equals(className, view.Name.LocalName, StringComparison.Ordinal))
             {
                 var aliasAttribute = AttributeList(
                     SingletonSeparatedList(
@@ -164,7 +164,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             var columnTypeSyntax = column.IsNullable
                 ? NullableType(ParseTypeName(clrType.FullName))
                 : ParseTypeName(clrType.FullName);
-            if (clrType.Namespace == nameof(System) && SyntaxUtilities.TypeSyntaxMap.ContainsKey(clrType.Name))
+            if (string.Equals(clrType.Namespace, nameof(System), StringComparison.Ordinal) && SyntaxUtilities.TypeSyntaxMap.ContainsKey(clrType.Name))
             {
                 columnTypeSyntax = column.IsNullable
                     ? NullableType(SyntaxUtilities.TypeSyntaxMap[clrType.Name])
@@ -234,7 +234,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             if (propertyName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(propertyName));
 
-            if (propertyName == column.Name.LocalName)
+            if (string.Equals(propertyName, column.Name.LocalName, StringComparison.Ordinal))
                 return Array.Empty<AttributeListSyntax>();
 
             return new[]

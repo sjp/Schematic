@@ -66,8 +66,8 @@ namespace SJP.Schematic.DataAccess.Poco
 
             var namespaces = table.Columns
                 .Select(c => c.Type.ClrType.Namespace)
-                .Where(ns => ns != tableNamespace)
-                .Distinct()
+                .Where(ns => !string.Equals(ns, tableNamespace, StringComparison.Ordinal))
+                .Distinct(StringComparer.Ordinal)
                 .OrderNamespaces()
                 .ToList();
 
@@ -119,7 +119,7 @@ namespace SJP.Schematic.DataAccess.Poco
             var columnTypeSyntax = column.IsNullable
                 ? NullableType(ParseTypeName(clrType.FullName))
                 : ParseTypeName(clrType.FullName);
-            if (clrType.Namespace == "System" && SyntaxUtilities.TypeSyntaxMap.ContainsKey(clrType.Name))
+            if (string.Equals(clrType.Namespace, "System", StringComparison.Ordinal) && SyntaxUtilities.TypeSyntaxMap.ContainsKey(clrType.Name))
             {
                 columnTypeSyntax = column.IsNullable
                     ? NullableType(SyntaxUtilities.TypeSyntaxMap[clrType.Name])

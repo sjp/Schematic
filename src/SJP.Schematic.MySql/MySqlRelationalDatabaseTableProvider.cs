@@ -249,7 +249,7 @@ limit 1";
             var constraintName = firstRow.Key.ConstraintName;
 
             var keyColumns = groupedByName
-                .Where(row => row.Key.ConstraintName == constraintName)
+                .Where(row => string.Equals(row.Key.ConstraintName, constraintName, StringComparison.Ordinal))
                 .SelectMany(g => g.Select(row => columnLookup[row.ColumnName!]))
                 .ToList();
 
@@ -478,7 +478,7 @@ order by kc.ordinal_position";
             {
                 // ensure we have a key to begin with
                 IDatabaseKey? parentKey = null;
-                if (groupedChildKey.Key.ParentKeyType == Constants.PrimaryKey)
+                if (string.Equals(groupedChildKey.Key.ParentKeyType, Constants.PrimaryKey, StringComparison.Ordinal))
                 {
                     var pk = await queryCache.GetPrimaryKeyAsync(tableName, cancellationToken).ConfigureAwait(false);
                     pk.IfSome(k => parentKey = k);
@@ -653,7 +653,7 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName and tc.constr
                     .BindAsync(async name =>
                     {
                         parentTableName = name;
-                        if (fkey.Key.KeyType == Constants.PrimaryKey)
+                        if (string.Equals(fkey.Key.KeyType, Constants.PrimaryKey, StringComparison.Ordinal))
                         {
                             var primaryKey = await queryCache.GetPrimaryKeyAsync(name, cancellationToken).ConfigureAwait(false);
                             return primaryKey.ToAsync();
@@ -846,11 +846,11 @@ order by ordinal_position";
                 var events = TriggerEvent.None;
                 foreach (var trigEvent in trig)
                 {
-                    if (trigEvent.TriggerEvent == Constants.Insert)
+                    if (string.Equals(trigEvent.TriggerEvent, Constants.Insert, StringComparison.Ordinal))
                         events |= TriggerEvent.Insert;
-                    else if (trigEvent.TriggerEvent == Constants.Update)
+                    else if (string.Equals(trigEvent.TriggerEvent, Constants.Update, StringComparison.Ordinal))
                         events |= TriggerEvent.Update;
-                    else if (trigEvent.TriggerEvent == Constants.Delete)
+                    else if (string.Equals(trigEvent.TriggerEvent, Constants.Delete, StringComparison.Ordinal))
                         events |= TriggerEvent.Delete;
                     else
                         throw new UnsupportedTriggerEventException(tableName, trigEvent.TriggerEvent ?? string.Empty);

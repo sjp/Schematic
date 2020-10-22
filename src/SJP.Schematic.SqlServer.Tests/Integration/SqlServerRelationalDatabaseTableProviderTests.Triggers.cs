@@ -5,7 +5,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
 {
-    internal partial class SqlServerRelationalDatabaseTableProviderTests : SqlServerTest
+    internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : SqlServerTest
     {
         [Test]
         public async Task Triggers_GivenTableWithNoTriggers_ReturnsEmptyCollection()

@@ -66,7 +66,7 @@ namespace SJP.Schematic.Lint.Rules
                 if (nullableColumns.Empty())
                     continue;
 
-                var columnNames = nullableColumns.Select(c => c.Name.LocalName).ToList();
+                var columnNames = nullableColumns.ConvertAll(c => c.Name.LocalName);
                 var message = BuildMessage(table.Name, index.Name?.LocalName, columnNames);
                 result.Add(message);
             }

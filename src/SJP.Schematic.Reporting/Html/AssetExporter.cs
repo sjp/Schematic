@@ -41,7 +41,7 @@ namespace SJP.Schematic.Reporting.Html
                 var relativePath = FileNameToRelativePath(resourceFile.Name);
                 var qualifiedPath = Path.Combine(directory.FullName, relativePath);
                 var targetFile = new FileInfo(qualifiedPath);
-                var isGzipped = targetFile.Extension == ".gz";
+                var isGzipped = string.Equals(targetFile.Extension, ".gz", StringComparison.OrdinalIgnoreCase);
                 if (isGzipped)
                 {
                     var gzRemovedFileName = Path.GetFileNameWithoutExtension(targetFile.Name);
@@ -88,7 +88,7 @@ namespace SJP.Schematic.Reporting.Html
             var fileNameWithExtension = pieces[^2] + "." + pieces[^1];
 
             // assuming no more than 2 extensions -- refactor if more are needed
-            if (!_nonStandardExtensions.Contains("." + fileNameWithExtension))
+            if (!_nonStandardExtensions.Contains("." + fileNameWithExtension, StringComparer.OrdinalIgnoreCase))
                 return Path.Combine(dirName, fileNameWithExtension);
 
             dirNamePieces = pieces.Take(pieces.Length - 3).ToArray();

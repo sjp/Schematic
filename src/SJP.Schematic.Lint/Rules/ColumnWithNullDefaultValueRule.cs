@@ -77,7 +77,7 @@ namespace SJP.Schematic.Lint.Rules
         protected static bool IsNullDefaultValue(string defaultValue)
         {
             return !defaultValue.IsNullOrWhiteSpace()
-                && NullValues.Contains(defaultValue);
+                && NullValues.Contains(defaultValue, StringComparer.Ordinal);
         }
 
         /// <summary>

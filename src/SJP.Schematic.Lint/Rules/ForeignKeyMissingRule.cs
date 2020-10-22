@@ -60,7 +60,7 @@ namespace SJP.Schematic.Lint.Rules
                 .Select(fk => fk.ChildKey)
                 .SelectMany(fk => fk.Columns)
                 .Select(c => c.Name.LocalName)
-                .Distinct()
+                .Distinct(StringComparer.Ordinal)
                 .ToList();
 
             foreach (var column in table.Columns)

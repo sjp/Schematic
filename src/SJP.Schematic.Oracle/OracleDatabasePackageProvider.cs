@@ -68,17 +68,18 @@ namespace SJP.Schematic.Oracle
                     var name = Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, r.Key.SchemaName, r.Key.RoutineName);
 
                     var specLines = r
-                        .Where(p => p.RoutineType == PackageObjectType)
+                        .Where(p => string.Equals(p.RoutineType, PackageObjectType, StringComparison.Ordinal))
                         .OrderBy(p => p.LineNumber)
                         .Where(p => p.Text != null)
                         .Select(p => p.Text!);
+                    var spec = specLines.Join(string.Empty);
+
                     var bodyLines = r
-                        .Where(p => p.RoutineType == PackageBodyObjectType)
+                        .Where(p => string.Equals(p.RoutineType, PackageBodyObjectType, StringComparison.Ordinal))
                         .OrderBy(p => p.LineNumber)
                         .Where(p => p.Text != null)
                         .Select(p => p.Text!);
 
-                    var spec = specLines.Join(string.Empty);
                     var body = bodyLines.Any()
                         ? Option<string>.Some(bodyLines.Join(string.Empty))
                         : Option<string>.None;
@@ -203,7 +204,7 @@ where OWNER = :SchemaName and OBJECT_NAME = :PackageName
         private async Task<IOracleDatabasePackage> LoadPackageAsyncCore(Identifier packageName, CancellationToken cancellationToken)
         {
             // fast path
-            if (packageName.Schema == IdentifierDefaults.Schema)
+            if (string.Equals(packageName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal))
             {
                 var lines = await Connection.QueryAsync<PackageData>(
                     UserPackageDefinitionQuery,
@@ -212,13 +213,13 @@ where OWNER = :SchemaName and OBJECT_NAME = :PackageName
                 ).ConfigureAwait(false);
 
                 var spec = lines
-                    .Where(p => p.SourceType == PackageObjectType)
+                    .Where(p => string.Equals(p.SourceType, PackageObjectType, StringComparison.Ordinal))
                     .OrderBy(p => p.LineNumber)
                     .Where(p => p.Text != null)
                     .Select(p => p.Text!)
                     .Join(string.Empty);
                 var bodyLines = lines
-                    .Where(p => p.SourceType == PackageBodyObjectType)
+                    .Where(p => string.Equals(p.SourceType, PackageBodyObjectType, StringComparison.Ordinal))
                     .OrderBy(p => p.LineNumber)
                     .Where(p => p.Text != null)
                     .Select(p => p.Text!);
@@ -241,13 +242,13 @@ where OWNER = :SchemaName and OBJECT_NAME = :PackageName
                 ).ConfigureAwait(false);
 
                 var spec = lines
-                    .Where(p => p.SourceType == PackageObjectType)
+                    .Where(p => string.Equals(p.SourceType, PackageObjectType, StringComparison.Ordinal))
                     .OrderBy(p => p.LineNumber)
                     .Where(p => p.Text != null)
                     .Select(p => p.Text!)
                     .Join(string.Empty);
                 var bodyLines = lines
-                    .Where(p => p.SourceType == PackageBodyObjectType)
+                    .Where(p => string.Equals(p.SourceType, PackageBodyObjectType, StringComparison.Ordinal))
                     .OrderBy(p => p.LineNumber)
                     .Where(p => p.Text != null)
                     .Select(p => p.Text!);

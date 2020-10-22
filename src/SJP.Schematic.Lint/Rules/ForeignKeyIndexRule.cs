@@ -95,8 +95,8 @@ namespace SJP.Schematic.Lint.Rules
             if (indexColumnList.Count != dependentColumns.Count)
                 return false;
 
-            var columnNames = columnList.Select(c => c.Name).ToList();
-            var indexColumnNames = dependentColumns.Select(ic => ic.Name).ToList();
+            var columnNames = columnList.ConvertAll(c => c.Name);
+            var indexColumnNames = dependentColumns.ConvertAll(ic => ic.Name);
 
             return IsPrefixOf(columnNames, indexColumnNames);
         }

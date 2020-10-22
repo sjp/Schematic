@@ -190,7 +190,7 @@ where
         private async Task<IRelationalDatabaseTableComments> LoadTableCommentsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             IEnumerable<TableCommentsData> commentsData;
-            if (tableName.Schema == IdentifierDefaults.Schema) // fast path
+            if (string.Equals(tableName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal)) // fast path
             {
                 commentsData = await Connection.QueryAsync<TableCommentsData>(
                     UserTableCommentsQuery,
@@ -352,7 +352,7 @@ where t.TABLE_NAME = :TableName and mv.MVIEW_NAME is null
                 throw new ArgumentNullException(nameof(commentsData));
 
             return commentsData
-                .Where(c => c.ObjectType == Constants.Table)
+                .Where(c => string.Equals(c.ObjectType, Constants.Table, StringComparison.Ordinal))
                 .Select(c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
                 .FirstOrDefault();
         }
@@ -363,7 +363,7 @@ where t.TABLE_NAME = :TableName and mv.MVIEW_NAME is null
                 throw new ArgumentNullException(nameof(commentsData));
 
             return commentsData
-                .Where(c => c.ObjectType == Constants.Column)
+                .Where(c => string.Equals(c.ObjectType, Constants.Column, StringComparison.Ordinal))
                 .Select(c => new KeyValuePair<Identifier, Option<string>>(
                     Identifier.CreateQualifiedIdentifier(c.ColumnName),
                     !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None

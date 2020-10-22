@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -118,7 +119,7 @@ namespace SJP.Schematic.Dot
                     .Concat(parentKeys.Select(fk => fk.ChildKey))
                     .Concat(primaryKey.Match(pk => new[] { pk }, Array.Empty<IDatabaseKey>))
                     .SelectMany(key => key.Columns.Select(c => c.Name.LocalName))
-                    .Distinct()
+                    .Distinct(StringComparer.Ordinal)
                     .ToList();
 
                 var childKeysCount = childKeys.ToList().UCount();
@@ -142,7 +143,7 @@ namespace SJP.Schematic.Dot
                 {
                     var primaryKeyNameText = pk.Name.Match(
                         pkName => pkName.LocalName,
-                        () => pk.GetKeyHash(table.Name).ToString()
+                        () => pk.GetKeyHash(table.Name).ToString(CultureInfo.InvariantCulture)
                     );
                     var primaryKeyName = pk.Name.Match(pkName => pkName.LocalName, () => string.Empty);
 
@@ -160,7 +161,7 @@ namespace SJP.Schematic.Dot
                 {
                     var uniqueKeyNameText = uniqueKey.Name.Match(
                         ukName => ukName.LocalName,
-                        () => uniqueKey.GetKeyHash(table.Name).ToString()
+                        () => uniqueKey.GetKeyHash(table.Name).ToString(CultureInfo.InvariantCulture)
                     );
                     var uniqueKeyName = uniqueKey.Name.Match(pkName => pkName.LocalName, () => string.Empty);
 
@@ -186,13 +187,13 @@ namespace SJP.Schematic.Dot
                     var childKeyTableName = relationalKey.ChildTable.ToSafeKey();
                     var childKeyName = childKey.Name.Match(
                         ckName => ckName.LocalName,
-                        () => childKey.GetKeyHash(relationalKey.ChildTable).ToString()
+                        () => childKey.GetKeyHash(relationalKey.ChildTable).ToString(CultureInfo.InvariantCulture)
                     );
 
                     var parentKeyTableName = relationalKey.ParentTable.ToSafeKey();
                     var parentKeyName = parentKey.Name.Match(
                         fkName => fkName.LocalName,
-                        () => parentKey.GetKeyHash(relationalKey.ParentTable).ToString()
+                        () => parentKey.GetKeyHash(relationalKey.ParentTable).ToString(CultureInfo.InvariantCulture)
                     );
 
                     var childKeyToParentKeyEdge = new DotEdge(

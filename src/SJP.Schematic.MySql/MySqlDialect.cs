@@ -29,7 +29,7 @@ namespace SJP.Schematic.MySql
             if (text.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(text));
 
-            return Keywords.Contains(text);
+            return Keywords.Contains(text, StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>

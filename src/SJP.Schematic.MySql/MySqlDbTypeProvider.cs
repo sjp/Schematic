@@ -82,7 +82,7 @@ namespace SJP.Schematic.MySql
             if (typeName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(typeName));
 
-            return FixedLengthTypes.Contains(typeName);
+            return FixedLengthTypes.Contains(typeName, StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace SJP.Schematic.MySql
 
             builder.Append(typeName);
 
-            if (TypeNamesWithNoLengthAnnotation.Contains(typeName))
+            if (TypeNamesWithNoLengthAnnotation.Contains(typeName, StringComparer.OrdinalIgnoreCase))
                 return builder.GetStringAndRelease();
 
             builder.Append('(');

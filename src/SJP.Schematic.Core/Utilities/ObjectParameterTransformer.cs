@@ -50,7 +50,7 @@ namespace SJP.Schematic.Core.Utilities
             var paramType = param.GetType();
             var paramProps = paramType.GetProperties(PropFlags);
 
-            var result = new Dictionary<string, object>(paramProps.Length);
+            var result = new Dictionary<string, object>(paramProps.Length, StringComparer.Ordinal);
 
             foreach (var prop in paramProps)
                 result[prop.Name] = prop.GetValue(param);

@@ -16,6 +16,7 @@ using SJP.Schematic.DataAccess.Extensions;
 using StringHashSet = System.Collections.Generic.HashSet<string>;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using System.IO.Abstractions;
+using System.Globalization;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 {
@@ -53,7 +54,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var suffix = 1;
             while (!existingNames.Add(candidateName))
             {
-                candidateName = propertyName + "_" + suffix.ToString();
+                candidateName = propertyName + "_" + suffix.ToString(CultureInfo.InvariantCulture);
                 suffix++;
 
                 if (suffix > 10000)
@@ -85,14 +86,14 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
             var namespaces = table.Columns
                 .Select(c => c.Type.ClrType.Namespace)
-                .Where(ns => ns != tableNamespace)
+                .Where(ns => !string.Equals(ns, tableNamespace, StringComparison.Ordinal))
                 .Union(new[]
                 {
                     "System.Collections.Generic",
                     "System.ComponentModel.DataAnnotations",
                     "System.ComponentModel.DataAnnotations.Schema"
-                })
-                .Distinct()
+                }, StringComparer.Ordinal)
+                .Distinct(StringComparer.Ordinal)
                 .OrderNamespaces()
                 .ToList();
 
@@ -127,7 +128,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 .Select(c => BuildColumn(c, comment, className))
                 .ToList();
 
-            var usedNames = new StringHashSet(table.Columns.Select(c => NameTranslator.ColumnToPropertyName(table.Name.LocalName, c.Name.LocalName)));
+            var usedNames = new StringHashSet(table.Columns.Select(c => NameTranslator.ColumnToPropertyName(table.Name.LocalName, c.Name.LocalName)), StringComparer.Ordinal);
 
             var parentKeyProperties = table.ParentKeys.Select(fk =>
             {
@@ -165,7 +166,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var columnTypeSyntax = column.IsNullable
                 ? NullableType(ParseTypeName(clrType.FullName))
                 : ParseTypeName(clrType.FullName);
-            if (clrType.Namespace == nameof(System) && SyntaxUtilities.TypeSyntaxMap.ContainsKey(clrType.Name))
+            if (string.Equals(clrType.Namespace, nameof(System), StringComparison.Ordinal) && SyntaxUtilities.TypeSyntaxMap.ContainsKey(clrType.Name))
             {
                 columnTypeSyntax = column.IsNullable
                     ? NullableType(SyntaxUtilities.TypeSyntaxMap[clrType.Name])
@@ -403,7 +404,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
             var attributes = new List<AttributeListSyntax>();
 
-            if (className != table.Name.LocalName)
+            if (!string.Equals(className, table.Name.LocalName, StringComparison.Ordinal))
             {
                 var attributeArguments = new List<AttributeArgumentSyntax>
                 {
@@ -491,7 +492,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             });
 
             var columnAttributeArgs = new List<AttributeArgumentSyntax>();
-            if (propertyName != column.Name.LocalName)
+            if (!string.Equals(propertyName, column.Name.LocalName, StringComparison.Ordinal))
             {
                 var quotedColumnName = LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(column.Name.LocalName));
                 columnAttributeArgs.Add(AttributeArgument(quotedColumnName));
@@ -531,7 +532,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     pk =>
                     {
                         var pkColumnNames = pk.Columns.Select(c => c.Name.LocalName).ToList();
-                        return keyColumnNames.SequenceEqual(pkColumnNames);
+                        return keyColumnNames.SequenceEqual(pkColumnNames, StringComparer.Ordinal);
                     },
                     () => false
                 );
@@ -541,7 +542,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var matchesUkColumns = table.UniqueKeys.Any(uk =>
             {
                 var ukColumnNames = uk.Columns.Select(c => c.Name.LocalName).ToList();
-                return keyColumnNames.SequenceEqual(ukColumnNames);
+                return keyColumnNames.SequenceEqual(ukColumnNames, StringComparer.Ordinal);
             });
             if (matchesUkColumns)
                 return true;
@@ -555,7 +556,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 var indexColumnExpressions = i.Columns
                     .Select(ic => ic.DependentColumns.Select(dc => dc.Name.LocalName).FirstOrDefault() ?? ic.Expression)
                     .ToList();
-                return keyColumnNames.SequenceEqual(indexColumnExpressions);
+                return keyColumnNames.SequenceEqual(indexColumnExpressions, StringComparer.Ordinal);
             });
         }
     }

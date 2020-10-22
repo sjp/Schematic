@@ -59,7 +59,7 @@ namespace SJP.Schematic.Lint.Rules
                             .Select(fk => fk.ChildKey)
                             .SelectMany(fk => fk.Columns)
                             .Select(fkc => fkc.Name.LocalName)
-                            .Distinct()
+                            .Distinct(StringComparer.Ordinal)
                             .ToList();
 
                         var areAllColumnsFks = pk.Columns.All(c => fkColumns.Contains(c.Name.LocalName));

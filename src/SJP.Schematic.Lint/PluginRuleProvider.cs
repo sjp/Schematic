@@ -51,7 +51,7 @@ namespace SJP.Schematic.Lint
         {
             var probingDir = Path.GetDirectoryName(AssemblyPath);
             return Directory.EnumerateFiles(probingDir, "*.dll", SearchOption.AllDirectories)
-                .Where(a => a != AssemblyPath && IsLintPluginAssemblyPath(a))
+                .Where(a => !string.Equals(a, AssemblyPath, StringComparison.Ordinal) && IsLintPluginAssemblyPath(a))
                 .Select(path =>
                 {
                     try

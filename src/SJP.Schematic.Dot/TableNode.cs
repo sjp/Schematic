@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
 using SJP.Schematic.Core.Extensions;
@@ -49,7 +50,7 @@ namespace SJP.Schematic.Dot
             builder.Append(indent).AppendLine("label=<");
 
             var borderSize = _options.ShowColumnDataType ? 2 : 0;
-            var borderSizeText = borderSize.ToString();
+            var borderSizeText = borderSize.ToString(CultureInfo.InvariantCulture);
 
             var tableBgColor = _options.IsHighlighted
                 ? _options.Theme.HighlightedTableBackgroundColor
@@ -84,7 +85,7 @@ namespace SJP.Schematic.Dot
             var hasSkippedRows = false;
             var columnRows = _columnNames.Select((c, i) =>
             {
-                if (_options.IsReducedColumnSet && !_keyColumnNames.Contains(c))
+                if (_options.IsReducedColumnSet && !_keyColumnNames.Contains(c, StringComparer.Ordinal))
                 {
                     hasSkippedRows = true;
                     return null;
@@ -151,7 +152,7 @@ namespace SJP.Schematic.Dot
                 ? _options.Theme.HighlightedFooterBackgroundColor
                 : _options.Theme.FooterBackgroundColor;
 
-            var foreignKeyCellText = _parents > 0 ? _parents.ToString() + " P" : emptyText;
+            var foreignKeyCellText = _parents > 0 ? _parents.ToString(CultureInfo.InvariantCulture) + " P" : emptyText;
             var foreignKeyCell = new XElement(HtmlElement.TableCell,
                         new XAttribute(HtmlAttribute.Align, "LEFT"),
                         new XAttribute(HtmlAttribute.BackgroundColor, footerBackgroundColor),
@@ -159,7 +160,7 @@ namespace SJP.Schematic.Dot
                             new XAttribute(HtmlAttribute.FontFace, nameof(FontFace.Helvetica)),
                             foreignKeyCellText));
 
-            var rowCountText = _rows.ToString() + " row" + (_rows != 1 ? "s" : string.Empty);
+            var rowCountText = _rows.ToString(CultureInfo.InvariantCulture) + " row" + (_rows != 1 ? "s" : string.Empty);
             var rowsCellText = _options.ShowRowCounts ? rowCountText : string.Empty;
 
             var rowsCell = new XElement(HtmlElement.TableCell,
@@ -169,7 +170,7 @@ namespace SJP.Schematic.Dot
                     new XAttribute(HtmlAttribute.FontFace, nameof(FontFace.Helvetica)),
                     rowsCellText));
 
-            var childKeyCellText = _children > 0 ? _children.ToString() + " C" : emptyText;
+            var childKeyCellText = _children > 0 ? _children.ToString(CultureInfo.InvariantCulture) + " C" : emptyText;
             var childKeyCell = new XElement(HtmlElement.TableCell,
                 new XAttribute(HtmlAttribute.Align, "RIGHT"),
                 new XAttribute(HtmlAttribute.BackgroundColor, footerBackgroundColor),

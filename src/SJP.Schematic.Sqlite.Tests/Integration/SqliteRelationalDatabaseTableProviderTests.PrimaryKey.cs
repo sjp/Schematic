@@ -6,7 +6,7 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
 {
-    internal partial class SqliteRelationalDatabaseTableProviderTests : SqliteTest
+    internal sealed partial class SqliteRelationalDatabaseTableProviderTests : SqliteTest
     {
         [Test]
         public async Task PrimaryKey_WhenGivenTableWithNoPrimaryKey_ReturnsNone()
@@ -70,7 +70,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var table = await GetTableAsync("table_test_table_4").ConfigureAwait(false);
             var pk = table.PrimaryKey.UnwrapSome();
             var pkColumns = pk.Columns.ToList();
-            var pkColumnNames = pkColumns.Select(c => c.Name.LocalName).ToList();
+            var pkColumnNames = pkColumns.ConvertAll(c => c.Name.LocalName);
 
             Assert.Multiple(() =>
             {

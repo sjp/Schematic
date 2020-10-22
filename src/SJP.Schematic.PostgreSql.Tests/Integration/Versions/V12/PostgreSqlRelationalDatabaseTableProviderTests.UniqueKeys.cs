@@ -68,7 +68,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
             var table = await GetTableAsync("v12_table_test_table_7").ConfigureAwait(false);
             var uk = table.UniqueKeys.Single();
             var ukColumns = uk.Columns.ToList();
-            var ukColumnNames = ukColumns.Select(c => c.Name.LocalName).ToList();
+            var ukColumnNames = ukColumns.ConvertAll(c => c.Name.LocalName);
 
             Assert.Multiple(() =>
             {

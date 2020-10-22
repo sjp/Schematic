@@ -5,7 +5,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
 {
-    internal partial class SqliteRelationalDatabaseTableProviderTests : SqliteTest
+    internal sealed partial class SqliteRelationalDatabaseTableProviderTests : SqliteTest
     {
         [Test]
         [Ignore("Disabled until v3.31 support is available. This version supports computed columns.")]

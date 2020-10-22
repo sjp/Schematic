@@ -6,7 +6,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
 {
-    internal partial class SqliteRelationalDatabaseTableProviderTests : SqliteTest
+    internal sealed partial class SqliteRelationalDatabaseTableProviderTests : SqliteTest
     {
         [Test]
         public async Task Triggers_GivenTableWithNoTriggers_ReturnsEmptyCollection()

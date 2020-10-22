@@ -150,7 +150,8 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
             var candidateSynonymName = QualifySynonymName(synonymName);
 
             // fast path, SYS.ALL_SYNONYMS is much slower than SYS.USER_SYNONYMS so prefer the latter where possible
-            var isUserSynonym = candidateSynonymName.Database == IdentifierDefaults.Database && candidateSynonymName.Schema == IdentifierDefaults.Schema;
+            var isUserSynonym = string.Equals(candidateSynonymName.Database, IdentifierDefaults.Database, StringComparison.Ordinal)
+                && string.Equals(candidateSynonymName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal);
             if (isUserSynonym)
             {
                 var userSynonymName = Connection.QueryFirstOrNone<string>(
@@ -215,7 +216,8 @@ where o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and s.SYNONYM_NAME = :Syn
         private OptionAsync<IDatabaseSynonym> LoadSynonymAsyncCore(Identifier synonymName, CancellationToken cancellationToken)
         {
             // SYS.ALL_SYNONYMS is much slower than SYS.USER_SYNONYMS so prefer the latter where possible
-            var isUserSynonym = synonymName.Database == IdentifierDefaults.Database && synonymName.Schema == IdentifierDefaults.Schema;
+            var isUserSynonym = string.Equals(synonymName.Database, IdentifierDefaults.Database, StringComparison.Ordinal)
+                && string.Equals(synonymName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal);
             var synonymData = isUserSynonym
                 ? LoadUserSynonymData(synonymName.LocalName, cancellationToken)
                 : LoadSynonymData(synonymName, cancellationToken);

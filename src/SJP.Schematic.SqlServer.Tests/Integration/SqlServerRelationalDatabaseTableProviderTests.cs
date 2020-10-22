@@ -11,7 +11,7 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
 {
-    internal partial class SqlServerRelationalDatabaseTableProviderTests : SqlServerTest
+    internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : SqlServerTest
     {
         private IRelationalDatabaseTableProvider TableProvider => new SqlServerRelationalDatabaseTableProvider(Connection, IdentifierDefaults);
 

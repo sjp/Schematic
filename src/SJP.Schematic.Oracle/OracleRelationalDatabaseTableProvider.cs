@@ -288,7 +288,7 @@ where
             var groupedByName = primaryKeyColumns.GroupBy(row => new { row.ConstraintName, row.EnabledStatus });
             var firstRow = groupedByName.First();
             var constraintName = firstRow.Key.ConstraintName;
-            var isEnabled = firstRow.Key.EnabledStatus == Constants.Enabled;
+            var isEnabled = string.Equals(firstRow.Key.EnabledStatus, Constants.Enabled, StringComparison.Ordinal);
 
             var keyColumns = firstRow
                 .OrderBy(row => row.ColumnPosition)
@@ -360,7 +360,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
             foreach (var indexInfo in indexColumns)
             {
                 var indexProperties = (OracleIndexProperties)indexInfo.Key.IndexProperty;
-                var isUnique = indexInfo.Key.Uniqueness == Constants.Unique;
+                var isUnique = string.Equals(indexInfo.Key.Uniqueness, Constants.Unique, StringComparison.Ordinal);
                 var indexName = Identifier.CreateQualifiedIdentifier(indexInfo.Key.IndexName);
 
                 var indexCols = indexInfo
@@ -369,7 +369,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                     .Select(row => new { row.IsDescending, Column = row.ColumnName! })
                     .Select(row =>
                     {
-                        var order = row.IsDescending == Constants.Y ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
+                        var order = string.Equals(row.IsDescending, Constants.Y, StringComparison.Ordinal) ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
                         var indexColumns = columnLookup.ContainsKey(row.Column)
                             ? new[] { columnLookup[row.Column] }
                             : Array.Empty<IDatabaseColumn>();
@@ -453,15 +453,15 @@ order by aic.COLUMN_POSITION";
                         .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
                         .Select(row => columnLookup[row.ColumnName!])
                         .ToList(),
-                    IsEnabled = g.Key.EnabledStatus == Constants.Enabled
+                    IsEnabled = string.Equals(g.Key.EnabledStatus, Constants.Enabled, StringComparison.Ordinal)
                 })
                 .ToList();
             if (constraintColumns.Empty())
                 return Array.Empty<IDatabaseKey>();
 
             return constraintColumns
-                .Select(uk => new OracleDatabaseKey(uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, uk.IsEnabled))
-                .ToList();
+                .ConvertAll(uk => new OracleDatabaseKey(uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, uk.IsEnabled))
+;
         }
 
         /// <summary>
@@ -522,7 +522,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
             {
                 // ensure we have a key to begin with
                 IDatabaseKey? parentKey = null;
-                if (childKeyRow.ParentKeyType == Constants.PrimaryKeyType)
+                if (string.Equals(childKeyRow.ParentKeyType, Constants.PrimaryKeyType, StringComparison.Ordinal))
                     await primaryKey.IfSomeAsync(k => parentKey = k).ConfigureAwait(false);
                 else if (childKeyRow.ParentKeyName != null && uniqueKeyLookup.ContainsKey(childKeyRow.ParentKeyName))
                     parentKey = uniqueKeyLookup[childKeyRow.ParentKeyName];
@@ -621,7 +621,7 @@ where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_
                     continue;
 
                 var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);
-                var isEnabled = checkRow.EnabledStatus == Constants.Enabled;
+                var isEnabled = string.Equals(checkRow.EnabledStatus, Constants.Enabled, StringComparison.Ordinal);
 
                 var check = new DatabaseCheckConstraint(constraintName, definition, isEnabled);
                 result.Add(check);
@@ -700,7 +700,7 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
                     .BindAsync(async parentTableName =>
                     {
                         resolvedParentTableName = parentTableName;
-                        if (fkey.Key.KeyType == Constants.PrimaryKeyType)
+                        if (string.Equals(fkey.Key.KeyType, Constants.PrimaryKeyType, StringComparison.Ordinal))
                         {
                             var pk = await queryCache.GetPrimaryKeyAsync(parentTableName, cancellationToken).ConfigureAwait(false);
                             return pk.ToAsync();
@@ -725,7 +725,7 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
                             .Select(row => columnLookup[row.ColumnName])
                             .ToList();
 
-                        var isEnabled = fkey.Key.EnabledStatus == Constants.Enabled;
+                        var isEnabled = string.Equals(fkey.Key.EnabledStatus, Constants.Enabled, StringComparison.Ordinal);
                         var childKey = new OracleDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled);
 
                         var deleteAction = ReferentialActionMapping[fkey.Key.DeleteAction];
@@ -805,8 +805,8 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                 };
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
-                var isNullable = !notNullableColumnNames.Contains(row.ColumnName);
-                var isComputed = row.IsComputed == Constants.Yes;
+                var isNullable = !notNullableColumnNames.Contains(row.ColumnName, StringComparer.Ordinal);
+                var isComputed = string.Equals(row.IsComputed, Constants.Yes, StringComparison.Ordinal);
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
                 var computedColumnDefinition = isComputed && !row.DefaultValue.IsNullOrWhiteSpace()
                     ? Option<string>.Some(row.DefaultValue)
@@ -885,7 +885,7 @@ order by COLUMN_ID";
                     ? TimingMapping[triggerRow.TriggerType]
                     : TriggerQueryTiming.After;
                 var definition = triggerRow.Definition ?? string.Empty;
-                var isEnabled = triggerRow.EnabledStatus == Constants.Enabled;
+                var isEnabled = string.Equals(triggerRow.EnabledStatus, Constants.Enabled, StringComparison.Ordinal);
 
                 var events = TriggerEvent.None;
                 var triggerEventPieces = triggerRow.TriggerEvent != null
@@ -894,11 +894,11 @@ order by COLUMN_ID";
 
                 foreach (var triggerEventPiece in triggerEventPieces)
                 {
-                    if (triggerEventPiece == Constants.Insert)
+                    if (string.Equals(triggerEventPiece, Constants.Insert, StringComparison.Ordinal))
                         events |= TriggerEvent.Insert;
-                    else if (triggerEventPiece == Constants.Update)
+                    else if (string.Equals(triggerEventPiece, Constants.Update, StringComparison.Ordinal))
                         events |= TriggerEvent.Update;
-                    else if (triggerEventPiece == Constants.Delete)
+                    else if (string.Equals(triggerEventPiece, Constants.Delete, StringComparison.Ordinal))
                         events |= TriggerEvent.Delete;
                     else
                         throw new UnsupportedTriggerEventException(tableName, triggerEventPiece);
@@ -962,7 +962,7 @@ where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE
                 .ToDictionary();
 
             return checks
-                .Where(c => c.Definition != null && columnNotNullConstraints.ContainsKey(c.Definition) && c.EnabledStatus == Constants.Enabled)
+                .Where(c => c.Definition != null && columnNotNullConstraints.ContainsKey(c.Definition) && string.Equals(c.EnabledStatus, Constants.Enabled, StringComparison.Ordinal))
                 .Select(c => columnNotNullConstraints[c.Definition!])
                 .ToList();
         }
@@ -1052,7 +1052,7 @@ where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE
             return result;
         }
 
-        private readonly ConcurrentDictionary<string, string> _notNullDefinitions = new ConcurrentDictionary<string, string>();
+        private readonly ConcurrentDictionary<string, string> _notNullDefinitions = new ConcurrentDictionary<string, string>(StringComparer.Ordinal);
 
         private static class Constants
         {

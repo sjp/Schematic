@@ -6,7 +6,7 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
 {
-    internal partial class SqliteRelationalDatabaseTableProviderTests : SqliteTest
+    internal sealed partial class SqliteRelationalDatabaseTableProviderTests : SqliteTest
     {
         [Test]
         public async Task UniqueKeys_WhenGivenTableWithNoUniqueKeys_ReturnsEmptyCollection()
@@ -68,7 +68,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var table = await GetTableAsync("table_test_table_7").ConfigureAwait(false);
             var uk = table.UniqueKeys.Single();
             var ukColumns = uk.Columns.ToList();
-            var ukColumnNames = ukColumns.Select(c => c.Name.LocalName).ToList();
+            var ukColumnNames = ukColumns.ConvertAll(c => c.Name.LocalName);
 
             Assert.Multiple(() =>
             {

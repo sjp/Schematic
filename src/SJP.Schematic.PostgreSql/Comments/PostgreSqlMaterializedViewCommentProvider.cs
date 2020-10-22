@@ -259,7 +259,7 @@ where n.nspname = @SchemaName and c.relname = @ViewName
                 throw new ArgumentNullException(nameof(objectType));
 
             return commentsData
-                .Where(c => c.ObjectType == objectType)
+                .Where(c => string.Equals(c.ObjectType, objectType, StringComparison.Ordinal))
                 .Select(c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
                 .FirstOrDefault();
         }
@@ -272,7 +272,7 @@ where n.nspname = @SchemaName and c.relname = @ViewName
                 throw new ArgumentNullException(nameof(objectType));
 
             return commentsData
-                .Where(c => c.ObjectType == objectType)
+                .Where(c => string.Equals(c.ObjectType, objectType, StringComparison.Ordinal))
                 .Select(c => new KeyValuePair<Identifier, Option<string>>(
                     Identifier.CreateQualifiedIdentifier(c.ObjectName),
                     !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None

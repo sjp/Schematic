@@ -68,7 +68,7 @@ namespace SJP.Schematic.DataAccess
                 ? columnName
                 : CreateValidIdentifier(className, columnName);
 
-            return columnIdentifier == className
+            return string.Equals(columnIdentifier, className, StringComparison.Ordinal)
                 ? columnIdentifier + "_"
                 : columnIdentifier;
         }

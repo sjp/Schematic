@@ -182,7 +182,7 @@ namespace SJP.Schematic.Dbml
             return table.PrimaryKey
                 .Match(
                     pk => pk.Columns.Count == 1
-                        && pk.Columns.Single().Name.LocalName == column.Name.LocalName,
+                        && string.Equals(pk.Columns.Single().Name.LocalName, column.Name.LocalName, StringComparison.Ordinal),
                     () => false
                 );
         }
@@ -197,8 +197,7 @@ namespace SJP.Schematic.Dbml
             return table.UniqueKeys
                 .Any(
                     uk => uk.Columns.Count == 1
-                        && uk.Columns.Single().Name.LocalName == column.Name.LocalName
-                );
+                        && string.Equals(uk.Columns.Single().Name.LocalName, column.Name.LocalName, StringComparison.Ordinal));
         }
 
         private static bool IsChildKeyUnique(IRelationalDatabaseTable table, IDatabaseKey key)
@@ -212,7 +211,7 @@ namespace SJP.Schematic.Dbml
             var matchesPkColumns = table.PrimaryKey.Match(pk =>
             {
                 var pkColumnNames = pk.Columns.Select(c => c.Name.LocalName).ToList();
-                return keyColumnNames.SequenceEqual(pkColumnNames);
+                return keyColumnNames.SequenceEqual(pkColumnNames, StringComparer.Ordinal);
             }, () => false);
             if (matchesPkColumns)
                 return true;
@@ -220,7 +219,7 @@ namespace SJP.Schematic.Dbml
             var matchesUkColumns = table.UniqueKeys.Any(uk =>
             {
                 var ukColumnNames = uk.Columns.Select(c => c.Name.LocalName).ToList();
-                return keyColumnNames.SequenceEqual(ukColumnNames);
+                return keyColumnNames.SequenceEqual(ukColumnNames, StringComparer.Ordinal);
             });
             if (matchesUkColumns)
                 return true;
@@ -234,7 +233,7 @@ namespace SJP.Schematic.Dbml
                 var indexColumnExpressions = i.Columns
                     .Select(ic => ic.DependentColumns.Select(dc => dc.Name.LocalName).FirstOrDefault() ?? ic.Expression)
                     .ToList();
-                return keyColumnNames.SequenceEqual(indexColumnExpressions);
+                return keyColumnNames.SequenceEqual(indexColumnExpressions, StringComparer.Ordinal);
             });
         }
 

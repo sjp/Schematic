@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -108,8 +109,8 @@ select
 
             var majorVersionStr = versionStr.Substring(0, 2);
             var minorVersionStr = versionStr.Substring(4, 2);
-            var parsedMajor = int.TryParse(majorVersionStr, out var majorVersion);
-            var parsedMinor = int.TryParse(minorVersionStr, out var minorVersion);
+            var parsedMajor = int.TryParse(majorVersionStr, NumberStyles.Integer, CultureInfo.InvariantCulture, out var majorVersion);
+            var parsedMinor = int.TryParse(minorVersionStr, NumberStyles.Integer, CultureInfo.InvariantCulture, out var minorVersion);
 
             return parsedMajor && parsedMinor
                 ? new Version(majorVersion, minorVersion)
@@ -127,9 +128,9 @@ select
             var majorVersionStr = versionStr.Substring(0, 1);
             var minorVersionStr = versionStr.Substring(1, 2);
             var patchVersionStr = versionStr.Substring(3, 2);
-            var parsedMajorVersion = int.TryParse(majorVersionStr, out var majorVersion);
-            var parsedMinorVersion = int.TryParse(minorVersionStr, out var minorVersion);
-            var parsedPatchVersion = int.TryParse(patchVersionStr, out var patchVersion);
+            var parsedMajorVersion = int.TryParse(majorVersionStr, NumberStyles.Integer, CultureInfo.InvariantCulture, out var majorVersion);
+            var parsedMinorVersion = int.TryParse(minorVersionStr, NumberStyles.Integer, CultureInfo.InvariantCulture, out var minorVersion);
+            var parsedPatchVersion = int.TryParse(patchVersionStr, NumberStyles.Integer, CultureInfo.InvariantCulture, out var patchVersion);
 
             return parsedMajorVersion && parsedMinorVersion && parsedPatchVersion
                 ? new Version(majorVersion, minorVersion, patchVersion)
@@ -191,7 +192,7 @@ select
             if (text.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(text));
 
-            return Keywords.Contains(text);
+            return Keywords.Contains(text, StringComparer.OrdinalIgnoreCase);
         }
 
         // https://www.postgresql.org/docs/current/static/sql-keywords-appendix.html

@@ -49,13 +49,13 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             var mapper = new OrphansModelMapper();
             var orphanedTableViewModels = orphanedTables
-                .Select(t =>
+                .ConvertAll(t =>
                 {
                     if (!RowCounts.TryGetValue(t.Name, out var rowCount))
                         rowCount = 0;
                     return mapper.Map(t, rowCount);
                 })
-                .ToList();
+;
 
             var templateParameter = new Orphans(orphanedTableViewModels);
             var renderedOrphans = await Formatter.RenderTemplateAsync(templateParameter, cancellationToken).ConfigureAwait(false);

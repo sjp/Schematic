@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Globalization;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Dot
@@ -31,9 +32,9 @@ namespace SJP.Schematic.Dot
 
         private static string ToRgbHex(byte red, byte green, byte blue)
         {
-            var r = red.ToString("X2");
-            var g = green.ToString("X2");
-            var b = blue.ToString("X2");
+            var r = red.ToString("X2", CultureInfo.InvariantCulture);
+            var g = green.ToString("X2", CultureInfo.InvariantCulture);
+            var b = blue.ToString("X2", CultureInfo.InvariantCulture);
 
             return string.Concat("#", r, g, b);
         }
@@ -83,7 +84,7 @@ namespace SJP.Schematic.Dot
             if (ReferenceEquals(this, other))
                 return true;
 
-            return _hex == other.ToString();
+            return string.Equals(_hex, other.ToString(), StringComparison.Ordinal);
         }
 
         private readonly string _hex;

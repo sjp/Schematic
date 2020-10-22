@@ -196,7 +196,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 throw new ArgumentNullException(nameof(propertyName));
 
             var columnAttributeArgs = new List<AttributeArgumentSyntax>();
-            if (propertyName != column.Name.LocalName)
+            if (!string.Equals(propertyName, column.Name.LocalName, StringComparison.Ordinal))
             {
                 var quotedColumnName = LiteralExpression(
                     SyntaxKind.StringLiteralExpression,

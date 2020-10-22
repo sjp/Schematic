@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
 {
-    internal partial class SqlServerRelationalDatabaseTableProviderTests : SqlServerTest
+    internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : SqlServerTest
     {
         [Test]
         public async Task Indexes_WhenGivenTableWithNoIndexes_ReturnsEmptyCollection()

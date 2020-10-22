@@ -6,7 +6,7 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration
 {
-    internal partial class SqlServerRelationalDatabaseTableProviderTests : SqlServerTest
+    internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : SqlServerTest
     {
         [Test]
         public async Task UniqueKeys_WhenGivenTableWithNoUniqueKeys_ReturnsEmptyCollection()
@@ -70,7 +70,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
             var table = await GetTableAsync("table_test_table_7").ConfigureAwait(false);
             var uk = table.UniqueKeys.Single();
             var ukColumns = uk.Columns.ToList();
-            var ukColumnNames = ukColumns.Select(c => c.Name.LocalName).ToList();
+            var ukColumnNames = ukColumns.ConvertAll(c => c.Name.LocalName);
 
             Assert.Multiple(() =>
             {

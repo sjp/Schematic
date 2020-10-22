@@ -9,7 +9,7 @@ using SJP.Schematic.Tests.Utilities.Integration;
 
 namespace SJP.Schematic.Serialization.Tests
 {
-    internal class JsonRelationalDatabaseSerializerTests : SakilaTest
+    internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     {
         private static readonly Lazy<IMapper> _mapper = new Lazy<IMapper>(() =>
         {

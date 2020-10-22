@@ -122,7 +122,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 .Union(Routines.Select(r => r.Name))
                 .Select(n => n.Schema)
                 .Where(n => n != null)
-                .Distinct()
+                .Distinct(StringComparer.Ordinal)
                 .Where(s => s != null)
                 .Select(s => s!)
                 .OrderBy(n => n)

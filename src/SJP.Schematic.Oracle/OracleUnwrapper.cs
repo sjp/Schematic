@@ -6,7 +6,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Oracle.Parsing;
 
@@ -180,8 +179,10 @@ namespace SJP.Schematic.Oracle
                 if (base64Remainder.IsNullOrWhiteSpace())
                     return false;
 
-                var base64RemainderChars = base64Remainder.TrimStart().Where(c => c != '\r').ToArray();
-                base64Remainder = new string(base64RemainderChars, 0, length);
+                base64Remainder = base64Remainder
+                    .Split(CarriageReturn, StringSplitOptions.RemoveEmptyEntries)
+                    .Join(string.Empty)
+                    .TrimStart();
 
                 var result = IsValidBase64String(base64Remainder);
                 if (result)
@@ -189,11 +190,9 @@ namespace SJP.Schematic.Oracle
                     payload = base64Remainder!;
                     return true;
                 }
-                else
-                {
-                    payload = null;
-                    return false;
-                }
+
+                payload = null;
+                return false;
             }
         }
 
@@ -203,26 +202,34 @@ namespace SJP.Schematic.Oracle
                 throw new ArgumentNullException(nameof(base64Input));
 
             var bytes = Convert.FromBase64String(base64Input);
-            var mappedBytes = bytes.Select(b => CharMap[b]).ToArray();
 
-            var hashBytes = mappedBytes.Take(20).ToArray();
-            var dataBytes = mappedBytes.Skip(20).ToArray();
+            var mappedCharBuffer = new Span<byte>(new byte[bytes.Length]);
+            for (var i = 0; i < bytes.Length; i++)
+            {
+                mappedCharBuffer[i] = CharMap[bytes[i]];
+            }
+
+            const int hashSize = 20; // bytes
+            var hashBuffer = mappedCharBuffer[..hashSize];
+            var dataBuffer = mappedCharBuffer[hashSize..];
 
             using (var sha1 = new SHA1Managed())
             {
-                var computedHash = sha1.ComputeHash(dataBytes);
-                var areEqual = hashBytes.SequenceEqual(computedHash);
+                var computedHashBuffer = new Span<byte>(new byte[hashSize]);
+
+                var areEqual = sha1.TryComputeHash(dataBuffer, computedHashBuffer, out _)
+                    && computedHashBuffer.SequenceEqual(hashBuffer);
 
                 if (!areEqual)
                     throw new InvalidDataException("The given data is not a valid wrapped definition as it has failed a checksum.");
             }
 
             // need to skip zlib header bytes and trim trailing zlib checksum bytes to enable decompression
-            var trimmedBytes = ZlibToDeflate(dataBytes);
+            var trimmedBuffer = ZlibToDeflate(dataBuffer);
 
-            using var reader = new MemoryStream(trimmedBytes);
+            using var reader = new MemoryStream(trimmedBuffer.ToArray());
             using var unzipper = new DeflateStream(reader, CompressionMode.Decompress);
-            using var writer = new MemoryStream();
+            using var writer = new MemoryStream(trimmedBuffer.Length);
             unzipper.CopyTo(writer);
 
             var decompressed = writer.ToArray();
@@ -235,27 +242,17 @@ namespace SJP.Schematic.Oracle
             if (input.IsNullOrWhiteSpace())
                 return false;
 
-            var trimmedChars = input.Where(c => !c.IsWhiteSpace()).ToArray();
-            var trimmed = new string(trimmedChars);
-
-            var validLength = trimmed.Length % 4 == 0;
-            if (!validLength)
-                return false;
-
-            return Base64Matcher.IsMatch(trimmed);
+            var buffer = new Span<byte>(new byte[input.Length]);
+            return Convert.TryFromBase64String(input, buffer, out _);
         }
 
-        private static byte[] ZlibToDeflate(byte[] bytes)
+        private static Span<byte> ZlibToDeflate(Span<byte> bytes)
         {
-            if (bytes == null)
-                throw new ArgumentNullException(nameof(bytes));
-
             const int zlibHeaderSize = 2;
             const int zlibTrailerSize = 4;
-            return bytes
-                .Skip(zlibHeaderSize)
-                .Take(bytes.Length - zlibHeaderSize - zlibTrailerSize)
-                .ToArray();
+
+            var endPosition = bytes.Length - zlibHeaderSize - zlibTrailerSize + 1;
+            return bytes[zlibHeaderSize..endPosition];
         }
 
         private static readonly byte[] CharMap = new byte[]
@@ -279,8 +276,8 @@ namespace SJP.Schematic.Oracle
         };
 
         private static readonly char[] SpaceChar = new[] { ' ' };
+        private static readonly char[] CarriageReturn = new[] { '\r' };
         private static readonly char[] NewlineChars = new[] { '\r', '\n' };
-        private static readonly Regex Base64Matcher = new Regex("^[a-zA-Z0-9\\+/]*={0,3}$", RegexOptions.None);
         private static readonly OracleTokenizer Tokenizer = new OracleTokenizer();
     }
 }
