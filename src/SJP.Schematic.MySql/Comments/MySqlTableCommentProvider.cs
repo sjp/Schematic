@@ -297,7 +297,7 @@ where s.TABLE_SCHEMA = @SchemaName and s.TABLE_NAME = @TableName
                     Identifier.CreateQualifiedIdentifier(c.ObjectName),
                     !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None
                 ))
-                .ToDictionary(c => c.Key, c => c.Value);
+                .ToReadOnlyDictionary(IdentifierComparer.Ordinal);
         }
 
         /// <summary>

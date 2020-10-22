@@ -26,7 +26,7 @@ namespace SJP.Schematic.Modelled.Reflection
             var tableType = index.Property!.ReflectedType;
             var propertyLookup = tableType.GetProperties()
                 .Select(p => new KeyValuePair<string, PropertyInfo>(p.Name, p))
-                .ToDictionary();
+                .ToReadOnlyDictionary(StringComparer.Ordinal);
 
             var tableColumnLookup = table.GetColumnLookup();
             var columns = new List<IDatabaseIndexColumn>();

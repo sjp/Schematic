@@ -959,7 +959,7 @@ where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE
 
             var columnNotNullConstraints = columnNames
                 .Select(name => new KeyValuePair<string, string>(GenerateNotNullDefinition(name), name))
-                .ToDictionary();
+                .ToReadOnlyDictionary();
 
             return checks
                 .Where(c => c.Definition != null && columnNotNullConstraints.ContainsKey(c.Definition) && string.Equals(c.EnabledStatus, Constants.Enabled, StringComparison.Ordinal))

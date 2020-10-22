@@ -442,7 +442,7 @@ where t.schema_id = SCHEMA_ID(@SchemaName) and t.name = @TableName and t.is_ms_s
                     Identifier.CreateQualifiedIdentifier(c.ObjectName),
                     !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None
                 ))
-                .ToDictionary(c => c.Key, c => c.Value);
+                .ToReadOnlyDictionary(IdentifierComparer.Ordinal);
         }
 
         /// <summary>

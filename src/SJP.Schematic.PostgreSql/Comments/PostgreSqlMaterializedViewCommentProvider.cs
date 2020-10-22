@@ -277,7 +277,7 @@ where n.nspname = @SchemaName and c.relname = @ViewName
                     Identifier.CreateQualifiedIdentifier(c.ObjectName),
                     !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None
                 ))
-                .ToDictionary(c => c.Key, c => c.Value);
+                .ToReadOnlyDictionary(IdentifierComparer.Ordinal);
         }
 
         /// <summary>

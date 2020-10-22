@@ -310,7 +310,7 @@ where v.MVIEW_NAME = :ViewName
                     Identifier.CreateQualifiedIdentifier(c.ColumnName),
                     !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None
                 ))
-                .ToDictionary(c => c.Key, c => c.Value);
+                .ToReadOnlyDictionary(IdentifierComparer.Ordinal);
         }
 
         /// <summary>

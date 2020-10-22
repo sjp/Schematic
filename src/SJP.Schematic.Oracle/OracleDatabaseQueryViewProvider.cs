@@ -336,10 +336,10 @@ order by atc.COLUMN_ID";
 
             var columnNotNullConstraints = columnNames
                 .Select(name => new KeyValuePair<string, string>(GenerateNotNullDefinition(name), name))
-                .ToDictionary();
+                .ToReadOnlyDictionary();
 
             return checks
-                .Where(c => c.Definition != null && columnNotNullConstraints.ContainsKey(c.Definition) && c.EnabledStatus == EnabledValue)
+                .Where(c => c.Definition != null && columnNotNullConstraints.ContainsKey(c.Definition) && string.Equals(c.EnabledStatus, EnabledValue, StringComparison.Ordinal))
                 .Select(c => columnNotNullConstraints[c.Definition!])
                 .ToList();
         }

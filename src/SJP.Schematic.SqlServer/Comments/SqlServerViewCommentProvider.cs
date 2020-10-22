@@ -248,7 +248,8 @@ where v.schema_id = SCHEMA_ID(@SchemaName) and v.name = @ViewName and v.is_ms_sh
                 .Select(c => new KeyValuePair<Identifier, Option<string>>(
                     Identifier.CreateQualifiedIdentifier(c.ObjectName),
                     !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None
-                )).ToDictionary(c => c.Key, c => c.Value);
+                ))
+                .ToReadOnlyDictionary(IdentifierComparer.Ordinal);
         }
 
         /// <summary>

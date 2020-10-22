@@ -199,7 +199,7 @@ limit 1";
             var uniqueKeyComments = GetCommentLookupByType(commentsData, Constants.Unique);
             var indexComments = GetCommentLookupByType(commentsData, Constants.Index)
                 .Where(kv => !uniqueKeyComments.ContainsKey(kv.Key))
-                .ToDictionary(kv => kv.Key, kv => kv.Value);
+                .ToReadOnlyDictionary(IdentifierComparer.Ordinal);
             var triggerComments = GetCommentLookupByType(commentsData, Constants.Trigger);
 
             return new RelationalDatabaseTableComments(
@@ -497,7 +497,7 @@ where t.relkind = 'r' and ns.nspname = @SchemaName and t.relname = @TableName
                     Identifier.CreateQualifiedIdentifier(c.ObjectName),
                     !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None
                 ))
-                .ToDictionary(c => c.Key, c => c.Value);
+                .ToReadOnlyDictionary(IdentifierComparer.Ordinal);
         }
 
         /// <summary>
