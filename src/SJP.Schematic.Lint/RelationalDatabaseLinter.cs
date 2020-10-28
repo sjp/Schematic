@@ -56,35 +56,35 @@ namespace SJP.Schematic.Lint
             var tables = await database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             foreach (var tableRule in TableRules)
             {
-                await foreach (var message in tableRule.AnalyseTables(tables, cancellationToken).ConfigureAwait(false))
+                await foreach (var message in tableRule.AnalyseTables(tables, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
                     yield return message;
             }
 
             var views = await database.GetAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             foreach (var viewRule in ViewRules)
             {
-                await foreach (var message in viewRule.AnalyseViews(views, cancellationToken).ConfigureAwait(false))
+                await foreach (var message in viewRule.AnalyseViews(views, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
                     yield return message;
             }
 
             var sequences = await database.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             foreach (var sequenceRule in SequenceRules)
             {
-                await foreach (var message in sequenceRule.AnalyseSequences(sequences, cancellationToken).ConfigureAwait(false))
+                await foreach (var message in sequenceRule.AnalyseSequences(sequences, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
                     yield return message;
             }
 
             var synonyms = await database.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             foreach (var synonymRule in SynonymRules)
             {
-                await foreach (var message in synonymRule.AnalyseSynonyms(synonyms, cancellationToken).ConfigureAwait(false))
+                await foreach (var message in synonymRule.AnalyseSynonyms(synonyms, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
                     yield return message;
             }
 
             var routines = await database.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             foreach (var routineRule in RoutineRules)
             {
-                await foreach (var message in routineRule.AnalyseRoutines(routines, cancellationToken).ConfigureAwait(false))
+                await foreach (var message in routineRule.AnalyseRoutines(routines, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
                     yield return message;
             }
         }
@@ -108,7 +108,7 @@ namespace SJP.Schematic.Lint
         {
             foreach (var tableRule in TableRules)
             {
-                await foreach (var message in tableRule.AnalyseTables(tables, cancellationToken).ConfigureAwait(false))
+                await foreach (var message in tableRule.AnalyseTables(tables, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
                     yield return message;
             }
         }
@@ -132,7 +132,7 @@ namespace SJP.Schematic.Lint
         {
             foreach (var viewRule in ViewRules)
             {
-                await foreach (var message in viewRule.AnalyseViews(views, cancellationToken).ConfigureAwait(false))
+                await foreach (var message in viewRule.AnalyseViews(views, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
                     yield return message;
             }
         }
@@ -156,7 +156,7 @@ namespace SJP.Schematic.Lint
         {
             foreach (var sequenceRule in SequenceRules)
             {
-                await foreach (var message in sequenceRule.AnalyseSequences(sequences, cancellationToken).ConfigureAwait(false))
+                await foreach (var message in sequenceRule.AnalyseSequences(sequences, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
                     yield return message;
             }
         }
@@ -180,7 +180,7 @@ namespace SJP.Schematic.Lint
         {
             foreach (var synonymRule in SynonymRules)
             {
-                await foreach (var message in synonymRule.AnalyseSynonyms(synonyms, cancellationToken).ConfigureAwait(false))
+                await foreach (var message in synonymRule.AnalyseSynonyms(synonyms, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
                     yield return message;
             }
         }
@@ -204,7 +204,7 @@ namespace SJP.Schematic.Lint
         {
             foreach (var routineRule in RoutineRules)
             {
-                await foreach (var message in routineRule.AnalyseRoutines(routines, cancellationToken).ConfigureAwait(false))
+                await foreach (var message in routineRule.AnalyseRoutines(routines, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
                     yield return message;
             }
         }

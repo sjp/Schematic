@@ -67,20 +67,18 @@ namespace SJP.Schematic.SqlServer.Parsing
 
         private static string UnwrapIdentifier(string identifier)
         {
-            if (identifier.StartsWith("\"", StringComparison.Ordinal))
+            if (identifier.StartsWith('\\'))
             {
                 var result = TrimWrappingChars(identifier);
                 return result.Replace("\"\"", "\"", StringComparison.Ordinal);
             }
-            else if (identifier.StartsWith("[", StringComparison.Ordinal))
+            else if (identifier.StartsWith('['))
             {
                 var result = TrimWrappingChars(identifier);
                 return result.Replace("]]", "]", StringComparison.Ordinal);
             }
-            else
-            {
-                return identifier;
-            }
+
+            return identifier;
         }
 
         private static string TrimWrappingChars(string input) => input[1..^1];

@@ -82,7 +82,7 @@ namespace SJP.Schematic.PostgreSql
                 AsyncEnumerable.Empty<IRelationalDatabaseTable>
             );
 
-            await foreach (var table in tables.WithCancellation(cancellationToken).ConfigureAwait(false))
+            await foreach (var table in tables.WithCancellation(cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
                 yield return table;
         }
 

@@ -267,7 +267,7 @@ where table_schema = @SchemaName and table_name = @ViewName";
                      ? Option<string>.Some(row.ColumnDefault)
                      : Option<string>.None;
 
-                var column = new DatabaseColumn(columnName, columnType, row.IsNullable == Constants.Yes, defaultValue, autoIncrement);
+                var column = new DatabaseColumn(columnName, columnType, string.Equals(row.IsNullable, Constants.Yes, StringComparison.Ordinal), defaultValue, autoIncrement);
                 result.Add(column);
             }
 

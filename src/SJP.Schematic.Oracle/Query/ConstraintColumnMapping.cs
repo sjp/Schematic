@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    internal class ConstraintColumnMapping
+    internal sealed class ConstraintColumnMapping
     {
         public string? ConstraintName { get; set; }
 

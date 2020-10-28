@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.MySql.Query
 {
-    internal class TableCommentsData : CommentsData
+    internal sealed class TableCommentsData : CommentsData
     {
         public string? TableName { get; set; }
 

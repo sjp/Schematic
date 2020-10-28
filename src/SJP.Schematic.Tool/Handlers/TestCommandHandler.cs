@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SJP.Schematic.Tool.Handlers
 {
-    internal class TestCommandHandler : DatabaseCommandHandler
+    internal sealed class TestCommandHandler : DatabaseCommandHandler
     {
         public TestCommandHandler(FileInfo filePath)
             : base(filePath)

@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.PostgreSql.Query
 {
-    internal class ColumnDataV12 : ColumnDataV10
+    internal sealed class ColumnDataV12 : ColumnDataV10
     {
         /// <summary>
         /// If the column is a generated column, then <c>ALWAYS</c>, else <c>NEVER</c>.

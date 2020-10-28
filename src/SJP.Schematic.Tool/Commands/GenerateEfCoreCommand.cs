@@ -6,7 +6,7 @@ using SJP.Schematic.Tool.Handlers;
 
 namespace SJP.Schematic.Tool.Commands
 {
-    internal class GenerateEfCoreCommand : Command
+    internal sealed class GenerateEfCoreCommand : Command
     {
         public GenerateEfCoreCommand()
             : base("efcore", "Generate a C# project for use with EF Core.")

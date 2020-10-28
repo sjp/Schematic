@@ -5,7 +5,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_6
 {
-    internal partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSql96Test
+    internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSql96Test
     {
         [Test]
         public async Task Triggers_GivenTableWithNoTriggers_ReturnsEmptyCollection()

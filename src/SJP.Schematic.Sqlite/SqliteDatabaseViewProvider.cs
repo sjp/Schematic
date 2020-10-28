@@ -427,7 +427,7 @@ namespace SJP.Schematic.Sqlite
             return viewName.LocalName.StartsWith("sqlite_", StringComparison.OrdinalIgnoreCase);
         }
 
-        private readonly ConcurrentDictionary<string, Lazy<ISqliteDatabasePragma>> _dbPragmaCache = new ConcurrentDictionary<string, Lazy<ISqliteDatabasePragma>>();
+        private readonly ConcurrentDictionary<string, Lazy<ISqliteDatabasePragma>> _dbPragmaCache = new ConcurrentDictionary<string, Lazy<ISqliteDatabasePragma>>(StringComparer.Ordinal);
         private static readonly SqliteTypeAffinityParser AffinityParser = new SqliteTypeAffinityParser();
 
         private const int SqliteError = 1;

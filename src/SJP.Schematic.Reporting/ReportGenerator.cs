@@ -61,7 +61,7 @@ namespace SJP.Schematic.Reporting
             await Task.WhenAll(renderTasks).ConfigureAwait(false);
 
             var assetExporter = new AssetExporter();
-            await assetExporter.SaveAssetsAsync(ExportDirectory).ConfigureAwait(false);
+            await assetExporter.SaveAssetsAsync(ExportDirectory, true, cancellationToken).ConfigureAwait(false);
         }
 
         private async Task<IReadOnlyDictionary<Identifier, ulong>> GetRowCountsAsync(IReadOnlyCollection<IRelationalDatabaseTable> tables, CancellationToken cancellationToken)

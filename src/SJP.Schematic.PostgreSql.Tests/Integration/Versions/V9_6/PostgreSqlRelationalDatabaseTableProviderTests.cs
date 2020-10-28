@@ -11,7 +11,7 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_6
 {
-    internal partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSql96Test
+    internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSql96Test
     {
         private IRelationalDatabaseTableProvider TableProvider => new PostgreSqlRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver);
 

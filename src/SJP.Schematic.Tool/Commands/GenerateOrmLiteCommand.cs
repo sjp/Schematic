@@ -6,7 +6,7 @@ using SJP.Schematic.Tool.Handlers;
 
 namespace SJP.Schematic.Tool.Commands
 {
-    internal class GenerateOrmLiteCommand : Command
+    internal sealed class GenerateOrmLiteCommand : Command
     {
         public GenerateOrmLiteCommand()
             : base("ormlite", "Generate a C# project for use with ServiceStack OrmLite.")

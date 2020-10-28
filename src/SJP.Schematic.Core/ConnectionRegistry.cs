@@ -52,11 +52,9 @@ namespace SJP.Schematic.Core
                 connectionId = lookupId;
                 return true;
             }
-            else
-            {
-                connectionId = Guid.Empty;
-                return false;
-            }
+
+            connectionId = Guid.Empty;
+            return false;
         }
     }
 }

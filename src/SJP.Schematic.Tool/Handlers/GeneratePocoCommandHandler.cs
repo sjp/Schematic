@@ -7,7 +7,7 @@ using SJP.Schematic.DataAccess.Poco;
 
 namespace SJP.Schematic.Tool.Handlers
 {
-    internal class GeneratePocoCommandHandler : DatabaseCommandHandler
+    internal sealed class GeneratePocoCommandHandler : DatabaseCommandHandler
     {
         public GeneratePocoCommandHandler(FileInfo filePath)
             : base(filePath)

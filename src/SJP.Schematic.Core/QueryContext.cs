@@ -58,11 +58,9 @@ namespace SJP.Schematic.Core
                     semaphore.Release();
                 }
             }
-            else
-            {
-                loggingContext.Start();
-                return new QueryContext(loggingContext);
-            }
+
+            loggingContext.Start();
+            return new QueryContext(loggingContext);
         }
 
         private static readonly ConditionalWeakTable<IDbConnectionFactory, AsyncSemaphore> SemaphoreLookup = new ConditionalWeakTable<IDbConnectionFactory, AsyncSemaphore>();

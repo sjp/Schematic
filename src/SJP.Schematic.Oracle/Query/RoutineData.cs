@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    internal class RoutineData
+    internal sealed class RoutineData
     {
         public string? SchemaName { get; set; }
 

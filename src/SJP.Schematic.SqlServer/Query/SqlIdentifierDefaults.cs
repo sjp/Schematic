@@ -2,7 +2,7 @@
 
 namespace SJP.Schematic.SqlServer.Query
 {
-    internal class SqlIdentifierDefaults : IIdentifierDefaults
+    internal sealed class SqlIdentifierDefaults : IIdentifierDefaults
     {
         public string Server { get; set; } = default!;
 

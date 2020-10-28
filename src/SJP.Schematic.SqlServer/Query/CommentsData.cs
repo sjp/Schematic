@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.SqlServer.Query
 {
-    internal class CommentsData
+    internal sealed class CommentsData
     {
         public string SchemaName { get; set; } = default!;
 

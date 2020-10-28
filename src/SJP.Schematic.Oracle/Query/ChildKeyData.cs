@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    internal class ChildKeyData
+    internal sealed class ChildKeyData
     {
         public string? ChildTableSchema { get; set; }
 

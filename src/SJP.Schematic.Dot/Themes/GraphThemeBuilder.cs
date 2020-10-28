@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Dot.Themes
 {
-    internal class GraphThemeBuilder : IGraphTheme
+    internal sealed class GraphThemeBuilder : IGraphTheme
     {
         public RgbColor BackgroundColor
         {

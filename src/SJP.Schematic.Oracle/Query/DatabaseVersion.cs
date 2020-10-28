@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    internal class DatabaseVersion
+    internal sealed class DatabaseVersion
     {
         public string? ProductName { get; set; }
 

@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    internal class ForeignKeyData
+    internal sealed class ForeignKeyData
     {
         public string ConstraintName { get; set; } = default!;
 

@@ -76,7 +76,7 @@ namespace SJP.Schematic.PostgreSql
                 AsyncEnumerable.Empty<IDatabaseSequence>
             );
 
-            await foreach (var sequence in sequences.ConfigureAwait(false))
+            await foreach (var sequence in sequences.ConfigureAwait(false).WithCancellation(cancellationToken))
                 yield return sequence;
         }
 

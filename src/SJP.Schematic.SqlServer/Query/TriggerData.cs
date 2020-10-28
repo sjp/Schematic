@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.SqlServer.Query
 {
-    internal class TriggerData
+    internal sealed class TriggerData
     {
         public string TriggerName { get; set; } = default!;
 

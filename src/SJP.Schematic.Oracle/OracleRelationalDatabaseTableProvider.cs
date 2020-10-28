@@ -291,8 +291,8 @@ where
             var isEnabled = string.Equals(firstRow.Key.EnabledStatus, Constants.Enabled, StringComparison.Ordinal);
 
             var keyColumns = firstRow
-                .OrderBy(row => row.ColumnPosition)
                 .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
+                .OrderBy(row => row.ColumnPosition)
                 .Select(row => columnLookup[row.ColumnName!])
                 .ToList();
 
@@ -364,8 +364,8 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                 var indexName = Identifier.CreateQualifiedIdentifier(indexInfo.Key.IndexName);
 
                 var indexCols = indexInfo
-                    .OrderBy(row => row.ColumnPosition)
                     .Where(row => row.ColumnName != null)
+                    .OrderBy(row => row.ColumnPosition)
                     .Select(row => new { row.IsDescending, Column = row.ColumnName! })
                     .Select(row =>
                     {
@@ -449,8 +449,9 @@ order by aic.COLUMN_POSITION";
                 .Select(g => new
                 {
                     g.Key.ConstraintName,
-                    Columns = g.OrderBy(row => row.ColumnPosition)
+                    Columns = g
                         .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
+                        .OrderBy(row => row.ColumnPosition)
                         .Select(row => columnLookup[row.ColumnName!])
                         .ToList(),
                     IsEnabled = string.Equals(g.Key.EnabledStatus, Constants.Enabled, StringComparison.Ordinal)
@@ -705,23 +706,21 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
                             var pk = await queryCache.GetPrimaryKeyAsync(parentTableName, cancellationToken).ConfigureAwait(false);
                             return pk.ToAsync();
                         }
-                        else
-                        {
-                            var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentConstraintName);
-                            var uniqueKeys = await queryCache.GetUniqueKeysAsync(parentTableName, cancellationToken).ConfigureAwait(false);
-                            var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
 
-                            return uniqueKeyLookup.ContainsKey(parentKeyName.LocalName)
-                                ? OptionAsync<IDatabaseKey>.Some(uniqueKeyLookup[parentKeyName.LocalName])
-                                : OptionAsync<IDatabaseKey>.None;
-                        }
+                        var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentConstraintName);
+                        var uniqueKeys = await queryCache.GetUniqueKeysAsync(parentTableName, cancellationToken).ConfigureAwait(false);
+                        var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
+
+                        return uniqueKeyLookup.ContainsKey(parentKeyName.LocalName)
+                            ? OptionAsync<IDatabaseKey>.Some(uniqueKeyLookup[parentKeyName.LocalName])
+                            : OptionAsync<IDatabaseKey>.None;
                     })
                     .Map(parentKey =>
                     {
                         var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ConstraintName);
                         var childKeyColumns = fkey
-                            .OrderBy(row => row.ColumnPosition)
                             .Where(row => columnLookup.ContainsKey(row.ColumnName))
+                            .OrderBy(row => row.ColumnPosition)
                             .Select(row => columnLookup[row.ColumnName])
                             .ToList();
 

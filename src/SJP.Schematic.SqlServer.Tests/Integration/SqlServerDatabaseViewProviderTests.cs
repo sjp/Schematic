@@ -186,7 +186,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         {
             const string viewName = "db_test_view_1";
             var containsTestView = await ViewProvider.GetAllViews()
-                .AnyAsync(v => v.Name.LocalName == viewName)
+                .AnyAsync(v => string.Equals(v.Name.LocalName, viewName, StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestView, Is.True);

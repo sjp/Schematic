@@ -17,7 +17,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             return new Synonym(synonym.Name, synonym.Target, targetUrl, "../");
         }
 
-        private Option<Uri> GetSynonymTargetUrl(Identifier identifier, SynonymTargets targets)
+        private static Option<Uri> GetSynonymTargetUrl(Identifier identifier, SynonymTargets targets)
         {
             if (targets.Tables.ContainsKey(identifier))
                 return new Uri(UrlRouter.GetTableUrl(identifier), UriKind.Relative);

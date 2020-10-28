@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Sqlite.Query
 {
-    internal class SqliteMaster
+    internal sealed class SqliteMaster
     {
         public string type { get; set; } = default!;
 

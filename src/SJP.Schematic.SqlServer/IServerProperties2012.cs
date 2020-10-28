@@ -129,7 +129,7 @@ namespace SJP.Schematic.SqlServer
         string? InstanceName { get; }
 
         /// <summary>
-        /// Returns <code>true</code> if the Advanced Analytics feature was installed during setup; <code>false</code> if Advanced Analytics was not installed.
+        /// Returns <c>true</c> if the Advanced Analytics feature was installed during setup; <c>false</c> if Advanced Analytics was not installed.
         /// </summary>
         bool IsAdvancedAnalyticsInstalled { get; }
 

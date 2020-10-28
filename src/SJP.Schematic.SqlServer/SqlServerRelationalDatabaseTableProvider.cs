@@ -243,7 +243,7 @@ where schema_id = schema_id(@SchemaName) and name = @TableName and is_ms_shipped
             var columnLookup = GetColumnLookup(columns);
 
             var keyColumns = groupedByName
-                .Where(row => row.Key.ConstraintName == constraintName)
+                .Where(row => string.Equals(row.Key.ConstraintName, constraintName, StringComparison.Ordinal))
                 .SelectMany(g => g
                     .Where(row => columnLookup.ContainsKey(row.ColumnName))
                     .Select(row => columnLookup[row.ColumnName]))
@@ -503,7 +503,7 @@ order by ic.key_ordinal";
                 // ensure we have a key to begin with
                 IDatabaseKey? parentKey = null;
 
-                if (groupedChildKey.Key.ParentKeyType == Constants.PrimaryKeyType)
+                if (string.Equals(groupedChildKey.Key.ParentKeyType, Constants.PrimaryKeyType, StringComparison.Ordinal))
                     await primaryKey.IfSomeAsync(k => parentKey = k).ConfigureAwait(false);
                 else if (uniqueKeyLookup.ContainsKey(groupedChildKey.Key.ParentKeyName))
                     parentKey = uniqueKeyLookup[groupedChildKey.Key.ParentKeyName];
@@ -667,21 +667,19 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
                     .BindAsync(async parentTableName =>
                     {
                         resolvedParentTableName = parentTableName;
-                        if (fkey.Key.KeyType == Constants.PrimaryKeyType)
+                        if (string.Equals(fkey.Key.KeyType, Constants.PrimaryKeyType, StringComparison.Ordinal))
                         {
                             var primaryKey = await queryCache.GetPrimaryKeyAsync(parentTableName, cancellationToken).ConfigureAwait(false);
                             return primaryKey.ToAsync();
                         }
-                        else
-                        {
-                            var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
-                            var parentUniqueKeys = await queryCache.GetUniqueKeysAsync(parentTableName, cancellationToken).ConfigureAwait(false);
-                            var parentUniqueKeyLookup = GetDatabaseKeyLookup(parentUniqueKeys);
 
-                            return parentUniqueKeyLookup.ContainsKey(parentKeyName.LocalName)
-                                ? OptionAsync<IDatabaseKey>.Some(parentUniqueKeyLookup[parentKeyName.LocalName])
-                                : OptionAsync<IDatabaseKey>.None;
-                        }
+                        var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
+                        var parentUniqueKeys = await queryCache.GetUniqueKeysAsync(parentTableName, cancellationToken).ConfigureAwait(false);
+                        var parentUniqueKeyLookup = GetDatabaseKeyLookup(parentUniqueKeys);
+
+                        return parentUniqueKeyLookup.ContainsKey(parentKeyName.LocalName)
+                            ? OptionAsync<IDatabaseKey>.Some(parentUniqueKeyLookup[parentKeyName.LocalName])
+                            : OptionAsync<IDatabaseKey>.None;
                     })
                     .Map(parentKey =>
                     {
@@ -873,11 +871,11 @@ order by c.column_id";
                 var events = TriggerEvent.None;
                 foreach (var trigEvent in trig)
                 {
-                    if (trigEvent.TriggerEvent == Constants.Insert)
+                    if (string.Equals(trigEvent.TriggerEvent, Constants.Insert, StringComparison.Ordinal))
                         events |= TriggerEvent.Insert;
-                    else if (trigEvent.TriggerEvent == Constants.Update)
+                    else if (string.Equals(trigEvent.TriggerEvent, Constants.Update, StringComparison.Ordinal))
                         events |= TriggerEvent.Update;
-                    else if (trigEvent.TriggerEvent == Constants.Delete)
+                    else if (string.Equals(trigEvent.TriggerEvent, Constants.Delete, StringComparison.Ordinal))
                         events |= TriggerEvent.Delete;
                     else
                         throw new UnsupportedTriggerEventException(tableName, trigEvent.TriggerEvent);

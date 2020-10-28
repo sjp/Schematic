@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.SqlServer.Query
 {
-    internal class IndexColumns
+    internal sealed class IndexColumns
     {
         public string IndexName { get; set; } = default!;
 

@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V11
 {
-    internal partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSql11Test
+    internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSql11Test
     {
         [Test]
         public async Task Indexes_WhenGivenTableWithNoIndexes_ReturnsEmptyCollection()

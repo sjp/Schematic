@@ -3,7 +3,7 @@ using LanguageExt;
 
 namespace SJP.Schematic.SqlServer
 {
-    internal class ServerProperties2008 : IServerProperties2008
+    internal sealed class ServerProperties2008 : IServerProperties2008
     {
         public ServerProperties2008(Query.ServerProperties2008 query)
         {
@@ -45,13 +45,13 @@ namespace SJP.Schematic.SqlServer
 
         /// <summary>
         /// <para>Version of the Microsoft .NET Framework common language runtime (CLR) that was used while building the instance of SQL Server.</para>
-        /// <para><code>NULL</code> means input is not valid, an error, or not applicable</para>
+        /// <para><c>NULL</c> means input is not valid, an error, or not applicable</para>
         /// </summary>
         public Version? BuildClrVersion { get; }
 
         /// <summary>
         /// <para>Name of the default collation for the server.</para>
-        /// <para><code>NULL</code> means input is not valid, or an error.</para>
+        /// <para><c>NULL</c> means input is not valid, or an error.</para>
         /// </summary>
         public string? Collation { get; }
 
@@ -70,7 +70,7 @@ namespace SJP.Schematic.SqlServer
         /// <para>For a clustered instance of SQL Server on a failover cluster, this value changes as the instance of SQL Server fails over to other nodes in the failover cluster.</para>
         /// <para>On a stand-alone instance of SQL Server, this value remains constant and returns the same value as the MachineName property.</para>
         /// <para>Note: If the instance of SQL Server is in a failover cluster and you want to obtain the name of the failover clustered instance, use the MachineName property.</para>
-        /// <para><code>NULL</code> means input is not valid, an error, or not applicable</para>
+        /// <para><c>NULL</c> means input is not valid, an error, or not applicable</para>
         /// </summary>
         public string? ComputerNamePhysicalNetBIOS { get; }
 
@@ -124,36 +124,36 @@ namespace SJP.Schematic.SqlServer
 
         /// <summary>
         /// <para>Name of the instance to which the user is connected.</para>
-        /// <para>Returns <code>NULL</code> if the instance name is the default instance, if the input is not valid, or error.</para>
+        /// <para>Returns <c>NULL</c> if the instance name is the default instance, if the input is not valid, or error.</para>
         /// </summary>
         public string? InstanceName { get; }
 
         /// <summary>
-        /// Returns <code>true</code> if the Advanced Analytics feature was installed during setup; <code>false</code> if Advanced Analytics was not installed.
+        /// Returns <c>true</c> if the Advanced Analytics feature was installed during setup; <c>false</c> if Advanced Analytics was not installed.
         /// </summary>
         public bool IsAdvancedAnalyticsInstalled { get; }
 
         /// <summary>
         /// <para>Server instance is configured in a failover cluster.</para>
-        /// <para>Returns <code>NULL</code> if the input is not valid, an error, or not applicable.</para>
+        /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
         public bool? IsClustered { get; }
 
         /// <summary>
         /// <para>The full-text and semantic indexing components are installed on the current instance of SQL Server.</para>
-        /// <para>Returns <code>NULL</code> if the input is not valid, an error, or not applicable.</para>
+        /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
         public bool? IsFullTextInstalled { get; }
 
         /// <summary>
         /// <para>Server is in integrated security mode.</para>
-        /// <para>Returns <code>NULL</code> if the input is not valid, an error, or not applicable.</para>
+        /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
         public bool? IsIntegratedSecurityOnly { get; }
 
         /// <summary>
         /// <para>Server is in single-user mode.</para>
-        /// <para>Returns <code>NULL</code> if the input is not valid, an error, or not applicable.</para>
+        /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
         public bool? IsSingleUser { get; }
 
@@ -170,7 +170,7 @@ namespace SJP.Schematic.SqlServer
         /// <summary>
         /// <para>Windows computer name on which the server instance is running.</para>
         /// <para>For a clustered instance, an instance of SQL Server running on a virtual server on Microsoft Cluster Service, it returns the name of the virtual server.</para>
-        /// <para>Returns <code>NULL</code> if the input is not valid, an error, or not applicable.</para>
+        /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
         public string? MachineName { get; }
 
@@ -181,7 +181,7 @@ namespace SJP.Schematic.SqlServer
 
         /// <summary>
         /// <para>Process ID of the SQL Server service. ProcessID is useful in identifying which Sqlservr.exe belongs to this instance.</para>
-        /// <para>Returns <code>NULL</code> if the input is not valid, an error, or not applicable.</para>
+        /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
         public int? ProcessID { get; }
 
@@ -212,7 +212,7 @@ namespace SJP.Schematic.SqlServer
 
         /// <summary>
         /// <para>Both the Windows server and instance information associated with a specified instance of SQL Server.</para>
-        /// <para>Returns <code>NULL</code> if the input is not valid, or an error.</para>
+        /// <para>Returns <c>NULL</c> if the input is not valid, or an error.</para>
         /// </summary>
         public string? ServerName { get; }
 
@@ -238,7 +238,7 @@ namespace SJP.Schematic.SqlServer
 
         /// <summary>
         /// <para>The name of the share used by FILESTREAM.</para>
-        /// <para>Returns <code>NULL</code> if the input is not valid, an error, or not applicable.</para>
+        /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
         public string? FilestreamShareName { get; }
 

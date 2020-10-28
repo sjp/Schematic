@@ -6,7 +6,7 @@ using SJP.Schematic.Tool.Handlers;
 
 namespace SJP.Schematic.Tool.Commands
 {
-    internal class TestCommand : Command
+    internal sealed class TestCommand : Command
     {
         public TestCommand()
             : base("test", "Test a database connection to see whether it is available.")

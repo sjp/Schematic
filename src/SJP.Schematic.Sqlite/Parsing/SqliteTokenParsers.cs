@@ -133,7 +133,7 @@ namespace SJP.Schematic.Sqlite.Parsing
         private static TokenListParser<SqliteToken, ColumnConstraint.Nullable> Nullable =>
             Token.Sequence(SqliteToken.Not, SqliteToken.Null)
                 .Then(prev =>
-                    ConflictClause.Try().Or(Parse.Return<SqliteToken, Token<SqliteToken>>(prev.Last()))
+                    ConflictClause.Try().Or(Parse.Return<SqliteToken, Token<SqliteToken>>(prev[^1]))
                         .Select(_ => new ColumnConstraint.Nullable(false))
                 )
                 .Try().Or(Token.EqualTo(SqliteToken.Null).Select(_ => new ColumnConstraint.Nullable(true)));

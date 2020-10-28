@@ -110,7 +110,7 @@ namespace SJP.Schematic.Core
                 {
                     builder.Append(" (")
                         .Append(name.LocalName)
-                        .Append(")");
+                        .Append(')');
                 });
 
                 builder.Append(" -> ");
@@ -124,7 +124,7 @@ namespace SJP.Schematic.Core
                 {
                     builder.Append(" (")
                         .Append(name.LocalName)
-                        .Append(")");
+                        .Append(')');
                 });
 
                 return builder.GetStringAndRelease();

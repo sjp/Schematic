@@ -236,7 +236,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         public async Task GetAllRoutineComments_WhenEnumerated_ContainsTestRoutineComment()
         {
             var containsTestRoutine = await RoutineCommentProvider.GetAllRoutineComments()
-                .AnyAsync(t => t.RoutineName.LocalName == "routine_comment_tf_1")
+                .AnyAsync(t => string.Equals(t.RoutineName.LocalName, "routine_comment_tf_1", StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestRoutine, Is.True);

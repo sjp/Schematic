@@ -107,7 +107,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var connection = Mock.Of<IDbConnectionFactory>();
 
-            Assert.That(() => connection.ExecuteAsync(null, CancellationToken.None), Throws.ArgumentNullException);
+            Assert.That(() => connection.ExecuteAsync(sql, CancellationToken.None), Throws.ArgumentNullException);
         }
 
         [Test]

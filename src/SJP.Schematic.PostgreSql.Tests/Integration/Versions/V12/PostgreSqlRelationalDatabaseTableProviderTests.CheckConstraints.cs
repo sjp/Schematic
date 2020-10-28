@@ -5,7 +5,7 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
 {
-    internal partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSql12Test
+    internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSql12Test
     {
         [Test]
         public async Task Checks_WhenGivenTableWithNoChecks_ReturnsEmptyCollection()

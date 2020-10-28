@@ -20,7 +20,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectNames()
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_16", System.StringComparison.Ordinal));
 
             Assert.Multiple(() =>
             {
@@ -33,7 +33,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectKeyTypes()
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_16", System.StringComparison.Ordinal));
 
             Assert.Multiple(() =>
             {
@@ -46,7 +46,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectTables()
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_16", System.StringComparison.Ordinal));
 
             Assert.Multiple(() =>
             {
@@ -59,7 +59,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectColumns()
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_16", System.StringComparison.Ordinal));
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
             var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
@@ -79,7 +79,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_16", System.StringComparison.Ordinal));
 
             // mysql treats restrict and no action as the same thing, accept either
             Assert.That(foreignKey.UpdateAction, Is.AnyOf(ReferentialAction.NoAction, ReferentialAction.Restrict));
@@ -90,7 +90,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_18");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_18", System.StringComparison.Ordinal));
 
             Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.Cascade));
         }
@@ -100,7 +100,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_19");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_19", System.StringComparison.Ordinal));
 
             Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.SetNull));
         }
@@ -110,7 +110,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_16", System.StringComparison.Ordinal));
 
             // mysql treats restrict and no action as the same thing, accept either
             Assert.That(foreignKey.DeleteAction, Is.AnyOf(ReferentialAction.NoAction, ReferentialAction.Restrict));
@@ -121,7 +121,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_24");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_24", System.StringComparison.Ordinal));
 
             Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.Cascade));
         }
@@ -131,7 +131,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_25");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_25", System.StringComparison.Ordinal));
 
             Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.SetNull));
         }
@@ -141,7 +141,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_16");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_16", System.StringComparison.Ordinal));
 
             Assert.That(foreignKey.ChildKey.IsEnabled, Is.True);
         }
@@ -150,7 +150,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectNames()
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_17", System.StringComparison.Ordinal));
 
             Assert.Multiple(() =>
             {
@@ -163,7 +163,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectKeyTypes()
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_17", System.StringComparison.Ordinal));
 
             Assert.Multiple(() =>
             {
@@ -176,7 +176,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectTables()
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_17", System.StringComparison.Ordinal));
 
             Assert.Multiple(() =>
             {
@@ -189,7 +189,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectColumns()
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_17", System.StringComparison.Ordinal));
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
             var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
@@ -209,7 +209,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_17", System.StringComparison.Ordinal));
 
             // mysql treats restrict and no action as the same thing, accept either
             Assert.That(foreignKey.UpdateAction, Is.AnyOf(ReferentialAction.NoAction, ReferentialAction.Restrict));
@@ -220,7 +220,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_21");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_21", System.StringComparison.Ordinal));
 
             Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.Cascade));
         }
@@ -230,7 +230,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_22");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_22", System.StringComparison.Ordinal));
 
             Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.SetNull));
         }
@@ -240,7 +240,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_17", System.StringComparison.Ordinal));
 
             // mysql treats restrict and no action as the same thing, accept either
             Assert.That(foreignKey.DeleteAction, Is.AnyOf(ReferentialAction.NoAction, ReferentialAction.Restrict));
@@ -251,7 +251,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_27");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_27", System.StringComparison.Ordinal));
 
             Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.Cascade));
         }
@@ -261,7 +261,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_28");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_28", System.StringComparison.Ordinal));
 
             Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.SetNull));
         }
@@ -271,7 +271,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "table_test_table_17");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_17", System.StringComparison.Ordinal));
 
             Assert.That(foreignKey.ChildKey.IsEnabled, Is.True);
         }

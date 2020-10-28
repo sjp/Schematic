@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    internal class DatabaseHost
+    internal sealed class DatabaseHost
     {
         public string? ServerHost { get; set; }
 

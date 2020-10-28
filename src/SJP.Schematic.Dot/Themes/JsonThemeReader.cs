@@ -5,7 +5,7 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Dot.Themes
 {
-    internal class JsonThemeReader
+    internal sealed class JsonThemeReader
     {
         /// <summary>
         /// Attempts to read a JSON description of a theme. Returns the default theme if this was unsuccessful.

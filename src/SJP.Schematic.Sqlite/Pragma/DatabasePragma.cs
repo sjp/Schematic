@@ -457,7 +457,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             var sql = IntegrityCheckQuery(maxErrors);
             var errors = await DbConnection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
             var result = errors.ToList();
-            if (result.Count == 1 && result[0] == "ok")
+            if (result.Count == 1 && string.Equals(result[0], "ok", StringComparison.Ordinal))
                 return Array.Empty<string>();
 
             return result;
@@ -667,7 +667,7 @@ namespace SJP.Schematic.Sqlite.Pragma
                 throw new ArgumentException($"The { nameof(OptimizeFeatures) } provided must be a valid enum.", nameof(features));
 
             var value = (int)features;
-            return PragmaPrefix + "optimize = " + value;
+            return PragmaPrefix + "optimize = " + value.ToString(CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -738,7 +738,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             var sql = QuickCheckQuery(maxErrors);
             var errors = await DbConnection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
             var result = errors.ToList();
-            if (result.Count == 1 && result[0] == "ok")
+            if (result.Count == 1 && string.Equals(result[0], "ok", StringComparison.Ordinal))
                 return Array.Empty<string>();
 
             return result;
@@ -794,7 +794,7 @@ namespace SJP.Schematic.Sqlite.Pragma
         {
             var secureDeleteValue = await DbConnection.ExecuteScalarAsync<int>(SecureDeleteReadQuery, cancellationToken).ConfigureAwait(false);
             if (!Enums.TryToObject(secureDeleteValue, out SecureDeleteMode deleteMode))
-                throw new InvalidOperationException($"Unable to map the value '{ secureDeleteValue }' to a member of { nameof(SecureDeleteMode) }.");
+                throw new InvalidOperationException($"Unable to map the value '{ secureDeleteValue.ToString(CultureInfo.InvariantCulture) }' to a member of { nameof(SecureDeleteMode) }.");
 
             return deleteMode;
         }
@@ -838,7 +838,7 @@ namespace SJP.Schematic.Sqlite.Pragma
         {
             var level = await DbConnection.ExecuteScalarAsync<int>(SynchronousReadQuery, cancellationToken).ConfigureAwait(false);
             if (!Enums.TryToObject(level, out SynchronousLevel syncLevel))
-                throw new InvalidOperationException($"Unable to map the value '{ level }' to a member of { nameof(SynchronousLevel) }.");
+                throw new InvalidOperationException($"Unable to map the value '{ level.ToString(CultureInfo.InvariantCulture) }' to a member of { nameof(SynchronousLevel) }.");
 
             return syncLevel;
         }

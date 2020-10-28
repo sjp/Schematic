@@ -21,7 +21,7 @@ namespace SJP.Schematic.Oracle
         /// </summary>
         /// <param name="input">A potentially wrapped routine definition.</param>
         /// <param name="unwrapped">If successful, the unwrapped routine definition.</param>
-        /// <returns><code>true</code> if unwrapping was successful, <code>false</code> otherwise.</returns>
+        /// <returns><c>true</c> if unwrapping was successful, <c>false</c> otherwise.</returns>
         public static bool TryUnwrap(string input, [NotNullWhen(true)] out string? unwrapped)
         {
             if (input == null || !TryGetPayload(input, out var payload))
@@ -60,7 +60,7 @@ namespace SJP.Schematic.Oracle
         /// </summary>
         /// <param name="input">A wrapped routine definition.</param>
         /// <returns>An unwrapped routine definition.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="input"/> is <code>null</code>.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="input"/> is <c>null</c>.</exception>
         /// <exception cref="InvalidDataException">Thrown when the data is not able to be unwrapped successfully. This is likely because the data is not wrapped or because it is not valid.</exception>
         public static string UnwrapUnsafe(string input)
         {
@@ -88,9 +88,9 @@ namespace SJP.Schematic.Oracle
         /// Determines whether the given input is a valid wrapped routine definition.
         /// </summary>
         /// <param name="input">A potentially wrapped routine definition.</param>
-        /// <returns><code>true</code> if the input appears to be a valid wrapped routine definition.</returns>
+        /// <returns><c>true</c> if the input appears to be a valid wrapped routine definition.</returns>
         /// <remarks>This does not guarantee that unwrapping is successful, only that the input appears to be correct. For example, the obfuscated input may not pass a checksum.</remarks>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="input"/> is <code>null</code>.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="input"/> is <c>null</c>.</exception>
         public static bool IsWrappedDefinition(string input)
         {
             if (input == null)

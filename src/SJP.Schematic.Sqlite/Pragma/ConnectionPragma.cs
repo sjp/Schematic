@@ -462,7 +462,7 @@ namespace SJP.Schematic.Sqlite.Pragma
                 throw new ArgumentException($"The { nameof(OptimizeFeatures) } provided must be a valid enum.", nameof(features));
 
             var value = (int)features;
-            return PragmaPrefix + "optimize = " + value;
+            return PragmaPrefix + "optimize = " + value.ToString(CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -641,7 +641,7 @@ namespace SJP.Schematic.Sqlite.Pragma
         {
             var location = await DbConnection.ExecuteScalarAsync<int>(TemporaryStoreReadQuery, cancellationToken).ConfigureAwait(false);
             if (!Enums.TryToObject(location, out TemporaryStoreLocation tempLocation))
-                throw new InvalidOperationException($"Unable to map the value '{ location }' to a member of { nameof(TemporaryStoreLocation) }.");
+                throw new InvalidOperationException($"Unable to map the value '{ location.ToString(CultureInfo.InvariantCulture) }' to a member of { nameof(TemporaryStoreLocation) }.");
 
             return tempLocation;
         }
@@ -767,7 +767,7 @@ namespace SJP.Schematic.Sqlite.Pragma
             [Encoding.Utf16be] = "UTF-16be"
         };
 
-        private static readonly IReadOnlyDictionary<string, Encoding> NameEncodingMapping = new Dictionary<string, Encoding>
+        private static readonly IReadOnlyDictionary<string, Encoding> NameEncodingMapping = new Dictionary<string, Encoding>(StringComparer.Ordinal)
         {
             ["UTF-8"] = Encoding.Utf8,
             ["UTF-16"] = Encoding.Utf16,

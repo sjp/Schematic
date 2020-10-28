@@ -205,7 +205,7 @@ limit 1";
                 throw new ArgumentNullException(nameof(queryCache));
 
             var candidateTableName = QualifyTableName(tableName);
-            return GetResolvedTableName(candidateTableName)
+            return GetResolvedTableName(candidateTableName, cancellationToken)
                 .MapAsync(name => LoadTableAsyncCore(name, queryCache, cancellationToken));
         }
 
@@ -283,9 +283,10 @@ limit 1";
                 return Option<IDatabaseKey>.None;
 
             var keyColumns = groupedByName
-                .Where(row => row.Key.ConstraintName == constraintName)
-                .SelectMany(g => g.OrderBy(row => row.OrdinalPosition)
+                .Where(row => string.Equals(row.Key.ConstraintName, constraintName, StringComparison.Ordinal))
+                .SelectMany(g => g
                     .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
+                    .OrderBy(row => row.OrdinalPosition)
                     .Select(row => columnLookup[row.ColumnName!]))
                 .ToList();
 
@@ -355,8 +356,8 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
                 var indexName = Identifier.CreateQualifiedIdentifier(indexInfo.Key.IndexName);
 
                 var indexCols = indexInfo
-                    .OrderBy(row => row.IndexColumnId)
                     .Where(row => row.IndexColumnExpression != null)
+                    .OrderBy(row => row.IndexColumnId)
                     .Select(row => new
                     {
                         row.IsDescending,
@@ -454,8 +455,8 @@ where
                 {
                     g.Key.ConstraintName,
                     Columns = g
-                        .OrderBy(row => row.OrdinalPosition)
                         .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
+                        .OrderBy(row => row.OrdinalPosition)
                         .Select(row => columnLookup[row.ColumnName!])
                         .ToList(),
                 })
@@ -544,7 +545,7 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
             {
                 // ensure we have a key to begin with
                 IDatabaseKey? parentKey = null;
-                if (groupedChildKey.Key.ParentKeyType == Constants.PrimaryKeyType)
+                if (string.Equals(groupedChildKey.Key.ParentKeyType, Constants.PrimaryKeyType, StringComparison.Ordinal))
                     await primaryKey.IfSomeAsync(k => parentKey = k).ConfigureAwait(false);
                 else if (uniqueKeyLookup.ContainsKey(groupedChildKey.Key.ParentKeyName))
                     parentKey = uniqueKeyLookup[groupedChildKey.Key.ParentKeyName];
@@ -721,21 +722,19 @@ where
                     .BindAsync(async parentTableName =>
                     {
                         resolvedParentTableName = parentTableName;
-                        if (fkey.Key.KeyType == Constants.PrimaryKeyType)
+                        if (string.Equals(fkey.Key.KeyType, Constants.PrimaryKeyType, StringComparison.Ordinal))
                         {
                             var pk = await queryCache.GetPrimaryKeyAsync(parentTableName, cancellationToken).ConfigureAwait(false);
                             return pk.ToAsync();
                         }
-                        else
-                        {
-                            var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
-                            var uniqueKeys = await queryCache.GetUniqueKeysAsync(parentTableName, cancellationToken).ConfigureAwait(false);
-                            var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
 
-                            return uniqueKeyLookup.ContainsKey(parentKeyName.LocalName)
-                                ? OptionAsync<IDatabaseKey>.Some(uniqueKeyLookup[parentKeyName.LocalName])
-                                : OptionAsync<IDatabaseKey>.None;
-                        }
+                        var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
+                        var uniqueKeys = await queryCache.GetUniqueKeysAsync(parentTableName, cancellationToken).ConfigureAwait(false);
+                        var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
+
+                        return uniqueKeyLookup.ContainsKey(parentKeyName.LocalName)
+                            ? OptionAsync<IDatabaseKey>.Some(uniqueKeyLookup[parentKeyName.LocalName])
+                            : OptionAsync<IDatabaseKey>.None;
                     })
                     .Map(parentKey =>
                     {
@@ -743,8 +742,8 @@ where
 
                         var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ChildKeyName);
                         var childKeyColumns = fkey
-                            .OrderBy(row => row.ConstraintColumnId)
                             .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
+                            .OrderBy(row => row.ConstraintColumnId)
                             .Select(row => columnLookup[row.ColumnName!])
                             .ToList();
 
@@ -853,7 +852,7 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
                 var defaultValue = !row.ColumnDefault.IsNullOrWhiteSpace()
                     ? Option<string>.Some(row.ColumnDefault)
                     : Option<string>.None;
-                var isNullable = row.IsNullable == Constants.Yes;
+                var isNullable = string.Equals(row.IsNullable, Constants.Yes, StringComparison.Ordinal);
 
                 var column = new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement);
                 result.Add(column);
@@ -947,17 +946,17 @@ order by ordinal_position";
                 var events = TriggerEvent.None;
                 foreach (var trigEvent in trig)
                 {
-                    if (trigEvent.TriggerEvent == Constants.Insert)
+                    if (string.Equals(trigEvent.TriggerEvent, Constants.Insert, StringComparison.Ordinal))
                         events |= TriggerEvent.Insert;
-                    else if (trigEvent.TriggerEvent == Constants.Update)
+                    else if (string.Equals(trigEvent.TriggerEvent, Constants.Update, StringComparison.Ordinal))
                         events |= TriggerEvent.Update;
-                    else if (trigEvent.TriggerEvent == Constants.Delete)
+                    else if (string.Equals(trigEvent.TriggerEvent, Constants.Delete, StringComparison.Ordinal))
                         events |= TriggerEvent.Delete;
                     else
                         throw new UnsupportedTriggerEventException(tableName, trigEvent.TriggerEvent ?? string.Empty);
                 }
 
-                var isEnabled = trig.Key.EnabledFlag != Constants.DisabledFlag;
+                var isEnabled = !string.Equals(trig.Key.EnabledFlag, Constants.DisabledFlag, StringComparison.Ordinal);
                 var trigger = new PostgreSqlDatabaseTrigger(triggerName, definition, queryTiming, events, isEnabled);
                 result.Add(trigger);
             }
@@ -1073,7 +1072,7 @@ where t.relkind = 'r'
         /// A mapping from the referential actions as described in PostgreSQL, to a <see cref="ReferentialAction"/> instance.
         /// </summary>
         /// <value>A mapping dictionary.</value>
-        protected IReadOnlyDictionary<string, ReferentialAction> ReferentialActionMapping { get; } = new Dictionary<string, ReferentialAction>
+        protected IReadOnlyDictionary<string, ReferentialAction> ReferentialActionMapping { get; } = new Dictionary<string, ReferentialAction>(StringComparer.Ordinal)
         {
             ["a"] = ReferentialAction.NoAction,
             ["r"] = ReferentialAction.Restrict,

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using SJP.Schematic.Core;
@@ -80,7 +81,7 @@ namespace SJP.Schematic.Lint.Rules
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
 
-            var messageText = $"The table { tableName } has too many columns. It has { columnCount } columns.";
+            var messageText = $"The table { tableName } has too many columns. It has { columnCount.ToString(CultureInfo.InvariantCulture) } columns.";
             return new RuleMessage(RuleId, RuleTitle, Level, messageText);
         }
 

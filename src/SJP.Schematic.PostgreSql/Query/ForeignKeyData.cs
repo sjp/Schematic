@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.PostgreSql.Query
 {
-    internal class ForeignKeyData
+    internal sealed class ForeignKeyData
     {
         public string ChildKeyName { get; set; } = default!;
 

@@ -20,7 +20,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectNames()
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "TABLE_TEST_TABLE_16");
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_16", System.StringComparison.Ordinal));
 
             Assert.Multiple(() =>
             {
@@ -33,7 +33,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectKeyTypes()
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "TABLE_TEST_TABLE_16");
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_16", System.StringComparison.Ordinal));
 
             Assert.Multiple(() =>
             {
@@ -46,7 +46,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectTables()
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "TABLE_TEST_TABLE_16");
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_16", System.StringComparison.Ordinal));
 
             Assert.Multiple(() =>
             {
@@ -59,7 +59,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectColumns()
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "TABLE_TEST_TABLE_16");
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_16", System.StringComparison.Ordinal));
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
             var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
@@ -79,7 +79,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "TABLE_TEST_TABLE_16");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_16", System.StringComparison.Ordinal));
 
             Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.NoAction));
         }
@@ -89,7 +89,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "TABLE_TEST_TABLE_16");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_16", System.StringComparison.Ordinal));
 
             Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.NoAction));
         }
@@ -99,7 +99,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "TABLE_TEST_TABLE_24");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_24", System.StringComparison.Ordinal));
 
             Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.Cascade));
         }
@@ -109,7 +109,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "TABLE_TEST_TABLE_25");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_25", System.StringComparison.Ordinal));
 
             Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.SetNull));
         }
@@ -119,7 +119,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "TABLE_TEST_TABLE_16");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_16", System.StringComparison.Ordinal));
 
             Assert.That(foreignKey.ChildKey.IsEnabled, Is.True);
         }
@@ -129,7 +129,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "TABLE_TEST_TABLE_30");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_30", System.StringComparison.Ordinal));
 
             Assert.That(foreignKey.ChildKey.IsEnabled, Is.False);
         }
@@ -138,7 +138,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectNames()
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "TABLE_TEST_TABLE_17");
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_17", System.StringComparison.Ordinal));
 
             Assert.Multiple(() =>
             {
@@ -151,7 +151,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectKeyTypes()
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "TABLE_TEST_TABLE_17");
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_17", System.StringComparison.Ordinal));
 
             Assert.Multiple(() =>
             {
@@ -164,7 +164,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectTables()
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "TABLE_TEST_TABLE_17");
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_17", System.StringComparison.Ordinal));
 
             Assert.Multiple(() =>
             {
@@ -177,7 +177,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectColumns()
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => k.ChildTable.LocalName == "TABLE_TEST_TABLE_17");
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_17", System.StringComparison.Ordinal));
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
             var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
@@ -197,7 +197,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "TABLE_TEST_TABLE_17");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_17", System.StringComparison.Ordinal));
 
             Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.NoAction));
         }
@@ -207,7 +207,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "TABLE_TEST_TABLE_17");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_17", System.StringComparison.Ordinal));
 
             Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.NoAction));
         }
@@ -217,7 +217,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "TABLE_TEST_TABLE_27");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_27", System.StringComparison.Ordinal));
 
             Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.Cascade));
         }
@@ -227,7 +227,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "TABLE_TEST_TABLE_28");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_28", System.StringComparison.Ordinal));
 
             Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.SetNull));
         }
@@ -237,7 +237,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "TABLE_TEST_TABLE_17");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_17", System.StringComparison.Ordinal));
 
             Assert.That(foreignKey.ChildKey.IsEnabled, Is.True);
         }
@@ -247,7 +247,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => k.ChildTable.LocalName == "TABLE_TEST_TABLE_31");
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_31", System.StringComparison.Ordinal));
 
             Assert.That(foreignKey.ChildKey.IsEnabled, Is.False);
         }

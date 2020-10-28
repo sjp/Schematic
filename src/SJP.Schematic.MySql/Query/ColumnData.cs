@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.MySql.Query
 {
-    internal class ColumnData
+    internal sealed class ColumnData
     {
         public string? ColumnName { get; set; }
 

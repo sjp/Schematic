@@ -11,7 +11,7 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V13
 {
-    internal partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSql13Test
+    internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSql13Test
     {
         private IRelationalDatabaseTableProvider TableProvider => new PostgreSqlRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver);
 
@@ -441,7 +441,7 @@ execute procedure v13_test_trigger_fn()", CancellationToken.None).ConfigureAwait
         public async Task GetAllTables_WhenEnumerated_ContainsTestTable()
         {
             var containsTestTable = await TableProvider.GetAllTables()
-                .AnyAsync(t => t.Name.LocalName == "v13_db_test_table_1")
+                .AnyAsync(t => string.Equals(t.Name.LocalName, "v13_db_test_table_1", StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestTable, Is.True);

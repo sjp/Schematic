@@ -198,7 +198,7 @@ where s.schema_id = SCHEMA_ID(@SchemaName) and s.name = @SynonymName and s.is_ms
                 throw new ArgumentNullException(nameof(objectType));
 
             return commentsData
-                .Where(c => c.ObjectType == objectType)
+                .Where(c => string.Equals(c.ObjectType, objectType, StringComparison.Ordinal))
                 .Select(c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
                 .FirstOrDefault();
         }

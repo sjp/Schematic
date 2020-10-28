@@ -223,7 +223,7 @@ where SEQUENCE_OWNER = :SchemaName and SEQUENCE_NAME = :SequenceName";
             if (seqData == null)
                 throw new ArgumentNullException(nameof(seqData));
 
-            var cycle = seqData.Cycle == "Y";
+            var cycle = string.Equals(seqData.Cycle, "Y", StringComparison.Ordinal);
             var start = seqData.Increment >= 0
                 ? seqData.MinValue
                 : seqData.MaxValue;

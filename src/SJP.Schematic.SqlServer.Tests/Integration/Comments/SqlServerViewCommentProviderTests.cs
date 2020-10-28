@@ -219,7 +219,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         public async Task GetAllViewComments_WhenEnumerated_ContainsTestViewComment()
         {
             var containsTestView = await ViewCommentProvider.GetAllViewComments()
-                .AnyAsync(t => t.ViewName.LocalName == "view_comment_view_1")
+                .AnyAsync(t => string.Equals(t.ViewName.LocalName, "view_comment_view_1", StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestView, Is.True);
@@ -239,7 +239,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             var comments = await GetViewCommentsAsync("view_comment_view_1").ConfigureAwait(false);
 
             var columnComments = comments.ColumnComments;
-            var hasColumns = columnComments.Count == 1 && columnComments.Keys.Single().LocalName == "test_column_1";
+            var hasColumns = columnComments.Count == 1 && string.Equals(columnComments.Keys.Single().LocalName, "test_column_1", StringComparison.Ordinal);
 
             Assert.That(hasColumns, Is.True);
         }

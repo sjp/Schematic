@@ -161,7 +161,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         public async Task GetAllTableComments_WhenEnumerated_ContainsTestTableComment()
         {
             var containsTestTable = await TableCommentProvider.GetAllTableComments()
-                .AnyAsync(t => t.TableName.LocalName == "TABLE_COMMENT_TABLE_1")
+                .AnyAsync(t => string.Equals(t.TableName.LocalName, "TABLE_COMMENT_TABLE_1", StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestTable, Is.True);
@@ -181,7 +181,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
             var comments = await GetTableCommentsAsync("TABLE_COMMENT_TABLE_1").ConfigureAwait(false);
 
             var columnComments = comments.ColumnComments;
-            var hasColumns = columnComments.Count == 1 && columnComments.Keys.Single().LocalName == "TEST_COLUMN_1";
+            var hasColumns = columnComments.Count == 1 && string.Equals(columnComments.Keys.Single().LocalName, "TEST_COLUMN_1", StringComparison.Ordinal);
 
             Assert.That(hasColumns, Is.True);
         }

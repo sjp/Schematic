@@ -658,16 +658,14 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName and tc.constr
                             var primaryKey = await queryCache.GetPrimaryKeyAsync(name, cancellationToken).ConfigureAwait(false);
                             return primaryKey.ToAsync();
                         }
-                        else
-                        {
-                            var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
 
-                            var parentUniqueKeys = await queryCache.GetUniqueKeysAsync(name, cancellationToken).ConfigureAwait(false);
-                            var parentUniqueKeyLookup = GetDatabaseKeyLookup(parentUniqueKeys);
-                            return parentUniqueKeyLookup.ContainsKey(parentKeyName.LocalName)
-                                ? OptionAsync<IDatabaseKey>.Some(parentUniqueKeyLookup[parentKeyName.LocalName])
-                                : OptionAsync<IDatabaseKey>.None;
-                        }
+                        var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
+
+                        var parentUniqueKeys = await queryCache.GetUniqueKeysAsync(name, cancellationToken).ConfigureAwait(false);
+                        var parentUniqueKeyLookup = GetDatabaseKeyLookup(parentUniqueKeys);
+                        return parentUniqueKeyLookup.ContainsKey(parentKeyName.LocalName)
+                            ? OptionAsync<IDatabaseKey>.Some(parentUniqueKeyLookup[parentKeyName.LocalName])
+                            : OptionAsync<IDatabaseKey>.None;
                     })
                     .IfSome(key =>
                     {

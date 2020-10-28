@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.SqlServer.Query
 {
-    internal class CheckConstraintData
+    internal sealed class CheckConstraintData
     {
         public string ConstraintName { get; set; } = default!;
 

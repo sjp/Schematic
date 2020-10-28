@@ -2,7 +2,7 @@
 
 namespace SJP.Schematic.PostgreSql.Query
 {
-    internal class PgIdentifierDefaults : IIdentifierDefaults
+    internal sealed class PgIdentifierDefaults : IIdentifierDefaults
     {
         public string? Server { get; set; }
 

@@ -54,15 +54,15 @@ namespace SJP.Schematic.Reporting
 
             var result = RemoveDiacritics(input).ToLowerInvariant();
             // invalid chars
-            result = Regex.Replace(result, @"[^a-z0-9\s-_.]", string.Empty);
+            result = _invalidCharRegex.Replace(result, string.Empty);
             // convert multiple spaces into one space
-            result = Regex.Replace(result, @"\s+", " ").Trim();
+            result = _spaceCollapseRegex.Replace(result, " ").Trim();
             // cut and trim
             result = Truncate(result, maxChars).Trim();
             // whitespace to hyphens
-            result = Regex.Replace(result, "\\s", "-").Trim();
+            result = _whitespaceRegex.Replace(result, "-").Trim();
             // underscore/period to hyphen
-            result = Regex.Replace(result, "[_.]", "-").Trim();
+            result = _underscorePeriodRegex.Replace(result, "-").Trim();
 
             // ensure chars are safe on disk
             var invalidChars = Path.GetInvalidFileNameChars();
@@ -70,6 +70,11 @@ namespace SJP.Schematic.Reporting
 
             return new string(validChars);
         }
+
+        private static readonly Regex _invalidCharRegex = new Regex(@"[^a-z0-9\s-_.]", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
+        private static readonly Regex _spaceCollapseRegex = new Regex(@"\s+", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
+        private static readonly Regex _whitespaceRegex = new Regex("\\s", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
+        private static readonly Regex _underscorePeriodRegex = new Regex("[_.]", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
 
         private static string RemoveDiacritics(string input)
         {
@@ -134,7 +139,7 @@ namespace SJP.Schematic.Reporting
 
             var builder = StringBuilderCache.Acquire(hash.Length);
             foreach (var hashByte in hash)
-                builder.Append(hashByte.ToString("X2"));
+                builder.Append(hashByte.ToString("X2", CultureInfo.InvariantCulture));
             return builder.GetStringAndRelease();
         }
 

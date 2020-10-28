@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    internal class QualifiedName
+    internal sealed class QualifiedName
     {
         public string? SchemaName { get; set; }
 

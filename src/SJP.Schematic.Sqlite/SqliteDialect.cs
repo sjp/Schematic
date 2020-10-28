@@ -131,7 +131,7 @@ namespace SJP.Schematic.Sqlite
             if (text.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(text));
 
-            return Keywords.Contains(text);
+            return Keywords.Contains(text, StringComparer.OrdinalIgnoreCase);
         }
 
         // https://www.sqlite.org/lang_keywords.html
@@ -280,10 +280,8 @@ namespace SJP.Schematic.Sqlite
                     + "."
                     + QuoteIdentifier(name.LocalName);
             }
-            else
-            {
-                return QuoteIdentifier(name.LocalName);
-            }
+
+            return QuoteIdentifier(name.LocalName);
         }
 
         /// <summary>

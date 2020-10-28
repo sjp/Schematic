@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.SqlServer.Query
 {
-    internal class SynonymData
+    internal sealed class SynonymData
     {
         public string SchemaName { get; set; } = default!;
 

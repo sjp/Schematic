@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    internal class TableCommentsData : CommentsData
+    internal sealed class TableCommentsData : CommentsData
     {
         public string? ColumnName { get; set; }
 

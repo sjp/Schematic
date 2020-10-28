@@ -38,9 +38,9 @@ namespace SJP.Schematic.Core.Utilities
         /// <returns>A lookup of the object's constituent property values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="param"/> is <c>null</c>.</exception>
         /// <example>The following method call:
-        /// <code>ObjectParameterTransformer.ToDictionary(new { A = "test", B = 132 })</code>
+        /// <c>ObjectParameterTransformer.ToDictionary(new { A = "test", B = 132 })</c>
         /// will return an object equivalent to the following result:
-        /// <code>new Dictionary&lt;string, object&gt;{ ["A"] = "test", ["B"] = 132 }</code>
+        /// <c>new Dictionary&lt;string, object&gt;{ ["A"] = "test", ["B"] = 132 }</c>
         /// </example>
         public static IReadOnlyDictionary<string, object> ToDictionary(object param)
         {

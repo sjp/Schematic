@@ -94,7 +94,7 @@ namespace SJP.Schematic.DataAccess.Poco
             if (!projectFileInfo.Directory.Exists)
                 projectFileInfo.Directory.Create();
 
-            FileSystem.File.WriteAllText(projectPath, ProjectDefinition);
+            await FileSystem.File.WriteAllTextAsync(projectPath, ProjectDefinition, cancellationToken).ConfigureAwait(false);
 
             var tableGenerator = new PocoTableGenerator(FileSystem, NameTranslator, baseNamespace);
             var viewGenerator = new PocoViewGenerator(FileSystem, NameTranslator, baseNamespace);
@@ -126,7 +126,7 @@ namespace SJP.Schematic.DataAccess.Poco
                 if (tablePath.Exists)
                     tablePath.Delete();
 
-                FileSystem.File.WriteAllText(tablePath.FullName, tableClass);
+                await FileSystem.File.WriteAllTextAsync(tablePath.FullName, tableClass, cancellationToken).ConfigureAwait(false);
             }
 
             foreach (var view in views)
@@ -144,7 +144,7 @@ namespace SJP.Schematic.DataAccess.Poco
                 if (viewPath.Exists)
                     viewPath.Delete();
 
-                FileSystem.File.WriteAllText(viewPath.FullName, viewClass);
+                await FileSystem.File.WriteAllTextAsync(viewPath.FullName, viewClass, cancellationToken).ConfigureAwait(false);
             }
         }
 

@@ -81,7 +81,7 @@ namespace SJP.Schematic.Tool.Handlers
             return connectionString;
         }
 
-        protected INameTranslator GetNameTranslator(string translator)
+        protected static INameTranslator GetNameTranslator(string translator)
         {
             translator = translator.ToLowerInvariant();
             return translator switch

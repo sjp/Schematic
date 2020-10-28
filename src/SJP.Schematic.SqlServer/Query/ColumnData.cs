@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.SqlServer.Query
 {
-    internal class ColumnData
+    internal sealed class ColumnData
     {
         public string ColumnName { get; set; } = default!;
 

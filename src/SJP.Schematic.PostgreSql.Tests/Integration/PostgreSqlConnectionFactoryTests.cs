@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
-    internal class PostgreSqlConnectionFactoryTests : PostgreSqlTest
+    internal sealed class PostgreSqlConnectionFactoryTests : PostgreSqlTest
     {
         [Test]
         public void OpenConnection_WhenInvoked_ReturnsConnectionInOpenState()

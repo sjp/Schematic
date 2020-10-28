@@ -10,7 +10,7 @@ namespace SJP.Schematic.Tests.Utilities
     /// </summary>
     public sealed class LineEndingInvariantStringComparer : IEqualityComparer<string>
     {
-        private static readonly Regex _lineEndingRegex = new Regex("\r\n|\n\r|\n|\r");
+        private static readonly Regex _lineEndingRegex = new Regex("\r\n|\n\r|\n|\r", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
         private const string Crlf = "\r\n";
 
         private readonly StringComparer _comparer;

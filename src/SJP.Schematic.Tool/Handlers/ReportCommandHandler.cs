@@ -9,7 +9,7 @@ using SJP.Schematic.Reporting;
 
 namespace SJP.Schematic.Tool.Handlers
 {
-    internal class ReportCommandHandler : DatabaseCommandHandler
+    internal sealed class ReportCommandHandler : DatabaseCommandHandler
     {
         public ReportCommandHandler(FileInfo filePath)
             : base(filePath)

@@ -40,7 +40,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             return this;
         }
 
-        public class PrimaryKey : TableConstraint
+        public sealed class PrimaryKey : TableConstraint
         {
             public PrimaryKey(IReadOnlyCollection<IndexedColumn> columns)
                 : base(TableConstraintType.PrimaryKey)
@@ -54,7 +54,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             public IReadOnlyCollection<IndexedColumn> Columns { get; }
         }
 
-        public class UniqueKey : TableConstraint
+        public sealed class UniqueKey : TableConstraint
         {
             public UniqueKey(IReadOnlyCollection<IndexedColumn> columns)
                 : base(TableConstraintType.UniqueKey)
@@ -68,7 +68,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             public IReadOnlyCollection<IndexedColumn> Columns { get; }
         }
 
-        public class ForeignKey : TableConstraint
+        public sealed class ForeignKey : TableConstraint
         {
             public ForeignKey(IReadOnlyCollection<string> columnNames, Identifier parentTableName, IReadOnlyCollection<string> parentColumnNames)
                 : base(TableConstraintType.ForeignKey)
@@ -90,7 +90,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             public IReadOnlyCollection<string> ParentColumnNames { get; }
         }
 
-        public class Check : TableConstraint
+        public sealed class Check : TableConstraint
         {
             public Check(SqlExpression definition)
                 : base(TableConstraintType.Check)

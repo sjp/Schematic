@@ -2,17 +2,17 @@
 
 namespace SJP.Schematic.SqlServer.Query
 {
-    internal class ServerProperties2019
+    internal sealed class ServerProperties2019
     {
         /// <summary>
         /// <para>Version of the Microsoft .NET Framework common language runtime (CLR) that was used while building the instance of SQL Server.</para>
-        /// <para><code>NULL</code> means input is not valid, an error, or not applicable</para>
+        /// <para><c>NULL</c> means input is not valid, an error, or not applicable</para>
         /// </summary>
         public string? BuildClrVersion { get; set; }
 
         /// <summary>
         /// <para>Name of the default collation for the server.</para>
-        /// <para><code>NULL</code> means input is not valid, or an error.</para>
+        /// <para><c>NULL</c> means input is not valid, or an error.</para>
         /// </summary>
         public string? Collation { get; set; }
 
@@ -31,7 +31,7 @@ namespace SJP.Schematic.SqlServer.Query
         /// <para>For a clustered instance of SQL Server on a failover cluster, this value changes as the instance of SQL Server fails over to other nodes in the failover cluster.</para>
         /// <para>On a stand-alone instance of SQL Server, this value remains constant and returns the same value as the MachineName property.</para>
         /// <para>Note: If the instance of SQL Server is in a failover cluster and you want to obtain the name of the failover clustered instance, use the MachineName property.</para>
-        /// <para><code>NULL</code> means input is not valid, an error, or not applicable</para>
+        /// <para><c>NULL</c> means input is not valid, an error, or not applicable</para>
         /// </summary>
         public string? ComputerNamePhysicalNetBIOS { get; set; }
 
@@ -106,12 +106,12 @@ namespace SJP.Schematic.SqlServer.Query
 
         /// <summary>
         /// <para>Name of the instance to which the user is connected.</para>
-        /// <para>Returns <code>NULL</code> if the instance name is the default instance, if the input is not valid, or error.</para>
+        /// <para>Returns <c>NULL</c> if the instance name is the default instance, if the input is not valid, or error.</para>
         /// </summary>
         public string? InstanceName { get; set; }
 
         /// <summary>
-        /// Returns <code>true</code> if the Advanced Analytics feature was installed during setup; <code>false</code> if Advanced Analytics was not installed.
+        /// Returns <c>true</c> if the Advanced Analytics feature was installed during setup; <c>false</c> if Advanced Analytics was not installed.
         /// </summary>
         public bool IsAdvancedAnalyticsInstalled { get; set; }
 
@@ -122,19 +122,19 @@ namespace SJP.Schematic.SqlServer.Query
 
         /// <summary>
         /// <para>Server instance is configured in a failover cluster.</para>
-        /// <para>Returns <code>NULL</code> if the input is not valid, an error, or not applicable.</para>
+        /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
         public int? IsClustered { get; set; }
 
         /// <summary>
         /// <para>The full-text and semantic indexing components are installed on the current instance of SQL Server.</para>
-        /// <para>Returns <code>NULL</code> if the input is not valid, an error, or not applicable.</para>
+        /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
         public int? IsFullTextInstalled { get; set; }
 
         /// <summary>
         /// <para>Always On availability groups is enabled on this server instance.</para>
-        /// <para>Returns <code>NULL</code> if the input is not valid, an error, or not applicable.</para>
+        /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
         /// <remarks>
         /// <para>For availability replicas to be created and run on an instance of SQL Server, Always On availability groups must be enabled on the server instance. For more information, see Enable and Disable AlwaysOn Availability Groups (SQL Server).</para>
@@ -144,13 +144,13 @@ namespace SJP.Schematic.SqlServer.Query
 
         /// <summary>
         /// <para>Server is in integrated security mode.</para>
-        /// <para>Returns <code>NULL</code> if the input is not valid, an error, or not applicable.</para>
+        /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
         public int? IsIntegratedSecurityOnly { get; set; }
 
         /// <summary>
         /// <para>Server is an instance of SQL Server Express LocalDB.</para>
-        /// <para>Returns <code>NULL</code> if the input is not valid, an error, or not applicable.</para>
+        /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
         public int? IsLocalDB { get; set; }
 
@@ -161,13 +161,13 @@ namespace SJP.Schematic.SqlServer.Query
 
         /// <summary>
         /// <para>Server is in single-user mode.</para>
-        /// <para>Returns <code>NULL</code> if the input is not valid, an error, or not applicable.</para>
+        /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
         public int? IsSingleUser { get; set; }
 
         /// <summary>
         /// <para>Server supports In-Memory OLTP.</para>
-        /// <para>Returns <code>NULL</code> if the input is not valid, an error, or not applicable.</para>
+        /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
         public int? IsXTPSupported { get; set; }
 
@@ -184,7 +184,7 @@ namespace SJP.Schematic.SqlServer.Query
         /// <summary>
         /// <para>Windows computer name on which the server instance is running.</para>
         /// <para>For a clustered instance, an instance of SQL Server running on a virtual server on Microsoft Cluster Service, it returns the name of the virtual server.</para>
-        /// <para>Returns <code>NULL</code> if the input is not valid, an error, or not applicable.</para>
+        /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
         public string? MachineName { get; set; }
 
@@ -195,7 +195,7 @@ namespace SJP.Schematic.SqlServer.Query
 
         /// <summary>
         /// <para>Process ID of the SQL Server service. ProcessID is useful in identifying which Sqlservr.exe belongs to this instance.</para>
-        /// <para>Returns <code>NULL</code> if the input is not valid, an error, or not applicable.</para>
+        /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
         public int? ProcessID { get; set; }
 
@@ -265,7 +265,7 @@ namespace SJP.Schematic.SqlServer.Query
 
         /// <summary>
         /// <para>Both the Windows server and instance information associated with a specified instance of SQL Server.</para>
-        /// <para>Returns <code>NULL</code> if the input is not valid, or an error.</para>
+        /// <para>Returns <c>NULL</c> if the input is not valid, or an error.</para>
         /// </summary>
         public string? ServerName { get; set; }
 
@@ -291,7 +291,7 @@ namespace SJP.Schematic.SqlServer.Query
 
         /// <summary>
         /// <para>The name of the share used by FILESTREAM.</para>
-        /// <para>Returns <code>NULL</code> if the input is not valid, an error, or not applicable.</para>
+        /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
         public string? FilestreamShareName { get; set; }
 

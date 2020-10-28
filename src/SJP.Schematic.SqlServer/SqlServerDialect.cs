@@ -242,7 +242,7 @@ select
             if (text.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(text));
 
-            return Keywords.Contains(text);
+            return Keywords.Contains(text, StringComparer.OrdinalIgnoreCase);
         }
 
         // https://docs.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql

@@ -171,7 +171,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             const string viewName = "MVIEW_VIEW_TEST_VIEW_2";
             var containsTestView = await ViewProvider.GetAllViews()
-                .AnyAsync(v => v.Name.LocalName == viewName)
+                .AnyAsync(v => string.Equals(v.Name.LocalName, viewName, StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestView, Is.True);
@@ -182,7 +182,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             const string viewName = "MVIEW_VIEW_TEST_VIEW_1";
             var containsTestView = await ViewProvider.GetAllViews()
-                .AnyAsync(v => v.Name.LocalName == viewName)
+                .AnyAsync(v => string.Equals(v.Name.LocalName, viewName, StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestView, Is.False);

@@ -6,7 +6,7 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V13
 {
-    internal partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSql13Test
+    internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSql13Test
     {
         [Test]
         public async Task ParentKeys_WhenGivenTableWithNoForeignKeys_ReturnsEmptyCollection()

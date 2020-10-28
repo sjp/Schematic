@@ -21,7 +21,7 @@ namespace SJP.Schematic.Sqlite
         /// <param name="connection">The connection to a SQLite database.</param>
         /// <param name="identifierDefaults">Default values for identifier components.</param>
         /// <param name="connectionPragma">Default values for identifier components.</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="connection"/>, or <paramref name="identifierDefaults"/>, or <paramref name="connectionPragma"/> are <code>null</code>.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="connection"/>, or <paramref name="identifierDefaults"/>, or <paramref name="connectionPragma"/> are <c>null</c>.</exception>
         public SqliteRelationalDatabase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, ISqliteConnectionPragma connectionPragma)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -180,7 +180,7 @@ namespace SJP.Schematic.Sqlite
         /// <param name="fileName">The path to a SQLite database.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
         /// <exception cref="ArgumentNullException">Thrown when either <paramref name="fileName"/> or <paramref name="schemaName"/> is null, empty or whitespace.</exception>
-        /// <exception cref="ArgumentException">Thrown when <paramref name="schemaName"/> is <code>main</code>.</exception>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="schemaName"/> is <c>main</c>.</exception>
         /// <returns>A task that represents the asynchronous operation.</returns>
         public Task AttachDatabaseAsync(string schemaName, string fileName, CancellationToken cancellationToken = default)
         {
@@ -201,7 +201,7 @@ namespace SJP.Schematic.Sqlite
         /// <param name="schemaName">The name to assign for the attached database.</param>
         /// <param name="fileName">The path to a SQLite database.</param>
         /// <exception cref="ArgumentNullException">Thrown when either <paramref name="fileName"/> or <paramref name="schemaName"/> is null, empty or whitespace.</exception>
-        /// <exception cref="ArgumentException">Thrown when <paramref name="schemaName"/> is <code>main</code>.</exception>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="schemaName"/> is <c>main</c>.</exception>
         /// <returns>A SQL query that can be used to add a database file to the current connection.</returns>
         protected virtual string AttachDatabaseQuery(string schemaName, string fileName)
         {
@@ -224,7 +224,7 @@ namespace SJP.Schematic.Sqlite
         /// <param name="schemaName">The name of an attached database.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="schemaName"/> is null, empty or whitespace.</exception>
-        /// <exception cref="ArgumentException">Thrown when <paramref name="schemaName"/> is <code>main</code>.</exception>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="schemaName"/> is <c>main</c>.</exception>
         /// <returns>A task that represents the asynchronous operation.</returns>
         public Task DetachDatabaseAsync(string schemaName, CancellationToken cancellationToken = default)
         {
@@ -242,7 +242,7 @@ namespace SJP.Schematic.Sqlite
         /// </summary>
         /// <param name="schemaName">The name of an attached database.</param>
         /// <exception cref="ArgumentNullException">Thrown when or <paramref name="schemaName"/> is null, empty or whitespace.</exception>
-        /// <exception cref="ArgumentException">Thrown when <paramref name="schemaName"/> is <code>main</code>.</exception>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="schemaName"/> is <c>main</c>.</exception>
         /// <returns>A SQL query that can be used to remove a database file from the current connection.</returns>
         protected virtual string DetachDatabaseQuery(string schemaName)
         {
@@ -255,7 +255,7 @@ namespace SJP.Schematic.Sqlite
         }
 
         /// <summary>
-        /// The <code>VACUUM</code> command rebuilds the database file, repacking it into a minimal amount of disk space.
+        /// The <c>VACUUM</c> command rebuilds the database file, repacking it into a minimal amount of disk space.
         /// </summary>
         /// <remarks>This will be run only on the main database.</remarks>
         /// <returns>A task that represents the asynchronous operation.</returns>
@@ -266,7 +266,7 @@ namespace SJP.Schematic.Sqlite
         }
 
         /// <summary>
-        /// The <code>VACUUM</code> command rebuilds the database file, repacking it into a minimal amount of disk space.
+        /// The <c>VACUUM</c> command rebuilds the database file, repacking it into a minimal amount of disk space.
         /// </summary>
         /// <param name="schemaName">The name of an attached database.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
@@ -282,7 +282,7 @@ namespace SJP.Schematic.Sqlite
         }
 
         /// <summary>
-        /// The <code>VACUUM INTO</code> command rebuilds the database file, repacking it into a minimal amount of disk space in a separate file.
+        /// The <c>VACUUM INTO</c> command rebuilds the database file, repacking it into a minimal amount of disk space in a separate file.
         /// </summary>
         /// <param name="filePath">A file path that will store the resulting vacuum'd database.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
@@ -298,7 +298,7 @@ namespace SJP.Schematic.Sqlite
         }
 
         /// <summary>
-        /// The <code>VACUUM INTO</code> command rebuilds the database file, repacking it into a minimal amount of disk space in a separate file.
+        /// The <c>VACUUM INTO</c> command rebuilds the database file, repacking it into a minimal amount of disk space in a separate file.
         /// </summary>
         /// <param name="filePath">A file path that will store the resulting vacuum'd database.</param>
         /// <param name="schemaName">The name of an attached database.</param>

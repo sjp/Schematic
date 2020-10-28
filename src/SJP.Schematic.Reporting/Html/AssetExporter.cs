@@ -11,7 +11,7 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html
 {
-    internal class AssetExporter
+    internal sealed class AssetExporter
     {
         public Task SaveAssetsAsync(string directory, bool overwrite = true, CancellationToken cancellationToken = default)
         {
@@ -62,12 +62,12 @@ namespace SJP.Schematic.Reporting.Html
                 {
                     using var gzipStream = new GZipStream(resourceStream, CompressionMode.Decompress);
                     await gzipStream.CopyToAsync(stream, cancellationToken).ConfigureAwait(false);
-                    await stream.FlushAsync().ConfigureAwait(false);
+                    await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
                     await resourceStream.CopyToAsync(stream, cancellationToken).ConfigureAwait(false);
-                    await stream.FlushAsync().ConfigureAwait(false);
+                    await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
                 }
             }
         }

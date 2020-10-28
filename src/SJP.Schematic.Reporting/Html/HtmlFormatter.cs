@@ -6,7 +6,7 @@ using RazorLight;
 
 namespace SJP.Schematic.Reporting.Html
 {
-    internal class HtmlFormatter : IHtmlFormatter
+    internal sealed class HtmlFormatter : IHtmlFormatter
     {
         public HtmlFormatter(ITemplateProvider templateProvider)
         {

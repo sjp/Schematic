@@ -261,7 +261,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         public async Task GetAllTableComments_WhenEnumerated_ContainsTestTableComment()
         {
             var containsTestTable = await TableCommentProvider.GetAllTableComments()
-                .AnyAsync(t => t.TableName.LocalName == "table_comment_table_1")
+                .AnyAsync(t => string.Equals(t.TableName.LocalName, "table_comment_table_1", StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestTable, Is.True);
@@ -289,7 +289,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
 
             var columnComments = comments.ColumnComments;
-            var hasColumns = columnComments.Count == 1 && columnComments.Keys.Single().LocalName == "test_column_1";
+            var hasColumns = columnComments.Count == 1 && string.Equals(columnComments.Keys.Single().LocalName, "test_column_1", StringComparison.Ordinal);
 
             Assert.That(hasColumns, Is.True);
         }

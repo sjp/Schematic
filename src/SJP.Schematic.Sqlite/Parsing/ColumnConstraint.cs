@@ -44,7 +44,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             return this;
         }
 
-        public class Collation : ColumnConstraint
+        public sealed class Collation : ColumnConstraint
         {
             public Collation(Token<SqliteToken> collation)
                 : base(ColumnConstraintType.Collation)
@@ -59,7 +59,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             public SqliteCollation CollationType { get; }
         }
 
-        public class Nullable : ColumnConstraint
+        public sealed class Nullable : ColumnConstraint
         {
             public Nullable(bool isNullable)
                 : base(ColumnConstraintType.Nullable)
@@ -70,7 +70,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             public bool IsNullable { get; }
         }
 
-        public class DefaultConstraint : ColumnConstraint
+        public sealed class DefaultConstraint : ColumnConstraint
         {
             public DefaultConstraint(IReadOnlyCollection<Token<SqliteToken>> tokens)
                 : base(ColumnConstraintType.Default)
@@ -84,7 +84,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             public IReadOnlyCollection<Token<SqliteToken>> DefaultValue { get; }
         }
 
-        public class PrimaryKey : ColumnConstraint
+        public sealed class PrimaryKey : ColumnConstraint
         {
             public PrimaryKey(IndexColumnOrder columnOrder = IndexColumnOrder.Ascending, bool autoIncrement = false)
                 : base(ColumnConstraintType.PrimaryKey)
@@ -101,7 +101,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             public bool AutoIncrement { get; }
         }
 
-        public class UniqueKey : ColumnConstraint
+        public sealed class UniqueKey : ColumnConstraint
         {
             public UniqueKey()
                 : base(ColumnConstraintType.UniqueKey)
@@ -109,7 +109,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             }
         }
 
-        public class ForeignKey : ColumnConstraint
+        public sealed class ForeignKey : ColumnConstraint
         {
             public ForeignKey(SqlIdentifier parentTableName, IReadOnlyCollection<SqlIdentifier> parentColumnNames)
                 : base(ColumnConstraintType.ForeignKey)
@@ -128,7 +128,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             public IReadOnlyCollection<string> ParentColumnNames { get; }
         }
 
-        public class Check : ColumnConstraint
+        public sealed class Check : ColumnConstraint
         {
             public Check(SqlExpression definition)
                 : base(ColumnConstraintType.Check)
@@ -142,7 +142,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             public IReadOnlyCollection<Token<SqliteToken>> Definition { get; }
         }
 
-        public class GeneratedAlways : ColumnConstraint
+        public sealed class GeneratedAlways : ColumnConstraint
         {
             public GeneratedAlways(SqlExpression definition)
                 : this(definition, SqliteGeneratedColumnType.Virtual)

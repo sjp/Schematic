@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.MySql.Query
 {
-    internal class CheckData
+    internal sealed class CheckData
     {
         public string? ConstraintName { get; set; }
 

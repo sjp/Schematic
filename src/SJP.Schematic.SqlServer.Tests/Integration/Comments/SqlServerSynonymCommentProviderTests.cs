@@ -195,7 +195,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         public async Task GetAllSynonymComments_WhenEnumerated_ContainsTestSynonymComment()
         {
             var containsTestSynonym = await SynonymCommentProvider.GetAllSynonymComments()
-                .AnyAsync(t => t.SynonymName.LocalName == "synonym_comment_synonym_1")
+                .AnyAsync(t => string.Equals(t.SynonymName.LocalName, "synonym_comment_synonym_1", StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestSynonym, Is.True);

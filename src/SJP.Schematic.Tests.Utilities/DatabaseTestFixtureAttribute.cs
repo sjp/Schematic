@@ -25,7 +25,7 @@ namespace SJP.Schematic.Tests.Utilities
             if (target == null || string.IsNullOrWhiteSpace(propertyName) || string.IsNullOrWhiteSpace(ignoreMessage))
                 return;
 
-            var propCache = TypeCache.GetOrAdd(target, new ConcurrentDictionary<string, MethodInfo?>());
+            var propCache = TypeCache.GetOrAdd(target, new ConcurrentDictionary<string, MethodInfo?>(StringComparer.Ordinal));
 
             var getMethod = propCache.GetOrAdd(propertyName, propName =>
             {

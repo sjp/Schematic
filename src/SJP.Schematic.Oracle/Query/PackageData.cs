@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    internal class PackageData
+    internal sealed class PackageData
     {
         public string? SourceType { get; set; }
 

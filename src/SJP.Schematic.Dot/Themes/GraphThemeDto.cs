@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Dot.Themes
 {
-    internal class GraphThemeDto
+    internal sealed class GraphThemeDto
     {
         public RgbColor? BackgroundColor { get; set; }
 

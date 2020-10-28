@@ -335,7 +335,7 @@ namespace SJP.Schematic.Modelled.Reflection
             else if (type.IsArray)
             {
                 var currentType = type;
-                var arrayNameStart = currentType.Name.IndexOf('[');
+                var arrayNameStart = currentType.Name.IndexOf('[', StringComparison.Ordinal);
                 var typeName = currentType.Name.Substring(0, arrayNameStart);
                 builder.Append(typeName);
 

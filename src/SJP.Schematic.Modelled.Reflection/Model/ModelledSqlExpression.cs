@@ -88,7 +88,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             }
 
             if (prevEnd < ExpressionText.Length - 1)
-                builder.Append(ExpressionText.Substring(prevEnd + 1));
+                builder.Append(ExpressionText, prevEnd + 1, ExpressionText.Length - (prevEnd + 1));
 
             return builder.GetStringAndRelease();
         }

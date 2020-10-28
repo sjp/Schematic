@@ -28,7 +28,7 @@ namespace SJP.Schematic.Modelled.Reflection
             {
                 var line = lines[i].TrimEnd('\r'); // remove trailing '\r'
 
-                if (padLen != 0 && line.Length >= padLen && line.Substring(0, padLen) == padding)
+                if (padLen != 0 && line.Length >= padLen && string.Equals(line.Substring(0, padLen), padding, StringComparison.Ordinal))
                     line = line.Substring(padLen);
 
                 lines[i] = line;
@@ -42,7 +42,7 @@ namespace SJP.Schematic.Modelled.Reflection
         private static string GetCommonLeadingWhitespace(string[] lines)
         {
             if (lines == null)
-                throw new ArgumentException(nameof(lines));
+                throw new ArgumentNullException(nameof(lines));
 
             if (lines.Length == 0)
                 return string.Empty;
@@ -85,7 +85,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return CodeTagPattern.Replace(text, (match) => "{" + match.Groups["display"].Value + "}");
         }
 
-        private static readonly Regex RefTagPattern = new Regex(@"<(see|paramref) (name|cref)=""([TPF]{1}:)?(?<display>.+?)"" ?/>");
-        private static readonly Regex CodeTagPattern = new Regex("<c>(?<display>.+?)</c>");
+        private static readonly Regex RefTagPattern = new Regex(@"<(see|paramref) (name|cref)=""([TPF]{1}:)?(?<display>.+?)"" ?/>", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
+        private static readonly Regex CodeTagPattern = new Regex("<c>(?<display>.+?)</c>", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
     }
 }

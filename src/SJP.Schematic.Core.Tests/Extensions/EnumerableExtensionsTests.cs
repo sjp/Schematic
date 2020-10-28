@@ -52,21 +52,21 @@ namespace SJP.Schematic.Core.Tests.Extensions
         public static void Empty_GivenEmptyCollectionWithPredicate_ReturnsTrue()
         {
             IEnumerable<string> input = Array.Empty<string>();
-            Assert.That(input.Empty(x => x == "A"), Is.True);
+            Assert.That(input.Empty(x => string.Equals(x, "A", StringComparison.Ordinal)), Is.True);
         }
 
         [Test]
         public static void Empty_GivenNonEmptyCollectionWithNonMatchingPredicate_ReturnsTrue()
         {
             IEnumerable<string> input = new[] { "B" };
-            Assert.That(input.Empty(x => x == "A"), Is.True);
+            Assert.That(input.Empty(x => string.Equals(x, "A", StringComparison.Ordinal)), Is.True);
         }
 
         [Test]
         public static void Empty_GivenNonEmptyCollectionWithMatchingPredicate_ReturnsFalse()
         {
             IEnumerable<string> input = new[] { "A" };
-            Assert.That(input.Empty(x => x == "A"), Is.False);
+            Assert.That(input.Empty(x => string.Equals(x, "A", StringComparison.Ordinal)), Is.False);
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [Test]
         public static void DistinctBy_ForComparerOverloadGivenNullCollection_ThrowsArgumentNullException()
         {
-            Assert.That(() => EnumerableExtensions.DistinctBy<string, string>(null, x => x, EqualityComparer<string>.Default), Throws.ArgumentNullException);
+            Assert.That(() => EnumerableExtensions.DistinctBy<string, string>(null, x => x, StringComparer.Ordinal), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -122,7 +122,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         {
             var source = new[] { "first", "second", "third", "fourth", "fifth" };
 
-            Assert.That(() => source.DistinctBy(null, EqualityComparer<string>.Default), Throws.ArgumentNullException);
+            Assert.That(() => source.DistinctBy(null, StringComparer.Ordinal), Throws.ArgumentNullException);
         }
 
         [Test]

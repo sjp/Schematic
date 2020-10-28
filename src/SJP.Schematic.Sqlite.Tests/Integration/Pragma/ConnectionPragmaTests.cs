@@ -301,12 +301,12 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public static async Task OptimizeAsync_WhenInvoked_PerformsOperationSuccessfully()
+        public static void OptimizeAsync_WhenInvoked_PerformsOperationSuccessfully()
         {
             var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
-            await connPragma.OptimizeAsync().ConfigureAwait(false);
+            Assert.That(async () => await connPragma.OptimizeAsync().ConfigureAwait(false), Throws.Nothing);
         }
 
         [Test]
@@ -385,12 +385,12 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public static async Task ShrinkMemoryAsync_WhenInvoked_PerformsOperationSuccessfully()
+        public static void ShrinkMemoryAsync_WhenInvoked_PerformsOperationSuccessfully()
         {
             var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
 
-            await connPragma.ShrinkMemoryAsync().ConfigureAwait(false);
+            Assert.That(async () => await connPragma.ShrinkMemoryAsync().ConfigureAwait(false), Throws.Nothing);
         }
 
         [Test]

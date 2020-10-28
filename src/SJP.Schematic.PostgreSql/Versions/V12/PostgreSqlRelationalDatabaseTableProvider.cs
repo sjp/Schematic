@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -71,10 +72,10 @@ namespace SJP.Schematic.PostgreSql.Versions.V12
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
 
-                var isAutoIncrement = row.IsIdentity == Constants.Yes;
+                var isAutoIncrement = string.Equals(row.IsIdentity, Constants.Yes, StringComparison.Ordinal);
                 var autoIncrement = isAutoIncrement
-                    && decimal.TryParse(row.IdentityStart, out var seqStart)
-                    && decimal.TryParse(row.IdentityIncrement, out var seqIncr)
+                    && decimal.TryParse(row.IdentityStart, NumberStyles.Float, CultureInfo.InvariantCulture, out var seqStart)
+                    && decimal.TryParse(row.IdentityIncrement, NumberStyles.Float, CultureInfo.InvariantCulture, out var seqIncr)
                     ? Option<IAutoIncrement>.Some(new AutoIncrement(seqStart, seqIncr))
                     : Option<IAutoIncrement>.None;
 
@@ -85,9 +86,9 @@ namespace SJP.Schematic.PostgreSql.Versions.V12
                 var defaultValue = !row.ColumnDefault.IsNullOrWhiteSpace()
                     ? Option<string>.Some(row.ColumnDefault)
                     : Option<string>.None;
-                var isNullable = row.IsNullable == Constants.Yes;
+                var isNullable = string.Equals(row.IsNullable, Constants.Yes, StringComparison.Ordinal);
 
-                var isComputed = row.IsGenerated == Constants.Always;
+                var isComputed = string.Equals(row.IsGenerated, Constants.Always, StringComparison.Ordinal);
                 var computedDefinition = isComputed
                     ? Option<string>.Some(row.GenerationExpression ?? string.Empty)
                     : Option<string>.None;
@@ -178,7 +179,7 @@ order by ordinal_position";
 
                 if (definition.StartsWith(checkPrefix, StringComparison.OrdinalIgnoreCase))
                     definition = definition.Substring(checkPrefix.Length);
-                if (definition.EndsWith(checkSuffix, StringComparison.Ordinal) && definition.Length > 0)
+                if (definition.EndsWith(')') && definition.Length > 0) // check suffix
                     definition = definition.Substring(0, definition.Length - checkSuffix.Length);
 
                 var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);

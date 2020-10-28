@@ -6,7 +6,7 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V11
 {
-    internal partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSql11Test
+    internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSql11Test
     {
         [Test]
         public async Task PrimaryKey_WhenGivenTableWithNoPrimaryKey_ReturnsNone()

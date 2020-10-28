@@ -159,7 +159,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public async Task GetAllSynonyms_WhenEnumerated_ContainsTestSynonym()
         {
             var containsTestSynonym = await SynonymProvider.GetAllSynonyms()
-                .AnyAsync(s => s.Name.LocalName == "db_test_synonym_1")
+                .AnyAsync(s => string.Equals(s.Name.LocalName, "db_test_synonym_1", System.StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestSynonym, Is.True);

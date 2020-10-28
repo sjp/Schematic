@@ -70,8 +70,8 @@ namespace SJP.Schematic.PostgreSql.Versions.V11
                 var indexName = Identifier.CreateQualifiedIdentifier(indexInfo.Key.IndexName);
 
                 var indexCols = indexInfo
-                    .OrderBy(row => row.IndexColumnId)
                     .Where(row => row.IndexColumnExpression != null)
+                    .OrderBy(row => row.IndexColumnId)
                     .Select(row => new
                     {
                         row.IsDescending,

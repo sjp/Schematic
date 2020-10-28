@@ -95,7 +95,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             if (!projectFileInfo.Directory.Exists)
                 projectFileInfo.Directory.Create();
 
-            FileSystem.File.WriteAllText(projectPath, ProjectDefinition);
+            await FileSystem.File.WriteAllTextAsync(projectPath, ProjectDefinition, cancellationToken).ConfigureAwait(false);
 
             var tableGenerator = new OrmLiteTableGenerator(FileSystem, NameTranslator, baseNamespace);
             var tables = await Database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
@@ -126,7 +126,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 if (tablePath.Exists)
                     tablePath.Delete();
 
-                FileSystem.File.WriteAllText(tablePath.FullName, tableClass);
+                await FileSystem.File.WriteAllTextAsync(tablePath.FullName, tableClass, cancellationToken).ConfigureAwait(false);
             }
 
             foreach (var view in views)
@@ -144,7 +144,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 if (viewPath.Exists)
                     viewPath.Delete();
 
-                FileSystem.File.WriteAllText(viewPath.FullName, viewClass);
+                await FileSystem.File.WriteAllTextAsync(viewPath.FullName, viewClass, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -174,7 +174,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             var ormliteAssembly = typeof(ServiceStack.OrmLite.OrmLiteConfig).Assembly;
             var productVersion = FileVersionInfo.GetVersionInfo(ormliteAssembly.Location).ProductVersion;
 
-            return productVersion.Split('+', StringSplitOptions.RemoveEmptyEntries).First();
+            return productVersion.Split('+', StringSplitOptions.RemoveEmptyEntries)[0];
         }
     }
 }

@@ -394,7 +394,7 @@ namespace SJP.Schematic.Sqlite
             if (indexLists.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
-            var nonConstraintIndexLists = indexLists.Where(i => i.origin == Constants.CreateIndex).ToList();
+            var nonConstraintIndexLists = indexLists.Where(i => string.Equals(i.origin, Constants.CreateIndex, StringComparison.Ordinal)).ToList();
             if (nonConstraintIndexLists.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
@@ -409,9 +409,8 @@ namespace SJP.Schematic.Sqlite
 
                 var indexInfo = await pragma.IndexXInfoAsync(indexList.name, cancellationToken).ConfigureAwait(false);
                 var indexColumns = indexInfo
-                    .Where(i => i.key && i.cid >= 0)
+                    .Where(i => i.key && i.cid >= 0 && i.name != null && columnLookup.ContainsKey(i.name))
                     .OrderBy(i => i.seqno)
-                    .Where(i => i.name != null && columnLookup.ContainsKey(i.name))
                     .Select(i =>
                     {
                         var order = i.desc ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
@@ -469,8 +468,8 @@ namespace SJP.Schematic.Sqlite
                 return Array.Empty<IDatabaseKey>();
 
             var ukIndexLists = indexLists
-                .Where(i => i.origin == Constants.UniqueConstraint
-                    && i.unique
+                .Where(i => string.Equals(i.origin, Constants.UniqueConstraint
+, StringComparison.Ordinal) && i.unique
                     && i.name != null)
                 .ToList();
             if (ukIndexLists.Empty())
@@ -500,7 +499,7 @@ namespace SJP.Schematic.Sqlite
                     .ToList();
 
                 var parsedUniqueConstraint = parsedUniqueConstraints
-                    .FirstOrDefault(constraint => constraint.Columns.Select(c => c.Name).SequenceEqual(columnNames));
+                    .FirstOrDefault(constraint => constraint.Columns.Select(c => c.Name).SequenceEqual(columnNames, StringComparer.Ordinal));
                 var uniqueConstraint = parsedUniqueConstraint != null
                     ? Option<UniqueKey>.Some(parsedUniqueConstraint)
                     : Option<UniqueKey>.None;
@@ -699,8 +698,8 @@ namespace SJP.Schematic.Sqlite
 
                         // don't need to check for the parent schema as cross-schema references are not supported
                         var parsedConstraint = parsedTable.ParentKeys
-                            .Where(fkc => string.Equals(fkc.ParentTable.LocalName, fkey.Key.ParentTableName, StringComparison.OrdinalIgnoreCase))
-                            .FirstOrDefault(fkc => fkc.ParentColumns.SequenceEqual(rows.Select(row => row.to), StringComparer.OrdinalIgnoreCase));
+                            .FirstOrDefault(fkc => string.Equals(fkc.ParentTable.LocalName, fkey.Key.ParentTableName, StringComparison.OrdinalIgnoreCase)
+                                && fkc.ParentColumns.SequenceEqual(rows.Select(row => row.to), StringComparer.OrdinalIgnoreCase));
                         var parsedConstraintOption = parsedConstraint != null
                             ? Option<ForeignKey>.Some(parsedConstraint)
                             : Option<ForeignKey>.None;
@@ -1063,9 +1062,9 @@ namespace SJP.Schematic.Sqlite
 
         private Task<Version> LoadDbVersionAsync() => Dialect.GetDatabaseVersionAsync(Connection);
 
-        private readonly ConcurrentDictionary<string, Lazy<ParsedTableData>> _tableParserCache = new ConcurrentDictionary<string, Lazy<ParsedTableData>>();
-        private readonly ConcurrentDictionary<string, Lazy<ParsedTriggerData>> _triggerParserCache = new ConcurrentDictionary<string, Lazy<ParsedTriggerData>>();
-        private readonly ConcurrentDictionary<string, ISqliteDatabasePragma> _dbPragmaCache = new ConcurrentDictionary<string, ISqliteDatabasePragma>();
+        private readonly ConcurrentDictionary<string, Lazy<ParsedTableData>> _tableParserCache = new ConcurrentDictionary<string, Lazy<ParsedTableData>>(StringComparer.Ordinal);
+        private readonly ConcurrentDictionary<string, Lazy<ParsedTriggerData>> _triggerParserCache = new ConcurrentDictionary<string, Lazy<ParsedTriggerData>>(StringComparer.Ordinal);
+        private readonly ConcurrentDictionary<string, ISqliteDatabasePragma> _dbPragmaCache = new ConcurrentDictionary<string, ISqliteDatabasePragma>(StringComparer.Ordinal);
 
         private readonly AsyncLazy<Version> _dbVersion;
 

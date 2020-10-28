@@ -1,4 +1,5 @@
-﻿using System.CommandLine;
+﻿using System;
+using System.CommandLine;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -7,7 +8,7 @@ using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Tool.Handlers
 {
-    internal class LintCommandHandler : DatabaseCommandHandler
+    internal sealed class LintCommandHandler : DatabaseCommandHandler
     {
         public LintCommandHandler(FileInfo filePath)
             : base(filePath)
@@ -40,7 +41,7 @@ namespace SJP.Schematic.Tool.Handlers
                 .Append(sequenceResults)
                 .Append(synonymResults)
                 .Append(routineResults)
-                .GroupBy(r => r.RuleId)
+                .GroupBy(r => r.RuleId, StringComparer.Ordinal)
                 .ToList();
 
             var hasDisplayedResults = false;

@@ -8,7 +8,7 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration
 {
-    internal class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSqlTest
+    internal sealed class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSqlTest
     {
         private IRelationalDatabaseTableProvider TableProvider => new PostgreSqlRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver);
 

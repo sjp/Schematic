@@ -224,21 +224,21 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task IncrementalVacuumAsync_GivenNonZeroValue_SetsCorrectly()
+        public void IncrementalVacuumAsync_GivenNonZeroValue_SetsCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-            await dbPragma.IncrementalVacuumAsync(1000).ConfigureAwait(false);
+            Assert.That(async () => await dbPragma.IncrementalVacuumAsync(1000).ConfigureAwait(false), Throws.Nothing);
         }
 
         [Test]
-        public async Task IncrementalVacuumAsync_GivenZeroValue_SetsCorrectly()
+        public void IncrementalVacuumAsync_GivenZeroValue_SetsCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-            await dbPragma.IncrementalVacuumAsync(0).ConfigureAwait(false);
+            Assert.That(async () => await dbPragma.IncrementalVacuumAsync(0).ConfigureAwait(false), Throws.Nothing);
         }
 
         [Test]
@@ -339,7 +339,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             Assert.That(errors, Is.Empty);
         }
 
-        public async Task JournalModeAsync_WhenGetInvoked_ReadsCorrectly()
+        [Test]
+        public static async Task JournalModeAsync_WhenGetInvoked_ReadsCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -398,7 +399,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             const LockingMode newValue = LockingMode.Exclusive;
             await dbPragma.LockingModeAsync(newValue).ConfigureAwait(false);
             // not checking value as it's a once-only effect
-            _ = await dbPragma.LockingModeAsync().ConfigureAwait(false);
+            Assert.That(async () => _ = await dbPragma.LockingModeAsync().ConfigureAwait(false), Throws.Nothing);
         }
 
         [Test]
@@ -441,12 +442,12 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task OptimizeAsync_WhenInvoked_PerformsOperationSuccessfully()
+        public void OptimizeAsync_WhenInvoked_PerformsOperationSuccessfully()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-            await dbPragma.OptimizeAsync().ConfigureAwait(false);
+            Assert.That(async () => await dbPragma.OptimizeAsync().ConfigureAwait(false), Throws.Nothing);
         }
 
         [Test]

@@ -96,7 +96,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             if (!projectFileInfo.Directory.Exists)
                 projectFileInfo.Directory.Create();
 
-            FileSystem.File.WriteAllText(projectPath, ProjectDefinition);
+            await FileSystem.File.WriteAllTextAsync(projectPath, ProjectDefinition, cancellationToken).ConfigureAwait(false);
 
             var dbContextGenerator = new EFCoreDbContextBuilder(NameTranslator, baseNamespace);
             var tableGenerator = new EFCoreTableGenerator(FileSystem, NameTranslator, baseNamespace);
@@ -131,7 +131,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 if (tablePath.Exists)
                     tablePath.Delete();
 
-                FileSystem.File.WriteAllText(tablePath.FullName, tableClass);
+                await FileSystem.File.WriteAllTextAsync(tablePath.FullName, tableClass, cancellationToken).ConfigureAwait(false);
             }
 
             foreach (var view in views)
@@ -149,13 +149,13 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 if (viewPath.Exists)
                     viewPath.Delete();
 
-                FileSystem.File.WriteAllText(viewPath.FullName, viewClass);
+                await FileSystem.File.WriteAllTextAsync(viewPath.FullName, viewClass, cancellationToken).ConfigureAwait(false);
             }
 
             var dbContextText = dbContextGenerator.Generate(tables, views, sequences);
             var dbContextPath = Path.Combine(projectFileInfo.Directory.FullName, "AppContext.cs");
 
-            FileSystem.File.WriteAllText(dbContextPath, dbContextText);
+            await FileSystem.File.WriteAllTextAsync(dbContextPath, dbContextText, cancellationToken).ConfigureAwait(false);
         }
 
         private static string ProjectDefinition { get; } =

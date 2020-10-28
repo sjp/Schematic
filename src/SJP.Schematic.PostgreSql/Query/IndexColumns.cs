@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.PostgreSql.Query
 {
-    internal class IndexColumns
+    internal sealed class IndexColumns
     {
         public string? IndexName { get; set; }
 

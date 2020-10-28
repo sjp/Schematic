@@ -133,7 +133,7 @@ namespace SJP.Schematic.Core
 
             if (!localNamePresent)
                 throw new ArgumentNullException(nameof(localName), "At least one component of an identifier must be provided.");
-            else if (result == null)
+            if (result == null)
                 result = new Identifier(localName!);
 
             if (Cache.TryGetValue(identifierKey, out var reference) && !reference.TryGetTarget(out _))

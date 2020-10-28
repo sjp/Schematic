@@ -6,7 +6,7 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V10
 {
-    internal partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSql10Test
+    internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : PostgreSql10Test
     {
         [Test]
         public async Task UniqueKeys_WhenGivenTableWithNoUniqueKeys_ReturnsEmptyCollection()

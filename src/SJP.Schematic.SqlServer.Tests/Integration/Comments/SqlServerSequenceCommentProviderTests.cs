@@ -193,7 +193,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         public async Task GetAllSequenceComments_WhenEnumerated_ContainsTestSequenceComment()
         {
             var containsTestSequence = await SequenceCommentProvider.GetAllSequenceComments()
-                .AnyAsync(t => t.SequenceName.LocalName == "sequence_comment_sequence_1")
+                .AnyAsync(t => string.Equals(t.SequenceName.LocalName, "sequence_comment_sequence_1", StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestSequence, Is.True);

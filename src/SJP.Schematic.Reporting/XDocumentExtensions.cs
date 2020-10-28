@@ -12,7 +12,7 @@ namespace SJP.Schematic.Reporting
                 throw new ArgumentNullException(nameof(document));
 
             var tableNodes = document.Descendants(GroupElement)
-                .Where(g => g.Attribute(ClassAttribute)?.Value == NodeClass)
+                .Where(g => string.Equals(g.Attribute(ClassAttribute)?.Value, NodeClass, StringComparison.Ordinal))
                 .ToList();
 
             foreach (var tableNode in tableNodes)
@@ -26,7 +26,7 @@ namespace SJP.Schematic.Reporting
                 foreach (var textNode in textNodes)
                 {
                     var value = textNode.Value;
-                    if (!foundTableTextNode && value == TableTitle)
+                    if (!foundTableTextNode && string.Equals(value, TableTitle, StringComparison.Ordinal))
                     {
                         foundTableTextNode = true;
                         continue;

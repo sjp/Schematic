@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -71,10 +72,10 @@ namespace SJP.Schematic.PostgreSql.Versions.V10
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
 
-                var isAutoIncrement = row.IsIdentity == Constants.Yes;
+                var isAutoIncrement = string.Equals(row.IsIdentity, Constants.Yes, StringComparison.Ordinal);
                 var autoIncrement = isAutoIncrement
-                    && decimal.TryParse(row.IdentityStart, out var seqStart)
-                    && decimal.TryParse(row.IdentityIncrement, out var seqIncr)
+                    && decimal.TryParse(row.IdentityStart, NumberStyles.Float, CultureInfo.InvariantCulture, out var seqStart)
+                    && decimal.TryParse(row.IdentityIncrement, NumberStyles.Float, CultureInfo.InvariantCulture, out var seqIncr)
                     ? Option<IAutoIncrement>.Some(new AutoIncrement(seqStart, seqIncr))
                     : Option<IAutoIncrement>.None;
 
@@ -85,7 +86,7 @@ namespace SJP.Schematic.PostgreSql.Versions.V10
                 var defaultValue = !row.ColumnDefault.IsNullOrWhiteSpace()
                     ? Option<string>.Some(row.ColumnDefault)
                     : Option<string>.None;
-                var isNullable = row.IsNullable == Constants.Yes;
+                var isNullable = string.Equals(row.IsNullable, Constants.Yes, StringComparison.Ordinal);
 
                 var column = new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement);
                 result.Add(column);

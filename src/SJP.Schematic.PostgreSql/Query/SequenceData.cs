@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.PostgreSql.Query
 {
-    internal class SequenceData
+    internal sealed class SequenceData
     {
         public string? SchemaName { get; set; }
 
