@@ -184,7 +184,7 @@ where SEQUENCE_OWNER = :SchemaName and SEQUENCE_NAME = :SequenceName";
                 throw new ArgumentNullException(nameof(sequenceName));
 
             var candidateSequenceName = QualifySequenceName(sequenceName);
-            return GetResolvedSequenceName(candidateSequenceName)
+            return GetResolvedSequenceName(candidateSequenceName, cancellationToken)
                 .Bind(name => LoadSequenceData(name, cancellationToken)
                     .Map(seq => BuildSequenceFromDto(name, seq)));
         }

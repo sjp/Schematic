@@ -172,7 +172,7 @@ END", CancellationToken.None).ConfigureAwait(false);
         {
             const string routineName = "db_test_routine_1";
             var containsTestRoutine = await RoutineProvider.GetAllRoutines()
-                .AnyAsync(r => r.Name.LocalName == routineName)
+                .AnyAsync(r => string.Equals(r.Name.LocalName, routineName, StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestRoutine, Is.True);

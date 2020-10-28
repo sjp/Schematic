@@ -31,7 +31,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
             var expectedTablePath = Path.Combine(tablesDir, "Main", "Actor.cs");
             var expectedViewPath = Path.Combine(viewsDir, "Main", "CustomerList.cs");
 
-            var mockFs = new MockFileSystem(new Dictionary<string, MockFileData>
+            var mockFs = new MockFileSystem(new Dictionary<string, MockFileData>(StringComparer.Ordinal)
             {
                 [tempDir.DirectoryPath + Path.PathSeparator] = new MockDirectoryData(),
                 [expectedAppContextPath] = MockFileData.NullObject,

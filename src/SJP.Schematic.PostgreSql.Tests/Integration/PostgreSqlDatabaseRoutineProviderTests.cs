@@ -159,7 +159,7 @@ LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
         public async Task GetAllRoutines_WhenEnumerated_ContainsTestRoutine()
         {
             var containsTestRoutine = await RoutineProvider.GetAllRoutines()
-                .AnyAsync(r => r.Name.LocalName == "db_test_routine_1")
+                .AnyAsync(r => string.Equals(r.Name.LocalName, "db_test_routine_1", StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestRoutine, Is.True);

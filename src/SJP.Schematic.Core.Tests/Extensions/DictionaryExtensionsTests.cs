@@ -18,7 +18,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [Test]
         public static void ToDictionary_GivenEmptyCollection_ReturnsEmptyDictionary()
         {
-            var input = new Dictionary<string, string>();
+            var input = new Dictionary<string, string>(StringComparer.Ordinal);
             var result = input.ToDictionary();
 
             Assert.That(result, Is.Empty);
@@ -27,7 +27,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [Test]
         public static void ToDictionary_GivenNonEmptyCollection_ReturnsDictionaryWithEqualKeysAndValues()
         {
-            var input = new Dictionary<string, string>
+            var input = new Dictionary<string, string>(StringComparer.Ordinal)
             {
                 ["a"] = "A",
                 ["b"] = "B"
@@ -53,14 +53,14 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [Test]
         public static void ToDictionary_WithComparerGivenNullComparer_ThrowsArgumentNullException()
         {
-            var input = new Dictionary<string, string>();
+            var input = new Dictionary<string, string>(StringComparer.Ordinal);
             Assert.That(() => input.ToDictionary(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void ToDictionary_WithComparerGivenEmptyCollection_ReturnsEmptyDictionary()
         {
-            var input = new Dictionary<string, string>();
+            var input = new Dictionary<string, string>(StringComparer.Ordinal);
             var result = input.ToDictionary(StringComparer.Ordinal);
 
             Assert.That(result, Is.Empty);
@@ -69,7 +69,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [Test]
         public static void ToDictionary_WithComparerGivenNonEmptyCollection_ReturnsDictionaryWithEqualKeysAndValues()
         {
-            var input = new Dictionary<string, string>
+            var input = new Dictionary<string, string>(StringComparer.Ordinal)
             {
                 ["a"] = "A",
                 ["b"] = "B"
@@ -95,7 +95,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [Test]
         public static void ToReadOnlyDictionary_GivenEmptyCollection_ReturnsEmptyDictionary()
         {
-            var input = new Dictionary<string, string>();
+            var input = new Dictionary<string, string>(StringComparer.Ordinal);
             var result = input.ToReadOnlyDictionary();
 
             Assert.That(result, Is.Empty);
@@ -104,7 +104,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [Test]
         public static void ToReadOnlyDictionary_GivenNonEmptyCollection_ReturnsDictionaryWithEqualKeysAndValues()
         {
-            var input = new Dictionary<string, string>
+            var input = new Dictionary<string, string>(StringComparer.Ordinal)
             {
                 ["a"] = "A",
                 ["b"] = "B"
@@ -130,14 +130,14 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [Test]
         public static void ToReadOnlyDictionary_WithComparerGivenNullComparer_ThrowsArgumentNullException()
         {
-            var input = new Dictionary<string, string>();
+            var input = new Dictionary<string, string>(StringComparer.Ordinal);
             Assert.That(() => input.ToReadOnlyDictionary(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public static void ToReadOnlyDictionary_WithComparerGivenEmptyCollection_ReturnsEmptyDictionary()
         {
-            var input = new Dictionary<string, string>();
+            var input = new Dictionary<string, string>(StringComparer.Ordinal);
             var result = input.ToReadOnlyDictionary(StringComparer.Ordinal);
 
             Assert.That(result, Is.Empty);
@@ -146,7 +146,7 @@ namespace SJP.Schematic.Core.Tests.Extensions
         [Test]
         public static void ToReadOnlyDictionary_WithComparerGivenNonEmptyCollection_ReturnsDictionaryWithEqualKeysAndValues()
         {
-            var input = new Dictionary<string, string>
+            var input = new Dictionary<string, string>(StringComparer.Ordinal)
             {
                 ["a"] = "A",
                 ["b"] = "B"

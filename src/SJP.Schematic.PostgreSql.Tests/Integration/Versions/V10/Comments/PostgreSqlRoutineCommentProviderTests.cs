@@ -181,7 +181,7 @@ LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
         public async Task GetAllRoutineComments_WhenEnumerated_ContainsTestRoutineComment()
         {
             var containsTestRoutine = await RoutineCommentProvider.GetAllRoutineComments()
-                .AnyAsync(t => t.RoutineName.LocalName == "v10_comment_test_routine_1")
+                .AnyAsync(t => string.Equals(t.RoutineName.LocalName, "v10_comment_test_routine_1", StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestRoutine, Is.True);

@@ -171,7 +171,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
         public async Task GetAllSequenceComments_WhenEnumerated_ContainsTestSequenceComment()
         {
             var containsTestSequence = await SequenceCommentProvider.GetAllSequenceComments()
-                .AnyAsync(t => t.SequenceName.LocalName == "comment_test_sequence_1")
+                .AnyAsync(t => string.Equals(t.SequenceName.LocalName, "comment_test_sequence_1", StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestSequence, Is.True);

@@ -140,7 +140,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             const string expectedSynonymName = "DB_TEST_SYNONYM_1";
             var containsTestSynonym = await SynonymProvider.GetAllSynonyms()
-                .AnyAsync(s => s.Name.LocalName == expectedSynonymName)
+                .AnyAsync(s => string.Equals(s.Name.LocalName, expectedSynonymName, System.StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestSynonym, Is.True);

@@ -433,7 +433,7 @@ execute procedure v10_test_trigger_fn()", CancellationToken.None).ConfigureAwait
         public async Task GetAllTables_WhenEnumerated_ContainsTestTable()
         {
             var containsTestTable = await TableProvider.GetAllTables()
-                .AnyAsync(t => t.Name.LocalName == "v10_db_test_table_1")
+                .AnyAsync(t => string.Equals(t.Name.LocalName, "v10_db_test_table_1", StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestTable, Is.True);

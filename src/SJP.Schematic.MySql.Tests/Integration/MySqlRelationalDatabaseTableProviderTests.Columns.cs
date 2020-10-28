@@ -34,7 +34,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             var columns = table.Columns;
             var columnNames = columns.Select(c => c.Name.LocalName);
 
-            Assert.That(expectedColumnNames.SequenceEqual(columnNames));
+            Assert.That(expectedColumnNames, Is.EqualTo(columnNames));
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             var column = table.Columns.Single();
 
             const string defaultValue = "1";
-            var equals = column.DefaultValue.Match(dv => dv == defaultValue, () => false);
+            var equals = column.DefaultValue.Match(dv => string.Equals(dv, defaultValue, System.StringComparison.Ordinal), () => false);
 
             Assert.That(equals, Is.True);
         }

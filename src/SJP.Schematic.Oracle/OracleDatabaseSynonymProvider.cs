@@ -209,7 +209,7 @@ where o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and s.SYNONYM_NAME = :Syn
                 throw new ArgumentNullException(nameof(synonymName));
 
             var candidateSynonymName = QualifySynonymName(synonymName);
-            return GetResolvedSynonymName(candidateSynonymName)
+            return GetResolvedSynonymName(candidateSynonymName, cancellationToken)
                 .Bind(name => LoadSynonymAsyncCore(name, cancellationToken));
         }
 

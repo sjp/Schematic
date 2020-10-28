@@ -174,7 +174,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V9_6
         public async Task GetAllSequences_WhenEnumerated_ContainsTestSequence()
         {
             var containsTestSequence = await SequenceProvider.GetAllSequences()
-                .AnyAsync(s => s.Name.LocalName == "v96_db_test_sequence_1")
+                .AnyAsync(s => string.Equals(s.Name.LocalName, "v96_db_test_sequence_1", StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestSequence, Is.True);

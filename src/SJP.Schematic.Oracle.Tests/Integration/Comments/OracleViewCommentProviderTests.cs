@@ -173,7 +173,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         public async Task GetAllViewComments_WhenEnumerated_ContainsTestViewComment()
         {
             var containsTestView = await ViewCommentProvider.GetAllViewComments()
-                .AnyAsync(v => v.ViewName.LocalName == "WRAPPER_VIEW_COMMENT_VIEW_1")
+                .AnyAsync(v => string.Equals(v.ViewName.LocalName, "WRAPPER_VIEW_COMMENT_VIEW_1", StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestView, Is.True);
@@ -356,7 +356,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         public async Task GetAllViewComments_WhenEnumerated_ContainsTestMatViewComment()
         {
             var containsTestView = await ViewCommentProvider.GetAllViewComments()
-                .AnyAsync(v => v.ViewName.LocalName == "WRAPPER_VIEW_COMMENT_MVIEW_1")
+                .AnyAsync(v => string.Equals(v.ViewName.LocalName, "WRAPPER_VIEW_COMMENT_MVIEW_1", StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestView, Is.True);

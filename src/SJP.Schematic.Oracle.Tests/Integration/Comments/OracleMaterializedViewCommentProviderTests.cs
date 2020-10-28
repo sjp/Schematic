@@ -164,7 +164,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration.Comments
         public async Task GetAllViewComments_WhenEnumerated_ContainsTestViewComment()
         {
             var containsTestView = await ViewCommentProvider.GetAllViewComments()
-                .AnyAsync(t => t.ViewName.LocalName == "MVIEW_COMMENT_MVIEW_1")
+                .AnyAsync(t => string.Equals(t.ViewName.LocalName, "MVIEW_COMMENT_MVIEW_1", StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestView, Is.True);

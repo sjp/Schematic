@@ -15,7 +15,7 @@ namespace SJP.Schematic.Lint.Tests.Fakes
 
         public IDependencyProvider GetDependencyProvider() => new EmptyDependencyProvider();
 
-        public bool IsReservedKeyword(string text) => ReservedKeywords.Contains(text);
+        public bool IsReservedKeyword(string text) => ReservedKeywords.Contains(text, StringComparer.OrdinalIgnoreCase);
 
         public IEnumerable<string> ReservedKeywords { get; set; } = new List<string>();
 

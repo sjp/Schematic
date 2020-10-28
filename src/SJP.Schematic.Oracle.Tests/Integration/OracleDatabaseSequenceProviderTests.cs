@@ -182,7 +182,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             const string expectedSequenceName = "DB_TEST_SEQUENCE_1";
 
             var containsTestSequence = await SequenceProvider.GetAllSequences()
-                .AnyAsync(s => s.Name.LocalName == expectedSequenceName)
+                .AnyAsync(s => string.Equals(s.Name.LocalName, expectedSequenceName, StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestSequence, Is.True);

@@ -173,7 +173,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             const string viewName = "query_db_test_view_1";
             var containsTestView = await ViewProvider.GetAllViews()
-                .AnyAsync(v => v.Name.LocalName == viewName)
+                .AnyAsync(v => string.Equals(v.Name.LocalName, viewName, StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestView, Is.True);
@@ -184,7 +184,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         {
             const string viewName = "query_view_test_matview_1";
             var containsTestView = await ViewProvider.GetAllViews()
-                .AnyAsync(v => v.Name.LocalName == viewName)
+                .AnyAsync(v => string.Equals(v.Name.LocalName, viewName, StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestView, Is.False);

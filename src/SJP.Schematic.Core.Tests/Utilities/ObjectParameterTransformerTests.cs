@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using SJP.Schematic.Core.Utilities;
@@ -46,7 +47,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
         [Test]
         public static void ToParameters_GivenEmptyLookup_ReturnsEmptyDictionary()
         {
-            var parameters = ObjectParameterTransformer.ToParameters(new Dictionary<string, object>());
+            var parameters = ObjectParameterTransformer.ToParameters(new Dictionary<string, object>(StringComparer.Ordinal));
 
             Assert.That(parameters.ParameterNames, Is.Empty);
         }
@@ -57,7 +58,7 @@ namespace SJP.Schematic.Core.Tests.Utilities
             const int first = 1;
             const string second = "second";
 
-            var lookup = new Dictionary<string, object>
+            var lookup = new Dictionary<string, object>(StringComparer.Ordinal)
             {
                 ["FirstKey"] = first,
                 ["SecondKey"] = second

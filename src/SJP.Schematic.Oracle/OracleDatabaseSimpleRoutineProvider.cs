@@ -68,8 +68,8 @@ namespace SJP.Schematic.Oracle
                     var name = Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, r.Key.SchemaName, r.Key.RoutineName);
 
                     var definition = r
-                        .OrderBy(r => r.LineNumber)
                         .Where(r => r.Text != null)
+                        .OrderBy(r => r.LineNumber)
                         .Select(r => r.Text!)
                         .Join(string.Empty);
                     var unwrappedDefinition = OracleUnwrapper.Unwrap(definition);

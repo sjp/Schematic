@@ -76,7 +76,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
             {
                 Property = typeof(TestTable1)
                     .GetProperties()
-                    .Single(p => p.Name == nameof(TestTable1.FK_PK_SOURCE))
+                    .Single(p => string.Equals(p.Name, nameof(TestTable1.FK_PK_SOURCE), System.StringComparison.Ordinal))
             };
 
             var instance = new TestTable1();
@@ -94,7 +94,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
             {
                 Property = typeof(TestTable1)
                     .GetProperties()
-                    .Single(p => p.Name == nameof(TestTable1.FK_UK_SOURCE))
+                    .Single(p => string.Equals(p.Name, nameof(TestTable1.FK_UK_SOURCE), System.StringComparison.Ordinal))
             };
 
             var instance = new TestTable1();

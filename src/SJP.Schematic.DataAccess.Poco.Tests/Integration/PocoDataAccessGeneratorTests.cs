@@ -61,7 +61,7 @@ select
             var expectedView1Path = Path.Combine(viewsDir, "Main", "TestView1.cs");
             var expectedView2Path = Path.Combine(viewsDir, "Main", "TestView2.cs");
 
-            var mockFs = new MockFileSystem(new Dictionary<string, MockFileData>
+            var mockFs = new MockFileSystem(new Dictionary<string, MockFileData>(StringComparer.Ordinal)
             {
                 [tempDir.DirectoryPath + Path.PathSeparator] = new MockDirectoryData(),
                 [expectedTable1Path] = MockFileData.NullObject,

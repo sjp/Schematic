@@ -21,7 +21,7 @@ namespace SJP.Schematic.Graphviz.Tests
             const string exePath = "dot_test.exe";
 
             var config = new ConfigurationBuilder()
-                .AddInMemoryCollection(new Dictionary<string, string> { ["Graphviz:Dot"] = exePath })
+                .AddInMemoryCollection(new Dictionary<string, string>(StringComparer.Ordinal) { ["Graphviz:Dot"] = exePath })
                 .Build();
             var factory = new GraphvizExecutableFactory(config);
 

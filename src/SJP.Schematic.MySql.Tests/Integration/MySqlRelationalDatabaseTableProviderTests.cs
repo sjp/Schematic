@@ -385,7 +385,7 @@ end
         public async Task GetAllTables_WhenEnumerated_ContainsTestTable()
         {
             var containsTestTable = await TableProvider.GetAllTables()
-                .AnyAsync(t => t.Name.LocalName == "db_test_table_1")
+                .AnyAsync(t => string.Equals(t.Name.LocalName, "db_test_table_1", StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestTable, Is.True);

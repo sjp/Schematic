@@ -175,7 +175,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Comments
         public async Task GetAllViewComments_WhenEnumerated_ContainsTestViewComment()
         {
             var containsTestView = await ViewCommentProvider.GetAllViewComments()
-                .AnyAsync(t => t.ViewName.LocalName == "matview_comment_matview_1")
+                .AnyAsync(t => string.Equals(t.ViewName.LocalName, "matview_comment_matview_1", StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestView, Is.True);

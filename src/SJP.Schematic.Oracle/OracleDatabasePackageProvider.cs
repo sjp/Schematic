@@ -68,16 +68,14 @@ namespace SJP.Schematic.Oracle
                     var name = Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, r.Key.SchemaName, r.Key.RoutineName);
 
                     var specLines = r
-                        .Where(p => string.Equals(p.RoutineType, PackageObjectType, StringComparison.Ordinal))
+                        .Where(p => string.Equals(p.RoutineType, PackageObjectType, StringComparison.Ordinal) && p.Text != null)
                         .OrderBy(p => p.LineNumber)
-                        .Where(p => p.Text != null)
                         .Select(p => p.Text!);
                     var spec = specLines.Join(string.Empty);
 
                     var bodyLines = r
-                        .Where(p => string.Equals(p.RoutineType, PackageBodyObjectType, StringComparison.Ordinal))
+                        .Where(p => string.Equals(p.RoutineType, PackageBodyObjectType, StringComparison.Ordinal) && p.Text != null)
                         .OrderBy(p => p.LineNumber)
-                        .Where(p => p.Text != null)
                         .Select(p => p.Text!);
 
                     var body = bodyLines.Any()
@@ -213,15 +211,13 @@ where OWNER = :SchemaName and OBJECT_NAME = :PackageName
                 ).ConfigureAwait(false);
 
                 var spec = lines
-                    .Where(p => string.Equals(p.SourceType, PackageObjectType, StringComparison.Ordinal))
+                    .Where(p => string.Equals(p.SourceType, PackageObjectType, StringComparison.Ordinal) && p.Text != null)
                     .OrderBy(p => p.LineNumber)
-                    .Where(p => p.Text != null)
                     .Select(p => p.Text!)
                     .Join(string.Empty);
                 var bodyLines = lines
-                    .Where(p => string.Equals(p.SourceType, PackageBodyObjectType, StringComparison.Ordinal))
+                    .Where(p => string.Equals(p.SourceType, PackageBodyObjectType, StringComparison.Ordinal) && p.Text != null)
                     .OrderBy(p => p.LineNumber)
-                    .Where(p => p.Text != null)
                     .Select(p => p.Text!);
 
                 var body = bodyLines.Any()
@@ -242,15 +238,13 @@ where OWNER = :SchemaName and OBJECT_NAME = :PackageName
                 ).ConfigureAwait(false);
 
                 var spec = lines
-                    .Where(p => string.Equals(p.SourceType, PackageObjectType, StringComparison.Ordinal))
+                    .Where(p => string.Equals(p.SourceType, PackageObjectType, StringComparison.Ordinal) && p.Text != null)
                     .OrderBy(p => p.LineNumber)
-                    .Where(p => p.Text != null)
                     .Select(p => p.Text!)
                     .Join(string.Empty);
                 var bodyLines = lines
-                    .Where(p => string.Equals(p.SourceType, PackageBodyObjectType, StringComparison.Ordinal))
+                    .Where(p => string.Equals(p.SourceType, PackageBodyObjectType, StringComparison.Ordinal) && p.Text != null)
                     .OrderBy(p => p.LineNumber)
-                    .Where(p => p.Text != null)
                     .Select(p => p.Text!);
 
                 var body = bodyLines.Any()
