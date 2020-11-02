@@ -42,7 +42,7 @@
     "jquery": "3.5.1",
     "jquery-ui-dist": "1.12.1",
     "natives": "1.1.6",
-    "node-sass": "4.14.1",
+    "node-sass": "5.0.0",
     "postcss-cssnext": "3.1.0",
     "source-sans-pro": "3.6.0",
     "svg-pan-zoom": "3.6.1"
