@@ -28,7 +28,7 @@ namespace SJP.Schematic.Graphviz
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
 
-            _configuredPath = configuration.GetValue<string>("Graphviz:Dot");
+            _configuredPath = configuration["Graphviz:Dot"];
         }
 
         /// <summary>

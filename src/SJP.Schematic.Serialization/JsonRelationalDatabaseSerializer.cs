@@ -30,6 +30,9 @@ namespace SJP.Schematic.Serialization
                 throw new ArgumentNullException(nameof(identifierResolver));
 
             var dto = JsonSerializer.Deserialize<Dto.RelationalDatabase>(input, _settings.Value);
+            if (dto == null)
+                throw new InvalidOperationException("Unable to parse the given JSON as a database definition.");
+
             dto.IdentifierResolver = identifierResolver;
             var db = Mapper.Map<Dto.RelationalDatabase, RelationalDatabase>(dto);
 

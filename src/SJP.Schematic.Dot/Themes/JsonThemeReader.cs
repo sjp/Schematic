@@ -39,6 +39,9 @@ namespace SJP.Schematic.Dot.Themes
 
             var defaultTheme = new DefaultTheme();
             var dto = JsonSerializer.Deserialize<GraphThemeDto>(json, GetSerializerSettings());
+            if (dto == null)
+                throw new InvalidOperationException("Failed to parse JSON theme file.");
+
             return new GraphThemeBuilder
             {
                 BackgroundColor = dto.BackgroundColor ?? defaultTheme.BackgroundColor,
@@ -103,6 +106,9 @@ namespace SJP.Schematic.Dot.Themes
             public override RgbColor Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
                 var text = reader.GetString();
+                if (text == null)
+                    throw new InvalidOperationException("Unable to read a colour from the JSON.");
+
                 return new RgbColor(text);
             }
 
