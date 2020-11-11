@@ -300,7 +300,7 @@ namespace SJP.Schematic.Core
         /// </summary>
         /// <param name="other">The identifier to compare with the current identifier.</param>
         /// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
-        public bool Equals(Identifier other) => IdentifierComparer.Ordinal.Equals(this, other);
+        public bool Equals(Identifier? other) => IdentifierComparer.Ordinal.Equals(this, other);
 
         /// <summary>
         /// Determines whether the specified object is equal to the current identifier using the default (ordinal) identifier comparer.
@@ -308,7 +308,7 @@ namespace SJP.Schematic.Core
         /// <param name="obj">The object to compare with the current identifier.</param>
         /// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(this, obj))
                 return true;
@@ -330,7 +330,7 @@ namespace SJP.Schematic.Core
         /// </summary>
         /// <param name="other">An identifier to compare with the current identifier.</param>
         /// <returns>A 32-bit signed integer that indicates whether this instance precedes, follows, or appears in the same position in the sort order as the <paramref name="other"/> parameter.</returns>
-        public int CompareTo(Identifier other)
+        public int CompareTo(Identifier? other)
         {
             if (ReferenceEquals(this, other))
                 return 0;

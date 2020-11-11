@@ -54,7 +54,7 @@ namespace SJP.Schematic.Modelled.Reflection
             if (ctor == null)
                 throw new ArgumentException($"The table type '{ TableType.FullName }' does not contain a default constructor.");
 
-            var tableInstance = Activator.CreateInstance(TableType);
+            var tableInstance = Activator.CreateInstance(TableType)!;
             return PopulateColumnProperties(tableInstance);
         }
 

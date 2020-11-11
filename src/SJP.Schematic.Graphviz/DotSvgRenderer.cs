@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Graphviz
 {
@@ -114,9 +113,9 @@ namespace SJP.Schematic.Graphviz
                 using (var process = new Process { StartInfo = startInfo })
                 {
                     process.Start();
-                    var exitCode = await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+                    await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
 
-                    if (exitCode != ExitSuccess)
+                    if (process.ExitCode != ExitSuccess)
                     {
                         var stdErr = await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
                         throw new GraphvizException(process.ExitCode, stdErr);

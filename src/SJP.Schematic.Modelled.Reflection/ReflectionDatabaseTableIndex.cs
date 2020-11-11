@@ -24,7 +24,7 @@ namespace SJP.Schematic.Modelled.Reflection
             Name = dialect.GetAliasOrDefault(index.Property!);
 
             var tableType = index.Property!.ReflectedType;
-            var propertyLookup = tableType.GetProperties()
+            var propertyLookup = tableType!.GetProperties()
                 .Select(p => new KeyValuePair<string, PropertyInfo>(p.Name, p))
                 .ToReadOnlyDictionary(StringComparer.Ordinal);
 

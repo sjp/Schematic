@@ -172,7 +172,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
         private static string GetOrmLiteVersionString()
         {
             var ormliteAssembly = typeof(ServiceStack.OrmLite.OrmLiteConfig).Assembly;
-            var productVersion = FileVersionInfo.GetVersionInfo(ormliteAssembly.Location).ProductVersion;
+            var productVersion = FileVersionInfo.GetVersionInfo(ormliteAssembly.Location).ProductVersion ?? string.Empty;
 
             return productVersion.Split('+', StringSplitOptions.RemoveEmptyEntries)[0];
         }

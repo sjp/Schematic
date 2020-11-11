@@ -48,23 +48,23 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 if (Property == null)
                     throw new InvalidOperationException("The property that the foreign key belongs to is not available.");
 
-                var sourceType = Property.ReflectedType;
+                var sourceType = Property.ReflectedType!;
                 var sourceAsm = sourceType.Assembly;
                 var sourceAsmName = sourceAsm.GetName();
 
                 var sourceAsmDefinition = AssemblyCache.GetOrAdd(sourceAsmName, _ => new Lazy<AssemblyDefinition>(() => AssemblyDefinition.ReadAssembly(sourceAsm.Location))).Value;
 
                 // Mono.Cecil uses '/' to declare nested type names instead of '+'
-                var sourceSearchTypeName = sourceType.FullName.Replace('+', '/');
+                var sourceSearchTypeName = sourceType.FullName!.Replace('+', '/');
                 var sourceTypeDefinition = sourceAsmDefinition.MainModule.GetType(sourceSearchTypeName);
                 var sourceProperty = sourceTypeDefinition.Properties.SingleOrDefault(p => p.Name == Property.Name && !p.HasParameters);
                 if (sourceProperty == null)
                 {
                     throw new ArgumentException(
                        "Could not find the source property "
-                       + Property.ReflectedType.FullName + "." + Property.Name
+                       + sourceType.FullName + "." + Property.Name
                        + ". Check that assemblies are up to date.",
-                       Property.ReflectedType.FullName + "." + Property.Name
+                       sourceType.FullName + "." + Property.Name
                    );
                 }
 
@@ -74,9 +74,9 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 {
                     throw new ArgumentException(
                        "Could not find function pointer instruction in the get method of the source property "
-                       + Property.ReflectedType.FullName + "." + Property.Name
+                       + sourceType.FullName + "." + Property.Name
                        + ". Is the key selector method a simple lambda expression?",
-                       Property.ReflectedType.FullName + "." + Property.Name
+                       sourceType.FullName + "." + Property.Name
                    );
                 }
 
@@ -84,8 +84,8 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 {
                     throw new ArgumentException(
                        "Expected to find a method definition associated with a function pointer instruction but could not find one for "
-                       + Property.ReflectedType.FullName + "." + Property.Name + ".",
-                       Property.ReflectedType.FullName + "." + Property.Name
+                       + sourceType.FullName + "." + Property.Name + ".",
+                       sourceType.FullName + "." + Property.Name
                    );
                 }
 
@@ -95,9 +95,9 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 {
                     throw new ArgumentException(
                        "Could not find call or virtual call instruction in the key selector function that was provided to "
-                       + Property.ReflectedType.FullName + "." + Property.Name
+                       + sourceType.FullName + "." + Property.Name
                        + ". Is the key selector method a simple lambda expression?",
-                       Property.ReflectedType.FullName + "." + Property.Name
+                       sourceType.FullName + "." + Property.Name
                    );
                 }
 
@@ -105,12 +105,12 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                     throw new ArgumentException("Expected to find a method definition associated with the call or virtual call instruction but could not find one in the key selector.");
 
                 var targetPropertyName = bodyMethodDef.Name;
-                var targetProp = TargetType.GetProperties().SingleOrDefault(p => p.GetGetMethod().Name == targetPropertyName && p.GetIndexParameters().Length == 0);
+                var targetProp = TargetType.GetProperties().SingleOrDefault(p => p.GetGetMethod() != null && p.GetGetMethod()!.Name == targetPropertyName && p.GetIndexParameters().Length == 0);
                 if (targetProp == null)
                 {
                     throw new ArgumentException(
                        $"Expected to find a property named { targetPropertyName } in { TargetType.FullName } but could not find one.",
-                       Property.ReflectedType.FullName + "." + Property.Name
+                       sourceType.FullName + "." + Property.Name
                    );
                 }
 

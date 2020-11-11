@@ -359,7 +359,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
             if (duplicateTypes.Count > 0)
             {
-                var typeNames = duplicateTypes.Select(t => t.FullName).Join(", ");
+                var typeNames = duplicateTypes.Select(t => t.FullName!).Join(", ");
                 var message = $"There were duplicate types provided to the { definitionType.FullName } database. The following types have more than one declaration: " + typeNames;
                 throw new Exception(message);
             }

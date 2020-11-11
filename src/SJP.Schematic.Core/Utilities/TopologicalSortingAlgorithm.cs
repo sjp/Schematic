@@ -12,7 +12,9 @@ namespace SJP.Schematic.Core.Utilities
     /// <typeparam name="TVertex">The vertex type.</typeparam>
     /// <typeparam name="TEdge">The edge type.</typeparam>
     /// <remarks>Not intended to be used directly.</remarks>
-    public sealed class TopologicalSortingAlgorithm<TVertex, TEdge> : AlgorithmBase<IVertexListGraph<TVertex, TEdge>> where TEdge : IEdge<TVertex>
+    public sealed class TopologicalSortingAlgorithm<TVertex, TEdge> : AlgorithmBase<IVertexListGraph<TVertex, TEdge>>
+        where TVertex : notnull
+        where TEdge : IEdge<TVertex>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TopologicalSortingAlgorithm{TVertex, TEdge}"/> class.

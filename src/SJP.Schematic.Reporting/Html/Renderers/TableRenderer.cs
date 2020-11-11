@@ -86,7 +86,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
                     using (var writer = new StringWriter())
                     {
-                        var svgRoot = doc.Root;
+                        var svgRoot = doc.Root!;
                         svgRoot.Attribute("width")?.Remove();
                         svgRoot.Attribute("height")?.Remove();
 

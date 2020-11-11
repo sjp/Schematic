@@ -50,7 +50,7 @@ namespace SJP.Schematic.Core
         /// </summary>
         /// <param name="other">An <see cref="IAutoIncrement"/> instance.</param>
         /// <returns><see langword="true" /> if the current <see cref="AutoIncrement"/> object is equal to <paramref name="other" /> parameter; otherwise, <see langword="false" />.</returns>
-        public bool Equals(IAutoIncrement other)
+        public bool Equals(IAutoIncrement? other)
         {
             if (other == null)
                 return false;
@@ -65,7 +65,7 @@ namespace SJP.Schematic.Core
         /// <param name="obj">The <see cref="object" /> to compare with this instance.</param>
         /// <returns><c>true</c> if the specified <see cref="object" /> is equal to this instance; otherwise, <c>false</c>.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is AutoIncrement ai)
                 return Equals(ai);

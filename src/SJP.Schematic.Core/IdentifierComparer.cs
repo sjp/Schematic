@@ -61,7 +61,7 @@ namespace SJP.Schematic.Core
         /// <param name="x">The first <see cref="Identifier"/> instance to compare.</param>
         /// <param name="y">The second <see cref="Identifier"/> instance to compare.</param>
         /// <returns><see langword="true" /> if the <paramref name="x"/> and <paramref name="y"/> are equal; otherwise, <see langword="false" />.</returns>
-        public bool Equals(Identifier x, Identifier y)
+        public bool Equals(Identifier? x, Identifier? y)
         {
             if (x is null && y is null)
                 return true;
@@ -109,7 +109,7 @@ namespace SJP.Schematic.Core
         /// Greater than zero
         /// <paramref name="x" /> is greater than <paramref name="y" />.
         /// </returns>
-        public int Compare(Identifier x, Identifier y)
+        public int Compare(Identifier? x, Identifier? y)
         {
             if (ReferenceEquals(x, y))
                 return 0;

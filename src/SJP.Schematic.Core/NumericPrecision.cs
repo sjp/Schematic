@@ -46,7 +46,7 @@ namespace SJP.Schematic.Core
         /// <param name="obj">The <see cref="object" /> to compare with this instance.</param>
         /// <returns><c>true</c> if the specified <see cref="object" /> is equal to this instance; otherwise, <c>false</c>.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is NumericPrecision np)
                 return Equals(np);
@@ -72,7 +72,7 @@ namespace SJP.Schematic.Core
         /// </summary>
         /// <param name="other">A numeric precision instance to compare with this object.</param>
         /// <returns><see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.</returns>
-        public bool Equals(INumericPrecision other)
+        public bool Equals(INumericPrecision? other)
         {
             if (other == null)
                 return false;

@@ -14,7 +14,7 @@ namespace SJP.Schematic.Serialization.Mapping
                     ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.TypeName!),
                     dto.DataType,
                     dto.Definition!,
-                    Type.GetType(dto.ClrTypeName ?? "System.Object"),
+                    Type.GetType(dto.ClrTypeName ?? "System.Object")!,
                     dto.IsFixedLength,
                     dto.MaxLength,
                     ctx.Mapper.Map<Dto.NumericPrecision?, Option<INumericPrecision>>(dto.NumericPrecision),

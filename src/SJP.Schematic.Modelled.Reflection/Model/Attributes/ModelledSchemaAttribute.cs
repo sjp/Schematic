@@ -24,7 +24,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 var message = incorrectTypes.Count == 1
                     ? "A non-dialect type was provided. Type: "
                     : "Non dialect types were provided. Types: ";
-                throw new ArgumentException(message + incorrectTypes.Select(t => t.FullName).Join(", "), nameof(dialects));
+                throw new ArgumentException(message + incorrectTypes.Select(t => t.FullName!).Join(", "), nameof(dialects));
             }
 
             // if we encounter Dialect.All then must affect everything

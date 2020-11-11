@@ -31,7 +31,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 throw new ArgumentException($"The { nameof(BindingFlags) } provided must be a valid enum.", nameof(bindingFlags));
 
             var backingFieldName = $"<{ property.Name }>k__BackingField";
-            var field = property.DeclaringType.GetField(backingFieldName, bindingFlags);
+            var field = property.DeclaringType!.GetField(backingFieldName, bindingFlags);
 
             var compilerAttr = field?.GetCustomAttribute<CompilerGeneratedAttribute>(true);
             return compilerAttr != null ? field : null;
@@ -43,7 +43,7 @@ namespace SJP.Schematic.Modelled.Reflection
         /// <param name="type">The type which may contain a default constructor.</param>
         /// <returns>A <see cref="ConstructorInfo"/> object relating to the default constructor on <paramref name="type"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="type"/> is <c>null</c>.</exception>
-        public static ConstructorInfo GetDefaultConstructor(this Type type)
+        public static ConstructorInfo? GetDefaultConstructor(this Type type)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
@@ -60,7 +60,7 @@ namespace SJP.Schematic.Modelled.Reflection
         /// <returns>An attribute for the given property. This will be <c>null</c> when no attribute is present.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="dialect"/> or <paramref name="property"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException">More than one matching attribute was found.</exception>
-        public static T GetDialectAttribute<T>(this IDatabaseDialect dialect, PropertyInfo property) where T : ModelledSchemaAttribute
+        public static T? GetDialectAttribute<T>(this IDatabaseDialect dialect, PropertyInfo property) where T : ModelledSchemaAttribute
         {
             if (dialect == null)
                 throw new ArgumentNullException(nameof(dialect));
@@ -73,7 +73,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 .ToList();
 
             if (attrs.Count > 1)
-                throw new ArgumentException($"More than one matching { typeof(T).FullName } attribute was found for the property { property.Name } in { property.ReflectedType.FullName }.", nameof(property));
+                throw new ArgumentException($"More than one matching { typeof(T).FullName } attribute was found for the property { property.Name } in { property.ReflectedType!.FullName }.", nameof(property));
 
             return attrs.SingleOrDefault();
         }
@@ -87,7 +87,7 @@ namespace SJP.Schematic.Modelled.Reflection
         /// <returns>An attribute for the given object type. This will be <c>null</c> when no attribute is present.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="dialect"/> or <paramref name="type"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException">More than one matching attribute was found.</exception>
-        public static T GetDialectAttribute<T>(this IDatabaseDialect dialect, Type type) where T : ModelledSchemaAttribute
+        public static T? GetDialectAttribute<T>(this IDatabaseDialect dialect, Type type) where T : ModelledSchemaAttribute
         {
             if (dialect == null)
                 throw new ArgumentNullException(nameof(dialect));

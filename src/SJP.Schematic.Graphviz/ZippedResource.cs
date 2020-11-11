@@ -53,7 +53,7 @@ namespace SJP.Schematic.Graphviz
             var namePrefix = asm.GetName().Name + ".";
             var qualifiedName = namePrefix + resourceName;
 
-            using var stream = asm.GetManifestResourceStream(qualifiedName);
+            using var stream = asm.GetManifestResourceStream(qualifiedName)!;
             using var memStream = new MemoryStream();
             stream.CopyTo(memStream);
             return memStream.ToArray();

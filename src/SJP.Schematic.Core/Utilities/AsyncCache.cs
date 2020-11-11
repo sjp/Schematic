@@ -13,6 +13,7 @@ namespace SJP.Schematic.Core.Utilities
     /// <typeparam name="TValue">The type of value that will be cached.</typeparam>
     /// <typeparam name="TCache">A container type used to access other cached values if required.</typeparam>
     public class AsyncCache<TKey, TValue, TCache>
+        where TKey : notnull
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncCache{TKey, TValue, TCache}"/> class.

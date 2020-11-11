@@ -20,7 +20,7 @@ namespace SJP.Schematic.Modelled.Reflection
             Name = dialect.GetAliasOrDefault(prop);
             var clrType = GetClrType(declaredColumnType);
             if (clrType == null)
-                throw new ArgumentNullException($"The declared column type does not implement IDbType<T>. Check { prop.ReflectedType.FullName }.{ prop.Name } and ensure that the column type { declaredColumnType.FullName } implements this interface.", nameof(declaredColumnType));
+                throw new ArgumentNullException($"The declared column type does not implement IDbType<T>. Check { prop.ReflectedType!.FullName }.{ prop.Name } and ensure that the column type { declaredColumnType.FullName } implements this interface.", nameof(declaredColumnType));
 
             var columnType = new ReflectionColumnDataType(dialect, declaredColumnType, clrType);
             var autoIncrAttr = dialect.GetDialectAttribute<AutoIncrementAttribute>(declaredColumnType)
@@ -29,7 +29,7 @@ namespace SJP.Schematic.Modelled.Reflection
             if (autoIncrAttr != null)
             {
                 if (!ValidAutoIncrementTypes.Contains(columnType.DataType))
-                    throw new ArgumentNullException($"The column { prop.ReflectedType.FullName }.{ prop.Name } is declared as being auto incrementing, which is not supported on a '{ columnType.DataType }' data type.", nameof(declaredColumnType));
+                    throw new ArgumentNullException($"The column { prop.ReflectedType!.FullName }.{ prop.Name } is declared as being auto incrementing, which is not supported on a '{ columnType.DataType }' data type.", nameof(declaredColumnType));
 
                 AutoIncrement = new AutoIncrement(autoIncrAttr.InitialValue, autoIncrAttr.Increment);
             }

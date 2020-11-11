@@ -42,7 +42,7 @@ namespace SJP.Schematic.Core.Utilities
         /// will return an object equivalent to the following result:
         /// <c>new Dictionary&lt;string, object&gt;{ ["A"] = "test", ["B"] = 132 }</c>
         /// </example>
-        public static IReadOnlyDictionary<string, object> ToDictionary(object param)
+        public static IReadOnlyDictionary<string, object?> ToDictionary(object param)
         {
             if (param == null)
                 throw new ArgumentNullException(nameof(param));
@@ -50,7 +50,7 @@ namespace SJP.Schematic.Core.Utilities
             var paramType = param.GetType();
             var paramProps = paramType.GetProperties(PropFlags);
 
-            var result = new Dictionary<string, object>(paramProps.Length, StringComparer.Ordinal);
+            var result = new Dictionary<string, object?>(paramProps.Length, StringComparer.Ordinal);
 
             foreach (var prop in paramProps)
                 result[prop.Name] = prop.GetValue(param);

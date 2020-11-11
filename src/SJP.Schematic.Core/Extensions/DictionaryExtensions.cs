@@ -18,6 +18,7 @@ namespace SJP.Schematic.Core.Extensions
         /// <returns>A mutable dictionary that represents a lookup of the key-value pair objects.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
         public static IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source)
+            where TKey : notnull
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -35,6 +36,7 @@ namespace SJP.Schematic.Core.Extensions
         /// <returns>A mutable dictionary that represents a lookup of the key-value pair objects.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
         public static IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source, IEqualityComparer<TKey> comparer)
+            where TKey : notnull
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -53,6 +55,7 @@ namespace SJP.Schematic.Core.Extensions
         /// <returns>A read-only dictionary that represents a lookup of the key-value pair objects.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
         public static IReadOnlyDictionary<TKey, TValue> ToReadOnlyDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source)
+            where TKey : notnull
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -70,6 +73,7 @@ namespace SJP.Schematic.Core.Extensions
         /// <returns>A read-only dictionary that represents a lookup of the key-value pair objects.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
         public static IReadOnlyDictionary<TKey, TValue> ToReadOnlyDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source, IEqualityComparer<TKey> comparer)
+            where TKey : notnull
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));

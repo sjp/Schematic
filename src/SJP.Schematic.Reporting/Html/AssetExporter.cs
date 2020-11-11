@@ -45,7 +45,7 @@ namespace SJP.Schematic.Reporting.Html
                 if (isGzipped)
                 {
                     var gzRemovedFileName = Path.GetFileNameWithoutExtension(targetFile.Name);
-                    var dirName = Path.GetDirectoryName(targetFile.FullName);
+                    var dirName = Path.GetDirectoryName(targetFile.FullName) ?? Path.GetPathRoot(targetFile.FullName) ?? string.Empty;
                     var fullPath = Path.Combine(dirName, gzRemovedFileName);
                     targetFile = new FileInfo(fullPath);
                 }
@@ -53,8 +53,8 @@ namespace SJP.Schematic.Reporting.Html
                 if (targetFile.Exists && overwrite)
                     targetFile.Delete();
 
-                if (!targetFile.Directory.Exists)
-                    targetFile.Directory.Create();
+                if (targetFile.Directory != null && !targetFile.Directory.Exists)
+                    targetFile.Directory!.Create();
 
                 using var stream = targetFile.OpenWrite();
                 using var resourceStream = resourceFile.CreateReadStream();

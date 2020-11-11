@@ -35,7 +35,8 @@ namespace SJP.Schematic.Lint
             return LoadPluginAssemblies()
                 .SelectMany(a => LoadRequiredTypes(a, dialectType))
                 .Select(t => Array.Find(t.GetConstructors(), c => c.IsPublic && c.GetParameters().Length == 0))
-                .SelectMany(c => GetRules(c, connection, level))
+                .Where(c => c != null)
+                .SelectMany(c => GetRules(c!, connection, level))
                 .ToList();
         }
 
@@ -49,7 +50,7 @@ namespace SJP.Schematic.Lint
 
         private static IEnumerable<Assembly> LoadPluginAssemblies()
         {
-            var probingDir = Path.GetDirectoryName(AssemblyPath);
+            var probingDir = Path.GetDirectoryName(AssemblyPath)! ?? Path.GetPathRoot(AssemblyPath)!;
             return Directory.EnumerateFiles(probingDir, "*.dll", SearchOption.AllDirectories)
                 .Where(a => !string.Equals(a, AssemblyPath, StringComparison.Ordinal) && IsLintPluginAssemblyPath(a))
                 .Select(path =>
@@ -130,11 +131,14 @@ namespace SJP.Schematic.Lint
             if (ruleProviderCtor == null)
                 return Array.Empty<IRule>();
 
-            var type = ruleProviderCtor.DeclaringType;
+            var type = ruleProviderCtor.DeclaringType!;
             var rulesMethod = type.GetMethod(nameof(IRuleProvider.GetRules), new[] { typeof(ISchematicConnection), typeof(RuleLevel) });
+            if (rulesMethod == null)
+                return Array.Empty<IRule>();
+
             var ruleProvider = ruleProviderCtor.Invoke(Array.Empty<object>());
             return rulesMethod != null
-                ? (IEnumerable<IRule>)rulesMethod.Invoke(ruleProvider, new object[] { connection, level })
+                ? (IEnumerable<IRule>?)rulesMethod.Invoke(ruleProvider, new object[] { connection, level }) ?? Array.Empty<IRule>()
                 : Array.Empty<IRule>();
         }
 

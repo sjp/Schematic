@@ -86,7 +86,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 
             var namespaces = table.Columns
                 .Select(c => c.Type.ClrType.Namespace)
-                .Where(ns => !string.Equals(ns, tableNamespace, StringComparison.Ordinal))
+                .Where(ns => ns != null && !string.Equals(ns, tableNamespace, StringComparison.Ordinal))
+                .Select(ns => ns!)
                 .Union(new[]
                 {
                     "System.Collections.Generic",
@@ -164,8 +165,8 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var propertyName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);
 
             var columnTypeSyntax = column.IsNullable
-                ? NullableType(ParseTypeName(clrType.FullName))
-                : ParseTypeName(clrType.FullName);
+                ? NullableType(ParseTypeName(clrType.FullName!))
+                : ParseTypeName(clrType.FullName!);
             if (string.Equals(clrType.Namespace, nameof(System), StringComparison.Ordinal) && SyntaxUtilities.TypeSyntaxMap.ContainsKey(clrType.Name))
             {
                 columnTypeSyntax = column.IsNullable

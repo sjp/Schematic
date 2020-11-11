@@ -11,6 +11,7 @@ namespace SJP.Schematic.Core.Utilities
     /// <typeparam name="T">The type of value to retrieve from the lookup.</typeparam>
     /// <seealso cref="IVersionedLookup{T}" />
     public class VersionResolvingFactory<T> : IVersionedLookup<T>
+        where T : notnull
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="VersionResolvingFactory{T}"/> class.
@@ -52,6 +53,12 @@ namespace SJP.Schematic.Core.Utilities
             versionKeys.Reverse();
 
             var matchingVersion = versionKeys.Find(v => version >= v);
+            if (matchingVersion == null)
+            {
+                var resultFactory = _lookup[firstVersion];
+                return resultFactory.Invoke();
+            }
+
             var result = _lookup[matchingVersion];
             return result.Invoke();
         }

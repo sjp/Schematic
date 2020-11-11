@@ -101,7 +101,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 {
                     case ExpressionToken.Literal:
                         var literalValue = Parameters[UnwrapTokenValue(token)];
-                        yield return literalValue.ToString();
+                        yield return literalValue.ToString() ?? string.Empty;
                         break;
                     case ExpressionToken.Variable:
                         var variableValue = Parameters[UnwrapTokenValue(token)];

@@ -24,7 +24,7 @@ namespace SJP.Schematic.Dot
         public override int GetHashCode() => _hashCode;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj == null)
                 return false;
@@ -34,7 +34,7 @@ namespace SJP.Schematic.Dot
             return obj is EdgeAttribute attr && Equals(attr);
         }
 
-        public bool Equals(EdgeAttribute other)
+        public bool Equals(EdgeAttribute? other)
         {
             if (other == null)
                 return false;

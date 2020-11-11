@@ -62,7 +62,7 @@ namespace SJP.Schematic.Dot
         /// <param name="obj">The <see cref="object" /> to compare with this instance.</param>
         /// <returns><c>true</c> if the specified <see cref="object" /> is equal to this instance; otherwise, <c>false</c>.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj == null)
                 return false;
@@ -77,7 +77,7 @@ namespace SJP.Schematic.Dot
         /// </summary>
         /// <param name="other">An <see cref="RgbColor"/> to compare with this color.</param>
         /// <returns><c>true</c> if the current color is equal to the <paramref name="other">other</paramref> parameter; otherwise, <c>false</c>.</returns>
-        public bool Equals(RgbColor other)
+        public bool Equals(RgbColor? other)
         {
             if (other == null)
                 return false;

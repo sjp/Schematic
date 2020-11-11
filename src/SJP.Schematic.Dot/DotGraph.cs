@@ -96,7 +96,7 @@ namespace SJP.Schematic.Dot
                     var nodeStr = node.ToString();
 
                     using var reader = new StringReader(nodeStr);
-                    string line;
+                    string? line;
                     while ((line = reader.ReadLine()) != null)
                         builder.Append(nodeIndent).AppendLine(line);
                 }
@@ -110,7 +110,7 @@ namespace SJP.Schematic.Dot
                     var edgeStr = edge.ToString();
 
                     using var reader = new StringReader(edgeStr);
-                    string line;
+                    string? line;
                     while ((line = reader.ReadLine()) != null)
                         builder.Append(edgeIndent).AppendLine(line);
                 }
@@ -123,6 +123,6 @@ namespace SJP.Schematic.Dot
         private static string GetIndentForLevel(uint level) => new string(' ', (int)(level * 2));
 
         private readonly Lazy<string> _dotBuilder;
-        private static readonly string _fileVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
+        private static readonly string _fileVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion ?? string.Empty;
     }
 }

@@ -21,7 +21,7 @@ namespace SJP.Schematic.Dot
         public override int GetHashCode() => _hash;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj == null)
                 return false;
@@ -31,7 +31,7 @@ namespace SJP.Schematic.Dot
             return obj is DotIdentifier dot && Equals(dot);
         }
 
-        public bool Equals(DotIdentifier other)
+        public bool Equals(DotIdentifier? other)
         {
             if (other == null)
                 return false;

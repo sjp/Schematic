@@ -13,7 +13,7 @@ namespace SJP.Schematic.Core
     /// </summary>
     public static class Logging
     {
-        private static readonly IReadOnlyDictionary<string, object> EmptyParams = new Dictionary<string, object>(StringComparer.Ordinal);
+        private static readonly IReadOnlyDictionary<string, object?> EmptyParams = new Dictionary<string, object?>(StringComparer.Ordinal);
         private static readonly ConditionalWeakTable<IDbConnectionFactory, LoggingConfiguration> ConnectionLoggerLookup = new ConditionalWeakTable<IDbConnectionFactory, LoggingConfiguration>();
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace SJP.Schematic.Core
             );
         }
 
-        private static IReadOnlyDictionary<string, object> ToDictionary(object? param)
+        private static IReadOnlyDictionary<string, object?> ToDictionary(object? param)
         {
             if (param == null)
                 return EmptyParams;
@@ -146,7 +146,7 @@ namespace SJP.Schematic.Core
             if (properties.Empty())
                 return EmptyParams;
 
-            var result = new Dictionary<string, object>(properties.Length, StringComparer.Ordinal);
+            var result = new Dictionary<string, object?>(properties.Length, StringComparer.Ordinal);
 
             foreach (var prop in properties)
             {

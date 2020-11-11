@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace SJP.Schematic.Core.Utilities
@@ -83,7 +84,7 @@ namespace SJP.Schematic.Core.Utilities
         /// <param name="value">When this method returns, the value associated with the specified <see cref="Identifier"/>, if the <see cref="Identifier"/> can be resolved to; otherwise, the default value for the type of the <paramref name="value" /> parameter. This parameter is passed uninitialized.</param>
         /// <returns><see langword="true" /> if the lookup has an <see cref="Identifier"/> that can be resolved to; otherwise, <see langword="false" />.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
-        public bool TryGetValue(Identifier key, out TValue value)
+        public bool TryGetValue(Identifier key, [MaybeNullWhen(false)] out TValue value)
         {
             if (key == null)
                 throw new ArgumentNullException(nameof(key));

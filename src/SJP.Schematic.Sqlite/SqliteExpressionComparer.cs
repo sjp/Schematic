@@ -34,7 +34,7 @@ namespace SJP.Schematic.Sqlite
         /// <param name="y">The second expression to compare.</param>
         /// <returns><see langword="true" /> if the specified expressions are equal; otherwise, <see langword="false" />.</returns>
         /// <exception cref="ArgumentException"><paramref name="x"/> or <paramref name="y"/> are expressions that could not be parsed as a SQL expression.</exception>
-        public bool Equals(string x, string y)
+        public bool Equals(string? x, string? y)
         {
             if (x is null && y is null)
                 return true;

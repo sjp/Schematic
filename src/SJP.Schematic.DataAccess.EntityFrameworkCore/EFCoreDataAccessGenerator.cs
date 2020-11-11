@@ -182,7 +182,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
         private static string GetEfCoreVersionString()
         {
             var efCoreAssembly = typeof(Microsoft.EntityFrameworkCore.DbContext).Assembly;
-            return FileVersionInfo.GetVersionInfo(efCoreAssembly.Location).ProductVersion;
+            return FileVersionInfo.GetVersionInfo(efCoreAssembly.Location).ProductVersion ?? string.Empty;
         }
     }
 }
