@@ -33,7 +33,9 @@ namespace SJP.Schematic.Lint
             var dialectType = connection.Dialect.GetType();
 
             return LoadPluginAssemblies()
+                .Distinct()
                 .SelectMany(a => LoadRequiredTypes(a, dialectType))
+                .Distinct()
                 .Select(t => Array.Find(t.GetConstructors(), c => c.IsPublic && c.GetParameters().Length == 0))
                 .Where(c => c != null)
                 .SelectMany(c => GetRules(c!, connection, level))
