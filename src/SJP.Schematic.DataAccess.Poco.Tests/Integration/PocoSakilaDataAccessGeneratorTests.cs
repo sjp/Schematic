@@ -77,9 +77,9 @@ namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
 
             using var process = new Process { StartInfo = startInfo };
             process.Start();
-            var exitCode = await process.WaitForExitAsync().ConfigureAwait(false);
+            await process.WaitForExitAsync().ConfigureAwait(false);
 
-            return exitCode == ExitSuccess;
+            return process.ExitCode == ExitSuccess;
         }
 
         private const string TestNamespace = "PocoTestNamespace";
