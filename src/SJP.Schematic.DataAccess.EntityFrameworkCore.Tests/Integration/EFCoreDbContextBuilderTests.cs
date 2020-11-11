@@ -140,10 +140,10 @@ namespace EFCoreTestNamespace
             modelBuilder.Entity<Main.TestTable1>().HasKey(t => t.TestPk);
             modelBuilder.Entity<Main.TestTable2>().HasKey(t => new { t.TestPk1, t.TestPk2 }).HasName(""test_table_2_pk"");
             modelBuilder.Entity<Main.TestTable2>().HasAlternateKey(t => new { t.FirstName, t.MiddleName, t.LastName }).HasName(""test_table_2_multi_uk"");
-            modelBuilder.Entity<Main.TestTable2>().HasIndex(t => t.LastName).IsUnique().HasName(""ux_test_table_2_last_name"");
-            modelBuilder.Entity<Main.TestTable2>().HasIndex(t => new { t.FirstName, t.MiddleName }).IsUnique().HasName(""ux_test_table_2_first_name_middle_name"");
-            modelBuilder.Entity<Main.TestTable2>().HasIndex(t => t.Comment).HasName(""ix_test_table_2_comment"");
-            modelBuilder.Entity<Main.TestTable2>().HasIndex(t => new { t.FirstName, t.LastName }).HasName(""ix_test_table_2_first_name"");
+            modelBuilder.Entity<Main.TestTable2>().HasIndex(t => t.LastName).IsUnique().HasDatabaseName(""ux_test_table_2_last_name"");
+            modelBuilder.Entity<Main.TestTable2>().HasIndex(t => new { t.FirstName, t.MiddleName }).IsUnique().HasDatabaseName(""ux_test_table_2_first_name_middle_name"");
+            modelBuilder.Entity<Main.TestTable2>().HasIndex(t => t.Comment).HasDatabaseName(""ix_test_table_2_comment"");
+            modelBuilder.Entity<Main.TestTable2>().HasIndex(t => new { t.FirstName, t.LastName }).HasDatabaseName(""ix_test_table_2_first_name"");
             modelBuilder.Entity<Main.TestTable3>().Property(t => t.TestDatetime).HasDefaultValue(""CURRENT_TIMESTAMP"");
             modelBuilder.Entity<Main.TestTable3>().Property(t => t.TestStringWithDefault).HasDefaultValue(""'test'"");
             modelBuilder.Entity<Main.TestTable3>().HasKey(t => t.TestPk);
