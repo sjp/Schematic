@@ -422,7 +422,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
                         indexBuilder,
-                        IdentifierName(nameof(RelationalIndexBuilderExtensions.HasName))))
+                        IdentifierName(nameof(RelationalIndexBuilderExtensions.HasDatabaseName))))
                     .WithArgumentList(
                         ArgumentList(
                             SingletonSeparatedList(
