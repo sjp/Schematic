@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -20,7 +21,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectNames()
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_16", System.StringComparison.Ordinal));
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_16", StringComparison.Ordinal));
 
             Assert.Multiple(() =>
             {
@@ -33,7 +34,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectKeyTypes()
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_16", System.StringComparison.Ordinal));
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_16", StringComparison.Ordinal));
 
             Assert.Multiple(() =>
             {
@@ -46,7 +47,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectTables()
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_16", System.StringComparison.Ordinal));
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_16", StringComparison.Ordinal));
 
             Assert.Multiple(() =>
             {
@@ -59,7 +60,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectColumns()
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_16", System.StringComparison.Ordinal));
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_16", StringComparison.Ordinal));
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
             var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
@@ -79,7 +80,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_16", System.StringComparison.Ordinal));
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_16", StringComparison.Ordinal));
 
             Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.NoAction));
         }
@@ -89,7 +90,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_18", System.StringComparison.Ordinal));
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_18", StringComparison.Ordinal));
 
             Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.Cascade));
         }
@@ -99,7 +100,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_19", System.StringComparison.Ordinal));
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_19", StringComparison.Ordinal));
 
             Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.SetNull));
         }
@@ -109,7 +110,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_20", System.StringComparison.Ordinal));
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_20", StringComparison.Ordinal));
 
             Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.SetDefault));
         }
@@ -119,7 +120,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_16", System.StringComparison.Ordinal));
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_16", StringComparison.Ordinal));
 
             Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.NoAction));
         }
@@ -129,7 +130,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_24", System.StringComparison.Ordinal));
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_24", StringComparison.Ordinal));
 
             Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.Cascade));
         }
@@ -139,7 +140,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_25", System.StringComparison.Ordinal));
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_25", StringComparison.Ordinal));
 
             Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.SetNull));
         }
@@ -149,7 +150,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_26", System.StringComparison.Ordinal));
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_26", StringComparison.Ordinal));
 
             Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.SetDefault));
         }
@@ -159,7 +160,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_16", System.StringComparison.Ordinal));
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_16", StringComparison.Ordinal));
 
             Assert.That(foreignKey.ChildKey.IsEnabled, Is.True);
         }
@@ -168,7 +169,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectNames()
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_17", System.StringComparison.Ordinal));
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_17", StringComparison.Ordinal));
 
             Assert.Multiple(() =>
             {
@@ -181,7 +182,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectKeyTypes()
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_17", System.StringComparison.Ordinal));
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_17", StringComparison.Ordinal));
 
             Assert.Multiple(() =>
             {
@@ -194,7 +195,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectTables()
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_17", System.StringComparison.Ordinal));
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_17", StringComparison.Ordinal));
 
             Assert.Multiple(() =>
             {
@@ -207,7 +208,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectColumns()
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
-            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_17", System.StringComparison.Ordinal));
+            var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_17", StringComparison.Ordinal));
 
             var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
             var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
@@ -227,7 +228,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_17", System.StringComparison.Ordinal));
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_17", StringComparison.Ordinal));
 
             Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.NoAction));
         }
@@ -237,7 +238,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_21", System.StringComparison.Ordinal));
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_21", StringComparison.Ordinal));
 
             Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.Cascade));
         }
@@ -247,7 +248,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_22", System.StringComparison.Ordinal));
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_22", StringComparison.Ordinal));
 
             Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.SetNull));
         }
@@ -257,7 +258,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_23", System.StringComparison.Ordinal));
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_23", StringComparison.Ordinal));
 
             Assert.That(foreignKey.UpdateAction, Is.EqualTo(ReferentialAction.SetDefault));
         }
@@ -267,7 +268,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_17", System.StringComparison.Ordinal));
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_17", StringComparison.Ordinal));
 
             Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.NoAction));
         }
@@ -277,7 +278,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_27", System.StringComparison.Ordinal));
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_27", StringComparison.Ordinal));
 
             Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.Cascade));
         }
@@ -287,7 +288,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_28", System.StringComparison.Ordinal));
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_28", StringComparison.Ordinal));
 
             Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.SetNull));
         }
@@ -297,7 +298,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_29", System.StringComparison.Ordinal));
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_29", StringComparison.Ordinal));
 
             Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.SetDefault));
         }
@@ -307,7 +308,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V12
         {
             var table = await GetTableAsync("v12_table_test_table_15").ConfigureAwait(false);
             var childKeys = table.ChildKeys;
-            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_17", System.StringComparison.Ordinal));
+            var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "v12_table_test_table_17", StringComparison.Ordinal));
 
             Assert.That(foreignKey.ChildKey.IsEnabled, Is.True);
         }

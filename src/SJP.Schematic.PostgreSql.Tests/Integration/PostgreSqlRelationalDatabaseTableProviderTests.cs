@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -126,7 +127,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration
         public async Task GetAllTables_WhenEnumerated_ContainsTestTable()
         {
             var containsTestTable = await TableProvider.GetAllTables()
-                .AnyAsync(t => string.Equals(t.Name.LocalName, "db_test_table_1", System.StringComparison.Ordinal))
+                .AnyAsync(t => string.Equals(t.Name.LocalName, "db_test_table_1", StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestTable, Is.True);

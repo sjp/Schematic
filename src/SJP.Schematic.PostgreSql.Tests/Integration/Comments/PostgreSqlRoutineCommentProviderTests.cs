@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -145,7 +146,7 @@ LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
         public async Task GetAllRoutineComments_WhenEnumerated_ContainsTestRoutineComment()
         {
             var containsTestRoutine = await RoutineCommentProvider.GetAllRoutineComments()
-                .AnyAsync(r => string.Equals(r.RoutineName.LocalName, "db_comment_test_routine_1", System.StringComparison.Ordinal))
+                .AnyAsync(r => string.Equals(r.RoutineName.LocalName, "db_comment_test_routine_1", StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestRoutine, Is.True);

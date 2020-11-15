@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -159,7 +160,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
         public async Task GetAllSynonyms_WhenEnumerated_ContainsTestSynonym()
         {
             var containsTestSynonym = await SynonymProvider.GetAllSynonyms()
-                .AnyAsync(s => string.Equals(s.Name.LocalName, "db_test_synonym_1", System.StringComparison.Ordinal))
+                .AnyAsync(s => string.Equals(s.Name.LocalName, "db_test_synonym_1", StringComparison.Ordinal))
                 .ConfigureAwait(false);
 
             Assert.That(containsTestSynonym, Is.True);

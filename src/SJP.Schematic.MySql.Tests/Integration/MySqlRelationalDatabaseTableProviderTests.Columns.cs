@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -75,7 +76,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             var column = table.Columns.Single();
 
             const string defaultValue = "1";
-            var equals = column.DefaultValue.Match(dv => string.Equals(dv, defaultValue, System.StringComparison.Ordinal), () => false);
+            var equals = column.DefaultValue.Match(dv => string.Equals(dv, defaultValue, StringComparison.Ordinal), () => false);
 
             Assert.That(equals, Is.True);
         }

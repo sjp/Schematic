@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Moq;
@@ -76,7 +77,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
             {
                 Property = typeof(TestTable1)
                     .GetProperties()
-                    .Single(p => string.Equals(p.Name, nameof(TestTable1.FK_PK_SOURCE), System.StringComparison.Ordinal))
+                    .Single(p => string.Equals(p.Name, nameof(TestTable1.FK_PK_SOURCE), StringComparison.Ordinal))
             };
 
             var instance = new TestTable1();
@@ -94,7 +95,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model.Tests
             {
                 Property = typeof(TestTable1)
                     .GetProperties()
-                    .Single(p => string.Equals(p.Name, nameof(TestTable1.FK_UK_SOURCE), System.StringComparison.Ordinal))
+                    .Single(p => string.Equals(p.Name, nameof(TestTable1.FK_UK_SOURCE), StringComparison.Ordinal))
             };
 
             var instance = new TestTable1();
