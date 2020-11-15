@@ -1,25 +1,25 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    internal sealed class ColumnData
+    internal sealed record ColumnData
     {
-        public string? ColumnName { get; set; }
+        public string? ColumnName { get; init; }
 
-        public string? ColumnTypeSchema { get; set; }
+        public string? ColumnTypeSchema { get; init; }
 
-        public string? ColumnTypeName { get; set; }
+        public string? ColumnTypeName { get; init; }
 
-        public int DataLength { get; set; }
+        public int DataLength { get; init; }
 
-        public int CharacterLength { get; set; }
+        public int CharacterLength { get; init; }
 
-        public int Precision { get; set; }
+        public int Precision { get; init; }
 
-        public int Scale { get; set; }
+        public int Scale { get; init; }
 
-        public string? Collation { get; set; }
+        public string? Collation { get; init; }
 
-        public string? IsComputed { get; set; }
+        public string? IsComputed { get; init; }
 
-        public string? DefaultValue { get; set; }
+        public string? DefaultValue { get; init; }
     }
 }

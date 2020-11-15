@@ -2,29 +2,29 @@
 
 namespace SJP.Schematic.SqlServer.Query
 {
-    internal sealed class ServerProperties2019
+    internal sealed record ServerProperties2019
     {
         /// <summary>
         /// <para>Version of the Microsoft .NET Framework common language runtime (CLR) that was used while building the instance of SQL Server.</para>
         /// <para><c>NULL</c> means input is not valid, an error, or not applicable</para>
         /// </summary>
-        public string? BuildClrVersion { get; set; }
+        public string? BuildClrVersion { get; init; }
 
         /// <summary>
         /// <para>Name of the default collation for the server.</para>
         /// <para><c>NULL</c> means input is not valid, or an error.</para>
         /// </summary>
-        public string? Collation { get; set; }
+        public string? Collation { get; init; }
 
         /// <summary>
         /// ID of the SQL Server collation.
         /// </summary>
-        public int CollationID { get; set; }
+        public int CollationID { get; init; }
 
         /// <summary>
         /// Windows comparison style of the collation.
         /// </summary>
-        public int ComparisonStyle { get; set; }
+        public int ComparisonStyle { get; init; }
 
         /// <summary>
         /// <para>NetBIOS name of the local computer on which the instance of SQL Server is currently running.</para>
@@ -33,7 +33,7 @@ namespace SJP.Schematic.SqlServer.Query
         /// <para>Note: If the instance of SQL Server is in a failover cluster and you want to obtain the name of the failover clustered instance, use the MachineName property.</para>
         /// <para><c>NULL</c> means input is not valid, an error, or not applicable</para>
         /// </summary>
-        public string? ComputerNamePhysicalNetBIOS { get; set; }
+        public string? ComputerNamePhysicalNetBIOS { get; init; }
 
         /// <summary>
         /// <para>Installed product edition of the instance of SQL Server. Use the value of this property to determine the features and the limits, such as Compute Capacity Limits by Edition of SQL Server. 64-bit versions of the Database Engine append (64-bit) to the version.</para>
@@ -50,7 +50,7 @@ namespace SJP.Schematic.SqlServer.Query
         /// <item>'SQL Azure' indicates SQL Database or SQL Data Warehouse</item>
         /// </list>
         /// </summary>
-        public string Edition { get; set; } = default!;
+        public string Edition { get; init; } = default!;
 
         /// <summary>
         /// <para>Installed product edition of the instance of SQL Server. Use the value of this property to determine the features and the limits, such as Compute Capacity Limits by Edition of SQL Server. 64-bit versions of the Database Engine append (64-bit) to the version.</para>
@@ -67,7 +67,7 @@ namespace SJP.Schematic.SqlServer.Query
         /// <item>1674378470 = SQL Database or SQL Data Warehouse</item>
         /// </list>
         /// </summary>
-        public long EditionID { get; set; }
+        public long EditionID { get; init; }
 
         /// <summary>
         /// <para>Database Engine edition of the instance of SQL Server installed on the server.</para>
@@ -81,7 +81,7 @@ namespace SJP.Schematic.SqlServer.Query
         /// <item>8 = Managed Instance</item>
         /// </list>
         /// </summary>
-        public int EngineEdition { get; set; }
+        public int EngineEdition { get; init; }
 
         /// <summary>
         /// <para>Indicates whether the Always On availability groups manager has started.</para>
@@ -92,45 +92,45 @@ namespace SJP.Schematic.SqlServer.Query
         /// <item>NULL = Input is not valid, an error, or not applicable.</item>
         /// </list>
         /// </summary>
-        public int? HadrManagerStatus { get; set; }
+        public int? HadrManagerStatus { get; init; }
 
         /// <summary>
         /// Name of the default path to the instance data files.
         /// </summary>
-        public string? InstanceDefaultDataPath { get; set; }
+        public string? InstanceDefaultDataPath { get; init; }
 
         /// <summary>
         /// Name of the default path to the instance log files.
         /// </summary>
-        public string? InstanceDefaultLogPath { get; set; }
+        public string? InstanceDefaultLogPath { get; init; }
 
         /// <summary>
         /// <para>Name of the instance to which the user is connected.</para>
         /// <para>Returns <c>NULL</c> if the instance name is the default instance, if the input is not valid, or error.</para>
         /// </summary>
-        public string? InstanceName { get; set; }
+        public string? InstanceName { get; init; }
 
         /// <summary>
         /// Returns <c>true</c> if the Advanced Analytics feature was installed during setup; <c>false</c> if Advanced Analytics was not installed.
         /// </summary>
-        public bool IsAdvancedAnalyticsInstalled { get; set; }
+        public bool IsAdvancedAnalyticsInstalled { get; init; }
 
         /// <summary>
         /// Returns <c>true</c> if the instance is SQL Server Big Data Cluster; <c>false</c> if not.
         /// </summary>
-        public bool IsBigDataCluster { get; set; }
+        public bool IsBigDataCluster { get; init; }
 
         /// <summary>
         /// <para>Server instance is configured in a failover cluster.</para>
         /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
-        public int? IsClustered { get; set; }
+        public int? IsClustered { get; init; }
 
         /// <summary>
         /// <para>The full-text and semantic indexing components are installed on the current instance of SQL Server.</para>
         /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
-        public int? IsFullTextInstalled { get; set; }
+        public int? IsFullTextInstalled { get; init; }
 
         /// <summary>
         /// <para>Always On availability groups is enabled on this server instance.</para>
@@ -140,69 +140,69 @@ namespace SJP.Schematic.SqlServer.Query
         /// <para>For availability replicas to be created and run on an instance of SQL Server, Always On availability groups must be enabled on the server instance. For more information, see Enable and Disable AlwaysOn Availability Groups (SQL Server).</para>
         /// <para>The IsHadrEnabled property pertains only to Always On availability groups. Other high availability or disaster recovery features, such as database mirroring or log shipping, are unaffected by this server property.</para>
         /// </remarks>
-        public int? IsHadrEnabled { get; set; }
+        public int? IsHadrEnabled { get; init; }
 
         /// <summary>
         /// <para>Server is in integrated security mode.</para>
         /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
-        public int? IsIntegratedSecurityOnly { get; set; }
+        public int? IsIntegratedSecurityOnly { get; init; }
 
         /// <summary>
         /// <para>Server is an instance of SQL Server Express LocalDB.</para>
         /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
-        public int? IsLocalDB { get; set; }
+        public int? IsLocalDB { get; init; }
 
         /// <summary>
         /// Returns whether the server instance has the PolyBase feature installed.
         /// </summary>
-        public bool IsPolyBaseInstalled { get; set; }
+        public bool IsPolyBaseInstalled { get; init; }
 
         /// <summary>
         /// <para>Server is in single-user mode.</para>
         /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
-        public int? IsSingleUser { get; set; }
+        public int? IsSingleUser { get; init; }
 
         /// <summary>
         /// <para>Server supports In-Memory OLTP.</para>
         /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
-        public int? IsXTPSupported { get; set; }
+        public int? IsXTPSupported { get; init; }
 
         /// <summary>
         /// Windows locale identifier (LCID) of the collation.
         /// </summary>
-        public int LCID { get; set; }
+        public int LCID { get; init; }
 
         /// <summary>
         /// Unused. License information is not preserved or maintained by the SQL Server product. Always returns DISABLED.
         /// </summary>
-        public string? LicenseType { get; set; }
+        public string? LicenseType { get; init; }
 
         /// <summary>
         /// <para>Windows computer name on which the server instance is running.</para>
         /// <para>For a clustered instance, an instance of SQL Server running on a virtual server on Microsoft Cluster Service, it returns the name of the virtual server.</para>
         /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
-        public string? MachineName { get; set; }
+        public string? MachineName { get; init; }
 
         /// <summary>
         /// Unused. License information is not preserved or maintained by the SQL Server product. Always returns NULL.
         /// </summary>
-        public int? NumLicenses { get; set; }
+        public int? NumLicenses { get; init; }
 
         /// <summary>
         /// <para>Process ID of the SQL Server service. ProcessID is useful in identifying which Sqlservr.exe belongs to this instance.</para>
         /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
-        public int? ProcessID { get; set; }
+        public int? ProcessID { get; init; }
 
         /// <summary>
         /// The build number.
         /// </summary>
-        public int ProductBuild { get; set; }
+        public int ProductBuild { get; init; }
 
         /// <summary>
         /// <para>Type of build of the current build.</para>
@@ -212,7 +212,7 @@ namespace SJP.Schematic.SqlServer.Query
         /// <item>NULL = Not applicable.</item>
         /// </list>
         /// </summary>
-        public string? ProductBuildType { get; set; }
+        public string? ProductBuildType { get; init; }
 
         /// <summary>
         /// <para>Level of the version of the instance of SQL Server.</para>
@@ -222,17 +222,17 @@ namespace SJP.Schematic.SqlServer.Query
         /// <item>'CTPn' = Community Technology Preview version</item>
         /// </list>
         /// </summary>
-        public string? ProductLevel { get; set; }
+        public string? ProductLevel { get; init; }
 
         /// <summary>
         /// The major version.
         /// </summary>
-        public int ProductMajorVersion { get; set; }
+        public int ProductMajorVersion { get; init; }
 
         /// <summary>
         /// The minor version.
         /// </summary>
-        public int ProductMinorVersion { get; set; }
+        public int ProductMinorVersion { get; init; }
 
         /// <summary>
         /// <para>Update level of the current build. CU indicates a cumulative update.</para>
@@ -241,68 +241,68 @@ namespace SJP.Schematic.SqlServer.Query
         /// <item>NULL = Not applicable.</item>
         /// </list>
         /// </summary>
-        public string? ProductUpdateLevel { get; set; }
+        public string? ProductUpdateLevel { get; init; }
 
         /// <summary>
         /// KB article for that release.
         /// </summary>
-        public string? ProductUpdateReference { get; set; }
+        public string? ProductUpdateReference { get; init; }
 
         /// <summary>
         /// Version of the instance of SQL Server, in the form of 'major.minor.build.revision'.
         /// </summary>
-        public string? ProductVersion { get; set; }
+        public string? ProductVersion { get; init; }
 
         /// <summary>
         /// Returns the date and time that the Resource database was last updated.
         /// </summary>
-        public DateTime ResourceLastUpdateDateTime { get; set; }
+        public DateTime ResourceLastUpdateDateTime { get; init; }
 
         /// <summary>
         /// Returns the version Resource database.
         /// </summary>
-        public string? ResourceVersion { get; set; }
+        public string? ResourceVersion { get; init; }
 
         /// <summary>
         /// <para>Both the Windows server and instance information associated with a specified instance of SQL Server.</para>
         /// <para>Returns <c>NULL</c> if the input is not valid, or an error.</para>
         /// </summary>
-        public string? ServerName { get; set; }
+        public string? ServerName { get; init; }
 
         /// <summary>
         /// The SQL character set ID from the collation ID.
         /// </summary>
-        public int SqlCharSet { get; set; }
+        public int SqlCharSet { get; init; }
 
         /// <summary>
         /// The SQL character set name from the collation.
         /// </summary>
-        public string? SqlCharSetName { get; set; }
+        public string? SqlCharSetName { get; init; }
 
         /// <summary>
         /// The SQL sort order ID from the collation.
         /// </summary>
-        public int SqlSortOrder { get; set; }
+        public int SqlSortOrder { get; init; }
 
         /// <summary>
         /// The SQL sort order name from the collation.
         /// </summary>
-        public string? SqlSortOrderName { get; set; }
+        public string? SqlSortOrderName { get; init; }
 
         /// <summary>
         /// <para>The name of the share used by FILESTREAM.</para>
         /// <para>Returns <c>NULL</c> if the input is not valid, an error, or not applicable.</para>
         /// </summary>
-        public string? FilestreamShareName { get; set; }
+        public string? FilestreamShareName { get; init; }
 
         /// <summary>
         /// The configured level of FILESTREAM access.
         /// </summary>
-        public int FilestreamConfiguredLevel { get; set; }
+        public int FilestreamConfiguredLevel { get; init; }
 
         /// <summary>
         /// The effective level of FILESTREAM access. This value can be different than the FilestreamConfiguredLevel if the level has changed and either an instance restart or a computer restart is pending.
         /// </summary>
-        public int FilestreamEffectiveLevel { get; set; }
+        public int FilestreamEffectiveLevel { get; init; }
     }
 }

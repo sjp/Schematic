@@ -1,19 +1,19 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    internal sealed class IndexColumns
+    internal sealed record IndexColumns
     {
-        public string? IndexOwner { get; set; }
+        public string? IndexOwner { get; init; }
 
-        public string? IndexName { get; set; }
+        public string? IndexName { get; init; }
 
-        public int IndexProperty { get; set; }
+        public int IndexProperty { get; init; }
 
-        public string? Uniqueness { get; set; }
+        public string? Uniqueness { get; init; }
 
-        public string? IsDescending { get; set; }
+        public string? IsDescending { get; init; }
 
-        public string? ColumnName { get; set; }
+        public string? ColumnName { get; init; }
 
-        public int ColumnPosition { get; set; }
+        public int ColumnPosition { get; init; }
     }
 }

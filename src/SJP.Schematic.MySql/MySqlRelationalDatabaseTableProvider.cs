@@ -323,7 +323,7 @@ order by kc.ordinal_position";
 
                 var indexCols = indexInfo
                     .OrderBy(row => row.ColumnOrdinal)
-                    .Select(row => columnLookup[row.ColumnName!])
+                    .Select(row => columnLookup[row.ColumnName])
                     .Select(col =>
                     {
                         var expression = Dialect.QuoteName(col.Name);
@@ -574,7 +574,7 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
             {
                 var checkName = Identifier.CreateQualifiedIdentifier(row.ConstraintName);
                 var isEnabled = string.Equals("YES", row.Enforced, StringComparison.OrdinalIgnoreCase);
-                var check = new MySqlCheckConstraint(checkName, row.Definition!, isEnabled);
+                var check = new MySqlCheckConstraint(checkName, row.Definition, isEnabled);
                 result.Add(check);
             }
 

@@ -1,11 +1,11 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    internal sealed class PackageData
+    internal sealed record PackageData
     {
-        public string? SourceType { get; set; }
+        public string? SourceType { get; init; }
 
-        public int LineNumber { get; set; }
+        public int LineNumber { get; init; }
 
-        public string? Text { get; set; }
+        public string? Text { get; init; }
     }
 }

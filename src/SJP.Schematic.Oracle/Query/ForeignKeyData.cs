@@ -1,23 +1,23 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    internal sealed class ForeignKeyData
+    internal sealed record ForeignKeyData
     {
-        public string ConstraintName { get; set; } = default!;
+        public string ConstraintName { get; init; } = default!;
 
-        public string EnabledStatus { get; set; } = default!;
+        public string EnabledStatus { get; init; } = default!;
 
-        public string DeleteAction { get; set; } = default!;
+        public string DeleteAction { get; init; } = default!;
 
-        public string? ParentTableSchema { get; set; } = default!;
+        public string? ParentTableSchema { get; init; } = default!;
 
-        public string? ParentTableName { get; set; } = default!;
+        public string? ParentTableName { get; init; } = default!;
 
-        public string? ParentConstraintName { get; set; } = default!;
+        public string? ParentConstraintName { get; init; } = default!;
 
-        public string ParentKeyType { get; set; } = default!;
+        public string ParentKeyType { get; init; } = default!;
 
-        public string ColumnName { get; set; } = default!;
+        public string ColumnName { get; init; } = default!;
 
-        public int ColumnPosition { get; set; }
+        public int ColumnPosition { get; init; }
     }
 }

@@ -1,17 +1,17 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    internal sealed class TriggerData
+    internal sealed record TriggerData
     {
-        public string? TriggerSchema { get; set; }
+        public string? TriggerSchema { get; init; }
 
-        public string? TriggerName { get; set; }
+        public string? TriggerName { get; init; }
 
-        public string? TriggerType { get; set; }
+        public string? TriggerType { get; init; }
 
-        public string? TriggerEvent { get; set; }
+        public string? TriggerEvent { get; init; }
 
-        public string? Definition { get; set; }
+        public string? Definition { get; init; }
 
-        public string? EnabledStatus { get; set; }
+        public string? EnabledStatus { get; init; }
     }
 }

@@ -1,9 +1,9 @@
 ﻿namespace SJP.Schematic.MySql.Query
 {
-    internal sealed class QualifiedName
+    internal sealed record QualifiedName
     {
-        public string? SchemaName { get; set; }
+        public string SchemaName { get; init; } = default!;
 
-        public string? ObjectName { get; set; }
+        public string ObjectName { get; init; } = default!;
     }
 }

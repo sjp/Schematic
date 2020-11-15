@@ -1,9 +1,9 @@
 ﻿namespace SJP.Schematic.SqlServer.Query
 {
-    internal sealed class QualifiedName
+    internal sealed record QualifiedName
     {
-        public string SchemaName { get; set; } = default!;
+        public string SchemaName { get; init; } = default!;
 
-        public string ObjectName { get; set; } = default!;
+        public string ObjectName { get; init; } = default!;
     }
 }

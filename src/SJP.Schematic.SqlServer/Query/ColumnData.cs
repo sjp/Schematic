@@ -1,33 +1,33 @@
 ﻿namespace SJP.Schematic.SqlServer.Query
 {
-    internal sealed class ColumnData
+    internal sealed record ColumnData
     {
-        public string ColumnName { get; set; } = default!;
+        public string ColumnName { get; init; } = default!;
 
-        public string? ColumnTypeSchema { get; set; }
+        public string? ColumnTypeSchema { get; init; }
 
-        public string ColumnTypeName { get; set; } = default!;
+        public string ColumnTypeName { get; init; } = default!;
 
-        public int MaxLength { get; set; }
+        public int MaxLength { get; init; }
 
-        public int Precision { get; set; }
+        public int Precision { get; init; }
 
-        public int Scale { get; set; }
+        public int Scale { get; init; }
 
-        public string? Collation { get; set; }
+        public string? Collation { get; init; }
 
-        public bool IsComputed { get; set; }
+        public bool IsComputed { get; init; }
 
-        public bool IsNullable { get; set; }
+        public bool IsNullable { get; init; }
 
-        public bool HasDefaultValue { get; set; }
+        public bool HasDefaultValue { get; init; }
 
-        public string? DefaultValue { get; set; }
+        public string? DefaultValue { get; init; }
 
-        public string? ComputedColumnDefinition { get; set; }
+        public string? ComputedColumnDefinition { get; init; }
 
-        public long? IdentitySeed { get; set; }
+        public long? IdentitySeed { get; init; }
 
-        public long? IdentityIncrement { get; set; }
+        public long? IdentityIncrement { get; init; }
     }
 }

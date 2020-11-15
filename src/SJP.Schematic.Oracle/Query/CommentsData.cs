@@ -1,11 +1,11 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    internal class CommentsData
+    internal record CommentsData
     {
-        public string? SchemaName { get; set; }
+        public string? SchemaName { get; init; }
 
-        public string? ObjectName { get; set; }
+        public string? ObjectName { get; init; }
 
-        public string? Comment { get; set; }
+        public string? Comment { get; init; }
     }
 }

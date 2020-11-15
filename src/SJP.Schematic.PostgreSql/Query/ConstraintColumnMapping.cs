@@ -1,11 +1,11 @@
 ﻿namespace SJP.Schematic.PostgreSql.Query
 {
-    internal sealed class ConstraintColumnMapping
+    internal sealed record ConstraintColumnMapping
     {
-        public string ConstraintName { get; set; } = default!;
+        public string ConstraintName { get; init; } = default!;
 
-        public string ColumnName { get; set; } = default!;
+        public string ColumnName { get; init; } = default!;
 
-        public int OrdinalPosition { get; set; }
+        public int OrdinalPosition { get; init; }
     }
 }

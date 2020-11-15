@@ -1,11 +1,11 @@
 ﻿namespace SJP.Schematic.PostgreSql.Query
 {
-    internal sealed class RoutineData
+    internal sealed record RoutineData
     {
-        public string? SchemaName { get; set; }
+        public string? SchemaName { get; init; }
 
-        public string? RoutineName { get; set; }
+        public string? RoutineName { get; init; }
 
-        public string? Definition { get; set; }
+        public string? Definition { get; init; }
     }
 }

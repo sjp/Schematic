@@ -1,23 +1,23 @@
 ﻿namespace SJP.Schematic.MySql.Query
 {
-    internal sealed class ForeignKeyData
+    internal sealed record ForeignKeyData
     {
-        public string ParentTableSchema { get; set; } = default!;
+        public string ParentTableSchema { get; init; } = default!;
 
-        public string ParentTableName { get; set; } = default!;
+        public string ParentTableName { get; init; } = default!;
 
-        public string ChildKeyName { get; set; } = default!;
+        public string ChildKeyName { get; init; } = default!;
 
-        public string ParentKeyName { get; set; } = default!;
+        public string ParentKeyName { get; init; } = default!;
 
-        public string ColumnName { get; set; } = default!;
+        public string ColumnName { get; init; } = default!;
 
-        public int ConstraintColumnId { get; set; }
+        public int ConstraintColumnId { get; init; }
 
-        public string ParentKeyType { get; set; } = default!;
+        public string ParentKeyType { get; init; } = default!;
 
-        public string DeleteAction { get; set; } = default!;
+        public string DeleteAction { get; init; } = default!;
 
-        public string UpdateAction { get; set; } = default!;
+        public string UpdateAction { get; init; } = default!;
     }
 }

@@ -2,12 +2,12 @@
 
 namespace SJP.Schematic.PostgreSql.Query
 {
-    internal sealed class PgIdentifierDefaults : IIdentifierDefaults
+    internal sealed record PgIdentifierDefaults : IIdentifierDefaults
     {
-        public string? Server { get; set; }
+        public string? Server { get; init; }
 
-        public string? Database { get; set; }
+        public string? Database { get; init; }
 
-        public string? Schema { get; set; }
+        public string? Schema { get; init; }
     }
 }

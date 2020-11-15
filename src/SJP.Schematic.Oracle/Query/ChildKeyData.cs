@@ -1,19 +1,19 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    internal sealed class ChildKeyData
+    internal sealed record ChildKeyData
     {
-        public string? ChildTableSchema { get; set; }
+        public string? ChildTableSchema { get; init; }
 
-        public string? ChildTableName { get; set; }
+        public string? ChildTableName { get; init; }
 
-        public string? ChildKeyName { get; set; }
+        public string? ChildKeyName { get; init; }
 
-        public string? EnabledStatus { get; set; }
+        public string? EnabledStatus { get; init; }
 
-        public string? DeleteAction { get; set; }
+        public string? DeleteAction { get; init; }
 
-        public string? ParentKeyName { get; set; }
+        public string? ParentKeyName { get; init; }
 
-        public string? ParentKeyType { get; set; }
+        public string? ParentKeyType { get; init; }
     }
 }

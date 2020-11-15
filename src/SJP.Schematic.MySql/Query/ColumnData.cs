@@ -1,27 +1,27 @@
 ﻿namespace SJP.Schematic.MySql.Query
 {
-    internal sealed class ColumnData
+    internal sealed record ColumnData
     {
-        public string? ColumnName { get; set; }
+        public string ColumnName { get; init; } = default!;
 
-        public string? DataTypeName { get; set; }
+        public string DataTypeName { get; init; } = default!;
 
-        public int CharacterMaxLength { get; set; }
+        public int CharacterMaxLength { get; init; }
 
-        public int Precision { get; set; }
+        public int Precision { get; init; }
 
-        public int Scale { get; set; }
+        public int Scale { get; init; }
 
-        public int DateTimePrecision { get; set; }
+        public int DateTimePrecision { get; init; }
 
-        public string? Collation { get; set; }
+        public string? Collation { get; init; }
 
-        public string? IsNullable { get; set; }
+        public string? IsNullable { get; init; }
 
-        public string? DefaultValue { get; set; }
+        public string? DefaultValue { get; init; }
 
-        public string? ComputedColumnDefinition { get; set; }
+        public string? ComputedColumnDefinition { get; init; }
 
-        public string? ExtraInformation { get; set; }
+        public string? ExtraInformation { get; init; }
     }
 }

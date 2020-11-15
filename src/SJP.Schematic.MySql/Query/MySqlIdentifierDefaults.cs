@@ -2,12 +2,12 @@
 
 namespace SJP.Schematic.MySql.Query
 {
-    internal sealed class MySqlIdentifierDefaults : IIdentifierDefaults
+    internal sealed record MySqlIdentifierDefaults : IIdentifierDefaults
     {
-        public string? Server { get; set; }
+        public string Server { get; init; } = default!;
 
-        public string? Database { get; set; }
+        public string Database { get; init; } = default!;
 
-        public string? Schema { get; set; }
+        public string Schema { get; init; } = default!;
     }
 }

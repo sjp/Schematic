@@ -1,19 +1,19 @@
 ﻿namespace SJP.Schematic.SqlServer.Query
 {
-    internal sealed class ChildKeyData
+    internal sealed record ChildKeyData
     {
-        public string ChildTableSchema { get; set; } = default!;
+        public string ChildTableSchema { get; init; } = default!;
 
-        public string ChildTableName { get; set; } = default!;
+        public string ChildTableName { get; init; } = default!;
 
-        public string ChildKeyName { get; set; } = default!;
+        public string ChildKeyName { get; init; } = default!;
 
-        public string ParentKeyName { get; set; } = default!;
+        public string ParentKeyName { get; init; } = default!;
 
-        public string ParentKeyType { get; set; } = default!;
+        public string ParentKeyType { get; init; } = default!;
 
-        public int DeleteAction { get; set; }
+        public int DeleteAction { get; init; }
 
-        public int UpdateAction { get; set; }
+        public int UpdateAction { get; init; }
     }
 }

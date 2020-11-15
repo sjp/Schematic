@@ -1,21 +1,21 @@
 ﻿namespace SJP.Schematic.SqlServer.Query
 {
-    internal sealed class IndexColumns
+    internal sealed record IndexColumns
     {
-        public string IndexName { get; set; } = default!;
+        public string IndexName { get; init; } = default!;
 
-        public bool IsUnique { get; set; }
+        public bool IsUnique { get; init; }
 
-        public int KeyOrdinal { get; set; }
+        public int KeyOrdinal { get; init; }
 
-        public int IndexColumnId { get; set; }
+        public int IndexColumnId { get; init; }
 
-        public bool IsIncludedColumn { get; set; }
+        public bool IsIncludedColumn { get; init; }
 
-        public bool IsDescending { get; set; }
+        public bool IsDescending { get; init; }
 
-        public string ColumnName { get; set; } = default!;
+        public string ColumnName { get; init; } = default!;
 
-        public bool IsDisabled { get; set; }
+        public bool IsDisabled { get; init; }
     }
 }

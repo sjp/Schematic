@@ -38,7 +38,7 @@ namespace SJP.Schematic.PostgreSql
             var result = await connection.DbConnection.QuerySingleAsync<PgIdentifierDefaults>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
 
             if (result.Server.IsNullOrWhiteSpace())
-                result.Server = "127.0.0.1";
+                return result with { Server = "127.0.0.1" };
 
             return result;
         }

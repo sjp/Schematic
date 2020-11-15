@@ -1,9 +1,9 @@
 ﻿namespace SJP.Schematic.PostgreSql.Query
 {
-    internal sealed class CheckConstraintData
+    internal sealed record CheckConstraintData
     {
-        public string? ConstraintName { get; set; }
+        public string? ConstraintName { get; init; }
 
-        public string? Definition { get; set; }
+        public string? Definition { get; init; }
     }
 }

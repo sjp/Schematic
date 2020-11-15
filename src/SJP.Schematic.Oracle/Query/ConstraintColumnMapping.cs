@@ -1,13 +1,13 @@
 ﻿namespace SJP.Schematic.Oracle.Query
 {
-    internal sealed class ConstraintColumnMapping
+    internal sealed record ConstraintColumnMapping
     {
-        public string? ConstraintName { get; set; }
+        public string? ConstraintName { get; init; }
 
-        public string? EnabledStatus { get; set; }
+        public string? EnabledStatus { get; init; }
 
-        public string? ColumnName { get; set; }
+        public string? ColumnName { get; init; }
 
-        public int ColumnPosition { get; set; }
+        public int ColumnPosition { get; init; }
     }
 }

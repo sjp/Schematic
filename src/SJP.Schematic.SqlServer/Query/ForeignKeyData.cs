@@ -1,25 +1,25 @@
 ﻿namespace SJP.Schematic.SqlServer.Query
 {
-    internal sealed class ForeignKeyData
+    internal sealed record ForeignKeyData
     {
-        public string ParentTableSchema { get; set; } = default!;
+        public string ParentTableSchema { get; init; } = default!;
 
-        public string ParentTableName { get; set; } = default!;
+        public string ParentTableName { get; init; } = default!;
 
-        public string ChildKeyName { get; set; } = default!;
+        public string ChildKeyName { get; init; } = default!;
 
-        public string ParentKeyName { get; set; } = default!;
+        public string ParentKeyName { get; init; } = default!;
 
-        public string ColumnName { get; set; } = default!;
+        public string ColumnName { get; init; } = default!;
 
-        public int ConstraintColumnId { get; set; }
+        public int ConstraintColumnId { get; init; }
 
-        public string ParentKeyType { get; set; } = default!;
+        public string ParentKeyType { get; init; } = default!;
 
-        public int DeleteAction { get; set; }
+        public int DeleteAction { get; init; }
 
-        public int UpdateAction { get; set; }
+        public int UpdateAction { get; init; }
 
-        public bool IsDisabled { get; set; }
+        public bool IsDisabled { get; init; }
     }
 }

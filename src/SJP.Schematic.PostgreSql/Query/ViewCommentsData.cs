@@ -1,9 +1,9 @@
 ﻿namespace SJP.Schematic.PostgreSql.Query
 {
-    internal sealed class ViewCommentsData : CommentsData
+    internal sealed record ViewCommentsData : CommentsData
     {
-        public string? ViewName { get; set; }
+        public string? ViewName { get; init; }
 
-        public string? ObjectType { get; set; }
+        public string? ObjectType { get; init; }
     }
 }

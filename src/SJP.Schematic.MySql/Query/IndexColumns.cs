@@ -1,13 +1,13 @@
 ﻿namespace SJP.Schematic.MySql.Query
 {
-    internal sealed class IndexColumns
+    internal sealed record IndexColumns
     {
-        public string? IndexName { get; set; }
+        public string IndexName { get; init; } = default!;
 
-        public bool IsNonUnique { get; set; }
+        public bool IsNonUnique { get; init; }
 
-        public int ColumnOrdinal { get; set; }
+        public int ColumnOrdinal { get; init; }
 
-        public string? ColumnName { get; set; }
+        public string ColumnName { get; init; } = default!;
     }
 }
