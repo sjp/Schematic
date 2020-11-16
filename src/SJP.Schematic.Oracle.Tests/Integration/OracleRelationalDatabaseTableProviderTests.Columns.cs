@@ -96,7 +96,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             const string tableName = "TABLE_TEST_TABLE_34";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
-            var column = table.Columns.Last();
+            var column = table.Columns[table.Columns.Count - 1];
 
             Assert.That(column.IsNullable, Is.True);
         }
@@ -106,7 +106,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
         {
             const string tableName = "TABLE_TEST_TABLE_34";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
-            var column = table.Columns.Last();
+            var column = table.Columns[table.Columns.Count - 1];
 
             var computedColumn = column as IDatabaseComputedColumn;
             Assert.That(computedColumn, Is.Not.Null);
@@ -119,7 +119,7 @@ namespace SJP.Schematic.Oracle.Tests.Integration
             const string expectedDefinition = "\"TEST_COLUMN_1\"+\"TEST_COLUMN_2\"";
 
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
-            var column = table.Columns.Last();
+            var column = table.Columns[table.Columns.Count - 1];
 
             var computedColumn = column as IDatabaseComputedColumn;
             Assert.That(computedColumn.Definition.UnwrapSome(), Is.EqualTo(expectedDefinition));

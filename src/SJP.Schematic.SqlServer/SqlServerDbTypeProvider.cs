@@ -97,47 +97,29 @@ namespace SJP.Schematic.SqlServer
             if (typeMetadata == null)
                 throw new ArgumentNullException(nameof(typeMetadata));
 
-            switch (typeMetadata.DataType)
+            return typeMetadata.DataType switch
             {
-                case DataType.BigInteger:
-                    return new Identifier("sys", "bigint");
-                case DataType.Binary:
-                case DataType.LargeBinary:
-                    return typeMetadata.IsFixedLength
-                        ? new Identifier("sys", "binary")
-                        : new Identifier("sys", "varbinary");
-                case DataType.Boolean:
-                    return new Identifier("sys", "bit");
-                case DataType.Date:
-                case DataType.DateTime:
-                    return new Identifier("sys", "datetime2");
-                case DataType.Float:
-                    return new Identifier("sys", "float");
-                case DataType.Integer:
-                    return new Identifier("sys", "int");
-                case DataType.Interval:
-                    return new Identifier("sys", "datetimeoffset");
-                case DataType.Numeric:
-                    return new Identifier("sys", "numeric");
-                case DataType.SmallInteger:
-                    return new Identifier("sys", "smallint");
-                case DataType.String:
-                case DataType.Text:
-                    return typeMetadata.IsFixedLength
-                        ? new Identifier("sys", "char")
-                        : new Identifier("sys", "varchar");
-                case DataType.Time:
-                    return new Identifier("sys", "time");
-                case DataType.Unicode:
-                case DataType.UnicodeText:
-                    return typeMetadata.IsFixedLength
-                        ? new Identifier("sys", "nchar")
-                        : new Identifier("sys", "nvarchar");
-                case DataType.Unknown:
-                    throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for an unknown data type.");
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for data type: " + typeMetadata.DataType.ToString(), nameof(typeMetadata));
-            }
+                DataType.BigInteger => new Identifier("sys", "bigint"),
+                DataType.Binary or DataType.LargeBinary => typeMetadata.IsFixedLength
+                    ? new Identifier("sys", "binary")
+                    : new Identifier("sys", "varbinary"),
+                DataType.Boolean => new Identifier("sys", "bit"),
+                DataType.Date or DataType.DateTime => new Identifier("sys", "datetime2"),
+                DataType.Float => new Identifier("sys", "float"),
+                DataType.Integer => new Identifier("sys", "int"),
+                DataType.Interval => new Identifier("sys", "datetimeoffset"),
+                DataType.Numeric => new Identifier("sys", "numeric"),
+                DataType.SmallInteger => new Identifier("sys", "smallint"),
+                DataType.String or DataType.Text => typeMetadata.IsFixedLength
+                    ? new Identifier("sys", "char")
+                    : new Identifier("sys", "varchar"),
+                DataType.Time => new Identifier("sys", "time"),
+                DataType.Unicode or DataType.UnicodeText => typeMetadata.IsFixedLength
+                    ? new Identifier("sys", "nchar")
+                    : new Identifier("sys", "nvarchar"),
+                DataType.Unknown => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for an unknown data type."),
+                _ => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for data type: " + typeMetadata.DataType.ToString()),
+            };
         }
 
         /// <summary>

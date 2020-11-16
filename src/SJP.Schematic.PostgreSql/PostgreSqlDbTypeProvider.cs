@@ -97,47 +97,29 @@ namespace SJP.Schematic.PostgreSql
             if (typeMetadata == null)
                 throw new ArgumentNullException(nameof(typeMetadata));
 
-            switch (typeMetadata.DataType)
+            return typeMetadata.DataType switch
             {
-                case DataType.Boolean:
-                    return new Identifier("pg_catalog", "bool");
-                case DataType.BigInteger:
-                    return new Identifier("pg_catalog", "int8");
-                case DataType.Binary:
-                    return typeMetadata.IsFixedLength
-                        ? new Identifier("pg_catalog", "bit")
-                        : new Identifier("pg_catalog", "varbit");
-                case DataType.LargeBinary:
-                    return new Identifier("pg_catalog", "bytea");
-                case DataType.Date:
-                    return new Identifier("pg_catalog", "date");
-                case DataType.DateTime:
-                    return new Identifier("pg_catalog", "timestamp");
-                case DataType.Float:
-                    return new Identifier("pg_catalog", "float8");
-                case DataType.Integer:
-                    return new Identifier("pg_catalog", "int4");
-                case DataType.Interval:
-                    return new Identifier("pg_catalog", "interval");
-                case DataType.Numeric:
-                    return new Identifier("pg_catalog", "numeric");
-                case DataType.SmallInteger:
-                    return new Identifier("pg_catalog", "int2");
-                case DataType.Time:
-                    return new Identifier("pg_catalog", "time");
-                case DataType.String:
-                case DataType.Unicode:
-                    return typeMetadata.IsFixedLength
-                        ? new Identifier("pg_catalog", "char")
-                        : new Identifier("pg_catalog", "varchar");
-                case DataType.Text:
-                case DataType.UnicodeText:
-                    return new Identifier("pg_catalog", "text");
-                case DataType.Unknown:
-                    throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for an unknown data type.");
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for data type: " + typeMetadata.DataType.ToString());
-            }
+                DataType.Boolean => new Identifier("pg_catalog", "bool"),
+                DataType.BigInteger => new Identifier("pg_catalog", "int8"),
+                DataType.Binary => typeMetadata.IsFixedLength
+                    ? new Identifier("pg_catalog", "bit")
+                    : new Identifier("pg_catalog", "varbit"),
+                DataType.LargeBinary => new Identifier("pg_catalog", "bytea"),
+                DataType.Date => new Identifier("pg_catalog", "date"),
+                DataType.DateTime => new Identifier("pg_catalog", "timestamp"),
+                DataType.Float => new Identifier("pg_catalog", "float8"),
+                DataType.Integer => new Identifier("pg_catalog", "int4"),
+                DataType.Interval => new Identifier("pg_catalog", "interval"),
+                DataType.Numeric => new Identifier("pg_catalog", "numeric"),
+                DataType.SmallInteger => new Identifier("pg_catalog", "int2"),
+                DataType.Time => new Identifier("pg_catalog", "time"),
+                DataType.String or DataType.Unicode => typeMetadata.IsFixedLength
+                    ? new Identifier("pg_catalog", "char")
+                    : new Identifier("pg_catalog", "varchar"),
+                DataType.Text or DataType.UnicodeText => new Identifier("pg_catalog", "text"),
+                DataType.Unknown => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for an unknown data type."),
+                _ => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for data type: " + typeMetadata.DataType.ToString()),
+            };
         }
 
         /// <summary>

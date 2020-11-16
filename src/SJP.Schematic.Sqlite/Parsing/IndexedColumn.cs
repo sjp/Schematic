@@ -77,7 +77,7 @@ namespace SJP.Schematic.Sqlite.Parsing
                 throw new ArgumentNullException(nameof(constraint));
             if (constraint.ConstraintType != ColumnConstraint.ColumnConstraintType.Collation)
                 throw new ArgumentException("The given column constraint is not collation constraint. Instead given: " + constraint.ConstraintType.ToString(), nameof(constraint));
-            if (!(constraint is ColumnConstraint.Collation collationConstraint))
+            if (constraint is not ColumnConstraint.Collation collationConstraint)
                 throw new ArgumentException("The given constraint does not match the given constraint type.", nameof(constraint));
 
             var collation = collationConstraint.CollationType;

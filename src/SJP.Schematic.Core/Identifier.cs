@@ -313,7 +313,7 @@ namespace SJP.Schematic.Core
             if (ReferenceEquals(this, obj))
                 return true;
 
-            if (!(obj is Identifier other))
+            if (obj is not Identifier other)
                 return false;
 
             return Equals(other);

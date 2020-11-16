@@ -80,7 +80,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                         await svgRoot.SaveAsync(writer, SaveOptions.DisableFormatting, cancellationToken).ConfigureAwait(false);
                         var svgText = writer.ToString();
                         if (svgText.StartsWith(XmlDeclaration, StringComparison.Ordinal))
-                            svgText = svgText.Substring(XmlDeclaration.Length);
+                            svgText = svgText[XmlDeclaration.Length..];
                         diagram.Svg = svgText;
                     }
 

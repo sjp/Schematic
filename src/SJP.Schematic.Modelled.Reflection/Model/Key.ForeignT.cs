@@ -80,7 +80,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                    );
                 }
 
-                if (!(fnInstruction.Operand is MethodDefinition fnOperand))
+                if (fnInstruction.Operand is not MethodDefinition fnOperand)
                 {
                     throw new ArgumentException(
                        "Expected to find a method definition associated with a function pointer instruction but could not find one for "
@@ -101,7 +101,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                    );
                 }
 
-                if (!(bodyCallInstr.Operand is MethodDefinition bodyMethodDef))
+                if (bodyCallInstr.Operand is not MethodDefinition bodyMethodDef)
                     throw new ArgumentException("Expected to find a method definition associated with the call or virtual call instruction but could not find one in the key selector.");
 
                 var targetPropertyName = bodyMethodDef.Name;

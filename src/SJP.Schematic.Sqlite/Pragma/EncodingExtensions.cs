@@ -21,18 +21,13 @@ namespace SJP.Schematic.Sqlite.Pragma
             if (!encoding.IsValid())
                 throw new ArgumentException($"The { nameof(Encoding) } provided must be a valid enum.", nameof(encoding));
 
-            switch (encoding)
+            return encoding switch
             {
-                case Encoding.Utf8:
-                    return SysTextEncoding.UTF8;
-                case Encoding.Utf16:
-                case Encoding.Utf16le:
-                    return SysTextEncoding.Unicode;
-                case Encoding.Utf16be:
-                    return SysTextEncoding.BigEndianUnicode;
-                default:
-                    throw new InvalidOperationException("Unknown and unsupported encoding found: " + encoding.ToString());
-            }
+                Encoding.Utf8 => SysTextEncoding.UTF8,
+                Encoding.Utf16 or Encoding.Utf16le => SysTextEncoding.Unicode,
+                Encoding.Utf16be => SysTextEncoding.BigEndianUnicode,
+                _ => throw new InvalidOperationException("Unknown and unsupported encoding found: " + encoding.ToString()),
+            };
         }
     }
 }

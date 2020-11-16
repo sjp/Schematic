@@ -66,32 +66,15 @@ namespace SJP.Schematic.Sqlite
             if (!dataType.IsValid())
                 throw new ArgumentException($"The { nameof(DataType) } provided must be a valid enum.", nameof(dataType));
 
-            switch (dataType)
+            return dataType switch
             {
-                case DataType.Binary:
-                case DataType.LargeBinary:
-                    return "BLOB";
-                case DataType.SmallInteger:
-                case DataType.BigInteger:
-                case DataType.Boolean:
-                case DataType.Integer:
-                    return "INTEGER";
-                case DataType.Float:
-                    return "REAL";
-                case DataType.Date:
-                case DataType.DateTime:
-                case DataType.Interval:
-                case DataType.Time:
-                case DataType.Numeric:
-                    return "NUMERIC";
-                case DataType.String:
-                case DataType.Text:
-                case DataType.Unicode:
-                case DataType.UnicodeText:
-                    return "TEXT";
-                default:
-                    return "NUMERIC";
-            }
+                DataType.Binary or DataType.LargeBinary => "BLOB",
+                DataType.SmallInteger or DataType.BigInteger or DataType.Boolean or DataType.Integer => "INTEGER",
+                DataType.Float => "REAL",
+                DataType.Date or DataType.DateTime or DataType.Interval or DataType.Time or DataType.Numeric => "NUMERIC",
+                DataType.String or DataType.Text or DataType.Unicode or DataType.UnicodeText => "TEXT",
+                _ => "NUMERIC",
+            };
         }
 
         /// <summary>

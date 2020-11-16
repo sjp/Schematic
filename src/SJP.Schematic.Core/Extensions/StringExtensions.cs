@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using EnumsNET;
 
 namespace SJP.Schematic.Core.Extensions
 {
@@ -39,27 +38,6 @@ namespace SJP.Schematic.Core.Extensions
                 throw new ArgumentNullException(nameof(separator));
 
             return string.Join(separator, values);
-        }
-
-        /// <summary>
-        /// Returns a value indicating whether a specified substring occurs within this string while also enabling configuration of substring comparison.
-        /// </summary>
-        /// <param name="input">The input string.</param>
-        /// <param name="value">The string to seek.</param>
-        /// <param name="comparisonType">The type of substring comparison that should occur.</param>
-        /// <returns><c>true</c> if <paramref name="input"/> contains <paramref name="value"/> using the configured <paramref name="comparisonType"/> or if <paramref name="value"/> is empty; otherwise, <c>false</c>.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="input"/> or <paramref name="value"/> is <c>null</c></exception>
-        /// <exception cref="ArgumentException"><paramref name="comparisonType"/> is not a valid value.</exception>
-        public static bool Contains(this string input, string value, StringComparison comparisonType)
-        {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-            if (value == null)
-                throw new ArgumentNullException(nameof(value));
-            if (!comparisonType.IsValid())
-                throw new ArgumentException($"The { nameof(StringComparison) } provided must be a valid enum.", nameof(comparisonType));
-
-            return input.IndexOf(value, comparisonType) >= 0;
         }
     }
 }

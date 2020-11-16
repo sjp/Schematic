@@ -96,7 +96,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             const string tableName = "table_test_table_34";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
-            var column = table.Columns.Last();
+            var column = table.Columns[table.Columns.Count - 1];
 
             Assert.That(column.IsNullable, Is.True);
         }
@@ -106,7 +106,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             const string tableName = "table_test_table_34";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
-            var column = table.Columns.Last();
+            var column = table.Columns[table.Columns.Count - 1];
 
             var computedColumn = column as IDatabaseComputedColumn;
             Assert.That(computedColumn, Is.Not.Null);
@@ -119,7 +119,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
             const string expectedDefinition = "(`test_column_1` + `test_column_2`)";
 
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
-            var column = table.Columns.Last();
+            var column = table.Columns[table.Columns.Count - 1];
 
             var computedColumn = column as IDatabaseComputedColumn;
             Assert.That(computedColumn.Definition.UnwrapSome(), Is.EqualTo(expectedDefinition));
@@ -140,7 +140,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             const string tableName = "table_test_table_35";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
-            var column = table.Columns.Last();
+            var column = table.Columns[table.Columns.Count - 1];
 
             Assert.That(column.AutoIncrement, OptionIs.Some);
         }
@@ -150,7 +150,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             const string tableName = "table_test_table_35";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
-            var column = table.Columns.Last();
+            var column = table.Columns[table.Columns.Count - 1];
 
             Assert.That(column.AutoIncrement.UnwrapSome().InitialValue, Is.EqualTo(1));
         }
@@ -160,7 +160,7 @@ namespace SJP.Schematic.MySql.Tests.Integration
         {
             const string tableName = "table_test_table_35";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
-            var column = table.Columns.Last();
+            var column = table.Columns[table.Columns.Count - 1];
 
             Assert.That(column.AutoIncrement.UnwrapSome().Increment, Is.EqualTo(1));
         }

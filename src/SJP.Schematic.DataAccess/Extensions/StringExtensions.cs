@@ -24,7 +24,7 @@ namespace SJP.Schematic.DataAccess.Extensions
                 throw new ArgumentNullException(nameof(input));
 
             var word = input.Pascalize();
-            return word.Length > 0 ? word.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + word.Substring(1) : word;
+            return word.Length > 0 ? word.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + word[1..] : word;
         }
 
         /// <summary>

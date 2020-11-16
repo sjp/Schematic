@@ -130,7 +130,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
             foreach (var keyProperty in keyProperties)
             {
-                if (!(keyProperty.GetValue(TableInstance) is IModelledKey keyValue))
+                if (keyProperty.GetValue(TableInstance) is not IModelledKey keyValue)
                     throw new InvalidCastException($"Expected to find a key type that implements { typeof(IModelledKey).FullName } on { TableType.FullName }.{ keyProperty.Name }.");
 
                 keyValue.Property = keyProperty;
@@ -155,7 +155,7 @@ namespace SJP.Schematic.Modelled.Reflection
             var uniqueKeys = new List<IModelledKey>();
             foreach (var keyProperty in keyProperties)
             {
-                if (!(keyProperty.GetValue(TableInstance) is IModelledKey keyValue))
+                if (keyProperty.GetValue(TableInstance) is not IModelledKey keyValue)
                     throw new InvalidCastException($"Expected to find a key type that implements { typeof(IModelledKey).FullName } on { TableType.FullName }.{ keyProperty.Name }.");
 
                 keyValue.Property = keyProperty;
@@ -175,7 +175,7 @@ namespace SJP.Schematic.Modelled.Reflection
             var foreignKeys = new List<IModelledRelationalKey>();
             foreach (var keyProperty in keyProperties)
             {
-                if (!(keyProperty.GetValue(TableInstance) is IModelledRelationalKey keyValue))
+                if (keyProperty.GetValue(TableInstance) is not IModelledRelationalKey keyValue)
                     throw new InvalidCastException($"Expected to find a key type { typeof(IModelledRelationalKey).FullName } on { TableType.FullName }.{ keyProperty.Name }.");
 
                 keyValue.Property = keyProperty;

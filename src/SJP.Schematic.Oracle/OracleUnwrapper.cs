@@ -131,7 +131,7 @@ namespace SJP.Schematic.Oracle
                 return false;
 
             currentIndex = magicPrefixIndex + magicPrefix.Length;
-            using (var reader = new StringReader(input.Substring(currentIndex).TrimStart(NewlineChars)))
+            using (var reader = new StringReader(input[currentIndex..].TrimStart(NewlineChars)))
             {
                 var numberLine = reader.ReadLine();
                 if (numberLine == null)
@@ -154,7 +154,7 @@ namespace SJP.Schematic.Oracle
                 currentIndex = fillerIndex + magicFiller.Length;
             }
 
-            var remainder = input.Substring(currentIndex).TrimStart(NewlineChars);
+            var remainder = input[currentIndex..].TrimStart(NewlineChars);
             using (var reader = new StringReader(remainder))
             {
                 var numberLine = reader.ReadLine();

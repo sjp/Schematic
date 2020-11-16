@@ -92,7 +92,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V13
         {
             const string tableName = "v13_table_test_table_35";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
-            var column = table.Columns.Last();
+            var column = table.Columns[table.Columns.Count - 1];
 
             Assert.That(column.AutoIncrement, OptionIs.Some);
         }
@@ -102,7 +102,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V13
         {
             const string tableName = "v13_table_test_table_35";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
-            var column = table.Columns.Last();
+            var column = table.Columns[table.Columns.Count - 1];
 
             Assert.That(column.AutoIncrement.UnwrapSome().InitialValue, Is.EqualTo(1));
         }
@@ -112,7 +112,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V13
         {
             const string tableName = "v13_table_test_table_35";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
-            var column = table.Columns.Last();
+            var column = table.Columns[table.Columns.Count - 1];
 
             Assert.That(column.AutoIncrement.UnwrapSome().Increment, Is.EqualTo(1));
         }
@@ -122,7 +122,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V13
         {
             const string tableName = "v13_table_test_table_36";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
-            var column = table.Columns.Last();
+            var column = table.Columns[table.Columns.Count - 1];
 
             Assert.That(column.AutoIncrement, OptionIs.Some);
         }
@@ -132,7 +132,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V13
         {
             const string tableName = "v13_table_test_table_36";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
-            var column = table.Columns.Last();
+            var column = table.Columns[table.Columns.Count - 1];
 
             Assert.That(column.AutoIncrement.UnwrapSome().InitialValue, Is.EqualTo(123));
         }
@@ -142,7 +142,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V13
         {
             const string tableName = "v13_table_test_table_36";
             var table = await GetTableAsync(tableName).ConfigureAwait(false);
-            var column = table.Columns.Last();
+            var column = table.Columns[table.Columns.Count - 1];
 
             Assert.That(column.AutoIncrement.UnwrapSome().Increment, Is.EqualTo(456));
         }

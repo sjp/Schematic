@@ -49,7 +49,7 @@ namespace SJP.Schematic.Tests.Utilities
             try
             {
                 var methodResult = getMethod.Invoke(null, Array.Empty<object>());
-                if (methodResult is null || !(methodResult is IDbConnectionFactory connFactory))
+                if (methodResult is null || methodResult is not IDbConnectionFactory connFactory)
                 {
                     ResultCache.AddOrUpdate(getMethod, false, (_, __) => false);
                     Ignore = ignoreMessage;

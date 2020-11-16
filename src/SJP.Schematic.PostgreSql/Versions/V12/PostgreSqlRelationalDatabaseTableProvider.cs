@@ -178,7 +178,7 @@ order by ordinal_position";
                     continue;
 
                 if (definition.StartsWith(checkPrefix, StringComparison.OrdinalIgnoreCase))
-                    definition = definition.Substring(checkPrefix.Length);
+                    definition = definition[checkPrefix.Length..];
                 if (definition.EndsWith(')') && definition.Length > 0) // check suffix
                     definition = definition.Substring(0, definition.Length - checkSuffix.Length);
 

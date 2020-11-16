@@ -115,47 +115,29 @@ namespace SJP.Schematic.Oracle
             if (typeMetadata == null)
                 throw new ArgumentNullException(nameof(typeMetadata));
 
-            switch (typeMetadata.DataType)
+            return typeMetadata.DataType switch
             {
-                case DataType.BigInteger:
-                    return new Identifier("SYS", "NUMBER");
-                case DataType.Binary:
-                case DataType.LargeBinary:
-                    return typeMetadata.IsFixedLength
-                        ? new Identifier("SYS", "RAW")
-                        : new Identifier("SYS", "BLOB");
-                case DataType.Boolean:
-                    return new Identifier("SYS", "CHAR");
-                case DataType.Date:
-                    return new Identifier("SYS", "DATE");
-                case DataType.DateTime:
-                    return new Identifier("SYS", "TIMESTAMP WITH LOCAL TIME ZONE");
-                case DataType.Float:
-                    return new Identifier("SYS", "FLOAT");
-                case DataType.Integer:
-                    return new Identifier("SYS", "NUMBER");
-                case DataType.Interval:
-                    return new Identifier("sys", "TIMESTAMP WITH LOCAL TIME ZONE");
-                case DataType.Numeric:
-                case DataType.SmallInteger:
-                    return new Identifier("SYS", "NUMBER");
-                case DataType.String:
-                case DataType.Text:
-                    return typeMetadata.IsFixedLength
-                        ? new Identifier("SYS", "CHAR")
-                        : new Identifier("SYS", "VARCHAR2");
-                case DataType.Time:
-                    return new Identifier("SYS", "INTERVAL DAY TO SECOND");
-                case DataType.Unicode:
-                case DataType.UnicodeText:
-                    return typeMetadata.IsFixedLength
-                        ? new Identifier("SYS", "NCHAR")
-                        : new Identifier("SYS", "NVARCHAR2");
-                case DataType.Unknown:
-                    throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for an unknown data type.");
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for data type: " + typeMetadata.DataType.ToString(), nameof(typeMetadata));
-            }
+                DataType.BigInteger => new Identifier("SYS", "NUMBER"),
+                DataType.Binary or DataType.LargeBinary => typeMetadata.IsFixedLength
+                    ? new Identifier("SYS", "RAW")
+                    : new Identifier("SYS", "BLOB"),
+                DataType.Boolean => new Identifier("SYS", "CHAR"),
+                DataType.Date => new Identifier("SYS", "DATE"),
+                DataType.DateTime => new Identifier("SYS", "TIMESTAMP WITH LOCAL TIME ZONE"),
+                DataType.Float => new Identifier("SYS", "FLOAT"),
+                DataType.Integer => new Identifier("SYS", "NUMBER"),
+                DataType.Interval => new Identifier("sys", "TIMESTAMP WITH LOCAL TIME ZONE"),
+                DataType.Numeric or DataType.SmallInteger => new Identifier("SYS", "NUMBER"),
+                DataType.String or DataType.Text => typeMetadata.IsFixedLength
+                    ? new Identifier("SYS", "CHAR")
+                    : new Identifier("SYS", "VARCHAR2"),
+                DataType.Time => new Identifier("SYS", "INTERVAL DAY TO SECOND"),
+                DataType.Unicode or DataType.UnicodeText => typeMetadata.IsFixedLength
+                    ? new Identifier("SYS", "NCHAR")
+                    : new Identifier("SYS", "NVARCHAR2"),
+                DataType.Unknown => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for an unknown data type."),
+                _ => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for data type: " + typeMetadata.DataType.ToString()),
+            };
         }
 
         /// <summary>

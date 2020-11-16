@@ -97,43 +97,25 @@ namespace SJP.Schematic.MySql
             if (typeMetadata == null)
                 throw new ArgumentNullException(nameof(typeMetadata));
 
-            switch (typeMetadata.DataType)
+            return typeMetadata.DataType switch
             {
-                case DataType.BigInteger:
-                    return "bigint";
-                case DataType.Binary:
-                    return typeMetadata.IsFixedLength ? "binary" : "varbinary";
-                case DataType.LargeBinary:
-                    return "longblob";
-                case DataType.Boolean:
-                    return "bit";
-                case DataType.Date:
-                    return "date";
-                case DataType.DateTime:
-                    return "datetime";
-                case DataType.Float:
-                    return "double";
-                case DataType.Integer:
-                    return "int";
-                case DataType.Interval:
-                    return "timestamp";
-                case DataType.Numeric:
-                    return "numeric";
-                case DataType.SmallInteger:
-                    return "smallint";
-                case DataType.String:
-                case DataType.Unicode:
-                    return typeMetadata.IsFixedLength ? "char" : "varchar";
-                case DataType.Text:
-                case DataType.UnicodeText:
-                    return "longtext";
-                case DataType.Time:
-                    return "time";
-                case DataType.Unknown:
-                    throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for an unknown data type.");
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for data type: " + typeMetadata.DataType.ToString());
-            }
+                DataType.BigInteger => "bigint",
+                DataType.Binary => typeMetadata.IsFixedLength ? "binary" : "varbinary",
+                DataType.LargeBinary => "longblob",
+                DataType.Boolean => "bit",
+                DataType.Date => "date",
+                DataType.DateTime => "datetime",
+                DataType.Float => "double",
+                DataType.Integer => "int",
+                DataType.Interval => "timestamp",
+                DataType.Numeric => "numeric",
+                DataType.SmallInteger => "smallint",
+                DataType.String or DataType.Unicode => typeMetadata.IsFixedLength ? "char" : "varchar",
+                DataType.Text or DataType.UnicodeText => "longtext",
+                DataType.Time => "time",
+                DataType.Unknown => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for an unknown data type."),
+                _ => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for data type: " + typeMetadata.DataType.ToString()),
+            };
         }
 
         /// <summary>

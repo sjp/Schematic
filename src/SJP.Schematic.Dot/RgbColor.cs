@@ -21,7 +21,7 @@ namespace SJP.Schematic.Dot
                 throw new ArgumentNullException(nameof(hex));
 
             // validate hex string
-            var hexOnly = hex.StartsWith('#') ? hex.Substring(1) : hex;
+            var hexOnly = hex.StartsWith('#') ? hex[1..] : hex;
             var r = Convert.ToByte(hexOnly.Substring(0, 2), 16);
             var g = Convert.ToByte(hexOnly.Substring(2, 2), 16);
             var b = Convert.ToByte(hexOnly.Substring(4, 2), 16);
