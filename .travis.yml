@@ -27,13 +27,14 @@ matrix:
       before_script:
         - mysql -e 'CREATE DATABASE IF NOT EXISTS schematic;'
         - psql -c 'create database schematic;' -U postgres
-    - os: osx
-      addons:
-        homebrew:
-          update: true
-          packages:
-            - node
-            - graphviz
+    # disable OSX as it times out installing dependencies, should work regardless    
+    #- os: osx
+    #  addons:
+    #    homebrew:
+    #      update: true
+    #      packages:
+    #        - node
+    #        - graphviz
 script:
   - export PATH="$PATH:$HOME/.dotnet/tools"
   - dotnet tool install -g Cake.Tool --version 0.37.0
