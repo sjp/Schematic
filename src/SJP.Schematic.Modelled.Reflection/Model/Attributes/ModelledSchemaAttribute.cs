@@ -17,7 +17,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
 
             // make sure that we only pass in dialect types
             var incorrectTypes = dialects
-                .Where(d => d != Dialect.All && !d.GetTypeInfo().ImplementedInterfaces.Contains(DialectInterface))
+                .Where(static d => d != Dialect.All && !d.GetTypeInfo().ImplementedInterfaces.Contains(DialectInterface))
                 .ToList();
             if (incorrectTypes.Count > 0)
             {
@@ -28,7 +28,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             }
 
             // if we encounter Dialect.All then must affect everything
-            if (dialects.Any(d => d == Dialect.All))
+            if (dialects.Any(static d => d == Dialect.All))
             {
                 dialects = Array.Empty<Type>();
                 AffectsAllDialects = true;

@@ -39,28 +39,28 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         public async Task RenderAsync(CancellationToken cancellationToken = default)
         {
-            var primaryKeys = Tables.SelectMany(t => t.PrimaryKey.Select(pk => new { TableName = t.Name, PrimaryKey = pk })).ToList();
-            var uniqueKeys = Tables.SelectMany(t => t.UniqueKeys.Select(uk => new { TableName = t.Name, UniqueKey = uk })).ToList();
-            var foreignKeys = Tables.SelectMany(t => t.ParentKeys).ToList();
-            var checkConstraints = Tables.SelectMany(t => t.Checks.Select(ck => new { TableName = t.Name, Check = ck })).ToList();
+            var primaryKeys = Tables.SelectMany(static t => t.PrimaryKey.Select(pk => new { TableName = t.Name, PrimaryKey = pk })).ToList();
+            var uniqueKeys = Tables.SelectMany(static t => t.UniqueKeys.Select(uk => new { TableName = t.Name, UniqueKey = uk })).ToList();
+            var foreignKeys = Tables.SelectMany(static t => t.ParentKeys).ToList();
+            var checkConstraints = Tables.SelectMany(static t => t.Checks.Select(ck => new { TableName = t.Name, Check = ck })).ToList();
 
             var mapper = new ConstraintsModelMapper();
 
             var primaryKeyViewModels = primaryKeys
                 .Select(pk => mapper.MapPrimaryKey(pk.TableName, pk.PrimaryKey))
-                .OrderBy(pk => pk.TableName)
+                .OrderBy(static pk => pk.TableName)
                 .ToList();
             var uniqueKeyViewModels = uniqueKeys
                 .Select(uk => mapper.MapUniqueKey(uk.TableName, uk.UniqueKey))
-                .OrderBy(uk => uk.TableName)
+                .OrderBy(static uk => uk.TableName)
                 .ToList();
             var foreignKeyViewModels = foreignKeys
                 .Select(mapper.MapForeignKey)
-                .OrderBy(fk => fk.TableName)
+                .OrderBy(static fk => fk.TableName)
                 .ToList();
             var checkConstraintViewModels = checkConstraints
                 .Select(ck => mapper.MapCheckConstraint(ck.TableName, ck.Check))
-                .OrderBy(ck => ck.TableName)
+                .OrderBy(static ck => ck.TableName)
                 .ToList();
 
             var templateParameter = new Constraints(

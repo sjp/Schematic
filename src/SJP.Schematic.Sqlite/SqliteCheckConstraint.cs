@@ -26,7 +26,7 @@ namespace SJP.Schematic.Sqlite
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));
 
-            Name = checkName.Map(name => Identifier.CreateQualifiedIdentifier(name.LocalName));
+            Name = checkName.Map(static name => Identifier.CreateQualifiedIdentifier(name.LocalName));
             Definition = definition;
         }
 

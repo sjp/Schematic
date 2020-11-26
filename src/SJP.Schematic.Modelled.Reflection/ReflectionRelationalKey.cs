@@ -49,16 +49,16 @@ namespace SJP.Schematic.Modelled.Reflection
 
         private static void ValidateColumnSetsCompatible(Identifier childTableName, IDatabaseKey childKey, Identifier parentTableName, IDatabaseKey parentKey)
         {
-            var anyComputed = childKey.Columns.Any(c => c.IsComputed) || parentKey.Columns.Any(c => c.IsComputed);
+            var anyComputed = childKey.Columns.Any(static c => c.IsComputed) || parentKey.Columns.Any(static c => c.IsComputed);
             if (anyComputed)
                 return;
 
-            var childKeyColumnTypes = childKey.Columns.Select(c => c.Type);
-            var parentKeyColumnTypes = parentKey.Columns.Select(c => c.Type);
+            var childKeyColumnTypes = childKey.Columns.Select(static c => c.Type);
+            var parentKeyColumnTypes = parentKey.Columns.Select(static c => c.Type);
 
             var compatible = childKeyColumnTypes
-                .Zip(parentKeyColumnTypes, (a, b) => new { Column = a, TargetColumn = b })
-                .All(cc => IsTypeEquivalent(cc.Column, cc.TargetColumn));
+                .Zip(parentKeyColumnTypes, static (a, b) => new { Column = a, TargetColumn = b })
+                .All(static cc => IsTypeEquivalent(cc.Column, cc.TargetColumn));
 
             if (!compatible)
                 throw new Exception($"The column sets in the foreign key { childKey.Name } from { childTableName } to { parentKey.Name } in { parentTableName } are not compatible. Please check the declarations to ensure the column types are safe to create.");

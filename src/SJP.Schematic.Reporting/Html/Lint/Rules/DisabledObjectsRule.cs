@@ -17,8 +17,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
         protected override IRuleMessage BuildDisabledForeignKeyMessage(Identifier tableName, Option<Identifier> foreignKeyName)
         {
             var messageKeyName = foreignKeyName.Match(
-                name => " <code>" + HttpUtility.HtmlEncode(name.LocalName) + "</code>",
-                () => string.Empty
+                static name => " <code>" + HttpUtility.HtmlEncode(name.LocalName) + "</code>",
+                static () => string.Empty
             );
 
             var tableUrl = UrlRouter.GetTableUrl(tableName);
@@ -30,8 +30,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
         protected override IRuleMessage BuildDisabledPrimaryKeyMessage(Identifier tableName, Option<Identifier> primaryKeyName)
         {
             var messageKeyName = primaryKeyName.Match(
-                   name => " <code>" + HttpUtility.HtmlEncode(name.LocalName) + "</code>",
-                   () => string.Empty
+                   static name => " <code>" + HttpUtility.HtmlEncode(name.LocalName) + "</code>",
+                   static () => string.Empty
                );
 
             var tableUrl = UrlRouter.GetTableUrl(tableName);
@@ -43,8 +43,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
         protected override IRuleMessage BuildDisabledUniqueKeyMessage(Identifier tableName, Option<Identifier> uniqueKeyName)
         {
             var messageKeyName = uniqueKeyName.Match(
-                name => " <code>" + HttpUtility.HtmlEncode(name.LocalName) + "</code>",
-                () => string.Empty
+                static name => " <code>" + HttpUtility.HtmlEncode(name.LocalName) + "</code>",
+                static () => string.Empty
             );
 
             var tableUrl = UrlRouter.GetTableUrl(tableName);
@@ -59,8 +59,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                 throw new ArgumentNullException(nameof(tableName));
 
             var messageCheckName = checkName.Match(
-                name => " <code>" + HttpUtility.HtmlEncode(name.LocalName) + "</code>",
-                () => string.Empty
+                static name => " <code>" + HttpUtility.HtmlEncode(name.LocalName) + "</code>",
+                static () => string.Empty
             );
 
             var tableUrl = UrlRouter.GetTableUrl(tableName);

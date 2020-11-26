@@ -57,7 +57,7 @@ namespace SJP.Schematic.Oracle
         {
             get
             {
-                var bodyText = Body.Match(b => Environment.NewLine + b, () => string.Empty);
+                var bodyText = Body.Match(static b => Environment.NewLine + b, static () => string.Empty);
                 return Specification + bodyText;
             }
         }

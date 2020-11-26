@@ -49,8 +49,8 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             }
 
             var indexes = allIndexes
-                .OrderBy(i => i.TableName)
-                .ThenBy(i => i.Name)
+                .OrderBy(static i => i.TableName)
+                .ThenBy(static i => i.Name)
                 .ToList();
 
             var templateParameter = new Indexes(indexes);

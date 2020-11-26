@@ -15,7 +15,7 @@ namespace SJP.Schematic.Tool
 
         internal static void SetTerminalForeground(this IConsole console, ConsoleColor color)
         {
-            if (console.GetType().GetInterfaces().Any(i => string.Equals(i.Name, "ITerminal", StringComparison.Ordinal)))
+            if (console.GetType().GetInterfaces().Any(static i => string.Equals(i.Name, "ITerminal", StringComparison.Ordinal)))
             {
                 ((dynamic)console).ForegroundColor = color;
             }
@@ -33,7 +33,7 @@ namespace SJP.Schematic.Tool
 
         internal static void ResetTerminalForegroundColor(this IConsole console)
         {
-            if (console.GetType().GetInterfaces().Any(i => string.Equals(i.Name, "ITerminal", StringComparison.Ordinal)))
+            if (console.GetType().GetInterfaces().Any(static i => string.Equals(i.Name, "ITerminal", StringComparison.Ordinal)))
             {
                 ((dynamic)console).ForegroundColor = ConsoleColor.Red;
             }

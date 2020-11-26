@@ -62,7 +62,7 @@ namespace SJP.Schematic.Oracle
             if (component == null)
                 throw new ArgumentNullException(nameof(component));
 
-            return component.Count(c => c < 128);
+            return component.Count(static c => c < 128);
         }
     }
 }

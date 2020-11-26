@@ -95,7 +95,7 @@ namespace SJP.Schematic.Dot
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
 
-            var tableNames = tables.Select(t => t.Name).ToList();
+            var tableNames = tables.Select(static t => t.Name).ToList();
 
             var tableNodes = new Dictionary<DotIdentifier, DotNode>();
             var edges = new List<DotEdge>();
@@ -107,8 +107,8 @@ namespace SJP.Schematic.Dot
                 var nodeIdentifier = new DotIdentifier(tableIdentifier);
 
                 var tableColumns = table.Columns;
-                var columnNames = tableColumns.Select(c => c.Name.LocalName).ToList();
-                var columnTypes = tableColumns.Select(c => c.Type.Definition).ToList();
+                var columnNames = tableColumns.Select(static c => c.Name.LocalName).ToList();
+                var columnTypes = tableColumns.Select(static c => c.Type.Definition).ToList();
 
                 var primaryKey = table.PrimaryKey;
                 var uniqueKeys = table.UniqueKeys;
@@ -116,9 +116,9 @@ namespace SJP.Schematic.Dot
                 var parentKeys = table.ParentKeys;
 
                 var keyColumnNames = uniqueKeys
-                    .Concat(parentKeys.Select(fk => fk.ChildKey))
-                    .Concat(primaryKey.Match(pk => new[] { pk }, Array.Empty<IDatabaseKey>))
-                    .SelectMany(key => key.Columns.Select(c => c.Name.LocalName))
+                    .Concat(parentKeys.Select(static fk => fk.ChildKey))
+                    .Concat(primaryKey.Match(static pk => new[] { pk }, Array.Empty<IDatabaseKey>))
+                    .SelectMany(static key => key.Columns.Select(static c => c.Name.LocalName))
                     .Distinct(StringComparer.Ordinal)
                     .ToList();
 
@@ -142,17 +142,17 @@ namespace SJP.Schematic.Dot
                 primaryKey.IfSome(pk =>
                 {
                     var primaryKeyNameText = pk.Name.Match(
-                        pkName => pkName.LocalName,
+                        static pkName => pkName.LocalName,
                         () => pk.GetKeyHash(table.Name).ToString(CultureInfo.InvariantCulture)
                     );
-                    var primaryKeyName = pk.Name.Match(pkName => pkName.LocalName, () => string.Empty);
+                    var primaryKeyName = pk.Name.Match(static pkName => pkName.LocalName, static () => string.Empty);
 
                     var primaryKeyConstraint = new TableConstraint(
                         primaryKeyNameText,
                         pk.KeyType,
                         primaryKeyName,
-                        pk.Columns.Select(c => c.Name.LocalName).ToList(),
-                        pk.Columns.Select(c => c.Type.Definition).ToList()
+                        pk.Columns.Select(static c => c.Name.LocalName).ToList(),
+                        pk.Columns.Select(static c => c.Type.Definition).ToList()
                     );
                     tableConstraints.Add(primaryKeyConstraint);
                 });
@@ -160,17 +160,17 @@ namespace SJP.Schematic.Dot
                 foreach (var uniqueKey in uniqueKeys)
                 {
                     var uniqueKeyNameText = uniqueKey.Name.Match(
-                        ukName => ukName.LocalName,
+                        static ukName => ukName.LocalName,
                         () => uniqueKey.GetKeyHash(table.Name).ToString(CultureInfo.InvariantCulture)
                     );
-                    var uniqueKeyName = uniqueKey.Name.Match(pkName => pkName.LocalName, () => string.Empty);
+                    var uniqueKeyName = uniqueKey.Name.Match(static pkName => pkName.LocalName, static () => string.Empty);
 
                     var uniqueKeyConstraint = new TableConstraint(
                         uniqueKeyNameText,
                         uniqueKey.KeyType,
                         uniqueKeyName,
-                        uniqueKey.Columns.Select(c => c.Name.LocalName).ToList(),
-                        uniqueKey.Columns.Select(c => c.Type.Definition).ToList()
+                        uniqueKey.Columns.Select(static c => c.Name.LocalName).ToList(),
+                        uniqueKey.Columns.Select(static c => c.Type.Definition).ToList()
                     );
                     tableConstraints.Add(uniqueKeyConstraint);
                 }
@@ -186,13 +186,13 @@ namespace SJP.Schematic.Dot
 
                     var childKeyTableName = relationalKey.ChildTable.ToSafeKey();
                     var childKeyName = childKey.Name.Match(
-                        ckName => ckName.LocalName,
+                        static ckName => ckName.LocalName,
                         () => childKey.GetKeyHash(relationalKey.ChildTable).ToString(CultureInfo.InvariantCulture)
                     );
 
                     var parentKeyTableName = relationalKey.ParentTable.ToSafeKey();
                     var parentKeyName = parentKey.Name.Match(
-                        fkName => fkName.LocalName,
+                        static fkName => fkName.LocalName,
                         () => parentKey.GetKeyHash(relationalKey.ParentTable).ToString(CultureInfo.InvariantCulture)
                     );
 
@@ -205,13 +205,13 @@ namespace SJP.Schematic.Dot
                     );
                     edges.Add(childKeyToParentKeyEdge);
 
-                    var childKeyConstraintName = childKey.Name.Match(name => name.LocalName, () => string.Empty);
+                    var childKeyConstraintName = childKey.Name.Match(static name => name.LocalName, static () => string.Empty);
                     var tableConstraint = new TableConstraint(
                         childKeyName,
                         childKey.KeyType,
                         childKeyConstraintName,
-                        childKey.Columns.Select(c => c.Name.LocalName).ToList(),
-                        childKey.Columns.Select(c => c.Type.Definition).ToList()
+                        childKey.Columns.Select(static c => c.Name.LocalName).ToList(),
+                        childKey.Columns.Select(static c => c.Type.Definition).ToList()
                     );
                     tableConstraints.Add(tableConstraint);
                 }
@@ -232,7 +232,7 @@ namespace SJP.Schematic.Dot
             }
 
             var recordNodes = tableNodes.Values
-                .OrderBy(node => node.Identifier.ToString())
+                .OrderBy(static node => node.Identifier.ToString())
                 .ToList();
 
             var graphName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()

@@ -8,13 +8,13 @@ namespace SJP.Schematic.Serialization.Mapping
         public DatabaseRoutineProfile()
         {
             CreateMap<Dto.DatabaseRoutine, DatabaseRoutine>()
-                .ConstructUsing((dto, ctx) => new DatabaseRoutine(
+                .ConstructUsing(static (dto, ctx) => new DatabaseRoutine(
                     ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.RoutineName!),
                     dto.Definition!
                 ))
-                .ForAllMembers(cfg => cfg.Ignore());
+                .ForAllMembers(static cfg => cfg.Ignore());
             CreateMap<IDatabaseRoutine, Dto.DatabaseRoutine>()
-                .ForMember(dest => dest.RoutineName, src => src.MapFrom(r => r.Name));
+                .ForMember(static dest => dest.RoutineName, static src => src.MapFrom(static r => r.Name));
         }
     }
 }

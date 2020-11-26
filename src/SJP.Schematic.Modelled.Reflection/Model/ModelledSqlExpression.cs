@@ -62,7 +62,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
             var builder = StringBuilderCache.Acquire(ExpressionText.Length);
 
             var tokenValues = GetTokenValues(dialect).ToList();
-            var tokenInfo = Tokens.Zip(tokenValues, (t, v) =>
+            var tokenInfo = Tokens.Zip(tokenValues, static (t, v) =>
             {
                 var startPos = t.Position.Absolute;
                 var endPos = startPos + t.Span.Length;
@@ -235,13 +235,13 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 Span.EqualTo("@")
                     .IgnoreThen(Character.Letter.Or(Character.EqualTo('_')).AtLeastOnce())
                     .IgnoreThen(Character.Matching(IsValidIdentifierPartCharacter, "valid C# identifier char").Many())
-                    .Select(c => new string(c));
+                    .Select(static c => new string(c));
 
             private static TextParser<string> LiteralParser { get; } =
                 Span.EqualTo("{=")
                     .IgnoreThen(Character.Letter.Or(Character.EqualTo('_')).AtLeastOnce())
                     .IgnoreThen(Character.Matching(IsValidIdentifierPartCharacter, "valid C# identifier char").Many())
-                    .Then(s => Character.EqualTo('}').Value(new string(s)));
+                    .Then(static s => Character.EqualTo('}').Value(new string(s)));
 
             private static bool IsValidIdentifierPartCharacter(char c) =>
                 c.IsLetterOrDigit() || ValidIdentifierCategories.Contains(c.GetUnicodeCategory());

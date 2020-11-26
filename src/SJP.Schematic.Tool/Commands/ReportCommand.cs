@@ -20,7 +20,7 @@ namespace SJP.Schematic.Tool.Commands
             };
             AddOption(outputOption);
 
-            Handler = CommandHandler.Create<FileInfo, IConsole, DirectoryInfo, CancellationToken>((config, console, output, cancellationToken) =>
+            Handler = CommandHandler.Create<FileInfo, IConsole, DirectoryInfo, CancellationToken>(static (config, console, output, cancellationToken) =>
             {
                 var handler = new ReportCommandHandler(config);
                 return handler.HandleCommandAsync(console, output, cancellationToken);

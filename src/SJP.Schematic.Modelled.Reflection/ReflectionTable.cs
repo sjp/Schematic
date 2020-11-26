@@ -40,7 +40,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 .GetAwaiter()
                 .GetResult();
             return tables
-                .SelectMany(t => t.ParentKeys)
+                .SelectMany(static t => t.ParentKeys)
                 .Where(fk => fk.ParentTable == Name)
                 .ToList();
         }
@@ -65,7 +65,7 @@ namespace SJP.Schematic.Modelled.Reflection
                     throw new Exception("Could not find parent table with name: " + parentName.ToString());
 
                 var tmpOption = parentOption.ToOption().ConfigureAwait(false).GetAwaiter().GetResult();
-                var parent = tmpOption.MatchUnsafe(t => t, () => null!);
+                var parent = tmpOption.MatchUnsafe(static t => t, static () => null!);
 
                 var parentTypeProvider = new ReflectionTableTypeProvider(Dialect, declaredParentKey.TargetType);
                 var parentInstance = parentTypeProvider.TableInstance;
@@ -77,7 +77,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 {
                     // TODO: provide better error messaging, maybe to KeyNotFoundException too?
                     parentKey = parent.PrimaryKey
-                        .Match(pk => pk, () => throw new Exception("Could not find matching parent key for foreign key."));
+                        .Match(static pk => pk, static () => throw new Exception("Could not find matching parent key for foreign key."));
                 }
                 else if (keyObject.KeyType == DatabaseKeyType.Unique)
                 {

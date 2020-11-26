@@ -67,7 +67,7 @@ namespace SJP.Schematic.DataAccess.CodeGeneration
 
             var commentLines = GetLines(comment);
             var commentNodes = commentLines.Count > 1
-                ? commentLines.SelectMany(l => new XmlNodeSyntax[] { XmlParaElement(XmlText(l)), XmlText(XmlNewline) }).ToArray()
+                ? commentLines.SelectMany(static l => new XmlNodeSyntax[] { XmlParaElement(XmlText(l)), XmlText(XmlNewline) }).ToArray()
                 : new XmlNodeSyntax[] { XmlText(XmlTextLiteral(comment), XmlNewline) };
             // add a newline after the summary element
             var formattedCommentNodes = new XmlNodeSyntax[] { XmlText(XmlNewline) }.Concat(commentNodes).ToArray();

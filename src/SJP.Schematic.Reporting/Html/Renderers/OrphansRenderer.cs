@@ -44,7 +44,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         public async Task RenderAsync(CancellationToken cancellationToken = default)
         {
             var orphanedTables = Tables
-                .Where(t => t.ParentKeys.Empty() && t.ChildKeys.Empty())
+                .Where(static t => t.ParentKeys.Empty() && t.ChildKeys.Empty())
                 .ToList();
 
             var mapper = new OrphansModelMapper();

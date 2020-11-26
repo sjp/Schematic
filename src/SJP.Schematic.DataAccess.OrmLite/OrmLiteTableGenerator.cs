@@ -66,16 +66,16 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 : Namespace;
 
             var namespaces = table.Columns
-                .Select(c => c.Type.ClrType.Namespace)
+                .Select(static c => c.Type.ClrType.Namespace)
                 .Where(ns => ns != null && !string.Equals(ns, tableNamespace, StringComparison.Ordinal))
-                .Select(ns => ns!)
+                .Select(static ns => ns!)
                 .Union(new[] { "ServiceStack.DataAnnotations" }, StringComparer.Ordinal)
                 .Distinct(StringComparer.Ordinal)
                 .OrderNamespaces()
                 .ToList();
 
             var usingStatements = namespaces
-                .Select(ns => ParseName(ns))
+                .Select(static ns => ParseName(ns))
                 .Select(UsingDirective)
                 .ToList();
             var namespaceDeclaration = NamespaceDeclaration(ParseName(tableNamespace));
@@ -230,12 +230,12 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 attributes.Add(aliasAttribute);
             }
 
-            var multiColumnUniqueKeys = table.UniqueKeys.Where(uk => uk.Columns.Skip(1).Any()).ToList();
+            var multiColumnUniqueKeys = table.UniqueKeys.Where(static uk => uk.Columns.Skip(1).Any()).ToList();
             foreach (var uniqueKey in multiColumnUniqueKeys)
             {
                 var columnNames = uniqueKey.Columns
                     .Select(c => NameTranslator.ColumnToPropertyName(className, c.Name.LocalName))
-                    .Select(p => AttributeArgument(
+                    .Select(static p => AttributeArgument(
                         InvocationExpression(
                             IdentifierName(
                                 Identifier(
@@ -258,17 +258,17 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 attributes.Add(uniqueConstraintAttribute);
             }
 
-            var multiColumnIndexes = table.Indexes.Where(ix => ix.Columns.Skip(1).Any()).ToList();
+            var multiColumnIndexes = table.Indexes.Where(static ix => ix.Columns.Skip(1).Any()).ToList();
             foreach (var index in multiColumnIndexes)
             {
                 var indexColumns = index.Columns;
-                var dependentColumns = indexColumns.SelectMany(ic => ic.DependentColumns).ToList();
+                var dependentColumns = indexColumns.SelectMany(static ic => ic.DependentColumns).ToList();
                 if (dependentColumns.Count > indexColumns.Count)
                     continue;
 
                 var attrParams = dependentColumns
                     .Select(c => NameTranslator.ColumnToPropertyName(className, c.Name.LocalName))
-                    .Select(p => AttributeArgument(
+                    .Select(static p => AttributeArgument(
                         InvocationExpression(
                             IdentifierName(
                                 Identifier(
@@ -597,7 +597,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
 
-            var indexes = table.Indexes.Where(i => !i.IsUnique).ToList();
+            var indexes = table.Indexes.Where(static i => !i.IsUnique).ToList();
             if (indexes.Empty())
                 return false;
 
@@ -634,7 +634,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             if (column == null)
                 throw new ArgumentNullException(nameof(column));
 
-            var indexes = table.Indexes.Where(i => i.IsUnique).ToList();
+            var indexes = table.Indexes.Where(static i => i.IsUnique).ToList();
             if (indexes.Empty())
                 return false;
 

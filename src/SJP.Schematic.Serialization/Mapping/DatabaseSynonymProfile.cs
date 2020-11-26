@@ -8,13 +8,13 @@ namespace SJP.Schematic.Serialization.Mapping
         public DatabaseSynonymProfile()
         {
             CreateMap<Dto.DatabaseSynonym, DatabaseSynonym>()
-                .ConstructUsing((dto, ctx) => new DatabaseSynonym(
+                .ConstructUsing(static (dto, ctx) => new DatabaseSynonym(
                     ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.SynonymName!),
                     ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.Target!)
                 ))
-                .ForAllMembers(cfg => cfg.Ignore());
+                .ForAllMembers(static cfg => cfg.Ignore());
             CreateMap<IDatabaseSynonym, Dto.DatabaseSynonym>()
-                .ForMember(dest => dest.SynonymName, src => src.MapFrom(s => s.Name));
+                .ForMember(static dest => dest.SynonymName, static src => src.MapFrom(static s => s.Name));
         }
     }
 }

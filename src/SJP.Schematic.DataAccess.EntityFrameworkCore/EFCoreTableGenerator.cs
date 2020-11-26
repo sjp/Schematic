@@ -85,9 +85,9 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 : Namespace;
 
             var namespaces = table.Columns
-                .Select(c => c.Type.ClrType.Namespace)
+                .Select(static c => c.Type.ClrType.Namespace)
                 .Where(ns => ns != null && !string.Equals(ns, tableNamespace, StringComparison.Ordinal))
-                .Select(ns => ns!)
+                .Select(static ns => ns!)
                 .Union(new[]
                 {
                     "System.Collections.Generic",
@@ -99,7 +99,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 .ToList();
 
             var usingStatements = namespaces
-                .Select(ns => ParseName(ns))
+                .Select(static ns => ParseName(ns))
                 .Select(UsingDirective)
                 .ToList();
             var namespaceDeclaration = NamespaceDeclaration(ParseName(tableNamespace));
@@ -213,7 +213,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 ? parentSchemaName + "." + parentClassName
                 : parentClassName;
 
-            var foreignKeyIsNotNull = relationalKey.ChildKey.Columns.All(c => !c.IsNullable);
+            var foreignKeyIsNotNull = relationalKey.ChildKey.Columns.All(static c => !c.IsNullable);
 
             var parentTypeName = foreignKeyIsNotNull
                 ? ParseTypeName(qualifiedParentName)
@@ -308,7 +308,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 throw new ArgumentNullException(nameof(tableName));
 
             return comment
-                .Bind(c => c.Comment)
+                .Bind(static c => c.Comment)
                 .Match(
                     SyntaxUtilities.BuildCommentTrivia,
                     () => SyntaxUtilities.BuildCommentTrivia(new XmlNodeSyntax[]
@@ -349,14 +349,14 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 .Bind(c => relationalKey.ChildKey.Name
                     .Match(
                         ckName => c.ForeignKeyComments.TryGetValue(ckName, out var fkc) ? fkc : Option<string>.None,
-                        () => Option<string>.None))
+                        static () => Option<string>.None))
                 .Match(
                     SyntaxUtilities.BuildCommentTrivia,
                     () =>
                     {
                         var foreignKeyNameNode = relationalKey.ChildKey.Name.Match(
                             name => XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(name.LocalName))),
-                            () => XmlText(string.Empty) as XmlNodeSyntax
+                            static () => XmlText(string.Empty) as XmlNodeSyntax
                         );
 
                         return SyntaxUtilities.BuildCommentTrivia(new XmlNodeSyntax[]
@@ -381,7 +381,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var hasChildKeyName = relationalKey.ChildKey.Name.IsSome;
             var foreignKeyNameNode = relationalKey.ChildKey.Name.Match(
                 name => XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(name.LocalName))),
-                () => XmlText(string.Empty) as XmlNodeSyntax
+                static () => XmlText(string.Empty) as XmlNodeSyntax
             );
 
             return SyntaxUtilities.BuildCommentTrivia(new XmlNodeSyntax[]
@@ -527,28 +527,28 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
 
-            var keyColumnNames = key.Columns.Select(c => c.Name.LocalName).ToList();
+            var keyColumnNames = key.Columns.Select(static c => c.Name.LocalName).ToList();
             var matchesPkColumns = table.PrimaryKey
                 .Match(
                     pk =>
                     {
-                        var pkColumnNames = pk.Columns.Select(c => c.Name.LocalName).ToList();
+                        var pkColumnNames = pk.Columns.Select(static c => c.Name.LocalName).ToList();
                         return keyColumnNames.SequenceEqual(pkColumnNames, StringComparer.Ordinal);
                     },
-                    () => false
+                    static () => false
                 );
             if (matchesPkColumns)
                 return true;
 
             var matchesUkColumns = table.UniqueKeys.Any(uk =>
             {
-                var ukColumnNames = uk.Columns.Select(c => c.Name.LocalName).ToList();
+                var ukColumnNames = uk.Columns.Select(static c => c.Name.LocalName).ToList();
                 return keyColumnNames.SequenceEqual(ukColumnNames, StringComparer.Ordinal);
             });
             if (matchesUkColumns)
                 return true;
 
-            var uniqueIndexes = table.Indexes.Where(i => i.IsUnique).ToList();
+            var uniqueIndexes = table.Indexes.Where(static i => i.IsUnique).ToList();
             if (uniqueIndexes.Count == 0)
                 return false;
 

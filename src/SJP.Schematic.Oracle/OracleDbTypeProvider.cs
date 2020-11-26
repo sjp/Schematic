@@ -32,7 +32,7 @@ namespace SJP.Schematic.Oracle
                 typeMetadata.DataType = GetDataType(typeMetadata.TypeName);
                 if (typeMetadata.DataType == DataType.Numeric)
                 {
-                    var numericPrecision = typeMetadata.NumericPrecision.Filter(np => np.Scale == 0);
+                    var numericPrecision = typeMetadata.NumericPrecision.Filter(static np => np.Scale == 0);
                     numericPrecision.IfSome(np =>
                     {
                         typeMetadata.DataType = np.Precision < 8
@@ -164,7 +164,7 @@ namespace SJP.Schematic.Oracle
             if (TypeNamesWithNoLengthAnnotation.Contains(typeName.LocalName, StringComparer.OrdinalIgnoreCase))
                 return builder.GetStringAndRelease();
 
-            var npWithPrecisionOrScale = typeMetadata.NumericPrecision.Filter(np => np.Precision > 0 || np.Scale > 0);
+            var npWithPrecisionOrScale = typeMetadata.NumericPrecision.Filter(static np => np.Precision > 0 || np.Scale > 0);
             if (npWithPrecisionOrScale.IsSome)
             {
                 npWithPrecisionOrScale.IfSome(precision =>

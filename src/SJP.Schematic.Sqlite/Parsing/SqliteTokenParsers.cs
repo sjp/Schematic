@@ -12,15 +12,15 @@ namespace SJP.Schematic.Sqlite.Parsing
         private static TokenListParser<SqliteToken, TableConstraint.PrimaryKey> TablePrimaryKey =>
             Token.Sequence(SqliteToken.Primary, SqliteToken.Key)
                 .IgnoreThen(IndexedColumnList)
-                .Then(cols =>
+                .Then(static cols =>
                     ConflictClause
                         .Select(_ => new TableConstraint.PrimaryKey(cols.ToList())).Try()
                         .Or(Parse.Return<SqliteToken, TableConstraint.PrimaryKey>(new TableConstraint.PrimaryKey(cols.ToList()))));
 
         private static TokenListParser<SqliteToken, TableConstraint.UniqueKey> TableUniqueKey =>
-            Token.EqualTo(SqliteToken.Unique).Select(_ => _.ToEnumerable())
+            Token.EqualTo(SqliteToken.Unique).Select(static _ => _.ToEnumerable())
                 .IgnoreThen(IndexedColumnList)
-                .Then(cols =>
+                .Then(static cols =>
                     ConflictClause
                         .Select(_ => new TableConstraint.UniqueKey(cols.ToList())).Try()
                         .Or(Parse.Return<SqliteToken, TableConstraint.UniqueKey>(new TableConstraint.UniqueKey(cols.ToList()))));
@@ -28,24 +28,24 @@ namespace SJP.Schematic.Sqlite.Parsing
         private static TokenListParser<SqliteToken, TableConstraint.ForeignKey> TableForeignKey =>
             Token.Sequence(SqliteToken.Foreign, SqliteToken.Key)
                 .IgnoreThen(ColumnList)
-                .Then(prev => ForeignKeyClause.Select(clause => new TableConstraint.ForeignKey(prev.ToList(), clause.ParentTable, clause.ParentColumnNames.ToList())));
+                .Then(static prev => ForeignKeyClause.Select(clause => new TableConstraint.ForeignKey(prev.ToList(), clause.ParentTable, clause.ParentColumnNames.ToList())));
 
         private static TokenListParser<SqliteToken, IEnumerable<string>> ColumnList =>
             Token.EqualTo(SqliteToken.LParen)
                 .IgnoreThen(
                     Token.EqualTo(SqliteToken.Identifier)
                         .ManyDelimitedBy(Token.EqualTo(SqliteToken.Comma))
-                        .Select(columns => columns.Select(col => new SqlIdentifier(col).Value.LocalName))
+                        .Select(static columns => columns.Select(static col => new SqlIdentifier(col).Value.LocalName))
                 )
                 .Then(prev => Token.EqualTo(SqliteToken.RParen).Select(_ => prev));
 
         private static TokenListParser<SqliteToken, IndexedColumn> IndexedColumnParser =>
-            Token.EqualTo(SqliteToken.Identifier).Select(ident => new IndexedColumn(new SqlIdentifier(ident)))
-                .Or(Expression.Select(expr => new IndexedColumn(expr)))
-                .Then(prev =>
+            Token.EqualTo(SqliteToken.Identifier).Select(static ident => new IndexedColumn(new SqlIdentifier(ident)))
+                .Or(Expression.Select(static expr => new IndexedColumn(expr)))
+                .Then(static prev =>
                     Collate.Select(prev.WithCollation)
                         .Or(Parse.Return<SqliteToken, IndexedColumn>(prev)))
-                .Then(prev =>
+                .Then(static prev =>
                     ColumnOrdering
                         .Select(prev.WithColumnOrder).Try()
                         .Or(Parse.Return<SqliteToken, IndexedColumn>(prev)));
@@ -53,23 +53,23 @@ namespace SJP.Schematic.Sqlite.Parsing
         private static TokenListParser<SqliteToken, IEnumerable<IndexedColumn>> IndexedColumnList =>
         Token.EqualTo(SqliteToken.LParen)
             .IgnoreThen(IndexedColumnParser.ManyDelimitedBy(Token.EqualTo(SqliteToken.Comma)))
-            .Then(prev => Token.EqualTo(SqliteToken.RParen).Select(_ => prev.AsEnumerable()));
+            .Then(static prev => Token.EqualTo(SqliteToken.RParen).Select(_ => prev.AsEnumerable()));
 
         private static TokenListParser<SqliteToken, TableConstraint.Check> TableCheckConstraint =>
             Token.EqualTo(SqliteToken.Check)
-                .IgnoreThen(Expression.Select(expr => new TableConstraint.Check(expr)));
+                .IgnoreThen(Expression.Select(static expr => new TableConstraint.Check(expr)));
 
         private static TokenListParser<SqliteToken, TableConstraint> TableConstraintParser =>
-            TablePrimaryKey.Select(_ => _ as TableConstraint)
-                .Or(TableUniqueKey.Select(_ => _ as TableConstraint))
-                .Or(TableCheckConstraint.Select(_ => _ as TableConstraint))
-                .Or(TableForeignKey.Select(_ => _ as TableConstraint));
+            TablePrimaryKey.Select(static _ => _ as TableConstraint)
+                .Or(TableUniqueKey.Select(static _ => _ as TableConstraint))
+                .Or(TableCheckConstraint.Select(static _ => _ as TableConstraint))
+                .Or(TableForeignKey.Select(static _ => _ as TableConstraint));
 
         private static TokenListParser<SqliteToken, TableConstraint> TableConstraintDefinition =>
             TableConstraintParser
                 .Or(
                     ConstraintName
-                        .Then(name => TableConstraintParser.Select(cons => cons.WithName(name)))
+                        .Then(static name => TableConstraintParser.Select(cons => cons.WithName(name)))
                 );
 
         public static TokenListParser<SqliteToken, Token<SqliteToken>> CreateTablePrefix =>
@@ -80,61 +80,61 @@ namespace SJP.Schematic.Sqlite.Parsing
                 );
 
         public static TokenListParser<SqliteToken, IEnumerable<Token<SqliteToken>>> IfNotExistsClause =>
-            Token.Sequence(SqliteToken.If, SqliteToken.Not, SqliteToken.Exists).Select(_ => _.AsEnumerable());
+            Token.Sequence(SqliteToken.If, SqliteToken.Not, SqliteToken.Exists).Select(static _ => _.AsEnumerable());
 
         public static TokenListParser<SqliteToken, SqlIdentifier> QualifiedName =>
-            Token.Sequence(SqliteToken.Identifier, SqliteToken.Period, SqliteToken.Identifier).Select(tokens => new SqlIdentifier(tokens[0], tokens[2])).Try()
-                .Or(Token.EqualTo(SqliteToken.Identifier).Select(name => new SqlIdentifier(name)));
+            Token.Sequence(SqliteToken.Identifier, SqliteToken.Period, SqliteToken.Identifier).Select(static tokens => new SqlIdentifier(tokens[0], tokens[2])).Try()
+                .Or(Token.EqualTo(SqliteToken.Identifier).Select(static name => new SqlIdentifier(name)));
 
         private static TokenListParser<SqliteToken, Token<SqliteToken>> ExpressionContent =>
             new[] { SqliteToken.LParen, SqliteToken.RParen }.NotEqualTo();
 
         private static TokenListParser<SqliteToken, SqlExpression> Expression =>
             Token.EqualTo(SqliteToken.LParen)
-                .Then(lparen =>
-                    Expression.Select(expr => expr.Tokens)
-                        .Or(ExpressionContent.Select(token => token.ToEnumerable()))
-                        .Many().Select(content => lparen.ToEnumerable().Concat(content.SelectMany(_ => _))))
-                .Then(prev =>
+                .Then(static lparen =>
+                    Expression.Select(static expr => expr.Tokens)
+                        .Or(ExpressionContent.Select(static token => token.ToEnumerable()))
+                        .Many().Select(content => lparen.ToEnumerable().Concat(content.SelectMany(static _ => _))))
+                .Then(static prev =>
                     Token.EqualTo(SqliteToken.RParen)
                         .Select(rparen => new SqlExpression(prev.Concat(rparen.ToEnumerable()))));
 
         private static TokenListParser<SqliteToken, SqlIdentifier> ConstraintName =>
             Token.EqualTo(SqliteToken.Constraint)
-                .Then(_ => Token.EqualTo(SqliteToken.Identifier).Select(ident => new SqlIdentifier(ident)));
+                .Then(static _ => Token.EqualTo(SqliteToken.Identifier).Select(static ident => new SqlIdentifier(ident)));
 
         private static TokenListParser<SqliteToken, IEnumerable<Token<SqliteToken>>> TypeDefinition =>
             Token.EqualTo(SqliteToken.Identifier)
                 .AtLeastOnce()
-                .Then(idents =>
+                .Then(static idents =>
                     NumericTypeLengthConstraint.Select(c => idents.Concat(c))
                         .Try().Or(TypeLengthConstraint.Select(c => idents.Concat(c)))
                         .Try().Or(Parse.Return<SqliteToken, IEnumerable<Token<SqliteToken>>>(idents)));
 
         private static TokenListParser<SqliteToken, IEnumerable<Token<SqliteToken>>> TypeLengthConstraint =>
             Token.Sequence(SqliteToken.LParen, SqliteToken.Number, SqliteToken.RParen)
-                .Select(_ => _.AsEnumerable());
+                .Select(static _ => _.AsEnumerable());
 
         private static TokenListParser<SqliteToken, IEnumerable<Token<SqliteToken>>> NumericTypeLengthConstraint =>
             Token.Sequence(SqliteToken.LParen, SqliteToken.Number, SqliteToken.Comma, SqliteToken.Number, SqliteToken.RParen)
-                .Select(_ => _.AsEnumerable());
+                .Select(static _ => _.AsEnumerable());
 
         private static TokenListParser<SqliteToken, IndexColumnOrder> ColumnOrdering =>
-            Token.EqualTo(SqliteToken.Ascending).Select(_ => IndexColumnOrder.Ascending)
-                .Or(Token.EqualTo(SqliteToken.Descending).Select(_ => IndexColumnOrder.Descending));
+            Token.EqualTo(SqliteToken.Ascending).Select(static _ => IndexColumnOrder.Ascending)
+                .Or(Token.EqualTo(SqliteToken.Descending).Select(static _ => IndexColumnOrder.Descending));
 
         private static TokenListParser<SqliteToken, ColumnConstraint.Collation> Collate =>
             Token.EqualTo(SqliteToken.Collate)
                 .IgnoreThen(
                     Token.EqualTo(SqliteToken.Identifier)
                         .Or(Token.EqualTo(SqliteToken.None))
-                        .Select(c => new ColumnConstraint.Collation(c)));
+                        .Select(static c => new ColumnConstraint.Collation(c)));
 
         private static TokenListParser<SqliteToken, ColumnConstraint.Nullable> Nullable =>
             Token.Sequence(SqliteToken.Not, SqliteToken.Null)
-                .Then(prev =>
+                .Then(static prev =>
                     ConflictClause.Try().Or(Parse.Return<SqliteToken, Token<SqliteToken>>(prev[^1]))
-                        .Select(_ => new ColumnConstraint.Nullable(false))
+                        .Select(static _ => new ColumnConstraint.Nullable(false))
                 )
                 .Try().Or(Token.EqualTo(SqliteToken.Null).Select(_ => new ColumnConstraint.Nullable(true)));
 
@@ -150,84 +150,84 @@ namespace SJP.Schematic.Sqlite.Parsing
                 );
 
         private static TokenListParser<SqliteToken, IEnumerable<Token<SqliteToken>>> SignedNumber =>
-            Token.EqualTo(SqliteToken.Number).Select(num => num.ToEnumerable())
-                .Or(Token.EqualTo(SqliteToken.HexNumber).Select(num => num.ToEnumerable()))
+            Token.EqualTo(SqliteToken.Number).Select(static num => num.ToEnumerable())
+                .Or(Token.EqualTo(SqliteToken.HexNumber).Select(static num => num.ToEnumerable()))
                 .Or(
                     Token.EqualTo(SqliteToken.Plus).Or(Token.EqualTo(SqliteToken.Minus))
-                        .Then(prev =>
+                        .Then(static prev =>
                             Token.EqualTo(SqliteToken.Number).Or(Token.EqualTo(SqliteToken.HexNumber))
                                 .Select(num => new[] { prev, num }.AsEnumerable()))
                 );
 
         private static TokenListParser<SqliteToken, IEnumerable<Token<SqliteToken>>> SqlLiteral =>
             SignedNumber
-                .Or(Token.EqualTo(SqliteToken.String).Select(_ => _.ToEnumerable()))
-                .Or(Token.EqualTo(SqliteToken.Blob).Select(_ => _.ToEnumerable()))
-                .Or(Token.EqualTo(SqliteToken.Null).Select(_ => _.ToEnumerable()))
-                .Or(Token.EqualTo(SqliteToken.CurrentDate).Select(_ => _.ToEnumerable()))
-                .Or(Token.EqualTo(SqliteToken.CurrentTime).Select(_ => _.ToEnumerable()))
-                .Or(Token.EqualTo(SqliteToken.CurrentTimestamp).Select(_ => _.ToEnumerable()));
+                .Or(Token.EqualTo(SqliteToken.String).Select(static _ => _.ToEnumerable()))
+                .Or(Token.EqualTo(SqliteToken.Blob).Select(static _ => _.ToEnumerable()))
+                .Or(Token.EqualTo(SqliteToken.Null).Select(static _ => _.ToEnumerable()))
+                .Or(Token.EqualTo(SqliteToken.CurrentDate).Select(static _ => _.ToEnumerable()))
+                .Or(Token.EqualTo(SqliteToken.CurrentTime).Select(static _ => _.ToEnumerable()))
+                .Or(Token.EqualTo(SqliteToken.CurrentTimestamp).Select(static _ => _.ToEnumerable()));
 
         private static TokenListParser<SqliteToken, ColumnConstraint.Check> ColumnCheckConstraint =>
             Token.EqualTo(SqliteToken.Check)
-                .Then(_ => Expression.Select(expr => new ColumnConstraint.Check(expr)));
+                .Then(static _ => Expression.Select(static expr => new ColumnConstraint.Check(expr)));
 
         private static TokenListParser<SqliteToken, ColumnConstraint.GeneratedAlways> GeneratedAlwaysConstraint =>
             GeneratedAlwaysConstraintNamed.Or(GeneratedAlwaysConstraintAs);
 
         private static TokenListParser<SqliteToken, ColumnConstraint.GeneratedAlways> GeneratedAlwaysConstraintNamed =>
             Token.EqualTo(SqliteToken.Generated)
-                .Then(_ => Token.EqualTo(SqliteToken.Always))
-                .Then(_ => Token.EqualTo(SqliteToken.As))
-                .Then(_ => Expression.Select(expr => new ColumnConstraint.GeneratedAlways(expr)))
-                .Then(prev => Token.EqualTo(SqliteToken.Stored)
+                .Then(static _ => Token.EqualTo(SqliteToken.Always))
+                .Then(static _ => Token.EqualTo(SqliteToken.As))
+                .Then(static _ => Expression.Select(static expr => new ColumnConstraint.GeneratedAlways(expr)))
+                .Then(static prev => Token.EqualTo(SqliteToken.Stored)
                     .Select(_ => new ColumnConstraint.GeneratedAlways(new SqlExpression(prev.Definition), SqliteGeneratedColumnType.Stored)).Try()
                     .Or(Parse.Return<SqliteToken, ColumnConstraint.GeneratedAlways>(prev))
                 );
 
         private static TokenListParser<SqliteToken, ColumnConstraint.GeneratedAlways> GeneratedAlwaysConstraintAs =>
             Token.EqualTo(SqliteToken.As)
-                .Then(_ => Expression.Select(expr => new ColumnConstraint.GeneratedAlways(expr)))
-                .Then(prev => Token.EqualTo(SqliteToken.Stored)
+                .Then(static _ => Expression.Select(static expr => new ColumnConstraint.GeneratedAlways(expr)))
+                .Then(static prev => Token.EqualTo(SqliteToken.Stored)
                     .Select(_ => new ColumnConstraint.GeneratedAlways(new SqlExpression(prev.Definition), SqliteGeneratedColumnType.Stored)).Try()
                     .Or(Parse.Return<SqliteToken, ColumnConstraint.GeneratedAlways>(prev))
                 );
 
         private static TokenListParser<SqliteToken, ColumnConstraint.PrimaryKey> ColumnPrimaryKey =>
             Token.Sequence(SqliteToken.Primary, SqliteToken.Key)
-                .IgnoreThen(ColumnOrdering.Select(ordering => new ColumnConstraint.PrimaryKey(ordering)).Try().Or(Parse.Return<SqliteToken, ColumnConstraint.PrimaryKey>(new ColumnConstraint.PrimaryKey())))
-                .Then(prev => ConflictClause.Select(_ => prev).Try().Or(Parse.Return<SqliteToken, ColumnConstraint.PrimaryKey>(prev)))
-                .Then(prev =>
+                .IgnoreThen(ColumnOrdering.Select(static ordering => new ColumnConstraint.PrimaryKey(ordering)).Try().Or(Parse.Return<SqliteToken, ColumnConstraint.PrimaryKey>(new ColumnConstraint.PrimaryKey())))
+                .Then(static prev => ConflictClause.Select(_ => prev).Try().Or(Parse.Return<SqliteToken, ColumnConstraint.PrimaryKey>(prev)))
+                .Then(static prev =>
                     Token.EqualTo(SqliteToken.AutoIncrement)
                         .Select(_ => new ColumnConstraint.PrimaryKey(prev.ColumnOrder, true)).Try()
                         .Or(Parse.Return<SqliteToken, ColumnConstraint.PrimaryKey>(prev))
                 );
 
         private static TokenListParser<SqliteToken, ColumnConstraint.UniqueKey> ColumnUniqueKey =>
-            Token.EqualTo(SqliteToken.Unique).Select(_ => new ColumnConstraint.UniqueKey())
-                .Then(prev =>
+            Token.EqualTo(SqliteToken.Unique).Select(static _ => new ColumnConstraint.UniqueKey())
+                .Then(static prev =>
                     ConflictClause.Select(_ => prev).Try()
                         .Or(Parse.Return<SqliteToken, ColumnConstraint.UniqueKey>(prev))
                 );
 
         private static TokenListParser<SqliteToken, ColumnConstraint.DefaultConstraint> ColumnDefaultValue =>
             Token.EqualTo(SqliteToken.Default)
-                .Then(_ =>
-                    SqlLiteral.Select(literal => new ColumnConstraint.DefaultConstraint(literal.ToList()))
-                        .Or(Expression.Select(expr => new ColumnConstraint.DefaultConstraint(expr.Tokens.ToList())))
+                .Then(static _ =>
+                    SqlLiteral.Select(static literal => new ColumnConstraint.DefaultConstraint(literal.ToList()))
+                        .Or(Expression.Select(static expr => new ColumnConstraint.DefaultConstraint(expr.Tokens.ToList())))
                 );
 
         private static TokenListParser<SqliteToken, IEnumerable<Token<SqliteToken>>> ForeignKeyMatch =>
             Token.EqualTo(SqliteToken.Match)
-                .Then(prev => Token.EqualTo(SqliteToken.Identifier).Select(_ => new[] { prev, _ }.AsEnumerable()));
+                .Then(static prev => Token.EqualTo(SqliteToken.Identifier).Select(_ => new[] { prev, _ }.AsEnumerable()));
 
         private static TokenListParser<SqliteToken, IEnumerable<Token<SqliteToken>>> ForeignKeyRules =>
             Token.EqualTo(SqliteToken.On)
-                .Then(prev =>
+                .Then(static prev =>
                     Token.EqualTo(SqliteToken.Update)
                         .Or(Token.EqualTo(SqliteToken.Delete))
                         .Select(_ => new[] { prev, _ }))
-                .Then(prev =>
+                .Then(static prev =>
                     Token.Sequence(SqliteToken.Set, SqliteToken.Null).Select(_ => prev.Concat(_))
                         .Try().Or(Token.Sequence(SqliteToken.Set, SqliteToken.Default).Select(_ => prev.Concat(_)))
                         .Try().Or(Token.EqualTo(SqliteToken.Cascade).Select(_ => prev.Concat(_.ToEnumerable())))
@@ -236,9 +236,9 @@ namespace SJP.Schematic.Sqlite.Parsing
                 );
 
         private static TokenListParser<SqliteToken, IEnumerable<Token<SqliteToken>>> ForeignKeyDeferrable =>
-            Token.EqualTo(SqliteToken.Not).Then(not => Token.EqualTo(SqliteToken.Deferrable).Select(def => new[] { not, def }.AsEnumerable()))
-                .Or(Token.EqualTo(SqliteToken.Deferrable).Select(_ => _.ToEnumerable()))
-                .Then(prev =>
+            Token.EqualTo(SqliteToken.Not).Then(static not => Token.EqualTo(SqliteToken.Deferrable).Select(def => new[] { not, def }.AsEnumerable()))
+                .Or(Token.EqualTo(SqliteToken.Deferrable).Select(static _ => _.ToEnumerable()))
+                .Then(static prev =>
                     Token.Sequence(SqliteToken.Initially, SqliteToken.Deferred).Select(_ => prev.Concat(_))
                         .Or(Token.Sequence(SqliteToken.Initially, SqliteToken.Immediate).Select(_ => prev.Concat(_)))
                         .Or(Parse.Return<SqliteToken, IEnumerable<Token<SqliteToken>>>(prev))
@@ -247,52 +247,52 @@ namespace SJP.Schematic.Sqlite.Parsing
         private static TokenListParser<SqliteToken, ColumnConstraint.ForeignKey> ForeignKeyClause =>
             Token.EqualTo(SqliteToken.References)
                 .IgnoreThen(QualifiedName)
-                .Then(name => Token.EqualTo(SqliteToken.LParen).Select(_ => name))
-                .Then(name =>
+                .Then(static name => Token.EqualTo(SqliteToken.LParen).Select(_ => name))
+                .Then(static name =>
                     Token.EqualTo(SqliteToken.Identifier)
                         .ManyDelimitedBy(Token.EqualTo(SqliteToken.Comma))
-                        .Select(columns => new { TableName = name, ColumnNames = columns.Select(c => new SqlIdentifier(c)) }))
-                .Then(prev => Token.EqualTo(SqliteToken.RParen).Select(_ => new ColumnConstraint.ForeignKey(prev.TableName, prev.ColumnNames.ToList())))
-                .Then(prev =>
+                        .Select(columns => new { TableName = name, ColumnNames = columns.Select(static c => new SqlIdentifier(c)) }))
+                .Then(static prev => Token.EqualTo(SqliteToken.RParen).Select(_ => new ColumnConstraint.ForeignKey(prev.TableName, prev.ColumnNames.ToList())))
+                .Then(static prev =>
                     ForeignKeyMatch.Or(ForeignKeyRules)
                         .Many().Select(_ => prev)
                         .Or(Parse.Return<SqliteToken, ColumnConstraint.ForeignKey>(prev))
                 )
-                .Then(prev =>
+                .Then(static prev =>
                     ForeignKeyDeferrable.Select(_ => prev)
                         .Or(Parse.Return<SqliteToken, ColumnConstraint.ForeignKey>(prev)));
 
         private static TokenListParser<SqliteToken, ColumnConstraint> ColumnConstraintParser =>
-            ColumnPrimaryKey.Select(_ => _ as ColumnConstraint)
-                .Or(Nullable.Select(_ => _ as ColumnConstraint))
-                .Or(ColumnUniqueKey.Select(_ => _ as ColumnConstraint))
-                .Or(ColumnCheckConstraint.Select(_ => _ as ColumnConstraint))
-                .Or(ColumnDefaultValue.Select(_ => _ as ColumnConstraint))
-                .Or(Collate.Select(_ => _ as ColumnConstraint))
-                .Or(ForeignKeyClause.Select(_ => _ as ColumnConstraint))
-                .Or(GeneratedAlwaysConstraint.Select(_ => _ as ColumnConstraint));
+            ColumnPrimaryKey.Select(static _ => _ as ColumnConstraint)
+                .Or(Nullable.Select(static _ => _ as ColumnConstraint))
+                .Or(ColumnUniqueKey.Select(static _ => _ as ColumnConstraint))
+                .Or(ColumnCheckConstraint.Select(static _ => _ as ColumnConstraint))
+                .Or(ColumnDefaultValue.Select(static _ => _ as ColumnConstraint))
+                .Or(Collate.Select(static _ => _ as ColumnConstraint))
+                .Or(ForeignKeyClause.Select(static _ => _ as ColumnConstraint))
+                .Or(GeneratedAlwaysConstraint.Select(static _ => _ as ColumnConstraint));
 
         private static TokenListParser<SqliteToken, ColumnConstraint> ColumnConstraintDefinition =>
-            ConstraintName.Then(name => ColumnConstraintParser.Select(cons => cons.WithName(name)))
+            ConstraintName.Then(static name => ColumnConstraintParser.Select(cons => cons.WithName(name)))
                 .Try().Or(ColumnConstraintParser);
 
         private static TokenListParser<SqliteToken, ColumnDefinition> ColumnDefinitionParser =>
-            Token.EqualTo(SqliteToken.Identifier).Select(ident => new SqlIdentifier(ident))
-                .Then(ident =>
+            Token.EqualTo(SqliteToken.Identifier).Select(static ident => new SqlIdentifier(ident))
+                .Then(static ident =>
                     TypeDefinition.Select(typeDef => new ColumnDefinition(ident, typeDef))
                         .Or(Parse.Return<SqliteToken, ColumnDefinition>(new ColumnDefinition(ident))))
-                .Then(prev =>
+                .Then(static prev =>
                     ColumnConstraintDefinition.Many()
                         .Select(consDefs => new ColumnDefinition(prev.Name, prev.TypeDefinition, consDefs)));
 
         private static TokenListParser<SqliteToken, TableMember> TableMemberParser =>
-            ColumnDefinitionParser.Select(column => new TableMember(column))
-                .Or(TableConstraintDefinition.Select(table => new TableMember(table)));
+            ColumnDefinitionParser.Select(static column => new TableMember(column))
+                .Or(TableConstraintDefinition.Select(static table => new TableMember(table)));
 
         public static TokenListParser<SqliteToken, IEnumerable<TableMember>> TableMembers =>
             TableMemberParser
                 .ManyDelimitedBy(Token.EqualTo(SqliteToken.Comma))
-                .Select(_ => _.AsEnumerable());
+                .Select(static _ => _.AsEnumerable());
 
         // triggers
         private static TokenListParser<SqliteToken, Token<SqliteToken>> CreateTriggerPrefix =>
@@ -303,21 +303,21 @@ namespace SJP.Schematic.Sqlite.Parsing
                 );
 
         private static TokenListParser<SqliteToken, TriggerQueryTiming> TriggerTiming =>
-            Token.EqualTo(SqliteToken.Before).Select(_ => TriggerQueryTiming.Before)
-                .Or(Token.EqualTo(SqliteToken.After).Select(_ => TriggerQueryTiming.After))
-                .Or(Token.Sequence(SqliteToken.Instead, SqliteToken.Of).Select(_ => TriggerQueryTiming.InsteadOf))
+            Token.EqualTo(SqliteToken.Before).Select(static _ => TriggerQueryTiming.Before)
+                .Or(Token.EqualTo(SqliteToken.After).Select(static _ => TriggerQueryTiming.After))
+                .Or(Token.Sequence(SqliteToken.Instead, SqliteToken.Of).Select(static _ => TriggerQueryTiming.InsteadOf))
                 .Or(Parse.Return<SqliteToken, TriggerQueryTiming>(TriggerQueryTiming.After));
 
         private static TokenListParser<SqliteToken, TriggerEvent> DeclaredTriggerEvent =>
-            Token.EqualTo(SqliteToken.Delete).Select(_ => TriggerEvent.Delete)
-                .Or(Token.EqualTo(SqliteToken.Insert).Select(_ => TriggerEvent.Insert))
-                .Or(Token.EqualTo(SqliteToken.Update).Select(_ => TriggerEvent.Update));
+            Token.EqualTo(SqliteToken.Delete).Select(static _ => TriggerEvent.Delete)
+                .Or(Token.EqualTo(SqliteToken.Insert).Select(static _ => TriggerEvent.Insert))
+                .Or(Token.EqualTo(SqliteToken.Update).Select(static _ => TriggerEvent.Update));
 
         public static TokenListParser<SqliteToken, (TriggerQueryTiming timing, TriggerEvent evt)> TriggerDefinition =>
             CreateTriggerPrefix
-                .Then(prev => IfNotExistsClause.Try().Or(Parse.Return<SqliteToken, IEnumerable<Token<SqliteToken>>>(prev.ToEnumerable())))
+                .Then(static prev => IfNotExistsClause.Try().Or(Parse.Return<SqliteToken, IEnumerable<Token<SqliteToken>>>(prev.ToEnumerable())))
                 .IgnoreThen(QualifiedName)
                 .IgnoreThen(TriggerTiming)
-                .Then(timing => DeclaredTriggerEvent.Select(evt => (timing, evt)));
+                .Then(static timing => DeclaredTriggerEvent.Select(evt => (timing, evt)));
     }
 }

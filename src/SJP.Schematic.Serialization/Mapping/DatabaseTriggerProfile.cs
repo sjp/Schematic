@@ -8,16 +8,16 @@ namespace SJP.Schematic.Serialization.Mapping
         public DatabaseTriggerProfile()
         {
             CreateMap<Dto.DatabaseTrigger, DatabaseTrigger>()
-                .ConstructUsing((dto, ctx) => new DatabaseTrigger(
+                .ConstructUsing(static (dto, ctx) => new DatabaseTrigger(
                     ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.TriggerName!),
                     dto.Definition!,
                     dto.QueryTiming,
                     dto.TriggerEvent,
                     dto.IsEnabled
                 ))
-                .ForAllMembers(cfg => cfg.Ignore());
+                .ForAllMembers(static cfg => cfg.Ignore());
             CreateMap<IDatabaseTrigger, Dto.DatabaseTrigger>()
-                .ForMember(dest => dest.TriggerName, src => src.MapFrom(tr => tr.Name));
+                .ForMember(static dest => dest.TriggerName, static src => src.MapFrom(static tr => tr.Name));
         }
     }
 }

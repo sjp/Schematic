@@ -9,25 +9,25 @@ namespace SJP.Schematic.Serialization.Mapping
         public AutoIncrementProfile()
         {
             CreateMap<Dto.AutoIncrement?, Option<IAutoIncrement>>()
-                .ConstructUsing(dto =>
+                .ConstructUsing(static dto =>
                     dto == null
                         ? Option<IAutoIncrement>.None
                         : Option<IAutoIncrement>.Some(new AutoIncrement(dto.InitialValue, dto.Increment))
                 )
-                .ForAllMembers(cfg => cfg.Ignore());
+                .ForAllMembers(static cfg => cfg.Ignore());
 
             CreateMap<Option<IAutoIncrement>, Dto.AutoIncrement?>()
-                .ConstructUsing(ai =>
+                .ConstructUsing(static ai =>
                     ai.MatchUnsafe(
-                        incr => new Dto.AutoIncrement
+                        static incr => new Dto.AutoIncrement
                         {
                             Increment = incr.Increment,
                             InitialValue = incr.InitialValue
                         },
-                        () => (Dto.AutoIncrement?)null
+                        static () => (Dto.AutoIncrement?)null
                     )
                 )
-                .ForAllMembers(cfg => cfg.Ignore());
+                .ForAllMembers(static cfg => cfg.Ignore());
         }
     }
 }

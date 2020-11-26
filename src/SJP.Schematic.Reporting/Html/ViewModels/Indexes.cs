@@ -57,7 +57,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
                 ColumnsText = columnNames.Zip(
                     columnSorts.Select(SortToString),
-                    (c, s) => c + " " + s
+                    static (c, s) => c + " " + s
                 ).Join(", ");
                 IncludedColumnsText = includedColumnNames.Join(", ");
             }

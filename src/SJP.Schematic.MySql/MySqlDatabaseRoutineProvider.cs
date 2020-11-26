@@ -61,7 +61,7 @@ namespace SJP.Schematic.MySql
             ).ConfigureAwait(false);
 
             var routines = queryResult
-                .Where(row => !row.Definition.IsNullOrWhiteSpace())
+                .Where(static row => !row.Definition.IsNullOrWhiteSpace())
                 .Select(row =>
                 {
                     var routineName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.ObjectName));

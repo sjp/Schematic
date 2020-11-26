@@ -8,7 +8,7 @@ namespace SJP.Schematic.Sqlite.Parsing
     {
         public static TextParser<string> HexInteger { get; } =
             Span.EqualTo("0x")
-                .IgnoreThen(Numerics.HexDigits.Select(_ => _.ToStringValue()));
+                .IgnoreThen(Numerics.HexDigits.Select(static _ => _.ToStringValue()));
 
         public static TextParser<char> SqlStringContentChar { get; } =
             Span.EqualTo("''").Value('\'').Try().Or(Character.ExceptIn('\''));
@@ -16,14 +16,14 @@ namespace SJP.Schematic.Sqlite.Parsing
         public static TextParser<string> SqlString { get; } =
             Character.EqualTo('\'')
                 .IgnoreThen(SqlStringContentChar.Many())
-                .Then(s => Character.EqualTo('\'').Value(new string(s)));
+                .Then(static s => Character.EqualTo('\'').Value(new string(s)));
 
         public static TextParser<string> SqlBlob =>
             Span.EqualToIgnoreCase("x")
-                .Then(x => SqlString.Select(str => x.ToStringValue() + str));
+                .Then(static x => SqlString.Select(str => x.ToStringValue() + str));
 
         public static TextParser<string> SqlComment { get; } =
-            Comment.SqlStyle.Or(Comment.CStyle).Select(_ => _.ToStringValue());
+            Comment.SqlStyle.Or(Comment.CStyle).Select(static _ => _.ToStringValue());
 
         public static TextParser<char> RegularExpressionContentChar { get; } =
             Span.EqualTo(@"\/").Value('/').Try().Or(Character.Except('/'));

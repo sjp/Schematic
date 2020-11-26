@@ -79,7 +79,7 @@ namespace SJP.Schematic.Reporting
         private static string RemoveDiacritics(string input)
         {
             var temp = new string(input.Normalize(NormalizationForm.FormD)
-                .Where(c => c.GetUnicodeCategory() != UnicodeCategory.NonSpacingMark)
+                .Where(static c => c.GetUnicodeCategory() != UnicodeCategory.NonSpacingMark)
                 .ToArray());
 
             return temp.Normalize(NormalizationForm.FormC);

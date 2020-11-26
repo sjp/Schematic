@@ -148,7 +148,7 @@ namespace SJP.Schematic.SqlServer
 
             builder.Append('(');
 
-            var npWithPrecisionOrScale = typeMetadata.NumericPrecision.Filter(np => np.Precision > 0 || np.Scale > 0);
+            var npWithPrecisionOrScale = typeMetadata.NumericPrecision.Filter(static np => np.Precision > 0 || np.Scale > 0);
             if (npWithPrecisionOrScale.IsSome)
             {
                 npWithPrecisionOrScale.IfSome(precision =>

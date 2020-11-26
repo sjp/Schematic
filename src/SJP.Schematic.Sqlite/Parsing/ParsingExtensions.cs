@@ -31,7 +31,7 @@ namespace SJP.Schematic.Sqlite.Parsing
             var expectations = new[]
             {
                 kinds.Select(k => k?.ToString() ?? string.Empty)
-                    .Where(k => k.Length > 0)
+                    .Where(static k => k.Length > 0)
                     .Join(", ")
             };
 

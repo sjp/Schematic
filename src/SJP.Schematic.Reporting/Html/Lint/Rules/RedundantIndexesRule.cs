@@ -33,9 +33,9 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
 
             var columnNames = redundantIndexColumnNames
-                .Select(columnName => "<code>" + HttpUtility.HtmlEncode(columnName) + "</code>");
+                .Select(static columnName => "<code>" + HttpUtility.HtmlEncode(columnName) + "</code>");
             var otherColumnNames = otherIndexColumnNames
-                .Select(columnName => "<code>" + HttpUtility.HtmlEncode(columnName) + "</code>");
+                .Select(static columnName => "<code>" + HttpUtility.HtmlEncode(columnName) + "</code>");
 
             var builder = StringBuilderCache.Acquire();
             builder.Append("The table ")

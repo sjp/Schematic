@@ -35,9 +35,9 @@ namespace SJP.Schematic.Sqlite.Parsing
         /// <exception cref="ArgumentException">Thrown when <paramref name="columnNames"/> and <paramref name="parentColumnNames"/> have a different number of elements.</exception>
         public ForeignKey(Option<string> constraintName, IReadOnlyCollection<string> columnNames, Identifier parentTable, IReadOnlyCollection<string> parentColumnNames)
         {
-            if (columnNames == null || columnNames.Empty() || columnNames.Any(c => c.IsNullOrWhiteSpace()))
+            if (columnNames == null || columnNames.Empty() || columnNames.Any(static c => c.IsNullOrWhiteSpace()))
                 throw new ArgumentNullException(nameof(columnNames));
-            if (parentColumnNames == null || parentColumnNames.Empty() || parentColumnNames.Any(c => c.IsNullOrWhiteSpace()))
+            if (parentColumnNames == null || parentColumnNames.Empty() || parentColumnNames.Any(static c => c.IsNullOrWhiteSpace()))
                 throw new ArgumentNullException(nameof(parentColumnNames));
             if (columnNames.Count != parentColumnNames.Count)
                 throw new ArgumentException($"The number of source columns ({ columnNames.Count }) does not match the number of target columns ({ parentColumnNames.Count }).", nameof(parentColumnNames));

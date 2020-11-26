@@ -60,7 +60,7 @@ namespace SJP.Schematic.PostgreSql.Comments
             var allCommentsData = await Connection.QueryAsync<ViewCommentsData>(AllViewCommentsQuery, cancellationToken).ConfigureAwait(false);
 
             var comments = allCommentsData
-                .GroupBy(row => new { row.SchemaName, row.ViewName })
+                .GroupBy(static row => new { row.SchemaName, row.ViewName })
                 .Select(g =>
                 {
                     var qualifiedName = QualifyViewName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.ViewName));
@@ -260,7 +260,7 @@ where n.nspname = @SchemaName and c.relname = @ViewName
 
             return commentsData
                 .Where(c => string.Equals(c.ObjectType, objectType, StringComparison.Ordinal))
-                .Select(c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
+                .Select(static c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
                 .FirstOrDefault();
         }
 
@@ -273,7 +273,7 @@ where n.nspname = @SchemaName and c.relname = @ViewName
 
             return commentsData
                 .Where(c => string.Equals(c.ObjectType, objectType, StringComparison.Ordinal))
-                .Select(c => new KeyValuePair<Identifier, Option<string>>(
+                .Select(static c => new KeyValuePair<Identifier, Option<string>>(
                     Identifier.CreateQualifiedIdentifier(c.ObjectName),
                     !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None
                 ))

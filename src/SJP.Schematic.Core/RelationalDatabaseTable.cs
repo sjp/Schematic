@@ -59,7 +59,7 @@ namespace SJP.Schematic.Core
             if (triggers == null || triggers.AnyNull())
                 throw new ArgumentNullException(nameof(triggers));
 
-            primaryKey.IfSome(pk =>
+            primaryKey.IfSome(static pk =>
             {
 #pragma warning disable S3928 // Parameter names used into ArgumentException constructors should match an existing one
                 if (pk.KeyType != DatabaseKeyType.Primary)
@@ -67,7 +67,7 @@ namespace SJP.Schematic.Core
 #pragma warning restore S3928 // Parameter names used into ArgumentException constructors should match an existing one
             });
 
-            var anyNonUniqueKey = uniqueKeys.Any(uk => uk.KeyType != DatabaseKeyType.Unique);
+            var anyNonUniqueKey = uniqueKeys.Any(static uk => uk.KeyType != DatabaseKeyType.Unique);
             if (anyNonUniqueKey)
                 throw new ArgumentException("A given unique key did not have a key type of '" + nameof(DatabaseKeyType.Unique) + "'", nameof(uniqueKeys));
 

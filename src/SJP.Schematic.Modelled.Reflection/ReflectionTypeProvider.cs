@@ -57,8 +57,8 @@ namespace SJP.Schematic.Modelled.Reflection
 
             return _dbProperties
                 .Where(pi => pi.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(objectType))
-                .Select(pi => UnwrapGenericParameter(pi.PropertyType))
-                .Where(t => !t.IsAbstract)
+                .Select(static pi => UnwrapGenericParameter(pi.PropertyType))
+                .Where(static t => !t.IsAbstract)
                 .ToList();
         }
 

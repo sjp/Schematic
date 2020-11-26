@@ -76,10 +76,10 @@ namespace SJP.Schematic.Modelled
             var tablesTasks = Databases.Select(d => d.GetAllTables(cancellationToken).ToListAsync(cancellationToken).AsTask());
             var tableCollections = await Task.WhenAll(tablesTasks).ConfigureAwait(false);
             var tables = tableCollections
-                .SelectMany(t => t)
-                .DistinctBy(t => t.Name)
-                .OrderBy(t => t.Name.Schema)
-                .ThenBy(t => t.Name.LocalName);
+                .SelectMany(static t => t)
+                .DistinctBy(static t => t.Name)
+                .OrderBy(static t => t.Name.Schema)
+                .ThenBy(static t => t.Name.LocalName);
 
             foreach (var table in tables)
                 yield return table;
@@ -135,10 +135,10 @@ namespace SJP.Schematic.Modelled
             var viewsTasks = Databases.Select(d => d.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask());
             var viewCollections = await Task.WhenAll(viewsTasks).ConfigureAwait(false);
             var views = viewCollections
-                .SelectMany(v => v)
-                .DistinctBy(v => v.Name)
-                .OrderBy(v => v.Name.Schema)
-                .ThenBy(v => v.Name.LocalName);
+                .SelectMany(static v => v)
+                .DistinctBy(static v => v.Name)
+                .OrderBy(static v => v.Name.Schema)
+                .ThenBy(static v => v.Name.LocalName);
 
             foreach (var view in views)
                 yield return view;
@@ -194,10 +194,10 @@ namespace SJP.Schematic.Modelled
             var sequencesTasks = Databases.Select(d => d.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).AsTask());
             var sequenceCollections = await Task.WhenAll(sequencesTasks).ConfigureAwait(false);
             var sequences = sequenceCollections
-                .SelectMany(s => s)
-                .DistinctBy(v => v.Name)
-                .OrderBy(v => v.Name.Schema)
-                .ThenBy(v => v.Name.LocalName);
+                .SelectMany(static s => s)
+                .DistinctBy(static s => s.Name)
+                .OrderBy(static s => s.Name.Schema)
+                .ThenBy(static s => s.Name.LocalName);
 
             foreach (var sequence in sequences)
                 yield return sequence;
@@ -253,10 +253,10 @@ namespace SJP.Schematic.Modelled
             var synonymsTasks = Databases.Select(d => d.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).AsTask());
             var synonymCollections = await Task.WhenAll(synonymsTasks).ConfigureAwait(false);
             var synonyms = synonymCollections
-                .SelectMany(s => s)
-                .DistinctBy(s => s.Name)
-                .OrderBy(s => s.Name.Schema)
-                .ThenBy(s => s.Name.LocalName);
+                .SelectMany(static s => s)
+                .DistinctBy(static s => s.Name)
+                .OrderBy(static s => s.Name.Schema)
+                .ThenBy(static s => s.Name.LocalName);
 
             foreach (var synonym in synonyms)
                 yield return synonym;
@@ -312,10 +312,10 @@ namespace SJP.Schematic.Modelled
             var routinesTasks = Databases.Select(d => d.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).AsTask());
             var routineCollections = await Task.WhenAll(routinesTasks).ConfigureAwait(false);
             var routines = routineCollections
-                .SelectMany(s => s)
-                .DistinctBy(r => r.Name)
-                .OrderBy(r => r.Name.Schema)
-                .ThenBy(r => r.Name.LocalName);
+                .SelectMany(static s => s)
+                .DistinctBy(static r => r.Name)
+                .OrderBy(static r => r.Name.Schema)
+                .ThenBy(static r => r.Name.LocalName);
 
             foreach (var routine in routines)
                 yield return routine;

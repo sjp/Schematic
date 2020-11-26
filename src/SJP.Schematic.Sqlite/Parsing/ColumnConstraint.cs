@@ -120,7 +120,7 @@ namespace SJP.Schematic.Sqlite.Parsing
                     throw new ArgumentNullException(nameof(parentColumnNames));
 
                 ParentTable = parentTableName.Value;
-                ParentColumnNames = parentColumnNames.Select(c => c.Value.LocalName).ToList();
+                ParentColumnNames = parentColumnNames.Select(static c => c.Value.LocalName).ToList();
             }
 
             public Identifier ParentTable { get; }

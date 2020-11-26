@@ -34,12 +34,12 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             Definition = definition ?? throw new ArgumentNullException(nameof(definition));
 
             var queryFlags = queryTiming.GetFlags()
-                .Select(qt => TimingDescriptions[qt])
-                .OrderBy(qt => qt)
+                .Select(static qt => TimingDescriptions[qt])
+                .OrderBy(static qt => qt)
                 .ToList();
             var eventFlags = triggerEvent.GetFlags()
-                .Select(te => EventDescriptions[te])
-                .OrderBy(te => te)
+                .Select(static te => EventDescriptions[te])
+                .OrderBy(static te => te)
                 .ToList();
 
             QueryTiming = queryFlags.Join(", ");

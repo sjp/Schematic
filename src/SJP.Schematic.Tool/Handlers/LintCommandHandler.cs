@@ -41,7 +41,7 @@ namespace SJP.Schematic.Tool.Handlers
                 .Append(sequenceResults)
                 .Append(synonymResults)
                 .Append(routineResults)
-                .GroupBy(r => r.RuleId, StringComparer.Ordinal)
+                .GroupBy(static r => r.RuleId, StringComparer.Ordinal)
                 .ToList();
 
             var hasDisplayedResults = false;

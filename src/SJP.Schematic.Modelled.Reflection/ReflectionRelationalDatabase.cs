@@ -47,8 +47,8 @@ namespace SJP.Schematic.Modelled.Reflection
         }
 
         public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default) => Table.Values
-            .OrderBy(t => t.Name.Schema)
-            .ThenBy(t => t.Name.LocalName)
+            .OrderBy(static t => t.Name.Schema)
+            .ThenBy(static t => t.Name.LocalName)
             .ToAsyncEnumerable();
 
         protected IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> Table => _tableLookup.Value;
@@ -110,8 +110,8 @@ namespace SJP.Schematic.Modelled.Reflection
         }
 
         public IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default) => View.Values
-            .OrderBy(v => v.Name.Schema)
-            .ThenBy(v => v.Name.LocalName)
+            .OrderBy(static v => v.Name.Schema)
+            .ThenBy(static v => v.Name.LocalName)
             .ToAsyncEnumerable();
 
         protected IReadOnlyDictionary<Identifier, IDatabaseView> View => _viewLookup.Value;
@@ -172,8 +172,8 @@ namespace SJP.Schematic.Modelled.Reflection
         }
 
         public IAsyncEnumerable<IDatabaseSequence> GetAllSequences(CancellationToken cancellationToken = default) => Sequence.Values
-            .OrderBy(s => s.Name.Schema)
-            .ThenBy(s => s.Name.LocalName)
+            .OrderBy(static s => s.Name.Schema)
+            .ThenBy(static s => s.Name.LocalName)
             .ToAsyncEnumerable();
 
         protected IReadOnlyDictionary<Identifier, IDatabaseSequence> Sequence => _sequenceLookup.Value;
@@ -227,8 +227,8 @@ namespace SJP.Schematic.Modelled.Reflection
         }
 
         public IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default) => Synonym.Values
-            .OrderBy(s => s.Name.Schema)
-            .ThenBy(s => s.Name.LocalName)
+            .OrderBy(static s => s.Name.Schema)
+            .ThenBy(static s => s.Name.LocalName)
             .ToAsyncEnumerable();
 
         protected IReadOnlyDictionary<Identifier, IDatabaseSynonym> Synonym => _synonymLookup.Value;
@@ -282,8 +282,8 @@ namespace SJP.Schematic.Modelled.Reflection
         }
 
         public IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines(CancellationToken cancellationToken = default) => Routine.Values
-            .OrderBy(r => r.Name.Schema)
-            .ThenBy(r => r.Name.LocalName)
+            .OrderBy(static r => r.Name.Schema)
+            .ThenBy(static r => r.Name.LocalName)
             .ToAsyncEnumerable();
 
         protected IReadOnlyDictionary<Identifier, IDatabaseRoutine> Routine => _routineLookup.Value;

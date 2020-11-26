@@ -23,8 +23,8 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                     throw new ArgumentNullException(nameof(columns));
 
                 var nullableColumns = columns
-                    .Where(c => c.IsNullable)
-                    .Select(c => c.Property!.Name)
+                    .Where(static c => c.IsNullable)
+                    .Select(static c => c.Property!.Name)
                     .ToList();
 
                 if (nullableColumns.Count > 0)

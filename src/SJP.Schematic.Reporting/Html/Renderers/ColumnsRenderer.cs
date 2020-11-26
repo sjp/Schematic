@@ -46,13 +46,13 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         {
             var mapper = new ColumnsModelMapper();
 
-            var tableColumnViewModels = Tables.SelectMany(mapper.Map).Select(vm => vm as Columns.Column);
-            var viewColumnViewModels = Views.SelectMany(mapper.Map).Select(vm => vm as Columns.Column);
+            var tableColumnViewModels = Tables.SelectMany(mapper.Map).Select(static vm => vm as Columns.Column);
+            var viewColumnViewModels = Views.SelectMany(mapper.Map).Select(static vm => vm as Columns.Column);
 
             var orderedColumns = tableColumnViewModels
                 .Concat(viewColumnViewModels)
-                .OrderBy(c => c.Name)
-                .ThenBy(c => c.Ordinal)
+                .OrderBy(static c => c.Name)
+                .ThenBy(static c => c.Ordinal)
                 .ToList();
 
             var templateParameter = new Columns(orderedColumns);

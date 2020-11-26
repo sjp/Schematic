@@ -65,7 +65,7 @@ namespace SJP.Schematic.DataAccess
                 return true;
 
             return restChars
-                .Select(c => c.GetUnicodeCategory())
+                .Select(static c => c.GetUnicodeCategory())
                 .All(ValidPartCategories.Contains);
         }
 
@@ -86,9 +86,9 @@ namespace SJP.Schematic.DataAccess
                 objectName = firstChar.ToString() + objectName;
 
             var chars = objectName
-                .Select(c => new { NameChar = c, CharCategory = c.GetUnicodeCategory() })
-                .Where(cc => ValidPartCategories.Contains(cc.CharCategory))
-                .Select(cc => cc.NameChar);
+                .Select(static c => new { NameChar = c, CharCategory = c.GetUnicodeCategory() })
+                .Where(static cc => ValidPartCategories.Contains(cc.CharCategory))
+                .Select(static cc => cc.NameChar);
 
             return new string(chars.ToArray());
         }

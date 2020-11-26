@@ -65,8 +65,8 @@ namespace SJP.Schematic.Oracle.Comments
 
             var comments = queryViewComments
                 .Concat(materializedViewComments)
-                .OrderBy(v => v.ViewName.Schema)
-                .ThenBy(v => v.ViewName.LocalName);
+                .OrderBy(static v => v.ViewName.Schema)
+                .ThenBy(static v => v.ViewName.LocalName);
 
             foreach (var comment in comments)
                 yield return comment;

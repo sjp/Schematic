@@ -62,7 +62,7 @@ namespace SJP.Schematic.SqlServer.Comments
             ).ConfigureAwait(false);
 
             var comments = allCommentsData
-                .GroupBy(row => new { row.SchemaName, row.TableName })
+                .GroupBy(static row => new { row.SchemaName, row.TableName })
                 .Select(g =>
                 {
                     var qualifiedName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName));
@@ -201,7 +201,7 @@ where r.schema_id = SCHEMA_ID(@SchemaName) and r.name = @RoutineName and r.is_ms
 
             return commentsData
                 .Where(c => c.ObjectType == objectType)
-                .Select(c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
+                .Select(static c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
                 .FirstOrDefault();
         }
 

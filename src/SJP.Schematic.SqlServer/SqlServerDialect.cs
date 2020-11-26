@@ -140,8 +140,8 @@ select
 
             var query = BuildServerPropertiesQuery<Query.ServerProperties2008>();
             return connection.QueryFirstOrNone<Query.ServerProperties2008>(query, cancellationToken)
-                .Map<IServerProperties2008?>(row => new ServerProperties2008(row))
-                .IfNoneUnsafe(() => null);
+                .Map<IServerProperties2008?>(static row => new ServerProperties2008(row))
+                .IfNoneUnsafe(static () => null);
         }
 
         /// <summary>
@@ -158,8 +158,8 @@ select
 
             var query = BuildServerPropertiesQuery<Query.ServerProperties2012>();
             return connection.QueryFirstOrNone<Query.ServerProperties2012>(query, cancellationToken)
-                .Map<IServerProperties2012?>(row => new ServerProperties2012(row))
-                .IfNoneUnsafe(() => null);
+                .Map<IServerProperties2012?>(static row => new ServerProperties2012(row))
+                .IfNoneUnsafe(static () => null);
         }
 
         /// <summary>
@@ -176,8 +176,8 @@ select
 
             var query = BuildServerPropertiesQuery<Query.ServerProperties2014>();
             return connection.QueryFirstOrNone<Query.ServerProperties2014>(query, cancellationToken)
-                .Map<IServerProperties2014?>(row => new ServerProperties2014(row))
-                .IfNoneUnsafe(() => null);
+                .Map<IServerProperties2014?>(static row => new ServerProperties2014(row))
+                .IfNoneUnsafe(static () => null);
         }
 
         /// <summary>
@@ -194,8 +194,8 @@ select
 
             var query = BuildServerPropertiesQuery<Query.ServerProperties2017>();
             return connection.QueryFirstOrNone<Query.ServerProperties2017>(query, cancellationToken)
-                .Map<IServerProperties2017?>(row => new ServerProperties2017(row))
-                .IfNoneUnsafe(() => null);
+                .Map<IServerProperties2017?>(static row => new ServerProperties2017(row))
+                .IfNoneUnsafe(static () => null);
         }
 
         /// <summary>
@@ -212,14 +212,14 @@ select
 
             var query = BuildServerPropertiesQuery<Query.ServerProperties2019>();
             return connection.QueryFirstOrNone<Query.ServerProperties2019>(query, cancellationToken)
-                .Map<IServerProperties2019?>(row => new ServerProperties2019(row))
-                .IfNoneUnsafe(() => null);
+                .Map<IServerProperties2019?>(static row => new ServerProperties2019(row))
+                .IfNoneUnsafe(static () => null);
         }
 
         private static string BuildServerPropertiesQuery<T>()
         {
             var propNames = typeof(T).GetProperties()
-                .Select(pi => "    SERVERPROPERTY('" + pi.Name + "') AS [" + pi.Name + "]")
+                .Select(static pi => "    SERVERPROPERTY('" + pi.Name + "') AS [" + pi.Name + "]")
                 .Join("," + Environment.NewLine);
 
             return "SELECT " + propNames;

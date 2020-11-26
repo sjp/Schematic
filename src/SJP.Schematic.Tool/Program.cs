@@ -36,7 +36,7 @@ The helpful database schema querying tool.
 
             var configFileOption = new Option<FileInfo>(
                 "--config",
-                getDefaultValue: () => new FileInfo(
+                getDefaultValue: static () => new FileInfo(
                     Path.Combine(Directory.GetCurrentDirectory(),
                     "schematic.config.json"
                 )),

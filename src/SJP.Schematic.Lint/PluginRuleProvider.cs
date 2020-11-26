@@ -36,8 +36,8 @@ namespace SJP.Schematic.Lint
                 .Distinct()
                 .SelectMany(a => LoadRequiredTypes(a, dialectType))
                 .Distinct()
-                .Select(t => Array.Find(t.GetConstructors(), c => c.IsPublic && c.GetParameters().Length == 0))
-                .Where(c => c != null)
+                .Select(static t => Array.Find(t.GetConstructors(), c => c.IsPublic && c.GetParameters().Length == 0))
+                .Where(static c => c != null)
                 .SelectMany(c => GetRules(c!, connection, level))
                 .ToList();
         }
@@ -54,8 +54,8 @@ namespace SJP.Schematic.Lint
         {
             var probingDir = Path.GetDirectoryName(AssemblyPath)! ?? Path.GetPathRoot(AssemblyPath)!;
             return Directory.EnumerateFiles(probingDir, "*.dll", SearchOption.AllDirectories)
-                .Where(a => !string.Equals(a, AssemblyPath, StringComparison.Ordinal) && IsLintPluginAssemblyPath(a))
-                .Select(path =>
+                .Where(static a => !string.Equals(a, AssemblyPath, StringComparison.Ordinal) && IsLintPluginAssemblyPath(a))
+                .Select(static path =>
                 {
                     try
                     {
@@ -69,8 +69,8 @@ namespace SJP.Schematic.Lint
                         return null;
                     }
                 })
-                .Where(a => a != null)
-                .Select(a => a!);
+                .Where(static a => a != null)
+                .Select(static a => a!);
         }
 
         private IEnumerable<Type> LoadRequiredTypes(Assembly assembly, Type dialectType)

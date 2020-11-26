@@ -38,9 +38,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             ColumnsCount = columns.UCount();
             ColumnsTableClass = ColumnsCount > 0 ? CssClasses.DataTableClass : string.Empty;
 
-            PrimaryKey = primaryKey.MatchUnsafe(pk => pk, () => (PrimaryKeyConstraint?)null);
+            PrimaryKey = primaryKey.MatchUnsafe(static pk => pk, static () => (PrimaryKeyConstraint?)null);
             PrimaryKeyExists = primaryKey.IsSome;
-            PrimaryKeyTableClass = primaryKey.Match(_ => CssClasses.DataTableClass, () => string.Empty);
+            PrimaryKeyTableClass = primaryKey.Match(static _ => CssClasses.DataTableClass, static () => string.Empty);
 
             UniqueKeys = uniqueKeys ?? throw new ArgumentNullException(nameof(uniqueKeys));
             UniqueKeysCount = uniqueKeys.UCount();
@@ -144,7 +144,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 TitleNullable = isNullable ? "Nullable" : string.Empty;
                 NullableText = isNullable ? "✓" : "✗";
                 Type = typeDefinition ?? string.Empty;
-                DefaultValue = defaultValue.Match(def => def ?? string.Empty, () => string.Empty);
+                DefaultValue = defaultValue.Match(static def => def ?? string.Empty, static () => string.Empty);
 
                 ColumnClass = BuildColumnClass(isPrimaryKeyColumn, isUniqueKeyColumn, isForeignKeyColumn);
                 ColumnIcon = BuildColumnIcon(isPrimaryKeyColumn, isUniqueKeyColumn, isForeignKeyColumn);
@@ -374,7 +374,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
 
                 ColumnsText = columnNames.Zip(
                     columnSorts.Select(SortToString),
-                    (c, s) => c + " " + s
+                    static (c, s) => c + " " + s
                 ).Join(", ");
                 IncludedColumnsText = includedColumnNames.Join(", ");
             }
@@ -421,12 +421,12 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 TriggerUrl = "../" + UrlRouter.GetTriggerUrl(tableName, triggerName);
 
                 var queryFlags = queryTiming.GetFlags()
-                    .Select(qt => TimingDescriptions[qt])
-                    .OrderBy(qt => qt)
+                    .Select(static qt => TimingDescriptions[qt])
+                    .OrderBy(static qt => qt)
                     .ToList();
                 var eventFlags = triggerEvent.GetFlags()
-                    .Select(te => EventDescriptions[te])
-                    .OrderBy(te => te)
+                    .Select(static te => EventDescriptions[te])
+                    .OrderBy(static te => te)
                     .ToList();
 
                 QueryTiming = queryFlags.Join(", ");

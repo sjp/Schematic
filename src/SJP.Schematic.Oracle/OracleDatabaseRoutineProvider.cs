@@ -64,8 +64,8 @@ namespace SJP.Schematic.Oracle
 
             var routines = simpleRoutines
                 .Concat(packages)
-                .OrderBy(r => r.Name.Schema)
-                .ThenBy(r => r.Name.LocalName);
+                .OrderBy(static r => r.Name.Schema)
+                .ThenBy(static r => r.Name.LocalName);
 
             foreach (var routine in routines)
                 yield return routine;
@@ -84,7 +84,7 @@ namespace SJP.Schematic.Oracle
                 throw new ArgumentNullException(nameof(routineName));
 
             return SimpleRoutineProvider.GetRoutine(routineName, cancellationToken)
-                 | PackageProvider.GetPackage(routineName, cancellationToken).Map<IDatabaseRoutine>(p => p);
+                 | PackageProvider.GetPackage(routineName, cancellationToken).Map<IDatabaseRoutine>(static p => p);
         }
     }
 }

@@ -25,8 +25,8 @@ namespace SJP.Schematic.Sqlite
             var typeName = GetDefaultTypeName(typeMetadata.DataType);
             var affinity = GetAffinity(typeName);
             var collation = typeMetadata.Collation.Match(
-                c => Enum.TryParse(c.LocalName, out SqliteCollation sc) ? sc : SqliteCollation.None,
-                () => SqliteCollation.None
+                static c => Enum.TryParse(c.LocalName, out SqliteCollation sc) ? sc : SqliteCollation.None,
+                static () => SqliteCollation.None
             );
 
             return collation == SqliteCollation.None

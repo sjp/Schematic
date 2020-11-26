@@ -9,19 +9,19 @@ namespace SJP.Schematic.Serialization.Mapping
         public NumericPrecisionProfile()
         {
             CreateMap<Dto.NumericPrecision?, Option<INumericPrecision>>()
-                .ConstructUsing(dto =>
+                .ConstructUsing(static dto =>
                     dto == null
                         ? Option<INumericPrecision>.None
                         : Option<INumericPrecision>.Some(new NumericPrecision(dto.Precision, dto.Scale)))
-                .ForAllMembers(cfg => cfg.Ignore());
+                .ForAllMembers(static cfg => cfg.Ignore());
 
             CreateMap<Option<INumericPrecision>, Dto.NumericPrecision?>()
                 .ConstructUsing(precision =>
                      precision.MatchUnsafe(
-                        p => new Dto.NumericPrecision { Precision = p.Precision, Scale = p.Scale },
-                        () => (Dto.NumericPrecision?)null
+                        static p => new Dto.NumericPrecision { Precision = p.Precision, Scale = p.Scale },
+                        static () => (Dto.NumericPrecision?)null
                     ))
-                .ForAllMembers(cfg => cfg.Ignore());
+                .ForAllMembers(static cfg => cfg.Ignore());
         }
     }
 }

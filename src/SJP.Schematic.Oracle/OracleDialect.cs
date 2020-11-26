@@ -82,13 +82,13 @@ namespace SJP.Schematic.Oracle
         {
             var hostInfoOption = connection.DbConnection.QueryFirstOrNone<DatabaseHost>(IdentifierDefaultsQuerySql, cancellationToken);
             var qualifiedServerName = await hostInfoOption
-                .Bind(dbHost => dbHost.ServerHost != null && dbHost.ServerSid != null
+                .Bind(static dbHost => dbHost.ServerHost != null && dbHost.ServerSid != null
                     ? OptionAsync<DatabaseHost>.Some(dbHost)
                     : OptionAsync<DatabaseHost>.None
                 )
                 .MatchUnsafe(
-                    dbHost => dbHost.ServerHost + "/" + dbHost.ServerSid,
-                    () => (string?)null
+                    static dbHost => dbHost.ServerHost + "/" + dbHost.ServerSid,
+                    static () => (string?)null
                 ).ConfigureAwait(false);
             var dbName = await hostInfoOption.MatchUnsafe(h => h.DatabaseName, () => null).ConfigureAwait(false);
             var defaultSchema = await hostInfoOption.MatchUnsafe(h => h.DefaultSchema, () => null).ConfigureAwait(false);
@@ -118,8 +118,8 @@ from DUAL";
 
             var versionInfoOption = connection.DbConnection.QueryFirstOrNone<DatabaseVersion>(DatabaseVersionQuerySql, cancellationToken);
             return versionInfoOption.MatchUnsafe(
-                vInfo => vInfo.ProductName + vInfo.VersionNumber,
-                () => string.Empty
+                static vInfo => vInfo.ProductName + vInfo.VersionNumber,
+                static () => string.Empty
             );
         }
 
@@ -137,10 +137,10 @@ from DUAL";
 
             var versionInfoOption = connection.DbConnection.QueryFirstOrNone<DatabaseVersion>(DatabaseVersionQuerySql, cancellationToken);
             return versionInfoOption
-                .Bind(dbv => TryParseLongVersionString(dbv.VersionNumber).ToAsync())
+                .Bind(static dbv => TryParseLongVersionString(dbv.VersionNumber).ToAsync())
                 .MatchUnsafeAsync(
                     v => v,
-                    () => Task.FromResult(new Version(0, 0))
+                    static () => Task.FromResult(new Version(0, 0))
                 );
         }
 
@@ -149,7 +149,7 @@ from DUAL";
             if (version.IsNullOrWhiteSpace())
                 return Option<Version>.None;
 
-            var dotCount = version.Count(c => c == '.');
+            var dotCount = version.Count(static c => c == '.');
             if (dotCount < 4)
             {
                 return Version.TryParse(version, out var validVersion)

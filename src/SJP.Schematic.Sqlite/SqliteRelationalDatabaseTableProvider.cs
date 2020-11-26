@@ -90,8 +90,8 @@ namespace SJP.Schematic.Sqlite
         {
             var dbNamesQuery = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
             var dbNames = dbNamesQuery
-                .OrderBy(d => d.seq)
-                .Select(d => d.name)
+                .OrderBy(static d => d.seq)
+                .Select(static d => d.name)
                 .ToList();
 
             var qualifiedTableNames = new List<Identifier>();
@@ -101,15 +101,15 @@ namespace SJP.Schematic.Sqlite
                 var sql = TablesQuery(dbName);
                 var queryResult = await DbConnection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
                 var names = queryResult
-                    .Where(name => !IsReservedTableName(name))
+                    .Where(static name => !IsReservedTableName(name))
                     .Select(name => Identifier.CreateQualifiedIdentifier(dbName, name));
 
                 qualifiedTableNames.AddRange(names);
             }
 
             var tableNames = qualifiedTableNames
-                .OrderBy(name => name.Schema)
-                .ThenBy(name => name.LocalName);
+                .OrderBy(static name => name.Schema)
+                .ThenBy(static name => name.LocalName);
 
             var queryCache = CreateQueryCache();
             foreach (var tableName in tableNames)
@@ -156,7 +156,7 @@ namespace SJP.Schematic.Sqlite
             }
 
             var dbNamesResult = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
-            var dbNames = dbNamesResult.OrderBy(l => l.seq).Select(l => l.name).ToList();
+            var dbNames = dbNamesResult.OrderBy(static l => l.seq).Select(static l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
                 var qualifiedTableName = Identifier.CreateQualifiedIdentifier(dbName, tableName.LocalName);
@@ -203,8 +203,8 @@ namespace SJP.Schematic.Sqlite
                 {
                     var dbList = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
                     var tableSchemaName = dbList
-                        .OrderBy(s => s.seq)
-                        .Select(s => s.name)
+                        .OrderBy(static s => s.seq)
+                        .Select(static s => s.name)
                         .FirstOrDefault(s => string.Equals(s, tableName.Schema, StringComparison.OrdinalIgnoreCase));
                     if (tableSchemaName == null)
                         throw new InvalidOperationException("Unable to find a database matching the given schema name: " + tableName.Schema);
@@ -215,8 +215,8 @@ namespace SJP.Schematic.Sqlite
 
             var dbNamesResult = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
             var dbNames = dbNamesResult
-                .OrderBy(l => l.seq)
-                .Select(l => l.name)
+                .OrderBy(static l => l.seq)
+                .Select(static l => l.name)
                 .ToList();
             foreach (var dbName in dbNames)
             {
@@ -326,7 +326,7 @@ namespace SJP.Schematic.Sqlite
             if (tableName.Schema == null)
             {
                 var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
-                    .MatchUnsafe(name => name, () => (Identifier?)null).ConfigureAwait(false);
+                    .MatchUnsafe(static name => name, static () => (Identifier?)null).ConfigureAwait(false);
                 if (resolvedName == null)
                     return Option<IDatabaseKey>.None;
                 tableName = resolvedName;
@@ -338,8 +338,8 @@ namespace SJP.Schematic.Sqlite
                 return Option<IDatabaseKey>.None;
 
             var pkColumns = tableInfos
-                .Where(ti => ti.pk > 0)
-                .OrderBy(ti => ti.pk)
+                .Where(static ti => ti.pk > 0)
+                .OrderBy(static ti => ti.pk)
                 .ToList();
             if (pkColumns.Empty())
                 return Option<IDatabaseKey>.None;
@@ -383,7 +383,7 @@ namespace SJP.Schematic.Sqlite
             if (tableName.Schema == null)
             {
                 var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
-                    .MatchUnsafe(name => name, () => (Identifier?)null).ConfigureAwait(false);
+                    .MatchUnsafe(static name => name, static () => (Identifier?)null).ConfigureAwait(false);
                 if (resolvedName == null)
                     return Array.Empty<IDatabaseIndex>();
                 tableName = resolvedName;
@@ -394,7 +394,7 @@ namespace SJP.Schematic.Sqlite
             if (indexLists.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
-            var nonConstraintIndexLists = indexLists.Where(i => string.Equals(i.origin, Constants.CreateIndex, StringComparison.Ordinal)).ToList();
+            var nonConstraintIndexLists = indexLists.Where(static i => string.Equals(i.origin, Constants.CreateIndex, StringComparison.Ordinal)).ToList();
             if (nonConstraintIndexLists.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
@@ -410,7 +410,7 @@ namespace SJP.Schematic.Sqlite
                 var indexInfo = await pragma.IndexXInfoAsync(indexList.name, cancellationToken).ConfigureAwait(false);
                 var indexColumns = indexInfo
                     .Where(i => i.key && i.cid >= 0 && i.name != null && columnLookup.ContainsKey(i.name))
-                    .OrderBy(i => i.seqno)
+                    .OrderBy(static i => i.seqno)
                     .Select(i =>
                     {
                         var order = i.desc ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
@@ -422,7 +422,7 @@ namespace SJP.Schematic.Sqlite
 
                 var includedColumns = indexInfo
                     .Where(i => !i.key && i.cid >= 0 && i.name != null && columnLookup.ContainsKey(i.name))
-                    .OrderBy(i => i.name)
+                    .OrderBy(static i => i.name)
                     .Select(i => columnLookup[i.name!])
                     .ToList();
 
@@ -456,7 +456,7 @@ namespace SJP.Schematic.Sqlite
             if (tableName.Schema == null)
             {
                 var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
-                    .MatchUnsafe(name => name, () => (Identifier?)null).ConfigureAwait(false);
+                    .MatchUnsafe(static name => name, static () => (Identifier?)null).ConfigureAwait(false);
                 if (resolvedName == null)
                     return Array.Empty<IDatabaseKey>();
                 tableName = resolvedName;
@@ -468,9 +468,7 @@ namespace SJP.Schematic.Sqlite
                 return Array.Empty<IDatabaseKey>();
 
             var ukIndexLists = indexLists
-                .Where(i => string.Equals(i.origin, Constants.UniqueConstraint
-, StringComparison.Ordinal) && i.unique
-                    && i.name != null)
+                .Where(static i => string.Equals(i.origin, Constants.UniqueConstraint, StringComparison.Ordinal) && i.unique && i.name != null)
                 .ToList();
             if (ukIndexLists.Empty())
                 return Array.Empty<IDatabaseKey>();
@@ -488,10 +486,10 @@ namespace SJP.Schematic.Sqlite
                 var indexXInfos = await pragma.IndexXInfoAsync(ukIndexList.name, cancellationToken).ConfigureAwait(false);
                 var orderedColumns = indexXInfos
                     .Where(i => i.key && i.cid >= 0 && i.name != null)
-                    .OrderBy(i => i.seqno)
+                    .OrderBy(static i => i.seqno)
                     .ToList();
                 var columnNames = orderedColumns
-                    .ConvertAll(i => i.name)
+                    .ConvertAll(static i => i.name)
 ;
                 var keyColumns = orderedColumns
                     .Where(i => columnLookup.ContainsKey(i.name!))
@@ -535,7 +533,7 @@ namespace SJP.Schematic.Sqlite
             if (tableName.Schema == null)
             {
                 var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
-                    .MatchUnsafe(name => name, () => (Identifier?)null).ConfigureAwait(false);
+                    .MatchUnsafe(static name => name, static () => (Identifier?)null).ConfigureAwait(false);
                 if (resolvedName == null)
                     return Array.Empty<IDatabaseRelationalKey>();
                 tableName = resolvedName;
@@ -544,8 +542,8 @@ namespace SJP.Schematic.Sqlite
             var dbList = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
             var dbNames = dbList
                 .Where(d => string.Equals(tableName.Schema, d.name, StringComparison.OrdinalIgnoreCase)) // schema name must match, no cross-schema FKs allowed
-                .OrderBy(d => d.seq)
-                .Select(d => d.name)
+                .OrderBy(static d => d.seq)
+                .Select(static d => d.name)
                 .ToList();
 
             var qualifiedChildTableNames = new List<Identifier>();
@@ -555,7 +553,7 @@ namespace SJP.Schematic.Sqlite
                 var sql = TablesQuery(dbName);
                 var queryResult = await DbConnection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
                 var tableNames = queryResult
-                    .Where(name => !IsReservedTableName(name))
+                    .Where(static name => !IsReservedTableName(name))
                     .Select(name => Identifier.CreateQualifiedIdentifier(dbName, name));
 
                 qualifiedChildTableNames.AddRange(tableNames);
@@ -631,7 +629,7 @@ namespace SJP.Schematic.Sqlite
             if (tableName.Schema == null)
             {
                 var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
-                    .MatchUnsafe(name => name, () => (Identifier?)null).ConfigureAwait(false);
+                    .MatchUnsafe(static name => name, static () => (Identifier?)null).ConfigureAwait(false);
                 if (resolvedName == null)
                     return Array.Empty<IDatabaseRelationalKey>();
                 tableName = resolvedName;
@@ -642,7 +640,7 @@ namespace SJP.Schematic.Sqlite
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
-            var foreignKeys = queryResult.GroupBy(row => new
+            var foreignKeys = queryResult.GroupBy(static row => new
             {
                 ForeignKeyId = row.id,
                 ParentTableName = row.table,
@@ -669,7 +667,7 @@ namespace SJP.Schematic.Sqlite
                         var parentTableColumns = await queryCache.GetColumnsAsync(name, cancellationToken).ConfigureAwait(false);
                         var parentTableColumnLookup = GetColumnLookup(parentTableColumns);
 
-                        var rows = fkey.OrderBy(row => row.seq).ToList();
+                        var rows = fkey.OrderBy(static row => row.seq).ToList();
                         var parentColumns = rows
                             .Where(row => parentTableColumnLookup.ContainsKey(row.to))
                             .Select(row => parentTableColumnLookup[row.to])
@@ -678,28 +676,28 @@ namespace SJP.Schematic.Sqlite
                         var parentPrimaryKey = await queryCache.GetPrimaryKeyAsync(name, cancellationToken).ConfigureAwait(false);
                         var pkColumnsEqual = parentPrimaryKey
                             .Match(
-                                k => k.Columns.Select(col => col.Name).SequenceEqual(parentColumns.Select(col => col.Name)),
-                                () => false
+                                k => k.Columns.Select(static col => col.Name).SequenceEqual(parentColumns.Select(static col => col.Name)),
+                                static () => false
                             );
                         if (pkColumnsEqual)
                             return parentPrimaryKey.ToAsync();
 
                         var parentUniqueKeys = await queryCache.GetUniqueKeysAsync(name, cancellationToken).ConfigureAwait(false);
                         var parentUniqueKey = parentUniqueKeys.FirstOrDefault(uk =>
-                            uk.Columns.Select(ukCol => ukCol.Name)
-                                .SequenceEqual(parentColumns.Select(pc => pc.Name)));
+                            uk.Columns.Select(static ukCol => ukCol.Name)
+                                .SequenceEqual(parentColumns.Select(static pc => pc.Name)));
                         return parentUniqueKey != null
                             ? OptionAsync<IDatabaseKey>.Some(parentUniqueKey)
                             : OptionAsync<IDatabaseKey>.None;
                     })
                     .Map(key =>
                     {
-                        var rows = fkey.OrderBy(row => row.seq).ToList();
+                        var rows = fkey.OrderBy(static row => row.seq).ToList();
 
                         // don't need to check for the parent schema as cross-schema references are not supported
                         var parsedConstraint = parsedTable.ParentKeys
                             .FirstOrDefault(fkc => string.Equals(fkc.ParentTable.LocalName, fkey.Key.ParentTableName, StringComparison.OrdinalIgnoreCase)
-                                && fkc.ParentColumns.SequenceEqual(rows.Select(row => row.to), StringComparer.OrdinalIgnoreCase));
+                                && fkc.ParentColumns.SequenceEqual(rows.Select(static row => row.to), StringComparer.OrdinalIgnoreCase));
                         var parsedConstraintOption = parsedConstraint != null
                             ? Option<ForeignKey>.Some(parsedConstraint)
                             : Option<ForeignKey>.None;
@@ -755,7 +753,7 @@ namespace SJP.Schematic.Sqlite
             if (tableName.Schema == null)
             {
                 var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
-                    .MatchUnsafe(name => name, () => (Identifier?)null).ConfigureAwait(false);
+                    .MatchUnsafe(static name => name, static () => (Identifier?)null).ConfigureAwait(false);
                 if (resolvedName == null)
                     return Array.Empty<IDatabaseColumn>();
                 tableName = resolvedName;
@@ -816,7 +814,7 @@ namespace SJP.Schematic.Sqlite
             if (tableName.Schema == null)
             {
                 var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
-                    .MatchUnsafe(name => name, () => (Identifier?)null).ConfigureAwait(false);
+                    .MatchUnsafe(static name => name, static () => (Identifier?)null).ConfigureAwait(false);
                 if (resolvedName == null)
                     return Array.Empty<IDatabaseColumn>();
                 tableName = resolvedName;
@@ -878,7 +876,7 @@ namespace SJP.Schematic.Sqlite
             if (tableName.Schema == null)
             {
                 var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
-                    .MatchUnsafe(name => name, () => (Identifier?)null).ConfigureAwait(false);
+                    .MatchUnsafe(static name => name, static () => (Identifier?)null).ConfigureAwait(false);
                 if (resolvedName == null)
                     return Array.Empty<IDatabaseTrigger>();
                 tableName = resolvedName;
@@ -963,7 +961,7 @@ namespace SJP.Schematic.Sqlite
             if (tableName.Schema == null)
             {
                 var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
-                    .MatchUnsafe(name => name, () => (Identifier?)null).ConfigureAwait(false);
+                    .MatchUnsafe(static name => name, static () => (Identifier?)null).ConfigureAwait(false);
                 if (resolvedName == null)
                     return ParsedTableData.Empty($"Table '{ tableName.LocalName }' does not exist.");
                 tableName = resolvedName;

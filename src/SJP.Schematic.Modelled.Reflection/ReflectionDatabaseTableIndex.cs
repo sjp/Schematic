@@ -49,8 +49,8 @@ namespace SJP.Schematic.Modelled.Reflection
                 {
                     isFunctionBasedIndex = true;
                     var tableColumns = indexColumn.Expression.DependentNames
-                        .Select(name => propertyLookup.ContainsKey(name.LocalName) ? propertyLookup[name.LocalName] : null)
-                        .Where(prop => prop != null)
+                        .Select(name => propertyLookup.TryGetValue(name.LocalName, out var prop) ? prop : null)
+                        .Where(static prop => prop != null)
                         .Select(prop => dialect.GetAliasOrDefault(prop!))
                         .Select(name => tableColumnLookup[name])
                         .ToList();

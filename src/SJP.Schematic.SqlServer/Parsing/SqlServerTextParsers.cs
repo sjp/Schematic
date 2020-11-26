@@ -8,7 +8,7 @@ namespace SJP.Schematic.SqlServer.Parsing
     {
         public static TextParser<string> SqlBlob { get; } =
             Span.EqualTo("0x")
-                .IgnoreThen(Numerics.HexDigits.Select(_ => _.ToStringValue()));
+                .IgnoreThen(Numerics.HexDigits.Select(static _ => _.ToStringValue()));
 
         public static TextParser<char> SqlStringContentChar { get; } =
             Span.EqualTo("''").Value('\'').Try().Or(Character.ExceptIn('\''));
@@ -17,10 +17,10 @@ namespace SJP.Schematic.SqlServer.Parsing
             Character.EqualToIgnoreCase('N').IgnoreThen(Character.EqualTo('\''))
                 .Try().Or(Character.EqualTo('\''))
                 .IgnoreThen(SqlStringContentChar.Many())
-                .Then(s => Character.EqualTo('\'').Value(new string(s)));
+                .Then(static s => Character.EqualTo('\'').Value(new string(s)));
 
         public static TextParser<string> SqlComment { get; } =
-            Comment.CStyle.Or(Comment.SqlStyle).Select(_ => _.ToStringValue());
+            Comment.CStyle.Or(Comment.SqlStyle).Select(static _ => _.ToStringValue());
 
         public static TextParser<TextSpan> Real { get; } =
             Numerics.Decimal;

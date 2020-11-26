@@ -30,8 +30,8 @@ namespace SJP.Schematic.DataAccess.Extensions
                 group.Add(ns);
             }
 
-            return system.OrderBy(n => n)
-                .Concat(nonSystem.OrderBy(n => n))
+            return system.OrderBy(static n => n)
+                .Concat(nonSystem.OrderBy(static n => n))
                 .ToList();
         }
 

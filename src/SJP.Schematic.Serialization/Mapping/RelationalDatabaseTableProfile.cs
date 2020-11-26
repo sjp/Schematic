@@ -10,7 +10,7 @@ namespace SJP.Schematic.Serialization.Mapping
         public RelationalDatabaseTableProfile()
         {
             CreateMap<Dto.RelationalDatabaseTable, RelationalDatabaseTable>()
-                .ConstructUsing((dto, ctx) => new RelationalDatabaseTable(
+                .ConstructUsing(static (dto, ctx) => new RelationalDatabaseTable(
                     ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.TableName!),
                     ctx.Mapper.Map<IEnumerable<Dto.DatabaseColumn>, List<DatabaseColumn>>(dto.Columns),
                     ctx.Mapper.Map<Dto.DatabaseKey?, Option<IDatabaseKey>>(dto.PrimaryKey),
@@ -21,9 +21,9 @@ namespace SJP.Schematic.Serialization.Mapping
                     ctx.Mapper.Map<IEnumerable<Dto.DatabaseCheckConstraint>, List<DatabaseCheckConstraint>>(dto.Checks),
                     ctx.Mapper.Map<IEnumerable<Dto.DatabaseTrigger>, List<DatabaseTrigger>>(dto.Triggers)
                 ))
-                .ForAllMembers(cfg => cfg.Ignore());
+                .ForAllMembers(static cfg => cfg.Ignore());
             CreateMap<IRelationalDatabaseTable, Dto.RelationalDatabaseTable>()
-                .ForMember(dest => dest.TableName, src => src.MapFrom(t => t.Name));
+                .ForMember(static dest => dest.TableName, static src => src.MapFrom(static t => t.Name));
         }
     }
 }

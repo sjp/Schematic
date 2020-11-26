@@ -9,12 +9,12 @@ namespace SJP.Schematic.Serialization.Mapping
         public DatabaseIndexColumnProfile()
         {
             CreateMap<Dto.DatabaseIndexColumn, DatabaseIndexColumn>()
-                .ConstructUsing((dto, ctx) => new DatabaseIndexColumn(
+                .ConstructUsing(static (dto, ctx) => new DatabaseIndexColumn(
                     dto.Expression!,
                     ctx.Mapper.Map<IEnumerable<Dto.DatabaseColumn>, IEnumerable<DatabaseColumn>>(dto.DependentColumns),
                     dto.Order
                 ))
-                .ForAllMembers(cfg => cfg.Ignore());
+                .ForAllMembers(static cfg => cfg.Ignore());
             CreateMap<IDatabaseIndexColumn, Dto.DatabaseIndexColumn>();
         }
     }

@@ -69,7 +69,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 }
 
                 var sourcePropInstructions = sourceProperty.GetMethod.Body.Instructions;
-                var fnInstruction = sourcePropInstructions.FirstOrDefault(i => i.OpCode.Code == Code.Ldftn);
+                var fnInstruction = sourcePropInstructions.FirstOrDefault(static i => i.OpCode.Code == Code.Ldftn);
                 if (fnInstruction == null)
                 {
                     throw new ArgumentException(
@@ -90,7 +90,7 @@ namespace SJP.Schematic.Modelled.Reflection.Model
                 }
 
                 var operandInstructions = fnOperand.Body.Instructions;
-                var bodyCallInstr = operandInstructions.FirstOrDefault(i => i.OpCode.Code == Code.Callvirt || i.OpCode.Code == Code.Call);
+                var bodyCallInstr = operandInstructions.FirstOrDefault(static i => i.OpCode.Code == Code.Callvirt || i.OpCode.Code == Code.Call);
                 if (bodyCallInstr == null)
                 {
                     throw new ArgumentException(

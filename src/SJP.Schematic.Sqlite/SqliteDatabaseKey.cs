@@ -33,7 +33,7 @@ namespace SJP.Schematic.Sqlite
             if (!keyType.IsValid())
                 throw new ArgumentException($"The { nameof(DatabaseKeyType) } provided must be a valid enum.", nameof(keyType));
 
-            Name = name.Map(n => Identifier.CreateQualifiedIdentifier(n.LocalName));
+            Name = name.Map(static n => Identifier.CreateQualifiedIdentifier(n.LocalName));
             KeyType = keyType;
             Columns = columns.ToList();
         }

@@ -14,7 +14,7 @@ namespace SJP.Schematic.Oracle.Parsing
                 OracleToken.Identifier,
                 OracleToken.Period,
                 OracleToken.Identifier
-            ).Select(tokens => new SqlIdentifier(tokens[0], tokens[2], tokens[4], tokens[6]));
+            ).Select(static tokens => new SqlIdentifier(tokens[0], tokens[2], tokens[4], tokens[6]));
 
         public static TokenListParser<OracleToken, SqlIdentifier> DatabaseQualifiedName =>
             Token.Sequence(
@@ -23,18 +23,18 @@ namespace SJP.Schematic.Oracle.Parsing
                 OracleToken.Identifier,
                 OracleToken.Period,
                 OracleToken.Identifier
-            ).Select(tokens => new SqlIdentifier(tokens[0], tokens[2], tokens[4]));
+            ).Select(static tokens => new SqlIdentifier(tokens[0], tokens[2], tokens[4]));
 
         public static TokenListParser<OracleToken, SqlIdentifier> SchemaQualifiedName =>
             Token.Sequence(
                 OracleToken.Identifier,
                 OracleToken.Period,
                 OracleToken.Identifier
-            ).Select(tokens => new SqlIdentifier(tokens[0], tokens[2]));
+            ).Select(static tokens => new SqlIdentifier(tokens[0], tokens[2]));
 
         public static TokenListParser<OracleToken, SqlIdentifier> LocalName =>
             Token.EqualTo(OracleToken.Identifier)
-                .Select(name => new SqlIdentifier(name));
+                .Select(static name => new SqlIdentifier(name));
 
         public static TokenListParser<OracleToken, SqlIdentifier> QualifiedName =>
             FullyQualifiedName

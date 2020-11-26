@@ -96,7 +96,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             .ToList();
 
         private static readonly IEnumerable<UsingDirectiveSyntax> UsingStatements = Namespaces
-            .Select(ns => ParseName(ns))
+            .Select(static ns => ParseName(ns))
             .Select(UsingDirective)
             .ToList();
 
@@ -225,7 +225,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             var expressions = tableConfigs
                 .Concat(viewConfigs)
                 .Concat(sequenceConfigs)
-                .Select(invExpr => ExpressionStatement(invExpr))
+                .Select(static invExpr => ExpressionStatement(invExpr))
                 .ToArray();
 
             return MethodDeclaration(
@@ -248,7 +248,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 throw new ArgumentNullException(nameof(table));
 
             var columnExprs = table.Columns
-                .Where(c => c.IsComputed || c.DefaultValue.IsSome)
+                .Where(static c => c.IsComputed || c.DefaultValue.IsSome)
                 .Select(c => BuildTableColumnPropertyForBuilder(table, c));
             var primaryKeyExpr = table.PrimaryKey
                 .Match(
@@ -388,7 +388,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             if (index == null)
                 throw new ArgumentNullException(nameof(index));
 
-            var columns = index.Columns.SelectMany(c => c.DependentColumns).ToList();
+            var columns = index.Columns.SelectMany(static c => c.DependentColumns).ToList();
             var schemaNamespace = NameTranslator.SchemaToNamespace(table.Name);
             var className = NameTranslator.TableToClassName(table.Name);
             var qualifiedClassName = !schemaNamespace.IsNullOrWhiteSpace()

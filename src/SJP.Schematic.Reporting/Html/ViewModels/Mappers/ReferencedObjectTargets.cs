@@ -30,11 +30,11 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 throw new ArgumentNullException(nameof(routines));
 
             DependencyProvider = dependencyProvider ?? throw new ArgumentNullException(nameof(dependencyProvider));
-            TableNames = tables.Select(t => t.Name).ToList();
-            ViewNames = views.Select(v => v.Name).ToList();
-            SequenceNames = sequences.Select(s => s.Name).ToList();
-            SynonymNames = synonyms.Select(s => s.Name).ToList();
-            RoutineNames = routines.Select(r => r.Name).ToList();
+            TableNames = tables.Select(static t => t.Name).ToList();
+            ViewNames = views.Select(static v => v.Name).ToList();
+            SequenceNames = sequences.Select(static s => s.Name).ToList();
+            SynonymNames = synonyms.Select(static s => s.Name).ToList();
+            RoutineNames = routines.Select(static r => r.Name).ToList();
         }
 
         private IDependencyProvider DependencyProvider { get; }
@@ -66,8 +66,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             var result = new List<HtmlString>();
 
             var orderedNames = referencedNames
-                .OrderBy(name => name.Schema ?? string.Empty, StringComparer.OrdinalIgnoreCase)
-                .ThenBy(name => name.LocalName, StringComparer.OrdinalIgnoreCase)
+                .OrderBy(static name => name.Schema ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(static name => name.LocalName, StringComparer.OrdinalIgnoreCase)
                 .ToList();
             foreach (var name in orderedNames)
             {
@@ -75,7 +75,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 var targetLinks = GetReferenceTargetLinks(rootPath, objectName, qualifiedName);
                 var linkTexts = targetLinks
                     .Where(link => referencedUris.Add(link.TargetUri.ToString()))
-                    .Select(link => new HtmlString($"<a href=\"{ link.TargetUri }\">{ HttpUtility.HtmlEncode(link.ObjectName.ToVisibleName()) }</a>"))
+                    .Select(static link => new HtmlString($"<a href=\"{ link.TargetUri }\">{ HttpUtility.HtmlEncode(link.ObjectName.ToVisibleName()) }</a>"))
                     .ToList();
                 result.AddRange(linkTexts);
             }

@@ -17,9 +17,9 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
                 index.Name?.LocalName,
                 parent,
                 index.IsUnique,
-                index.Columns.Select(c => c.Expression).ToList(),
-                index.Columns.Select(c => c.Order).ToList(),
-                index.IncludedColumns.Select(c => c.Name.LocalName).ToList()
+                index.Columns.Select(static c => c.Expression).ToList(),
+                index.Columns.Select(static c => c.Order).ToList(),
+                index.IncludedColumns.Select(static c => c.Name.LocalName).ToList()
             );
         }
     }

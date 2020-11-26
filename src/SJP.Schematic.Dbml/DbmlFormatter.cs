@@ -122,7 +122,7 @@ namespace SJP.Schematic.Dbml
                 throw new ArgumentNullException(nameof(index));
 
             var columns = index.Columns.Count > 1
-                ? "(" + index.Columns.Select(ic => ic.Expression).Join(", ").RemoveQuotingCharacters() + ")"
+                ? "(" + index.Columns.Select(static ic => ic.Expression).Join(", ").RemoveQuotingCharacters() + ")"
                 : index.Columns.Single().Expression.RemoveQuotingCharacters();
 
             var options = new List<string> { "name: '" + index.Name.ToVisibleName() + "'" };
@@ -183,7 +183,7 @@ namespace SJP.Schematic.Dbml
                 .Match(
                     pk => pk.Columns.Count == 1
                         && string.Equals(pk.Columns.Single().Name.LocalName, column.Name.LocalName, StringComparison.Ordinal),
-                    () => false
+                    static () => false
                 );
         }
 
@@ -207,31 +207,31 @@ namespace SJP.Schematic.Dbml
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
 
-            var keyColumnNames = key.Columns.Select(c => c.Name.LocalName).ToList();
+            var keyColumnNames = key.Columns.Select(static c => c.Name.LocalName).ToList();
             var matchesPkColumns = table.PrimaryKey.Match(pk =>
             {
-                var pkColumnNames = pk.Columns.Select(c => c.Name.LocalName).ToList();
+                var pkColumnNames = pk.Columns.Select(static c => c.Name.LocalName).ToList();
                 return keyColumnNames.SequenceEqual(pkColumnNames, StringComparer.Ordinal);
-            }, () => false);
+            }, static () => false);
             if (matchesPkColumns)
                 return true;
 
             var matchesUkColumns = table.UniqueKeys.Any(uk =>
             {
-                var ukColumnNames = uk.Columns.Select(c => c.Name.LocalName).ToList();
+                var ukColumnNames = uk.Columns.Select(static c => c.Name.LocalName).ToList();
                 return keyColumnNames.SequenceEqual(ukColumnNames, StringComparer.Ordinal);
             });
             if (matchesUkColumns)
                 return true;
 
-            var uniqueIndexes = table.Indexes.Where(i => i.IsUnique).ToList();
+            var uniqueIndexes = table.Indexes.Where(static i => i.IsUnique).ToList();
             if (uniqueIndexes.Count == 0)
                 return false;
 
             return uniqueIndexes.Any(i =>
             {
                 var indexColumnExpressions = i.Columns
-                    .Select(ic => ic.DependentColumns.Select(dc => dc.Name.LocalName).FirstOrDefault() ?? ic.Expression)
+                    .Select(static ic => ic.DependentColumns.Select(dc => dc.Name.LocalName).FirstOrDefault() ?? ic.Expression)
                     .ToList();
                 return keyColumnNames.SequenceEqual(indexColumnExpressions, StringComparer.Ordinal);
             });

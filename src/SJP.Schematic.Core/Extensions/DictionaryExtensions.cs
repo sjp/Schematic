@@ -43,7 +43,7 @@ namespace SJP.Schematic.Core.Extensions
             if (comparer == null)
                 throw new ArgumentNullException(nameof(comparer));
 
-            return source.ToDictionary(kv => kv.Key, kv => kv.Value, comparer);
+            return source.ToDictionary(static kv => kv.Key, static kv => kv.Value, comparer);
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace SJP.Schematic.Core.Extensions
             if (comparer == null)
                 throw new ArgumentNullException(nameof(comparer));
 
-            return source.ToDictionary(kv => kv.Key, kv => kv.Value, comparer);
+            return source.ToDictionary(static kv => kv.Key, static kv => kv.Value, comparer);
         }
     }
 }

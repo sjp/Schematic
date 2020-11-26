@@ -89,7 +89,7 @@ namespace SJP.Schematic.Dot
             if (Nodes.Any())
             {
                 var nodeIndent = GetIndentForLevel(level);
-                var orderedNodes = Nodes.OrderBy(n => n.Identifier.ToString());
+                var orderedNodes = Nodes.OrderBy(static n => n.Identifier.ToString());
 
                 foreach (var node in orderedNodes)
                 {

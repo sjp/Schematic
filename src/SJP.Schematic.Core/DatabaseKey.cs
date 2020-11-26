@@ -30,7 +30,7 @@ namespace SJP.Schematic.Core
             if (!keyType.IsValid())
                 throw new ArgumentException($"The { nameof(DatabaseKeyType) } provided must be a valid enum.", nameof(keyType));
 
-            Name = name.Map(n => Identifier.CreateQualifiedIdentifier(n.LocalName)); // strip to localname only
+            Name = name.Map(static n => Identifier.CreateQualifiedIdentifier(n.LocalName)); // strip to localname only
             KeyType = keyType;
             Columns = columns;
             IsEnabled = isEnabled;

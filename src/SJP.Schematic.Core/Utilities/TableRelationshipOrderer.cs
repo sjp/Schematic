@@ -22,12 +22,12 @@ namespace SJP.Schematic.Core.Utilities
                 throw new ArgumentNullException(nameof(tables));
 
             var graph = new AdjacencyGraph<Identifier, SEquatableEdge<Identifier>>();
-            var tableNames = tables.Select(t => t.Name).Distinct().ToList();
+            var tableNames = tables.Select(static t => t.Name).Distinct().ToList();
             graph.AddVertexRange(tableNames);
 
             var foreignKeys = tables
-                .SelectMany(t => t.ParentKeys)
-                .Where(fk => fk.ChildTable != fk.ParentTable)
+                .SelectMany(static t => t.ParentKeys)
+                .Where(static fk => fk.ChildTable != fk.ParentTable)
                 .ToList();
             foreach (var foreignKey in foreignKeys)
                 graph.AddEdge(new SEquatableEdge<Identifier>(foreignKey.ChildTable, foreignKey.ParentTable));

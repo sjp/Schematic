@@ -62,21 +62,21 @@ namespace SJP.Schematic.Oracle
             ).ConfigureAwait(false);
 
             var packages = queryResult
-                .GroupBy(r => new { r.SchemaName, r.RoutineName })
+                .GroupBy(static r => new { r.SchemaName, r.RoutineName })
                 .Select(r =>
                 {
                     var name = Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, r.Key.SchemaName, r.Key.RoutineName);
 
                     var specLines = r
-                        .Where(p => string.Equals(p.RoutineType, PackageObjectType, StringComparison.Ordinal) && p.Text != null)
-                        .OrderBy(p => p.LineNumber)
-                        .Select(p => p.Text!);
+                        .Where(static p => string.Equals(p.RoutineType, PackageObjectType, StringComparison.Ordinal) && p.Text != null)
+                        .OrderBy(static p => p.LineNumber)
+                        .Select(static p => p.Text!);
                     var spec = specLines.Join(string.Empty);
 
                     var bodyLines = r
-                        .Where(p => string.Equals(p.RoutineType, PackageBodyObjectType, StringComparison.Ordinal) && p.Text != null)
-                        .OrderBy(p => p.LineNumber)
-                        .Select(p => p.Text!);
+                        .Where(static p => string.Equals(p.RoutineType, PackageBodyObjectType, StringComparison.Ordinal) && p.Text != null)
+                        .OrderBy(static p => p.LineNumber)
+                        .Select(static p => p.Text!);
 
                     var body = bodyLines.Any()
                         ? Option<string>.Some(bodyLines.Join(string.Empty))
@@ -211,14 +211,14 @@ where OWNER = :SchemaName and OBJECT_NAME = :PackageName
                 ).ConfigureAwait(false);
 
                 var spec = lines
-                    .Where(p => string.Equals(p.SourceType, PackageObjectType, StringComparison.Ordinal) && p.Text != null)
-                    .OrderBy(p => p.LineNumber)
-                    .Select(p => p.Text!)
+                    .Where(static p => string.Equals(p.SourceType, PackageObjectType, StringComparison.Ordinal) && p.Text != null)
+                    .OrderBy(static p => p.LineNumber)
+                    .Select(static p => p.Text!)
                     .Join(string.Empty);
                 var bodyLines = lines
-                    .Where(p => string.Equals(p.SourceType, PackageBodyObjectType, StringComparison.Ordinal) && p.Text != null)
-                    .OrderBy(p => p.LineNumber)
-                    .Select(p => p.Text!);
+                    .Where(static p => string.Equals(p.SourceType, PackageBodyObjectType, StringComparison.Ordinal) && p.Text != null)
+                    .OrderBy(static p => p.LineNumber)
+                    .Select(static p => p.Text!);
 
                 var body = bodyLines.Any()
                     ? Option<string>.Some(bodyLines.Join(string.Empty))
@@ -238,14 +238,14 @@ where OWNER = :SchemaName and OBJECT_NAME = :PackageName
                 ).ConfigureAwait(false);
 
                 var spec = lines
-                    .Where(p => string.Equals(p.SourceType, PackageObjectType, StringComparison.Ordinal) && p.Text != null)
-                    .OrderBy(p => p.LineNumber)
-                    .Select(p => p.Text!)
+                    .Where(static p => string.Equals(p.SourceType, PackageObjectType, StringComparison.Ordinal) && p.Text != null)
+                    .OrderBy(static p => p.LineNumber)
+                    .Select(static p => p.Text!)
                     .Join(string.Empty);
                 var bodyLines = lines
-                    .Where(p => string.Equals(p.SourceType, PackageBodyObjectType, StringComparison.Ordinal) && p.Text != null)
-                    .OrderBy(p => p.LineNumber)
-                    .Select(p => p.Text!);
+                    .Where(static p => string.Equals(p.SourceType, PackageBodyObjectType, StringComparison.Ordinal) && p.Text != null)
+                    .OrderBy(static p => p.LineNumber)
+                    .Select(static p => p.Text!);
 
                 var body = bodyLines.Any()
                     ? Option<string>.Some(bodyLines.Join(string.Empty))

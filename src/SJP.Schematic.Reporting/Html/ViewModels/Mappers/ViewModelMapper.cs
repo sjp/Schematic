@@ -17,7 +17,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             var links = referencedObjectTargets.GetReferencedObjectLinks(rootPath, view.Name, view.Definition);
 
             var viewColumns = view.Columns.ToList();
-            var columns = viewColumns.Select((vc, i) =>
+            var columns = viewColumns.Select(static (vc, i) =>
                 new View.Column(
                     vc.Name?.LocalName ?? string.Empty,
                     i + 1,

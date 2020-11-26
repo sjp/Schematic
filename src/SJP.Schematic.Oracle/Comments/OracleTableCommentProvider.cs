@@ -61,7 +61,7 @@ namespace SJP.Schematic.Oracle.Comments
             var allCommentsData = await Connection.QueryAsync<TableCommentsData>(AllTableCommentsQuery, cancellationToken).ConfigureAwait(false);
 
             var comments = allCommentsData
-                .GroupBy(row => new { row.SchemaName, row.ObjectName })
+                .GroupBy(static row => new { row.SchemaName, row.ObjectName })
                 .Select(g =>
                 {
                     var tableName = QualifyTableName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.ObjectName));
@@ -352,8 +352,8 @@ where t.TABLE_NAME = :TableName and mv.MVIEW_NAME is null
                 throw new ArgumentNullException(nameof(commentsData));
 
             return commentsData
-                .Where(c => string.Equals(c.ObjectType, Constants.Table, StringComparison.Ordinal))
-                .Select(c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
+                .Where(static c => string.Equals(c.ObjectType, Constants.Table, StringComparison.Ordinal))
+                .Select(static c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
                 .FirstOrDefault();
         }
 
@@ -363,8 +363,8 @@ where t.TABLE_NAME = :TableName and mv.MVIEW_NAME is null
                 throw new ArgumentNullException(nameof(commentsData));
 
             return commentsData
-                .Where(c => string.Equals(c.ObjectType, Constants.Column, StringComparison.Ordinal))
-                .Select(c => new KeyValuePair<Identifier, Option<string>>(
+                .Where(static c => string.Equals(c.ObjectType, Constants.Column, StringComparison.Ordinal))
+                .Select(static c => new KeyValuePair<Identifier, Option<string>>(
                     Identifier.CreateQualifiedIdentifier(c.ColumnName),
                     !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None
                 ))

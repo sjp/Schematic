@@ -8,33 +8,33 @@ namespace SJP.Schematic.Oracle.Parsing
     {
         public static TextParser<string> SqlBlob { get; } =
             Span.EqualTo("0x")
-                .IgnoreThen(Numerics.HexDigits.Select(_ => _.ToStringValue()));
+                .IgnoreThen(Numerics.HexDigits.Select(static _ => _.ToStringValue()));
 
         public static TextParser<string> SquareQuotedString { get; } =
             Character.EqualToIgnoreCase('q').IgnoreThen(Span.EqualTo("'["))
                 .IgnoreThen(Character.Except(']').Many())
-                .Then(s => Span.EqualTo("]'").Value(new string(s)));
+                .Then(static s => Span.EqualTo("]'").Value(new string(s)));
 
         public static TextParser<string> BraceQuotedString { get; } =
             Character.EqualToIgnoreCase('q').IgnoreThen(Span.EqualTo("'{"))
                 .IgnoreThen(Character.Except('}').Many())
-                .Then(s => Span.EqualTo("}'").Value(new string(s)));
+                .Then(static s => Span.EqualTo("}'").Value(new string(s)));
 
         public static TextParser<string> ParenQuotedString { get; } =
             Character.EqualToIgnoreCase('q').IgnoreThen(Span.EqualTo("'("))
                 .IgnoreThen(Character.Except(')').Many())
-                .Then(s => Span.EqualTo(")'").Value(new string(s)));
+                .Then(static s => Span.EqualTo(")'").Value(new string(s)));
 
         public static TextParser<string> AngleQuotedString { get; } =
             Character.EqualToIgnoreCase('q').IgnoreThen(Span.EqualTo("'<"))
                 .IgnoreThen(Character.Except('>').Many())
-                .Then(s => Span.EqualTo(">'").Value(new string(s)));
+                .Then(static s => Span.EqualTo(">'").Value(new string(s)));
 
         public static TextParser<string> GenericQuotedString { get; } =
             Character.EqualToIgnoreCase('q').IgnoreThen(Character.EqualTo('\''))
                 .IgnoreThen(Character.AnyChar)
-                .Then(escapeChar => Character.Except(escapeChar).Many())
-                .Then(s => Character.EqualTo('\'').Value(new string(s)));
+                .Then(static escapeChar => Character.Except(escapeChar).Many())
+                .Then(static s => Character.EqualTo('\'').Value(new string(s)));
 
         public static TextParser<char> SqlStringContentChar { get; } =
             Span.EqualTo("''").Value('\'').Try().Or(Character.ExceptIn('\''));
@@ -42,7 +42,7 @@ namespace SJP.Schematic.Oracle.Parsing
         public static TextParser<string> SqlString { get; } =
             Character.EqualTo('\'')
                 .IgnoreThen(SqlStringContentChar.Many())
-                .Then(s => Character.EqualTo('\'').Value(new string(s)));
+                .Then(static s => Character.EqualTo('\'').Value(new string(s)));
 
         public static TextParser<string> OracleString { get; } =
             SquareQuotedString
@@ -53,7 +53,7 @@ namespace SJP.Schematic.Oracle.Parsing
                 .Try().Or(SqlString);
 
         public static TextParser<string> SqlComment { get; } =
-            Comment.CStyle.Or(Comment.SqlStyle).Select(_ => _.ToStringValue());
+            Comment.CStyle.Or(Comment.SqlStyle).Select(static _ => _.ToStringValue());
 
         public static TextParser<TextSpan> Integer { get; } = Numerics.Integer;
 

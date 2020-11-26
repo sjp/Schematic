@@ -62,8 +62,8 @@ namespace SJP.Schematic.Sqlite.Parsing
             var foreignKeys = new List<ForeignKey>();
             var checks = new List<Check>();
 
-            var parsedColumns = tableMembers.Value.SelectMany(m => m.Columns);
-            var parsedConstraints = tableMembers.Value.SelectMany(m => m.Constraints);
+            var parsedColumns = tableMembers.Value.SelectMany(static m => m.Columns);
+            var parsedConstraints = tableMembers.Value.SelectMany(static m => m.Constraints);
 
             foreach (var parsedColumn in parsedColumns)
             {

@@ -9,29 +9,29 @@ namespace SJP.Schematic.Serialization.Mapping
         public IdentifierProfile()
         {
             CreateMap<Dto.Identifier?, Option<Identifier>>()
-                .ConstructUsing(dto =>
+                .ConstructUsing(static dto =>
                     dto == null
                         ? Option<Identifier>.None
                         : Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(dto.Server, dto.Database, dto.Schema, dto.LocalName)))
-                .ForAllMembers(cfg => cfg.Ignore());
+                .ForAllMembers(static cfg => cfg.Ignore());
 
             CreateMap<Option<Identifier>, Dto.Identifier>()
-                .ConstructUsing(identifier =>
+                .ConstructUsing(static identifier =>
                     identifier.MatchUnsafe(
-                        ident => new Dto.Identifier
+                        static ident => new Dto.Identifier
                         {
                             Server = ident.Server,
                             Database = ident.Database,
                             Schema = ident.Schema,
                             LocalName = ident.LocalName
                         },
-                        () => default!
+                        static () => default!
                     ))
-                .ForAllMembers(cfg => cfg.Ignore());
+                .ForAllMembers(static cfg => cfg.Ignore());
 
             CreateMap<Identifier, Dto.Identifier>();
             CreateMap<Dto.Identifier, Identifier>()
-                .ConstructUsing(dto => Identifier.CreateQualifiedIdentifier(dto.Server, dto.Database, dto.Schema, dto.LocalName));
+                .ConstructUsing(static dto => Identifier.CreateQualifiedIdentifier(dto.Server, dto.Database, dto.Schema, dto.LocalName));
         }
     }
 }

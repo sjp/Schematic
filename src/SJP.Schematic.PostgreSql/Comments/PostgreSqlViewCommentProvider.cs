@@ -65,8 +65,8 @@ namespace SJP.Schematic.PostgreSql.Comments
 
             var viewComments = queryViews
                 .Concat(materializedViews)
-                .OrderBy(v => v.ViewName.Schema)
-                .ThenBy(v => v.ViewName.LocalName);
+                .OrderBy(static v => v.ViewName.Schema)
+                .ThenBy(static v => v.ViewName.LocalName);
 
             foreach (var comment in viewComments)
                 yield return comment;

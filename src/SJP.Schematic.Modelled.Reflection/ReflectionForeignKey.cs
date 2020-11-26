@@ -18,11 +18,11 @@ namespace SJP.Schematic.Modelled.Reflection
             if (columns.Count != targetKey.Columns.Count)
                 throw new ArgumentException("The number of columns given to a foreign key must match the number of columns in the target key", nameof(columns));
 
-            var columnTypes = columns.Select(c => c.Type).ToList();
-            var targetColumnTypes = targetKey.Columns.Select(c => c.Type).ToList();
+            var columnTypes = columns.Select(static c => c.Type).ToList();
+            var targetColumnTypes = targetKey.Columns.Select(static c => c.Type).ToList();
 
             // if we're dealing with computed columns, we can't get the types easily so avoid checking the types
-            var anyComputed = columns.Any(c => c.IsComputed) || targetKey.Columns.Any(c => c.IsComputed);
+            var anyComputed = columns.Any(static c => c.IsComputed) || targetKey.Columns.Any(static c => c.IsComputed);
             var columnTypesCompatible = ColumnTypesCompatible(columnTypes, targetColumnTypes);
 
             if (!anyComputed && !columnTypesCompatible)
@@ -32,8 +32,8 @@ namespace SJP.Schematic.Modelled.Reflection
         private static bool ColumnTypesCompatible(IEnumerable<IDbType> columnTypes, IEnumerable<IDbType> targetTypes)
         {
             return columnTypes
-                .Zip(targetTypes, (a, b) => new { Column = a, TargetColumn = b })
-                .All(cc => IsTypeEquivalent(cc.Column, cc.TargetColumn));
+                .Zip(targetTypes, static (a, b) => new { Column = a, TargetColumn = b })
+                .All(static cc => IsTypeEquivalent(cc.Column, cc.TargetColumn));
         }
 
         private static bool IsTypeEquivalent(IDbType columnType, IDbType targetType)

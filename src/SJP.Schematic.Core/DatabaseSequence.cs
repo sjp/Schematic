@@ -48,21 +48,21 @@ namespace SJP.Schematic.Core
             {
                 minValue
                     .Where(mv => mv > start)
-                    .IfSome(_ => throw new ArgumentException("When a minimum value and positive increment is provided, the minimum value must not be larger than the starting value.", nameof(minValue)));
+                    .IfSome(static _ => throw new ArgumentException("When a minimum value and positive increment is provided, the minimum value must not be larger than the starting value.", nameof(minValue)));
 
                 maxValue
                     .Where(mv => mv < start)
-                    .IfSome(_ => throw new ArgumentException("When a maximum value and positive increment is provided, the maximum value must not be less than the starting value.", nameof(maxValue)));
+                    .IfSome(static _ => throw new ArgumentException("When a maximum value and positive increment is provided, the maximum value must not be less than the starting value.", nameof(maxValue)));
             }
             else
             {
                 minValue
                     .Where(mv => mv < start)
-                    .IfSome(_ => throw new ArgumentException("When a minimum value and negative increment is provided, the minimum value must not be less than the starting value.", nameof(minValue)));
+                    .IfSome(static _ => throw new ArgumentException("When a minimum value and negative increment is provided, the minimum value must not be less than the starting value.", nameof(minValue)));
 
                 maxValue
                     .Where(mv => mv > start)
-                    .IfSome(_ => throw new ArgumentException("When a maximum value and negative increment is provided, the maximum value must not be larger than the starting value.", nameof(maxValue)));
+                    .IfSome(static _ => throw new ArgumentException("When a maximum value and negative increment is provided, the maximum value must not be larger than the starting value.", nameof(maxValue)));
             }
 #pragma warning restore S3928 // Parameter names used into ArgumentException constructors should match an existing one
 

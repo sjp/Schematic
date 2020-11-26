@@ -69,9 +69,9 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 }
                 .Union(
                     view.Columns
-                        .Select(c => c.Type.ClrType.Namespace)
+                        .Select(static c => c.Type.ClrType.Namespace)
                         .Where(ns => ns != null && !string.Equals(ns, viewNamespace, StringComparison.Ordinal))
-                        .Select(ns => ns!),
+                        .Select(static ns => ns!),
                     StringComparer.Ordinal
                 )
                 .Distinct(StringComparer.Ordinal)
@@ -79,7 +79,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 .ToList();
 
             var usingStatements = namespaces
-                .Select(ns => ParseName(ns))
+                .Select(static ns => ParseName(ns))
                 .Select(UsingDirective)
                 .ToList();
             var namespaceDeclaration = NamespaceDeclaration(ParseName(viewNamespace));
@@ -159,7 +159,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 throw new ArgumentNullException(nameof(viewName));
 
             return comment
-                .Bind(c => c.Comment)
+                .Bind(static c => c.Comment)
                 .Match(
                     SyntaxUtilities.BuildCommentTrivia,
                     () => SyntaxUtilities.BuildCommentTrivia(new XmlNodeSyntax[]

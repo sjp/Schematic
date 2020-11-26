@@ -9,16 +9,16 @@ namespace SJP.Schematic.Serialization.Mapping
         public IndexProfile()
         {
             CreateMap<Dto.DatabaseIndex, DatabaseIndex>()
-                .ConstructUsing((dto, ctx) => new DatabaseIndex(
+                .ConstructUsing(static (dto, ctx) => new DatabaseIndex(
                     ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.IndexName!),
                     dto.IsUnique,
                     ctx.Mapper.Map<IEnumerable<Dto.DatabaseIndexColumn>, List<DatabaseIndexColumn>>(dto.Columns),
                     ctx.Mapper.Map<IEnumerable<Dto.DatabaseColumn>, List<DatabaseColumn>>(dto.IncludedColumns),
                     dto.IsEnabled
                 ))
-                .ForAllMembers(cfg => cfg.Ignore());
+                .ForAllMembers(static cfg => cfg.Ignore());
             CreateMap<IDatabaseIndex, Dto.DatabaseIndex>()
-                .ForMember(dest => dest.IndexName, src => src.MapFrom(i => i.Name));
+                .ForMember(static dest => dest.IndexName, static src => src.MapFrom(static i => i.Name));
         }
     }
 }

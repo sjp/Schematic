@@ -62,15 +62,15 @@ namespace SJP.Schematic.Oracle
             ).ConfigureAwait(false);
 
             var routines = queryResult
-                .GroupBy(r => new { r.SchemaName, r.RoutineName })
+                .GroupBy(static r => new { r.SchemaName, r.RoutineName })
                 .Select(r =>
                 {
                     var name = Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, r.Key.SchemaName, r.Key.RoutineName);
 
                     var definition = r
-                        .Where(r => r.Text != null)
-                        .OrderBy(r => r.LineNumber)
-                        .Select(r => r.Text!)
+                        .Where(static r => r.Text != null)
+                        .OrderBy(static r => r.LineNumber)
+                        .Select(static r => r.Text!)
                         .Join(string.Empty);
                     var unwrappedDefinition = OracleUnwrapper.Unwrap(definition);
 

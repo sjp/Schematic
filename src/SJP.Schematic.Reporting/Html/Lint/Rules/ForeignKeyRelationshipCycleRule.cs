@@ -21,7 +21,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
                 throw new ArgumentNullException(nameof(cyclePath));
 
             var tableNames = cyclePath
-                .Select(tableName =>
+                .Select(static tableName =>
                 {
                     var tableUrl = UrlRouter.GetTableUrl(tableName);
                     return $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";

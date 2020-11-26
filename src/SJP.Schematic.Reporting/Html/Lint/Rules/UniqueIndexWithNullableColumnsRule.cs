@@ -44,7 +44,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules
             builder.Append(pluralText);
 
             var formattedColumnNames = columnNames
-                .Select(columnName => "<code>" + HttpUtility.HtmlEncode(columnName) + "</code>");
+                .Select(static columnName => "<code>" + HttpUtility.HtmlEncode(columnName) + "</code>");
             builder.AppendJoin(", ", formattedColumnNames);
 
             var messageText = builder.GetStringAndRelease();

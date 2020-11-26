@@ -9,7 +9,7 @@ namespace SJP.Schematic.Serialization.Mapping
         public DatabaseColumnProfile()
         {
             CreateMap<Dto.DatabaseColumn, DatabaseColumn>()
-                .ConstructUsing((dto, ctx) => dto.IsComputed
+                .ConstructUsing(static (dto, ctx) => dto.IsComputed
                     ? new DatabaseComputedColumn(
                         ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.ColumnName!),
                         ctx.Mapper.Map<Dto.DbType, ColumnDataType>(dto.Type!),
@@ -25,23 +25,23 @@ namespace SJP.Schematic.Serialization.Mapping
                         ctx.Mapper.Map<Dto.AutoIncrement?, Option<IAutoIncrement>>(dto.AutoIncrement)
                       )
                 )
-                .ForAllMembers(cfg => cfg.Ignore());
+                .ForAllMembers(static cfg => cfg.Ignore());
 
             CreateMap<IDatabaseColumn, Dto.DatabaseColumn>()
-                .ForMember(dto => dto.AutoIncrement, src => src.MapFrom(c => c.AutoIncrement))
-                .ForMember(dto => dto.ColumnName, src => src.MapFrom(c => c.Name))
-                .ForMember(dto => dto.DefaultValue, src => src.MapFrom(c => c.DefaultValue))
-                .ForMember(dto => dto.Definition, src => src.MapFrom(_ => (string?)null))
-                .ForMember(dto => dto.IsComputed, src => src.MapFrom(c => c.IsComputed))
-                .ForMember(dto => dto.IsNullable, src => src.MapFrom(c => c.IsNullable));
+                .ForMember(static dto => dto.AutoIncrement, static src => src.MapFrom(static c => c.AutoIncrement))
+                .ForMember(static dto => dto.ColumnName, static src => src.MapFrom(static c => c.Name))
+                .ForMember(static dto => dto.DefaultValue, static src => src.MapFrom(static c => c.DefaultValue))
+                .ForMember(static dto => dto.Definition, static src => src.MapFrom(static _ => (string?)null))
+                .ForMember(static dto => dto.IsComputed, static src => src.MapFrom(static c => c.IsComputed))
+                .ForMember(static dto => dto.IsNullable, static src => src.MapFrom(static c => c.IsNullable));
 
             CreateMap<IDatabaseComputedColumn, Dto.DatabaseColumn>()
-                .ForMember(dto => dto.AutoIncrement, src => src.MapFrom(c => c.AutoIncrement))
-                .ForMember(dto => dto.ColumnName, src => src.MapFrom(c => c.Name))
-                .ForMember(dto => dto.DefaultValue, src => src.MapFrom(c => c.DefaultValue))
-                .ForMember(dto => dto.Definition, src => src.MapFrom(c => c.Definition))
-                .ForMember(dto => dto.IsComputed, src => src.MapFrom(_ => true))
-                .ForMember(dto => dto.IsNullable, src => src.MapFrom(c => c.IsNullable));
+                .ForMember(static dto => dto.AutoIncrement, static src => src.MapFrom(static c => c.AutoIncrement))
+                .ForMember(static dto => dto.ColumnName, static src => src.MapFrom(static c => c.Name))
+                .ForMember(static dto => dto.DefaultValue, static src => src.MapFrom(static c => c.DefaultValue))
+                .ForMember(static dto => dto.Definition, static src => src.MapFrom(static c => c.Definition))
+                .ForMember(static dto => dto.IsComputed, static src => src.MapFrom(static _ => true))
+                .ForMember(static dto => dto.IsNullable, static src => src.MapFrom(static c => c.IsNullable));
         }
     }
 }

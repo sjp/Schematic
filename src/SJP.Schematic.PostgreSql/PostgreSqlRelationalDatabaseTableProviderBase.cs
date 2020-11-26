@@ -91,7 +91,7 @@ namespace SJP.Schematic.PostgreSql
         {
             var queryResults = await DbConnection.QueryAsync<QualifiedName>(TablesQuery, cancellationToken).ConfigureAwait(false);
             var tableNames = queryResults
-                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .Select(QualifyTableName);
 
             var queryCache = CreateQueryCache();
@@ -276,7 +276,7 @@ limit 1";
             var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
             var columnLookup = GetColumnLookup(columns);
 
-            var groupedByName = primaryKeyColumns.GroupBy(row => new { row.ConstraintName });
+            var groupedByName = primaryKeyColumns.GroupBy(static row => new { row.ConstraintName });
             var firstRow = groupedByName.First();
             var constraintName = firstRow.Key.ConstraintName;
             if (constraintName == null)
@@ -286,7 +286,7 @@ limit 1";
                 .Where(row => string.Equals(row.Key.ConstraintName, constraintName, StringComparison.Ordinal))
                 .SelectMany(g => g
                     .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
-                    .OrderBy(row => row.OrdinalPosition)
+                    .OrderBy(static row => row.OrdinalPosition)
                     .Select(row => columnLookup[row.ColumnName!]))
                 .ToList();
 
@@ -342,7 +342,7 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
-            var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IsUnique, row.IsPrimary }).ToList();
+            var indexColumns = queryResult.GroupBy(static row => new { row.IndexName, row.IsUnique, row.IsPrimary }).ToList();
             if (indexColumns.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
@@ -356,8 +356,8 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
                 var indexName = Identifier.CreateQualifiedIdentifier(indexInfo.Key.IndexName);
 
                 var indexCols = indexInfo
-                    .Where(row => row.IndexColumnExpression != null)
-                    .OrderBy(row => row.IndexColumnId)
+                    .Where(static row => row.IndexColumnExpression != null)
+                    .OrderBy(static row => row.IndexColumnId)
                     .Select(row => new
                     {
                         row.IsDescending,
@@ -449,14 +449,14 @@ where
             var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
             var columnLookup = GetColumnLookup(columns);
 
-            var groupedByName = uniqueKeyColumns.GroupBy(row => new { row.ConstraintName });
+            var groupedByName = uniqueKeyColumns.GroupBy(static row => new { row.ConstraintName });
             var constraintColumns = groupedByName
                 .Select(g => new
                 {
                     g.Key.ConstraintName,
                     Columns = g
                         .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
-                        .OrderBy(row => row.OrdinalPosition)
+                        .OrderBy(static row => row.OrdinalPosition)
                         .Select(row => columnLookup[row.ColumnName!])
                         .ToList(),
                 })
@@ -521,7 +521,7 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
-            var groupedChildKeys = queryResult.GroupBy(row =>
+            var groupedChildKeys = queryResult.GroupBy(static row =>
             new
             {
                 row.ChildTableSchema,
@@ -560,7 +560,7 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
                     .BindAsync(async childTableName =>
                     {
                         var childParentKeys = await queryCache.GetForeignKeysAsync(childTableName, cancellationToken).ConfigureAwait(false);
-                        var parentKeyLookup = GetDatabaseKeyLookup(childParentKeys.Select(fk => fk.ChildKey).ToList());
+                        var parentKeyLookup = GetDatabaseKeyLookup(childParentKeys.Select(static fk => fk.ChildKey).ToList());
 
                         var childKeyName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildKeyName);
                         if (!parentKeyLookup.TryGetValue(childKeyName, out var childKey))
@@ -695,7 +695,7 @@ where
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
-            var foreignKeys = queryResult.GroupBy(row => new
+            var foreignKeys = queryResult.GroupBy(static row => new
             {
                 row.ChildKeyName,
                 row.ParentSchemaName,
@@ -743,7 +743,7 @@ where
                         var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ChildKeyName);
                         var childKeyColumns = fkey
                             .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
-                            .OrderBy(row => row.ConstraintColumnId)
+                            .OrderBy(static row => row.ConstraintColumnId)
                             .Select(row => columnLookup[row.ColumnName!])
                             .ToList();
 
@@ -926,7 +926,7 @@ order by ordinal_position";
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseTrigger>();
 
-            var triggers = queryResult.GroupBy(row => new
+            var triggers = queryResult.GroupBy(static row => new
             {
                 row.TriggerName,
                 row.Definition,

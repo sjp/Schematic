@@ -28,8 +28,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
             RootPath = rootPath ?? throw new ArgumentNullException(nameof(rootPath));
             Start = start;
             Increment = increment;
-            MinValueText = minValue.Match(mv => mv.ToString(CultureInfo.InvariantCulture), () => string.Empty);
-            MaxValueText = maxValue.Match(mv => mv.ToString(CultureInfo.InvariantCulture), () => string.Empty);
+            MinValueText = minValue.Match(static mv => mv.ToString(CultureInfo.InvariantCulture), static () => string.Empty);
+            MaxValueText = maxValue.Match(static mv => mv.ToString(CultureInfo.InvariantCulture), static () => string.Empty);
             Cache = cache;
             CycleText = cycle ? "✓" : "✗";
         }

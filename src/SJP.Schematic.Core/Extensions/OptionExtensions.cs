@@ -23,7 +23,7 @@ namespace SJP.Schematic.Core.Extensions
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
-            return input.FirstOrDefault(x => x.IsSome);
+            return input.FirstOrDefault(static x => x.IsSome);
         }
 
         /// <summary>

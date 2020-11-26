@@ -25,12 +25,12 @@ namespace SJP.Schematic.Core.Utilities
                 return Array.Empty<IReadOnlyCollection<Identifier>>();
 
             var graph = new AdjacencyGraph<Identifier, SEquatableEdge<Identifier>>();
-            var tableNames = tables.Select(t => t.Name).Distinct().ToList();
+            var tableNames = tables.Select(static t => t.Name).Distinct().ToList();
             graph.AddVertexRange(tableNames);
 
             var foreignKeys = tables
-                .SelectMany(t => t.ParentKeys)
-                .Where(fk => fk.ChildTable != fk.ParentTable)
+                .SelectMany(static t => t.ParentKeys)
+                .Where(static fk => fk.ChildTable != fk.ParentTable)
                 .ToList();
             foreach (var foreignKey in foreignKeys)
                 graph.AddEdge(new SEquatableEdge<Identifier>(foreignKey.ChildTable, foreignKey.ParentTable));
@@ -109,8 +109,8 @@ namespace SJP.Schematic.Core.Utilities
             if (newCycle == null)
                 throw new ArgumentNullException(nameof(newCycle));
 
-            var orderedExisting = existingCycle.OrderBy(name => name).Distinct().ToList();
-            var orderedNewCycle = newCycle.OrderBy(name => name).Distinct().ToList();
+            var orderedExisting = existingCycle.OrderBy(static name => name).Distinct().ToList();
+            var orderedNewCycle = newCycle.OrderBy(static name => name).Distinct().ToList();
 
             return orderedExisting.SequenceEqual(orderedNewCycle);
         }

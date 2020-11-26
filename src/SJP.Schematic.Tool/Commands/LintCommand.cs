@@ -11,7 +11,7 @@ namespace SJP.Schematic.Tool.Commands
         public LintCommand()
             : base("lint", "Provides a lint report for potential schema issues.")
         {
-            Handler = CommandHandler.Create<IConsole, FileInfo, CancellationToken>((console, config, cancellationToken) =>
+            Handler = CommandHandler.Create<IConsole, FileInfo, CancellationToken>(static (console, config, cancellationToken) =>
             {
                 var handler = new LintCommandHandler(config);
                 return handler.HandleCommandAsync(console, cancellationToken);

@@ -36,7 +36,7 @@ namespace SJP.Schematic.Modelled.Reflection
 
             // remove leading empty lines, but not all leading padding
             // remove all trailing whitespace, regardless
-            return string.Join(Environment.NewLine, lines.SkipWhile(x => string.IsNullOrWhiteSpace(x))).TrimEnd();
+            return string.Join(Environment.NewLine, lines.SkipWhile(static x => string.IsNullOrWhiteSpace(x))).TrimEnd();
         }
 
         private static string GetCommonLeadingWhitespace(string[] lines)
@@ -48,7 +48,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 return string.Empty;
 
             var nonEmptyLines = lines
-                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Where(static x => !string.IsNullOrWhiteSpace(x))
                 .ToArray();
 
             if (nonEmptyLines.Length < 1)
@@ -77,12 +77,12 @@ namespace SJP.Schematic.Modelled.Reflection
 
         private static string HumanizeRefTags(this string text)
         {
-            return RefTagPattern.Replace(text, (match) => match.Groups["display"].Value);
+            return RefTagPattern.Replace(text, static match => match.Groups["display"].Value);
         }
 
         private static string HumanizeCodeTags(this string text)
         {
-            return CodeTagPattern.Replace(text, (match) => "{" + match.Groups["display"].Value + "}");
+            return CodeTagPattern.Replace(text, static match => "{" + match.Groups["display"].Value + "}");
         }
 
         private static readonly Regex RefTagPattern = new Regex(@"<(see|paramref) (name|cref)=""([TPF]{1}:)?(?<display>.+?)"" ?/>", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));

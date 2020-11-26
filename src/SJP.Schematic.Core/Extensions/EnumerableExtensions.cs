@@ -54,7 +54,7 @@ namespace SJP.Schematic.Core.Extensions
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            return source.Any(x => x == null);
+            return source.Any(static x => x == null);
         }
 
         /// <summary>

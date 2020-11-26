@@ -35,7 +35,7 @@ namespace SJP.Schematic.DataAccess.Extensions
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
-            return _pascalizeRegex.Replace(input, match => match.Groups[1].Value.ToUpper(CultureInfo.InvariantCulture));
+            return _pascalizeRegex.Replace(input, static match => match.Groups[1].Value.ToUpper(CultureInfo.InvariantCulture));
         }
 
         /// <summary>

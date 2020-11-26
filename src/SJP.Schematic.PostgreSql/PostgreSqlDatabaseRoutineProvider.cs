@@ -62,7 +62,7 @@ namespace SJP.Schematic.PostgreSql
             ).ConfigureAwait(false);
 
             var routines = queryResult
-                .Where(row => row.Definition != null)
+                .Where(static row => row.Definition != null)
                 .Select(row =>
                 {
                     var routineName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.RoutineName));

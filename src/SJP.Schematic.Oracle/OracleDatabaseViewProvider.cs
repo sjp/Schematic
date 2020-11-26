@@ -64,8 +64,8 @@ namespace SJP.Schematic.Oracle
 
             var views = queryViews
                 .Concat(materializedViews)
-                .OrderBy(v => v.Name.Schema)
-                .ThenBy(v => v.Name.LocalName);
+                .OrderBy(static v => v.Name.Schema)
+                .ThenBy(static v => v.Name.LocalName);
 
             foreach (var view in views)
                 yield return view;

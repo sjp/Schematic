@@ -78,7 +78,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels
                 TitleNullable = isNullable ? "Nullable" : string.Empty;
                 NullableText = isNullable ? "✓" : "✗";
                 Type = typeDefinition ?? string.Empty;
-                DefaultValue = defaultValue.Match(def => def ?? string.Empty, () => string.Empty);
+                DefaultValue = defaultValue.Match(static def => def ?? string.Empty, static () => string.Empty);
             }
 
             public int Ordinal { get; }

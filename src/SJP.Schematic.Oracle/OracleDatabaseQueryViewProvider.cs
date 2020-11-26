@@ -71,7 +71,7 @@ namespace SJP.Schematic.Oracle
         {
             var queryResult = await DbConnection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
             var viewNames = queryResult
-                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .Select(QualifyViewName);
 
             foreach (var viewName in viewNames)
@@ -248,8 +248,8 @@ where OWNER = :SchemaName and VIEW_NAME = :ViewName";
             ).ConfigureAwait(false);
 
             var columnNames = query
-                .Where(row => row.ColumnName != null)
-                .Select(row => row.ColumnName!)
+                .Where(static row => row.ColumnName != null)
+                .Select(static row => row.ColumnName!)
                 .ToList();
             var notNullableColumnNames = await GetNotNullConstrainedColumnsAsync(viewName, columnNames, cancellationToken).ConfigureAwait(false);
             var result = new List<IDatabaseColumn>();
@@ -369,7 +369,7 @@ where OWNER = :SchemaName and TABLE_NAME = :ViewName and CONSTRAINT_TYPE = 'C'";
             if (columnName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(columnName));
 
-            return _notNullDefinitions.GetOrAdd(columnName, colName => "\"" + colName + "\" IS NOT NULL");
+            return _notNullDefinitions.GetOrAdd(columnName, static colName => "\"" + colName + "\" IS NOT NULL");
         }
 
         /// <summary>

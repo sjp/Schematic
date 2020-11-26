@@ -267,7 +267,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName and v.is_ms_
                 var autoIncrement = row.IdentityIncrement
                     .Match(
                         incr => row.IdentitySeed.Match(seed => new AutoIncrement(seed, incr), () => Option<IAutoIncrement>.None),
-                        () => Option<IAutoIncrement>.None
+                        static () => Option<IAutoIncrement>.None
                     );
                 var defaultValue = row.HasDefaultValue && row.DefaultValue != null
                     ? Option<string>.Some(row.DefaultValue)

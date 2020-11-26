@@ -91,7 +91,7 @@ namespace SJP.Schematic.Oracle
         {
             var queryResults = await DbConnection.QueryAsync<QualifiedName>(TablesQuery, cancellationToken).ConfigureAwait(false);
             var tableNames = queryResults
-                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .Select(QualifyTableName);
 
             var queryCache = CreateQueryCache();
@@ -285,14 +285,14 @@ where
             var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
             var columnLookup = GetColumnLookup(columns);
 
-            var groupedByName = primaryKeyColumns.GroupBy(row => new { row.ConstraintName, row.EnabledStatus });
+            var groupedByName = primaryKeyColumns.GroupBy(static row => new { row.ConstraintName, row.EnabledStatus });
             var firstRow = groupedByName.First();
             var constraintName = firstRow.Key.ConstraintName;
             var isEnabled = string.Equals(firstRow.Key.EnabledStatus, Constants.Enabled, StringComparison.Ordinal);
 
             var keyColumns = firstRow
                 .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
-                .OrderBy(row => row.ColumnPosition)
+                .OrderBy(static row => row.ColumnPosition)
                 .Select(row => columnLookup[row.ColumnName!])
                 .ToList();
 
@@ -349,7 +349,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
-            var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IndexProperty, row.Uniqueness }).ToList();
+            var indexColumns = queryResult.GroupBy(static row => new { row.IndexName, row.IndexProperty, row.Uniqueness }).ToList();
             if (indexColumns.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
@@ -364,9 +364,9 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                 var indexName = Identifier.CreateQualifiedIdentifier(indexInfo.Key.IndexName);
 
                 var indexCols = indexInfo
-                    .Where(row => row.ColumnName != null)
-                    .OrderBy(row => row.ColumnPosition)
-                    .Select(row => new { row.IsDescending, Column = row.ColumnName! })
+                    .Where(static row => row.ColumnName != null)
+                    .OrderBy(static row => row.ColumnPosition)
+                    .Select(static row => new { row.IsDescending, Column = row.ColumnName! })
                     .Select(row =>
                     {
                         var order = string.Equals(row.IsDescending, Constants.Y, StringComparison.Ordinal) ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
@@ -443,15 +443,15 @@ order by aic.COLUMN_POSITION";
             var columnLookup = GetColumnLookup(columns);
 
             var groupedByName = uniqueKeyColumns
-                .Where(row => row.ConstraintName != null)
-                .GroupBy(row => new { ConstraintName = row.ConstraintName!, row.EnabledStatus });
+                .Where(static row => row.ConstraintName != null)
+                .GroupBy(static row => new { ConstraintName = row.ConstraintName!, row.EnabledStatus });
             var constraintColumns = groupedByName
                 .Select(g => new
                 {
                     g.Key.ConstraintName,
                     Columns = g
                         .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
-                        .OrderBy(row => row.ColumnPosition)
+                        .OrderBy(static row => row.ColumnPosition)
                         .Select(row => columnLookup[row.ColumnName!])
                         .ToList(),
                     IsEnabled = string.Equals(g.Key.EnabledStatus, Constants.Enabled, StringComparison.Ordinal)
@@ -537,7 +537,7 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
                     .BindAsync(async childTableName =>
                     {
                         var parentKeys = await queryCache.GetForeignKeysAsync(childTableName, cancellationToken).ConfigureAwait(false);
-                        var parentKeyLookup = GetDatabaseKeyLookup(parentKeys.Select(fk => fk.ChildKey).ToList());
+                        var parentKeyLookup = GetDatabaseKeyLookup(parentKeys.Select(static fk => fk.ChildKey).ToList());
 
                         var childKeyName = Identifier.CreateQualifiedIdentifier(childKeyRow.ChildKeyName);
                         if (!parentKeyLookup.TryGetValue(childKeyName, out var childKey))
@@ -609,7 +609,7 @@ where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_
             var columnLookup = GetColumnLookup(columns);
 
             var columnNotNullConstraints = columnLookup.Keys
-                .Select(k => k.LocalName)
+                .Select(static k => k.LocalName)
                 .Select(GenerateNotNullDefinition)
                 .ToList();
 
@@ -674,7 +674,7 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
-            var foreignKeys = queryResult.GroupBy(row => new
+            var foreignKeys = queryResult.GroupBy(static row => new
             {
                 row.ConstraintName,
                 row.EnabledStatus,
@@ -720,7 +720,7 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
                         var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ConstraintName);
                         var childKeyColumns = fkey
                             .Where(row => columnLookup.ContainsKey(row.ColumnName))
-                            .OrderBy(row => row.ColumnPosition)
+                            .OrderBy(static row => row.ColumnPosition)
                             .Select(row => columnLookup[row.ColumnName])
                             .ToList();
 
@@ -783,8 +783,8 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
             ).ConfigureAwait(false);
 
             var columnNames = query
-                .Where(row => row.ColumnName != null)
-                .Select(row => row.ColumnName!)
+                .Where(static row => row.ColumnName != null)
+                .Select(static row => row.ColumnName!)
                 .ToList();
             var notNullableColumnNames = await GetNotNullConstrainedColumnsAsync(tableName, columnNames, cancellationToken).ConfigureAwait(false);
             var result = new List<IDatabaseColumn>();
@@ -977,7 +977,7 @@ where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE
             if (columnName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(columnName));
 
-            return _notNullDefinitions.GetOrAdd(columnName, colName => "\"" + colName + "\" IS NOT NULL");
+            return _notNullDefinitions.GetOrAdd(columnName, static colName => "\"" + colName + "\" IS NOT NULL");
         }
 
         /// <summary>

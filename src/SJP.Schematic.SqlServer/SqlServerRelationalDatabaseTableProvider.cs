@@ -76,7 +76,7 @@ namespace SJP.Schematic.SqlServer
         {
             var queryResults = await DbConnection.QueryAsync<QualifiedName>(TablesQuery, cancellationToken).ConfigureAwait(false);
             var tableNames = queryResults
-                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .Select(QualifyTableName);
 
             var queryCache = CreateQueryCache();
@@ -231,7 +231,7 @@ where schema_id = schema_id(@SchemaName) and name = @TableName and is_ms_shipped
             if (primaryKeyColumns.Empty())
                 return Option<IDatabaseKey>.None;
 
-            var groupedByName = primaryKeyColumns.GroupBy(row => new { row.ConstraintName, row.IsDisabled });
+            var groupedByName = primaryKeyColumns.GroupBy(static row => new { row.ConstraintName, row.IsDisabled });
             var firstRow = groupedByName.First();
             var constraintName = firstRow.Key.ConstraintName;
             if (constraintName == null)
@@ -303,7 +303,7 @@ order by ic.key_ordinal";
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
-            var indexColumns = queryResult.GroupBy(row => new { row.IndexName, row.IsUnique, row.IsDisabled }).ToList();
+            var indexColumns = queryResult.GroupBy(static row => new { row.IndexName, row.IsUnique, row.IsDisabled }).ToList();
             if (indexColumns.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
@@ -319,8 +319,8 @@ order by ic.key_ordinal";
 
                 var indexCols = indexInfo
                     .Where(row => !row.IsIncludedColumn && columnLookup.ContainsKey(row.ColumnName))
-                    .OrderBy(row => row.KeyOrdinal)
-                    .ThenBy(row => row.IndexColumnId)
+                    .OrderBy(static row => row.KeyOrdinal)
+                    .ThenBy(static row => row.IndexColumnId)
                     .Select(row => new { row.IsDescending, Column = columnLookup[row.ColumnName] })
                     .Select(row =>
                     {
@@ -333,8 +333,8 @@ order by ic.key_ordinal";
 
                 var includedCols = indexInfo
                     .Where(row => row.IsIncludedColumn && columnLookup.ContainsKey(row.ColumnName))
-                    .OrderBy(row => row.KeyOrdinal)
-                    .ThenBy(row => row.ColumnName) // matches SSMS behaviour
+                    .OrderBy(static row => row.KeyOrdinal)
+                    .ThenBy(static row => row.ColumnName) // matches SSMS behaviour
                     .Select(row => columnLookup[row.ColumnName])
                     .ToList();
 
@@ -402,7 +402,7 @@ order by ic.index_id, ic.key_ordinal, ic.index_column_id";
             var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
             var columnLookup = GetColumnLookup(columns);
 
-            var groupedByName = uniqueKeyColumns.GroupBy(row => new { row.ConstraintName, row.IsDisabled });
+            var groupedByName = uniqueKeyColumns.GroupBy(static row => new { row.ConstraintName, row.IsDisabled });
             var constraintColumns = groupedByName
                 .Select(g => new
                 {
@@ -478,7 +478,7 @@ order by ic.key_ordinal";
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
-            var groupedChildKeys = queryResult.GroupBy(row =>
+            var groupedChildKeys = queryResult.GroupBy(static row =>
             new
             {
                 row.ChildTableSchema,
@@ -639,7 +639,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
-            var foreignKeys = queryResult.GroupBy(row => new
+            var foreignKeys = queryResult.GroupBy(static row => new
             {
                 row.ChildKeyName,
                 row.ParentTableSchema,
@@ -686,7 +686,7 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
                         var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ChildKeyName);
                         var childKeyColumns = fkey
                             .Where(row => columnLookup.ContainsKey(row.ColumnName))
-                            .OrderBy(row => row.ConstraintColumnId)
+                            .OrderBy(static row => row.ConstraintColumnId)
                             .Select(row => columnLookup[row.ColumnName])
                             .ToList();
 
@@ -774,7 +774,7 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
                 var autoIncrement = row.IdentityIncrement
                     .Match(
                         incr => row.IdentitySeed.Match(seed => new AutoIncrement(seed, incr), () => Option<IAutoIncrement>.None),
-                        () => Option<IAutoIncrement>.None
+                        static () => Option<IAutoIncrement>.None
                     );
                 var defaultValue = row.HasDefaultValue && row.DefaultValue != null
                     ? Option<string>.Some(row.DefaultValue)
@@ -850,7 +850,7 @@ order by c.column_id";
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseTrigger>();
 
-            var triggers = queryResult.GroupBy(row => new
+            var triggers = queryResult.GroupBy(static row => new
             {
                 row.TriggerName,
                 row.Definition,

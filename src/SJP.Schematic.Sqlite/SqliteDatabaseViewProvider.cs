@@ -72,8 +72,8 @@ namespace SJP.Schematic.Sqlite
         {
             var dbNamesQuery = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
             var dbNames = dbNamesQuery
-                .OrderBy(d => d.seq)
-                .Select(d => d.name)
+                .OrderBy(static d => d.seq)
+                .Select(static d => d.name)
                 .ToList();
 
             var qualifiedViewNames = new List<Identifier>();
@@ -90,8 +90,8 @@ namespace SJP.Schematic.Sqlite
             }
 
             var orderedViewNames = qualifiedViewNames
-                .OrderBy(v => v.Schema)
-                .ThenBy(v => v.LocalName);
+                .OrderBy(static v => v.Schema)
+                .ThenBy(static v => v.LocalName);
 
             foreach (var viewName in orderedViewNames)
                 yield return await LoadViewAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
@@ -136,7 +136,7 @@ namespace SJP.Schematic.Sqlite
             }
 
             var dbNamesResult = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
-            var dbNames = dbNamesResult.OrderBy(l => l.seq).Select(l => l.name).ToList();
+            var dbNames = dbNamesResult.OrderBy(static l => l.seq).Select(static l => l.name).ToList();
             foreach (var dbName in dbNames)
             {
                 var qualifiedViewName = Identifier.CreateQualifiedIdentifier(dbName, viewName.LocalName);
@@ -180,8 +180,8 @@ namespace SJP.Schematic.Sqlite
                 {
                     var dbList = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
                     var viewSchemaName = dbList
-                        .OrderBy(s => s.seq)
-                        .Select(s => s.name)
+                        .OrderBy(static s => s.seq)
+                        .Select(static s => s.name)
                         .FirstOrDefault(s => string.Equals(s, viewName.Schema, StringComparison.OrdinalIgnoreCase));
                     if (viewSchemaName == null)
                         throw new InvalidOperationException("Unable to find a database matching the given schema name: " + viewName.Schema);
@@ -192,8 +192,8 @@ namespace SJP.Schematic.Sqlite
 
             var dbNamesResult = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
             var dbNames = dbNamesResult
-                .OrderBy(l => l.seq)
-                .Select(l => l.name)
+                .OrderBy(static l => l.seq)
+                .Select(static l => l.name)
                 .ToList();
             foreach (var dbName in dbNames)
             {

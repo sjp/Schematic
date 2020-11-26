@@ -61,15 +61,15 @@ namespace SJP.Schematic.DataAccess.Poco
                 : Namespace;
 
             var namespaces = view.Columns
-                .Select(c => c.Type.ClrType.Namespace)
+                .Select(static c => c.Type.ClrType.Namespace)
                 .Where(ns => ns != null && !string.Equals(ns, viewNamespace, StringComparison.Ordinal))
-                .Select(ns => ns!)
+                .Select(static ns => ns!)
                 .Distinct(StringComparer.Ordinal)
                 .OrderNamespaces()
                 .ToList();
 
             var usingStatements = namespaces
-                .Select(ns => ParseName(ns))
+                .Select(static ns => ParseName(ns))
                 .Select(UsingDirective)
                 .ToList();
             var namespaceDeclaration = NamespaceDeclaration(ParseName(viewNamespace));
@@ -148,7 +148,7 @@ namespace SJP.Schematic.DataAccess.Poco
                 throw new ArgumentNullException(nameof(viewName));
 
             return comment
-                .Bind(c => c.Comment)
+                .Bind(static c => c.Comment)
                 .Match(
                     SyntaxUtilities.BuildCommentTrivia,
                     () => SyntaxUtilities.BuildCommentTrivia(new XmlNodeSyntax[]

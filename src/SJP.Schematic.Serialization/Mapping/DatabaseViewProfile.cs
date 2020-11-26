@@ -9,7 +9,7 @@ namespace SJP.Schematic.Serialization.Mapping
         public DatabaseViewProfile()
         {
             CreateMap<Dto.DatabaseView, DatabaseView>()
-                .ConstructUsing((dto, ctx) =>
+                .ConstructUsing(static (dto, ctx) =>
                     dto.IsMaterialized
                         ? new DatabaseMaterializedView(
                             ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.ViewName),
@@ -19,10 +19,10 @@ namespace SJP.Schematic.Serialization.Mapping
                             ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.ViewName),
                             dto.Definition,
                             ctx.Mapper.Map<IEnumerable<Dto.DatabaseColumn>, List<DatabaseColumn>>(dto.Columns)))
-                .ForAllMembers(cfg => cfg.Ignore());
+                .ForAllMembers(static cfg => cfg.Ignore());
 
             CreateMap<IDatabaseView, Dto.DatabaseView>()
-                .ForMember(dest => dest.ViewName, src => src.MapFrom(v => v.Name));
+                .ForMember(static dest => dest.ViewName, static src => src.MapFrom(static v => v.Name));
         }
     }
 }

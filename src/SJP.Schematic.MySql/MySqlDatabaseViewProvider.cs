@@ -67,7 +67,7 @@ namespace SJP.Schematic.MySql
             ).ConfigureAwait(false);
 
             var viewNames = queryResult
-                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
                 .Select(QualifyViewName);
 
             foreach (var viewName in viewNames)

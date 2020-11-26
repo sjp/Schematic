@@ -106,7 +106,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             }
 
             var viewViewModels = Views.Select(mapper.Map).ToList();
-            columns += (uint)viewViewModels.Sum(v => v.ColumnCount);
+            columns += (uint)viewViewModels.Sum(static v => v.ColumnCount);
 
             var sequenceViewModels = Sequences.Select(mapper.Map).ToList();
 
@@ -115,17 +115,17 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
             var routineViewModels = Routines.Select(mapper.Map).ToList();
 
-            var schemas = Tables.Select(t => t.Name)
-                .Union(Views.Select(v => v.Name))
-                .Union(Sequences.Select(s => s.Name))
-                .Union(Synonyms.Select(s => s.Name))
-                .Union(Routines.Select(r => r.Name))
-                .Select(n => n.Schema)
-                .Where(n => n != null)
+            var schemas = Tables.Select(static t => t.Name)
+                .Union(Views.Select(static v => v.Name))
+                .Union(Sequences.Select(static s => s.Name))
+                .Union(Synonyms.Select(static s => s.Name))
+                .Union(Routines.Select(static r => r.Name))
+                .Select(static n => n.Schema)
+                .Where(static n => n != null)
                 .Distinct(StringComparer.Ordinal)
-                .Where(s => s != null)
-                .Select(s => s!)
-                .OrderBy(n => n)
+                .Where(static s => s != null)
+                .Select(static s => s!)
+                .OrderBy(static n => n)
                 .ToList();
 
             var templateParameter = new Main(
