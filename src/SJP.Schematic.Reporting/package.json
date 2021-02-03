@@ -20,7 +20,7 @@
   "devDependencies": {
     "@babel/core": "7.12.10",
     "@babel/preset-env": "7.12.11",
-    "@babel/register": "7.12.10",
+    "@babel/register": "7.12.13",
     "admin-lte": "3.0.5",
     "bootstrap": "4.6.0",
     "codemirror": "5.59.2",
