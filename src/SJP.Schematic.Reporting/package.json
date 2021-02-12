@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@babel/core": "7.12.13",
-    "@babel/preset-env": "7.12.13",
+    "@babel/preset-env": "7.12.16",
     "@babel/register": "7.12.13",
     "admin-lte": "3.0.5",
     "bootstrap": "4.6.0",
