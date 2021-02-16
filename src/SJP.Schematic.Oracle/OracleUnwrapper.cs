@@ -168,7 +168,7 @@ namespace SJP.Schematic.Oracle
                 if (lengthLine == null)
                     return false;
 
-                var lengthPieces = lengthLine.Split(SpaceChar, StringSplitOptions.RemoveEmptyEntries);
+                var lengthPieces = lengthLine.Split(SpaceChar, 3, StringSplitOptions.RemoveEmptyEntries);
                 if (lengthPieces.Length != 2)
                     return false;
 

@@ -159,7 +159,7 @@ from DUAL";
 
             // only take the first 4 version numbers and try again
             var versionStr = version
-                .Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries)
+                .Split(new[] { '.' }, 5, StringSplitOptions.RemoveEmptyEntries)
                 .Take(4)
                 .Join(".");
             return Version.TryParse(versionStr, out var v)
