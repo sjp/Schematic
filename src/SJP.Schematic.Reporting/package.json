@@ -39,7 +39,7 @@
     "gulp-sass": "4.1.0",
     "gulp-uglify": "3.0.2",
     "hammerjs": "2.0.8",
-    "jquery": "3.5.1",
+    "jquery": "3.6.0",
     "jquery-ui-dist": "1.12.1",
     "natives": "1.1.6",
     "node-sass": "5.0.0",
