@@ -194,13 +194,13 @@ namespace SJP.Schematic.Sqlite
             if (tableName.Schema != null)
             {
                 var sql = TableNameQuery(tableName.Schema);
-                var queryResult = await DbConnection.ExecuteScalarAsync<GetTableNameQueryResult>(
+                var queryResult = await DbConnection.ExecuteScalarAsync<string>(
                     sql,
                     new GetTableNameQuery { TableName = tableName.LocalName },
                     cancellationToken
                 ).ConfigureAwait(false);
 
-                if (queryResult?.TableName != null)
+                if (queryResult != null)
                 {
                     var dbList = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
                     var tableSchemaName = dbList
@@ -210,7 +210,7 @@ namespace SJP.Schematic.Sqlite
                     if (tableSchemaName == null)
                         throw new InvalidOperationException("Unable to find a database matching the given schema name: " + tableName.Schema);
 
-                    return Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(tableSchemaName, queryResult.TableName));
+                    return Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(tableSchemaName, queryResult));
                 }
             }
 
@@ -969,17 +969,17 @@ namespace SJP.Schematic.Sqlite
             }
 
             var definitionQuery = TableDefinitionQuery(tableName.Schema!);
-            var queryResult = await DbConnection.ExecuteScalarAsync<GetTableDefinitionQueryResult>(
+            var tableSql = await DbConnection.ExecuteScalarAsync<string>(
                 definitionQuery,
                 new GetTableDefinitionQuery { TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
-            return _tableParserCache.GetOrAdd(queryResult.Definition, sql => new Lazy<ParsedTableData>(() =>
+            return _tableParserCache.GetOrAdd(tableSql, sql => new Lazy<ParsedTableData>(() =>
             {
                 var tokenizeResult = Tokenizer.TryTokenize(sql);
                 if (!tokenizeResult.HasValue)
-                    throw new SqliteTableParsingException(tableName, queryResult.Definition, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
+                    throw new SqliteTableParsingException(tableName, tableSql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
 
                 var tokens = tokenizeResult.Value;
                 return TableParser.ParseTokens(sql, tokens);
