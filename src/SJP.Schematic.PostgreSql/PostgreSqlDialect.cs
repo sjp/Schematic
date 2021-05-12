@@ -9,6 +9,7 @@ using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.PostgreSql.Comments;
 using SJP.Schematic.PostgreSql.Query;
+using SJP.Schematic.PostgreSql.QueryResult;
 
 namespace SJP.Schematic.PostgreSql
 {
@@ -35,7 +36,7 @@ namespace SJP.Schematic.PostgreSql
 
         private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
         {
-            var result = await connection.DbConnection.QuerySingleAsync<PgIdentifierDefaults>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
+            var result = await connection.DbConnection.QuerySingleAsync<PgIdentifierDefaultsQueryResult>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
 
             if (result.Server.IsNullOrWhiteSpace())
                 return result with { Server = "127.0.0.1" };
@@ -45,9 +46,9 @@ namespace SJP.Schematic.PostgreSql
 
         private static readonly string IdentifierDefaultsQuerySql = @$"
 select
-    pg_catalog.host(pg_catalog.inet_server_addr()) as ""{ nameof(PgIdentifierDefaults.Server) }"",
-    pg_catalog.current_database() as ""{ nameof(PgIdentifierDefaults.Database) }"",
-    pg_catalog.current_schema() as ""{ nameof(PgIdentifierDefaults.Schema) }""";
+    pg_catalog.host(pg_catalog.inet_server_addr()) as ""{ nameof(PgIdentifierDefaultsQueryResult.Server) }"",
+    pg_catalog.current_database() as ""{ nameof(PgIdentifierDefaultsQueryResult.Database) }"",
+    pg_catalog.current_schema() as ""{ nameof(PgIdentifierDefaultsQueryResult.Schema) }""";
 
         /// <summary>
         /// Gets the database display version. Usually a more user-friendly form of the database version.

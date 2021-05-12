@@ -1,5 +1,6 @@
 ﻿using SJP.Schematic.Core;
 using SJP.Schematic.PostgreSql.Query;
+using SJP.Schematic.PostgreSql.QueryResult;
 
 namespace SJP.Schematic.PostgreSql.Versions.V10
 {
@@ -28,14 +29,14 @@ namespace SJP.Schematic.PostgreSql.Versions.V10
 
         private static readonly string SequencesQuerySql = @$"
 select
-    schemaname as ""{ nameof(SequenceData.SchemaName) }"",
-    sequencename as ""{ nameof(SequenceData.SequenceName) }"",
-    start_value as ""{ nameof(SequenceData.StartValue) }"",
-    min_value as ""{ nameof(SequenceData.MinValue) }"",
-    max_value as ""{ nameof(SequenceData.MaxValue) }"",
-    increment_by as ""{ nameof(SequenceData.Increment) }"",
-    cycle as ""{ nameof(SequenceData.Cycle) }"",
-    cache_size as ""{ nameof(SequenceData.CacheSize) }""
+    schemaname as ""{ nameof(GetAllSequenceDefinitionsQueryResult.SchemaName) }"",
+    sequencename as ""{ nameof(GetAllSequenceDefinitionsQueryResult.SequenceName) }"",
+    start_value as ""{ nameof(GetAllSequenceDefinitionsQueryResult.StartValue) }"",
+    min_value as ""{ nameof(GetAllSequenceDefinitionsQueryResult.MinValue) }"",
+    max_value as ""{ nameof(GetAllSequenceDefinitionsQueryResult.MaxValue) }"",
+    increment_by as ""{ nameof(GetAllSequenceDefinitionsQueryResult.Increment) }"",
+    cycle as ""{ nameof(GetAllSequenceDefinitionsQueryResult.Cycle) }"",
+    cache_size as ""{ nameof(GetAllSequenceDefinitionsQueryResult.CacheSize) }""
 from pg_catalog.pg_sequences
 order by schemaname, sequencename";
 
@@ -47,13 +48,13 @@ order by schemaname, sequencename";
 
         private static readonly string SequenceQuerySql = @$"
 select
-    start_value as ""{ nameof(SequenceData.StartValue) }"",
-    min_value as ""{ nameof(SequenceData.MinValue) }"",
-    max_value as ""{ nameof(SequenceData.MaxValue) }"",
-    increment_by as ""{ nameof(SequenceData.Increment) }"",
-    cycle as ""{ nameof(SequenceData.Cycle) }"",
-    cache_size as ""{ nameof(SequenceData.CacheSize) }""
+    start_value as ""{ nameof(GetSequenceDefinitionQueryResult.StartValue) }"",
+    min_value as ""{ nameof(GetSequenceDefinitionQueryResult.MinValue) }"",
+    max_value as ""{ nameof(GetSequenceDefinitionQueryResult.MaxValue) }"",
+    increment_by as ""{ nameof(GetSequenceDefinitionQueryResult.Increment) }"",
+    cycle as ""{ nameof(GetSequenceDefinitionQueryResult.Cycle) }"",
+    cache_size as ""{ nameof(GetSequenceDefinitionQueryResult.CacheSize) }""
 from pg_catalog.pg_sequences
-where schemaname = @SchemaName and sequencename = @SequenceName";
+where schemaname = @{ nameof(GetSequenceDefinitionQuery.SchemaName) } and sequencename = @{ nameof(GetSequenceDefinitionQuery.SequenceName) }";
     }
 }

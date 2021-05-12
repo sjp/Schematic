@@ -14,6 +14,7 @@ using SJP.Schematic.Sqlite.Exceptions;
 using SJP.Schematic.Sqlite.Parsing;
 using SJP.Schematic.Sqlite.Pragma;
 using SJP.Schematic.Sqlite.Query;
+using SJP.Schematic.Sqlite.QueryResult;
 
 namespace SJP.Schematic.Sqlite
 {
@@ -99,10 +100,10 @@ namespace SJP.Schematic.Sqlite
             foreach (var dbName in dbNames)
             {
                 var sql = TablesQuery(dbName);
-                var queryResult = await DbConnection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
+                var queryResult = await DbConnection.QueryAsync<GetAllTableNamesQueryResult>(sql, cancellationToken).ConfigureAwait(false);
                 var names = queryResult
-                    .Where(static name => !IsReservedTableName(name))
-                    .Select(name => Identifier.CreateQualifiedIdentifier(dbName, name));
+                    .Where(static result => !IsReservedTableName(result.TableName))
+                    .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.TableName));
 
                 qualifiedTableNames.AddRange(names);
             }
@@ -125,7 +126,7 @@ namespace SJP.Schematic.Sqlite
             if (schemaName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(schemaName));
 
-            return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'table' order by name";
+            return $"select name as { nameof(GetAllTableNamesQueryResult.TableName) } from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'table' order by name";
         }
 
         /// <summary>
@@ -193,13 +194,13 @@ namespace SJP.Schematic.Sqlite
             if (tableName.Schema != null)
             {
                 var sql = TableNameQuery(tableName.Schema);
-                var tableLocalName = await DbConnection.ExecuteScalarAsync<string>(
+                var queryResult = await DbConnection.ExecuteScalarAsync<GetTableNameQueryResult>(
                     sql,
-                    new { TableName = tableName.LocalName },
+                    new GetTableNameQuery { TableName = tableName.LocalName },
                     cancellationToken
                 ).ConfigureAwait(false);
 
-                if (tableLocalName != null)
+                if (queryResult?.TableName != null)
                 {
                     var dbList = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
                     var tableSchemaName = dbList
@@ -209,7 +210,7 @@ namespace SJP.Schematic.Sqlite
                     if (tableSchemaName == null)
                         throw new InvalidOperationException("Unable to find a database matching the given schema name: " + tableName.Schema);
 
-                    return Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(tableSchemaName, tableLocalName));
+                    return Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(tableSchemaName, queryResult.TableName));
                 }
             }
 
@@ -223,7 +224,7 @@ namespace SJP.Schematic.Sqlite
                 var sql = TableNameQuery(dbName);
                 var tableLocalName = await DbConnection.ExecuteScalarAsync<string>(
                     sql,
-                    new { TableName = tableName.LocalName },
+                    new GetTableNameQuery { TableName = tableName.LocalName },
                     cancellationToken
                 ).ConfigureAwait(false);
 
@@ -245,7 +246,7 @@ namespace SJP.Schematic.Sqlite
             if (schemaName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(schemaName));
 
-            return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'table' and lower(name) = lower(@TableName)";
+            return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'table' and lower(name) = lower(@{ nameof(GetTableNameQuery.TableName) })";
         }
 
         /// <summary>
@@ -551,10 +552,10 @@ namespace SJP.Schematic.Sqlite
             foreach (var dbName in dbNames)
             {
                 var sql = TablesQuery(dbName);
-                var queryResult = await DbConnection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
+                var queryResult = await DbConnection.QueryAsync<GetAllTableNamesQueryResult>(sql, cancellationToken).ConfigureAwait(false);
                 var tableNames = queryResult
-                    .Where(static name => !IsReservedTableName(name))
-                    .Select(name => Identifier.CreateQualifiedIdentifier(dbName, name));
+                    .Where(static result => !IsReservedTableName(result.TableName))
+                    .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.TableName));
 
                 qualifiedChildTableNames.AddRange(tableNames);
             }
@@ -883,9 +884,9 @@ namespace SJP.Schematic.Sqlite
             }
 
             var triggerQuery = TriggerDefinitionQuery(tableName.Schema!);
-            var triggerInfos = await DbConnection.QueryAsync<SqliteMaster>(
+            var triggerInfos = await DbConnection.QueryAsync<GetSqliteMasterQueryResult>(
                 triggerQuery,
-                new { TableName = tableName.LocalName },
+                new GetSqliteMasterQuery { TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -922,7 +923,7 @@ namespace SJP.Schematic.Sqlite
             if (schema.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(schema));
 
-            return $"select * from { Dialect.QuoteIdentifier(schema) }.sqlite_master where type = 'trigger' and tbl_name = @TableName";
+            return $"select * from { Dialect.QuoteIdentifier(schema) }.sqlite_master where type = 'trigger' and tbl_name = @{ nameof(GetSqliteMasterQuery.TableName) }";
         }
 
         private static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(IReadOnlyCollection<IDatabaseColumn> columns)
@@ -968,17 +969,17 @@ namespace SJP.Schematic.Sqlite
             }
 
             var definitionQuery = TableDefinitionQuery(tableName.Schema!);
-            var tableSql = await DbConnection.ExecuteScalarAsync<string>(
+            var queryResult = await DbConnection.ExecuteScalarAsync<GetTableDefinitionQueryResult>(
                 definitionQuery,
-                new { TableName = tableName.LocalName },
+                new GetTableDefinitionQuery { TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
-            return _tableParserCache.GetOrAdd(tableSql, sql => new Lazy<ParsedTableData>(() =>
+            return _tableParserCache.GetOrAdd(queryResult.Definition, sql => new Lazy<ParsedTableData>(() =>
             {
                 var tokenizeResult = Tokenizer.TryTokenize(sql);
                 if (!tokenizeResult.HasValue)
-                    throw new SqliteTableParsingException(tableName, tableSql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
+                    throw new SqliteTableParsingException(tableName, queryResult.Definition, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
 
                 var tokens = tokenizeResult.Value;
                 return TableParser.ParseTokens(sql, tokens);
@@ -996,7 +997,7 @@ namespace SJP.Schematic.Sqlite
             if (schema.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(schema));
 
-            return $"select sql from { Dialect.QuoteIdentifier(schema) }.sqlite_master where type = 'table' and tbl_name = @TableName";
+            return $"select sql from { Dialect.QuoteIdentifier(schema) }.sqlite_master where type = 'table' and tbl_name = @{ nameof(GetTableDefinitionQuery.TableName) }";
         }
 
         /// <summary>

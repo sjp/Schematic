@@ -7,6 +7,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.PostgreSql.Query;
+using SJP.Schematic.PostgreSql.QueryResult;
 
 namespace SJP.Schematic.PostgreSql.Versions.V12
 {
@@ -45,9 +46,9 @@ namespace SJP.Schematic.PostgreSql.Versions.V12
 
         private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var query = await DbConnection.QueryAsync<ColumnDataV12>(
+            var query = await DbConnection.QueryAsync<GetV12TableColumnsQueryResult>(
                 ColumnsQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetV12TableColumnsQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -113,41 +114,41 @@ namespace SJP.Schematic.PostgreSql.Versions.V12
         // additionally the default behaviour misses the schema which may be necessary
         private static readonly string ColumnsQuerySql = @$"
 select
-    column_name as ""{ nameof(ColumnDataV12.ColumnName) }"",
-    ordinal_position as ""{ nameof(ColumnDataV12.OrdinalPosition) }"",
-    column_default as ""{ nameof(ColumnDataV12.ColumnDefault) }"",
-    is_nullable as ""{ nameof(ColumnDataV12.IsNullable) }"",
-    data_type as ""{ nameof(ColumnDataV12.DataType) }"",
-    character_maximum_length as ""{ nameof(ColumnDataV12.CharacterMaximumLength) }"",
-    character_octet_length as ""{ nameof(ColumnDataV12.CharacterOctetLength) }"",
-    numeric_precision as ""{ nameof(ColumnDataV12.NumericPrecision) }"",
-    numeric_precision_radix as ""{ nameof(ColumnDataV12.NumericPrecisionRadix) }"",
-    numeric_scale as ""{ nameof(ColumnDataV12.NumericScale) }"",
-    datetime_precision as ""{ nameof(ColumnDataV12.DatetimePrecision) }"",
-    interval_type as ""{ nameof(ColumnDataV12.IntervalType) }"",
-    collation_catalog as ""{ nameof(ColumnDataV12.CollationCatalog) }"",
-    collation_schema as ""{ nameof(ColumnDataV12.CollationSchema) }"",
-    collation_name as ""{ nameof(ColumnDataV12.CollationName) }"",
-    domain_catalog as ""{ nameof(ColumnDataV12.DomainCatalog) }"",
-    domain_schema as ""{ nameof(ColumnDataV12.DomainSchema) }"",
-    domain_name as ""{ nameof(ColumnDataV12.DomainName) }"",
-    udt_catalog as ""{ nameof(ColumnDataV12.UdtCatalog) }"",
-    udt_schema as ""{ nameof(ColumnDataV12.UdtSchema) }"",
-    udt_name as ""{ nameof(ColumnDataV12.UdtName) }"",
-    dtd_identifier as ""{ nameof(ColumnDataV12.DtdIdentifier) }"",
-    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[1] as ""{ nameof(ColumnDataV12.SerialSequenceSchemaName) }"",
-    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[2] as ""{ nameof(ColumnDataV12.SerialSequenceLocalName) }"",
-    is_identity as ""{ nameof(ColumnDataV12.IsIdentity) }"",
-    identity_generation as ""{ nameof(ColumnDataV12.IdentityGeneration) }"",
-    identity_start as ""{ nameof(ColumnDataV12.IdentityStart) }"",
-    identity_increment as ""{ nameof(ColumnDataV12.IdentityIncrement) }"",
-    identity_maximum as ""{ nameof(ColumnDataV12.IdentityMaximum) }"",
-    identity_minimum as ""{ nameof(ColumnDataV12.IdentityMinimum) }"",
-    identity_cycle as ""{ nameof(ColumnDataV12.IdentityCycle) }"",
-    is_generated as ""{ nameof(ColumnDataV12.IsGenerated) }"",
-    generation_expression as ""{ nameof(ColumnDataV12.GenerationExpression) }""
+    column_name as ""{ nameof(GetV12TableColumnsQueryResult.ColumnName) }"",
+    ordinal_position as ""{ nameof(GetV12TableColumnsQueryResult.OrdinalPosition) }"",
+    column_default as ""{ nameof(GetV12TableColumnsQueryResult.ColumnDefault) }"",
+    is_nullable as ""{ nameof(GetV12TableColumnsQueryResult.IsNullable) }"",
+    data_type as ""{ nameof(GetV12TableColumnsQueryResult.DataType) }"",
+    character_maximum_length as ""{ nameof(GetV12TableColumnsQueryResult.CharacterMaximumLength) }"",
+    character_octet_length as ""{ nameof(GetV12TableColumnsQueryResult.CharacterOctetLength) }"",
+    numeric_precision as ""{ nameof(GetV12TableColumnsQueryResult.NumericPrecision) }"",
+    numeric_precision_radix as ""{ nameof(GetV12TableColumnsQueryResult.NumericPrecisionRadix) }"",
+    numeric_scale as ""{ nameof(GetV12TableColumnsQueryResult.NumericScale) }"",
+    datetime_precision as ""{ nameof(GetV12TableColumnsQueryResult.DatetimePrecision) }"",
+    interval_type as ""{ nameof(GetV12TableColumnsQueryResult.IntervalType) }"",
+    collation_catalog as ""{ nameof(GetV12TableColumnsQueryResult.CollationCatalog) }"",
+    collation_schema as ""{ nameof(GetV12TableColumnsQueryResult.CollationSchema) }"",
+    collation_name as ""{ nameof(GetV12TableColumnsQueryResult.CollationName) }"",
+    domain_catalog as ""{ nameof(GetV12TableColumnsQueryResult.DomainCatalog) }"",
+    domain_schema as ""{ nameof(GetV12TableColumnsQueryResult.DomainSchema) }"",
+    domain_name as ""{ nameof(GetV12TableColumnsQueryResult.DomainName) }"",
+    udt_catalog as ""{ nameof(GetV12TableColumnsQueryResult.UdtCatalog) }"",
+    udt_schema as ""{ nameof(GetV12TableColumnsQueryResult.UdtSchema) }"",
+    udt_name as ""{ nameof(GetV12TableColumnsQueryResult.UdtName) }"",
+    dtd_identifier as ""{ nameof(GetV12TableColumnsQueryResult.DtdIdentifier) }"",
+    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[1] as ""{ nameof(GetV12TableColumnsQueryResult.SerialSequenceSchemaName) }"",
+    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[2] as ""{ nameof(GetV12TableColumnsQueryResult.SerialSequenceLocalName) }"",
+    is_identity as ""{ nameof(GetV12TableColumnsQueryResult.IsIdentity) }"",
+    identity_generation as ""{ nameof(GetV12TableColumnsQueryResult.IdentityGeneration) }"",
+    identity_start as ""{ nameof(GetV12TableColumnsQueryResult.IdentityStart) }"",
+    identity_increment as ""{ nameof(GetV12TableColumnsQueryResult.IdentityIncrement) }"",
+    identity_maximum as ""{ nameof(GetV12TableColumnsQueryResult.IdentityMaximum) }"",
+    identity_minimum as ""{ nameof(GetV12TableColumnsQueryResult.IdentityMinimum) }"",
+    identity_cycle as ""{ nameof(GetV12TableColumnsQueryResult.IdentityCycle) }"",
+    is_generated as ""{ nameof(GetV12TableColumnsQueryResult.IsGenerated) }"",
+    generation_expression as ""{ nameof(GetV12TableColumnsQueryResult.GenerationExpression) }""
 from information_schema.columns
-where table_schema = @SchemaName and table_name = @TableName
+where table_schema = @{ nameof(GetV12TableColumnsQuery.SchemaName) } and table_name = @{ nameof(GetV12TableColumnsQuery.TableName) }
 order by ordinal_position";
 
         /// <summary>
@@ -158,9 +159,9 @@ order by ordinal_position";
         /// <returns>A collection of check constraints.</returns>
         protected override async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, CancellationToken cancellationToken)
         {
-            var checks = await DbConnection.QueryAsync<CheckConstraintData>(
+            var checks = await DbConnection.QueryAsync<GetTableChecksQueryResult>(
                 ChecksQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableChecksQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -199,14 +200,14 @@ order by ordinal_position";
 
         private static readonly string ChecksQuerySql = @$"
 select
-    c.conname as ""{ nameof(CheckConstraintData.ConstraintName) }"",
-    pg_catalog.pg_get_constraintdef(c.oid) as ""{ nameof(CheckConstraintData.Definition) }""
+    c.conname as ""{ nameof(GetTableChecksQueryResult.ConstraintName) }"",
+    pg_catalog.pg_get_constraintdef(c.oid) as ""{ nameof(GetTableChecksQueryResult.Definition) }""
 from pg_catalog.pg_namespace ns
 inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
 where
     c.contype = 'c'
-    and t.relname = @TableName
-    and ns.nspname = @SchemaName";
+    and t.relname = @{ nameof(GetTableChecksQuery.TableName) }
+    and ns.nspname = @{ nameof(GetTableChecksQuery.SchemaName) }";
     }
 }

@@ -10,6 +10,7 @@ using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Oracle.Query;
+using SJP.Schematic.Oracle.QueryResult;
 
 namespace SJP.Schematic.Oracle.Comments
 {
@@ -58,18 +59,24 @@ namespace SJP.Schematic.Oracle.Comments
         /// <returns>A collection of database table comments, where available.</returns>
         public async IAsyncEnumerable<IRelationalDatabaseTableComments> GetAllTableComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var allCommentsData = await Connection.QueryAsync<TableCommentsData>(AllTableCommentsQuery, cancellationToken).ConfigureAwait(false);
+            var allCommentsData = await Connection.QueryAsync<GetAllTableCommentsQueryResult>(AllTableCommentsQuery, cancellationToken).ConfigureAwait(false);
 
             var comments = allCommentsData
-                .GroupBy(static row => new { row.SchemaName, row.ObjectName })
+                .GroupBy(static row => new { row.SchemaName, row.TableName })
                 .Select(g =>
                 {
-                    var tableName = QualifyTableName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.ObjectName));
-                    var comments = g.ToList();
+                    var tableName = QualifyTableName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName));
 
-                    var tableComment = GetTableComment(comments);
+                    var commentData = g.Select(r => new CommentData
+                    {
+                        ColumnName = r.ColumnName,
+                        Comment = r.Comment,
+                        ObjectType = r.ObjectType
+                    }).ToList();
+
+                    var tableComment = GetTableComment(commentData);
                     var primaryKeyComment = Option<string>.None;
-                    var columnComments = GetColumnComments(comments);
+                    var columnComments = GetColumnComments(commentData);
                     var checkComments = Empty.CommentLookup;
                     var foreignKeyComments = Empty.CommentLookup;
                     var uniqueKeyComments = Empty.CommentLookup;
@@ -127,13 +134,13 @@ namespace SJP.Schematic.Oracle.Comments
                 throw new ArgumentNullException(nameof(tableName));
 
             var candidateTableName = QualifyTableName(tableName);
-            var qualifiedTableName = Connection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedTableName = Connection.QueryFirstOrNone<GetTableNameQueryResult>(
                 TableNameQuery,
-                new { SchemaName = candidateTableName.Schema, TableName = candidateTableName.LocalName },
+                new GetTableNameQuery { SchemaName = candidateTableName.Schema!, TableName = candidateTableName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(candidateTableName.Server, candidateTableName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(candidateTableName.Server, candidateTableName.Database, name.SchemaName, name.TableName));
         }
 
         /// <summary>
@@ -143,12 +150,12 @@ namespace SJP.Schematic.Oracle.Comments
         protected virtual string TableNameQuery => TableNameQuerySql;
 
         private static readonly string TableNameQuerySql = @$"
-select t.OWNER as ""{ nameof(QualifiedName.SchemaName) }"", t.TABLE_NAME as ""{ nameof(QualifiedName.ObjectName) }""
+select t.OWNER as ""{ nameof(GetTableNameQueryResult.SchemaName) }"", t.TABLE_NAME as ""{ nameof(GetTableNameQueryResult.TableName) }""
 from SYS.ALL_TABLES t
 inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
 left join SYS.ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
 where
-    t.OWNER = :SchemaName and t.TABLE_NAME = :TableName
+    t.OWNER = :{ nameof(GetTableNameQuery.SchemaName) } and t.TABLE_NAME = :{ nameof(GetTableNameQuery.TableName) }
     and o.ORACLE_MAINTAINED <> 'Y'
     and o.GENERATED <> 'Y'
     and o.SECONDARY <> 'Y'
@@ -189,28 +196,64 @@ where
 
         private async Task<IRelationalDatabaseTableComments> LoadTableCommentsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            IEnumerable<TableCommentsData> commentsData;
             if (string.Equals(tableName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal)) // fast path
-            {
-                commentsData = await Connection.QueryAsync<TableCommentsData>(
-                    UserTableCommentsQuery,
-                    new { TableName = tableName.LocalName },
-                    cancellationToken
-                ).ConfigureAwait(false);
-            }
-            else
-            {
-                commentsData = await Connection.QueryAsync<TableCommentsData>(
-                    TableCommentsQuery,
-                    new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
-                    cancellationToken
-                ).ConfigureAwait(false);
-            }
+                return await LoadUserTableCommentsAsyncCore(tableName, cancellationToken);
 
-            var tableComment = GetTableComment(commentsData);
+            var result = await Connection.QueryAsync<GetTableCommentsQueryResult>(
+                TableCommentsQuery,
+                new GetTableCommentsQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
+            var commentData = result.Select(r => new CommentData
+            {
+                ColumnName = r.ColumnName,
+                Comment = r.Comment,
+                ObjectType = r.ObjectType
+            }).ToList();
+
+            var tableComment = GetTableComment(commentData);
             var primaryKeyComment = Option<string>.None;
 
-            var columnComments = GetColumnComments(commentsData);
+            var columnComments = GetColumnComments(commentData);
+            var checkComments = Empty.CommentLookup;
+            var foreignKeyComments = Empty.CommentLookup;
+            var uniqueKeyComments = Empty.CommentLookup;
+            var indexComments = Empty.CommentLookup;
+            var triggerComments = Empty.CommentLookup;
+
+            return new RelationalDatabaseTableComments(
+                tableName,
+                tableComment,
+                primaryKeyComment,
+                columnComments,
+                checkComments,
+                uniqueKeyComments,
+                foreignKeyComments,
+                indexComments,
+                triggerComments
+            );
+        }
+
+        private async Task<IRelationalDatabaseTableComments> LoadUserTableCommentsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        {
+            var result = await Connection.QueryAsync<GetUserTableCommentsQueryResult>(
+                UserTableCommentsQuery,
+                new GetUserTableCommentsQuery { TableName = tableName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
+            var commentData = result.Select(r => new CommentData
+            {
+                ColumnName = r.ColumnName,
+                Comment = r.Comment,
+                ObjectType = r.ObjectType
+            }).ToList();
+
+            var tableComment = GetTableComment(commentData);
+            var primaryKeyComment = Option<string>.None;
+
+            var columnComments = GetColumnComments(commentData);
             var checkComments = Empty.CommentLookup;
             var foreignKeyComments = Empty.CommentLookup;
             var uniqueKeyComments = Empty.CommentLookup;
@@ -240,11 +283,11 @@ where
 select wrapped.* from (
 -- table
 select
-    t.OWNER as ""{ nameof(TableCommentsData.SchemaName) }"",
-    t.TABLE_NAME as ""{ nameof(TableCommentsData.ObjectName) }"",
-    'TABLE' as ""{ nameof(TableCommentsData.ObjectType) }"",
-    NULL as ""{ nameof(TableCommentsData.ColumnName) }"",
-    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
+    t.OWNER as ""{ nameof(GetAllTableCommentsQueryResult.SchemaName) }"",
+    t.TABLE_NAME as ""{ nameof(GetAllTableCommentsQueryResult.TableName) }"",
+    'TABLE' as ""{ nameof(GetAllTableCommentsQueryResult.ObjectType) }"",
+    NULL as ""{ nameof(GetAllTableCommentsQueryResult.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(GetAllTableCommentsQueryResult.Comment) }""
 from SYS.ALL_TABLES t
 left join SYS.ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
 inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
@@ -258,11 +301,11 @@ union
 
 -- columns
 select
-    t.OWNER as ""{ nameof(TableCommentsData.SchemaName) }"",
-    t.TABLE_NAME as ""{ nameof(TableCommentsData.ObjectName) }"",
-    'COLUMN' as ""{ nameof(TableCommentsData.ObjectType) }"",
-    tc.COLUMN_NAME as ""{ nameof(TableCommentsData.ColumnName) }"",
-    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
+    t.OWNER as ""{ nameof(GetAllTableCommentsQueryResult.SchemaName) }"",
+    t.TABLE_NAME as ""{ nameof(GetAllTableCommentsQueryResult.TableName) }"",
+    'COLUMN' as ""{ nameof(GetAllTableCommentsQueryResult.ObjectType) }"",
+    tc.COLUMN_NAME as ""{ nameof(GetAllTableCommentsQueryResult.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(GetAllTableCommentsQueryResult.Comment) }""
 from SYS.ALL_TABLES t
 left join SYS.ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
 inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
@@ -272,7 +315,7 @@ where o.ORACLE_MAINTAINED <> 'Y'
     and o.GENERATED <> 'Y'
     and o.SECONDARY <> 'Y'
     and mv.MVIEW_NAME is null
-) wrapped order by wrapped.""{ nameof(TableCommentsData.SchemaName) }"", wrapped.""{ nameof(TableCommentsData.ObjectName) }""";
+) wrapped order by wrapped.""{ nameof(GetAllTableCommentsQueryResult.SchemaName) }"", wrapped.""{ nameof(GetAllTableCommentsQueryResult.TableName) }""";
 
         /// <summary>
         /// A SQL query definition which retrieves all comment information for a particular table.
@@ -283,14 +326,14 @@ where o.ORACLE_MAINTAINED <> 'Y'
         private static readonly string TableCommentsQuerySql = @$"
 -- table
 select
-    'TABLE' as ""{ nameof(TableCommentsData.ObjectType) }"",
-    NULL as ""{ nameof(TableCommentsData.ColumnName) }"",
-    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
+    'TABLE' as ""{ nameof(GetTableCommentsQueryResult.ObjectType) }"",
+    NULL as ""{ nameof(GetTableCommentsQueryResult.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(GetTableCommentsQueryResult.Comment) }""
 from SYS.ALL_TABLES t
 left join SYS.ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
 inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
 left join SYS.ALL_TAB_COMMENTS c on t.OWNER = c.OWNER and t.TABLE_NAME = c.TABLE_NAME and c.TABLE_TYPE = 'TABLE'
-where t.OWNER = :SchemaName and t.TABLE_NAME = :TableName
+where t.OWNER = :{ nameof(GetTableCommentsQuery.SchemaName) } and t.TABLE_NAME = :{ nameof(GetTableCommentsQuery.TableName) }
     and o.ORACLE_MAINTAINED <> 'Y'
     and o.GENERATED <> 'Y'
     and o.SECONDARY <> 'Y'
@@ -300,15 +343,15 @@ union
 
 -- columns
 select
-    'COLUMN' as ""{ nameof(TableCommentsData.ObjectType) }"",
-    tc.COLUMN_NAME as ""{ nameof(TableCommentsData.ColumnName) }"",
-    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
+    'COLUMN' as ""{ nameof(GetTableCommentsQueryResult.ObjectType) }"",
+    tc.COLUMN_NAME as ""{ nameof(GetTableCommentsQueryResult.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(GetTableCommentsQueryResult.Comment) }""
 from SYS.ALL_TABLES t
 left join SYS.ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
 inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
 inner join SYS.ALL_TAB_COLS tc on tc.OWNER = t.OWNER and tc.TABLE_NAME = t.TABLE_NAME
 left join SYS.ALL_COL_COMMENTS c on c.OWNER = tc.OWNER and c.TABLE_NAME = tc.TABLE_NAME and c.COLUMN_NAME = tc.COLUMN_NAME
-where t.OWNER = :SchemaName and t.TABLE_NAME = :TableName
+where t.OWNER = :{ nameof(GetTableCommentsQuery.SchemaName) } and t.TABLE_NAME = :{ nameof(GetTableCommentsQuery.TableName) }
     and o.ORACLE_MAINTAINED <> 'Y'
     and o.GENERATED <> 'Y'
     and o.SECONDARY <> 'Y'
@@ -324,29 +367,29 @@ where t.OWNER = :SchemaName and t.TABLE_NAME = :TableName
         private static readonly string UserTableCommentsQuerySql = @$"
 -- table
 select
-    'TABLE' as ""{ nameof(TableCommentsData.ObjectType) }"",
-    NULL as ""{ nameof(TableCommentsData.ColumnName) }"",
-    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
+    'TABLE' as ""{ nameof(GetUserTableCommentsQueryResult.ObjectType) }"",
+    NULL as ""{ nameof(GetUserTableCommentsQueryResult.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(GetUserTableCommentsQueryResult.Comment) }""
 from SYS.USER_TABLES t
 left join SYS.USER_MVIEWS mv on t.TABLE_NAME = mv.MVIEW_NAME
 left join SYS.USER_TAB_COMMENTS c on t.TABLE_NAME = c.TABLE_NAME and c.TABLE_TYPE = 'TABLE'
-where t.TABLE_NAME = :TableName and mv.MVIEW_NAME is null
+where t.TABLE_NAME = :{ nameof(GetUserTableCommentsQuery.TableName) } and mv.MVIEW_NAME is null
 
 union
 
 -- columns
 select
-    'COLUMN' as ""{ nameof(TableCommentsData.ObjectType) }"",
-    tc.COLUMN_NAME as ""{ nameof(TableCommentsData.ColumnName) }"",
-    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
+    'COLUMN' as ""{ nameof(GetUserTableCommentsQueryResult.ObjectType) }"",
+    tc.COLUMN_NAME as ""{ nameof(GetUserTableCommentsQueryResult.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(GetUserTableCommentsQueryResult.Comment) }""
 from SYS.USER_TABLES t
 left join SYS.USER_MVIEWS mv on t.TABLE_NAME = mv.MVIEW_NAME
 inner join SYS.USER_TAB_COLS tc on tc.TABLE_NAME = t.TABLE_NAME
 left join SYS.USER_COL_COMMENTS c on c.TABLE_NAME = tc.TABLE_NAME and c.COLUMN_NAME = tc.COLUMN_NAME
-where t.TABLE_NAME = :TableName and mv.MVIEW_NAME is null
+where t.TABLE_NAME = :{ nameof(GetUserTableCommentsQuery.TableName) } and mv.MVIEW_NAME is null
 ";
 
-        private static Option<string> GetTableComment(IEnumerable<TableCommentsData> commentsData)
+        private static Option<string> GetTableComment(IEnumerable<CommentData> commentsData)
         {
             if (commentsData == null)
                 throw new ArgumentNullException(nameof(commentsData));
@@ -357,7 +400,7 @@ where t.TABLE_NAME = :TableName and mv.MVIEW_NAME is null
                 .FirstOrDefault();
         }
 
-        private static IReadOnlyDictionary<Identifier, Option<string>> GetColumnComments(IEnumerable<TableCommentsData> commentsData)
+        private static IReadOnlyDictionary<Identifier, Option<string>> GetColumnComments(IEnumerable<CommentData> commentsData)
         {
             if (commentsData == null)
                 throw new ArgumentNullException(nameof(commentsData));
@@ -391,6 +434,15 @@ where t.TABLE_NAME = :TableName and mv.MVIEW_NAME is null
             public const string Table = "TABLE";
 
             public const string Column = "COLUMN";
+        }
+
+        private record CommentData
+        {
+            public string? ColumnName { get; init; }
+
+            public string? ObjectType { get; init; }
+
+            public string? Comment { get; init; }
         }
     }
 }

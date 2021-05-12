@@ -5,7 +5,7 @@ namespace SJP.Schematic.SqlServer
 {
     internal sealed class ServerProperties2014 : IServerProperties2014
     {
-        public ServerProperties2014(Query.ServerProperties2014 query)
+        public ServerProperties2014(QueryResult.ServerProperties2014QueryResult query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));

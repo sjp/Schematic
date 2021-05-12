@@ -8,6 +8,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.PostgreSql.Query;
+using SJP.Schematic.PostgreSql.QueryResult;
 
 namespace SJP.Schematic.PostgreSql
 {
@@ -68,9 +69,9 @@ namespace SJP.Schematic.PostgreSql
         /// <returns>A collection of database views.</returns>
         public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResult = await DbConnection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
+            var queryResult = await DbConnection.QueryAsync<GetAllViewNamesQueryResult>(ViewsQuery, cancellationToken).ConfigureAwait(false);
             var viewNames = queryResult
-                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
                 .Select(QualifyViewName);
 
             foreach (var viewName in viewNames)
@@ -84,7 +85,7 @@ namespace SJP.Schematic.PostgreSql
         protected virtual string ViewsQuery => ViewsQuerySql;
 
         private static readonly string ViewsQuerySql = @$"
-select schemaname as ""{ nameof(QualifiedName.SchemaName) }"", viewname as ""{ nameof(QualifiedName.ObjectName) }""
+select schemaname as ""{ nameof(GetAllViewNamesQueryResult.SchemaName) }"", viewname as ""{ nameof(GetAllViewNamesQueryResult.ViewName) }""
 from pg_catalog.pg_views
 where schemaname not in ('pg_catalog', 'information_schema')
 order by schemaname, viewname";
@@ -139,13 +140,13 @@ order by schemaname, viewname";
                 throw new ArgumentNullException(nameof(viewName));
 
             var candidateViewName = QualifyViewName(viewName);
-            var qualifiedViewName = DbConnection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedViewName = DbConnection.QueryFirstOrNone<GetViewNameQueryResult>(
                 ViewNameQuery,
-                new { SchemaName = candidateViewName.Schema, ViewName = candidateViewName.LocalName },
+                new GetViewNameQuery { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ViewName));
         }
 
         /// <summary>
@@ -155,9 +156,9 @@ order by schemaname, viewname";
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
         private static readonly string ViewNameQuerySql = @$"
-select schemaname as ""{ nameof(QualifiedName.SchemaName) }"", viewname as ""{ nameof(QualifiedName.ObjectName) }""
+select schemaname as ""{ nameof(GetViewNameQueryResult.SchemaName) }"", viewname as ""{ nameof(GetViewNameQueryResult.ViewName) }""
 from pg_catalog.pg_views
-where schemaname = @SchemaName and viewname = @ViewName
+where schemaname = @{ nameof(GetViewNameQuery.SchemaName) } and viewname = @{ nameof(GetViewNameQuery.ViewName) }
     and schemaname not in ('pg_catalog', 'information_schema')
 limit 1";
 
@@ -205,7 +206,7 @@ limit 1";
 
             return DbConnection.ExecuteScalarAsync<string>(
                 DefinitionQuery,
-                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                new GetViewDefinitionQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
                 cancellationToken
             );
         }
@@ -216,10 +217,10 @@ limit 1";
         /// <value>A SQL query.</value>
         protected virtual string DefinitionQuery => DefinitionQuerySql;
 
-        private const string DefinitionQuerySql = @"
+        private static readonly string DefinitionQuerySql = @$"
 select view_definition
 from information_schema.views
-where table_schema = @SchemaName and table_name = @ViewName";
+where table_schema = @{ nameof(GetViewDefinitionQuery.SchemaName) } and table_name = @{ nameof(GetViewDefinitionQuery.ViewName) }";
 
         /// <summary>
         /// Retrieves the columns for a given view.
@@ -238,9 +239,9 @@ where table_schema = @SchemaName and table_name = @ViewName";
 
         private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
-            var query = await DbConnection.QueryAsync<ColumnData>(
+            var query = await DbConnection.QueryAsync<GetViewColumnsQueryResult>(
                 ColumnsQuery,
-                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                new GetViewColumnsQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -282,30 +283,30 @@ where table_schema = @SchemaName and table_name = @ViewName";
 
         private static readonly string ColumnsQuerySql = @$"
 select
-    column_name as ""{ nameof(ColumnData.ColumnName) }"",
-    ordinal_position as ""{ nameof(ColumnData.OrdinalPosition) }"",
-    column_default as ""{ nameof(ColumnData.ColumnDefault) }"",
-    is_nullable as ""{ nameof(ColumnData.IsNullable) }"",
-    data_type as ""{ nameof(ColumnData.DataType) }"",
-    character_maximum_length as ""{ nameof(ColumnData.CharacterMaximumLength) }"",
-    character_octet_length as ""{ nameof(ColumnData.CharacterOctetLength) }"",
-    numeric_precision as ""{ nameof(ColumnData.NumericPrecision) }"",
-    numeric_precision_radix as ""{ nameof(ColumnData.NumericPrecisionRadix) }"",
-    numeric_scale as ""{ nameof(ColumnData.NumericScale) }"",
-    datetime_precision as ""{ nameof(ColumnData.DatetimePrecision) }"",
-    interval_type as ""{ nameof(ColumnData.IntervalType) }"",
-    collation_catalog as ""{ nameof(ColumnData.CollationCatalog) }"",
-    collation_schema as ""{ nameof(ColumnData.CollationSchema) }"",
-    collation_name as ""{ nameof(ColumnData.CollationName) }"",
-    domain_catalog as ""{ nameof(ColumnData.DomainCatalog) }"",
-    domain_schema as ""{ nameof(ColumnData.DomainSchema) }"",
-    domain_name as ""{ nameof(ColumnData.DomainName) }"",
-    udt_catalog as ""{ nameof(ColumnData.UdtCatalog) }"",
-    udt_schema as ""{ nameof(ColumnData.UdtSchema) }"",
-    udt_name as ""{ nameof(ColumnData.UdtName) }"",
-    dtd_identifier as ""{ nameof(ColumnData.DtdIdentifier) }""
+    column_name as ""{ nameof(GetViewColumnsQueryResult.ColumnName) }"",
+    ordinal_position as ""{ nameof(GetViewColumnsQueryResult.OrdinalPosition) }"",
+    column_default as ""{ nameof(GetViewColumnsQueryResult.ColumnDefault) }"",
+    is_nullable as ""{ nameof(GetViewColumnsQueryResult.IsNullable) }"",
+    data_type as ""{ nameof(GetViewColumnsQueryResult.DataType) }"",
+    character_maximum_length as ""{ nameof(GetViewColumnsQueryResult.CharacterMaximumLength) }"",
+    character_octet_length as ""{ nameof(GetViewColumnsQueryResult.CharacterOctetLength) }"",
+    numeric_precision as ""{ nameof(GetViewColumnsQueryResult.NumericPrecision) }"",
+    numeric_precision_radix as ""{ nameof(GetViewColumnsQueryResult.NumericPrecisionRadix) }"",
+    numeric_scale as ""{ nameof(GetViewColumnsQueryResult.NumericScale) }"",
+    datetime_precision as ""{ nameof(GetViewColumnsQueryResult.DatetimePrecision) }"",
+    interval_type as ""{ nameof(GetViewColumnsQueryResult.IntervalType) }"",
+    collation_catalog as ""{ nameof(GetViewColumnsQueryResult.CollationCatalog) }"",
+    collation_schema as ""{ nameof(GetViewColumnsQueryResult.CollationSchema) }"",
+    collation_name as ""{ nameof(GetViewColumnsQueryResult.CollationName) }"",
+    domain_catalog as ""{ nameof(GetViewColumnsQueryResult.DomainCatalog) }"",
+    domain_schema as ""{ nameof(GetViewColumnsQueryResult.DomainSchema) }"",
+    domain_name as ""{ nameof(GetViewColumnsQueryResult.DomainName) }"",
+    udt_catalog as ""{ nameof(GetViewColumnsQueryResult.UdtCatalog) }"",
+    udt_schema as ""{ nameof(GetViewColumnsQueryResult.UdtSchema) }"",
+    udt_name as ""{ nameof(GetViewColumnsQueryResult.UdtName) }"",
+    dtd_identifier as ""{ nameof(GetViewColumnsQueryResult.DtdIdentifier) }""
 from information_schema.columns
-where table_schema = @SchemaName and table_name = @ViewName
+where table_schema = @{ nameof(GetViewColumnsQuery.SchemaName) } and table_name = @{ nameof(GetViewColumnsQuery.ViewName) }
 order by ordinal_position";
 
         /// <summary>

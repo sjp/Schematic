@@ -10,6 +10,7 @@ using SJP.Schematic.Core.Exceptions;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.SqlServer.Query;
+using SJP.Schematic.SqlServer.QueryResult;
 
 namespace SJP.Schematic.SqlServer
 {
@@ -74,9 +75,9 @@ namespace SJP.Schematic.SqlServer
         /// <returns>A collection of database tables.</returns>
         public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResults = await DbConnection.QueryAsync<QualifiedName>(TablesQuery, cancellationToken).ConfigureAwait(false);
+            var queryResults = await DbConnection.QueryAsync<GetAllTableNamesQueryResult>(TablesQuery, cancellationToken).ConfigureAwait(false);
             var tableNames = queryResults
-                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
                 .Select(QualifyTableName);
 
             var queryCache = CreateQueryCache();
@@ -91,7 +92,7 @@ namespace SJP.Schematic.SqlServer
         protected virtual string TablesQuery => TablesQuerySql;
 
         private static readonly string TablesQuerySql = @$"
-select schema_name(schema_id) as [{ nameof(QualifiedName.SchemaName) }], name as [{ nameof(QualifiedName.ObjectName) }]
+select schema_name(schema_id) as [{ nameof(GetAllTableNamesQueryResult.SchemaName) }], name as [{ nameof(GetAllTableNamesQueryResult.TableName) }]
 from sys.tables
 where is_ms_shipped = 0
 order by schema_name(schema_id), name";
@@ -125,14 +126,14 @@ order by schema_name(schema_id), name";
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = QualifyTableName(tableName);
-            var qualifiedTableName = DbConnection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedTableName = DbConnection.QueryFirstOrNone<GetTableNameQueryResult>(
                 TableNameQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableNameQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             );
 
             return qualifiedTableName
-                .Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.ObjectName))
+                .Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.TableName))
                 .ToOption();
         }
 
@@ -143,9 +144,9 @@ order by schema_name(schema_id), name";
         protected virtual string TableNameQuery => TableNameQuerySql;
 
         private static readonly string TableNameQuerySql = @$"
-select top 1 schema_name(schema_id) as [{ nameof(QualifiedName.SchemaName) }], name as [{ nameof(QualifiedName.ObjectName) }]
+select top 1 schema_name(schema_id) as [{ nameof(GetTableNameQueryResult.SchemaName) }], name as [{ nameof(GetTableNameQueryResult.TableName) }]
 from sys.tables
-where schema_id = schema_id(@SchemaName) and name = @TableName and is_ms_shipped = 0";
+where schema_id = schema_id(@{ nameof(GetTableNameQuery.SchemaName) }) and name = @{ nameof(GetTableNameQuery.TableName) } and is_ms_shipped = 0";
 
         /// <summary>
         /// Retrieves a table from the database, if available.
@@ -222,9 +223,9 @@ where schema_id = schema_id(@SchemaName) and name = @TableName and is_ms_shipped
 
         private async Task<Option<IDatabaseKey>> LoadPrimaryKeyAsyncCore(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var primaryKeyColumns = await DbConnection.QueryAsync<ConstraintColumnMapping>(
+            var primaryKeyColumns = await DbConnection.QueryAsync<GetTablePrimaryQueryResult>(
                 PrimaryKeyQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTablePrimaryKeyQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -261,15 +262,15 @@ where schema_id = schema_id(@SchemaName) and name = @TableName and is_ms_shipped
 
         private static readonly string PrimaryKeyQuerySql = @$"
 select
-    kc.name as [{ nameof(ConstraintColumnMapping.ConstraintName) }],
-    c.name as [{ nameof(ConstraintColumnMapping.ColumnName) }],
-    i.is_disabled as [{ nameof(ConstraintColumnMapping.IsDisabled) }]
+    kc.name as [{ nameof(GetTablePrimaryQueryResult.ConstraintName) }],
+    c.name as [{ nameof(GetTablePrimaryQueryResult.ColumnName) }],
+    i.is_disabled as [{ nameof(GetTablePrimaryQueryResult.IsDisabled) }]
 from sys.tables t
 inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
 inner join sys.indexes i on kc.parent_object_id = i.object_id and kc.unique_index_id = i.index_id
 inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
 inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
-where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms_shipped = 0
+where schema_name(t.schema_id) = @{ nameof(GetTablePrimaryKeyQuery.SchemaName) } and t.name = @{ nameof(GetTablePrimaryKeyQuery.TableName) } and t.is_ms_shipped = 0
     and kc.type = 'PK' and ic.is_included_column = 0
     and i.is_hypothetical = 0 and i.type <> 0 -- type = 0 is a heap, ignore
 order by ic.key_ordinal";
@@ -294,9 +295,9 @@ order by ic.key_ordinal";
 
         private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var queryResult = await DbConnection.QueryAsync<IndexColumns>(
+            var queryResult = await DbConnection.QueryAsync<GetTableIndexesQueryResult>(
                 IndexesQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableIndexesQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -353,19 +354,19 @@ order by ic.key_ordinal";
 
         private static readonly string IndexesQuerySql = @$"
 select
-    i.name as [{ nameof(IndexColumns.IndexName) }],
-    i.is_unique as [{ nameof(IndexColumns.IsUnique) }],
-    ic.key_ordinal as [{ nameof(IndexColumns.KeyOrdinal) }],
-    ic.index_column_id as [{ nameof(IndexColumns.IndexColumnId) }],
-    ic.is_included_column as [{ nameof(IndexColumns.IsIncludedColumn) }],
-    ic.is_descending_key as [{ nameof(IndexColumns.IsDescending) }],
-    c.name as [{ nameof(IndexColumns.ColumnName) }],
-    i.is_disabled as [{ nameof(IndexColumns.IsDisabled) }]
+    i.name as [{ nameof(GetTableIndexesQueryResult.IndexName) }],
+    i.is_unique as [{ nameof(GetTableIndexesQueryResult.IsUnique) }],
+    ic.key_ordinal as [{ nameof(GetTableIndexesQueryResult.KeyOrdinal) }],
+    ic.index_column_id as [{ nameof(GetTableIndexesQueryResult.IndexColumnId) }],
+    ic.is_included_column as [{ nameof(GetTableIndexesQueryResult.IsIncludedColumn) }],
+    ic.is_descending_key as [{ nameof(GetTableIndexesQueryResult.IsDescending) }],
+    c.name as [{ nameof(GetTableIndexesQueryResult.ColumnName) }],
+    i.is_disabled as [{ nameof(GetTableIndexesQueryResult.IsDisabled) }]
 from sys.tables t
 inner join sys.indexes i on t.object_id = i.object_id
 inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
 inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
-where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms_shipped = 0
+where schema_name(t.schema_id) = @{ nameof(GetTableIndexesQuery.SchemaName) } and t.name = @{ nameof(GetTableIndexesQuery.TableName) } and t.is_ms_shipped = 0
     and i.is_primary_key = 0 and i.is_unique_constraint = 0
     and i.is_hypothetical = 0 and i.type <> 0 -- type = 0 is a heap, ignore
 order by ic.index_id, ic.key_ordinal, ic.index_column_id";
@@ -390,9 +391,9 @@ order by ic.index_id, ic.key_ordinal, ic.index_column_id";
 
         private async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsyncCore(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var uniqueKeyColumns = await DbConnection.QueryAsync<ConstraintColumnMapping>(
+            var uniqueKeyColumns = await DbConnection.QueryAsync<GetTableUniqueKeysQueryResult>(
                 UniqueKeysQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableUniqueKeysQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -434,16 +435,16 @@ order by ic.index_id, ic.key_ordinal, ic.index_column_id";
 
         private static readonly string UniqueKeysQuerySql = @$"
 select
-    kc.name as [{ nameof(ConstraintColumnMapping.ConstraintName) }],
-    c.name as [{ nameof(ConstraintColumnMapping.ColumnName) }],
-    i.is_disabled as [{ nameof(ConstraintColumnMapping.IsDisabled) }]
+    kc.name as [{ nameof(GetTableUniqueKeysQueryResult.ConstraintName) }],
+    c.name as [{ nameof(GetTableUniqueKeysQueryResult.ColumnName) }],
+    i.is_disabled as [{ nameof(GetTableUniqueKeysQueryResult.IsDisabled) }]
 from sys.tables t
 inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
 inner join sys.indexes i on kc.parent_object_id = i.object_id and kc.unique_index_id = i.index_id
 inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id
 inner join sys.columns c on ic.object_id = c.object_id and ic.column_id = c.column_id
 where
-    schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms_shipped = 0
+    schema_name(t.schema_id) = @{ nameof(GetTableUniqueKeysQuery.SchemaName) } and t.name = @{ nameof(GetTableUniqueKeysQuery.TableName) } and t.is_ms_shipped = 0
     and kc.type = 'UQ'
     and ic.is_included_column = 0
     and i.is_hypothetical = 0 and i.type <> 0 -- type = 0 is a heap, ignore
@@ -469,9 +470,9 @@ order by ic.key_ordinal";
 
         private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var queryResult = await DbConnection.QueryAsync<ChildKeyData>(
+            var queryResult = await DbConnection.QueryAsync<GetTableChildKeysQueryResult>(
                 ChildKeysQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableChildKeysQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -544,20 +545,20 @@ order by ic.key_ordinal";
 
         private static readonly string ChildKeysQuerySql = @$"
 select
-    schema_name(child_t.schema_id) as [{ nameof(ChildKeyData.ChildTableSchema) }],
-    child_t.name as [{ nameof(ChildKeyData.ChildTableName) }],
-    fk.name as [{ nameof(ChildKeyData.ChildKeyName) }],
-    kc.name as [{ nameof(ChildKeyData.ParentKeyName) }],
-    kc.type as [{ nameof(ChildKeyData.ParentKeyType) }],
-    fk.delete_referential_action as [{ nameof(ChildKeyData.DeleteAction) }],
-    fk.update_referential_action as [{ nameof(ChildKeyData.UpdateAction) }]
+    schema_name(child_t.schema_id) as [{ nameof(GetTableChildKeysQueryResult.ChildTableSchema) }],
+    child_t.name as [{ nameof(GetTableChildKeysQueryResult.ChildTableName) }],
+    fk.name as [{ nameof(GetTableChildKeysQueryResult.ChildKeyName) }],
+    kc.name as [{ nameof(GetTableChildKeysQueryResult.ParentKeyName) }],
+    kc.type as [{ nameof(GetTableChildKeysQueryResult.ParentKeyType) }],
+    fk.delete_referential_action as [{ nameof(GetTableChildKeysQueryResult.DeleteAction) }],
+    fk.update_referential_action as [{ nameof(GetTableChildKeysQueryResult.UpdateAction) }]
 from sys.tables parent_t
 inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
 inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
 inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id
 inner join sys.columns c on fkc.parent_column_id = c.column_id and c.object_id = fkc.parent_object_id
 inner join sys.key_constraints kc on kc.unique_index_id = fk.key_index_id and kc.parent_object_id = fk.referenced_object_id
-where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableName
+where schema_name(parent_t.schema_id) = @{ nameof(GetTableChildKeysQuery.SchemaName) } and parent_t.name = @{ nameof(GetTableChildKeysQuery.TableName) }
     and child_t.is_ms_shipped = 0 and parent_t.is_ms_shipped = 0";
 
         /// <summary>
@@ -568,9 +569,9 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
         /// <returns>A collection of check constraints.</returns>
         protected virtual async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, CancellationToken cancellationToken)
         {
-            var checks = await DbConnection.QueryAsync<CheckConstraintData>(
+            var checks = await DbConnection.QueryAsync<GetTableChecksQueryResult>(
                 ChecksQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableChecksQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -603,12 +604,12 @@ where schema_name(parent_t.schema_id) = @SchemaName and parent_t.name = @TableNa
 
         private static readonly string ChecksQuerySql = @$"
 select
-    cc.name as [{ nameof(CheckConstraintData.ConstraintName) }],
-    cc.definition as [{ nameof(CheckConstraintData.Definition) }],
-    cc.is_disabled as [{ nameof(CheckConstraintData.IsDisabled) }]
+    cc.name as [{ nameof(GetTableChecksQueryResult.ConstraintName) }],
+    cc.definition as [{ nameof(GetTableChecksQueryResult.Definition) }],
+    cc.is_disabled as [{ nameof(GetTableChecksQueryResult.IsDisabled) }]
 from sys.tables t
 inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
-where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms_shipped = 0";
+where schema_name(t.schema_id) = @{ nameof(GetTableChecksQuery.SchemaName) } and t.name = @{ nameof(GetTableChecksQuery.TableName) } and t.is_ms_shipped = 0";
 
         /// <summary>
         /// Retrieves foreign keys that relate to the given table.
@@ -630,9 +631,9 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
 
         private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsyncCore(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var queryResult = await DbConnection.QueryAsync<ForeignKeyData>(
+            var queryResult = await DbConnection.QueryAsync<GetTableParentKeysQueryResult>(
                 ParentKeysQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableParentKeysQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -713,23 +714,23 @@ where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms
 
         private static readonly string ParentKeysQuerySql = @$"
 select
-    schema_name(parent_t.schema_id) as [{ nameof(ForeignKeyData.ParentTableSchema) }],
-    parent_t.name as [{ nameof(ForeignKeyData.ParentTableName) }],
-    fk.name as [{ nameof(ForeignKeyData.ChildKeyName) }],
-    c.name as [{ nameof(ForeignKeyData.ColumnName) }],
-    fkc.constraint_column_id as [{ nameof(ForeignKeyData.ConstraintColumnId) }],
-    kc.name as [{ nameof(ForeignKeyData.ParentKeyName) }],
-    kc.type as [{ nameof(ForeignKeyData.ParentKeyType) }],
-    fk.delete_referential_action as [{ nameof(ForeignKeyData.DeleteAction) }],
-    fk.update_referential_action as [{ nameof(ForeignKeyData.UpdateAction) }],
-    fk.is_disabled as [{ nameof(ForeignKeyData.IsDisabled) }]
+    schema_name(parent_t.schema_id) as [{ nameof(GetTableParentKeysQueryResult.ParentTableSchema) }],
+    parent_t.name as [{ nameof(GetTableParentKeysQueryResult.ParentTableName) }],
+    fk.name as [{ nameof(GetTableParentKeysQueryResult.ChildKeyName) }],
+    c.name as [{ nameof(GetTableParentKeysQueryResult.ColumnName) }],
+    fkc.constraint_column_id as [{ nameof(GetTableParentKeysQueryResult.ConstraintColumnId) }],
+    kc.name as [{ nameof(GetTableParentKeysQueryResult.ParentKeyName) }],
+    kc.type as [{ nameof(GetTableParentKeysQueryResult.ParentKeyType) }],
+    fk.delete_referential_action as [{ nameof(GetTableParentKeysQueryResult.DeleteAction) }],
+    fk.update_referential_action as [{ nameof(GetTableParentKeysQueryResult.UpdateAction) }],
+    fk.is_disabled as [{ nameof(GetTableParentKeysQueryResult.IsDisabled) }]
 from sys.tables parent_t
 inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
 inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
 inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id
 inner join sys.columns c on fkc.parent_column_id = c.column_id and c.object_id = fkc.parent_object_id
 inner join sys.key_constraints kc on kc.unique_index_id = fk.key_index_id and kc.parent_object_id = fk.referenced_object_id
-where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
+where schema_name(child_t.schema_id) = @{ nameof(GetTableParentKeysQuery.SchemaName) } and child_t.name = @{ nameof(GetTableParentKeysQuery.TableName) }
      and child_t.is_ms_shipped = 0 and parent_t.is_ms_shipped = 0";
 
         /// <summary>
@@ -749,9 +750,9 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
 
         private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var query = await DbConnection.QueryAsync<ColumnData>(
+            var query = await DbConnection.QueryAsync<GetTableColumnsQueryResult>(
                 ColumnsQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableColumnsQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -801,27 +802,27 @@ where schema_name(child_t.schema_id) = @SchemaName and child_t.name = @TableName
 
         private static readonly string ColumnsQuerySql = @$"
 select
-    c.name as [{ nameof(ColumnData.ColumnName) }],
-    schema_name(st.schema_id) as [{ nameof(ColumnData.ColumnTypeSchema) }],
-    st.name as [{ nameof(ColumnData.ColumnTypeName) }],
-    c.max_length as [{ nameof(ColumnData.MaxLength) }],
-    c.precision as [{ nameof(ColumnData.Precision) }],
-    c.scale as [{ nameof(ColumnData.Scale) }],
-    c.collation_name as [{ nameof(ColumnData.Collation) }],
-    c.is_computed as [{ nameof(ColumnData.IsComputed) }],
-    c.is_nullable as [{ nameof(ColumnData.IsNullable) }],
-    dc.parent_column_id as [{ nameof(ColumnData.HasDefaultValue) }],
-    dc.definition as [{ nameof(ColumnData.DefaultValue) }],
-    cc.definition as [{ nameof(ColumnData.ComputedColumnDefinition) }],
-    (convert(bigint, ic.seed_value)) as [{ nameof(ColumnData.IdentitySeed) }],
-    (convert(bigint, ic.increment_value)) as [{ nameof(ColumnData.IdentityIncrement) }]
+    c.name as [{ nameof(GetTableColumnsQueryResult.ColumnName) }],
+    schema_name(st.schema_id) as [{ nameof(GetTableColumnsQueryResult.ColumnTypeSchema) }],
+    st.name as [{ nameof(GetTableColumnsQueryResult.ColumnTypeName) }],
+    c.max_length as [{ nameof(GetTableColumnsQueryResult.MaxLength) }],
+    c.precision as [{ nameof(GetTableColumnsQueryResult.Precision) }],
+    c.scale as [{ nameof(GetTableColumnsQueryResult.Scale) }],
+    c.collation_name as [{ nameof(GetTableColumnsQueryResult.Collation) }],
+    c.is_computed as [{ nameof(GetTableColumnsQueryResult.IsComputed) }],
+    c.is_nullable as [{ nameof(GetTableColumnsQueryResult.IsNullable) }],
+    dc.parent_column_id as [{ nameof(GetTableColumnsQueryResult.HasDefaultValue) }],
+    dc.definition as [{ nameof(GetTableColumnsQueryResult.DefaultValue) }],
+    cc.definition as [{ nameof(GetTableColumnsQueryResult.ComputedColumnDefinition) }],
+    (convert(bigint, ic.seed_value)) as [{ nameof(GetTableColumnsQueryResult.IdentitySeed) }],
+    (convert(bigint, ic.increment_value)) as [{ nameof(GetTableColumnsQueryResult.IdentityIncrement) }]
 from sys.tables t
 inner join sys.columns c on t.object_id = c.object_id
 left join sys.default_constraints dc on c.object_id = dc.parent_object_id and c.column_id = dc.parent_column_id
 left join sys.computed_columns cc on c.object_id = cc.object_id and c.column_id = cc.column_id
 left join sys.identity_columns ic on c.object_id = ic.object_id and c.column_id = ic.column_id
 left join sys.types st on c.user_type_id = st.user_type_id
-where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms_shipped = 0
+where schema_name(t.schema_id) = @{ nameof(GetTableColumnsQuery.SchemaName) } and t.name = @{ nameof(GetTableColumnsQuery.TableName) } and t.is_ms_shipped = 0
 order by c.column_id";
 
         /// <summary>
@@ -841,9 +842,9 @@ order by c.column_id";
 
         private async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var queryResult = await DbConnection.QueryAsync<TriggerData>(
+            var queryResult = await DbConnection.QueryAsync<GetTableTriggersQueryResult>(
                 TriggersQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableTriggersQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -896,16 +897,16 @@ order by c.column_id";
 
         private static readonly string TriggersQuerySql = @$"
 select
-    st.name as [{ nameof(TriggerData.TriggerName) }],
-    sm.definition as [{ nameof(TriggerData.Definition) }],
-    st.is_instead_of_trigger as [{ nameof(TriggerData.IsInsteadOfTrigger) }],
-    te.type_desc as [{ nameof(TriggerData.TriggerEvent) }],
-    st.is_disabled as [{ nameof(TriggerData.IsDisabled) }]
+    st.name as [{ nameof(GetTableTriggersQueryResult.TriggerName) }],
+    sm.definition as [{ nameof(GetTableTriggersQueryResult.Definition) }],
+    st.is_instead_of_trigger as [{ nameof(GetTableTriggersQueryResult.IsInsteadOfTrigger) }],
+    te.type_desc as [{ nameof(GetTableTriggersQueryResult.TriggerEvent) }],
+    st.is_disabled as [{ nameof(GetTableTriggersQueryResult.IsDisabled) }]
 from sys.tables t
 inner join sys.triggers st on t.object_id = st.parent_id
 inner join sys.sql_modules sm on st.object_id = sm.object_id
 inner join sys.trigger_events te on st.object_id = te.object_id
-where schema_name(t.schema_id) = @SchemaName and t.name = @TableName and t.is_ms_shipped = 0";
+where schema_name(t.schema_id) = @{ nameof(GetTableTriggersQuery.SchemaName) } and t.name = @{ nameof(GetTableTriggersQuery.TableName) } and t.is_ms_shipped = 0";
 
         /// <summary>
         /// Qualifies the name of a table, using known identifier defaults.

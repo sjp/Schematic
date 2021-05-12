@@ -8,6 +8,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.SqlServer.Query;
+using SJP.Schematic.SqlServer.QueryResult;
 
 namespace SJP.Schematic.SqlServer
 {
@@ -48,13 +49,13 @@ namespace SJP.Schematic.SqlServer
         /// <returns>A collection of database routines.</returns>
         public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResult = await Connection.QueryAsync<RoutineData>(RoutinesQuery, cancellationToken).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<GetAllRoutinesQueryResult>(RoutinesQuery, cancellationToken).ConfigureAwait(false);
             var routines = queryResult
-                .Where(static row => row.SchemaName != null && row.ObjectName != null && row.Definition != null)
+                .Where(static row => row.SchemaName != null && row.RoutineName != null && row.Definition != null)
                 .Select(row =>
                 {
-                    var routineName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.ObjectName));
-                    return new DatabaseRoutine(routineName, row.Definition);
+                    var routineName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.RoutineName));
+                    return new DatabaseRoutine(routineName, row.Definition!);
                 });
 
             foreach (var routine in routines)
@@ -69,9 +70,9 @@ namespace SJP.Schematic.SqlServer
 
         private static readonly string RoutinesQuerySql = @$"
 select
-    schema_name(o.schema_id) as [{ nameof(RoutineData.SchemaName) }],
-    o.name as [{ nameof(RoutineData.ObjectName) }],
-    m.definition as [{ nameof(RoutineData.Definition) }]
+    schema_name(o.schema_id) as [{ nameof(GetAllRoutinesQueryResult.SchemaName) }],
+    o.name as [{ nameof(GetAllRoutinesQueryResult.RoutineName) }],
+    m.definition as [{ nameof(GetAllRoutinesQueryResult.Definition) }]
 from sys.sql_modules m
 inner join sys.objects o on o.object_id = m.object_id
 where o.is_ms_shipped = 0 and o.type in ('P', 'FN', 'IF', 'TF')
@@ -106,13 +107,13 @@ order by schema_name(o.schema_id), o.name";
                 throw new ArgumentNullException(nameof(routineName));
 
             var candidateRoutineName = QualifyRoutineName(routineName);
-            var qualifiedRoutineName = Connection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineNameQueryResult>(
                 RoutineNameQuery,
-                new { SchemaName = candidateRoutineName.Schema, RoutineName = candidateRoutineName.LocalName },
+                new GetRoutineNameQuery { SchemaName = candidateRoutineName.Schema!, RoutineName = candidateRoutineName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(candidateRoutineName.Server, candidateRoutineName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(candidateRoutineName.Server, candidateRoutineName.Database, name.SchemaName, name.RoutineName));
         }
 
         /// <summary>
@@ -122,9 +123,9 @@ order by schema_name(o.schema_id), o.name";
         protected virtual string RoutineNameQuery => RoutineNameQuerySql;
 
         private static readonly string RoutineNameQuerySql = @$"
-select top 1 schema_name(schema_id) as [{ nameof(RoutineData.SchemaName) }], name as [{ nameof(RoutineData.ObjectName) }]
+select top 1 schema_name(schema_id) as [{ nameof(GetRoutineNameQueryResult.SchemaName) }], name as [{ nameof(GetRoutineNameQueryResult.RoutineName) }]
 from sys.objects
-where schema_id = schema_id(@SchemaName) and name = @RoutineName
+where schema_id = schema_id(@{ nameof(GetRoutineNameQuery.SchemaName) }) and name = @{ nameof(GetRoutineNameQuery.RoutineName) }
     and type in ('P', 'FN', 'IF', 'TF') and is_ms_shipped = 0";
 
         /// <summary>
@@ -156,11 +157,11 @@ where schema_id = schema_id(@SchemaName) and name = @RoutineName
         /// <value>A SQL query.</value>
         protected virtual string DefinitionQuery => DefinitionQuerySql;
 
-        private const string DefinitionQuerySql = @"
+        private static readonly string DefinitionQuerySql = @$"
 select m.definition
 from sys.sql_modules m
 inner join sys.objects o on o.object_id = m.object_id
-where schema_name(o.schema_id) = @SchemaName and o.name = @RoutineName and o.is_ms_shipped = 0";
+where schema_name(o.schema_id) = @{ nameof(GetRoutineDefinitionQuery.SchemaName) } and o.name = @{ nameof(GetRoutineDefinitionQuery.RoutineName) } and o.is_ms_shipped = 0";
 
         /// <summary>
         /// Retrieves the definition of a routine.
@@ -176,7 +177,7 @@ where schema_name(o.schema_id) = @SchemaName and o.name = @RoutineName and o.is_
 
             return Connection.ExecuteScalarAsync<string>(
                 DefinitionQuery,
-                new { SchemaName = routineName.Schema, RoutineName = routineName.LocalName },
+                new GetRoutineDefinitionQuery { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
                 cancellationToken
             );
         }

@@ -9,6 +9,7 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.PostgreSql.Query;
+using SJP.Schematic.PostgreSql.QueryResult;
 
 namespace SJP.Schematic.PostgreSql.Comments
 {
@@ -57,7 +58,7 @@ namespace SJP.Schematic.PostgreSql.Comments
         /// <returns>A collection of materialized view comments.</returns>
         public async IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var allCommentsData = await Connection.QueryAsync<ViewCommentsData>(AllViewCommentsQuery, cancellationToken).ConfigureAwait(false);
+            var allCommentsData = await Connection.QueryAsync<GetAllMaterializedViewCommentsQueryResult>(AllViewCommentsQuery, cancellationToken).ConfigureAwait(false);
 
             var comments = allCommentsData
                 .GroupBy(static row => new { row.SchemaName, row.ViewName })
@@ -65,9 +66,15 @@ namespace SJP.Schematic.PostgreSql.Comments
                 {
                     var qualifiedName = QualifyViewName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.ViewName));
 
-                    var commentsData = g.ToList();
-                    var viewComment = GetFirstCommentByType(commentsData, Constants.View);
-                    var columnComments = GetCommentLookupByType(commentsData, Constants.Column);
+                    var commentData = g.Select(r => new CommentData
+                    {
+                        ObjectName = r.ObjectName,
+                        Comment = r.Comment,
+                        ObjectType = r.ObjectType
+                    }).ToList();
+
+                    var viewComment = GetFirstCommentByType(commentData, Constants.View);
+                    var columnComments = GetCommentLookupByType(commentData, Constants.Column);
 
                     return new DatabaseViewComments(qualifiedName, viewComment, columnComments);
                 });
@@ -110,13 +117,13 @@ namespace SJP.Schematic.PostgreSql.Comments
                 throw new ArgumentNullException(nameof(viewName));
 
             var candidateViewName = QualifyViewName(viewName);
-            var qualifiedViewName = Connection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedViewName = Connection.QueryFirstOrNone<GetMaterializedViewNameQueryResult>(
                 ViewNameQuery,
-                new { SchemaName = candidateViewName.Schema, ViewName = candidateViewName.LocalName },
+                new GetMaterializedViewNameQuery { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ViewName));
         }
 
         /// <summary>
@@ -126,9 +133,9 @@ namespace SJP.Schematic.PostgreSql.Comments
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
         private static readonly string ViewNameQuerySql = @$"
-select schemaname as ""{ nameof(QualifiedName.SchemaName) }"", matviewname as ""{ nameof(QualifiedName.ObjectName) }""
+select schemaname as ""{ nameof(GetMaterializedViewNameQueryResult.SchemaName) }"", matviewname as ""{ nameof(GetMaterializedViewNameQueryResult.ViewName) }""
 from pg_catalog.pg_matviews
-where schemaname = @SchemaName and matviewname = @ViewName
+where schemaname = @{ nameof(GetMaterializedViewNameQuery.SchemaName) } and matviewname = @{ nameof(GetMaterializedViewNameQuery.ViewName) }
     and schemaname not in ('pg_catalog', 'information_schema')
 limit 1";
 
@@ -167,14 +174,21 @@ limit 1";
 
         private async Task<IDatabaseViewComments> LoadViewCommentsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
-            var commentsData = await Connection.QueryAsync<ViewCommentsData>(
+            var result = await Connection.QueryAsync<GetMaterializedViewCommentsQueryResult>(
                 ViewCommentsQuery,
-                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                new GetMaterializedViewCommentsQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
-            var viewComment = GetFirstCommentByType(commentsData, Constants.View);
-            var columnComments = GetCommentLookupByType(commentsData, Constants.Column);
+            var commentData = result.Select(r => new CommentData
+            {
+                ObjectName = r.ObjectName,
+                Comment = r.Comment,
+                ObjectType = r.ObjectType
+            }).ToList();
+
+            var viewComment = GetFirstCommentByType(commentData, Constants.View);
+            var columnComments = GetCommentLookupByType(commentData, Constants.Column);
 
             return new DatabaseViewComments(viewName, viewComment, columnComments);
         }
@@ -189,11 +203,11 @@ limit 1";
 select wrapped.* from (
 -- view
 select
-    n.nspname as ""{ nameof(ViewCommentsData.SchemaName) }"",
-    c.relname as ""{ nameof(ViewCommentsData.ViewName) }"",
-    'VIEW' as ""{ nameof(ViewCommentsData.ObjectType) }"",
-    c.relname as ""{ nameof(ViewCommentsData.ObjectName) }"",
-    d.description as ""{ nameof(ViewCommentsData.Comment) }""
+    n.nspname as ""{ nameof(GetAllMaterializedViewCommentsQueryResult.SchemaName) }"",
+    c.relname as ""{ nameof(GetAllMaterializedViewCommentsQueryResult.ViewName) }"",
+    'VIEW' as ""{ nameof(GetAllMaterializedViewCommentsQueryResult.ObjectType) }"",
+    c.relname as ""{ nameof(GetAllMaterializedViewCommentsQueryResult.ObjectName) }"",
+    d.description as ""{ nameof(GetAllMaterializedViewCommentsQueryResult.Comment) }""
 from pg_catalog.pg_class c
 inner join pg_catalog.pg_namespace n on c.relnamespace = n.oid
 left join pg_catalog.pg_description d on c.oid = d.objoid and d.objsubid = 0
@@ -203,18 +217,18 @@ union
 
 -- columns
 select
-    n.nspname as ""{ nameof(ViewCommentsData.SchemaName) }"",
-    c.relname as ""{ nameof(ViewCommentsData.ViewName) }"",
-    'COLUMN' as ""{ nameof(ViewCommentsData.ObjectType) }"",
-    a.attname as ""{ nameof(ViewCommentsData.ObjectName) }"",
-    d.description as ""{ nameof(ViewCommentsData.Comment) }""
+    n.nspname as ""{ nameof(GetAllMaterializedViewCommentsQueryResult.SchemaName) }"",
+    c.relname as ""{ nameof(GetAllMaterializedViewCommentsQueryResult.ViewName) }"",
+    'COLUMN' as ""{ nameof(GetAllMaterializedViewCommentsQueryResult.ObjectType) }"",
+    a.attname as ""{ nameof(GetAllMaterializedViewCommentsQueryResult.ObjectName) }"",
+    d.description as ""{ nameof(GetAllMaterializedViewCommentsQueryResult.Comment) }""
 from pg_catalog.pg_class c
 inner join pg_catalog.pg_namespace n on c.relnamespace = n.oid
 inner join pg_catalog.pg_attribute a on a.attrelid = c.oid
 left join pg_description d on c.oid = d.objoid and a.attnum = d.objsubid
 where c.relkind = 'm' and n.nspname not in ('pg_catalog', 'information_schema')
     and a.attnum > 0 and not a.attisdropped
-) wrapped order by wrapped.""{ nameof(ViewCommentsData.SchemaName) }"", wrapped.""{ nameof(ViewCommentsData.ViewName) }""
+) wrapped order by wrapped.""{ nameof(GetAllMaterializedViewCommentsQueryResult.SchemaName) }"", wrapped.""{ nameof(GetAllMaterializedViewCommentsQueryResult.ViewName) }""
 ";
 
         /// <summary>
@@ -226,32 +240,32 @@ where c.relkind = 'm' and n.nspname not in ('pg_catalog', 'information_schema')
         private static readonly string ViewCommentsQuerySql = @$"
 -- view
 select
-    'VIEW' as ""{ nameof(ViewCommentsData.ObjectType) }"",
-    c.relname as ""{ nameof(ViewCommentsData.ObjectName) }"",
-    d.description as ""{ nameof(ViewCommentsData.Comment) }""
+    'VIEW' as ""{ nameof(GetMaterializedViewCommentsQueryResult.ObjectType) }"",
+    c.relname as ""{ nameof(GetMaterializedViewCommentsQueryResult.ObjectName) }"",
+    d.description as ""{ nameof(GetMaterializedViewCommentsQueryResult.Comment) }""
 from pg_catalog.pg_class c
 inner join pg_catalog.pg_namespace n on c.relnamespace = n.oid
 left join pg_catalog.pg_description d on c.oid = d.objoid and d.objsubid = 0
-where n.nspname = @SchemaName and c.relname = @ViewName
+where n.nspname = @{ nameof(GetMaterializedViewCommentsQuery.SchemaName) } and c.relname = @{ nameof(GetMaterializedViewCommentsQuery.ViewName) }
     and c.relkind = 'm' and n.nspname not in ('pg_catalog', 'information_schema')
 
 union
 
 -- columns
 select
-    'COLUMN' as ""{ nameof(ViewCommentsData.ObjectType) }"",
-    a.attname as ""{ nameof(ViewCommentsData.ObjectName) }"",
-    d.description as ""{ nameof(ViewCommentsData.Comment) }""
+    'COLUMN' as ""{ nameof(GetMaterializedViewCommentsQueryResult.ObjectType) }"",
+    a.attname as ""{ nameof(GetMaterializedViewCommentsQueryResult.ObjectName) }"",
+    d.description as ""{ nameof(GetMaterializedViewCommentsQueryResult.Comment) }""
 from pg_catalog.pg_class c
 inner join pg_catalog.pg_namespace n on c.relnamespace = n.oid
 inner join pg_catalog.pg_attribute a on a.attrelid = c.oid
 left join pg_description d on c.oid = d.objoid and a.attnum = d.objsubid
-where n.nspname = @SchemaName and c.relname = @ViewName
+where n.nspname = @{ nameof(GetMaterializedViewCommentsQuery.SchemaName) } and c.relname = @{ nameof(GetMaterializedViewCommentsQuery.ViewName) }
     and c.relkind = 'm' and n.nspname not in ('pg_catalog', 'information_schema')
     and a.attnum > 0 and not a.attisdropped
 ";
 
-        private static Option<string> GetFirstCommentByType(IEnumerable<ViewCommentsData> commentsData, string objectType)
+        private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
         {
             if (commentsData == null)
                 throw new ArgumentNullException(nameof(commentsData));
@@ -264,7 +278,7 @@ where n.nspname = @SchemaName and c.relname = @ViewName
                 .FirstOrDefault();
         }
 
-        private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IEnumerable<ViewCommentsData> commentsData, string objectType)
+        private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IEnumerable<CommentData> commentsData, string objectType)
         {
             if (commentsData == null)
                 throw new ArgumentNullException(nameof(commentsData));
@@ -300,6 +314,15 @@ where n.nspname = @SchemaName and c.relname = @ViewName
             public const string View = "VIEW";
 
             public const string Column = "COLUMN";
+        }
+
+        private record CommentData
+        {
+            public string? ObjectName { get; init; }
+
+            public string? ObjectType { get; init; }
+
+            public string? Comment { get; init; }
         }
     }
 }

@@ -11,6 +11,7 @@ using SJP.Schematic.Core.Exceptions;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.PostgreSql.Query;
+using SJP.Schematic.PostgreSql.QueryResult;
 
 namespace SJP.Schematic.PostgreSql
 {
@@ -89,9 +90,9 @@ namespace SJP.Schematic.PostgreSql
         /// <returns>A collection of database tables.</returns>
         public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResults = await DbConnection.QueryAsync<QualifiedName>(TablesQuery, cancellationToken).ConfigureAwait(false);
+            var queryResults = await DbConnection.QueryAsync<GetTableNamesQueryResult>(TablesQuery, cancellationToken).ConfigureAwait(false);
             var tableNames = queryResults
-                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
                 .Select(QualifyTableName);
 
             var queryCache = CreateQueryCache();
@@ -107,8 +108,8 @@ namespace SJP.Schematic.PostgreSql
 
         private static readonly string TablesQuerySql = @$"
 select
-    schemaname as ""{ nameof(QualifiedName.SchemaName) }"",
-    tablename as ""{ nameof(QualifiedName.ObjectName) }""
+    schemaname as ""{ nameof(GetTableNamesQueryResult.SchemaName) }"",
+    tablename as ""{ nameof(GetTableNamesQueryResult.TableName) }""
 from pg_catalog.pg_tables
 where schemaname not in ('pg_catalog', 'information_schema')
 order by schemaname, tablename";
@@ -165,13 +166,13 @@ order by schemaname, tablename";
                 throw new ArgumentNullException(nameof(tableName));
 
             var candidateTableName = QualifyTableName(tableName);
-            var qualifiedTableName = DbConnection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedTableName = DbConnection.QueryFirstOrNone<GetTableNameQueryResult>(
                 TableNameQuery,
-                new { SchemaName = candidateTableName.Schema, TableName = candidateTableName.LocalName },
+                new GetTableNameQuery { SchemaName = candidateTableName.Schema!, TableName = candidateTableName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(candidateTableName.Server, candidateTableName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(candidateTableName.Server, candidateTableName.Database, name.SchemaName, name.TableName));
         }
 
         /// <summary>
@@ -182,10 +183,10 @@ order by schemaname, tablename";
 
         private static readonly string TableNameQuerySql = @$"
 select
-    schemaname as ""{ nameof(QualifiedName.SchemaName) }"",
-    tablename as ""{ nameof(QualifiedName.ObjectName) }""
+    schemaname as ""{ nameof(GetTableNameQueryResult.SchemaName) }"",
+    tablename as ""{ nameof(GetTableNameQueryResult.TableName) }""
 from pg_catalog.pg_tables
-where schemaname = @SchemaName and tablename = @TableName
+where schemaname = @{ nameof(GetTableNameQuery.SchemaName) } and tablename = @{ nameof(GetTableNameQuery.TableName) }
     and schemaname not in ('pg_catalog', 'information_schema')
 limit 1";
 
@@ -264,9 +265,9 @@ limit 1";
 
         private async Task<Option<IDatabaseKey>> LoadPrimaryKeyAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var primaryKeyColumns = await DbConnection.QueryAsync<ConstraintColumnMapping>(
+            var primaryKeyColumns = await DbConnection.QueryAsync<GetTablePrimaryQueryResult>(
                 PrimaryKeyQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTablePrimaryKeyQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -302,15 +303,15 @@ limit 1";
 
         private static readonly string PrimaryKeyQuerySql = @$"
 select
-    kc.constraint_name as ""{ nameof(ConstraintColumnMapping.ConstraintName) }"",
-    kc.column_name as ""{ nameof(ConstraintColumnMapping.ColumnName) }"",
-    kc.ordinal_position as ""{ nameof(ConstraintColumnMapping.OrdinalPosition) }""
+    kc.constraint_name as ""{ nameof(GetTablePrimaryQueryResult.ConstraintName) }"",
+    kc.column_name as ""{ nameof(GetTablePrimaryQueryResult.ColumnName) }"",
+    kc.ordinal_position as ""{ nameof(GetTablePrimaryQueryResult.OrdinalPosition) }""
 from information_schema.table_constraints tc
 inner join information_schema.key_column_usage kc
     on tc.constraint_catalog = kc.constraint_catalog
     and tc.constraint_schema = kc.constraint_schema
     and tc.constraint_name = kc.constraint_name
-where tc.table_schema = @SchemaName and tc.table_name = @TableName
+where tc.table_schema = @{ nameof(GetTablePrimaryKeyQuery.SchemaName) } and tc.table_name = @{ nameof(GetTablePrimaryKeyQuery.TableName) }
     and tc.constraint_type = 'PRIMARY KEY'";
 
         /// <summary>
@@ -333,9 +334,9 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
 
         private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var queryResult = await DbConnection.QueryAsync<IndexColumns>(
+            var queryResult = await DbConnection.QueryAsync<GetTableIndexesQueryResult>(
                 IndexesQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableIndexesQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -393,29 +394,29 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
 
         private static readonly string IndexesQuerySql = @$"
 select
-    i.relname as ""{ nameof(IndexColumns.IndexName) }"",
-    idx.indisunique as ""{ nameof(IndexColumns.IsUnique) }"",
-    idx.indisprimary as ""{ nameof(IndexColumns.IsPrimary) }"",
-    pg_catalog.generate_subscripts(idx.indkey, 1) as ""{ nameof(IndexColumns.IndexColumnId) }"",
+    i.relname as ""{ nameof(GetTableIndexesQueryResult.IndexName) }"",
+    idx.indisunique as ""{ nameof(GetTableIndexesQueryResult.IsUnique) }"",
+    idx.indisprimary as ""{ nameof(GetTableIndexesQueryResult.IsPrimary) }"",
+    pg_catalog.generate_subscripts(idx.indkey, 1) as ""{ nameof(GetTableIndexesQueryResult.IndexColumnId) }"",
     pg_catalog.unnest(array(
         select pg_catalog.pg_get_indexdef(idx.indexrelid, k + 1, true)
         from pg_catalog.generate_subscripts(idx.indkey, 1) k
         order by k
-    )) as ""{ nameof(IndexColumns.IndexColumnExpression) }"",
+    )) as ""{ nameof(GetTableIndexesQueryResult.IndexColumnExpression) }"",
     pg_catalog.unnest(array(
         select pg_catalog.pg_index_column_has_property(idx.indexrelid, k + 1, 'desc')
         from pg_catalog.generate_subscripts(idx.indkey, 1) k
         order by k
-    )) as ""{ nameof(IndexColumns.IsDescending) }"",
-    (idx.indexprs is not null) or (idx.indkey::int[] @> array[0]) as ""{ nameof(IndexColumns.IsFunctional) }""
+    )) as ""{ nameof(GetTableIndexesQueryResult.IsDescending) }"",
+    (idx.indexprs is not null) or (idx.indkey::int[] @> array[0]) as ""{ nameof(GetTableIndexesQueryResult.IsFunctional) }""
 from pg_catalog.pg_index idx
     inner join pg_catalog.pg_class t on idx.indrelid = t.oid
     inner join pg_catalog.pg_namespace ns on ns.oid = t.relnamespace
     inner join pg_catalog.pg_class i on i.oid = idx.indexrelid
 where
     t.relkind = 'r'
-    and t.relname = @TableName
-    and ns.nspname = @SchemaName";
+    and t.relname = @{ nameof(GetTableIndexesQuery.TableName) }
+    and ns.nspname = @{ nameof(GetTableIndexesQuery.SchemaName) }";
 
         /// <summary>
         /// Retrieves unique keys that relate to the given table.
@@ -437,9 +438,9 @@ where
 
         private async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var uniqueKeyColumns = await DbConnection.QueryAsync<ConstraintColumnMapping>(
+            var uniqueKeyColumns = await DbConnection.QueryAsync<GetTableUniqueKeysQueryResult>(
                 UniqueKeysQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableUniqueKeysQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -481,15 +482,15 @@ where
 
         private static readonly string UniqueKeysQuerySql = @$"
 select
-    kc.constraint_name as ""{ nameof(ConstraintColumnMapping.ConstraintName) }"",
-    kc.column_name as ""{ nameof(ConstraintColumnMapping.ColumnName) }"",
-    kc.ordinal_position as ""{ nameof(ConstraintColumnMapping.OrdinalPosition) }""
+    kc.constraint_name as ""{ nameof(GetTableUniqueKeysQueryResult.ConstraintName) }"",
+    kc.column_name as ""{ nameof(GetTableUniqueKeysQueryResult.ColumnName) }"",
+    kc.ordinal_position as ""{ nameof(GetTableUniqueKeysQueryResult.OrdinalPosition) }""
 from information_schema.table_constraints tc
 inner join information_schema.key_column_usage kc
     on tc.constraint_catalog = kc.constraint_catalog
     and tc.constraint_schema = kc.constraint_schema
     and tc.constraint_name = kc.constraint_name
-where tc.table_schema = @SchemaName and tc.table_name = @TableName
+where tc.table_schema = @{ nameof(GetTableUniqueKeysQuery.SchemaName) } and tc.table_name = @{ nameof(GetTableUniqueKeysQuery.TableName) }
     and tc.constraint_type = 'UNIQUE'";
 
         /// <summary>
@@ -512,9 +513,9 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
 
         private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var queryResult = await DbConnection.QueryAsync<ChildKeyData>(
+            var queryResult = await DbConnection.QueryAsync<GetTableChildKeysQueryResult>(
                 ChildKeysQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableChildKeysQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -586,13 +587,13 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName
 
         private static readonly string ChildKeysQuerySql = @$"
 select
-    ns.nspname as ""{ nameof(ChildKeyData.ChildTableSchema) }"",
-    t.relname as ""{ nameof(ChildKeyData.ChildTableName) }"",
-    c.conname as ""{ nameof(ChildKeyData.ChildKeyName) }"",
-    pkc.contype as ""{ nameof(ChildKeyData.ParentKeyType) }"",
-    pkc.conname as ""{ nameof(ChildKeyData.ParentKeyName) }"",
-    c.confupdtype as ""{ nameof(ChildKeyData.UpdateAction) }"",
-    c.confdeltype as ""{ nameof(ChildKeyData.DeleteAction) }""
+    ns.nspname as ""{ nameof(GetTableChildKeysQueryResult.ChildTableSchema) }"",
+    t.relname as ""{ nameof(GetTableChildKeysQueryResult.ChildTableName) }"",
+    c.conname as ""{ nameof(GetTableChildKeysQueryResult.ChildKeyName) }"",
+    pkc.contype as ""{ nameof(GetTableChildKeysQueryResult.ParentKeyType) }"",
+    pkc.conname as ""{ nameof(GetTableChildKeysQueryResult.ParentKeyName) }"",
+    c.confupdtype as ""{ nameof(GetTableChildKeysQueryResult.UpdateAction) }"",
+    c.confdeltype as ""{ nameof(GetTableChildKeysQueryResult.DeleteAction) }""
 from pg_catalog.pg_namespace ns
 inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid and c.contype = 'f'
@@ -612,7 +613,7 @@ left join pg_catalog.pg_depend d2  -- find pkey/unique constraint for that index
 left join pg_catalog.pg_constraint pkc on pkc.oid = d2.refobjid
     and pkc.contype in ('p', 'u')
     and pkc.conrelid = c.confrelid
-where pt.relname = @TableName and pns.nspname = @SchemaName";
+where pt.relname = @{ nameof(GetTableChildKeysQuery.TableName) } and pns.nspname = @{ nameof(GetTableChildKeysQuery.SchemaName) }";
 
         /// <summary>
         /// Retrieves check constraints defined on a given table.
@@ -622,9 +623,9 @@ where pt.relname = @TableName and pns.nspname = @SchemaName";
         /// <returns>A collection of check constraints.</returns>
         protected virtual async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, CancellationToken cancellationToken)
         {
-            var checks = await DbConnection.QueryAsync<CheckConstraintData>(
+            var checks = await DbConnection.QueryAsync<GetTableChecksQueryResult>(
                 ChecksQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableChecksQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -656,15 +657,15 @@ where pt.relname = @TableName and pns.nspname = @SchemaName";
 
         private static readonly string ChecksQuerySql = @$"
 select
-    c.conname as ""{ nameof(CheckConstraintData.ConstraintName) }"",
-    c.consrc as ""{ nameof(CheckConstraintData.Definition) }""
+    c.conname as ""{ nameof(GetTableChecksQueryResult.ConstraintName) }"",
+    c.consrc as ""{ nameof(GetTableChecksQueryResult.Definition) }""
 from pg_catalog.pg_namespace ns
 inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
 where
     c.contype = 'c'
-    and t.relname = @TableName
-    and ns.nspname = @SchemaName";
+    and t.relname = @{ nameof(GetTableChecksQuery.TableName) }
+    and ns.nspname = @{ nameof(GetTableChecksQuery.SchemaName) }";
 
         /// <summary>
         /// Retrieves foreign keys that relate to the given table.
@@ -686,9 +687,9 @@ where
 
         private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var queryResult = await DbConnection.QueryAsync<ForeignKeyData>(
+            var queryResult = await DbConnection.QueryAsync<GetTableParentKeysQueryResult>(
                 ParentKeysQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableParentKeysQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -769,15 +770,15 @@ where
 
         private static readonly string ParentKeysQuerySql = @$"
 select
-    c.conname as ""{ nameof(ForeignKeyData.ChildKeyName) }"",
-    tc.attname as ""{ nameof(ForeignKeyData.ColumnName) }"",
-    child_cols.con_index as ""{ nameof(ForeignKeyData.ConstraintColumnId) }"",
-    pns.nspname as ""{ nameof(ForeignKeyData.ParentSchemaName) }"",
-    pt.relname as ""{ nameof(ForeignKeyData.ParentTableName) }"",
-    pkc.contype as ""{ nameof(ForeignKeyData.ParentKeyType) }"",
-    pkc.conname as ""{ nameof(ForeignKeyData.ParentKeyName) }"",
-    c.confupdtype as ""{ nameof(ForeignKeyData.UpdateAction) }"",
-    c.confdeltype as ""{ nameof(ForeignKeyData.DeleteAction) }""
+    c.conname as ""{ nameof(GetTableParentKeysQueryResult.ChildKeyName) }"",
+    tc.attname as ""{ nameof(GetTableParentKeysQueryResult.ColumnName) }"",
+    child_cols.con_index as ""{ nameof(GetTableParentKeysQueryResult.ConstraintColumnId) }"",
+    pns.nspname as ""{ nameof(GetTableParentKeysQueryResult.ParentSchemaName) }"",
+    pt.relname as ""{ nameof(GetTableParentKeysQueryResult.ParentTableName) }"",
+    pkc.contype as ""{ nameof(GetTableParentKeysQueryResult.ParentKeyType) }"",
+    pkc.conname as ""{ nameof(GetTableParentKeysQueryResult.ParentKeyName) }"",
+    c.confupdtype as ""{ nameof(GetTableParentKeysQueryResult.UpdateAction) }"",
+    c.confdeltype as ""{ nameof(GetTableParentKeysQueryResult.DeleteAction) }""
 from pg_catalog.pg_namespace ns
 inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid and c.contype = 'f'
@@ -799,7 +800,7 @@ left join pg_catalog.pg_depend d2  -- find pkey/unique constraint for that index
 left join pg_catalog.pg_constraint pkc on pkc.oid = d2.refobjid
     and pkc.contype in ('p', 'u')
     and pkc.conrelid = c.confrelid
-where t.relname = @TableName and ns.nspname = @SchemaName";
+where t.relname = @{ nameof(GetTableParentKeysQuery.TableName) } and ns.nspname = @{ nameof(GetTableParentKeysQuery.SchemaName) }";
 
         /// <summary>
         /// Retrieves the columns for a given table.
@@ -818,9 +819,9 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
 
         private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var query = await DbConnection.QueryAsync<ColumnData>(
+            var query = await DbConnection.QueryAsync<GetTableColumnsQueryResult>(
                 ColumnsQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableColumnsQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -872,32 +873,32 @@ where t.relname = @TableName and ns.nspname = @SchemaName";
         // additionally the default behaviour misses the schema which may be necessary
         private static readonly string ColumnsQuerySql = @$"
 select
-    column_name as ""{ nameof(ColumnData.ColumnName) }"",
-    ordinal_position as ""{ nameof(ColumnData.OrdinalPosition) }"",
-    column_default as ""{ nameof(ColumnData.ColumnDefault) }"",
-    is_nullable as ""{ nameof(ColumnData.IsNullable) }"",
-    data_type as ""{ nameof(ColumnData.DataType) }"",
-    character_maximum_length as ""{ nameof(ColumnData.CharacterMaximumLength) }"",
-    character_octet_length as ""{ nameof(ColumnData.CharacterOctetLength) }"",
-    numeric_precision as ""{ nameof(ColumnData.NumericPrecision) }"",
-    numeric_precision_radix as ""{ nameof(ColumnData.NumericPrecisionRadix) }"",
-    numeric_scale as ""{ nameof(ColumnData.NumericScale) }"",
-    datetime_precision as ""{ nameof(ColumnData.DatetimePrecision) }"",
-    interval_type as ""{ nameof(ColumnData.IntervalType) }"",
-    collation_catalog as ""{ nameof(ColumnData.CollationCatalog) }"",
-    collation_schema as ""{ nameof(ColumnData.CollationSchema) }"",
-    collation_name as ""{ nameof(ColumnData.CollationName) }"",
-    domain_catalog as ""{ nameof(ColumnData.DomainCatalog) }"",
-    domain_schema as ""{ nameof(ColumnData.DomainSchema) }"",
-    domain_name as ""{ nameof(ColumnData.DomainName) }"",
-    udt_catalog as ""{ nameof(ColumnData.UdtCatalog) }"",
-    udt_schema as ""{ nameof(ColumnData.UdtSchema) }"",
-    udt_name as ""{ nameof(ColumnData.UdtName) }"",
-    dtd_identifier as ""{ nameof(ColumnData.DtdIdentifier) }"",
-    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[1] as ""{ nameof(ColumnData.SerialSequenceSchemaName) }"",
-    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[2] as ""{ nameof(ColumnData.SerialSequenceLocalName) }""
+    column_name as ""{ nameof(GetTableColumnsQueryResult.ColumnName) }"",
+    ordinal_position as ""{ nameof(GetTableColumnsQueryResult.OrdinalPosition) }"",
+    column_default as ""{ nameof(GetTableColumnsQueryResult.ColumnDefault) }"",
+    is_nullable as ""{ nameof(GetTableColumnsQueryResult.IsNullable) }"",
+    data_type as ""{ nameof(GetTableColumnsQueryResult.DataType) }"",
+    character_maximum_length as ""{ nameof(GetTableColumnsQueryResult.CharacterMaximumLength) }"",
+    character_octet_length as ""{ nameof(GetTableColumnsQueryResult.CharacterOctetLength) }"",
+    numeric_precision as ""{ nameof(GetTableColumnsQueryResult.NumericPrecision) }"",
+    numeric_precision_radix as ""{ nameof(GetTableColumnsQueryResult.NumericPrecisionRadix) }"",
+    numeric_scale as ""{ nameof(GetTableColumnsQueryResult.NumericScale) }"",
+    datetime_precision as ""{ nameof(GetTableColumnsQueryResult.DatetimePrecision) }"",
+    interval_type as ""{ nameof(GetTableColumnsQueryResult.IntervalType) }"",
+    collation_catalog as ""{ nameof(GetTableColumnsQueryResult.CollationCatalog) }"",
+    collation_schema as ""{ nameof(GetTableColumnsQueryResult.CollationSchema) }"",
+    collation_name as ""{ nameof(GetTableColumnsQueryResult.CollationName) }"",
+    domain_catalog as ""{ nameof(GetTableColumnsQueryResult.DomainCatalog) }"",
+    domain_schema as ""{ nameof(GetTableColumnsQueryResult.DomainSchema) }"",
+    domain_name as ""{ nameof(GetTableColumnsQueryResult.DomainName) }"",
+    udt_catalog as ""{ nameof(GetTableColumnsQueryResult.UdtCatalog) }"",
+    udt_schema as ""{ nameof(GetTableColumnsQueryResult.UdtSchema) }"",
+    udt_name as ""{ nameof(GetTableColumnsQueryResult.UdtName) }"",
+    dtd_identifier as ""{ nameof(GetTableColumnsQueryResult.DtdIdentifier) }"",
+    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[1] as ""{ nameof(GetTableColumnsQueryResult.SerialSequenceSchemaName) }"",
+    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[2] as ""{ nameof(GetTableColumnsQueryResult.SerialSequenceLocalName) }""
 from information_schema.columns
-where table_schema = @SchemaName and table_name = @TableName
+where table_schema = @{ nameof(GetTableColumnsQuery.SchemaName) } and table_name = @{ nameof(GetTableColumnsQuery.TableName) }
 order by ordinal_position";
 
         /// <summary>
@@ -917,9 +918,9 @@ order by ordinal_position";
 
         private async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var queryResult = await DbConnection.QueryAsync<TriggerData>(
+            var queryResult = await DbConnection.QueryAsync<GetTableTriggersQueryResult>(
                 TriggersQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableTriggersQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -972,18 +973,18 @@ order by ordinal_position";
 
         private static readonly string TriggersQuerySql = @$"
 select
-    tr.tgname as ""{ nameof(TriggerData.TriggerName) }"",
-    tgenabled as ""{ nameof(TriggerData.EnabledFlag) }"",
-    itr.action_statement as ""{ nameof(TriggerData.Definition) }"",
-    itr.action_timing as ""{ nameof(TriggerData.Timing) }"",
-    itr.event_manipulation as ""{ nameof(TriggerData.TriggerEvent) }""
+    tr.tgname as ""{ nameof(GetTableTriggersQueryResult.TriggerName) }"",
+    tgenabled as ""{ nameof(GetTableTriggersQueryResult.EnabledFlag) }"",
+    itr.action_statement as ""{ nameof(GetTableTriggersQueryResult.Definition) }"",
+    itr.action_timing as ""{ nameof(GetTableTriggersQueryResult.Timing) }"",
+    itr.event_manipulation as ""{ nameof(GetTableTriggersQueryResult.TriggerEvent) }""
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on ns.oid = t.relnamespace
 inner join pg_catalog.pg_trigger tr on t.oid = tr.tgrelid
 inner join information_schema.triggers itr on ns.nspname = itr.event_object_schema and itr.event_object_table = t.relname and itr.trigger_name = tr.tgname
 where t.relkind = 'r'
-    and t.relname = @TableName
-    and ns.nspname = @SchemaName";
+    and t.relname = @{ nameof(GetTableTriggersQuery.TableName) }
+    and ns.nspname = @{ nameof(GetTableTriggersQuery.SchemaName) }";
 
         /// <summary>
         /// Creates a column lookup, keyed by the column's name.

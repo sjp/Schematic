@@ -8,6 +8,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.PostgreSql.Query;
+using SJP.Schematic.PostgreSql.QueryResult;
 
 namespace SJP.Schematic.PostgreSql
 {
@@ -68,9 +69,9 @@ namespace SJP.Schematic.PostgreSql
         /// <returns>A collection of materialized views.</returns>
         public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResult = await DbConnection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
+            var queryResult = await DbConnection.QueryAsync<GetAllMaterializedViewNamesQueryResult>(ViewsQuery, cancellationToken).ConfigureAwait(false);
             var viewNames = queryResult
-                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
                 .Select(QualifyViewName);
 
             foreach (var viewName in viewNames)
@@ -84,7 +85,7 @@ namespace SJP.Schematic.PostgreSql
         protected virtual string ViewsQuery => ViewsQuerySql;
 
         private static readonly string ViewsQuerySql = @$"
-select schemaname as ""{ nameof(QualifiedName.SchemaName) }"", matviewname as ""{ nameof(QualifiedName.ObjectName) }""
+select schemaname as ""{ nameof(GetAllMaterializedViewNamesQueryResult.SchemaName) }"", matviewname as ""{ nameof(GetAllMaterializedViewNamesQueryResult.ViewName) }""
 from pg_catalog.pg_matviews
 where schemaname not in ('pg_catalog', 'information_schema')
 order by schemaname, matviewname
@@ -140,13 +141,13 @@ order by schemaname, matviewname
                 throw new ArgumentNullException(nameof(viewName));
 
             var candidateViewName = QualifyViewName(viewName);
-            var qualifiedViewName = DbConnection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedViewName = DbConnection.QueryFirstOrNone<GetMaterializedViewNameQueryResult>(
                 ViewNameQuery,
-                new { SchemaName = candidateViewName.Schema, ViewName = candidateViewName.LocalName },
+                new GetMaterializedViewNameQuery { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ViewName));
         }
 
         /// <summary>
@@ -156,9 +157,9 @@ order by schemaname, matviewname
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
         private static readonly string ViewNameQuerySql = @$"
-select schemaname as ""{ nameof(QualifiedName.SchemaName) }"", matviewname as ""{ nameof(QualifiedName.ObjectName) }""
+select schemaname as ""{ nameof(GetMaterializedViewNameQueryResult.SchemaName) }"", matviewname as ""{ nameof(GetMaterializedViewNameQueryResult.ViewName) }""
 from pg_catalog.pg_matviews
-where schemaname = @SchemaName and matviewname = @ViewName
+where schemaname = @{ nameof(GetMaterializedViewNameQuery.SchemaName) } and matviewname = @{ nameof(GetMaterializedViewNameQuery.ViewName) }
     and schemaname not in ('pg_catalog', 'information_schema')
 limit 1";
 
@@ -206,7 +207,7 @@ limit 1";
 
             return DbConnection.ExecuteScalarAsync<string>(
                 DefinitionQuery,
-                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                new GetMaterializedViewDefinitionQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
                 cancellationToken
             );
         }
@@ -217,10 +218,10 @@ limit 1";
         /// <value>A SQL query.</value>
         protected virtual string DefinitionQuery => DefinitionQuerySql;
 
-        private const string DefinitionQuerySql = @"
+        private static readonly string DefinitionQuerySql = @$"
 select definition
 from pg_catalog.pg_matviews
-where schemaname = @SchemaName and matviewname = @ViewName";
+where schemaname = @{ nameof(GetMaterializedViewDefinitionQuery.SchemaName) } and matviewname = @{ nameof(GetMaterializedViewDefinitionQuery.ViewName) }";
 
         /// <summary>
         /// Retrieves the columns for a given materialized view.
@@ -239,9 +240,9 @@ where schemaname = @SchemaName and matviewname = @ViewName";
 
         private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
-            var query = await DbConnection.QueryAsync<ColumnData>(
+            var query = await DbConnection.QueryAsync<GetMaterializedViewColumnsQueryResult>(
                 ColumnsQuery,
-                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                new GetMaterializedViewColumnsQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -284,11 +285,11 @@ where schemaname = @SchemaName and matviewname = @ViewName";
         // taken largely from information_schema.sql for postgres (but modified to work with matviews)
         private static readonly string ColumnsQuerySql = @$"
 SELECT
-    a.attname AS ""{ nameof(ColumnData.ColumnName) }"",
-    a.attnum AS ""{ nameof(ColumnData.OrdinalPosition) }"",
-    pg_catalog.pg_get_expr(ad.adbin, ad.adrelid) AS ""{ nameof(ColumnData.ColumnDefault) }"",
+    a.attname AS ""{ nameof(GetMaterializedViewColumnsQueryResult.ColumnName) }"",
+    a.attnum AS ""{ nameof(GetMaterializedViewColumnsQueryResult.OrdinalPosition) }"",
+    pg_catalog.pg_get_expr(ad.adbin, ad.adrelid) AS ""{ nameof(GetMaterializedViewColumnsQueryResult.ColumnDefault) }"",
     CASE WHEN a.attnotnull OR (t.typtype = 'd' AND t.typnotnull) THEN 'NO' ELSE 'YES' END
-        AS ""{ nameof(ColumnData.IsNullable) }"",
+        AS ""{ nameof(GetMaterializedViewColumnsQueryResult.IsNullable) }"",
 
     CASE WHEN t.typtype = 'd' THEN
     CASE WHEN bt.typelem <> 0 AND bt.typlen = -1 THEN 'ARRAY'
@@ -299,45 +300,45 @@ SELECT
         WHEN nt.nspname = 'pg_catalog' THEN format_type(a.atttypid, null)
         ELSE 'USER-DEFINED' END
     END
-    AS ""{ nameof(ColumnData.DataType) }"",
+    AS ""{ nameof(GetMaterializedViewColumnsQueryResult.DataType) }"",
 
     " + PgCharMaxLength + @$"
-    AS ""{ nameof(ColumnData.CharacterMaximumLength) }"",
+    AS ""{ nameof(GetMaterializedViewColumnsQueryResult.CharacterMaximumLength) }"",
 
     " + PgCharOctetLength + @$"
-    AS ""{ nameof(ColumnData.CharacterOctetLength) }"",
+    AS ""{ nameof(GetMaterializedViewColumnsQueryResult.CharacterOctetLength) }"",
 
     " + PgNumericPrecision + @$"
-    AS ""{ nameof(ColumnData.NumericPrecision) }"",
+    AS ""{ nameof(GetMaterializedViewColumnsQueryResult.NumericPrecision) }"",
 
     " + PgNumericPrecisionRadix + @$"
-    AS ""{ nameof(ColumnData.NumericPrecisionRadix) }"",
+    AS ""{ nameof(GetMaterializedViewColumnsQueryResult.NumericPrecisionRadix) }"",
 
     " + PgNumericScale + @$"
-    AS ""{ nameof(ColumnData.NumericScale) }"",
+    AS ""{ nameof(GetMaterializedViewColumnsQueryResult.NumericScale) }"",
 
     " + PgDatetimePrecision + @$"
-    AS ""{ nameof(ColumnData.DatetimePrecision) }"",
+    AS ""{ nameof(GetMaterializedViewColumnsQueryResult.DatetimePrecision) }"",
 
     " + PgIntervalType + @$"
-    AS ""{ nameof(ColumnData.IntervalType) }"",
+    AS ""{ nameof(GetMaterializedViewColumnsQueryResult.IntervalType) }"",
 
-    CASE WHEN nco.nspname IS NOT NULL THEN current_database() END AS ""{ nameof(ColumnData.CollationCatalog) }"",
-    nco.nspname AS ""{ nameof(ColumnData.CollationSchema) }"",
-    co.collname AS ""{ nameof(ColumnData.CollationName) }"",
+    CASE WHEN nco.nspname IS NOT NULL THEN current_database() END AS ""{ nameof(GetMaterializedViewColumnsQueryResult.CollationCatalog) }"",
+    nco.nspname AS ""{ nameof(GetMaterializedViewColumnsQueryResult.CollationSchema) }"",
+    co.collname AS ""{ nameof(GetMaterializedViewColumnsQueryResult.CollationName) }"",
 
     CASE WHEN t.typtype = 'd' THEN current_database() ELSE null END
-        AS ""{ nameof(ColumnData.DomainCatalog) }"",
+        AS ""{ nameof(GetMaterializedViewColumnsQueryResult.DomainCatalog) }"",
     CASE WHEN t.typtype = 'd' THEN nt.nspname ELSE null END
-        AS ""{ nameof(ColumnData.DomainSchema) }"",
+        AS ""{ nameof(GetMaterializedViewColumnsQueryResult.DomainSchema) }"",
     CASE WHEN t.typtype = 'd' THEN t.typname ELSE null END
-        AS ""{ nameof(ColumnData.DomainName) }"",
+        AS ""{ nameof(GetMaterializedViewColumnsQueryResult.DomainName) }"",
 
-    current_database() AS ""{ nameof(ColumnData.UdtCatalog) }"",
-    coalesce(nbt.nspname, nt.nspname) AS ""{ nameof(ColumnData.UdtSchema) }"",
-    coalesce(bt.typname, t.typname) AS ""{ nameof(ColumnData.UdtName) }"",
+    current_database() AS ""{ nameof(GetMaterializedViewColumnsQueryResult.UdtCatalog) }"",
+    coalesce(nbt.nspname, nt.nspname) AS ""{ nameof(GetMaterializedViewColumnsQueryResult.UdtSchema) }"",
+    coalesce(bt.typname, t.typname) AS ""{ nameof(GetMaterializedViewColumnsQueryResult.UdtName) }"",
 
-    a.attnum AS ""{ nameof(ColumnData.DtdIdentifier) }""
+    a.attnum AS ""{ nameof(GetMaterializedViewColumnsQueryResult.DtdIdentifier) }""
 
 FROM (pg_catalog.pg_attribute a LEFT JOIN pg_catalog.pg_attrdef ad ON attrelid = adrelid AND attnum = adnum)
     JOIN (pg_catalog.pg_class c JOIN pg_catalog.pg_namespace nc ON (c.relnamespace = nc.oid)) ON a.attrelid = c.oid
@@ -355,7 +356,7 @@ WHERE (NOT pg_catalog.pg_is_other_temp_schema(nc.oid))
         AND (pg_catalog.pg_has_role(c.relowner, 'USAGE')
             OR has_column_privilege(c.oid, a.attnum,
                                     'SELECT, INSERT, UPDATE, REFERENCES'))
-        AND nc.nspname = @SchemaName and c.relname = @ViewName
+        AND nc.nspname = @{ nameof(GetMaterializedViewColumnsQuery.SchemaName) } and c.relname = @{ nameof(GetMaterializedViewColumnsQuery.ViewName) }
 ORDER BY a.attnum -- ordinal_position";
 
         /// <summary>

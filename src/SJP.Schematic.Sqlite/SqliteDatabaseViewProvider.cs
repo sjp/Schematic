@@ -10,6 +10,7 @@ using Microsoft.Data.Sqlite;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite.Pragma;
+using SJP.Schematic.Sqlite.Query;
 
 namespace SJP.Schematic.Sqlite
 {
@@ -172,7 +173,7 @@ namespace SJP.Schematic.Sqlite
                 var sql = ViewNameQuery(viewName.Schema);
                 var viewLocalName = await DbConnection.ExecuteScalarAsync<string>(
                     sql,
-                    new { ViewName = viewName.LocalName },
+                    new GetViewNameQuery { ViewName = viewName.LocalName },
                     cancellationToken
                 ).ConfigureAwait(false);
 
@@ -200,7 +201,7 @@ namespace SJP.Schematic.Sqlite
                 var sql = ViewNameQuery(dbName);
                 var viewLocalName = await DbConnection.ExecuteScalarAsync<string>(
                     sql,
-                    new { ViewName = viewName.LocalName },
+                    new GetViewNameQuery { ViewName = viewName.LocalName },
                     cancellationToken
                 ).ConfigureAwait(false);
 
@@ -222,7 +223,7 @@ namespace SJP.Schematic.Sqlite
             if (schemaName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(schemaName));
 
-            return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'view' and lower(name) = lower(@ViewName)";
+            return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'view' and lower(name) = lower(@{ nameof(GetViewNameQuery.ViewName) })";
         }
 
         /// <summary>
@@ -267,7 +268,7 @@ namespace SJP.Schematic.Sqlite
             var sql = DefinitionQuery(viewName.Schema!);
             return DbConnection.ExecuteScalarAsync<string>(
                 sql,
-                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                new GetViewDefinitionQuery { ViewName = viewName.LocalName },
                 cancellationToken
             );
         }
@@ -283,7 +284,7 @@ namespace SJP.Schematic.Sqlite
             if (schemaName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(schemaName));
 
-            return $"select sql from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'view' and tbl_name = @ViewName";
+            return $"select sql from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'view' and tbl_name = @{ nameof(GetViewDefinitionQuery.ViewName) }";
         }
 
         /// <summary>

@@ -8,6 +8,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.MySql.Query;
+using SJP.Schematic.MySql.QueryResult;
 
 namespace SJP.Schematic.MySql
 {
@@ -54,9 +55,9 @@ namespace SJP.Schematic.MySql
         /// <returns>A collection of database routines.</returns>
         public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResult = await DbConnection.QueryAsync<RoutineData>(
+            var queryResult = await DbConnection.QueryAsync<GetAllRoutinesQueryResult>(
                 RoutinesQuery,
-                new { SchemaName = IdentifierDefaults.Schema },
+                new GetAllRoutinesQuery { SchemaName = IdentifierDefaults.Schema! },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -64,7 +65,7 @@ namespace SJP.Schematic.MySql
                 .Where(static row => !row.Definition.IsNullOrWhiteSpace())
                 .Select(row =>
                 {
-                    var routineName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.ObjectName));
+                    var routineName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.RoutineName));
                     return new DatabaseRoutine(routineName, row.Definition!);
                 });
 
@@ -80,11 +81,11 @@ namespace SJP.Schematic.MySql
 
         private static readonly string RoutinesQuerySql = @$"
 select
-    ROUTINE_SCHEMA as `{ nameof(RoutineData.SchemaName) }`,
-    ROUTINE_NAME as `{ nameof(RoutineData.ObjectName) }`,
-    ROUTINE_DEFINITION as `{ nameof(RoutineData.Definition) }`
+    ROUTINE_SCHEMA as `{ nameof(GetAllRoutinesQueryResult.SchemaName) }`,
+    ROUTINE_NAME as `{ nameof(GetAllRoutinesQueryResult.RoutineName) }`,
+    ROUTINE_DEFINITION as `{ nameof(GetAllRoutinesQueryResult.Definition) }`
 from information_schema.routines
-where ROUTINE_SCHEMA = @SchemaName
+where ROUTINE_SCHEMA = @{ nameof(GetAllRoutinesQuery.SchemaName) }
 order by ROUTINE_SCHEMA, ROUTINE_NAME";
 
         /// <summary>
@@ -116,13 +117,13 @@ order by ROUTINE_SCHEMA, ROUTINE_NAME";
                 throw new ArgumentNullException(nameof(routineName));
 
             var candidateRoutineName = QualifyRoutineName(routineName);
-            var qualifiedRoutineName = DbConnection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedRoutineName = DbConnection.QueryFirstOrNone<GetRoutineNameQueryResult>(
                 RoutineNameQuery,
-                new { SchemaName = candidateRoutineName.Schema, RoutineName = candidateRoutineName.LocalName },
+                new GetRoutineNameQuery { SchemaName = candidateRoutineName.Schema!, RoutineName = candidateRoutineName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(candidateRoutineName.Server, candidateRoutineName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(candidateRoutineName.Server, candidateRoutineName.Database, name.SchemaName, name.RoutineName));
         }
 
         /// <summary>
@@ -133,10 +134,12 @@ order by ROUTINE_SCHEMA, ROUTINE_NAME";
 
         private static readonly string RoutineNameQuerySql = @$"
 select
-    ROUTINE_SCHEMA as `{ nameof(QualifiedName.SchemaName) }`,
-    ROUTINE_NAME as `{ nameof(QualifiedName.ObjectName) }`
+    ROUTINE_SCHEMA as `{ nameof(GetRoutineNameQueryResult.SchemaName) }`,
+    ROUTINE_NAME as `{ nameof(GetRoutineNameQueryResult.RoutineName) }`
 from information_schema.routines
-where ROUTINE_SCHEMA = @SchemaName and ROUTINE_NAME = @RoutineName
+where
+    ROUTINE_SCHEMA = @{ nameof(GetRoutineNameQuery.SchemaName) }
+    and ROUTINE_NAME = @{ nameof(GetRoutineNameQuery.RoutineName) }
 limit 1";
 
         /// <summary>
@@ -174,11 +177,18 @@ limit 1";
             if (routineName == null)
                 throw new ArgumentNullException(nameof(routineName));
 
-            return DbConnection.ExecuteScalarAsync<string>(
+            return LoadDefinitionAsyncCore(routineName, cancellationToken);
+        }
+
+        private async Task<string> LoadDefinitionAsyncCore(Identifier routineName, CancellationToken cancellationToken)
+        {
+            var result = await DbConnection.ExecuteScalarAsync<GetRoutineDefinitionQueryResult>(
                 DefinitionQuery,
-                new { SchemaName = routineName.Schema, RoutineName = routineName.LocalName },
+                new GetRoutineDefinitionQuery { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
                 cancellationToken
-            );
+            ).ConfigureAwait(false);
+
+            return result.Definition;
         }
 
         /// <summary>
@@ -187,10 +197,13 @@ limit 1";
         /// <value>A SQL query.</value>
         protected virtual string DefinitionQuery => DefinitionQuerySql;
 
-        private const string DefinitionQuerySql = @"
-select ROUTINE_DEFINITION
+        private static readonly string DefinitionQuerySql = @$"
+select
+    ROUTINE_DEFINITION as `{ nameof(GetRoutineDefinitionQueryResult.Definition) }`
 from information_schema.routines
-where ROUTINE_SCHEMA = @SchemaName and ROUTINE_NAME = @RoutineName";
+where
+    ROUTINE_SCHEMA = @{ nameof(GetRoutineDefinitionQuery.SchemaName) }
+    and ROUTINE_NAME = @{ nameof(GetRoutineDefinitionQuery.RoutineName) }";
 
         /// <summary>
         /// Qualifies the name of a routine, using known identifier defaults.

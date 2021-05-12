@@ -8,6 +8,7 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.PostgreSql.Query;
+using SJP.Schematic.PostgreSql.QueryResult;
 
 namespace SJP.Schematic.PostgreSql.Comments
 {
@@ -56,12 +57,12 @@ namespace SJP.Schematic.PostgreSql.Comments
         /// <returns>A collection of database routine comments, where available.</returns>
         public async IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var allCommentsData = await Connection.QueryAsync<CommentsData>(AllRoutineCommentsQuery, cancellationToken).ConfigureAwait(false);
+            var allCommentsData = await Connection.QueryAsync<GetAllRoutineCommentsQueryResult>(AllRoutineCommentsQuery, cancellationToken).ConfigureAwait(false);
 
             var comments = allCommentsData
                 .Select(c =>
                 {
-                    var qualifiedName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(c.SchemaName, c.ObjectName));
+                    var qualifiedName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(c.SchemaName, c.RoutineName));
 
                     var routineComment = !c.Comment.IsNullOrWhiteSpace()
                         ? Option<string>.Some(c.Comment)
@@ -107,13 +108,13 @@ namespace SJP.Schematic.PostgreSql.Comments
                 throw new ArgumentNullException(nameof(routineName));
 
             var candidateRoutineName = QualifyRoutineName(routineName);
-            var qualifiedRoutineName = Connection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineNameQueryResult>(
                 RoutineNameQuery,
-                new { SchemaName = candidateRoutineName.Schema, RoutineName = candidateRoutineName.LocalName },
+                new GetRoutineNameQuery { SchemaName = candidateRoutineName.Schema!, RoutineName = candidateRoutineName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(candidateRoutineName.Server, candidateRoutineName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(candidateRoutineName.Server, candidateRoutineName.Database, name.SchemaName, name.RoutineName));
         }
 
         /// <summary>
@@ -124,10 +125,10 @@ namespace SJP.Schematic.PostgreSql.Comments
 
         private static readonly string RoutineNameQuerySql = @$"
 select
-    ROUTINE_SCHEMA as ""{ nameof(QualifiedName.SchemaName) }"",
-    ROUTINE_NAME as ""{ nameof(QualifiedName.ObjectName) }""
+    ROUTINE_SCHEMA as ""{ nameof(GetRoutineNameQueryResult.SchemaName) }"",
+    ROUTINE_NAME as ""{ nameof(GetRoutineNameQueryResult.RoutineName) }""
 from information_schema.routines
-where ROUTINE_SCHEMA = @SchemaName and ROUTINE_NAME = @RoutineName
+where ROUTINE_SCHEMA = @{ nameof(GetRoutineNameQuery.SchemaName) } and ROUTINE_NAME = @{ nameof(GetRoutineNameQuery.RoutineName) }
     and ROUTINE_SCHEMA not in ('pg_catalog', 'information_schema')
 limit 1";
 
@@ -163,9 +164,9 @@ limit 1";
             return GetResolvedRoutineName(candidateRoutineName, cancellationToken)
                 .Bind(name =>
                 {
-                    return Connection.QueryFirstOrNone<CommentsData>(
+                    return Connection.QueryFirstOrNone<GetRoutineCommentsQueryResult>(
                         RoutineCommentsQuery,
-                        new { SchemaName = name.Schema, RoutineName = name.LocalName },
+                        new GetRoutineCommentsQuery { SchemaName = name.Schema!, RoutineName = name.LocalName },
                         cancellationToken
                     ).Map<IDatabaseRoutineComments>(c =>
                     {
@@ -186,9 +187,9 @@ limit 1";
 
         private static readonly string AllRoutineCommentsQuerySql = @$"
 select
-    n.nspname as ""{ nameof(CommentsData.SchemaName) }"",
-    p.proname as ""{ nameof(CommentsData.ObjectName) }"",
-    d.description as ""{ nameof(CommentsData.Comment) }""
+    n.nspname as ""{ nameof(GetAllRoutineCommentsQueryResult.SchemaName) }"",
+    p.proname as ""{ nameof(GetAllRoutineCommentsQueryResult.RoutineName) }"",
+    d.description as ""{ nameof(GetAllRoutineCommentsQueryResult.Comment) }""
 from pg_catalog.pg_proc p
 inner join pg_namespace n on n.oid = p.pronamespace
 left join pg_catalog.pg_description d on p.oid = d.objoid
@@ -204,13 +205,11 @@ order by n.nspname, p.proname
 
         private static readonly string RoutineCommentsQuerySql = @$"
 select
-    n.nspname as ""{ nameof(CommentsData.SchemaName) }"",
-    p.proname as ""{ nameof(CommentsData.ObjectName) }"",
-    d.description as ""{ nameof(CommentsData.Comment) }""
+    d.description as ""{ nameof(GetRoutineCommentsQueryResult.Comment) }""
 from pg_catalog.pg_proc p
 inner join pg_namespace n on n.oid = p.pronamespace
 left join pg_catalog.pg_description d on p.oid = d.objoid
-where n.nspname = @SchemaName and p.proname = @RoutineName
+where n.nspname = @{ nameof(GetRoutineCommentsQuery.SchemaName) } and p.proname = @{ nameof(GetRoutineCommentsQuery.RoutineName) }
     and n.nspname not in ('pg_catalog', 'information_schema')
 ";
 

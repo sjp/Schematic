@@ -10,6 +10,7 @@ using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.MySql.Query;
+using SJP.Schematic.MySql.QueryResult;
 
 namespace SJP.Schematic.MySql.Comments
 {
@@ -50,9 +51,9 @@ namespace SJP.Schematic.MySql.Comments
         /// <returns>A collection of database table comments, where available.</returns>
         public async IAsyncEnumerable<IRelationalDatabaseTableComments> GetAllTableComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var allCommentsData = await Connection.QueryAsync<TableCommentsData>(
+            var allCommentsData = await Connection.QueryAsync<GetAllTableCommentsQueryResult>(
                 AllTableCommentsQuery,
-                new { SchemaName = IdentifierDefaults.Schema },
+                new GetAllTableCommentsQuery { SchemaName = IdentifierDefaults.Schema! },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -102,13 +103,13 @@ namespace SJP.Schematic.MySql.Comments
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = QualifyTableName(tableName);
-            var qualifiedTableName = Connection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedTableName = Connection.QueryFirstOrNone<GetTableNameQueryResult>(
                 TableNameQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableNameQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.TableName));
         }
 
         /// <summary>
@@ -118,9 +119,9 @@ namespace SJP.Schematic.MySql.Comments
         protected virtual string TableNameQuery => TableNameQuerySql;
 
         private static readonly string TableNameQuerySql = @$"
-select table_schema as `{ nameof(QualifiedName.SchemaName) }`, table_name as `{ nameof(QualifiedName.ObjectName) }`
+select table_schema as `{ nameof(GetTableNameQueryResult.SchemaName) }`, table_name as `{ nameof(GetTableNameQueryResult.TableName) }`
 from information_schema.tables
-where table_schema = @SchemaName and table_name = @TableName
+where table_schema = @{ nameof(GetTableNameQuery.SchemaName) } and table_name = @{ nameof(GetTableNameQuery.TableName) }
 limit 1";
 
         /// <summary>
@@ -158,9 +159,9 @@ limit 1";
 
         private async Task<IRelationalDatabaseTableComments> LoadTableCommentsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var commentsData = await Connection.QueryAsync<TableCommentsData>(
+            var commentsData = await Connection.QueryAsync<GetTableCommentsQueryResult>(
                 TableCommentsQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableCommentsQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -197,40 +198,40 @@ limit 1";
 select wrapped.* from (
 -- table
 select
-    TABLE_SCHEMA as `{ nameof(TableCommentsData.SchemaName) }`,
-    TABLE_NAME as `{ nameof(TableCommentsData.TableName) }`,
-    'TABLE' as `{ nameof(TableCommentsData.ObjectType) }`,
-    TABLE_NAME as `{ nameof(TableCommentsData.ObjectName) }`,
-    TABLE_COMMENT as `{ nameof(TableCommentsData.Comment) }`
+    TABLE_SCHEMA as `{ nameof(GetAllTableCommentsQueryResult.SchemaName) }`,
+    TABLE_NAME as `{ nameof(GetAllTableCommentsQueryResult.TableName) }`,
+    'TABLE' as `{ nameof(GetAllTableCommentsQueryResult.ObjectType) }`,
+    TABLE_NAME as `{ nameof(GetAllTableCommentsQueryResult.ObjectName) }`,
+    TABLE_COMMENT as `{ nameof(GetAllTableCommentsQueryResult.Comment) }`
 from INFORMATION_SCHEMA.TABLES
-where TABLE_SCHEMA = @SchemaName
+where TABLE_SCHEMA = @{ nameof(GetAllTableCommentsQuery.SchemaName) }
 
 union
 
 -- columns
 select
-    c.TABLE_SCHEMA as `{ nameof(TableCommentsData.SchemaName) }`,
-    c.TABLE_NAME as `{ nameof(TableCommentsData.TableName) }`,
-    'COLUMN' as `{ nameof(TableCommentsData.ObjectType) }`,
-    c.COLUMN_NAME as `{ nameof(TableCommentsData.ObjectName) }`,
-    c.COLUMN_COMMENT as `{ nameof(TableCommentsData.Comment) }`
+    c.TABLE_SCHEMA as `{ nameof(GetAllTableCommentsQueryResult.SchemaName) }`,
+    c.TABLE_NAME as `{ nameof(GetAllTableCommentsQueryResult.TableName) }`,
+    'COLUMN' as `{ nameof(GetAllTableCommentsQueryResult.ObjectType) }`,
+    c.COLUMN_NAME as `{ nameof(GetAllTableCommentsQueryResult.ObjectName) }`,
+    c.COLUMN_COMMENT as `{ nameof(GetAllTableCommentsQueryResult.Comment) }`
 from INFORMATION_SCHEMA.COLUMNS c
 inner join INFORMATION_SCHEMA.TABLES t on c.TABLE_SCHEMA = t.TABLE_SCHEMA and c.TABLE_NAME = t.TABLE_NAME
-where c.TABLE_SCHEMA = @SchemaName
+where c.TABLE_SCHEMA = @{ nameof(GetAllTableCommentsQuery.SchemaName) }
 
 union
 
 -- indexes
 select
-    s.TABLE_SCHEMA as `{ nameof(TableCommentsData.SchemaName) }`,
-    s.TABLE_NAME as `{ nameof(TableCommentsData.TableName) }`,
-    'INDEX' as `{ nameof(TableCommentsData.ObjectType) }`,
-    s.INDEX_NAME as `{ nameof(TableCommentsData.ObjectName) }`,
-    s.INDEX_COMMENT as `{ nameof(TableCommentsData.Comment) }`
+    s.TABLE_SCHEMA as `{ nameof(GetAllTableCommentsQueryResult.SchemaName) }`,
+    s.TABLE_NAME as `{ nameof(GetAllTableCommentsQueryResult.TableName) }`,
+    'INDEX' as `{ nameof(GetAllTableCommentsQueryResult.ObjectType) }`,
+    s.INDEX_NAME as `{ nameof(GetAllTableCommentsQueryResult.ObjectName) }`,
+    s.INDEX_COMMENT as `{ nameof(GetAllTableCommentsQueryResult.Comment) }`
 from INFORMATION_SCHEMA.STATISTICS s
 inner join INFORMATION_SCHEMA.TABLES t on s.TABLE_SCHEMA = t.TABLE_SCHEMA and s.TABLE_NAME = t.TABLE_NAME
-where s.TABLE_SCHEMA = @SchemaName
-) wrapped order by wrapped.SchemaName, wrapped.ObjectName
+where s.TABLE_SCHEMA = @{ nameof(GetAllTableCommentsQuery.SchemaName) }
+) wrapped order by wrapped.{ nameof(GetAllTableCommentsQueryResult.SchemaName) }, wrapped.{ nameof(GetAllTableCommentsQueryResult.TableName) }
 ";
 
         /// <summary>
@@ -242,36 +243,36 @@ where s.TABLE_SCHEMA = @SchemaName
         private static readonly string TableCommentsQuerySql = @$"
 -- table
 select
-    'TABLE' as `{ nameof(TableCommentsData.ObjectType) }`,
-    TABLE_NAME as `{ nameof(TableCommentsData.ObjectName) }`,
-    TABLE_COMMENT as `{ nameof(TableCommentsData.Comment) }`
+    'TABLE' as `{ nameof(GetTableCommentsQueryResult.ObjectType) }`,
+    TABLE_NAME as `{ nameof(GetTableCommentsQueryResult.ObjectName) }`,
+    TABLE_COMMENT as `{ nameof(GetTableCommentsQueryResult.Comment) }`
 from INFORMATION_SCHEMA.TABLES
-where TABLE_SCHEMA = @SchemaName and TABLE_NAME = @TableName
+where TABLE_SCHEMA = @{ nameof(GetTableCommentsQuery.SchemaName) } and TABLE_NAME = @{ nameof(GetTableCommentsQuery.TableName) }
 
 union
 
 -- columns
 select
-    'COLUMN' as `{ nameof(TableCommentsData.ObjectType) }`,
-    c.COLUMN_NAME as `{ nameof(TableCommentsData.ObjectName) }`,
-    c.COLUMN_COMMENT as `{ nameof(TableCommentsData.Comment) }`
+    'COLUMN' as `{ nameof(GetTableCommentsQueryResult.ObjectType) }`,
+    c.COLUMN_NAME as `{ nameof(GetTableCommentsQueryResult.ObjectName) }`,
+    c.COLUMN_COMMENT as `{ nameof(GetTableCommentsQueryResult.Comment) }`
 from INFORMATION_SCHEMA.COLUMNS c
 inner join INFORMATION_SCHEMA.TABLES t on c.TABLE_SCHEMA = t.TABLE_SCHEMA and c.TABLE_NAME = t.TABLE_NAME
-where c.TABLE_SCHEMA = @SchemaName and c.TABLE_NAME = @TableName
+where c.TABLE_SCHEMA = @{ nameof(GetTableCommentsQuery.SchemaName) } and c.TABLE_NAME = @{ nameof(GetTableCommentsQuery.TableName) }
 
 union
 
 -- indexes
 select
-    'INDEX' as `{ nameof(TableCommentsData.ObjectType) }`,
-    s.INDEX_NAME as `{ nameof(TableCommentsData.ObjectName) }`,
-    s.INDEX_COMMENT as `{ nameof(TableCommentsData.Comment) }`
+    'INDEX' as `{ nameof(GetTableCommentsQueryResult.ObjectType) }`,
+    s.INDEX_NAME as `{ nameof(GetTableCommentsQueryResult.ObjectName) }`,
+    s.INDEX_COMMENT as `{ nameof(GetTableCommentsQueryResult.Comment) }`
 from INFORMATION_SCHEMA.STATISTICS s
 inner join INFORMATION_SCHEMA.TABLES t on s.TABLE_SCHEMA = t.TABLE_SCHEMA and s.TABLE_NAME = t.TABLE_NAME
-where s.TABLE_SCHEMA = @SchemaName and s.TABLE_NAME = @TableName
+where s.TABLE_SCHEMA = @{ nameof(GetTableCommentsQuery.SchemaName) } and s.TABLE_NAME = @{ nameof(GetTableCommentsQuery.TableName) }
 ";
 
-        private static Option<string> GetFirstCommentByType(IEnumerable<TableCommentsData> commentsData, string objectType)
+        private static Option<string> GetFirstCommentByType(IEnumerable<GetAllTableCommentsQueryResult> commentsData, string objectType)
         {
             if (commentsData == null)
                 throw new ArgumentNullException(nameof(commentsData));
@@ -284,7 +285,36 @@ where s.TABLE_SCHEMA = @SchemaName and s.TABLE_NAME = @TableName
                 .FirstOrDefault();
         }
 
-        private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IEnumerable<TableCommentsData> commentsData, string objectType)
+        private static Option<string> GetFirstCommentByType(IEnumerable<GetTableCommentsQueryResult> commentsData, string objectType)
+        {
+            if (commentsData == null)
+                throw new ArgumentNullException(nameof(commentsData));
+            if (objectType.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(objectType));
+
+            return commentsData
+                .Where(c => string.Equals(c.ObjectType, objectType, StringComparison.Ordinal))
+                .Select(static c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
+                .FirstOrDefault();
+        }
+
+        private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IEnumerable<GetAllTableCommentsQueryResult> commentsData, string objectType)
+        {
+            if (commentsData == null)
+                throw new ArgumentNullException(nameof(commentsData));
+            if (objectType.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(objectType));
+
+            return commentsData
+                .Where(c => string.Equals(c.ObjectType, objectType, StringComparison.Ordinal))
+                .Select(static c => new KeyValuePair<Identifier, Option<string>>(
+                    Identifier.CreateQualifiedIdentifier(c.ObjectName),
+                    !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None
+                ))
+                .ToReadOnlyDictionary(IdentifierComparer.Ordinal);
+        }
+
+        private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IEnumerable<GetTableCommentsQueryResult> commentsData, string objectType)
         {
             if (commentsData == null)
                 throw new ArgumentNullException(nameof(commentsData));

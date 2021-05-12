@@ -7,6 +7,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Oracle.Query;
+using SJP.Schematic.Oracle.QueryResult;
 
 namespace SJP.Schematic.Oracle
 {
@@ -55,11 +56,11 @@ namespace SJP.Schematic.Oracle
         /// <returns>A collection of database synonyms.</returns>
         public async IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            // collections create directly instead of via LoadSynonym() methods
+            // collections created directly instead of via LoadSynonym() methods
             // the main reason is to avoid queries where possible, especially when
             // the SYS.ALL_SYNONYMS data dictionary view is very slow
 
-            var queryResult = await Connection.QueryAsync<SynonymData>(SynonymsQuery, cancellationToken).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<GetAllSynonymsQueryResult>(SynonymsQuery, cancellationToken).ConfigureAwait(false);
 
             foreach (var synonymRow in queryResult)
             {
@@ -88,11 +89,11 @@ namespace SJP.Schematic.Oracle
 
         private static readonly string SynonymsQuerySql = @$"
 select distinct
-    s.OWNER as ""{ nameof(SynonymData.SchemaName) }"",
-    s.SYNONYM_NAME as ""{ nameof(SynonymData.SynonymName) }"",
-    s.DB_LINK as ""{ nameof(SynonymData.TargetDatabaseName) }"",
-    s.TABLE_OWNER as ""{ nameof(SynonymData.TargetSchemaName) }"",
-    s.TABLE_NAME as ""{ nameof(SynonymData.TargetObjectName) }""
+    s.OWNER as ""{ nameof(GetAllSynonymsQueryResult.SchemaName) }"",
+    s.SYNONYM_NAME as ""{ nameof(GetAllSynonymsQueryResult.SynonymName) }"",
+    s.DB_LINK as ""{ nameof(GetAllSynonymsQueryResult.TargetDatabaseName) }"",
+    s.TABLE_OWNER as ""{ nameof(GetAllSynonymsQueryResult.TargetSchemaName) }"",
+    s.TABLE_NAME as ""{ nameof(GetAllSynonymsQueryResult.TargetObjectName) }""
 from SYS.ALL_SYNONYMS s
 inner join SYS.ALL_OBJECTS o on s.OWNER = o.OWNER and s.SYNONYM_NAME = o.OBJECT_NAME
 where o.ORACLE_MAINTAINED <> 'Y'
@@ -156,20 +157,20 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
             {
                 var userSynonymName = Connection.QueryFirstOrNone<string>(
                     UserSynonymNameQuery,
-                    new { SynonymName = candidateSynonymName.LocalName },
+                    new GetUserSynonymNameQuery { SynonymName = candidateSynonymName.LocalName },
                     cancellationToken
                 );
 
                 return userSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, name));
             }
 
-            var qualifiedSynonymName = Connection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedSynonymName = Connection.QueryFirstOrNone<GetSynonymNameQueryResult>(
                 SynonymNameQuery,
-                new { SchemaName = candidateSynonymName.Schema, SynonymName = candidateSynonymName.LocalName },
+                new GetSynonymNameQuery { SchemaName = candidateSynonymName.Schema!, SynonymName = candidateSynonymName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSynonymName.Server, candidateSynonymName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSynonymName.Server, candidateSynonymName.Database, name.SchemaName, name.SynonymName));
         }
 
         /// <summary>
@@ -179,10 +180,10 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
         protected virtual string SynonymNameQuery => SynonymNameQuerySql;
 
         private static readonly string SynonymNameQuerySql = @$"
-select s.OWNER as ""{ nameof(QualifiedName.SchemaName) }"", s.SYNONYM_NAME as ""{ nameof(QualifiedName.ObjectName) }""
+select s.OWNER as ""{ nameof(GetSynonymNameQueryResult.SchemaName) }"", s.SYNONYM_NAME as ""{ nameof(GetSynonymNameQueryResult.SynonymName) }""
 from SYS.ALL_SYNONYMS s
 inner join SYS.ALL_OBJECTS o on s.OWNER = o.OWNER and s.SYNONYM_NAME = o.OBJECT_NAME
-where s.OWNER = :SchemaName and s.SYNONYM_NAME = :SynonymName and o.ORACLE_MAINTAINED <> 'Y'";
+where s.OWNER = :{ nameof(GetSynonymNameQuery.SchemaName) } and s.SYNONYM_NAME = :{ nameof(GetSynonymNameQuery.SynonymName) } and o.ORACLE_MAINTAINED <> 'Y'";
 
         /// <summary>
         /// Gets a query that retrieves a synonym's name from the user's schema.
@@ -190,11 +191,11 @@ where s.OWNER = :SchemaName and s.SYNONYM_NAME = :SynonymName and o.ORACLE_MAINT
         /// <value>A SQL query.</value>
         protected virtual string UserSynonymNameQuery => UserSynonymNameQuerySql;
 
-        private const string UserSynonymNameQuerySql = @"
+        private static readonly string UserSynonymNameQuerySql = @$"
 select s.SYNONYM_NAME
 from SYS.USER_SYNONYMS s
 inner join SYS.ALL_OBJECTS o on s.SYNONYM_NAME = o.OBJECT_NAME
-where o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and s.SYNONYM_NAME = :SynonymName and o.ORACLE_MAINTAINED <> 'Y'";
+where o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and s.SYNONYM_NAME = :{ nameof(GetUserSynonymNameQuery.SynonymName) } and o.ORACLE_MAINTAINED <> 'Y'";
 
         /// <summary>
         /// Retrieves a database synonym, if available.
@@ -218,11 +219,9 @@ where o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and s.SYNONYM_NAME = :Syn
             // SYS.ALL_SYNONYMS is much slower than SYS.USER_SYNONYMS so prefer the latter where possible
             var isUserSynonym = string.Equals(synonymName.Database, IdentifierDefaults.Database, StringComparison.Ordinal)
                 && string.Equals(synonymName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal);
-            var synonymData = isUserSynonym
+            return isUserSynonym
                 ? LoadUserSynonymData(synonymName.LocalName, cancellationToken)
                 : LoadSynonymData(synonymName, cancellationToken);
-
-            return synonymData.Map(synData => BuildSynonymFromDto(synonymName, synData));
         }
 
         /// <summary>
@@ -233,12 +232,12 @@ where o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and s.SYNONYM_NAME = :Syn
 
         private static readonly string LoadSynonymQuerySql = @$"
 select distinct
-    s.DB_LINK as ""{ nameof(TargetSynonymData.TargetDatabaseName) }"",
-    s.TABLE_OWNER as ""{ nameof(TargetSynonymData.TargetSchemaName) }"",
-    s.TABLE_NAME as ""{ nameof(TargetSynonymData.TargetObjectName) }""
+    s.DB_LINK as ""{ nameof(GetSynonymDefinitionQueryResult.TargetDatabaseName) }"",
+    s.TABLE_OWNER as ""{ nameof(GetSynonymDefinitionQueryResult.TargetSchemaName) }"",
+    s.TABLE_NAME as ""{ nameof(GetSynonymDefinitionQueryResult.TargetObjectName) }""
 from SYS.ALL_SYNONYMS s
 inner join SYS.ALL_OBJECTS o on s.OWNER = o.OWNER and s.SYNONYM_NAME = o.OBJECT_NAME
-where s.OWNER = :SchemaName and s.SYNONYM_NAME = :SynonymName and o.ORACLE_MAINTAINED <> 'Y'";
+where s.OWNER = :{ nameof(GetSynonymDefinitionQuery.SchemaName) } and s.SYNONYM_NAME = :{ nameof(GetSynonymDefinitionQuery.SynonymName) } and o.ORACLE_MAINTAINED <> 'Y'";
 
         /// <summary>
         /// A SQL query that retrieves a synonym's definition for the default/user schema.
@@ -248,53 +247,57 @@ where s.OWNER = :SchemaName and s.SYNONYM_NAME = :SynonymName and o.ORACLE_MAINT
 
         private static readonly string LoadUserSynonymQuerySql = @$"
 select distinct
-    s.DB_LINK as ""{ nameof(TargetSynonymData.TargetDatabaseName) }"",
-    s.TABLE_OWNER as ""{ nameof(TargetSynonymData.TargetSchemaName) }"",
-    s.TABLE_NAME as ""{ nameof(TargetSynonymData.TargetObjectName) }""
+    s.DB_LINK as ""{ nameof(GetUserSynonymDefinitionQueryResult.TargetDatabaseName) }"",
+    s.TABLE_OWNER as ""{ nameof(GetUserSynonymDefinitionQueryResult.TargetSchemaName) }"",
+    s.TABLE_NAME as ""{ nameof(GetUserSynonymDefinitionQueryResult.TargetObjectName) }""
 from SYS.USER_SYNONYMS s
 inner join SYS.ALL_OBJECTS o on s.SYNONYM_NAME = o.OBJECT_NAME
-where s.SYNONYM_NAME = :SynonymName and o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and o.ORACLE_MAINTAINED <> 'Y'";
+where s.SYNONYM_NAME = :{ nameof(GetUserSynonymDefinitionQuery.SynonymName) } and o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and o.ORACLE_MAINTAINED <> 'Y'";
 
-        private OptionAsync<TargetSynonymData> LoadSynonymData(Identifier synonymName, CancellationToken cancellationToken)
+        private OptionAsync<IDatabaseSynonym> LoadSynonymData(Identifier synonymName, CancellationToken cancellationToken)
         {
             if (synonymName == null)
                 throw new ArgumentNullException(nameof(synonymName));
 
-            return Connection.QueryFirstOrNone<TargetSynonymData>(
+            return Connection.QueryFirstOrNone<GetSynonymDefinitionQueryResult>(
                 LoadSynonymQuery,
-                new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName },
+                new GetSynonymDefinitionQuery { SchemaName = synonymName.Schema!, SynonymName = synonymName.LocalName },
                 cancellationToken
-            );
+            ).Map<IDatabaseSynonym>(row =>
+            {
+                var databaseName = !row.TargetDatabaseName.IsNullOrWhiteSpace() ? row.TargetDatabaseName : null;
+                var schemaName = !row.TargetSchemaName.IsNullOrWhiteSpace() ? row.TargetSchemaName : null;
+                var localName = !row.TargetObjectName.IsNullOrWhiteSpace() ? row.TargetObjectName : null;
+
+                var qualifiedSynonymName = QualifySynonymName(synonymName);
+                var targetName = Identifier.CreateQualifiedIdentifier(databaseName, schemaName, localName);
+                var qualifiedTargetName = QualifySynonymTargetName(targetName);
+
+                return new DatabaseSynonym(qualifiedSynonymName, qualifiedTargetName);
+            });
         }
 
-        private OptionAsync<TargetSynonymData> LoadUserSynonymData(string synonymName, CancellationToken cancellationToken)
+        private OptionAsync<IDatabaseSynonym> LoadUserSynonymData(string synonymName, CancellationToken cancellationToken)
         {
             if (synonymName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(synonymName));
 
-            return Connection.QueryFirstOrNone<TargetSynonymData>(
+            return Connection.QueryFirstOrNone<GetUserSynonymDefinitionQueryResult>(
                 LoadUserSynonymQuery,
-                new { SynonymName = synonymName },
+                new GetUserSynonymDefinitionQuery { SynonymName = synonymName },
                 cancellationToken
-            );
-        }
+            ).Map<IDatabaseSynonym>(row =>
+            {
+                var databaseName = !row.TargetDatabaseName.IsNullOrWhiteSpace() ? row.TargetDatabaseName : null;
+                var schemaName = !row.TargetSchemaName.IsNullOrWhiteSpace() ? row.TargetSchemaName : null;
+                var localName = !row.TargetObjectName.IsNullOrWhiteSpace() ? row.TargetObjectName : null;
 
-        private IDatabaseSynonym BuildSynonymFromDto(Identifier synonymName, TargetSynonymData synonymData)
-        {
-            if (synonymName == null)
-                throw new ArgumentNullException(nameof(synonymName));
-            if (synonymData == null)
-                throw new ArgumentNullException(nameof(synonymData));
+                var qualifiedSynonymName = QualifySynonymName(synonymName);
+                var targetName = Identifier.CreateQualifiedIdentifier(databaseName, schemaName, localName);
+                var qualifiedTargetName = QualifySynonymTargetName(targetName);
 
-            var databaseName = !synonymData.TargetDatabaseName.IsNullOrWhiteSpace() ? synonymData.TargetDatabaseName : null;
-            var schemaName = !synonymData.TargetSchemaName.IsNullOrWhiteSpace() ? synonymData.TargetSchemaName : null;
-            var localName = !synonymData.TargetObjectName.IsNullOrWhiteSpace() ? synonymData.TargetObjectName : null;
-
-            var qualifiedSynonymName = QualifySynonymName(synonymName);
-            var targetName = Identifier.CreateQualifiedIdentifier(databaseName, schemaName, localName);
-            var qualifiedTargetName = QualifySynonymTargetName(targetName);
-
-            return new DatabaseSynonym(qualifiedSynonymName, qualifiedTargetName);
+                return new DatabaseSynonym(qualifiedSynonymName, qualifiedTargetName);
+            });
         }
 
         /// <summary>

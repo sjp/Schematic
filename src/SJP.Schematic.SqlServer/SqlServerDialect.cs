@@ -8,6 +8,7 @@ using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.SqlServer.Comments;
 using SJP.Schematic.SqlServer.Query;
+using SJP.Schematic.SqlServer.QueryResult;
 
 namespace SJP.Schematic.SqlServer
 {
@@ -35,14 +36,14 @@ namespace SJP.Schematic.SqlServer
 
         private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
         {
-            return await connection.DbConnection.QuerySingleAsync<SqlIdentifierDefaults>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
+            return await connection.DbConnection.QuerySingleAsync<SqlIdentifierDefaultsQueryResult>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
         }
 
         private static readonly string IdentifierDefaultsQuerySql = @$"
 select
-    @@SERVERNAME as [{ nameof(SqlIdentifierDefaults.Server) }],
-    db_name() as [{ nameof(SqlIdentifierDefaults.Database) }],
-    schema_name() as [{ nameof(SqlIdentifierDefaults.Schema) }]";
+    @@SERVERNAME as [{ nameof(SqlIdentifierDefaultsQueryResult.Server) }],
+    db_name() as [{ nameof(SqlIdentifierDefaultsQueryResult.Database) }],
+    schema_name() as [{ nameof(SqlIdentifierDefaultsQueryResult.Schema) }]";
 
         /// <summary>
         /// Gets the database display version. Usually a more user-friendly form of the database version.
@@ -138,8 +139,8 @@ select
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            var query = BuildServerPropertiesQuery<Query.ServerProperties2008>();
-            return connection.QueryFirstOrNone<Query.ServerProperties2008>(query, cancellationToken)
+            var query = BuildServerPropertiesQuery<QueryResult.ServerProperties2008QueryResult>();
+            return connection.QueryFirstOrNone<QueryResult.ServerProperties2008QueryResult>(query, cancellationToken)
                 .Map<IServerProperties2008?>(static row => new ServerProperties2008(row))
                 .IfNoneUnsafe(static () => null);
         }
@@ -156,8 +157,8 @@ select
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            var query = BuildServerPropertiesQuery<Query.ServerProperties2012>();
-            return connection.QueryFirstOrNone<Query.ServerProperties2012>(query, cancellationToken)
+            var query = BuildServerPropertiesQuery<QueryResult.ServerProperties2012QueryResult>();
+            return connection.QueryFirstOrNone<QueryResult.ServerProperties2012QueryResult>(query, cancellationToken)
                 .Map<IServerProperties2012?>(static row => new ServerProperties2012(row))
                 .IfNoneUnsafe(static () => null);
         }
@@ -174,8 +175,8 @@ select
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            var query = BuildServerPropertiesQuery<Query.ServerProperties2014>();
-            return connection.QueryFirstOrNone<Query.ServerProperties2014>(query, cancellationToken)
+            var query = BuildServerPropertiesQuery<QueryResult.ServerProperties2014QueryResult>();
+            return connection.QueryFirstOrNone<QueryResult.ServerProperties2014QueryResult>(query, cancellationToken)
                 .Map<IServerProperties2014?>(static row => new ServerProperties2014(row))
                 .IfNoneUnsafe(static () => null);
         }
@@ -192,8 +193,8 @@ select
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            var query = BuildServerPropertiesQuery<Query.ServerProperties2017>();
-            return connection.QueryFirstOrNone<Query.ServerProperties2017>(query, cancellationToken)
+            var query = BuildServerPropertiesQuery<QueryResult.ServerProperties2017QueryResult>();
+            return connection.QueryFirstOrNone<QueryResult.ServerProperties2017QueryResult>(query, cancellationToken)
                 .Map<IServerProperties2017?>(static row => new ServerProperties2017(row))
                 .IfNoneUnsafe(static () => null);
         }
@@ -210,8 +211,8 @@ select
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            var query = BuildServerPropertiesQuery<Query.ServerProperties2019>();
-            return connection.QueryFirstOrNone<Query.ServerProperties2019>(query, cancellationToken)
+            var query = BuildServerPropertiesQuery<QueryResult.ServerProperties2019QueryResult>();
+            return connection.QueryFirstOrNone<QueryResult.ServerProperties2019QueryResult>(query, cancellationToken)
                 .Map<IServerProperties2019?>(static row => new ServerProperties2019(row))
                 .IfNoneUnsafe(static () => null);
         }

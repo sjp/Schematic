@@ -7,6 +7,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.PostgreSql.Query;
+using SJP.Schematic.PostgreSql.QueryResult;
 
 namespace SJP.Schematic.PostgreSql
 {
@@ -55,12 +56,20 @@ namespace SJP.Schematic.PostgreSql
         /// <returns>A collection of database sequences.</returns>
         public async IAsyncEnumerable<IDatabaseSequence> GetAllSequences([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResult = await Connection.QueryAsync<SequenceData>(SequencesQuery, cancellationToken).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<GetAllSequenceDefinitionsQueryResult>(SequencesQuery, cancellationToken).ConfigureAwait(false);
             var sequences = queryResult
                 .Select(row =>
                 {
                     var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.SequenceName));
-                    return BuildSequenceFromDto(sequenceName, row);
+                    return new DatabaseSequence(
+                        sequenceName,
+                        row.StartValue,
+                        row.Increment,
+                        Option<decimal>.Some(row.MinValue),
+                        Option<decimal>.Some(row.MaxValue),
+                        row.Cycle,
+                        row.CacheSize
+                    );
                 });
 
             foreach (var sequence in sequences)
@@ -75,14 +84,14 @@ namespace SJP.Schematic.PostgreSql
 
         private static readonly string SequencesQuerySql = @$"
 select
-    nc.nspname as ""{ nameof(SequenceData.SchemaName) }"",
-    c.relname as ""{ nameof(SequenceData.SequenceName) }"",
-    p.start_value as ""{ nameof(SequenceData.StartValue) }"",
-    p.minimum_value as ""{ nameof(SequenceData.MinValue) }"",
-    p.maximum_value as ""{ nameof(SequenceData.MaxValue) }"",
-    p.increment as ""{ nameof(SequenceData.Increment) }"",
-    1 as ""{ nameof(SequenceData.CacheSize) }"",
-    p.cycle_option as ""{ nameof(SequenceData.Cycle) }""
+    nc.nspname as ""{ nameof(GetAllSequenceDefinitionsQueryResult.SchemaName) }"",
+    c.relname as ""{ nameof(GetAllSequenceDefinitionsQueryResult.SequenceName) }"",
+    p.start_value as ""{ nameof(GetAllSequenceDefinitionsQueryResult.StartValue) }"",
+    p.minimum_value as ""{ nameof(GetAllSequenceDefinitionsQueryResult.MinValue) }"",
+    p.maximum_value as ""{ nameof(GetAllSequenceDefinitionsQueryResult.MaxValue) }"",
+    p.increment as ""{ nameof(GetAllSequenceDefinitionsQueryResult.Increment) }"",
+    1 as ""{ nameof(GetAllSequenceDefinitionsQueryResult.CacheSize) }"",
+    p.cycle_option as ""{ nameof(GetAllSequenceDefinitionsQueryResult.Cycle) }""
 from pg_catalog.pg_namespace nc, pg_catalog.pg_class c, lateral pg_catalog.pg_sequence_parameters(c.oid) p
 where c.relnamespace = nc.oid and c.relkind = 'S'
 order by nc.nspname, c.relname";
@@ -137,13 +146,13 @@ order by nc.nspname, c.relname";
                 throw new ArgumentNullException(nameof(sequenceName));
 
             var candidateSequenceName = QualifySequenceName(sequenceName);
-            var qualifiedSequenceName = Connection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedSequenceName = Connection.QueryFirstOrNone<GetSequenceNameQueryResult>(
                 SequenceNameQuery,
-                new { SchemaName = candidateSequenceName.Schema, SequenceName = candidateSequenceName.LocalName },
+                new GetSequenceNameQuery { SchemaName = candidateSequenceName.Schema!, SequenceName = candidateSequenceName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSequenceName.Server, candidateSequenceName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSequenceName.Server, candidateSequenceName.Database, name.SchemaName, name.SequenceName));
         }
 
         /// <summary>
@@ -153,9 +162,9 @@ order by nc.nspname, c.relname";
         protected virtual string SequenceNameQuery => SequenceNameQuerySql;
 
         private static readonly string SequenceNameQuerySql = @$"
-select sequence_schema as ""{ nameof(QualifiedName.SchemaName) }"", sequence_name as ""{ nameof(QualifiedName.ObjectName) }""
+select sequence_schema as ""{ nameof(GetSequenceNameQueryResult.SchemaName) }"", sequence_name as ""{ nameof(GetSequenceNameQueryResult.SequenceName) }""
 from information_schema.sequences
-where sequence_schema = @SchemaName and sequence_name = @SequenceName
+where sequence_schema = @{ nameof(GetSequenceNameQuery.SchemaName) } and sequence_name = @{ nameof(GetSequenceNameQuery.SequenceName) }
     and sequence_schema not in ('pg_catalog', 'information_schema')
 limit 1";
 
@@ -167,17 +176,17 @@ limit 1";
 
         private static readonly string SequenceQuerySql = @$"
 select
-    p.start_value as ""{ nameof(SequenceData.StartValue) }"",
-    p.minimum_value as ""{ nameof(SequenceData.MinValue) }"",
-    p.maximum_value as ""{ nameof(SequenceData.MaxValue) }"",
-    p.increment as ""{ nameof(SequenceData.Increment) }"",
-    1 as ""{ nameof(SequenceData.CacheSize) }"",
-    p.cycle_option as ""{ nameof(SequenceData.Cycle) }""
+    p.start_value as ""{ nameof(GetSequenceDefinitionQueryResult.StartValue) }"",
+    p.minimum_value as ""{ nameof(GetSequenceDefinitionQueryResult.MinValue) }"",
+    p.maximum_value as ""{ nameof(GetSequenceDefinitionQueryResult.MaxValue) }"",
+    p.increment as ""{ nameof(GetSequenceDefinitionQueryResult.Increment) }"",
+    1 as ""{ nameof(GetSequenceDefinitionQueryResult.CacheSize) }"",
+    p.cycle_option as ""{ nameof(GetSequenceDefinitionQueryResult.Cycle) }""
 from pg_catalog.pg_namespace nc, pg_catalog.pg_class c, lateral pg_catalog.pg_sequence_parameters(c.oid) p
 where c.relnamespace = nc.oid
     and c.relkind = 'S'
-    and nc.nspname = @SchemaName
-    and c.relname = @SequenceName";
+    and nc.nspname = @{ nameof(GetSequenceDefinitionQuery.SchemaName) }
+    and c.relname = @{ nameof(GetSequenceDefinitionQuery.SequenceName) }";
 
         /// <summary>
         /// Retrieves database sequence information.
@@ -193,38 +202,27 @@ where c.relnamespace = nc.oid
 
             var candidateSequenceName = QualifySequenceName(sequenceName);
             return GetResolvedSequenceName(candidateSequenceName, cancellationToken)
-                .Bind(name => LoadSequenceData(name, cancellationToken)
-                    .Map(seq => BuildSequenceFromDto(name, seq)));
+                .Bind(name => LoadSequenceData(name, cancellationToken));
         }
 
-        private OptionAsync<SequenceData> LoadSequenceData(Identifier sequenceName, CancellationToken cancellationToken)
+        private OptionAsync<IDatabaseSequence> LoadSequenceData(Identifier sequenceName, CancellationToken cancellationToken)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            return Connection.QueryFirstOrNone<SequenceData>(
+            return Connection.QueryFirstOrNone<GetSequenceDefinitionQueryResult>(
                 SequenceQuery,
-                new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName },
+                new GetSequenceDefinitionQuery { SchemaName = sequenceName.Schema!, SequenceName = sequenceName.LocalName },
                 cancellationToken
-            );
-        }
-
-        private static IDatabaseSequence BuildSequenceFromDto(Identifier sequenceName, SequenceData seqData)
-        {
-            if (sequenceName == null)
-                throw new ArgumentNullException(nameof(sequenceName));
-            if (seqData == null)
-                throw new ArgumentNullException(nameof(seqData));
-
-            return new DatabaseSequence(
+            ).Map<IDatabaseSequence>(dto => new DatabaseSequence(
                 sequenceName,
-                seqData.StartValue,
-                seqData.Increment,
-                Option<decimal>.Some(seqData.MinValue),
-                Option<decimal>.Some(seqData.MaxValue),
-                seqData.Cycle,
-                seqData.CacheSize
-            );
+                dto.StartValue,
+                dto.Increment,
+                Option<decimal>.Some(dto.MinValue),
+                Option<decimal>.Some(dto.MaxValue),
+                dto.Cycle,
+                dto.CacheSize
+            ));
         }
 
         /// <summary>

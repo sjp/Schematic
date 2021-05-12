@@ -9,6 +9,7 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.SqlServer.Query;
+using SJP.Schematic.SqlServer.QueryResult;
 
 namespace SJP.Schematic.SqlServer.Comments
 {
@@ -55,18 +56,25 @@ namespace SJP.Schematic.SqlServer.Comments
         /// <returns>A collection of database synonyms comments.</returns>
         public async IAsyncEnumerable<IDatabaseSynonymComments> GetAllSynonymComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var allCommentsData = await Connection.QueryAsync<CommentsData>(
+            var allCommentsData = await Connection.QueryAsync<GetAllSynonymCommentsQueryResult>(
                 AllSynonymCommentsQuery,
-                new { CommentProperty },
+                new GetAllSynonymCommentsQuery { CommentProperty = CommentProperty },
                 cancellationToken
             ).ConfigureAwait(false);
 
             var comments = allCommentsData
-                .GroupBy(static row => new { row.SchemaName, row.TableName })
+                .GroupBy(static row => new { row.SchemaName, row.SynonymName })
                 .Select(g =>
                 {
-                    var synonymName = QualifySynonymName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName));
-                    var comments = g.ToList();
+                    var synonymName = QualifySynonymName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.SynonymName));
+                    var comments = g.Select(r => new CommentData
+                    {
+                        SchemaName = r.SchemaName,
+                        SynonymName = r.SynonymName,
+                        ObjectName = r.ObjectName,
+                        ObjectType = r.ObjectType,
+                        Comment = r.Comment
+                    }).ToList();
 
                     var synonymComment = GetFirstCommentByType(comments, Constants.Synonym);
                     return new DatabaseSynonymComments(synonymName, synonymComment);
@@ -89,13 +97,13 @@ namespace SJP.Schematic.SqlServer.Comments
                 throw new ArgumentNullException(nameof(synonymName));
 
             synonymName = QualifySynonymName(synonymName);
-            var qualifiedSynonymName = Connection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedSynonymName = Connection.QueryFirstOrNone<GetSynonymNameQueryResult>(
                 SynonymNameQuery,
-                new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName },
+                new GetSynonymNameQuery { SchemaName = synonymName.Schema!, SynonymName = synonymName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(synonymName.Server, synonymName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(synonymName.Server, synonymName.Database, name.SchemaName, name.SynonymName));
         }
 
         /// <summary>
@@ -105,9 +113,9 @@ namespace SJP.Schematic.SqlServer.Comments
         protected virtual string SynonymNameQuery => SynonymNameQuerySql;
 
         private static readonly string SynonymNameQuerySql = @$"
-select top 1 schema_name(schema_id) as [{ nameof(QualifiedName.SchemaName) }], name as [{ nameof(QualifiedName.ObjectName) }]
+select top 1 schema_name(schema_id) as [{ nameof(GetSynonymNameQueryResult.SchemaName) }], name as [{ nameof(GetSynonymNameQueryResult.SynonymName) }]
 from sys.synonyms
-where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipped = 0";
+where schema_id = schema_id(@{ nameof(GetSynonymNameQueryResult.SchemaName) }) and name = @{ nameof(GetSynonymNameQueryResult.SynonymName) } and is_ms_shipped = 0";
 
         /// <summary>
         /// Retrieves comments for a database synonym.
@@ -144,13 +152,25 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipp
 
         private async Task<IDatabaseSynonymComments> LoadSynonymCommentsAsyncCore(Identifier synonymName, CancellationToken cancellationToken)
         {
-            var commentsData = await Connection.QueryAsync<CommentsData>(
+            var queryResult = await Connection.QueryAsync<GetSynonymCommentsQueryResult>(
                 SynonymCommentsQuery,
-                new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName, CommentProperty },
+                new GetSynonymCommentsQuery
+                {
+                    SchemaName = synonymName.Schema!,
+                    SynonymName = synonymName.LocalName,
+                    CommentProperty = CommentProperty
+                },
                 cancellationToken
             ).ConfigureAwait(false);
 
-            var synonymComment = GetFirstCommentByType(commentsData, Constants.Synonym);
+            var commentData = queryResult.Select(r => new CommentData
+            {
+                ObjectName = r.ObjectName,
+                ObjectType = r.ObjectType,
+                Comment = r.Comment
+            }).ToList();
+
+            var synonymComment = GetFirstCommentByType(commentData, Constants.Synonym);
 
             return new DatabaseSynonymComments(synonymName, synonymComment);
         }
@@ -163,13 +183,13 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipp
 
         private static readonly string AllSynonymCommentsQuerySql = @$"
 select
-    SCHEMA_NAME(s.schema_id) as [{ nameof(CommentsData.SchemaName) }],
-    s.name as [{ nameof(CommentsData.TableName) }],
-    'SYNONYM' as [{ nameof(CommentsData.ObjectType) }],
-    s.name as [{ nameof(CommentsData.ObjectName) }],
-    ep.value as [{ nameof(CommentsData.Comment) }]
+    SCHEMA_NAME(s.schema_id) as [{ nameof(GetAllSynonymCommentsQueryResult.SchemaName) }],
+    s.name as [{ nameof(GetAllSynonymCommentsQueryResult.SynonymName) }],
+    'SYNONYM' as [{ nameof(GetAllSynonymCommentsQueryResult.ObjectType) }],
+    s.name as [{ nameof(GetAllSynonymCommentsQueryResult.ObjectName) }],
+    ep.value as [{ nameof(GetAllSynonymCommentsQueryResult.Comment) }]
 from sys.synonyms s
-left join sys.extended_properties ep on s.object_id = ep.major_id and ep.name = @CommentProperty and ep.minor_id = 0
+left join sys.extended_properties ep on s.object_id = ep.major_id and ep.name = @{ nameof(GetAllSynonymCommentsQuery.CommentProperty) } and ep.minor_id = 0
 where s.is_ms_shipped = 0
 order by SCHEMA_NAME(s.schema_id), s.name
 ";
@@ -182,15 +202,15 @@ order by SCHEMA_NAME(s.schema_id), s.name
 
         private static readonly string SynonymCommentsQuerySql = @$"
 select
-    'SYNONYM' as [{ nameof(CommentsData.ObjectType) }],
-    s.name as [{ nameof(CommentsData.ObjectName) }],
-    ep.value as [{ nameof(CommentsData.Comment) }]
+    'SYNONYM' as [{ nameof(GetSynonymCommentsQueryResult.ObjectType) }],
+    s.name as [{ nameof(GetSynonymCommentsQueryResult.ObjectName) }],
+    ep.value as [{ nameof(GetSynonymCommentsQueryResult.Comment) }]
 from sys.synonyms s
-left join sys.extended_properties ep on s.object_id = ep.major_id and ep.name = @CommentProperty and ep.minor_id = 0
-where s.schema_id = SCHEMA_ID(@SchemaName) and s.name = @SynonymName and s.is_ms_shipped = 0
+left join sys.extended_properties ep on s.object_id = ep.major_id and ep.name = @{ nameof(GetSynonymCommentsQuery.CommentProperty) } and ep.minor_id = 0
+where s.schema_id = SCHEMA_ID(@{ nameof(GetSynonymCommentsQuery.SchemaName) }) and s.name = @{ nameof(GetSynonymCommentsQuery.SynonymName) } and s.is_ms_shipped = 0
 ";
 
-        private static Option<string> GetFirstCommentByType(IEnumerable<CommentsData> commentsData, string objectType)
+        private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
         {
             if (commentsData == null)
                 throw new ArgumentNullException(nameof(commentsData));
@@ -221,6 +241,19 @@ where s.schema_id = SCHEMA_ID(@SchemaName) and s.name = @SynonymName and s.is_ms
         private static class Constants
         {
             public const string Synonym = "SYNONYM";
+        }
+
+        private record CommentData
+        {
+            public string SchemaName { get; init; } = default!;
+
+            public string SynonymName { get; init; } = default!;
+
+            public string ObjectType { get; init; } = default!;
+
+            public string ObjectName { get; init; } = default!;
+
+            public string? Comment { get; init; }
         }
     }
 }

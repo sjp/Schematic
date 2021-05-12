@@ -7,6 +7,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.PostgreSql.Query;
+using SJP.Schematic.PostgreSql.QueryResult;
 
 namespace SJP.Schematic.PostgreSql.Versions.V10
 {
@@ -45,9 +46,9 @@ namespace SJP.Schematic.PostgreSql.Versions.V10
 
         private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var query = await DbConnection.QueryAsync<ColumnDataV10>(
+            var query = await DbConnection.QueryAsync<GetV10TableColumnsQueryResult>(
                 ColumnsQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetV10TableColumnsQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -106,39 +107,39 @@ namespace SJP.Schematic.PostgreSql.Versions.V10
         // additionally the default behaviour misses the schema which may be necessary
         private static readonly string ColumnsQuerySql = @$"
 select
-    column_name as ""{ nameof(ColumnDataV10.ColumnName) }"",
-    ordinal_position as ""{ nameof(ColumnDataV10.OrdinalPosition) }"",
-    column_default as ""{ nameof(ColumnDataV10.ColumnDefault) }"",
-    is_nullable as ""{ nameof(ColumnDataV10.IsNullable) }"",
-    data_type as ""{ nameof(ColumnDataV10.DataType) }"",
-    character_maximum_length as ""{ nameof(ColumnDataV10.CharacterMaximumLength) }"",
-    character_octet_length as ""{ nameof(ColumnDataV10.CharacterOctetLength) }"",
-    numeric_precision as ""{ nameof(ColumnDataV10.NumericPrecision) }"",
-    numeric_precision_radix as ""{ nameof(ColumnDataV10.NumericPrecisionRadix) }"",
-    numeric_scale as ""{ nameof(ColumnDataV10.NumericScale) }"",
-    datetime_precision as ""{ nameof(ColumnDataV10.DatetimePrecision) }"",
-    interval_type as ""{ nameof(ColumnDataV10.IntervalType) }"",
-    collation_catalog as ""{ nameof(ColumnDataV10.CollationCatalog) }"",
-    collation_schema as ""{ nameof(ColumnDataV10.CollationSchema) }"",
-    collation_name as ""{ nameof(ColumnDataV10.CollationName) }"",
-    domain_catalog as ""{ nameof(ColumnDataV10.DomainCatalog) }"",
-    domain_schema as ""{ nameof(ColumnDataV10.DomainSchema) }"",
-    domain_name as ""{ nameof(ColumnDataV10.DomainName) }"",
-    udt_catalog as ""{ nameof(ColumnDataV10.UdtCatalog) }"",
-    udt_schema as ""{ nameof(ColumnDataV10.UdtSchema) }"",
-    udt_name as ""{ nameof(ColumnDataV10.UdtName) }"",
-    dtd_identifier as ""{ nameof(ColumnDataV10.DtdIdentifier) }"",
-    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[1] as ""{ nameof(ColumnDataV10.SerialSequenceSchemaName) }"",
-    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[2] as ""{ nameof(ColumnDataV10.SerialSequenceLocalName) }"",
-    is_identity as ""{ nameof(ColumnDataV10.IsIdentity) }"",
-    identity_generation as ""{ nameof(ColumnDataV10.IdentityGeneration) }"",
-    identity_start as ""{ nameof(ColumnDataV10.IdentityStart) }"",
-    identity_increment as ""{ nameof(ColumnDataV10.IdentityIncrement) }"",
-    identity_maximum as ""{ nameof(ColumnDataV10.IdentityMaximum) }"",
-    identity_minimum as ""{ nameof(ColumnDataV10.IdentityMinimum) }"",
-    identity_cycle as ""{ nameof(ColumnDataV10.IdentityCycle) }""
+    column_name as ""{ nameof(GetV10TableColumnsQueryResult.ColumnName) }"",
+    ordinal_position as ""{ nameof(GetV10TableColumnsQueryResult.OrdinalPosition) }"",
+    column_default as ""{ nameof(GetV10TableColumnsQueryResult.ColumnDefault) }"",
+    is_nullable as ""{ nameof(GetV10TableColumnsQueryResult.IsNullable) }"",
+    data_type as ""{ nameof(GetV10TableColumnsQueryResult.DataType) }"",
+    character_maximum_length as ""{ nameof(GetV10TableColumnsQueryResult.CharacterMaximumLength) }"",
+    character_octet_length as ""{ nameof(GetV10TableColumnsQueryResult.CharacterOctetLength) }"",
+    numeric_precision as ""{ nameof(GetV10TableColumnsQueryResult.NumericPrecision) }"",
+    numeric_precision_radix as ""{ nameof(GetV10TableColumnsQueryResult.NumericPrecisionRadix) }"",
+    numeric_scale as ""{ nameof(GetV10TableColumnsQueryResult.NumericScale) }"",
+    datetime_precision as ""{ nameof(GetV10TableColumnsQueryResult.DatetimePrecision) }"",
+    interval_type as ""{ nameof(GetV10TableColumnsQueryResult.IntervalType) }"",
+    collation_catalog as ""{ nameof(GetV10TableColumnsQueryResult.CollationCatalog) }"",
+    collation_schema as ""{ nameof(GetV10TableColumnsQueryResult.CollationSchema) }"",
+    collation_name as ""{ nameof(GetV10TableColumnsQueryResult.CollationName) }"",
+    domain_catalog as ""{ nameof(GetV10TableColumnsQueryResult.DomainCatalog) }"",
+    domain_schema as ""{ nameof(GetV10TableColumnsQueryResult.DomainSchema) }"",
+    domain_name as ""{ nameof(GetV10TableColumnsQueryResult.DomainName) }"",
+    udt_catalog as ""{ nameof(GetV10TableColumnsQueryResult.UdtCatalog) }"",
+    udt_schema as ""{ nameof(GetV10TableColumnsQueryResult.UdtSchema) }"",
+    udt_name as ""{ nameof(GetV10TableColumnsQueryResult.UdtName) }"",
+    dtd_identifier as ""{ nameof(GetV10TableColumnsQueryResult.DtdIdentifier) }"",
+    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[1] as ""{ nameof(GetV10TableColumnsQueryResult.SerialSequenceSchemaName) }"",
+    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[2] as ""{ nameof(GetV10TableColumnsQueryResult.SerialSequenceLocalName) }"",
+    is_identity as ""{ nameof(GetV10TableColumnsQueryResult.IsIdentity) }"",
+    identity_generation as ""{ nameof(GetV10TableColumnsQueryResult.IdentityGeneration) }"",
+    identity_start as ""{ nameof(GetV10TableColumnsQueryResult.IdentityStart) }"",
+    identity_increment as ""{ nameof(GetV10TableColumnsQueryResult.IdentityIncrement) }"",
+    identity_maximum as ""{ nameof(GetV10TableColumnsQueryResult.IdentityMaximum) }"",
+    identity_minimum as ""{ nameof(GetV10TableColumnsQueryResult.IdentityMinimum) }"",
+    identity_cycle as ""{ nameof(GetV10TableColumnsQueryResult.IdentityCycle) }""
 from information_schema.columns
-where table_schema = @SchemaName and table_name = @TableName
+where table_schema = @{ nameof(GetV10TableColumnsQuery.SchemaName) }  and table_name = @{ nameof(GetV10TableColumnsQuery.TableName) }
 order by ordinal_position";
     }
 }

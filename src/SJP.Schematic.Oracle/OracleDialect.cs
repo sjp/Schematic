@@ -9,6 +9,7 @@ using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Oracle.Comments;
 using SJP.Schematic.Oracle.Query;
+using SJP.Schematic.Oracle.QueryResult;
 
 namespace SJP.Schematic.Oracle
 {
@@ -80,11 +81,11 @@ namespace SJP.Schematic.Oracle
 
         private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
         {
-            var hostInfoOption = connection.DbConnection.QueryFirstOrNone<DatabaseHost>(IdentifierDefaultsQuerySql, cancellationToken);
+            var hostInfoOption = connection.DbConnection.QueryFirstOrNone<GetIdentifierDefaultsQueryResult>(IdentifierDefaultsQuerySql, cancellationToken);
             var qualifiedServerName = await hostInfoOption
                 .Bind(static dbHost => dbHost.ServerHost != null && dbHost.ServerSid != null
-                    ? OptionAsync<DatabaseHost>.Some(dbHost)
-                    : OptionAsync<DatabaseHost>.None
+                    ? OptionAsync<GetIdentifierDefaultsQueryResult>.Some(dbHost)
+                    : OptionAsync<GetIdentifierDefaultsQueryResult>.None
                 )
                 .MatchUnsafe(
                     static dbHost => dbHost.ServerHost + "/" + dbHost.ServerSid,
@@ -98,10 +99,10 @@ namespace SJP.Schematic.Oracle
 
         private static readonly string IdentifierDefaultsQuerySql = @$"
 select
-    SYS_CONTEXT('USERENV', 'SERVER_HOST') as ""{ nameof(DatabaseHost.ServerHost) }"",
-    SYS_CONTEXT('USERENV', 'INSTANCE_NAME') as ""{ nameof(DatabaseHost.ServerSid) }"",
-    SYS_CONTEXT('USERENV', 'DB_NAME') as ""{ nameof(DatabaseHost.DatabaseName) }"",
-    SYS_CONTEXT('USERENV', 'CURRENT_USER') as ""{ nameof(DatabaseHost.DefaultSchema) }""
+    SYS_CONTEXT('USERENV', 'SERVER_HOST') as ""{ nameof(GetIdentifierDefaultsQueryResult.ServerHost) }"",
+    SYS_CONTEXT('USERENV', 'INSTANCE_NAME') as ""{ nameof(GetIdentifierDefaultsQueryResult.ServerSid) }"",
+    SYS_CONTEXT('USERENV', 'DB_NAME') as ""{ nameof(GetIdentifierDefaultsQueryResult.DatabaseName) }"",
+    SYS_CONTEXT('USERENV', 'CURRENT_USER') as ""{ nameof(GetIdentifierDefaultsQueryResult.DefaultSchema) }""
 from DUAL";
 
         /// <summary>
@@ -116,7 +117,7 @@ from DUAL";
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            var versionInfoOption = connection.DbConnection.QueryFirstOrNone<DatabaseVersion>(DatabaseVersionQuerySql, cancellationToken);
+            var versionInfoOption = connection.DbConnection.QueryFirstOrNone<GetDatabaseVersionQueryResult>(DatabaseVersionQuerySql, cancellationToken);
             return versionInfoOption.MatchUnsafe(
                 static vInfo => vInfo.ProductName + vInfo.VersionNumber,
                 static () => string.Empty
@@ -135,7 +136,7 @@ from DUAL";
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
-            var versionInfoOption = connection.DbConnection.QueryFirstOrNone<DatabaseVersion>(DatabaseVersionQuerySql, cancellationToken);
+            var versionInfoOption = connection.DbConnection.QueryFirstOrNone<GetDatabaseVersionQueryResult>(DatabaseVersionQuerySql, cancellationToken);
             return versionInfoOption
                 .Bind(static dbv => TryParseLongVersionString(dbv.VersionNumber).ToAsync())
                 .MatchUnsafeAsync(
@@ -169,8 +170,8 @@ from DUAL";
 
         private static readonly string DatabaseVersionQuerySql = @$"
 select
-    PRODUCT as ""{ nameof(DatabaseVersion.ProductName) }"",
-    VERSION as ""{ nameof(DatabaseVersion.VersionNumber) }""
+    PRODUCT as ""{ nameof(GetDatabaseVersionQueryResult.ProductName) }"",
+    VERSION as ""{ nameof(GetDatabaseVersionQueryResult.VersionNumber) }""
 from PRODUCT_COMPONENT_VERSION
 where PRODUCT like 'Oracle Database%'";
 

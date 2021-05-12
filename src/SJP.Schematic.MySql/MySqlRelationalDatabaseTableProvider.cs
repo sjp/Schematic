@@ -11,6 +11,7 @@ using SJP.Schematic.Core.Exceptions;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.MySql.Query;
+using SJP.Schematic.MySql.QueryResult;
 
 namespace SJP.Schematic.MySql
 {
@@ -77,13 +78,13 @@ namespace SJP.Schematic.MySql
         /// <returns>A collection of database tables.</returns>
         public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResults = await DbConnection.QueryAsync<QualifiedName>(
+            var queryResults = await DbConnection.QueryAsync<GetAllTableNamesQueryResult>(
                 TablesQuery,
-                new { SchemaName = IdentifierDefaults.Schema },
+                new GetAllTableNamesQuery { SchemaName = IdentifierDefaults.Schema! },
                 cancellationToken
             ).ConfigureAwait(false);
             var tableNames = queryResults
-                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
                 .Select(QualifyTableName);
 
             var queryCache = CreateQueryCache();
@@ -99,10 +100,10 @@ namespace SJP.Schematic.MySql
 
         private static readonly string TablesQuerySql = @$"
 select
-    TABLE_SCHEMA as `{ nameof(QualifiedName.SchemaName) }`,
-    TABLE_NAME as `{ nameof(QualifiedName.ObjectName) }`
+    TABLE_SCHEMA as `{ nameof(GetAllTableNamesQueryResult.SchemaName) }`,
+    TABLE_NAME as `{ nameof(GetAllTableNamesQueryResult.TableName) }`
 from information_schema.tables
-where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
+where TABLE_SCHEMA = @{ nameof(GetAllTableNamesQuery.SchemaName) } order by TABLE_NAME";
 
         /// <summary>
         /// Gets a database table.
@@ -134,14 +135,14 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = QualifyTableName(tableName);
-            var qualifiedTableName = DbConnection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedTableName = DbConnection.QueryFirstOrNone<GetTableNameQueryResult>(
                 TableNameQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableNameQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             );
 
             return qualifiedTableName
-                .Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.ObjectName))
+                .Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.TableName))
                 .ToOption();
         }
 
@@ -152,9 +153,11 @@ where TABLE_SCHEMA = @SchemaName order by TABLE_NAME";
         protected virtual string TableNameQuery => TableNameQuerySql;
 
         private static readonly string TableNameQuerySql = @$"
-select table_schema as `{ nameof(QualifiedName.SchemaName) }`, table_name as `{ nameof(QualifiedName.ObjectName) }`
+select
+    table_schema as `{ nameof(GetTableNameQueryResult.SchemaName) }`,
+    table_name as `{ nameof(GetTableNameQueryResult.TableName) }`
 from information_schema.tables
-where table_schema = @SchemaName and table_name = @TableName
+where table_schema = @{ nameof(GetTableNameQuery.SchemaName) } and table_name = @{ nameof(GetTableNameQuery.TableName) }
 limit 1";
 
         /// <summary>
@@ -232,9 +235,9 @@ limit 1";
 
         private async Task<Option<IDatabaseKey>> LoadPrimaryKeyAsyncCore(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var primaryKeyColumns = await DbConnection.QueryAsync<ConstraintColumnMapping>(
+            var primaryKeyColumns = await DbConnection.QueryAsync<GetTablePrimaryKeyQueryResult>(
                 PrimaryKeyQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTablePrimaryKeyQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -265,8 +268,8 @@ limit 1";
 
         private static readonly string PrimaryKeyQuerySql = @$"
 select
-    kc.constraint_name as `{ nameof(ConstraintColumnMapping.ConstraintName) }`,
-    kc.column_name as `{ nameof(ConstraintColumnMapping.ColumnName) }`
+    kc.constraint_name as `{ nameof(GetTablePrimaryKeyQueryResult.ConstraintName) }`,
+    kc.column_name as `{ nameof(GetTablePrimaryKeyQueryResult.ColumnName) }`
 from information_schema.tables t
 inner join information_schema.table_constraints tc on t.table_schema = tc.table_schema and t.table_name = tc.table_name
 inner join information_schema.key_column_usage kc
@@ -274,7 +277,7 @@ inner join information_schema.key_column_usage kc
     and t.table_name = kc.table_name
     and tc.constraint_schema = kc.constraint_schema
     and tc.constraint_name = kc.constraint_name
-where t.table_schema = @SchemaName and t.table_name = @TableName
+where t.table_schema = @{ nameof(GetTablePrimaryKeyQuery.SchemaName) } and t.table_name = @{ nameof(GetTablePrimaryKeyQuery.TableName) }
     and tc.constraint_type = 'PRIMARY KEY'
 order by kc.ordinal_position";
 
@@ -298,9 +301,9 @@ order by kc.ordinal_position";
 
         private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var queryResult = await DbConnection.QueryAsync<IndexColumns>(
+            var queryResult = await DbConnection.QueryAsync<GetTableIndexesQueryResult>(
                 IndexesQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableIndexesQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -346,12 +349,12 @@ order by kc.ordinal_position";
 
         private static readonly string IndexesQuerySql = @$"
 select
-    index_name as `{ nameof(IndexColumns.IndexName) }`,
-    non_unique as `{ nameof(IndexColumns.IsNonUnique) }`,
-    seq_in_index as `{ nameof(IndexColumns.ColumnOrdinal) }`,
-    column_name as `{ nameof(IndexColumns.ColumnName) }`
+    index_name as `{ nameof(GetTableIndexesQueryResult.IndexName) }`,
+    non_unique as `{ nameof(GetTableIndexesQueryResult.IsNonUnique) }`,
+    seq_in_index as `{ nameof(GetTableIndexesQueryResult.ColumnOrdinal) }`,
+    column_name as `{ nameof(GetTableIndexesQueryResult.ColumnName) }`
 from information_schema.statistics
-where table_schema = @SchemaName and table_name = @TableName";
+where table_schema = @{ nameof(GetTableIndexesQuery.SchemaName) } and table_name = @{ nameof(GetTableIndexesQuery.TableName) }";
 
         /// <summary>
         /// Retrieves unique keys that relate to the given table.
@@ -373,9 +376,9 @@ where table_schema = @SchemaName and table_name = @TableName";
 
         private async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsyncCore(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var uniqueKeyColumns = await DbConnection.QueryAsync<ConstraintColumnMapping>(
+            var uniqueKeyColumns = await DbConnection.QueryAsync<GetTableUniqueKeysQueryResult>(
                 UniqueKeysQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableUniqueKeysQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -413,8 +416,8 @@ where table_schema = @SchemaName and table_name = @TableName";
 
         private static readonly string UniqueKeysQuerySql = @$"
 select
-    kc.constraint_name as `{ nameof(ConstraintColumnMapping.ConstraintName) }`,
-    kc.column_name as `{ nameof(ConstraintColumnMapping.ColumnName) }`
+    kc.constraint_name as `{ nameof(GetTableUniqueKeysQueryResult.ConstraintName) }`,
+    kc.column_name as `{ nameof(GetTableUniqueKeysQueryResult.ColumnName) }`
 from information_schema.tables t
 inner join information_schema.table_constraints tc on t.table_schema = tc.table_schema and t.table_name = tc.table_name
 inner join information_schema.key_column_usage kc
@@ -422,7 +425,7 @@ inner join information_schema.key_column_usage kc
     and t.table_name = kc.table_name
     and tc.constraint_schema = kc.constraint_schema
     and tc.constraint_name = kc.constraint_name
-where t.table_schema = @SchemaName and t.table_name = @TableName
+where t.table_schema = @{ nameof(GetTableUniqueKeysQuery.SchemaName) } and t.table_name = @{ nameof(GetTableUniqueKeysQuery.TableName) }
     and tc.constraint_type = 'UNIQUE'
 order by kc.ordinal_position";
 
@@ -446,9 +449,9 @@ order by kc.ordinal_position";
 
         private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var queryResult = await DbConnection.QueryAsync<ChildKeyData>(
+            var queryResult = await DbConnection.QueryAsync<GetTableChildKeysQueryResult>(
                 ChildKeysQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableChildKeysQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -525,19 +528,19 @@ order by kc.ordinal_position";
 
         private static readonly string ChildKeysQuerySql = @$"
 select
-    t.table_schema as `{ nameof(ChildKeyData.ChildTableSchema) }`,
-    t.table_name as `{ nameof(ChildKeyData.ChildTableName) }`,
-    rc.constraint_name as `{ nameof(ChildKeyData.ChildKeyName) }`,
-    rc.unique_constraint_name as `{ nameof(ChildKeyData.ParentKeyName) }`,
-    ptc.constraint_type as `{ nameof(ChildKeyData.ParentKeyType) }`,
-    rc.delete_rule as `{ nameof(ChildKeyData.DeleteAction) }`,
-    rc.update_rule as `{ nameof(ChildKeyData.UpdateAction) }`
+    t.table_schema as `{ nameof(GetTableChildKeysQueryResult.ChildTableSchema) }`,
+    t.table_name as `{ nameof(GetTableChildKeysQueryResult.ChildTableName) }`,
+    rc.constraint_name as `{ nameof(GetTableChildKeysQueryResult.ChildKeyName) }`,
+    rc.unique_constraint_name as `{ nameof(GetTableChildKeysQueryResult.ParentKeyName) }`,
+    ptc.constraint_type as `{ nameof(GetTableChildKeysQueryResult.ParentKeyType) }`,
+    rc.delete_rule as `{ nameof(GetTableChildKeysQueryResult.DeleteAction) }`,
+    rc.update_rule as `{ nameof(GetTableChildKeysQueryResult.UpdateAction) }`
 from information_schema.tables t
 inner join information_schema.referential_constraints rc on t.table_schema = rc.constraint_schema and t.table_name = rc.table_name
 inner join information_schema.key_column_usage kc on t.table_schema = kc.table_schema and t.table_name = kc.table_name
 inner join information_schema.tables pt on pt.table_schema = rc.unique_constraint_schema and pt.table_name = rc.referenced_table_name
 inner join information_schema.table_constraints ptc on pt.table_schema = ptc.table_schema and pt.table_name = ptc.table_name and ptc.constraint_name = rc.unique_constraint_name
-where pt.table_schema = @SchemaName and pt.table_name = @TableName";
+where pt.table_schema = @{ nameof(GetTableChildKeysQuery.SchemaName) } and pt.table_name = @{ nameof(GetTableChildKeysQuery.TableName) }";
 
         /// <summary>
         /// Retrieves check constraints defined on a given table.
@@ -560,9 +563,9 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
             if (!hasCheckSupport)
                 return Array.Empty<IDatabaseCheckConstraint>();
 
-            var queryResult = await DbConnection.QueryAsync<CheckData>(
+            var queryResult = await DbConnection.QueryAsync<GetTableCheckConstraintsQueryResult>(
                 ChecksQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableCheckConstraintsQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
             if (queryResult.Empty())
@@ -589,12 +592,12 @@ where pt.table_schema = @SchemaName and pt.table_name = @TableName";
 
         private static readonly string ChecksQuerySql = @$"
 select
-    cc.constraint_name as `{ nameof(CheckData.ConstraintName) }`,
-    cc.check_clause as `{ nameof(CheckData.Definition) }`,
-    tc.enforced as `{ nameof(CheckData.Enforced) }`
+    cc.constraint_name as `{ nameof(GetTableCheckConstraintsQueryResult.ConstraintName) }`,
+    cc.check_clause as `{ nameof(GetTableCheckConstraintsQueryResult.Definition) }`,
+    tc.enforced as `{ nameof(GetTableCheckConstraintsQueryResult.Enforced) }`
 from information_schema.table_constraints tc
 inner join information_schema.check_constraints cc on tc.table_schema = cc.constraint_schema and tc.constraint_name = cc.constraint_name
-where tc.table_schema = @SchemaName and tc.table_name = @TableName and tc.constraint_type = 'CHECK'";
+where tc.table_schema = @{ nameof(GetTableCheckConstraintsQuery.SchemaName) } and tc.table_name = @{ nameof(GetTableCheckConstraintsQuery.TableName) } and tc.constraint_type = 'CHECK'";
 
         /// <summary>
         /// Retrieves foreign keys that relate to the given table.
@@ -616,9 +619,9 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName and tc.constr
 
         private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsyncCore(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var queryResult = await DbConnection.QueryAsync<ForeignKeyData>(
+            var queryResult = await DbConnection.QueryAsync<GetTableParentKeysQueryResult>(
                 ParentKeysQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableParentKeysQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -697,21 +700,21 @@ where tc.table_schema = @SchemaName and tc.table_name = @TableName and tc.constr
 
         private static readonly string ParentKeysQuerySql = @$"
 select
-    pt.table_schema as `{ nameof(ForeignKeyData.ParentTableSchema) }`,
-    pt.table_name as `{ nameof(ForeignKeyData.ParentTableName) }`,
-    rc.constraint_name as `{ nameof(ForeignKeyData.ChildKeyName) }`,
-    rc.unique_constraint_name as `{ nameof(ForeignKeyData.ParentKeyName) }`,
-    kc.column_name as `{ nameof(ForeignKeyData.ColumnName) }`,
-    kc.ordinal_position as `{ nameof(ForeignKeyData.ConstraintColumnId) }`,
-    ptc.constraint_type as `{ nameof(ForeignKeyData.ParentKeyType) }`,
-    rc.delete_rule as `{ nameof(ForeignKeyData.DeleteAction) }`,
-    rc.update_rule as `{ nameof(ForeignKeyData.UpdateAction) }`
+    pt.table_schema as `{ nameof(GetTableParentKeysQueryResult.ParentTableSchema) }`,
+    pt.table_name as `{ nameof(GetTableParentKeysQueryResult.ParentTableName) }`,
+    rc.constraint_name as `{ nameof(GetTableParentKeysQueryResult.ChildKeyName) }`,
+    rc.unique_constraint_name as `{ nameof(GetTableParentKeysQueryResult.ParentKeyName) }`,
+    kc.column_name as `{ nameof(GetTableParentKeysQueryResult.ColumnName) }`,
+    kc.ordinal_position as `{ nameof(GetTableParentKeysQueryResult.ConstraintColumnId) }`,
+    ptc.constraint_type as `{ nameof(GetTableParentKeysQueryResult.ParentKeyType) }`,
+    rc.delete_rule as `{ nameof(GetTableParentKeysQueryResult.DeleteAction) }`,
+    rc.update_rule as `{ nameof(GetTableParentKeysQueryResult.UpdateAction) }`
 from information_schema.tables t
 inner join information_schema.referential_constraints rc on t.table_schema = rc.constraint_schema and t.table_name = rc.table_name
 inner join information_schema.key_column_usage kc on t.table_schema = kc.table_schema and t.table_name = kc.table_name
 inner join information_schema.tables pt on pt.table_schema = rc.unique_constraint_schema and pt.table_name = rc.referenced_table_name
 inner join information_schema.table_constraints ptc on pt.table_schema = ptc.table_schema and pt.table_name = ptc.table_name and ptc.constraint_name = rc.unique_constraint_name
-where t.table_schema = @SchemaName and t.table_name = @TableName";
+where t.table_schema = @{ nameof(GetTableParentKeysQuery.SchemaName) } and t.table_name = @{ nameof(GetTableParentKeysQuery.TableName) }";
 
         /// <summary>
         /// Retrieves the columns for a given table.
@@ -730,9 +733,9 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
 
         private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var query = await DbConnection.QueryAsync<ColumnData>(
+            var query = await DbConnection.QueryAsync<GetTableColumnsQueryResult>(
                 ColumnsQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableColumnsQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -784,19 +787,19 @@ where t.table_schema = @SchemaName and t.table_name = @TableName";
 
         private static readonly string ColumnsQuerySql = @$"
 select
-    column_name as `{ nameof(ColumnData.ColumnName) }`,
-    data_type as `{ nameof(ColumnData.DataTypeName) }`,
-    character_maximum_length as `{ nameof(ColumnData.CharacterMaxLength) }`,
-    numeric_precision as `{ nameof(ColumnData.Precision) }`,
-    numeric_scale as `{ nameof(ColumnData.Scale) }`,
-    datetime_precision as `{ nameof(ColumnData.DateTimePrecision) }`,
-    collation_name as `{ nameof(ColumnData.Collation) }`,
-    is_nullable as `{ nameof(ColumnData.IsNullable) }`,
-    column_default as `{ nameof(ColumnData.DefaultValue) }`,
-    generation_expression as `{ nameof(ColumnData.ComputedColumnDefinition) }`,
-    extra as `{ nameof(ColumnData.ExtraInformation) }`
+    column_name as `{ nameof(GetTableColumnsQueryResult.ColumnName) }`,
+    data_type as `{ nameof(GetTableColumnsQueryResult.DataTypeName) }`,
+    character_maximum_length as `{ nameof(GetTableColumnsQueryResult.CharacterMaxLength) }`,
+    numeric_precision as `{ nameof(GetTableColumnsQueryResult.Precision) }`,
+    numeric_scale as `{ nameof(GetTableColumnsQueryResult.Scale) }`,
+    datetime_precision as `{ nameof(GetTableColumnsQueryResult.DateTimePrecision) }`,
+    collation_name as `{ nameof(GetTableColumnsQueryResult.Collation) }`,
+    is_nullable as `{ nameof(GetTableColumnsQueryResult.IsNullable) }`,
+    column_default as `{ nameof(GetTableColumnsQueryResult.DefaultValue) }`,
+    generation_expression as `{ nameof(GetTableColumnsQueryResult.ComputedColumnDefinition) }`,
+    extra as `{ nameof(GetTableColumnsQueryResult.ExtraInformation) }`
 from information_schema.columns
-where table_schema = @SchemaName and table_name = @TableName
+where table_schema = @{ nameof(GetTableColumnsQuery.SchemaName) } and table_name = @{ nameof(GetTableColumnsQuery.TableName) }
 order by ordinal_position";
 
         /// <summary>
@@ -816,9 +819,9 @@ order by ordinal_position";
 
         private async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var queryResult = await DbConnection.QueryAsync<TriggerData>(
+            var queryResult = await DbConnection.QueryAsync<GetTableTriggersQueryResult>(
                 TriggersQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableTriggersQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -869,12 +872,12 @@ order by ordinal_position";
 
         private static readonly string TriggersQuerySql = @$"
 select
-    tr.trigger_name as `{ nameof(TriggerData.TriggerName) }`,
-    tr.action_statement as `{ nameof(TriggerData.Definition) }`,
-    tr.action_timing as `{ nameof(TriggerData.Timing) }`,
-    tr.event_manipulation as `{ nameof(TriggerData.TriggerEvent) }`
+    tr.trigger_name as `{ nameof(GetTableTriggersQueryResult.TriggerName) }`,
+    tr.action_statement as `{ nameof(GetTableTriggersQueryResult.Definition) }`,
+    tr.action_timing as `{ nameof(GetTableTriggersQueryResult.Timing) }`,
+    tr.event_manipulation as `{ nameof(GetTableTriggersQueryResult.TriggerEvent) }`
 from information_schema.triggers tr
-where tr.event_object_schema = @SchemaName and tr.event_object_table = @TableName";
+where tr.event_object_schema = @{ nameof(GetTableTriggersQuery.SchemaName) } and tr.event_object_table = @{ nameof(GetTableTriggersQuery.TableName) }";
 
         /// <summary>
         /// Qualifies the name of a table, using known identifier defaults.

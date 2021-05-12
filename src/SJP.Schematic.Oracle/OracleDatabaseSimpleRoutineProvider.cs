@@ -8,6 +8,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Oracle.Query;
+using SJP.Schematic.Oracle.QueryResult;
 
 namespace SJP.Schematic.Oracle
 {
@@ -56,7 +57,7 @@ namespace SJP.Schematic.Oracle
         /// <returns>A collection of database routines.</returns>
         public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResult = await Connection.QueryAsync<RoutineData>(
+            var queryResult = await Connection.QueryAsync<GetAllRoutinesQueryResult>(
                 AllSourcesQuery,
                 cancellationToken
             ).ConfigureAwait(false);
@@ -89,11 +90,11 @@ namespace SJP.Schematic.Oracle
 
         private static readonly string AllSourcesQuerySql = @$"
 SELECT
-    OWNER as ""{ nameof(RoutineData.SchemaName) }"",
-    NAME as ""{ nameof(RoutineData.RoutineName) }"",
-    TYPE as ""{ nameof(RoutineData.RoutineType) }"",
-    LINE as ""{ nameof(RoutineData.LineNumber) }"",
-    TEXT as ""{ nameof(RoutineData.Text) }""
+    OWNER as ""{ nameof(GetAllRoutinesQueryResult.SchemaName) }"",
+    NAME as ""{ nameof(GetAllRoutinesQueryResult.RoutineName) }"",
+    TYPE as ""{ nameof(GetAllRoutinesQueryResult.RoutineType) }"",
+    LINE as ""{ nameof(GetAllRoutinesQueryResult.LineNumber) }"",
+    TEXT as ""{ nameof(GetAllRoutinesQueryResult.Text) }""
 FROM SYS.ALL_SOURCE
     WHERE TYPE in ('FUNCTION', 'PROCEDURE')
 ORDER BY OWNER, NAME, LINE";
@@ -148,13 +149,13 @@ ORDER BY OWNER, NAME, LINE";
                 throw new ArgumentNullException(nameof(routineName));
 
             var candidateRoutineName = QualifyRoutineName(routineName);
-            var qualifiedRoutineName = Connection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineNameQueryResult>(
                 RoutineNameQuery,
-                new { SchemaName = candidateRoutineName.Schema, RoutineName = candidateRoutineName.LocalName },
+                new GetRoutineNameQuery { SchemaName = candidateRoutineName.Schema!, RoutineName = candidateRoutineName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(candidateRoutineName.Server, candidateRoutineName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(candidateRoutineName.Server, candidateRoutineName.Database, name.SchemaName, name.RoutineName));
         }
 
         /// <summary>
@@ -165,10 +166,10 @@ ORDER BY OWNER, NAME, LINE";
 
         private static readonly string RoutineNameQuerySql = @$"
 select
-    OWNER as ""{ nameof(QualifiedName.SchemaName) }"",
-    OBJECT_NAME as ""{ nameof(QualifiedName.ObjectName) }""
+    OWNER as ""{ nameof(GetRoutineNameQueryResult.SchemaName) }"",
+    OBJECT_NAME as ""{ nameof(GetRoutineNameQueryResult.RoutineName) }""
 from SYS.ALL_OBJECTS
-where OWNER = :SchemaName and OBJECT_NAME = :RoutineName
+where OWNER = :{ nameof(GetRoutineNameQuery.SchemaName) } and OBJECT_NAME = :{ nameof(GetRoutineNameQuery.RoutineName) }
     and ORACLE_MAINTAINED <> 'Y' and OBJECT_TYPE in ('FUNCTION', 'PROCEDURE')";
 
         /// <summary>
@@ -213,23 +214,11 @@ where OWNER = :SchemaName and OBJECT_NAME = :RoutineName
         {
             // fast path
             if (string.Equals(routineName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal))
-            {
-                var userLines = await Connection.QueryAsync<string>(
-                    UserDefinitionQuery,
-                    new { RoutineName = routineName.LocalName },
-                    cancellationToken
-                ).ConfigureAwait(false);
-
-                if (userLines.Empty())
-                    return string.Empty;
-
-                var userDefinition = userLines.Join(string.Empty);
-                return OracleUnwrapper.Unwrap(userDefinition);
-            }
+                return await LoadUserDefinitionAsyncCore(routineName, cancellationToken);
 
             var lines = await Connection.QueryAsync<string>(
                 DefinitionQuery,
-                new { SchemaName = routineName.Schema, RoutineName = routineName.LocalName },
+                new GetRoutineDefinitionQuery { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -240,16 +229,31 @@ where OWNER = :SchemaName and OBJECT_NAME = :RoutineName
             return OracleUnwrapper.Unwrap(definition);
         }
 
+        private async Task<string> LoadUserDefinitionAsyncCore(Identifier routineName, CancellationToken cancellationToken)
+        {
+            var userLines = await Connection.QueryAsync<string>(
+                UserDefinitionQuery,
+                new GetUserRoutineDefinitionQuery { RoutineName = routineName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
+            if (userLines.Empty())
+                return string.Empty;
+
+            var userDefinition = userLines.Join(string.Empty);
+            return OracleUnwrapper.Unwrap(userDefinition);
+        }
+
         /// <summary>
         /// Gets a query that retrieves the routine definition for a given routine name.
         /// </summary>
         /// <value>A SQL query.</value>
         protected virtual string DefinitionQuery => DefinitionQuerySql;
 
-        private const string DefinitionQuerySql = @"
+        private static readonly string DefinitionQuerySql = @$"
 select TEXT
 from SYS.ALL_SOURCE
-where OWNER = :SchemaName and NAME = :RoutineName
+where OWNER = :{ nameof(GetRoutineDefinitionQuery.SchemaName) } and NAME = :{ nameof(GetRoutineDefinitionQuery.RoutineName) }
     AND TYPE IN ('FUNCTION', 'PROCEDURE')
 order by LINE";
 
@@ -259,10 +263,10 @@ order by LINE";
         /// <value>A SQL query.</value>
         protected virtual string UserDefinitionQuery => UserDefinitionQuerySql;
 
-        private const string UserDefinitionQuerySql = @"
+        private static readonly string UserDefinitionQuerySql = @$"
 select TEXT
 from SYS.USER_SOURCE
-where NAME = :RoutineName AND TYPE IN ('FUNCTION', 'PROCEDURE')
+where NAME = :{ nameof(GetUserRoutineDefinitionQuery.RoutineName) } AND TYPE IN ('FUNCTION', 'PROCEDURE')
 order by LINE";
 
         /// <summary>

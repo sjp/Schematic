@@ -8,6 +8,7 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.PostgreSql.Query;
+using SJP.Schematic.PostgreSql.QueryResult;
 
 namespace SJP.Schematic.PostgreSql.Comments
 {
@@ -56,11 +57,11 @@ namespace SJP.Schematic.PostgreSql.Comments
         /// <returns>A collection of database sequence comments.</returns>
         public async IAsyncEnumerable<IDatabaseSequenceComments> GetAllSequenceComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var allCommentsData = await Connection.QueryAsync<CommentsData>(AllSequenceCommentsQuery, cancellationToken).ConfigureAwait(false);
+            var allCommentsData = await Connection.QueryAsync<GetAllSequenceCommentsQueryResult>(AllSequenceCommentsQuery, cancellationToken).ConfigureAwait(false);
 
             foreach (var commentData in allCommentsData)
             {
-                var tmpIdentifier = Identifier.CreateQualifiedIdentifier(commentData.SchemaName, commentData.ObjectName);
+                var tmpIdentifier = Identifier.CreateQualifiedIdentifier(commentData.SchemaName, commentData.SequenceName);
                 var qualifiedName = QualifySequenceName(tmpIdentifier);
 
                 var sequenceComment = !commentData.Comment.IsNullOrWhiteSpace()
@@ -105,13 +106,13 @@ namespace SJP.Schematic.PostgreSql.Comments
                 throw new ArgumentNullException(nameof(sequenceName));
 
             var candidateSequenceName = QualifySequenceName(sequenceName);
-            var qualifiedSequenceName = Connection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedSequenceName = Connection.QueryFirstOrNone<GetSequenceNameQueryResult>(
                 SequenceNameQuery,
-                new { SchemaName = candidateSequenceName.Schema, SequenceName = candidateSequenceName.LocalName },
+                new GetSequenceNameQuery { SchemaName = candidateSequenceName.Schema!, SequenceName = candidateSequenceName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSequenceName.Server, candidateSequenceName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSequenceName.Server, candidateSequenceName.Database, name.SchemaName, name.SequenceName));
         }
 
         /// <summary>
@@ -121,9 +122,9 @@ namespace SJP.Schematic.PostgreSql.Comments
         protected virtual string SequenceNameQuery => SequenceNameQuerySql;
 
         private static readonly string SequenceNameQuerySql = @$"
-select sequence_schema as ""{ nameof(QualifiedName.SchemaName) }"", sequence_name as ""{ nameof(QualifiedName.ObjectName) }""
+select sequence_schema as ""{ nameof(GetSequenceNameQueryResult.SchemaName) }"", sequence_name as ""{ nameof(GetSequenceNameQueryResult.SequenceName) }""
 from information_schema.sequences
-where sequence_schema = @SchemaName and sequence_name = @SequenceName
+where sequence_schema = @{ nameof(GetSequenceNameQuery.SchemaName) } and sequence_name = @{ nameof(GetSequenceNameQuery.SequenceName) }
     and sequence_schema not in ('pg_catalog', 'information_schema')
 limit 1";
 
@@ -159,9 +160,9 @@ limit 1";
             return GetResolvedSequenceName(candidateSequenceName, cancellationToken)
                 .Bind(name =>
                 {
-                    return Connection.QueryFirstOrNone<CommentsData>(
+                    return Connection.QueryFirstOrNone<GetSequenceCommentsQueryResult>(
                         SequenceCommentsQuery,
-                        new { SchemaName = name.Schema, SequenceName = name.LocalName },
+                        new GetSequenceCommentsQuery { SchemaName = name.Schema!, SequenceName = name.LocalName },
                         cancellationToken
                     ).Map<IDatabaseSequenceComments>(c =>
                     {
@@ -181,9 +182,9 @@ limit 1";
 
         private static readonly string AllSequenceCommentsQuerySql = @$"
 select
-    nc.nspname as ""{ nameof(CommentsData.SchemaName) }"",
-    c.relname as ""{ nameof(CommentsData.ObjectName) }"",
-    d.description as ""{ nameof(CommentsData.Comment) }""
+    nc.nspname as ""{ nameof(GetAllSequenceCommentsQueryResult.SchemaName) }"",
+    c.relname as ""{ nameof(GetAllSequenceCommentsQueryResult.SequenceName) }"",
+    d.description as ""{ nameof(GetAllSequenceCommentsQueryResult.Comment) }""
 from pg_catalog.pg_namespace nc
 inner join pg_catalog.pg_class c on c.relnamespace = nc.oid
 left join pg_catalog.pg_description d on d.objoid = c.oid
@@ -198,13 +199,11 @@ order by nc.nspname, c.relname";
 
         private static readonly string SequenceCommentsQuerySql = @$"
 select
-    nc.nspname as ""{ nameof(CommentsData.SchemaName) }"",
-    c.relname as ""{ nameof(CommentsData.ObjectName) }"",
-    d.description as ""{ nameof(CommentsData.Comment) }""
+    d.description as ""{ nameof(GetSequenceCommentsQueryResult.Comment) }""
 from pg_catalog.pg_namespace nc
 inner join pg_catalog.pg_class c on c.relnamespace = nc.oid
 left join pg_catalog.pg_description d on d.objoid = c.oid
-where nc.nspname = @SchemaName and c.relname = @SequenceName
+where nc.nspname = @{ nameof(GetSequenceCommentsQuery.SchemaName) } and c.relname = @{ nameof(GetSequenceCommentsQuery.SequenceName) }
     and nc.nspname not in ('pg_catalog', 'information_schema')
     and c.relkind = 'S'
 ";

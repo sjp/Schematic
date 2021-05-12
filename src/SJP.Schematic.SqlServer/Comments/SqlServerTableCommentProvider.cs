@@ -9,6 +9,7 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.SqlServer.Query;
+using SJP.Schematic.SqlServer.QueryResult;
 
 namespace SJP.Schematic.SqlServer.Comments
 {
@@ -55,9 +56,9 @@ namespace SJP.Schematic.SqlServer.Comments
         /// <returns>A collection of database table comments, where available.</returns>
         public async IAsyncEnumerable<IRelationalDatabaseTableComments> GetAllTableComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var commentsData = await Connection.QueryAsync<CommentsData>(
+            var commentsData = await Connection.QueryAsync<GetAllTableCommentsQueryResult>(
                 AllTableCommentsQuery,
-                new { CommentProperty },
+                new GetAllTableCommentsQuery { CommentProperty = CommentProperty },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -66,7 +67,14 @@ namespace SJP.Schematic.SqlServer.Comments
                 .Select(g =>
                 {
                     var tableName = QualifyTableName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName));
-                    var comments = g.ToList();
+                    var comments = g.Select(r => new CommentData
+                    {
+                        SchemaName = r.SchemaName,
+                        TableName = r.TableName,
+                        ObjectName = r.ObjectName,
+                        ObjectType = r.ObjectType,
+                        Comment = r.Comment
+                    }).ToList();
 
                     var tableComment = GetFirstCommentByType(comments, Constants.Table);
                     var primaryKeyComment = GetFirstCommentByType(comments, Constants.Primary);
@@ -107,13 +115,13 @@ namespace SJP.Schematic.SqlServer.Comments
                 throw new ArgumentNullException(nameof(tableName));
 
             tableName = QualifyTableName(tableName);
-            var qualifiedTableName = Connection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedTableName = Connection.QueryFirstOrNone<GetTableNameQueryResult>(
                 TableNameQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableNameQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.TableName));
         }
 
         /// <summary>
@@ -123,9 +131,9 @@ namespace SJP.Schematic.SqlServer.Comments
         protected virtual string TableNameQuery => TableNameQuerySql;
 
         private static readonly string TableNameQuerySql = @$"
-select top 1 schema_name(schema_id) as [{ nameof(QualifiedName.SchemaName) }], name as [{ nameof(QualifiedName.ObjectName) }]
+select top 1 schema_name(schema_id) as [{ nameof(GetTableNameQueryResult.SchemaName) }], name as [{ nameof(GetTableNameQueryResult.TableName) }]
 from sys.tables
-where schema_id = schema_id(@SchemaName) and name = @TableName
+where schema_id = schema_id(@{ nameof(GetTableNameQuery.SchemaName) }) and name = @{ nameof(GetTableNameQuery.TableName) }
     and is_ms_shipped = 0";
 
         /// <summary>
@@ -163,21 +171,33 @@ where schema_id = schema_id(@SchemaName) and name = @TableName
 
         private async Task<IRelationalDatabaseTableComments> LoadTableCommentsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var commentsData = await Connection.QueryAsync<CommentsData>(
+            var queryResult = await Connection.QueryAsync<GetTableCommentsQueryResult>(
                 TableCommentsQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName, CommentProperty },
+                new GetTableCommentsQuery
+                {
+                    SchemaName = tableName.Schema!,
+                    TableName = tableName.LocalName,
+                    CommentProperty = CommentProperty
+                },
                 cancellationToken
             ).ConfigureAwait(false);
 
-            var tableComment = GetFirstCommentByType(commentsData, Constants.Table);
-            var primaryKeyComment = GetFirstCommentByType(commentsData, Constants.Primary);
+            var commentData = queryResult.Select(r => new CommentData
+            {
+                ObjectName = r.ObjectName,
+                ObjectType = r.ObjectType,
+                Comment = r.Comment
+            }).ToList();
 
-            var columnComments = GetCommentLookupByType(commentsData, Constants.Column);
-            var checkComments = GetCommentLookupByType(commentsData, Constants.Check);
-            var foreignKeyComments = GetCommentLookupByType(commentsData, Constants.ForeignKey);
-            var uniqueKeyComments = GetCommentLookupByType(commentsData, Constants.Unique);
-            var indexComments = GetCommentLookupByType(commentsData, Constants.Index);
-            var triggerComments = GetCommentLookupByType(commentsData, Constants.Trigger);
+            var tableComment = GetFirstCommentByType(commentData, Constants.Table);
+            var primaryKeyComment = GetFirstCommentByType(commentData, Constants.Primary);
+
+            var columnComments = GetCommentLookupByType(commentData, Constants.Column);
+            var checkComments = GetCommentLookupByType(commentData, Constants.Check);
+            var foreignKeyComments = GetCommentLookupByType(commentData, Constants.ForeignKey);
+            var uniqueKeyComments = GetCommentLookupByType(commentData, Constants.Unique);
+            var indexComments = GetCommentLookupByType(commentData, Constants.Index);
+            var triggerComments = GetCommentLookupByType(commentData, Constants.Trigger);
 
             return new RelationalDatabaseTableComments(
                 tableName,
@@ -202,97 +222,97 @@ where schema_id = schema_id(@SchemaName) and name = @TableName
 select wrapped.* from (
 -- table
 select
-    SCHEMA_NAME(t.schema_id) as [{ nameof(CommentsData.SchemaName) }],
-    t.name as [{ nameof(CommentsData.TableName) }],
-    'TABLE' as [{ nameof(CommentsData.ObjectType) }],
-    t.name as [{ nameof(CommentsData.ObjectName) }],
-    ep.value as [{ nameof(CommentsData.Comment) }]
+    SCHEMA_NAME(t.schema_id) as [{ nameof(GetAllTableCommentsQueryResult.SchemaName) }],
+    t.name as [{ nameof(GetAllTableCommentsQueryResult.TableName) }],
+    'TABLE' as [{ nameof(GetAllTableCommentsQueryResult.ObjectType) }],
+    t.name as [{ nameof(GetAllTableCommentsQueryResult.ObjectName) }],
+    ep.value as [{ nameof(GetAllTableCommentsQueryResult.Comment) }]
 from sys.tables t
-left join sys.extended_properties ep on t.object_id = ep.major_id and ep.name = @CommentProperty and ep.minor_id = 0
+left join sys.extended_properties ep on t.object_id = ep.major_id and ep.name = @{ nameof(GetAllTableCommentsQuery.CommentProperty) } and ep.minor_id = 0
 where t.is_ms_shipped = 0
 
 union
 
 -- columns
 select
-    SCHEMA_NAME(t.schema_id) as [{ nameof(CommentsData.SchemaName) }],
-    t.name as [{ nameof(CommentsData.TableName) }],
-    'COLUMN' as [{ nameof(CommentsData.ObjectType) }],
-    c.name as [{ nameof(CommentsData.ObjectName) }],
-    ep.value as [{ nameof(CommentsData.Comment) }]
+    SCHEMA_NAME(t.schema_id) as [{ nameof(GetAllTableCommentsQueryResult.SchemaName) }],
+    t.name as [{ nameof(GetAllTableCommentsQueryResult.TableName) }],
+    'COLUMN' as [{ nameof(GetAllTableCommentsQueryResult.ObjectType) }],
+    c.name as [{ nameof(GetAllTableCommentsQueryResult.ObjectName) }],
+    ep.value as [{ nameof(GetAllTableCommentsQueryResult.Comment) }]
 from sys.tables t
 inner join sys.columns c on t.object_id = c.object_id
-left join sys.extended_properties ep on t.object_id = ep.major_id and c.column_id = ep.minor_id and ep.name = @CommentProperty
+left join sys.extended_properties ep on t.object_id = ep.major_id and c.column_id = ep.minor_id and ep.name = @{ nameof(GetAllTableCommentsQuery.CommentProperty) }
 where t.is_ms_shipped = 0
 
 union
 
 -- checks
 select
-    SCHEMA_NAME(t.schema_id) as [{ nameof(CommentsData.SchemaName) }],
-    t.name as [{ nameof(CommentsData.TableName) }],
-    'CHECK' as [{ nameof(CommentsData.ObjectType) }],
-    cc.name as [{ nameof(CommentsData.ObjectName) }],
-    ep.value as [{ nameof(CommentsData.Comment) }]
+    SCHEMA_NAME(t.schema_id) as [{ nameof(GetAllTableCommentsQueryResult.SchemaName) }],
+    t.name as [{ nameof(GetAllTableCommentsQueryResult.TableName) }],
+    'CHECK' as [{ nameof(GetAllTableCommentsQueryResult.ObjectType) }],
+    cc.name as [{ nameof(GetAllTableCommentsQueryResult.ObjectName) }],
+    ep.value as [{ nameof(GetAllTableCommentsQueryResult.Comment) }]
 from sys.tables t
 inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
-left join sys.extended_properties ep on cc.object_id = ep.major_id and ep.name = @CommentProperty
+left join sys.extended_properties ep on cc.object_id = ep.major_id and ep.name = @{ nameof(GetAllTableCommentsQuery.CommentProperty) }
 where t.is_ms_shipped = 0
 
 union
 
 -- foreign keys
 select
-    SCHEMA_NAME(t.schema_id) as [{ nameof(CommentsData.SchemaName) }],
-    t.name as [{ nameof(CommentsData.TableName) }],
-    'FOREIGN KEY' as [{ nameof(CommentsData.ObjectType) }],
-    fk.name as [{ nameof(CommentsData.ObjectName) }],
-    ep.value as [{ nameof(CommentsData.Comment) }]
+    SCHEMA_NAME(t.schema_id) as [{ nameof(GetAllTableCommentsQueryResult.SchemaName) }],
+    t.name as [{ nameof(GetAllTableCommentsQueryResult.TableName) }],
+    'FOREIGN KEY' as [{ nameof(GetAllTableCommentsQueryResult.ObjectType) }],
+    fk.name as [{ nameof(GetAllTableCommentsQueryResult.ObjectName) }],
+    ep.value as [{ nameof(GetAllTableCommentsQueryResult.Comment) }]
 from sys.tables t
 inner join sys.foreign_keys fk on t.object_id = fk.parent_object_id
-left join sys.extended_properties ep on fk.object_id = ep.major_id and ep.name = @CommentProperty
+left join sys.extended_properties ep on fk.object_id = ep.major_id and ep.name = @{ nameof(GetAllTableCommentsQuery.CommentProperty) }
 where t.is_ms_shipped = 0
 
 union
 
 -- unique keys
 select
-    SCHEMA_NAME(t.schema_id) as [{ nameof(CommentsData.SchemaName) }],
-    t.name as [{ nameof(CommentsData.TableName) }],
-    'UNIQUE' as [{ nameof(CommentsData.ObjectType) }],
-    kc.name as [{ nameof(CommentsData.ObjectName) }],
-    ep.value as [{ nameof(CommentsData.Comment) }]
+    SCHEMA_NAME(t.schema_id) as [{ nameof(GetAllTableCommentsQueryResult.SchemaName) }],
+    t.name as [{ nameof(GetAllTableCommentsQueryResult.TableName) }],
+    'UNIQUE' as [{ nameof(GetAllTableCommentsQueryResult.ObjectType) }],
+    kc.name as [{ nameof(GetAllTableCommentsQueryResult.ObjectName) }],
+    ep.value as [{ nameof(GetAllTableCommentsQueryResult.Comment) }]
 from sys.tables t
 inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
-left join sys.extended_properties ep on kc.object_id = ep.major_id and ep.name = @CommentProperty
+left join sys.extended_properties ep on kc.object_id = ep.major_id and ep.name = @{ nameof(GetAllTableCommentsQuery.CommentProperty) }
 where t.is_ms_shipped = 0 and kc.type = 'UQ'
 
 union
 
 -- primary key
 select
-    SCHEMA_NAME(t.schema_id) as [{ nameof(CommentsData.SchemaName) }],
-    t.name as [{ nameof(CommentsData.TableName) }],
-    'PRIMARY' as [{ nameof(CommentsData.ObjectType) }],
-    kc.name as [{ nameof(CommentsData.ObjectName) }],
-    ep.value as [{ nameof(CommentsData.Comment) }]
+    SCHEMA_NAME(t.schema_id) as [{ nameof(GetAllTableCommentsQueryResult.SchemaName) }],
+    t.name as [{ nameof(GetAllTableCommentsQueryResult.TableName) }],
+    'PRIMARY' as [{ nameof(GetAllTableCommentsQueryResult.ObjectType) }],
+    kc.name as [{ nameof(GetAllTableCommentsQueryResult.ObjectName) }],
+    ep.value as [{ nameof(GetAllTableCommentsQueryResult.Comment) }]
 from sys.tables t
 inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
-left join sys.extended_properties ep on kc.object_id = ep.major_id and ep.name = @CommentProperty
+left join sys.extended_properties ep on kc.object_id = ep.major_id and ep.name = @{ nameof(GetAllTableCommentsQuery.CommentProperty) }
 where t.is_ms_shipped = 0 and kc.type = 'PK'
 
 union
 
 -- indexes
 select
-    SCHEMA_NAME(t.schema_id) as [{ nameof(CommentsData.SchemaName) }],
-    t.name as [{ nameof(CommentsData.TableName) }],
-    'INDEX' as [{ nameof(CommentsData.ObjectType) }],
-    i.name as [{ nameof(CommentsData.ObjectName) }],
-    ep.value as [{ nameof(CommentsData.Comment) }]
+    SCHEMA_NAME(t.schema_id) as [{ nameof(GetAllTableCommentsQueryResult.SchemaName) }],
+    t.name as [{ nameof(GetAllTableCommentsQueryResult.TableName) }],
+    'INDEX' as [{ nameof(GetAllTableCommentsQueryResult.ObjectType) }],
+    i.name as [{ nameof(GetAllTableCommentsQueryResult.ObjectName) }],
+    ep.value as [{ nameof(GetAllTableCommentsQueryResult.Comment) }]
 from sys.tables t
 inner join sys.indexes i on t.object_id = i.object_id
-left join sys.extended_properties ep on t.object_id = ep.major_id and i.index_id = ep.minor_id and ep.name = @CommentProperty
+left join sys.extended_properties ep on t.object_id = ep.major_id and i.index_id = ep.minor_id and ep.name = @{ nameof(GetAllTableCommentsQuery.CommentProperty) }
 where t.is_ms_shipped = 0 and i.is_primary_key = 0 and i.is_unique_constraint = 0
     and i.is_hypothetical = 0 and i.type <> 0 -- type = 0 is a heap, ignore
 
@@ -300,16 +320,16 @@ union
 
 -- triggers
 select
-    SCHEMA_NAME(t.schema_id) as [{ nameof(CommentsData.SchemaName) }],
-    t.name as [{ nameof(CommentsData.TableName) }],
-    'TRIGGER' as [{ nameof(CommentsData.ObjectType) }],
-    tr.name as [{ nameof(CommentsData.ObjectName) }],
-    ep.value as [{ nameof(CommentsData.Comment) }]
+    SCHEMA_NAME(t.schema_id) as [{ nameof(GetAllTableCommentsQueryResult.SchemaName) }],
+    t.name as [{ nameof(GetAllTableCommentsQueryResult.TableName) }],
+    'TRIGGER' as [{ nameof(GetAllTableCommentsQueryResult.ObjectType) }],
+    tr.name as [{ nameof(GetAllTableCommentsQueryResult.ObjectName) }],
+    ep.value as [{ nameof(GetAllTableCommentsQueryResult.Comment) }]
 from sys.tables t
 inner join sys.triggers tr on t.object_id = tr.parent_id
-left join sys.extended_properties ep on tr.object_id = ep.major_id and ep.name = @CommentProperty
+left join sys.extended_properties ep on tr.object_id = ep.major_id and ep.name = @{ nameof(GetAllTableCommentsQuery.CommentProperty) }
 where t.is_ms_shipped = 0
-) wrapped order by wrapped.SchemaName, wrapped.TableName";
+) wrapped order by wrapped.{ nameof(GetAllTableCommentsQueryResult.SchemaName) }, wrapped.{ nameof(GetAllTableCommentsQueryResult.TableName) }";
 
         /// <summary>
         /// A SQL query definition which retrieves all comment information for a particular table.
@@ -320,86 +340,86 @@ where t.is_ms_shipped = 0
         private static readonly string TableCommentsQuerySql = @$"
 -- table
 select
-    'TABLE' as [{ nameof(CommentsData.ObjectType) }],
-    t.name as [{ nameof(CommentsData.ObjectName) }],
-    ep.value as [{ nameof(CommentsData.Comment) }]
+    'TABLE' as [{ nameof(GetTableCommentsQueryResult.ObjectType) }],
+    t.name as [{ nameof(GetTableCommentsQueryResult.ObjectName) }],
+    ep.value as [{ nameof(GetTableCommentsQueryResult.Comment) }]
 from sys.tables t
-left join sys.extended_properties ep on t.object_id = ep.major_id and ep.name = @CommentProperty and ep.minor_id = 0
-where t.schema_id = SCHEMA_ID(@SchemaName) and t.name = @TableName and t.is_ms_shipped = 0
+left join sys.extended_properties ep on t.object_id = ep.major_id and ep.name = @{ nameof(GetTableCommentsQuery.CommentProperty) } and ep.minor_id = 0
+where t.schema_id = SCHEMA_ID(@{ nameof(GetTableCommentsQuery.SchemaName) }) and t.name = @{ nameof(GetTableCommentsQuery.TableName) } and t.is_ms_shipped = 0
 
 union
 
 -- columns
 select
-    'COLUMN' as [{ nameof(CommentsData.ObjectType) }],
-    c.name as [{ nameof(CommentsData.ObjectName) }],
-    ep.value as [{ nameof(CommentsData.Comment) }]
+    'COLUMN' as [{ nameof(GetTableCommentsQueryResult.ObjectType) }],
+    c.name as [{ nameof(GetTableCommentsQueryResult.ObjectName) }],
+    ep.value as [{ nameof(GetTableCommentsQueryResult.Comment) }]
 from sys.tables t
 inner join sys.columns c on t.object_id = c.object_id
-left join sys.extended_properties ep on t.object_id = ep.major_id and c.column_id = ep.minor_id and ep.name = @CommentProperty
-where t.schema_id = SCHEMA_ID(@SchemaName) and t.name = @TableName and t.is_ms_shipped = 0
+left join sys.extended_properties ep on t.object_id = ep.major_id and c.column_id = ep.minor_id and ep.name = @{ nameof(GetTableCommentsQuery.CommentProperty) }
+where t.schema_id = SCHEMA_ID(@{ nameof(GetTableCommentsQuery.SchemaName) }) and t.name = @{ nameof(GetTableCommentsQuery.TableName) } and t.is_ms_shipped = 0
 
 union
 
 -- checks
 select
-    'CHECK' as [{ nameof(CommentsData.ObjectType) }],
-    cc.name as [{ nameof(CommentsData.ObjectName) }],
-    ep.value as [{ nameof(CommentsData.Comment) }]
+    'CHECK' as [{ nameof(GetTableCommentsQueryResult.ObjectType) }],
+    cc.name as [{ nameof(GetTableCommentsQueryResult.ObjectName) }],
+    ep.value as [{ nameof(GetTableCommentsQueryResult.Comment) }]
 from sys.tables t
 inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
-left join sys.extended_properties ep on cc.object_id = ep.major_id and ep.name = @CommentProperty
-where t.schema_id = SCHEMA_ID(@SchemaName) and t.name = @TableName and t.is_ms_shipped = 0
+left join sys.extended_properties ep on cc.object_id = ep.major_id and ep.name = @{ nameof(GetTableCommentsQuery.CommentProperty) }
+where t.schema_id = SCHEMA_ID(@{ nameof(GetTableCommentsQuery.SchemaName) }) and t.name = @{ nameof(GetTableCommentsQuery.TableName) } and t.is_ms_shipped = 0
 
 union
 
 -- foreign keys
 select
-    'FOREIGN KEY' as [{ nameof(CommentsData.ObjectType) }],
-    fk.name as [{ nameof(CommentsData.ObjectName) }],
-    ep.value as [{ nameof(CommentsData.Comment) }]
+    'FOREIGN KEY' as [{ nameof(GetTableCommentsQueryResult.ObjectType) }],
+    fk.name as [{ nameof(GetTableCommentsQueryResult.ObjectName) }],
+    ep.value as [{ nameof(GetTableCommentsQueryResult.Comment) }]
 from sys.tables t
 inner join sys.foreign_keys fk on t.object_id = fk.parent_object_id
-left join sys.extended_properties ep on fk.object_id = ep.major_id and ep.name = @CommentProperty
-where t.schema_id = SCHEMA_ID(@SchemaName) and t.name = @TableName and t.is_ms_shipped = 0
+left join sys.extended_properties ep on fk.object_id = ep.major_id and ep.name = @{ nameof(GetTableCommentsQuery.CommentProperty) }
+where t.schema_id = SCHEMA_ID(@{ nameof(GetTableCommentsQuery.SchemaName) }) and t.name = @{ nameof(GetTableCommentsQuery.TableName) } and t.is_ms_shipped = 0
 
 union
 
 -- unique keys
 select
-    'UNIQUE' as [{ nameof(CommentsData.ObjectType) }],
-    kc.name as [{ nameof(CommentsData.ObjectName) }],
-    ep.value as [{ nameof(CommentsData.Comment) }]
+    'UNIQUE' as [{ nameof(GetTableCommentsQueryResult.ObjectType) }],
+    kc.name as [{ nameof(GetTableCommentsQueryResult.ObjectName) }],
+    ep.value as [{ nameof(GetTableCommentsQueryResult.Comment) }]
 from sys.tables t
 inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
-left join sys.extended_properties ep on kc.object_id = ep.major_id and ep.name = @CommentProperty
-where t.schema_id = SCHEMA_ID(@SchemaName) and t.name = @TableName
+left join sys.extended_properties ep on kc.object_id = ep.major_id and ep.name = @{ nameof(GetTableCommentsQuery.CommentProperty) }
+where t.schema_id = SCHEMA_ID(@{ nameof(GetTableCommentsQuery.SchemaName) }) and t.name = @{ nameof(GetTableCommentsQuery.TableName) }
     and t.is_ms_shipped = 0 and kc.type = 'UQ'
 
 union
 
 -- primary key
 select
-    'PRIMARY' as [{ nameof(CommentsData.ObjectType) }],
-    kc.name as [{ nameof(CommentsData.ObjectName) }],
-    ep.value as [{ nameof(CommentsData.Comment) }]
+    'PRIMARY' as [{ nameof(GetTableCommentsQueryResult.ObjectType) }],
+    kc.name as [{ nameof(GetTableCommentsQueryResult.ObjectName) }],
+    ep.value as [{ nameof(GetTableCommentsQueryResult.Comment) }]
 from sys.tables t
 inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
-left join sys.extended_properties ep on kc.object_id = ep.major_id and ep.name = @CommentProperty
-where t.schema_id = SCHEMA_ID(@SchemaName) and t.name = @TableName
+left join sys.extended_properties ep on kc.object_id = ep.major_id and ep.name = @{ nameof(GetTableCommentsQuery.CommentProperty) }
+where t.schema_id = SCHEMA_ID(@{ nameof(GetTableCommentsQuery.SchemaName) }) and t.name = @{ nameof(GetTableCommentsQuery.TableName) }
     and t.is_ms_shipped = 0and kc.type = 'PK'
 
 union
 
 -- indexes
 select
-    'INDEX' as [{ nameof(CommentsData.ObjectType) }],
-    i.name as [{ nameof(CommentsData.ObjectName) }],
-    ep.value as [{ nameof(CommentsData.Comment) }]
+    'INDEX' as [{ nameof(GetTableCommentsQueryResult.ObjectType) }],
+    i.name as [{ nameof(GetTableCommentsQueryResult.ObjectName) }],
+    ep.value as [{ nameof(GetTableCommentsQueryResult.Comment) }]
 from sys.tables t
 inner join sys.indexes i on t.object_id = i.object_id
-left join sys.extended_properties ep on t.object_id = ep.major_id and i.index_id = ep.minor_id and ep.name = @CommentProperty
-where t.schema_id = SCHEMA_ID(@SchemaName) and t.name = @TableName and t.is_ms_shipped = 0
+left join sys.extended_properties ep on t.object_id = ep.major_id and i.index_id = ep.minor_id and ep.name = @{ nameof(GetTableCommentsQuery.CommentProperty) }
+where t.schema_id = SCHEMA_ID(@{ nameof(GetTableCommentsQuery.SchemaName) }) and t.name = @{ nameof(GetTableCommentsQuery.TableName) } and t.is_ms_shipped = 0
     and i.is_primary_key = 0 and i.is_unique_constraint = 0
     and i.is_hypothetical = 0 and i.type <> 0 -- type = 0 is a heap, ignore
 
@@ -407,16 +427,16 @@ union
 
 -- triggers
 select
-    'TRIGGER' as [{ nameof(CommentsData.ObjectType) }],
-    tr.name as [{ nameof(CommentsData.ObjectName) }],
-    ep.value as [{ nameof(CommentsData.Comment) }]
+    'TRIGGER' as [{ nameof(GetTableCommentsQueryResult.ObjectType) }],
+    tr.name as [{ nameof(GetTableCommentsQueryResult.ObjectName) }],
+    ep.value as [{ nameof(GetTableCommentsQueryResult.Comment) }]
 from sys.tables t
 inner join sys.triggers tr on t.object_id = tr.parent_id
-left join sys.extended_properties ep on tr.object_id = ep.major_id and ep.name = @CommentProperty
-where t.schema_id = SCHEMA_ID(@SchemaName) and t.name = @TableName and t.is_ms_shipped = 0
+left join sys.extended_properties ep on tr.object_id = ep.major_id and ep.name = @{ nameof(GetTableCommentsQuery.CommentProperty) }
+where t.schema_id = SCHEMA_ID(@{ nameof(GetTableCommentsQuery.SchemaName) }) and t.name = @{ nameof(GetTableCommentsQuery.TableName) } and t.is_ms_shipped = 0
 ";
 
-        private static Option<string> GetFirstCommentByType(IEnumerable<CommentsData> commentsData, string objectType)
+        private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
         {
             if (commentsData == null)
                 throw new ArgumentNullException(nameof(commentsData));
@@ -429,7 +449,7 @@ where t.schema_id = SCHEMA_ID(@SchemaName) and t.name = @TableName and t.is_ms_s
                 .FirstOrDefault();
         }
 
-        private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IEnumerable<CommentsData> commentsData, string objectType)
+        private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IEnumerable<CommentData> commentsData, string objectType)
         {
             if (commentsData == null)
                 throw new ArgumentNullException(nameof(commentsData));
@@ -477,6 +497,19 @@ where t.schema_id = SCHEMA_ID(@SchemaName) and t.name = @TableName and t.is_ms_s
             public const string Index = "INDEX";
 
             public const string Trigger = "TRIGGER";
+        }
+
+        private record CommentData
+        {
+            public string SchemaName { get; init; } = default!;
+
+            public string TableName { get; init; } = default!;
+
+            public string ObjectType { get; init; } = default!;
+
+            public string ObjectName { get; init; } = default!;
+
+            public string? Comment { get; init; }
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.PostgreSql.Query;
+using SJP.Schematic.PostgreSql.QueryResult;
 
 namespace SJP.Schematic.PostgreSql.Versions.V11
 {
@@ -47,9 +48,9 @@ namespace SJP.Schematic.PostgreSql.Versions.V11
 
         private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var queryResult = await DbConnection.QueryAsync<IndexColumns>(
+            var queryResult = await DbConnection.QueryAsync<GetTableIndexesQueryResult>(
                 IndexesQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableIndexesQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -114,29 +115,29 @@ namespace SJP.Schematic.PostgreSql.Versions.V11
 
         private static readonly string IndexesQuerySql = @$"
 select
-    i.relname as ""{ nameof(IndexColumns.IndexName) }"",
-    idx.indisunique as ""{ nameof(IndexColumns.IsUnique) }"",
-    idx.indisprimary as ""{ nameof(IndexColumns.IsPrimary) }"",
-    idx.indnkeyatts as ""{ nameof(IndexColumns.KeyColumnCount) }"",
-    pg_catalog.generate_subscripts(idx.indkey, 1) as ""{ nameof(IndexColumns.IndexColumnId) }"",
+    i.relname as ""{ nameof(GetTableIndexesQueryResult.IndexName) }"",
+    idx.indisunique as ""{ nameof(GetTableIndexesQueryResult.IsUnique) }"",
+    idx.indisprimary as ""{ nameof(GetTableIndexesQueryResult.IsPrimary) }"",
+    idx.indnkeyatts as ""{ nameof(GetTableIndexesQueryResult.KeyColumnCount) }"",
+    pg_catalog.generate_subscripts(idx.indkey, 1) as ""{ nameof(GetTableIndexesQueryResult.IndexColumnId) }"",
     pg_catalog.unnest(array(
         select pg_catalog.pg_get_indexdef(idx.indexrelid, k + 1, true)
         from pg_catalog.generate_subscripts(idx.indkey, 1) k
         order by k
-    )) as ""{ nameof(IndexColumns.IndexColumnExpression) }"",
+    )) as ""{ nameof(GetTableIndexesQueryResult.IndexColumnExpression) }"",
     pg_catalog.unnest(array(
         select pg_catalog.pg_index_column_has_property(idx.indexrelid, k + 1, 'desc')
         from pg_catalog.generate_subscripts(idx.indkey, 1) k
         order by k
-    )) as ""{ nameof(IndexColumns.IsDescending) }"",
-    (idx.indexprs is not null) or (idx.indkey::int[] @> array[0]) as ""{ nameof(IndexColumns.IsFunctional) }""
+    )) as ""{ nameof(GetTableIndexesQueryResult.IsDescending) }"",
+    (idx.indexprs is not null) or (idx.indkey::int[] @> array[0]) as ""{ nameof(GetTableIndexesQueryResult.IsFunctional) }""
 from pg_catalog.pg_index idx
     inner join pg_catalog.pg_class t on idx.indrelid = t.oid
     inner join pg_catalog.pg_namespace ns on ns.oid = t.relnamespace
     inner join pg_catalog.pg_class i on i.oid = idx.indexrelid
 where
     t.relkind = 'r'
-    and t.relname = @TableName
-    and ns.nspname = @SchemaName";
+    and t.relname = @{ nameof(GetTableIndexesQuery.TableName) }
+    and ns.nspname = @{ nameof(GetTableIndexesQuery.SchemaName) }";
     }
 }

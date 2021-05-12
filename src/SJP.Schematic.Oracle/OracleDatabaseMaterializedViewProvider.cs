@@ -9,6 +9,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Oracle.Query;
+using SJP.Schematic.Oracle.QueryResult;
 
 namespace SJP.Schematic.Oracle
 {
@@ -69,9 +70,9 @@ namespace SJP.Schematic.Oracle
         /// <returns>A collection of materialized views.</returns>
         public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResult = await DbConnection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
+            var queryResult = await DbConnection.QueryAsync<GetAllMaterializedViewNamesQueryResult>(ViewsQuery, cancellationToken).ConfigureAwait(false);
             var viewNames = queryResult
-                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
                 .Select(QualifyViewName);
 
             foreach (var name in viewNames)
@@ -86,8 +87,8 @@ namespace SJP.Schematic.Oracle
 
         private static readonly string ViewsQuerySql = @$"
 select
-    mv.OWNER as ""{ nameof(QualifiedName.SchemaName) }"",
-    mv.MVIEW_NAME as ""{ nameof(QualifiedName.ObjectName) }""
+    mv.OWNER as ""{ nameof(GetAllMaterializedViewNamesQueryResult.SchemaName) }"",
+    mv.MVIEW_NAME as ""{ nameof(GetAllMaterializedViewNamesQueryResult.ViewName) }""
 from SYS.ALL_MVIEWS mv
 inner join SYS.ALL_OBJECTS o on mv.OWNER = o.OWNER and mv.MVIEW_NAME = o.OBJECT_NAME
 where o.ORACLE_MAINTAINED <> 'Y' and o.OBJECT_TYPE <> 'TABLE'
@@ -143,13 +144,13 @@ order by mv.OWNER, mv.MVIEW_NAME";
                 throw new ArgumentNullException(nameof(viewName));
 
             var candidateViewName = QualifyViewName(viewName);
-            var qualifiedViewName = DbConnection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedViewName = DbConnection.QueryFirstOrNone<GetMaterializedViewNameQueryResult>(
                 ViewNameQuery,
-                new { SchemaName = candidateViewName.Schema, ViewName = candidateViewName.LocalName },
+                new GetMaterializedViewNameQuery { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ViewName));
         }
 
         /// <summary>
@@ -159,10 +160,10 @@ order by mv.OWNER, mv.MVIEW_NAME";
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
         private static readonly string ViewNameQuerySql = @$"
-select mv.OWNER as ""{ nameof(QualifiedName.SchemaName) }"", mv.MVIEW_NAME as ""{ nameof(QualifiedName.ObjectName) }""
+select mv.OWNER as ""{ nameof(GetMaterializedViewNameQueryResult.SchemaName) }"", mv.MVIEW_NAME as ""{ nameof(GetMaterializedViewNameQueryResult.ViewName) }""
 from SYS.ALL_MVIEWS mv
 inner join SYS.ALL_OBJECTS o on mv.OWNER = o.OWNER and mv.MVIEW_NAME = o.OBJECT_NAME
-where mv.OWNER = :SchemaName and mv.MVIEW_NAME = :ViewName
+where mv.OWNER = :{ nameof(GetMaterializedViewNameQuery.SchemaName) } and mv.MVIEW_NAME = :{ nameof(GetMaterializedViewNameQuery.ViewName) }
     and o.ORACLE_MAINTAINED <> 'Y' and o.OBJECT_TYPE <> 'TABLE'";
 
         /// <summary>
@@ -207,7 +208,7 @@ where mv.OWNER = :SchemaName and mv.MVIEW_NAME = :ViewName
 
             return DbConnection.ExecuteScalarAsync<string>(
                 DefinitionQuery,
-                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                new GetViewDefinitionQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
                 cancellationToken
             );
         }
@@ -218,10 +219,10 @@ where mv.OWNER = :SchemaName and mv.MVIEW_NAME = :ViewName
         /// <value>A SQL query.</value>
         protected virtual string DefinitionQuery => DefinitionQuerySql;
 
-        private const string DefinitionQuerySql = @"
+        private static readonly string DefinitionQuerySql = @$"
 select QUERY
 from SYS.ALL_MVIEWS
-where OWNER = :SchemaName and MVIEW_NAME = :ViewName";
+where OWNER = :{ nameof(GetViewDefinitionQuery.SchemaName) } and MVIEW_NAME = :{ nameof(GetViewDefinitionQuery.ViewName) }";
 
         /// <summary>
         /// Retrieves the columns for a given materialized view.
@@ -240,9 +241,9 @@ where OWNER = :SchemaName and MVIEW_NAME = :ViewName";
 
         private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
-            var query = await DbConnection.QueryAsync<ColumnData>(
+            var query = await DbConnection.QueryAsync<GetMaterializedViewColumnsQueryResult>(
                 ColumnsQuery,
-                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                new GetMaterializedViewColumnsQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -290,18 +291,18 @@ where OWNER = :SchemaName and MVIEW_NAME = :ViewName";
 
         private static readonly string ColumnsQuerySql = @$"
 select
-    atc.COLUMN_NAME as ""{ nameof(ColumnData.ColumnName) }"",
-    atc.DATA_TYPE_OWNER as ""{ nameof(ColumnData.ColumnTypeSchema) }"",
-    atc.DATA_TYPE as ""{ nameof(ColumnData.ColumnTypeName) }"",
-    atc.DATA_LENGTH as ""{ nameof(ColumnData.DataLength) }"",
-    atc.DATA_PRECISION as ""{ nameof(ColumnData.Precision) }"",
-    atc.DATA_SCALE as ""{ nameof(ColumnData.Scale) }"",
-    atc.DATA_DEFAULT as ""{ nameof(ColumnData.DefaultValue) }"",
-    atc.CHAR_LENGTH as ""{ nameof(ColumnData.CharacterLength) }"",
-    atc.CHARACTER_SET_NAME as ""{ nameof(ColumnData.Collation) }"",
-    atc.VIRTUAL_COLUMN as ""{ nameof(ColumnData.IsComputed) }""
+    atc.COLUMN_NAME as ""{ nameof(GetMaterializedViewColumnsQueryResult.ColumnName) }"",
+    atc.DATA_TYPE_OWNER as ""{ nameof(GetMaterializedViewColumnsQueryResult.ColumnTypeSchema) }"",
+    atc.DATA_TYPE as ""{ nameof(GetMaterializedViewColumnsQueryResult.ColumnTypeName) }"",
+    atc.DATA_LENGTH as ""{ nameof(GetMaterializedViewColumnsQueryResult.DataLength) }"",
+    atc.DATA_PRECISION as ""{ nameof(GetMaterializedViewColumnsQueryResult.Precision) }"",
+    atc.DATA_SCALE as ""{ nameof(GetMaterializedViewColumnsQueryResult.Scale) }"",
+    atc.DATA_DEFAULT as ""{ nameof(GetMaterializedViewColumnsQueryResult.DefaultValue) }"",
+    atc.CHAR_LENGTH as ""{ nameof(GetMaterializedViewColumnsQueryResult.CharacterLength) }"",
+    atc.CHARACTER_SET_NAME as ""{ nameof(GetMaterializedViewColumnsQueryResult.Collation) }"",
+    atc.VIRTUAL_COLUMN as ""{ nameof(GetMaterializedViewColumnsQueryResult.IsComputed) }""
 from SYS.ALL_TAB_COLS atc
-where OWNER = :SchemaName and TABLE_NAME = :ViewName
+where OWNER = :{ nameof(GetMaterializedViewColumnsQuery.SchemaName) } and TABLE_NAME = :{ nameof(GetMaterializedViewColumnsQuery.ViewName) }
 order by atc.COLUMN_ID";
 
         /// <summary>
@@ -324,9 +325,9 @@ order by atc.COLUMN_ID";
 
         private async Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsyncCore(Identifier viewName, IEnumerable<string> columnNames, CancellationToken cancellationToken)
         {
-            var checks = await DbConnection.QueryAsync<CheckConstraintData>(
+            var checks = await DbConnection.QueryAsync<GetMaterializedViewChecksQueryResult>(
                 ChecksQuery,
-                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                new GetMaterializedViewChecksQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -351,11 +352,11 @@ order by atc.COLUMN_ID";
 
         private static readonly string ChecksQuerySql = @$"
 select
-    CONSTRAINT_NAME as ""{ nameof(CheckConstraintData.ConstraintName) }"",
-    SEARCH_CONDITION as ""{ nameof(CheckConstraintData.Definition) }"",
-    STATUS as ""{ nameof(CheckConstraintData.EnabledStatus) }""
+    CONSTRAINT_NAME as ""{ nameof(GetMaterializedViewChecksQueryResult.ConstraintName) }"",
+    SEARCH_CONDITION as ""{ nameof(GetMaterializedViewChecksQueryResult.Definition) }"",
+    STATUS as ""{ nameof(GetMaterializedViewChecksQueryResult.EnabledStatus) }""
 from SYS.ALL_CONSTRAINTS
-where OWNER = :SchemaName and TABLE_NAME = :ViewName and CONSTRAINT_TYPE = 'C'";
+where OWNER = :{ nameof(GetMaterializedViewChecksQuery.SchemaName) } and TABLE_NAME = :{ nameof(GetMaterializedViewChecksQuery.ViewName) } and CONSTRAINT_TYPE = 'C'";
 
         /// <summary>
         /// Creates a not null constraint definition, used to determine whether a constraint is a <c>NOT NULL</c> constraint.

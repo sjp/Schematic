@@ -6,6 +6,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.SqlServer.Query;
+using SJP.Schematic.SqlServer.QueryResult;
 
 namespace SJP.Schematic.SqlServer
 {
@@ -46,11 +47,11 @@ namespace SJP.Schematic.SqlServer
         /// <returns>A collection of database synonyms.</returns>
         public async IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResult = await Connection.QueryAsync<SynonymData>(SynonymsQuery, cancellationToken).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<GetAllSynonymDefinitionsQueryResult>(SynonymsQuery, cancellationToken).ConfigureAwait(false);
 
             foreach (var row in queryResult)
             {
-                var synonymName = QualifySynonymName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.ObjectName));
+                var synonymName = QualifySynonymName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.SynonymName));
 
                 var serverName = !row.TargetServerName.IsNullOrWhiteSpace() ? row.TargetServerName : null;
                 var databaseName = !row.TargetDatabaseName.IsNullOrWhiteSpace() ? row.TargetDatabaseName : null;
@@ -72,12 +73,12 @@ namespace SJP.Schematic.SqlServer
 
         private static readonly string SynonymsQuerySql = @$"
 select
-    schema_name(schema_id) as [{ nameof(SynonymData.SchemaName) }],
-    name as [{ nameof(SynonymData.ObjectName) }],
-    PARSENAME(base_object_name, 4) as [{ nameof(SynonymData.TargetServerName) }],
-    PARSENAME(base_object_name, 3) as [{ nameof(SynonymData.TargetDatabaseName) }],
-    PARSENAME(base_object_name, 2) as [{ nameof(SynonymData.TargetSchemaName) }],
-    PARSENAME(base_object_name, 1) as [{ nameof(SynonymData.TargetObjectName) }]
+    schema_name(schema_id) as [{ nameof(GetAllSynonymDefinitionsQueryResult.SchemaName) }],
+    name as [{ nameof(GetAllSynonymDefinitionsQueryResult.SynonymName) }],
+    PARSENAME(base_object_name, 4) as [{ nameof(GetAllSynonymDefinitionsQueryResult.TargetServerName) }],
+    PARSENAME(base_object_name, 3) as [{ nameof(GetAllSynonymDefinitionsQueryResult.TargetDatabaseName) }],
+    PARSENAME(base_object_name, 2) as [{ nameof(GetAllSynonymDefinitionsQueryResult.TargetSchemaName) }],
+    PARSENAME(base_object_name, 1) as [{ nameof(GetAllSynonymDefinitionsQueryResult.TargetObjectName) }]
 from sys.synonyms
 where is_ms_shipped = 0
 order by schema_name(schema_id), name";
@@ -111,13 +112,13 @@ order by schema_name(schema_id), name";
                 throw new ArgumentNullException(nameof(synonymName));
 
             var candidateSynonymName = QualifySynonymName(synonymName);
-            var qualifiedSynonymName = Connection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedSynonymName = Connection.QueryFirstOrNone<GetSynonymNameQueryResult>(
                 SynonymNameQuery,
-                new { SchemaName = candidateSynonymName.Schema, SynonymName = candidateSynonymName.LocalName },
+                new GetSynonymNameQuery { SchemaName = candidateSynonymName.Schema!, SynonymName = candidateSynonymName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSynonymName.Server, candidateSynonymName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSynonymName.Server, candidateSynonymName.Database, name.SchemaName, name.SynonymName));
         }
 
         /// <summary>
@@ -127,9 +128,9 @@ order by schema_name(schema_id), name";
         protected virtual string SynonymNameQuery => SynonymNameQuerySql;
 
         private static readonly string SynonymNameQuerySql = @$"
-select top 1 schema_name(schema_id) as [{ nameof(QualifiedName.SchemaName) }], name as [{ nameof(QualifiedName.ObjectName) }]
+select top 1 schema_name(schema_id) as [{ nameof(GetSynonymNameQueryResult.SchemaName) }], name as [{ nameof(GetSynonymNameQueryResult.SynonymName) }]
 from sys.synonyms
-where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipped = 0";
+where schema_id = schema_id(@{ nameof(GetSynonymNameQuery.SchemaName) }) and name = @{ nameof(GetSynonymNameQuery.SynonymName) } and is_ms_shipped = 0";
 
         /// <summary>
         /// Retrieves a database synonym, if available.
@@ -147,9 +148,9 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipp
             return GetResolvedSynonymName(candidateSynonymName, cancellationToken)
                 .Bind(name =>
                 {
-                    return Connection.QueryFirstOrNone<SynonymData>(
+                    return Connection.QueryFirstOrNone<GetSynonymDefinitionQueryResult>(
                         LoadSynonymQuery,
-                        new { SchemaName = synonymName.Schema, SynonymName = synonymName.LocalName },
+                        new GetSynonymDefinitionQuery { SchemaName = synonymName.Schema!, SynonymName = synonymName.LocalName },
                         cancellationToken
                     ).Map<IDatabaseSynonym>(synonymData =>
                     {
@@ -174,12 +175,12 @@ where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipp
 
         private static readonly string LoadSynonymQuerySql = @$"
 select
-    PARSENAME(base_object_name, 4) as [{ nameof(SynonymData.TargetServerName) }],
-    PARSENAME(base_object_name, 3) as [{ nameof(SynonymData.TargetDatabaseName) }],
-    PARSENAME(base_object_name, 2) as [{ nameof(SynonymData.TargetSchemaName) }],
-    PARSENAME(base_object_name, 1) as [{ nameof(SynonymData.TargetObjectName) }]
+    PARSENAME(base_object_name, 4) as [{ nameof(GetSynonymDefinitionQueryResult.TargetServerName) }],
+    PARSENAME(base_object_name, 3) as [{ nameof(GetSynonymDefinitionQueryResult.TargetDatabaseName) }],
+    PARSENAME(base_object_name, 2) as [{ nameof(GetSynonymDefinitionQueryResult.TargetSchemaName) }],
+    PARSENAME(base_object_name, 1) as [{ nameof(GetSynonymDefinitionQueryResult.TargetObjectName) }]
 from sys.synonyms
-where schema_id = schema_id(@SchemaName) and name = @SynonymName and is_ms_shipped = 0";
+where schema_id = schema_id(@{ nameof(GetSynonymDefinitionQuery.SchemaName) }) and name = @{ nameof(GetSynonymDefinitionQuery.SynonymName) } and is_ms_shipped = 0";
 
         /// <summary>
         /// Qualifies the name of a synonym, using known identifier defaults.

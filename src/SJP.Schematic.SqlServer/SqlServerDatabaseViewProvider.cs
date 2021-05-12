@@ -8,6 +8,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.SqlServer.Query;
+using SJP.Schematic.SqlServer.QueryResult;
 
 namespace SJP.Schematic.SqlServer
 {
@@ -60,9 +61,9 @@ namespace SJP.Schematic.SqlServer
         /// <returns>A collection of database views.</returns>
         public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResult = await DbConnection.QueryAsync<QualifiedName>(ViewsQuery, cancellationToken).ConfigureAwait(false);
+            var queryResult = await DbConnection.QueryAsync<GetAllViewNamesQueryResult>(ViewsQuery, cancellationToken).ConfigureAwait(false);
             var viewNames = queryResult
-                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
                 .Select(QualifyViewName);
 
             foreach (var viewName in viewNames)
@@ -76,7 +77,7 @@ namespace SJP.Schematic.SqlServer
         protected virtual string ViewsQuery => ViewsQuerySql;
 
         private static readonly string ViewsQuerySql = @$"
-select schema_name(schema_id) as [{ nameof(QualifiedName.SchemaName) }], name as [{ nameof(QualifiedName.ObjectName) }]
+select schema_name(schema_id) as [{ nameof(GetAllViewNamesQueryResult.SchemaName) }], name as [{ nameof(GetAllViewNamesQueryResult.ViewName) }]
 from sys.views
 where is_ms_shipped = 0
 order by schema_name(schema_id), name";
@@ -110,13 +111,13 @@ order by schema_name(schema_id), name";
                 throw new ArgumentNullException(nameof(viewName));
 
             var candidateViewName = QualifyViewName(viewName);
-            var qualifiedViewName = DbConnection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedViewName = DbConnection.QueryFirstOrNone<GetViewNameQueryResult>(
                 ViewNameQuery,
-                new { SchemaName = candidateViewName.Schema, ViewName = candidateViewName.LocalName },
+                new GetViewNameQuery { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ViewName));
         }
 
         /// <summary>
@@ -126,9 +127,9 @@ order by schema_name(schema_id), name";
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
         private static readonly string ViewNameQuerySql = @$"
-select top 1 schema_name(schema_id) as [{ nameof(QualifiedName.SchemaName) }], name as [{ nameof(QualifiedName.ObjectName) }]
+select top 1 schema_name(schema_id) as [{ nameof(GetViewNameQueryResult.SchemaName) }], name as [{ nameof(GetViewNameQueryResult.ViewName) }]
 from sys.views
-where schema_id = schema_id(@SchemaName) and name = @ViewName and is_ms_shipped = 0";
+where schema_id = schema_id(@{ nameof(GetViewNameQuery.SchemaName) }) and name = @{ nameof(GetViewNameQuery.ViewName) } and is_ms_shipped = 0";
 
         /// <summary>
         /// Retrieves a database view, if available.
@@ -176,7 +177,7 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName and is_ms_shipped 
 
             return DbConnection.ExecuteScalarAsync<string>(
                 DefinitionQuery,
-                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                new GetViewDefinitionQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
                 cancellationToken
             );
         }
@@ -187,11 +188,11 @@ where schema_id = schema_id(@SchemaName) and name = @ViewName and is_ms_shipped 
         /// <value>A SQL query.</value>
         protected virtual string DefinitionQuery => DefinitionQuerySql;
 
-        private const string DefinitionQuerySql = @"
+        private static readonly string DefinitionQuerySql = @$"
 select sm.definition
 from sys.sql_modules sm
 inner join sys.views v on sm.object_id = v.object_id
-where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName and v.is_ms_shipped = 0";
+where schema_name(v.schema_id) = @{ nameof(GetViewDefinitionQuery.SchemaName) } and v.name = @{ nameof(GetViewDefinitionQuery.ViewName) } and v.is_ms_shipped = 0";
 
         /// <summary>
         /// Determines whether the view is an indexed view.
@@ -207,7 +208,7 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName and v.is_ms_
 
             return DbConnection.ExecuteScalarAsync<bool>(
                 IndexExistsQuery,
-                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                new GetViewIndexExistsQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
                 cancellationToken
             );
         }
@@ -218,11 +219,11 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName and v.is_ms_
         /// <value>A SQL query.</value>
         protected virtual string IndexExistsQuery => IndexExistsQuerySql;
 
-        private const string IndexExistsQuerySql = @"
+        private static readonly string IndexExistsQuerySql = @$"
 select top 1 1
 from sys.views v
 inner join sys.indexes i on v.object_id = i.object_id
-where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName and v.is_ms_shipped = 0
+where schema_name(v.schema_id) = @{ nameof(GetViewIndexExistsQuery.SchemaName) } and v.name = @{ nameof(GetViewIndexExistsQuery.ViewName) } and v.is_ms_shipped = 0
     and i.is_hypothetical = 0 and i.type <> 0 -- type = 0 is a heap, ignore";
 
         /// <summary>
@@ -242,9 +243,9 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName and v.is_ms_
 
         private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
-            var query = await DbConnection.QueryAsync<ColumnData>(
+            var query = await DbConnection.QueryAsync<GetViewColumnsQueryResult>(
                 ColumnsQuery,
-                new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
+                new GetViewColumnsQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -289,27 +290,27 @@ where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName and v.is_ms_
 
         private static readonly string ColumnsQuerySql = @$"
 select
-    c.name as [{ nameof(ColumnData.ColumnName) }],
-    schema_name(st.schema_id) as [{ nameof(ColumnData.ColumnTypeSchema) }],
-    st.name as [{ nameof(ColumnData.ColumnTypeName) }],
-    c.max_length as [{ nameof(ColumnData.MaxLength) }],
-    c.precision as [{ nameof(ColumnData.Precision) }],
-    c.scale as [{ nameof(ColumnData.Scale) }],
-    c.collation_name as [{ nameof(ColumnData.Collation) }],
-    c.is_computed as [{ nameof(ColumnData.IsComputed) }],
-    c.is_nullable as [{ nameof(ColumnData.IsNullable) }],
-    dc.parent_column_id as [{ nameof(ColumnData.HasDefaultValue) }],
-    dc.definition as [{ nameof(ColumnData.DefaultValue) }],
-    cc.definition as [{ nameof(ColumnData.ComputedColumnDefinition) }],
-    (convert(bigint, ic.seed_value)) as [{ nameof(ColumnData.IdentitySeed) }],
-    (convert(bigint, ic.increment_value)) as [{ nameof(ColumnData.IdentityIncrement) }]
+    c.name as [{ nameof(GetViewColumnsQueryResult.ColumnName) }],
+    schema_name(st.schema_id) as [{ nameof(GetViewColumnsQueryResult.ColumnTypeSchema) }],
+    st.name as [{ nameof(GetViewColumnsQueryResult.ColumnTypeName) }],
+    c.max_length as [{ nameof(GetViewColumnsQueryResult.MaxLength) }],
+    c.precision as [{ nameof(GetViewColumnsQueryResult.Precision) }],
+    c.scale as [{ nameof(GetViewColumnsQueryResult.Scale) }],
+    c.collation_name as [{ nameof(GetViewColumnsQueryResult.Collation) }],
+    c.is_computed as [{ nameof(GetViewColumnsQueryResult.IsComputed) }],
+    c.is_nullable as [{ nameof(GetViewColumnsQueryResult.IsNullable) }],
+    dc.parent_column_id as [{ nameof(GetViewColumnsQueryResult.HasDefaultValue) }],
+    dc.definition as [{ nameof(GetViewColumnsQueryResult.DefaultValue) }],
+    cc.definition as [{ nameof(GetViewColumnsQueryResult.ComputedColumnDefinition) }],
+    (convert(bigint, ic.seed_value)) as [{ nameof(GetViewColumnsQueryResult.IdentitySeed) }],
+    (convert(bigint, ic.increment_value)) as [{ nameof(GetViewColumnsQueryResult.IdentityIncrement) }]
 from sys.views v
 inner join sys.columns c on v.object_id = c.object_id
 left join sys.default_constraints dc on c.object_id = dc.parent_object_id and c.column_id = dc.parent_column_id
 left join sys.computed_columns cc on c.object_id = cc.object_id and c.column_id = cc.column_id
 left join sys.identity_columns ic on c.object_id = ic.object_id and c.column_id = ic.column_id
 left join sys.types st on c.user_type_id = st.user_type_id
-where schema_name(v.schema_id) = @SchemaName and v.name = @ViewName and v.is_ms_shipped = 0
+where schema_name(v.schema_id) = @{ nameof(GetViewColumnsQuery.SchemaName) } and v.name = @{ nameof(GetViewColumnsQuery.ViewName) } and v.is_ms_shipped = 0
 order by c.column_id";
 
         /// <summary>

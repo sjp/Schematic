@@ -9,6 +9,7 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Oracle.Query;
+using SJP.Schematic.Oracle.QueryResult;
 
 namespace SJP.Schematic.Oracle.Comments
 {
@@ -57,17 +58,23 @@ namespace SJP.Schematic.Oracle.Comments
         /// <returns>A collection of view comments.</returns>
         public async IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var allCommentsData = await Connection.QueryAsync<TableCommentsData>(AllViewCommentsQuery, cancellationToken).ConfigureAwait(false);
+            var allCommentsData = await Connection.QueryAsync<GetAllViewCommentsQueryResult>(AllViewCommentsQuery, cancellationToken).ConfigureAwait(false);
 
             var comments = allCommentsData
-                .GroupBy(static row => new { row.SchemaName, row.ObjectName })
+                .GroupBy(static row => new { row.SchemaName, row.ViewName })
                 .Select(g =>
                 {
-                    var viewName = QualifyViewName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.ObjectName));
-                    var comments = g.ToList();
+                    var viewName = QualifyViewName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.ViewName));
 
-                    var viewComment = GetViewComment(comments);
-                    var columnComments = GetColumnComments(comments);
+                    var commentData = g.Select(r => new CommentData
+                    {
+                        ColumnName = r.ColumnName,
+                        Comment = r.Comment,
+                        ObjectType = r.ObjectType
+                    }).ToList();
+
+                    var viewComment = GetViewComment(commentData);
+                    var columnComments = GetColumnComments(commentData);
 
                     return new DatabaseViewComments(viewName, viewComment, columnComments);
                 });
@@ -110,13 +117,13 @@ namespace SJP.Schematic.Oracle.Comments
                 throw new ArgumentNullException(nameof(viewName));
 
             var candidateViewName = QualifyViewName(viewName);
-            var qualifiedViewName = Connection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedViewName = Connection.QueryFirstOrNone<GetViewNameQueryResult>(
                 ViewNameQuery,
-                new { SchemaName = candidateViewName.Schema, ViewName = candidateViewName.LocalName },
+                new GetViewNameQuery { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ViewName));
         }
 
         /// <summary>
@@ -126,10 +133,10 @@ namespace SJP.Schematic.Oracle.Comments
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
         private static readonly string ViewNameQuerySql = @$"
-select v.OWNER as ""{ nameof(QualifiedName.SchemaName) }"", v.VIEW_NAME as ""{ nameof(QualifiedName.ObjectName) }""
+select v.OWNER as ""{ nameof(GetViewNameQueryResult.SchemaName) }"", v.VIEW_NAME as ""{ nameof(GetViewNameQueryResult.ViewName) }""
 from SYS.ALL_VIEWS v
 inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.VIEW_NAME = o.OBJECT_NAME
-where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED <> 'Y'";
+where v.OWNER = :{ nameof(GetViewNameQuery.SchemaName) } and v.VIEW_NAME = :{ nameof(GetViewNameQuery.ViewName) } and o.ORACLE_MAINTAINED <> 'Y'";
 
         /// <summary>
         /// Retrieves comments for a particular database view.
@@ -166,26 +173,45 @@ where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED 
 
         private async Task<IDatabaseViewComments> LoadViewCommentsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
-            IEnumerable<TableCommentsData> commentsData;
             if (string.Equals(viewName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal)) // fast path
-            {
-                commentsData = await Connection.QueryAsync<TableCommentsData>(
-                    UserViewCommentsQuery,
-                    new { ViewName = viewName.LocalName },
-                    cancellationToken
-                ).ConfigureAwait(false);
-            }
-            else
-            {
-                commentsData = await Connection.QueryAsync<TableCommentsData>(
-                    ViewCommentsQuery,
-                    new { SchemaName = viewName.Schema, ViewName = viewName.LocalName },
-                    cancellationToken
-                ).ConfigureAwait(false);
-            }
+                return await LoadUserViewCommentsAsyncCore(viewName, cancellationToken);
 
-            var viewComment = GetViewComment(commentsData);
-            var columnComments = GetColumnComments(commentsData);
+            var result = await Connection.QueryAsync<GetViewCommentsQueryResult>(
+                ViewCommentsQuery,
+                new GetViewCommentsQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
+            var commentData = result.Select(r => new CommentData
+            {
+                ColumnName = r.ColumnName,
+                Comment = r.Comment,
+                ObjectType = r.ObjectType
+            }).ToList();
+
+            var viewComment = GetViewComment(commentData);
+            var columnComments = GetColumnComments(commentData);
+
+            return new DatabaseViewComments(viewName, viewComment, columnComments);
+        }
+
+        private async Task<IDatabaseViewComments> LoadUserViewCommentsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+        {
+            var result = await Connection.QueryAsync<GetUserViewCommentsQueryResult>(
+                UserViewCommentsQuery,
+                new GetUserViewCommentsQuery { ViewName = viewName.LocalName },
+                cancellationToken
+            ).ConfigureAwait(false);
+
+            var commentData = result.Select(r => new CommentData
+            {
+                ColumnName = r.ColumnName,
+                Comment = r.Comment,
+                ObjectType = r.ObjectType
+            }).ToList();
+
+            var viewComment = GetViewComment(commentData);
+            var columnComments = GetColumnComments(commentData);
 
             return new DatabaseViewComments(viewName, viewComment, columnComments);
         }
@@ -200,11 +226,11 @@ where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED 
 select wrapped.* from (
 -- view
 select
-    v.OWNER as ""{ nameof(TableCommentsData.SchemaName) }"",
-    v.VIEW_NAME as ""{ nameof(TableCommentsData.ObjectName) }"",
-    'VIEW' as ""{ nameof(TableCommentsData.ObjectType) }"",
-    NULL as ""{ nameof(TableCommentsData.ColumnName) }"",
-    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
+    v.OWNER as ""{ nameof(GetAllViewCommentsQueryResult.SchemaName) }"",
+    v.VIEW_NAME as ""{ nameof(GetAllViewCommentsQueryResult.ViewName) }"",
+    'VIEW' as ""{ nameof(GetAllViewCommentsQueryResult.ObjectType) }"",
+    NULL as ""{ nameof(GetAllViewCommentsQueryResult.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(GetAllViewCommentsQueryResult.Comment) }""
 from SYS.ALL_VIEWS v
 inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.VIEW_NAME = o.OBJECT_NAME
 left join SYS.ALL_TAB_COMMENTS c on v.OWNER = c.OWNER and v.VIEW_NAME = c.TABLE_NAME and c.TABLE_TYPE = 'VIEW'
@@ -214,17 +240,17 @@ union
 
 -- columns
 select
-    v.OWNER as ""{ nameof(TableCommentsData.SchemaName) }"",
-    v.VIEW_NAME as ""{ nameof(TableCommentsData.ObjectName) }"",
-    'COLUMN' as ""{ nameof(TableCommentsData.ObjectType) }"",
-    vc.COLUMN_NAME as ""{ nameof(TableCommentsData.ColumnName) }"",
-    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
+    v.OWNER as ""{ nameof(GetAllViewCommentsQueryResult.SchemaName) }"",
+    v.VIEW_NAME as ""{ nameof(GetAllViewCommentsQueryResult.ViewName) }"",
+    'COLUMN' as ""{ nameof(GetAllViewCommentsQueryResult.ObjectType) }"",
+    vc.COLUMN_NAME as ""{ nameof(GetAllViewCommentsQueryResult.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(GetAllViewCommentsQueryResult.Comment) }""
 from SYS.ALL_VIEWS v
 inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.VIEW_NAME = o.OBJECT_NAME
 inner join SYS.ALL_TAB_COLS vc on vc.OWNER = v.OWNER and vc.TABLE_NAME = v.VIEW_NAME
 left join SYS.ALL_COL_COMMENTS c on c.OWNER = vc.OWNER and c.TABLE_NAME = vc.TABLE_NAME and c.COLUMN_NAME = vc.COLUMN_NAME
 where o.ORACLE_MAINTAINED <> 'Y'
-) wrapped order by wrapped.""{ nameof(TableCommentsData.SchemaName) }"", wrapped.""{ nameof(TableCommentsData.ObjectName) }""";
+) wrapped order by wrapped.""{ nameof(GetAllViewCommentsQueryResult.SchemaName) }"", wrapped.""{ nameof(GetAllViewCommentsQueryResult.ViewName) }""";
 
         /// <summary>
         /// Gets a query that retrieves view comments for a single view.
@@ -235,26 +261,26 @@ where o.ORACLE_MAINTAINED <> 'Y'
         private static readonly string ViewCommentsQuerySql = @$"
 -- view
 select
-    'VIEW' as ""{ nameof(TableCommentsData.ObjectType) }"",
-    NULL as ""{ nameof(TableCommentsData.ColumnName) }"",
-    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
+    'VIEW' as ""{ nameof(GetViewCommentsQueryResult.ObjectType) }"",
+    NULL as ""{ nameof(GetViewCommentsQueryResult.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(GetViewCommentsQueryResult.Comment) }""
 from SYS.ALL_VIEWS v
 inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.VIEW_NAME = o.OBJECT_NAME
 left join SYS.ALL_TAB_COMMENTS c on v.OWNER = c.OWNER and v.VIEW_NAME = c.TABLE_NAME and c.TABLE_TYPE = 'VIEW'
-where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED <> 'Y'
+where v.OWNER = :{ nameof(GetViewCommentsQuery.SchemaName) } and v.VIEW_NAME = :{ nameof(GetViewCommentsQuery.ViewName) } and o.ORACLE_MAINTAINED <> 'Y'
 
 union
 
 -- columns
 select
-    'COLUMN' as ""{ nameof(TableCommentsData.ObjectType) }"",
-    vc.COLUMN_NAME as ""{ nameof(TableCommentsData.ColumnName) }"",
-    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
+    'COLUMN' as ""{ nameof(GetViewCommentsQueryResult.ObjectType) }"",
+    vc.COLUMN_NAME as ""{ nameof(GetViewCommentsQueryResult.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(GetViewCommentsQueryResult.Comment) }""
 from SYS.ALL_VIEWS v
 inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.VIEW_NAME = o.OBJECT_NAME
 inner join SYS.ALL_TAB_COLS vc on vc.OWNER = v.OWNER and vc.TABLE_NAME = v.VIEW_NAME
 left join SYS.ALL_COL_COMMENTS c on c.OWNER = vc.OWNER and c.TABLE_NAME = vc.TABLE_NAME and c.COLUMN_NAME = vc.COLUMN_NAME
-where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED <> 'Y'
+where v.OWNER = :{ nameof(GetViewCommentsQuery.SchemaName) } and v.VIEW_NAME = :{ nameof(GetViewCommentsQuery.ViewName) } and o.ORACLE_MAINTAINED <> 'Y'
 ";
 
         /// <summary>
@@ -266,26 +292,26 @@ where v.OWNER = :SchemaName and v.VIEW_NAME = :ViewName and o.ORACLE_MAINTAINED 
         private static readonly string UserViewCommentsQuerySql = @$"
 -- view
 select
-    'VIEW' as ""{ nameof(TableCommentsData.ObjectType) }"",
-    NULL as ""{ nameof(TableCommentsData.ColumnName) }"",
-    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
+    'VIEW' as ""{ nameof(GetUserViewCommentsQueryResult.ObjectType) }"",
+    NULL as ""{ nameof(GetUserViewCommentsQueryResult.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(GetUserViewCommentsQueryResult.Comment) }""
 from SYS.USER_VIEWS v
 left join SYS.USER_TAB_COMMENTS c on v.VIEW_NAME = c.TABLE_NAME and c.TABLE_TYPE = 'VIEW'
-where v.VIEW_NAME = :ViewName
+where v.VIEW_NAME = :{ nameof(GetUserViewCommentsQuery.ViewName) }
 union
 
 -- columns
 select
-    'COLUMN' as ""{ nameof(TableCommentsData.ObjectType) }"",
-    vc.COLUMN_NAME as ""{ nameof(TableCommentsData.ColumnName) }"",
-    c.COMMENTS as ""{ nameof(TableCommentsData.Comment) }""
+    'COLUMN' as ""{ nameof(GetUserViewCommentsQueryResult.ObjectType) }"",
+    vc.COLUMN_NAME as ""{ nameof(GetUserViewCommentsQueryResult.ColumnName) }"",
+    c.COMMENTS as ""{ nameof(GetUserViewCommentsQueryResult.Comment) }""
 from SYS.USER_VIEWS v
 inner join SYS.USER_TAB_COLS vc on vc.TABLE_NAME = v.VIEW_NAME
 left join SYS.USER_COL_COMMENTS c on c.TABLE_NAME = vc.TABLE_NAME and c.COLUMN_NAME = vc.COLUMN_NAME
-where v.VIEW_NAME = :ViewName
+where v.VIEW_NAME = :{ nameof(GetUserViewCommentsQuery.ViewName) }
 ";
 
-        private static Option<string> GetViewComment(IEnumerable<TableCommentsData> commentsData)
+        private static Option<string> GetViewComment(IEnumerable<CommentData> commentsData)
         {
             if (commentsData == null)
                 throw new ArgumentNullException(nameof(commentsData));
@@ -296,7 +322,7 @@ where v.VIEW_NAME = :ViewName
                 .FirstOrDefault();
         }
 
-        private static IReadOnlyDictionary<Identifier, Option<string>> GetColumnComments(IEnumerable<TableCommentsData> commentsData)
+        private static IReadOnlyDictionary<Identifier, Option<string>> GetColumnComments(IEnumerable<CommentData> commentsData)
         {
             if (commentsData == null)
                 throw new ArgumentNullException(nameof(commentsData));
@@ -330,6 +356,15 @@ where v.VIEW_NAME = :ViewName
             public const string View = "VIEW";
 
             public const string Column = "COLUMN";
+        }
+
+        private record CommentData
+        {
+            public string? ColumnName { get; init; }
+
+            public string? ObjectType { get; init; }
+
+            public string? Comment { get; init; }
         }
     }
 }

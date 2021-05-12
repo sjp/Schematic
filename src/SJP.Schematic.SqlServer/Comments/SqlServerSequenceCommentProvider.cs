@@ -9,6 +9,7 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.SqlServer.Query;
+using SJP.Schematic.SqlServer.QueryResult;
 
 namespace SJP.Schematic.SqlServer.Comments
 {
@@ -55,18 +56,25 @@ namespace SJP.Schematic.SqlServer.Comments
         /// <returns>A collection of database sequence comments.</returns>
         public async IAsyncEnumerable<IDatabaseSequenceComments> GetAllSequenceComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var allCommentsData = await Connection.QueryAsync<CommentsData>(
+            var allCommentsData = await Connection.QueryAsync<GetAllSequenceCommentsQueryResult>(
                 AllSequenceCommentsQuery,
-                new { CommentProperty },
+                new GetAllSequenceCommentsQuery { CommentProperty = CommentProperty },
                 cancellationToken
             ).ConfigureAwait(false);
 
             var sequenceComments = allCommentsData
-                .GroupBy(static row => new { row.SchemaName, row.TableName })
+                .GroupBy(static row => new { row.SchemaName, row.SequenceName })
                 .Select(g =>
                 {
-                    var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName));
-                    var comments = g.ToList();
+                    var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.SequenceName));
+                    var comments = g.Select(r => new CommentData
+                    {
+                        SchemaName = r.SchemaName,
+                        SequenceName = r.SequenceName,
+                        ObjectName = r.ObjectName,
+                        ObjectType = r.ObjectType,
+                        Comment = r.Comment
+                    }).ToList();
 
                     var sequenceComment = GetFirstCommentByType(comments, Constants.Sequence);
                     return new DatabaseSequenceComments(sequenceName, sequenceComment);
@@ -89,13 +97,13 @@ namespace SJP.Schematic.SqlServer.Comments
                 throw new ArgumentNullException(nameof(sequenceName));
 
             sequenceName = QualifySequenceName(sequenceName);
-            var qualifiedSequenceName = Connection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedSequenceName = Connection.QueryFirstOrNone<GetSequenceNameQueryResult>(
                 SequenceNameQuery,
-                new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName },
+                new GetSequenceNameQuery { SchemaName = sequenceName.Schema!, SequenceName = sequenceName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(sequenceName.Server, sequenceName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(sequenceName.Server, sequenceName.Database, name.SchemaName, name.SequenceName));
         }
 
         /// <summary>
@@ -105,9 +113,9 @@ namespace SJP.Schematic.SqlServer.Comments
         protected virtual string SequenceNameQuery => SequenceNameQuerySql;
 
         private static readonly string SequenceNameQuerySql = @$"
-select top 1 schema_name(schema_id) as [{ nameof(QualifiedName.SchemaName) }], name as [{ nameof(QualifiedName.ObjectName) }]
+select top 1 schema_name(schema_id) as [{ nameof(GetSequenceNameQueryResult.SchemaName) }], name as [{ nameof(GetSequenceNameQueryResult.SequenceName) }]
 from sys.sequences
-where schema_id = schema_id(@SchemaName) and name = @SequenceName and is_ms_shipped = 0";
+where schema_id = schema_id(@{ nameof(GetSequenceNameQuery.SchemaName) }) and name = @{ nameof(GetSequenceNameQuery.SequenceName) } and is_ms_shipped = 0";
 
         /// <summary>
         /// Retrieves comments for a particular database sequence.
@@ -144,13 +152,25 @@ where schema_id = schema_id(@SchemaName) and name = @SequenceName and is_ms_ship
 
         private async Task<IDatabaseSequenceComments> LoadSequenceCommentsAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
         {
-            var commentsData = await Connection.QueryAsync<CommentsData>(
+            var queryResult = await Connection.QueryAsync<GetSequenceCommentsQueryResult>(
                 SequenceCommentsQuery,
-                new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName, CommentProperty },
+                new GetSequenceCommentsQuery
+                {
+                    SchemaName = sequenceName.Schema!,
+                    SequenceName = sequenceName.LocalName,
+                    CommentProperty = CommentProperty
+                },
                 cancellationToken
             ).ConfigureAwait(false);
 
-            var sequenceComment = GetFirstCommentByType(commentsData, Constants.Sequence);
+            var commentData = queryResult.Select(r => new CommentData
+            {
+                ObjectName = r.ObjectName,
+                ObjectType = r.ObjectType,
+                Comment = r.Comment
+            }).ToList();
+
+            var sequenceComment = GetFirstCommentByType(commentData, Constants.Sequence);
 
             return new DatabaseSequenceComments(sequenceName, sequenceComment);
         }
@@ -163,13 +183,13 @@ where schema_id = schema_id(@SchemaName) and name = @SequenceName and is_ms_ship
 
         private static readonly string AllSequenceCommentsQuerySql = @$"
 select
-    SCHEMA_NAME(s.schema_id) as [{ nameof(CommentsData.SchemaName) }],
-    s.name as [{ nameof(CommentsData.TableName) }],
-    'SEQUENCE' as [{ nameof(CommentsData.ObjectType) }],
-    s.name as [{ nameof(CommentsData.ObjectName) }],
-    ep.value as [{ nameof(CommentsData.Comment) }]
+    SCHEMA_NAME(s.schema_id) as [{ nameof(GetAllSequenceCommentsQueryResult.SchemaName) }],
+    s.name as [{ nameof(GetAllSequenceCommentsQueryResult.SequenceName) }],
+    'SEQUENCE' as [{ nameof(GetAllSequenceCommentsQueryResult.ObjectType) }],
+    s.name as [{ nameof(GetAllSequenceCommentsQueryResult.ObjectName) }],
+    ep.value as [{ nameof(GetAllSequenceCommentsQueryResult.Comment) }]
 from sys.sequences s
-left join sys.extended_properties ep on s.object_id = ep.major_id and ep.name = @CommentProperty and ep.minor_id = 0
+left join sys.extended_properties ep on s.object_id = ep.major_id and ep.name = @{ nameof(GetAllSequenceCommentsQuery.CommentProperty) } and ep.minor_id = 0
 where s.is_ms_shipped = 0
 order by SCHEMA_NAME(s.schema_id), s.name
 ";
@@ -182,15 +202,15 @@ order by SCHEMA_NAME(s.schema_id), s.name
 
         private static readonly string SequenceCommentsQuerySql = @$"
 select
-    'SEQUENCE' as [{ nameof(CommentsData.ObjectType) }],
-    s.name as [{ nameof(CommentsData.ObjectName) }],
-    ep.value as [{ nameof(CommentsData.Comment) }]
+    'SEQUENCE' as [{ nameof(GetSequenceCommentsQueryResult.ObjectType) }],
+    s.name as [{ nameof(GetSequenceCommentsQueryResult.ObjectName) }],
+    ep.value as [{ nameof(GetSequenceCommentsQueryResult.Comment) }]
 from sys.sequences s
-left join sys.extended_properties ep on s.object_id = ep.major_id and ep.name = @CommentProperty and ep.minor_id = 0
-where s.schema_id = SCHEMA_ID(@SchemaName) and s.name = @SequenceName and s.is_ms_shipped = 0
+left join sys.extended_properties ep on s.object_id = ep.major_id and ep.name = @{ nameof(GetSequenceCommentsQuery.CommentProperty) } and ep.minor_id = 0
+where s.schema_id = SCHEMA_ID(@{ nameof(GetSequenceCommentsQuery.SchemaName) }) and s.name = @{ nameof(GetSequenceCommentsQuery.SequenceName) } and s.is_ms_shipped = 0
 ";
 
-        private static Option<string> GetFirstCommentByType(IEnumerable<CommentsData> commentsData, string objectType)
+        private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
         {
             if (commentsData == null)
                 throw new ArgumentNullException(nameof(commentsData));
@@ -221,6 +241,19 @@ where s.schema_id = SCHEMA_ID(@SchemaName) and s.name = @SequenceName and s.is_m
         private static class Constants
         {
             public const string Sequence = "SEQUENCE";
+        }
+
+        private record CommentData
+        {
+            public string SchemaName { get; init; } = default!;
+
+            public string SequenceName { get; init; } = default!;
+
+            public string ObjectType { get; init; } = default!;
+
+            public string ObjectName { get; init; } = default!;
+
+            public string? Comment { get; init; }
         }
     }
 }

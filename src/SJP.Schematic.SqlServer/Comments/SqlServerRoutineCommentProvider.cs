@@ -9,6 +9,7 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.SqlServer.Query;
+using SJP.Schematic.SqlServer.QueryResult;
 
 namespace SJP.Schematic.SqlServer.Comments
 {
@@ -55,18 +56,25 @@ namespace SJP.Schematic.SqlServer.Comments
         /// <returns>A collection of database routine comments, where available.</returns>
         public async IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var allCommentsData = await Connection.QueryAsync<CommentsData>(
+            var allCommentsData = await Connection.QueryAsync<GetAllRoutineCommentsQueryResult>(
                 AllRoutineCommentsQuery,
-                new { CommentProperty },
+                new GetAllRoutineCommentsQuery { CommentProperty = CommentProperty },
                 cancellationToken
             ).ConfigureAwait(false);
 
             var comments = allCommentsData
-                .GroupBy(static row => new { row.SchemaName, row.TableName })
+                .GroupBy(static row => new { row.SchemaName, row.RoutineName })
                 .Select(g =>
                 {
-                    var qualifiedName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName));
-                    var commentsData = g.ToList();
+                    var qualifiedName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.RoutineName));
+                    var commentsData = g.Select(r => new CommentData
+                    {
+                        SchemaName = r.SchemaName,
+                        RoutineName = r.RoutineName,
+                        ObjectName = r.ObjectName,
+                        ObjectType = r.ObjectType,
+                        Comment = r.Comment
+                    }).ToList();
                     var routineComment = GetFirstCommentByType(commentsData, Constants.Routine);
 
                     return new DatabaseRoutineComments(qualifiedName, routineComment);
@@ -89,13 +97,13 @@ namespace SJP.Schematic.SqlServer.Comments
                 throw new ArgumentNullException(nameof(routineName));
 
             routineName = QualifyRoutineName(routineName);
-            var qualifiedRoutineName = Connection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineNameQueryResult>(
                 RoutineNameQuery,
-                new { SchemaName = routineName.Schema, RoutineName = routineName.LocalName },
+                new GetRoutineNameQuery { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(routineName.Server, routineName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(routineName.Server, routineName.Database, name.SchemaName, name.RoutineName));
         }
 
         /// <summary>
@@ -105,9 +113,9 @@ namespace SJP.Schematic.SqlServer.Comments
         protected virtual string RoutineNameQuery => RoutineNameQuerySql;
 
         private static readonly string RoutineNameQuerySql = @$"
-select top 1 schema_name(schema_id) as [{ nameof(QualifiedName.SchemaName) }], name as [{ nameof(QualifiedName.ObjectName) }]
+select top 1 schema_name(schema_id) as [{ nameof(GetRoutineNameQueryResult.SchemaName) }], name as [{ nameof(GetRoutineNameQueryResult.RoutineName) }]
 from sys.objects
-where schema_id = schema_id(@SchemaName) and name = @RoutineName
+where schema_id = schema_id(@{ nameof(GetRoutineNameQuery.SchemaName) }) and name = @{ nameof(GetRoutineNameQuery.RoutineName) }
     and type in ('P', 'FN', 'IF', 'TF') and is_ms_shipped = 0";
 
         /// <summary>
@@ -145,13 +153,25 @@ where schema_id = schema_id(@SchemaName) and name = @RoutineName
 
         private async Task<IDatabaseRoutineComments> LoadRoutineCommentsAsyncCore(Identifier routineName, CancellationToken cancellationToken)
         {
-            var commentsData = await Connection.QueryAsync<CommentsData>(
+            var queryResult = await Connection.QueryAsync<GetRoutineCommentsQueryResult>(
                 RoutineCommentsQuery,
-                new { SchemaName = routineName.Schema, RoutineName = routineName.LocalName, CommentProperty },
+                new GetRoutineCommentsQuery
+                {
+                    SchemaName = routineName.Schema!,
+                    RoutineName = routineName.LocalName,
+                    CommentProperty = CommentProperty
+                },
                 cancellationToken
             ).ConfigureAwait(false);
 
-            var routineComment = GetFirstCommentByType(commentsData, Constants.Routine);
+            var commentData = queryResult.Select(r => new CommentData
+            {
+                ObjectName = r.ObjectName,
+                ObjectType = r.ObjectType,
+                Comment = r.Comment
+            }).ToList();
+
+            var routineComment = GetFirstCommentByType(commentData, Constants.Routine);
 
             return new DatabaseRoutineComments(routineName, routineComment);
         }
@@ -164,13 +184,13 @@ where schema_id = schema_id(@SchemaName) and name = @RoutineName
 
         private static readonly string AllRoutineCommentsQuerySql = @$"
 select
-    SCHEMA_NAME(r.schema_id) as [{ nameof(CommentsData.SchemaName) }],
-    r.name as [{ nameof(CommentsData.TableName) }],
-    'ROUTINE' as [{ nameof(CommentsData.ObjectType) }],
-    r.name as [{ nameof(CommentsData.ObjectName) }],
-    ep.value as [{ nameof(CommentsData.Comment) }]
+    SCHEMA_NAME(r.schema_id) as [{ nameof(GetAllRoutineCommentsQueryResult.SchemaName) }],
+    r.name as [{ nameof(GetAllRoutineCommentsQueryResult.RoutineName) }],
+    'ROUTINE' as [{ nameof(GetAllRoutineCommentsQueryResult.ObjectType) }],
+    r.name as [{ nameof(GetAllRoutineCommentsQueryResult.ObjectName) }],
+    ep.value as [{ nameof(GetAllRoutineCommentsQueryResult.Comment) }]
 from sys.objects r
-left join sys.extended_properties ep on r.object_id = ep.major_id and ep.name = @CommentProperty and ep.minor_id = 0
+left join sys.extended_properties ep on r.object_id = ep.major_id and ep.name = @{ nameof(GetAllRoutineCommentsQuery.CommentProperty) } and ep.minor_id = 0
 where r.is_ms_shipped = 0 and r.type in ('P', 'FN', 'IF', 'TF')
 order by SCHEMA_NAME(r.schema_id), r.name
 ";
@@ -183,16 +203,16 @@ order by SCHEMA_NAME(r.schema_id), r.name
 
         private static readonly string RoutineCommentsQuerySql = @$"
 select
-    'ROUTINE' as [{ nameof(CommentsData.ObjectType) }],
-    r.name as [{ nameof(CommentsData.ObjectName) }],
-    ep.value as [{ nameof(CommentsData.Comment) }]
+    'ROUTINE' as [{ nameof(GetRoutineCommentsQueryResult.ObjectType) }],
+    r.name as [{ nameof(GetRoutineCommentsQueryResult.ObjectName) }],
+    ep.value as [{ nameof(GetRoutineCommentsQueryResult.Comment) }]
 from sys.objects r
-left join sys.extended_properties ep on r.object_id = ep.major_id and ep.name = @CommentProperty and ep.minor_id = 0
-where r.schema_id = SCHEMA_ID(@SchemaName) and r.name = @RoutineName and r.is_ms_shipped = 0
+left join sys.extended_properties ep on r.object_id = ep.major_id and ep.name = @{ nameof(GetRoutineCommentsQuery.CommentProperty) } and ep.minor_id = 0
+where r.schema_id = SCHEMA_ID(@{ nameof(GetRoutineCommentsQuery.SchemaName) }) and r.name = @{ nameof(GetRoutineCommentsQuery.RoutineName) } and r.is_ms_shipped = 0
     and r.type in ('P', 'FN', 'IF', 'TF')
 ";
 
-        private static Option<string> GetFirstCommentByType(IEnumerable<CommentsData> commentsData, string objectType)
+        private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
         {
             if (commentsData == null)
                 throw new ArgumentNullException(nameof(commentsData));
@@ -223,6 +243,19 @@ where r.schema_id = SCHEMA_ID(@SchemaName) and r.name = @RoutineName and r.is_ms
         private static class Constants
         {
             public const string Routine = "ROUTINE";
+        }
+
+        private record CommentData
+        {
+            public string SchemaName { get; init; } = default!;
+
+            public string RoutineName { get; init; } = default!;
+
+            public string ObjectType { get; init; } = default!;
+
+            public string ObjectName { get; init; } = default!;
+
+            public string? Comment { get; init; }
         }
     }
 }

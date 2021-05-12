@@ -11,6 +11,7 @@ using SJP.Schematic.Core.Exceptions;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Oracle.Query;
+using SJP.Schematic.Oracle.QueryResult;
 
 namespace SJP.Schematic.Oracle
 {
@@ -89,9 +90,9 @@ namespace SJP.Schematic.Oracle
         /// <returns>A collection of database tables.</returns>
         public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResults = await DbConnection.QueryAsync<QualifiedName>(TablesQuery, cancellationToken).ConfigureAwait(false);
+            var queryResults = await DbConnection.QueryAsync<GetAllTableNamesQueryResult>(TablesQuery, cancellationToken).ConfigureAwait(false);
             var tableNames = queryResults
-                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ObjectName))
+                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
                 .Select(QualifyTableName);
 
             var queryCache = CreateQueryCache();
@@ -107,8 +108,8 @@ namespace SJP.Schematic.Oracle
 
         private static readonly string TablesQuerySql = @$"
 select
-    t.OWNER as ""{ nameof(QualifiedName.SchemaName) }"",
-    t.TABLE_NAME as ""{ nameof(QualifiedName.ObjectName) }""
+    t.OWNER as ""{ nameof(GetAllTableNamesQueryResult.SchemaName) }"",
+    t.TABLE_NAME as ""{ nameof(GetAllTableNamesQueryResult.TableName) }""
 from SYS.ALL_TABLES t
 inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
 left join SYS.ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
@@ -171,13 +172,13 @@ order by t.OWNER, t.TABLE_NAME";
                 throw new ArgumentNullException(nameof(tableName));
 
             var candidateTableName = QualifyTableName(tableName);
-            var qualifiedTableName = DbConnection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedTableName = DbConnection.QueryFirstOrNone<GetTableNameQueryResult>(
                 TableNameQuery,
-                new { SchemaName = candidateTableName.Schema, TableName = candidateTableName.LocalName },
+                new GetTableNameQuery { SchemaName = candidateTableName.Schema!, TableName = candidateTableName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(candidateTableName.Server, candidateTableName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(candidateTableName.Server, candidateTableName.Database, name.SchemaName, name.TableName));
         }
 
         /// <summary>
@@ -187,12 +188,12 @@ order by t.OWNER, t.TABLE_NAME";
         protected virtual string TableNameQuery => TableNameQuerySql;
 
         private static readonly string TableNameQuerySql = @$"
-select t.OWNER as ""{ nameof(QualifiedName.SchemaName) }"", t.TABLE_NAME as ""{ nameof(QualifiedName.ObjectName) }""
+select t.OWNER as ""{ nameof(GetTableNameQueryResult.SchemaName) }"", t.TABLE_NAME as ""{ nameof(GetTableNameQueryResult.TableName) }""
 from SYS.ALL_TABLES t
 inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
 left join SYS.ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
 where
-    t.OWNER = :SchemaName and t.TABLE_NAME = :TableName
+    t.OWNER = :{ nameof(GetTableNameQueryResult.SchemaName) } and t.TABLE_NAME = :{ nameof(GetTableNameQuery.TableName) }
     and o.ORACLE_MAINTAINED <> 'Y'
     and o.GENERATED <> 'Y'
     and o.SECONDARY <> 'Y'
@@ -273,9 +274,9 @@ where
 
         private async Task<Option<IDatabaseKey>> LoadPrimaryKeyAsyncCore(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var primaryKeyColumns = await DbConnection.QueryAsync<ConstraintColumnMapping>(
+            var primaryKeyColumns = await DbConnection.QueryAsync<GetTablePrimaryKeyQueryResult>(
                 PrimaryKeyQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTablePrimaryKeyQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -312,13 +313,13 @@ where
 
         private static readonly string PrimaryKeyQuerySql = @$"
 select
-    ac.CONSTRAINT_NAME as ""{ nameof(ConstraintColumnMapping.ConstraintName) }"",
-    ac.STATUS as ""{ nameof(ConstraintColumnMapping.EnabledStatus) }"",
-    acc.COLUMN_NAME as ""{ nameof(ConstraintColumnMapping.ColumnName) }"",
-    acc.POSITION as ""{ nameof(ConstraintColumnMapping.ColumnPosition) }""
+    ac.CONSTRAINT_NAME as ""{ nameof(GetTablePrimaryKeyQueryResult.ConstraintName) }"",
+    ac.STATUS as ""{ nameof(GetTablePrimaryKeyQueryResult.EnabledStatus) }"",
+    acc.COLUMN_NAME as ""{ nameof(GetTablePrimaryKeyQueryResult.ColumnName) }"",
+    acc.POSITION as ""{ nameof(GetTablePrimaryKeyQueryResult.ColumnPosition) }""
 from SYS.ALL_CONSTRAINTS ac
 inner join SYS.ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
-where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'P'";
+where ac.OWNER = :{ nameof(GetTablePrimaryKeyQuery.SchemaName) } and ac.TABLE_NAME = :{ nameof(GetTablePrimaryKeyQuery.TableName) } and ac.CONSTRAINT_TYPE = 'P'";
 
         /// <summary>
         /// Retrieves indexes that relate to the given table.
@@ -340,9 +341,9 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
 
         private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var queryResult = await DbConnection.QueryAsync<IndexColumns>(
+            var queryResult = await DbConnection.QueryAsync<GetTableIndexesQueryResult>(
                 IndexesQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableIndexesQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -393,20 +394,20 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
 
         private static readonly string IndexesQuerySql = @$"
 select
-    ai.OWNER as ""{ nameof(IndexColumns.IndexOwner) }"",
-    ai.INDEX_NAME as ""{ nameof(IndexColumns.IndexName) }"",
-    ai.UNIQUENESS as ""{ nameof(IndexColumns.Uniqueness) }"",
-    ind.PROPERTY as ""{ nameof(IndexColumns.IndexProperty) }"",
-    aic.COLUMN_NAME as ""{ nameof(IndexColumns.ColumnName) }"",
-    aic.COLUMN_POSITION as ""{ nameof(IndexColumns.ColumnPosition) }"",
-    aic.DESCEND as ""{ nameof(IndexColumns.IsDescending) }""
+    ai.OWNER as ""{ nameof(GetTableIndexesQueryResult.IndexOwner) }"",
+    ai.INDEX_NAME as ""{ nameof(GetTableIndexesQueryResult.IndexName) }"",
+    ai.UNIQUENESS as ""{ nameof(GetTableIndexesQueryResult.Uniqueness) }"",
+    ind.PROPERTY as ""{ nameof(GetTableIndexesQueryResult.IndexProperty) }"",
+    aic.COLUMN_NAME as ""{ nameof(GetTableIndexesQueryResult.ColumnName) }"",
+    aic.COLUMN_POSITION as ""{ nameof(GetTableIndexesQueryResult.ColumnPosition) }"",
+    aic.DESCEND as ""{ nameof(GetTableIndexesQueryResult.IsDescending) }""
 from SYS.ALL_INDEXES ai
 inner join SYS.ALL_OBJECTS ao on ai.OWNER = ao.OWNER and ai.INDEX_NAME = ao.OBJECT_NAME
 inner join SYS.IND$ ind on ao.OBJECT_ID = ind.OBJ#
 inner join SYS.ALL_IND_COLUMNS aic
     on ai.OWNER = aic.INDEX_OWNER and ai.INDEX_NAME = aic.INDEX_NAME
-where ai.TABLE_OWNER = :SchemaName and ai.TABLE_NAME = :TableName
-    and aic.TABLE_OWNER = :SchemaName and aic.TABLE_NAME = :TableName
+where ai.TABLE_OWNER = :{ nameof(GetTableIndexesQuery.SchemaName) } and ai.TABLE_NAME = :{ nameof(GetTableIndexesQuery.TableName) }
+    and aic.TABLE_OWNER = :{ nameof(GetTableIndexesQuery.SchemaName) } and aic.TABLE_NAME = :{ nameof(GetTableIndexesQuery.TableName) }
     and ao.OBJECT_TYPE = 'INDEX'
 order by aic.COLUMN_POSITION";
 
@@ -430,9 +431,9 @@ order by aic.COLUMN_POSITION";
 
         private async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsyncCore(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var uniqueKeyColumns = await DbConnection.QueryAsync<ConstraintColumnMapping>(
+            var uniqueKeyColumns = await DbConnection.QueryAsync<GetTableUniqueKeysQueryResult>(
                 UniqueKeysQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableUniqueKeysQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -473,13 +474,13 @@ order by aic.COLUMN_POSITION";
 
         private static readonly string UniqueKeysQuerySql = @$"
 select
-    ac.CONSTRAINT_NAME as ""{ nameof(ConstraintColumnMapping.ConstraintName) }"",
-    ac.STATUS as ""{ nameof(ConstraintColumnMapping.EnabledStatus) }"",
-    acc.COLUMN_NAME as ""{ nameof(ConstraintColumnMapping.ColumnName) }"",
-    acc.POSITION as ""{ nameof(ConstraintColumnMapping.ColumnPosition) }""
+    ac.CONSTRAINT_NAME as ""{ nameof(GetTableUniqueKeysQueryResult.ConstraintName) }"",
+    ac.STATUS as ""{ nameof(GetTableUniqueKeysQueryResult.EnabledStatus) }"",
+    acc.COLUMN_NAME as ""{ nameof(GetTableUniqueKeysQueryResult.ColumnName) }"",
+    acc.POSITION as ""{ nameof(GetTableUniqueKeysQueryResult.ColumnPosition) }""
 from SYS.ALL_CONSTRAINTS ac
 inner join SYS.ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
-where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'U'";
+where ac.OWNER = :{ nameof(GetTableUniqueKeysQuery.SchemaName) } and ac.TABLE_NAME = :{ nameof(GetTableUniqueKeysQuery.SchemaName) } and ac.CONSTRAINT_TYPE = 'U'";
 
         /// <summary>
         /// Retrieves child keys that relate to the given table.
@@ -501,9 +502,9 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
 
         private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var queryResult = await DbConnection.QueryAsync<ChildKeyData>(
+            var queryResult = await DbConnection.QueryAsync<GetTableChildKeysQueryResult>(
                 ChildKeysQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableChildKeysQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
             if (queryResult.Empty())
@@ -565,16 +566,16 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
 
         private static readonly string ChildKeysQuerySql = @$"
 select
-    ac.OWNER as ""{ nameof(ChildKeyData.ChildTableSchema) }"",
-    ac.TABLE_NAME as ""{ nameof(ChildKeyData.ChildTableName) }"",
-    ac.CONSTRAINT_NAME as ""{ nameof(ChildKeyData.ChildKeyName) }"",
-    ac.STATUS as ""{ nameof(ChildKeyData.EnabledStatus) }"",
-    ac.DELETE_RULE as ""{ nameof(ChildKeyData.DeleteAction) }"",
-    pac.CONSTRAINT_NAME as ""{ nameof(ChildKeyData.ParentKeyName) }"",
-    pac.CONSTRAINT_TYPE as ""{ nameof(ChildKeyData.ParentKeyType) }""
+    ac.OWNER as ""{ nameof(GetTableChildKeysQueryResult.ChildTableSchema) }"",
+    ac.TABLE_NAME as ""{ nameof(GetTableChildKeysQueryResult.ChildTableName) }"",
+    ac.CONSTRAINT_NAME as ""{ nameof(GetTableChildKeysQueryResult.ChildKeyName) }"",
+    ac.STATUS as ""{ nameof(GetTableChildKeysQueryResult.EnabledStatus) }"",
+    ac.DELETE_RULE as ""{ nameof(GetTableChildKeysQueryResult.DeleteAction) }"",
+    pac.CONSTRAINT_NAME as ""{ nameof(GetTableChildKeysQueryResult.ParentKeyName) }"",
+    pac.CONSTRAINT_TYPE as ""{ nameof(GetTableChildKeysQueryResult.ParentKeyType) }""
 from SYS.ALL_CONSTRAINTS ac
 inner join SYS.ALL_CONSTRAINTS pac on pac.OWNER = ac.R_OWNER and pac.CONSTRAINT_NAME = ac.R_CONSTRAINT_NAME
-where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'R' and pac.CONSTRAINT_TYPE in ('P', 'U')";
+where pac.OWNER = :{ nameof(GetTableChildKeysQuery.SchemaName) } and pac.TABLE_NAME = :{ nameof(GetTableChildKeysQuery.TableName) } and ac.CONSTRAINT_TYPE = 'R' and pac.CONSTRAINT_TYPE in ('P', 'U')";
 
         /// <summary>
         /// Retrieves check constraints defined on a given table.
@@ -596,9 +597,9 @@ where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_
 
         private async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsyncCore(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var checks = await DbConnection.QueryAsync<CheckConstraintData>(
+            var checks = await DbConnection.QueryAsync<GetTableChecksQueryResult>(
                 ChecksQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableChecksQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -639,11 +640,11 @@ where pac.OWNER = :SchemaName and pac.TABLE_NAME = :TableName and ac.CONSTRAINT_
 
         private static readonly string ChecksQuerySql = @$"
 select
-    CONSTRAINT_NAME as ""{ nameof(CheckConstraintData.ConstraintName) }"",
-    SEARCH_CONDITION as ""{ nameof(CheckConstraintData.Definition) }"",
-    STATUS as ""{ nameof(CheckConstraintData.EnabledStatus) }""
+    CONSTRAINT_NAME as ""{ nameof(GetTableChecksQueryResult.ConstraintName) }"",
+    SEARCH_CONDITION as ""{ nameof(GetTableChecksQueryResult.Definition) }"",
+    STATUS as ""{ nameof(GetTableChecksQueryResult.EnabledStatus) }""
 from SYS.ALL_CONSTRAINTS
-where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'";
+where OWNER = :{ nameof(GetTableChecksQuery.SchemaName) } and TABLE_NAME = :{ nameof(GetTableChecksQuery.TableName) } and CONSTRAINT_TYPE = 'C'";
 
         /// <summary>
         /// Retrieves foreign keys that relate to the given table.
@@ -665,9 +666,9 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
 
         private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsyncCore(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
         {
-            var queryResult = await DbConnection.QueryAsync<ForeignKeyData>(
+            var queryResult = await DbConnection.QueryAsync<GetTableParentKeysQueryResult>(
                 ParentKeysQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableParentKeysQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -745,19 +746,19 @@ where OWNER = :SchemaName and TABLE_NAME = :TableName and CONSTRAINT_TYPE = 'C'"
 
         private static readonly string ParentKeysQuerySql = @$"
 select
-    ac.CONSTRAINT_NAME as ""{ nameof(ForeignKeyData.ConstraintName) }"",
-    ac.STATUS as ""{ nameof(ForeignKeyData.EnabledStatus) }"",
-    ac.DELETE_RULE as ""{ nameof(ForeignKeyData.DeleteAction) }"",
-    pac.OWNER as ""{ nameof(ForeignKeyData.ParentTableSchema) }"",
-    pac.TABLE_NAME as ""{ nameof(ForeignKeyData.ParentTableName) }"",
-    pac.CONSTRAINT_NAME as ""{ nameof(ForeignKeyData.ParentConstraintName) }"",
-    pac.CONSTRAINT_TYPE as ""{ nameof(ForeignKeyData.ParentKeyType) }"",
-    acc.COLUMN_NAME as ""{ nameof(ForeignKeyData.ColumnName) }"",
-    acc.POSITION as ""{ nameof(ForeignKeyData.ColumnPosition) }""
+    ac.CONSTRAINT_NAME as ""{ nameof(GetTableParentKeysQueryResult.ConstraintName) }"",
+    ac.STATUS as ""{ nameof(GetTableParentKeysQueryResult.EnabledStatus) }"",
+    ac.DELETE_RULE as ""{ nameof(GetTableParentKeysQueryResult.DeleteAction) }"",
+    pac.OWNER as ""{ nameof(GetTableParentKeysQueryResult.ParentTableSchema) }"",
+    pac.TABLE_NAME as ""{ nameof(GetTableParentKeysQueryResult.ParentTableName) }"",
+    pac.CONSTRAINT_NAME as ""{ nameof(GetTableParentKeysQueryResult.ParentConstraintName) }"",
+    pac.CONSTRAINT_TYPE as ""{ nameof(GetTableParentKeysQueryResult.ParentKeyType) }"",
+    acc.COLUMN_NAME as ""{ nameof(GetTableParentKeysQueryResult.ColumnName) }"",
+    acc.POSITION as ""{ nameof(GetTableParentKeysQueryResult.ColumnPosition) }""
 from SYS.ALL_CONSTRAINTS ac
 inner join SYS.ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
 inner join SYS.ALL_CONSTRAINTS pac on pac.OWNER = ac.R_OWNER and pac.CONSTRAINT_NAME = ac.R_CONSTRAINT_NAME
-where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TYPE = 'R' and pac.CONSTRAINT_TYPE in ('P', 'U')";
+where ac.OWNER = :{ nameof(GetTableParentKeysQuery.SchemaName) } and ac.TABLE_NAME = :{ nameof(GetTableParentKeysQuery.TableName) } and ac.CONSTRAINT_TYPE = 'R' and pac.CONSTRAINT_TYPE in ('P', 'U')";
 
         /// <summary>
         /// Retrieves the columns for a given table.
@@ -776,9 +777,9 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
 
         private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var query = await DbConnection.QueryAsync<ColumnData>(
+            var query = await DbConnection.QueryAsync<GetTableColumnsQueryResult>(
                 ColumnsQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableColumnsQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -832,18 +833,18 @@ where ac.OWNER = :SchemaName and ac.TABLE_NAME = :TableName and ac.CONSTRAINT_TY
 
         private static readonly string ColumnsQuerySql = @$"
 select
-    COLUMN_NAME as ""{ nameof(ColumnData.ColumnName) }"",
-    DATA_TYPE_OWNER as ""{ nameof(ColumnData.ColumnTypeSchema) }"",
-    DATA_TYPE as ""{ nameof(ColumnData.ColumnTypeName) }"",
-    DATA_LENGTH as ""{ nameof(ColumnData.DataLength) }"",
-    DATA_PRECISION as ""{ nameof(ColumnData.Precision) }"",
-    DATA_SCALE as ""{ nameof(ColumnData.Scale) }"",
-    DATA_DEFAULT as ""{ nameof(ColumnData.DefaultValue) }"",
-    CHAR_LENGTH as ""{ nameof(ColumnData.CharacterLength) }"",
-    CHARACTER_SET_NAME as ""{ nameof(ColumnData.Collation) }"",
-    VIRTUAL_COLUMN as ""{ nameof(ColumnData.IsComputed) }""
+    COLUMN_NAME as ""{ nameof(GetTableColumnsQueryResult.ColumnName) }"",
+    DATA_TYPE_OWNER as ""{ nameof(GetTableColumnsQueryResult.ColumnTypeSchema) }"",
+    DATA_TYPE as ""{ nameof(GetTableColumnsQueryResult.ColumnTypeName) }"",
+    DATA_LENGTH as ""{ nameof(GetTableColumnsQueryResult.DataLength) }"",
+    DATA_PRECISION as ""{ nameof(GetTableColumnsQueryResult.Precision) }"",
+    DATA_SCALE as ""{ nameof(GetTableColumnsQueryResult.Scale) }"",
+    DATA_DEFAULT as ""{ nameof(GetTableColumnsQueryResult.DefaultValue) }"",
+    CHAR_LENGTH as ""{ nameof(GetTableColumnsQueryResult.CharacterLength) }"",
+    CHARACTER_SET_NAME as ""{ nameof(GetTableColumnsQueryResult.Collation) }"",
+    VIRTUAL_COLUMN as ""{ nameof(GetTableColumnsQueryResult.IsComputed) }""
 from SYS.ALL_TAB_COLS
-where OWNER = :SchemaName and TABLE_NAME = :TableName
+where OWNER = :{ nameof(GetTableColumnsQuery.SchemaName) } and TABLE_NAME = :{ nameof(GetTableColumnsQuery.TableName) }
 order by COLUMN_ID";
 
         /// <summary>
@@ -863,9 +864,9 @@ order by COLUMN_ID";
 
         private async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
-            var queryResult = await DbConnection.QueryAsync<TriggerData>(
+            var queryResult = await DbConnection.QueryAsync<GetTableTriggersQueryResult>(
                 TriggersQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableTriggersQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -918,14 +919,14 @@ order by COLUMN_ID";
 
         private static readonly string TriggersQuerySql = @$"
 select
-    OWNER as ""{ nameof(TriggerData.TriggerSchema) }"",
-    TRIGGER_NAME as ""{ nameof(TriggerData.TriggerName) }"",
-    TRIGGER_TYPE as ""{ nameof(TriggerData.TriggerType) }"",
-    TRIGGERING_EVENT as ""{ nameof(TriggerData.TriggerEvent) }"",
-    TRIGGER_BODY as ""{ nameof(TriggerData.Definition) }"",
-    STATUS as ""{ nameof(TriggerData.EnabledStatus) }""
+    OWNER as ""{ nameof(GetTableTriggersQueryResult.TriggerSchema) }"",
+    TRIGGER_NAME as ""{ nameof(GetTableTriggersQueryResult.TriggerName) }"",
+    TRIGGER_TYPE as ""{ nameof(GetTableTriggersQueryResult.TriggerType) }"",
+    TRIGGERING_EVENT as ""{ nameof(GetTableTriggersQueryResult.TriggerEvent) }"",
+    TRIGGER_BODY as ""{ nameof(GetTableTriggersQueryResult.Definition) }"",
+    STATUS as ""{ nameof(GetTableTriggersQueryResult.EnabledStatus) }""
 from SYS.ALL_TRIGGERS
-where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE = 'TABLE'";
+where TABLE_OWNER = :{ nameof(GetTableTriggersQuery.SchemaName) } and TABLE_NAME = :{ nameof(GetTableTriggersQuery.TableName) } and BASE_OBJECT_TYPE = 'TABLE'";
 
         /// <summary>
         /// Retrieves the names all of the not-null constrained columns in a given table.
@@ -947,9 +948,9 @@ where TABLE_OWNER = :SchemaName and TABLE_NAME = :TableName and BASE_OBJECT_TYPE
 
         private async Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsyncCore(Identifier tableName, IEnumerable<string> columnNames, CancellationToken cancellationToken)
         {
-            var checks = await DbConnection.QueryAsync<CheckConstraintData>(
+            var checks = await DbConnection.QueryAsync<GetTableChecksQueryResult>(
                 ChecksQuery,
-                new { SchemaName = tableName.Schema, TableName = tableName.LocalName },
+                new GetTableChecksQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 

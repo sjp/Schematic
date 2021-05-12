@@ -7,6 +7,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Oracle.Query;
+using SJP.Schematic.Oracle.QueryResult;
 
 namespace SJP.Schematic.Oracle
 {
@@ -55,12 +56,26 @@ namespace SJP.Schematic.Oracle
         /// <returns>A collection of database sequences.</returns>
         public async IAsyncEnumerable<IDatabaseSequence> GetAllSequences([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResult = await Connection.QueryAsync<SequenceData>(SequencesQuery, cancellationToken).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<GetAllSequencesQueryResult>(SequencesQuery, cancellationToken).ConfigureAwait(false);
 
             foreach (var row in queryResult)
             {
-                var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.ObjectName));
-                yield return BuildSequenceFromDto(sequenceName, row);
+                var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.SequenceName));
+
+                var cycle = string.Equals(row.Cycle, "Y", StringComparison.Ordinal);
+                var start = row.Increment >= 0
+                    ? row.MinValue
+                    : row.MaxValue;
+
+                yield return new DatabaseSequence(
+                    sequenceName,
+                    start,
+                    row.Increment,
+                    Option<decimal>.Some(row.MinValue),
+                    Option<decimal>.Some(row.MaxValue),
+                    cycle,
+                    row.CacheSize
+                );
             }
         }
 
@@ -72,13 +87,13 @@ namespace SJP.Schematic.Oracle
 
         private static readonly string SequencesQuerySql = @$"
 select
-    s.SEQUENCE_OWNER as ""{ nameof(SequenceData.SchemaName) }"",
-    s.SEQUENCE_NAME as ""{ nameof(SequenceData.ObjectName) }"",
-    INCREMENT_BY as ""{ nameof(SequenceData.Increment) }"",
-    MIN_VALUE as ""{ nameof(SequenceData.MinValue) }"",
-    MAX_VALUE as ""{ nameof(SequenceData.MaxValue) }"",
-    CYCLE_FLAG as ""{ nameof(SequenceData.Cycle) }"",
-    CACHE_SIZE as ""{ nameof(SequenceData.CacheSize) }""
+    s.SEQUENCE_OWNER as ""{ nameof(GetAllSequencesQueryResult.SchemaName) }"",
+    s.SEQUENCE_NAME as ""{ nameof(GetAllSequencesQueryResult.SequenceName) }"",
+    INCREMENT_BY as ""{ nameof(GetAllSequencesQueryResult.Increment) }"",
+    MIN_VALUE as ""{ nameof(GetAllSequencesQueryResult.MinValue) }"",
+    MAX_VALUE as ""{ nameof(GetAllSequencesQueryResult.MaxValue) }"",
+    CYCLE_FLAG as ""{ nameof(GetAllSequencesQueryResult.Cycle) }"",
+    CACHE_SIZE as ""{ nameof(GetAllSequencesQueryResult.CacheSize) }""
 from SYS.ALL_SEQUENCES s
 inner join SYS.ALL_OBJECTS o on s.SEQUENCE_OWNER = o.OWNER and s.SEQUENCE_NAME = o.OBJECT_NAME
 where o.ORACLE_MAINTAINED <> 'Y'
@@ -134,13 +149,13 @@ order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
                 throw new ArgumentNullException(nameof(sequenceName));
 
             var candidateSequenceName = QualifySequenceName(sequenceName);
-            var qualifiedSequenceName = Connection.QueryFirstOrNone<QualifiedName>(
+            var qualifiedSequenceName = Connection.QueryFirstOrNone<GetSequenceNameQueryResult>(
                 SequenceNameQuery,
-                new { SchemaName = candidateSequenceName.Schema, SequenceName = candidateSequenceName.LocalName },
+                new GetSequenceNameQuery { SchemaName = candidateSequenceName.Schema!, SequenceName = candidateSequenceName.LocalName },
                 cancellationToken
             );
 
-            return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSequenceName.Server, candidateSequenceName.Database, name.SchemaName, name.ObjectName));
+            return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSequenceName.Server, candidateSequenceName.Database, name.SchemaName, name.SequenceName));
         }
 
         /// <summary>
@@ -150,10 +165,10 @@ order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
         protected virtual string SequenceNameQuery => SequenceNameQuerySql;
 
         private static readonly string SequenceNameQuerySql = @$"
-select s.SEQUENCE_OWNER as ""{ nameof(QualifiedName.SchemaName) }"", s.SEQUENCE_NAME as ""{ nameof(QualifiedName.ObjectName) }""
+select s.SEQUENCE_OWNER as ""{ nameof(GetSequenceNameQueryResult.SchemaName) }"", s.SEQUENCE_NAME as ""{ nameof(GetSequenceNameQueryResult.SequenceName) }""
 from SYS.ALL_SEQUENCES s
 inner join SYS.ALL_OBJECTS o on s.SEQUENCE_OWNER = o.OWNER and s.SEQUENCE_NAME = o.OBJECT_NAME
-where s.SEQUENCE_OWNER = :SchemaName and s.SEQUENCE_NAME = :SequenceName and o.ORACLE_MAINTAINED <> 'Y'";
+where s.SEQUENCE_OWNER = :{ nameof(GetSequenceNameQuery.SchemaName) } and s.SEQUENCE_NAME = :{ nameof(GetSequenceNameQuery.SequenceName) } and o.ORACLE_MAINTAINED <> 'Y'";
 
         /// <summary>
         /// Gets a query that retrieves all relevant information on a sequence.
@@ -163,13 +178,13 @@ where s.SEQUENCE_OWNER = :SchemaName and s.SEQUENCE_NAME = :SequenceName and o.O
 
         private static readonly string SequenceQuerySql = @$"
 select
-    INCREMENT_BY as ""{ nameof(SequenceData.Increment) }"",
-    MIN_VALUE as ""{ nameof(SequenceData.MinValue) }"",
-    MAX_VALUE as ""{ nameof(SequenceData.MaxValue) }"",
-    CYCLE_FLAG as ""{ nameof(SequenceData.Cycle) }"",
-    CACHE_SIZE as ""{ nameof(SequenceData.CacheSize) }""
+    INCREMENT_BY as ""{ nameof(GetSequenceDefinitionQueryResult.Increment) }"",
+    MIN_VALUE as ""{ nameof(GetSequenceDefinitionQueryResult.MinValue) }"",
+    MAX_VALUE as ""{ nameof(GetSequenceDefinitionQueryResult.MaxValue) }"",
+    CYCLE_FLAG as ""{ nameof(GetSequenceDefinitionQueryResult.Cycle) }"",
+    CACHE_SIZE as ""{ nameof(GetSequenceDefinitionQueryResult.CacheSize) }""
 from SYS.ALL_SEQUENCES
-where SEQUENCE_OWNER = :SchemaName and SEQUENCE_NAME = :SequenceName";
+where SEQUENCE_OWNER = :{ nameof(GetSequenceDefinitionQuery.SchemaName) } and SEQUENCE_NAME = :{ nameof(GetSequenceDefinitionQuery.SequenceName) }";
 
         /// <summary>
         /// Retrieves database sequence information.
@@ -185,20 +200,35 @@ where SEQUENCE_OWNER = :SchemaName and SEQUENCE_NAME = :SequenceName";
 
             var candidateSequenceName = QualifySequenceName(sequenceName);
             return GetResolvedSequenceName(candidateSequenceName, cancellationToken)
-                .Bind(name => LoadSequenceData(name, cancellationToken)
-                    .Map(seq => BuildSequenceFromDto(name, seq)));
+                .Bind(name => LoadSequenceData(name, cancellationToken));
         }
 
-        private OptionAsync<SequenceData> LoadSequenceData(Identifier sequenceName, CancellationToken cancellationToken)
+        private OptionAsync<IDatabaseSequence> LoadSequenceData(Identifier sequenceName, CancellationToken cancellationToken)
         {
             if (sequenceName == null)
                 throw new ArgumentNullException(nameof(sequenceName));
 
-            return Connection.QueryFirstOrNone<SequenceData>(
+            return Connection.QueryFirstOrNone<GetSequenceDefinitionQueryResult>(
                 SequenceQuery,
-                new { SchemaName = sequenceName.Schema, SequenceName = sequenceName.LocalName },
+                new GetSequenceDefinitionQuery { SchemaName = sequenceName.Schema!, SequenceName = sequenceName.LocalName },
                 cancellationToken
-            );
+            ).Map<IDatabaseSequence>(row =>
+            {
+                var cycle = string.Equals(row.Cycle, "Y", StringComparison.Ordinal);
+                var start = row.Increment >= 0
+                    ? row.MinValue
+                    : row.MaxValue;
+
+                return new DatabaseSequence(
+                    sequenceName,
+                    start,
+                    row.Increment,
+                    Option<decimal>.Some(row.MinValue),
+                    Option<decimal>.Some(row.MaxValue),
+                    cycle,
+                    row.CacheSize
+                );
+            });
         }
 
         /// <summary>
@@ -214,29 +244,6 @@ where SEQUENCE_OWNER = :SchemaName and SEQUENCE_NAME = :SequenceName";
 
             var schema = sequenceName.Schema ?? IdentifierDefaults.Schema;
             return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, sequenceName.LocalName);
-        }
-
-        private static IDatabaseSequence BuildSequenceFromDto(Identifier sequenceName, SequenceData seqData)
-        {
-            if (sequenceName == null)
-                throw new ArgumentNullException(nameof(sequenceName));
-            if (seqData == null)
-                throw new ArgumentNullException(nameof(seqData));
-
-            var cycle = string.Equals(seqData.Cycle, "Y", StringComparison.Ordinal);
-            var start = seqData.Increment >= 0
-                ? seqData.MinValue
-                : seqData.MaxValue;
-
-            return new DatabaseSequence(
-                sequenceName,
-                start,
-                seqData.Increment,
-                Option<decimal>.Some(seqData.MinValue),
-                Option<decimal>.Some(seqData.MaxValue),
-                cycle,
-                seqData.CacheSize
-            );
         }
     }
 }
