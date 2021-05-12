@@ -61,8 +61,8 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             }
         }
 
-        private readonly AsyncLock _lock = new AsyncLock();
-        private readonly Dictionary<Identifier, AsyncLazy<IDatabaseView>> _viewsCache = new Dictionary<Identifier, AsyncLazy<IDatabaseView>>();
+        private readonly AsyncLock _lock = new();
+        private readonly Dictionary<Identifier, AsyncLazy<IDatabaseView>> _viewsCache = new();
 
         [Test]
         public async Task GetView_WhenViewPresent_ReturnsView()

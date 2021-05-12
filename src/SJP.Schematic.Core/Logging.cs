@@ -14,7 +14,7 @@ namespace SJP.Schematic.Core
     public static class Logging
     {
         private static readonly IReadOnlyDictionary<string, object?> EmptyParams = new Dictionary<string, object?>(StringComparer.Ordinal);
-        private static readonly ConditionalWeakTable<IDbConnectionFactory, LoggingConfiguration> ConnectionLoggerLookup = new ConditionalWeakTable<IDbConnectionFactory, LoggingConfiguration>();
+        private static readonly ConditionalWeakTable<IDbConnectionFactory, LoggingConfiguration> ConnectionLoggerLookup = new();
 
         /// <summary>
         /// Determines whether logging is currently configured on the given connection factory.

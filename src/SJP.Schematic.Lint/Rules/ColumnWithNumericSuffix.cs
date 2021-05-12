@@ -92,6 +92,6 @@ namespace SJP.Schematic.Lint.Rules
         /// <value>The rule title.</value>
         protected static string RuleTitle { get; } = "Column with a numeric suffix.";
 
-        private static readonly Regex NumericSuffixRegex = new Regex(".*[0-9]$", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
+        private static readonly Regex NumericSuffixRegex = new(".*[0-9]$", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
     }
 }

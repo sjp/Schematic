@@ -56,7 +56,7 @@ namespace SJP.Schematic.Reporting.Html
             }
         }
 
-        private static readonly ConcurrentDictionary<ReportTemplate, string> Cache = new ConcurrentDictionary<ReportTemplate, string>();
+        private static readonly ConcurrentDictionary<ReportTemplate, string> Cache = new();
 
         private static readonly IFileProvider _fileProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly(), Assembly.GetExecutingAssembly().GetName().Name + ".Html.Templates");
         private const string TemplateExtension = ".cshtml";

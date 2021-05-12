@@ -108,8 +108,8 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             }
         }
 
-        private readonly AsyncLock _lock = new AsyncLock();
-        private readonly Dictionary<Identifier, AsyncLazy<IDatabaseRoutineComments>> _commentsCache = new Dictionary<Identifier, AsyncLazy<IDatabaseRoutineComments>>();
+        private readonly AsyncLock _lock = new();
+        private readonly Dictionary<Identifier, AsyncLazy<IDatabaseRoutineComments>> _commentsCache = new();
 
         [Test]
         public async Task GetRoutineComments_WhenRoutinePresent_ReturnsRoutineComment()

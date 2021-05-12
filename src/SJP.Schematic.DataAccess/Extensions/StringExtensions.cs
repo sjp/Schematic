@@ -9,11 +9,11 @@ namespace SJP.Schematic.DataAccess.Extensions
     /// </summary>
     public static class StringExtensions
     {
-        private static readonly Regex _pascalizeRegex = new Regex("(?:^|_| +)(.)", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
+        private static readonly Regex _pascalizeRegex = new("(?:^|_| +)(.)", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
 
-        private static readonly Regex _underscore1Regex = new Regex(@"([\p{Lu}]+)([\p{Lu}][\p{Ll}])", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
-        private static readonly Regex _underscore2Regex = new Regex(@"([\p{Ll}\d])([\p{Lu}])", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
-        private static readonly Regex _underscore3Regex = new Regex(@"[-\s]", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
+        private static readonly Regex _underscore1Regex = new(@"([\p{Lu}]+)([\p{Lu}][\p{Ll}])", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
+        private static readonly Regex _underscore2Regex = new(@"([\p{Ll}\d])([\p{Lu}])", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
+        private static readonly Regex _underscore3Regex = new(@"[-\s]", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
 
         /// <summary>
         /// Same as <see cref="Pascalize(string)"/> except that the first character is lower case.

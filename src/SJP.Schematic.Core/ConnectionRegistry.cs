@@ -9,8 +9,8 @@ namespace SJP.Schematic.Core
     /// </summary>
     public static class ConnectionRegistry
     {
-        private static readonly ConcurrentDictionary<Guid, WeakReference<IDbConnectionFactory>> ConnectionFactoryLookup = new ConcurrentDictionary<Guid, WeakReference<IDbConnectionFactory>>();
-        private static readonly ConditionalWeakTable<IDbConnectionFactory, string> ConnectionIdLookup = new ConditionalWeakTable<IDbConnectionFactory, string>();
+        private static readonly ConcurrentDictionary<Guid, WeakReference<IDbConnectionFactory>> ConnectionFactoryLookup = new();
+        private static readonly ConditionalWeakTable<IDbConnectionFactory, string> ConnectionIdLookup = new();
 
         /// <summary>
         /// Registers a database connection factory by its identifier.

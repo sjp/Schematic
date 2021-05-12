@@ -387,7 +387,7 @@ where OWNER = :{ nameof(GetMaterializedViewChecksQuery.SchemaName) } and TABLE_N
             return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, viewName.LocalName);
         }
 
-        private readonly ConcurrentDictionary<string, string> _notNullDefinitions = new ConcurrentDictionary<string, string>();
+        private readonly ConcurrentDictionary<string, string> _notNullDefinitions = new();
 
         private const string EnabledValue = "ENABLED";
     }

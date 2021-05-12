@@ -278,6 +278,6 @@ namespace SJP.Schematic.Oracle
         private static readonly char[] SpaceChar = new[] { ' ' };
         private static readonly char[] CarriageReturn = new[] { '\r' };
         private static readonly char[] NewlineChars = new[] { '\r', '\n' };
-        private static readonly OracleTokenizer Tokenizer = new OracleTokenizer();
+        private static readonly OracleTokenizer Tokenizer = new();
     }
 }

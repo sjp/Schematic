@@ -110,7 +110,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
         {
             public Column<BigInteger> TEST_COLUMN_1 => _column;
 
-            private readonly Column<BigInteger> _column = new Column<BigInteger>();
+            private readonly Column<BigInteger> _column = new();
         }
 
         private sealed class TestDatabase1

@@ -75,7 +75,7 @@ namespace SJP.Schematic.PostgreSql
         /// Creates a query cache for a given query context
         /// </summary>
         /// <returns>A query cache.</returns>
-        protected PostgreSqlTableQueryCache CreateQueryCache() => new PostgreSqlTableQueryCache(
+        protected PostgreSqlTableQueryCache CreateQueryCache() => new(
             new AsyncCache<Identifier, Option<Identifier>, PostgreSqlTableQueryCache>((tableName, _, token) => GetResolvedTableName(tableName, token)),
             new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, PostgreSqlTableQueryCache>((tableName, _, token) => LoadColumnsAsync(tableName, token)),
             new AsyncCache<Identifier, Option<IDatabaseKey>, PostgreSqlTableQueryCache>(LoadPrimaryKeyAsync),

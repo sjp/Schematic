@@ -63,7 +63,7 @@ namespace SJP.Schematic.Core
             return new QueryContext(loggingContext);
         }
 
-        private static readonly ConditionalWeakTable<IDbConnectionFactory, AsyncSemaphore> SemaphoreLookup = new ConditionalWeakTable<IDbConnectionFactory, AsyncSemaphore>();
+        private static readonly ConditionalWeakTable<IDbConnectionFactory, AsyncSemaphore> SemaphoreLookup = new();
 
         public static void SetMaxConcurrentQueries(IDbConnectionFactory connectionFactory, AsyncSemaphore semaphore)
         {

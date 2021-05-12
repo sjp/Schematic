@@ -69,8 +69,8 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             }
         }
 
-        private readonly AsyncLock _lock = new AsyncLock();
-        private readonly Dictionary<Identifier, AsyncLazy<IDatabaseSynonymComments>> _commentsCache = new Dictionary<Identifier, AsyncLazy<IDatabaseSynonymComments>>();
+        private readonly AsyncLock _lock = new();
+        private readonly Dictionary<Identifier, AsyncLazy<IDatabaseSynonymComments>> _commentsCache = new();
 
         [Test]
         public async Task GetSynonymComments_WhenSynonymPresent_ReturnsSynonymComment()

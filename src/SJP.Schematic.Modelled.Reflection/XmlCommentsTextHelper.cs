@@ -85,7 +85,7 @@ namespace SJP.Schematic.Modelled.Reflection
             return CodeTagPattern.Replace(text, static match => "{" + match.Groups["display"].Value + "}");
         }
 
-        private static readonly Regex RefTagPattern = new Regex(@"<(see|paramref) (name|cref)=""([TPF]{1}:)?(?<display>.+?)"" ?/>", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
-        private static readonly Regex CodeTagPattern = new Regex("<c>(?<display>.+?)</c>", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
+        private static readonly Regex RefTagPattern = new(@"<(see|paramref) (name|cref)=""([TPF]{1}:)?(?<display>.+?)"" ?/>", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
+        private static readonly Regex CodeTagPattern = new("<c>(?<display>.+?)</c>", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
     }
 }

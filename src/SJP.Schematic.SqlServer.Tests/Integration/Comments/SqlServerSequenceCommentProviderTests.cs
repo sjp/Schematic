@@ -67,8 +67,8 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             }
         }
 
-        private readonly AsyncLock _lock = new AsyncLock();
-        private readonly Dictionary<Identifier, AsyncLazy<IDatabaseSequenceComments>> _commentsCache = new Dictionary<Identifier, AsyncLazy<IDatabaseSequenceComments>>();
+        private readonly AsyncLock _lock = new();
+        private readonly Dictionary<Identifier, AsyncLazy<IDatabaseSequenceComments>> _commentsCache = new();
 
         [Test]
         public async Task GetSequenceComments_WhenSequencePresent_ReturnsSequenceComment()

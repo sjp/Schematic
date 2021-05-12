@@ -35,7 +35,7 @@ namespace SJP.Schematic.SqlServer.Tests.Integration
 
         protected IIdentifierDefaults IdentifierDefaults => _defaults.Value;
 
-        private readonly Lazy<ISchematicConnection> _connection = new Lazy<ISchematicConnection>(() => Config.SchematicConnection);
-        private readonly Lazy<IIdentifierDefaults> _defaults = new Lazy<IIdentifierDefaults>(() => Config.SchematicConnection.Dialect.GetIdentifierDefaultsAsync(Config.SchematicConnection).GetAwaiter().GetResult());
+        private readonly Lazy<ISchematicConnection> _connection = new(() => Config.SchematicConnection);
+        private readonly Lazy<IIdentifierDefaults> _defaults = new(() => Config.SchematicConnection.Dialect.GetIdentifierDefaultsAsync(Config.SchematicConnection).GetAwaiter().GetResult());
     }
 }

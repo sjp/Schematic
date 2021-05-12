@@ -74,7 +74,7 @@ namespace SJP.Schematic.Sqlite
         /// Creates a query cache for a given query context
         /// </summary>
         /// <returns>A query cache.</returns>
-        protected SqliteTableQueryCache CreateQueryCache() => new SqliteTableQueryCache(
+        protected SqliteTableQueryCache CreateQueryCache() => new(
             new AsyncCache<Identifier, ParsedTableData, SqliteTableQueryCache>((tableName, _, token) => GetParsedTableDefinitionAsync(tableName, token)),
             new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqliteTableQueryCache>(LoadColumnsAsync),
             new AsyncCache<Identifier, Option<IDatabaseKey>, SqliteTableQueryCache>(LoadPrimaryKeyAsync),
@@ -1061,9 +1061,9 @@ namespace SJP.Schematic.Sqlite
 
         private Task<Version> LoadDbVersionAsync() => Dialect.GetDatabaseVersionAsync(Connection);
 
-        private readonly ConcurrentDictionary<string, Lazy<ParsedTableData>> _tableParserCache = new ConcurrentDictionary<string, Lazy<ParsedTableData>>(StringComparer.Ordinal);
-        private readonly ConcurrentDictionary<string, Lazy<ParsedTriggerData>> _triggerParserCache = new ConcurrentDictionary<string, Lazy<ParsedTriggerData>>(StringComparer.Ordinal);
-        private readonly ConcurrentDictionary<string, ISqliteDatabasePragma> _dbPragmaCache = new ConcurrentDictionary<string, ISqliteDatabasePragma>(StringComparer.Ordinal);
+        private readonly ConcurrentDictionary<string, Lazy<ParsedTableData>> _tableParserCache = new(StringComparer.Ordinal);
+        private readonly ConcurrentDictionary<string, Lazy<ParsedTriggerData>> _triggerParserCache = new(StringComparer.Ordinal);
+        private readonly ConcurrentDictionary<string, ISqliteDatabasePragma> _dbPragmaCache = new(StringComparer.Ordinal);
 
         private readonly AsyncLazy<Version> _dbVersion;
 
@@ -1076,10 +1076,10 @@ namespace SJP.Schematic.Sqlite
             ["CASCADE"] = ReferentialAction.Cascade
         };
 
-        private static readonly SqliteTypeAffinityParser AffinityParser = new SqliteTypeAffinityParser();
-        private static readonly SqliteTokenizer Tokenizer = new SqliteTokenizer();
-        private static readonly SqliteTableParser TableParser = new SqliteTableParser();
-        private static readonly SqliteTriggerParser TriggerParser = new SqliteTriggerParser();
+        private static readonly SqliteTypeAffinityParser AffinityParser = new();
+        private static readonly SqliteTokenizer Tokenizer = new();
+        private static readonly SqliteTableParser TableParser = new();
+        private static readonly SqliteTriggerParser TriggerParser = new();
 
         private static class Constants
         {

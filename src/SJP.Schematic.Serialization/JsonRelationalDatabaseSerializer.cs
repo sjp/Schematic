@@ -53,7 +53,7 @@ namespace SJP.Schematic.Serialization
             return JsonSerializer.Serialize(dto, _settings.Value);
         }
 
-        private static readonly Lazy<JsonSerializerOptions> _settings = new Lazy<JsonSerializerOptions>(LoadSettings);
+        private static readonly Lazy<JsonSerializerOptions> _settings = new(LoadSettings);
 
         private static JsonSerializerOptions LoadSettings()
         {

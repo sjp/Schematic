@@ -19,7 +19,7 @@ namespace SJP.Schematic.Reporting.Html
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override string ToString() => throw new NotSupportedException("Use ToHtmlString() instead of ToString(). This is to avoid unintended use of encoded text for templating.");
 
-        public static implicit operator HtmlString(string encodedText) => new HtmlString(encodedText);
+        public static implicit operator HtmlString(string encodedText) => new(encodedText);
 
         private readonly string _text;
     }

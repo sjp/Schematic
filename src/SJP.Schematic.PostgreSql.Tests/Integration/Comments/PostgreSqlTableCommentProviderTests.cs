@@ -100,8 +100,8 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
             }
         }
 
-        private readonly AsyncLock _lock = new AsyncLock();
-        private readonly Dictionary<Identifier, AsyncLazy<IRelationalDatabaseTableComments>> _commentsCache = new Dictionary<Identifier, AsyncLazy<IRelationalDatabaseTableComments>>();
+        private readonly AsyncLock _lock = new();
+        private readonly Dictionary<Identifier, AsyncLazy<IRelationalDatabaseTableComments>> _commentsCache = new();
 
         [Test]
         public async Task GetTableComments_WhenTablePresent_ReturnsTableComment()

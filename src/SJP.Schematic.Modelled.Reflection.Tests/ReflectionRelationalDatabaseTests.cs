@@ -77,7 +77,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests
 
                 public Key PK_TEST_TABLE => new Key.Primary(TEST_TABLE_ID);
 
-                public ComputedColumn TEST_COMPUTED => new ComputedColumn("@TestString + @TestString", new { TestString = TEST_STRING });
+                public ComputedColumn TEST_COMPUTED => new("@TestString + @TestString", new { TestString = TEST_STRING });
             }
         }
     }

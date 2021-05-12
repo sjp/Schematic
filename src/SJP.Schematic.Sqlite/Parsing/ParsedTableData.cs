@@ -96,6 +96,6 @@ namespace SJP.Schematic.Sqlite.Parsing
         /// </summary>
         /// <param name="definition">A table definition.</param>
         /// <returns>A parsed table definition that has no information.</returns>
-        public static ParsedTableData Empty(string definition) => new ParsedTableData(definition);
+        public static ParsedTableData Empty(string definition) => new(definition);
     }
 }

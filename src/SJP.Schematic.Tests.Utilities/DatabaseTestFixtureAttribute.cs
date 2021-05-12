@@ -83,7 +83,7 @@ namespace SJP.Schematic.Tests.Utilities
         private const BindingFlags SearchFlags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
 
         private static readonly Type IDbConnectionFactoryType = typeof(IDbConnectionFactory);
-        private static readonly ConcurrentDictionary<Type, ConcurrentDictionary<string, MethodInfo?>> TypeCache = new ConcurrentDictionary<Type, ConcurrentDictionary<string, MethodInfo?>>();
-        private static readonly ConcurrentDictionary<MethodInfo, bool> ResultCache = new ConcurrentDictionary<MethodInfo, bool>();
+        private static readonly ConcurrentDictionary<Type, ConcurrentDictionary<string, MethodInfo?>> TypeCache = new();
+        private static readonly ConcurrentDictionary<MethodInfo, bool> ResultCache = new();
     }
 }

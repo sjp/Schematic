@@ -13,7 +13,7 @@ namespace SJP.Schematic.Core
     /// <seealso cref="IDbConnectionFactory" />
     public class CachingConnectionFactory : IDbConnectionFactory
     {
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
         private readonly IDbConnectionFactory _connectionFactory;
         private IDbConnection? _connection;
 

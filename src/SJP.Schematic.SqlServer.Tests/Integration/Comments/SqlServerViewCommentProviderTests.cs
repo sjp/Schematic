@@ -93,8 +93,8 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
             }
         }
 
-        private readonly AsyncLock _lock = new AsyncLock();
-        private readonly Dictionary<Identifier, AsyncLazy<IDatabaseViewComments>> _commentsCache = new Dictionary<Identifier, AsyncLazy<IDatabaseViewComments>>();
+        private readonly AsyncLock _lock = new();
+        private readonly Dictionary<Identifier, AsyncLazy<IDatabaseViewComments>> _commentsCache = new();
 
         [Test]
         public async Task GetViewComments_WhenViewPresent_ReturnsViewComment()

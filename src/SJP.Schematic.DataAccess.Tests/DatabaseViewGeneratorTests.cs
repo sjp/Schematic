@@ -9,7 +9,7 @@ namespace SJP.Schematic.DataAccess.Tests
     [TestFixture]
     internal static class DatabaseViewGeneratorTests
     {
-        private static FakeDatabaseViewGenerator GetViewGenerator() => new FakeDatabaseViewGenerator(new MockFileSystem(), new VerbatimNameTranslator());
+        private static FakeDatabaseViewGenerator GetViewGenerator() => new(new MockFileSystem(), new VerbatimNameTranslator());
 
         [Test]
         public static void Ctor_GivenNullFileSystem_ThrowsArgumentNullException()

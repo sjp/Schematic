@@ -60,7 +60,7 @@ namespace SJP.Schematic.SqlServer
         /// Creates a query cache for a given query context
         /// </summary>
         /// <returns>A query cache.</returns>
-        protected SqlServerTableQueryCache CreateQueryCache() => new SqlServerTableQueryCache(
+        protected SqlServerTableQueryCache CreateQueryCache() => new(
             new AsyncCache<Identifier, Option<Identifier>, SqlServerTableQueryCache>((tableName, _, token) => GetResolvedTableName(tableName, token)),
             new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqlServerTableQueryCache>((tableName, _, token) => LoadColumnsAsync(tableName, token)),
             new AsyncCache<Identifier, Option<IDatabaseKey>, SqlServerTableQueryCache>(LoadPrimaryKeyAsync),

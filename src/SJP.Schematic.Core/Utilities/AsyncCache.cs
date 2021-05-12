@@ -47,7 +47,7 @@ namespace SJP.Schematic.Core.Utilities
             ).Task;
         }
 
-        private readonly ConcurrentDictionary<TKey, AsyncLazy<TValue>> _cache = new ConcurrentDictionary<TKey, AsyncLazy<TValue>>();
+        private readonly ConcurrentDictionary<TKey, AsyncLazy<TValue>> _cache = new();
         private readonly Func<TKey, TCache, CancellationToken, Task<TValue>> _query;
     }
 }

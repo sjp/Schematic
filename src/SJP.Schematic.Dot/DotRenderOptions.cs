@@ -52,6 +52,6 @@ namespace SJP.Schematic.Dot
         /// Gets the default theme.
         /// </summary>
         /// <value>The default theme.</value>
-        public static DotRenderOptions Default => new DotRenderOptions();
+        public static DotRenderOptions Default => new();
     }
 }

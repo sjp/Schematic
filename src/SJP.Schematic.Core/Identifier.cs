@@ -142,7 +142,7 @@ namespace SJP.Schematic.Core
             }
             else
             {
-                WeakReference<Identifier> addFactory(int _) => new WeakReference<Identifier>(result!);
+                WeakReference<Identifier> addFactory(int _) => new(result!);
                 WeakReference<Identifier> updateFactory(int _, WeakReference<Identifier> oldValue)
                 {
                     oldValue.SetTarget(result!);
@@ -373,7 +373,7 @@ namespace SJP.Schematic.Core
             );
         }
 
-        private static readonly ConcurrentDictionary<int, WeakReference<Identifier>> Cache = new ConcurrentDictionary<int, WeakReference<Identifier>>();
+        private static readonly ConcurrentDictionary<int, WeakReference<Identifier>> Cache = new();
         private static readonly StringComparer Comparer = StringComparer.Ordinal;
     }
 }

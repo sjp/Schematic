@@ -75,7 +75,7 @@ namespace SJP.Schematic.Oracle
         /// Creates a query cache for a given query context
         /// </summary>
         /// <returns>A query cache.</returns>
-        protected OracleTableQueryCache CreateQueryCache() => new OracleTableQueryCache(
+        protected OracleTableQueryCache CreateQueryCache() => new(
             new AsyncCache<Identifier, Option<Identifier>, OracleTableQueryCache>((tableName, _, token) => GetResolvedTableName(tableName, token)),
             new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, OracleTableQueryCache>((tableName, _, token) => LoadColumnsAsync(tableName, token)),
             new AsyncCache<Identifier, Option<IDatabaseKey>, OracleTableQueryCache>(LoadPrimaryKeyAsync),
@@ -1052,7 +1052,7 @@ where TABLE_OWNER = :{ nameof(GetTableTriggersQuery.SchemaName) } and TABLE_NAME
             return result;
         }
 
-        private readonly ConcurrentDictionary<string, string> _notNullDefinitions = new ConcurrentDictionary<string, string>(StringComparer.Ordinal);
+        private readonly ConcurrentDictionary<string, string> _notNullDefinitions = new(StringComparer.Ordinal);
 
         private static class Constants
         {

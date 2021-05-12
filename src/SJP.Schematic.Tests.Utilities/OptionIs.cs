@@ -11,13 +11,13 @@ namespace SJP.Schematic.Tests.Utilities
         /// A constraint which asserts that a result must be a none value.
         /// </summary>
         /// <value>The none asserting constraint.</value>
-        public static NoneConstraint None => new NoneConstraint();
+        public static NoneConstraint None => new();
 
         /// <summary>
         /// A constraint which asserts that a result must be a some value.
         /// </summary>
         /// <value>The some asserting constraint.</value>
-        public static SomeConstraint Some => new SomeConstraint();
+        public static SomeConstraint Some => new();
 
 #pragma warning disable CA1034 // Nested types should not be visible
 
@@ -32,13 +32,13 @@ namespace SJP.Schematic.Tests.Utilities
             /// A constraint which asserts that a result must be a some value. i.e. not none
             /// </summary>
             /// <value>The some asserting constraint.</value>
-            public static SomeConstraint None => new SomeConstraint();
+            public static SomeConstraint None => new();
 
             /// <summary>
             /// A constraint which asserts that a result must be a none value. i.e. not some.
             /// </summary>
             /// <value>The none asserting constraint.</value>
-            public static NoneConstraint Some => new NoneConstraint();
+            public static NoneConstraint Some => new();
 #pragma warning restore S3218 // Inner class members should not shadow outer class "static" or type members
         }
 #pragma warning restore CA1034 // Nested types should not be visible

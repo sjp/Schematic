@@ -336,8 +336,8 @@ execute procedure v13_test_trigger_fn()", CancellationToken.None).ConfigureAwait
             }
         }
 
-        private readonly AsyncLock _lock = new AsyncLock();
-        private readonly Dictionary<Identifier, AsyncLazy<IRelationalDatabaseTable>> _tablesCache = new Dictionary<Identifier, AsyncLazy<IRelationalDatabaseTable>>();
+        private readonly AsyncLock _lock = new();
+        private readonly Dictionary<Identifier, AsyncLazy<IRelationalDatabaseTable>> _tablesCache = new();
 
         [Test]
         public async Task GetTable_WhenTablePresent_ReturnsTable()

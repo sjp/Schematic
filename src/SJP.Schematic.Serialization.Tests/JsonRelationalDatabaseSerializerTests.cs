@@ -11,7 +11,7 @@ namespace SJP.Schematic.Serialization.Tests
 {
     internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     {
-        private static readonly Lazy<IMapper> _mapper = new Lazy<IMapper>(() =>
+        private static readonly Lazy<IMapper> _mapper = new(() =>
         {
             var config = new MapperConfiguration(config => config.AddMaps(typeof(Mapping.RelationalDatabaseProfile).Assembly));
             config.AssertConfigurationIsValid();

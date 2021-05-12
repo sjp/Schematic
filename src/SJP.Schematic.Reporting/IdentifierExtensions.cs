@@ -71,10 +71,10 @@ namespace SJP.Schematic.Reporting
             return new string(validChars);
         }
 
-        private static readonly Regex _invalidCharRegex = new Regex(@"[^a-z0-9\s-_.]", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
-        private static readonly Regex _spaceCollapseRegex = new Regex(@"\s+", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
-        private static readonly Regex _whitespaceRegex = new Regex("\\s", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
-        private static readonly Regex _underscorePeriodRegex = new Regex("[_.]", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
+        private static readonly Regex _invalidCharRegex = new(@"[^a-z0-9\s-_.]", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
+        private static readonly Regex _spaceCollapseRegex = new(@"\s+", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
+        private static readonly Regex _whitespaceRegex = new("\\s", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
+        private static readonly Regex _underscorePeriodRegex = new("[_.]", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
 
         private static string RemoveDiacritics(string input)
         {

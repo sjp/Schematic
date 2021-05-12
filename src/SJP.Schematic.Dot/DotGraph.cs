@@ -120,7 +120,7 @@ namespace SJP.Schematic.Dot
             return builder.GetStringAndRelease();
         }
 
-        private static string GetIndentForLevel(uint level) => new string(' ', (int)(level * 2));
+        private static string GetIndentForLevel(uint level) => new(' ', (int)(level * 2));
 
         private readonly Lazy<string> _dotBuilder;
         private static readonly string _fileVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion ?? string.Empty;

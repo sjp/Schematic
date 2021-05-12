@@ -6,7 +6,7 @@ namespace SJP.Schematic.Tool
     {
         public static bool IsConsoleRedirectionCheckSupported => _isConsoleRedirectionCheckSupported.Value;
 
-        private static readonly Lazy<bool> _isConsoleRedirectionCheckSupported = new Lazy<bool>(static () =>
+        private static readonly Lazy<bool> _isConsoleRedirectionCheckSupported = new(static () =>
         {
             try
             {

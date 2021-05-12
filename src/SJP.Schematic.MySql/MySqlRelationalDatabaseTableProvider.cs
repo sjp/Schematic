@@ -63,7 +63,7 @@ namespace SJP.Schematic.MySql
         /// Creates a query cache for a given query context
         /// </summary>
         /// <returns>A query cache.</returns>
-        protected MySqlTableQueryCache CreateQueryCache() => new MySqlTableQueryCache(
+        protected MySqlTableQueryCache CreateQueryCache() => new(
             new AsyncCache<Identifier, Option<Identifier>, MySqlTableQueryCache>((tableName, _, token) => GetResolvedTableName(tableName, token)),
             new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, MySqlTableQueryCache>((tableName, _, token) => LoadColumnsAsync(tableName, token)),
             new AsyncCache<Identifier, Option<IDatabaseKey>, MySqlTableQueryCache>(LoadPrimaryKeyAsync),

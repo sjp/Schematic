@@ -34,7 +34,7 @@ namespace SJP.Schematic.Tests.Utilities
 
         private static bool HasSystemDot => _hasSystemDot.Value;
 
-        private static readonly Lazy<bool> _hasSystemDot = new Lazy<bool>(SystemDotExists);
+        private static readonly Lazy<bool> _hasSystemDot = new(SystemDotExists);
 
         private static bool SystemDotExists()
         {

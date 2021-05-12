@@ -74,7 +74,7 @@ namespace SJP.Schematic.Dot
             return new NodeAttribute("fontname", fontFaceStr);
         }
 
-        public static NodeAttribute EmptyNodeShape() => new NodeAttribute("shape", "none");
+        public static NodeAttribute EmptyNodeShape() => new("shape", "none");
 
         private readonly string _attr;
         private readonly int _hashCode;
