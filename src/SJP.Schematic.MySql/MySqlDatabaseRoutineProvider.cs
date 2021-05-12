@@ -180,15 +180,13 @@ limit 1";
             return LoadDefinitionAsyncCore(routineName, cancellationToken);
         }
 
-        private async Task<string> LoadDefinitionAsyncCore(Identifier routineName, CancellationToken cancellationToken)
+        private Task<string> LoadDefinitionAsyncCore(Identifier routineName, CancellationToken cancellationToken)
         {
-            var result = await DbConnection.ExecuteScalarAsync<GetRoutineDefinitionQueryResult>(
+            return DbConnection.ExecuteScalarAsync<string>(
                 DefinitionQuery,
                 new GetRoutineDefinitionQuery { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
                 cancellationToken
-            ).ConfigureAwait(false);
-
-            return result.Definition;
+            );
         }
 
         /// <summary>
@@ -199,7 +197,7 @@ limit 1";
 
         private static readonly string DefinitionQuerySql = @$"
 select
-    ROUTINE_DEFINITION as `{ nameof(GetRoutineDefinitionQueryResult.Definition) }`
+    ROUTINE_DEFINITION
 from information_schema.routines
 where
     ROUTINE_SCHEMA = @{ nameof(GetRoutineDefinitionQuery.SchemaName) }

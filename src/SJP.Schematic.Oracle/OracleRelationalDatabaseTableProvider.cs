@@ -480,7 +480,7 @@ select
     acc.POSITION as ""{ nameof(GetTableUniqueKeysQueryResult.ColumnPosition) }""
 from SYS.ALL_CONSTRAINTS ac
 inner join SYS.ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
-where ac.OWNER = :{ nameof(GetTableUniqueKeysQuery.SchemaName) } and ac.TABLE_NAME = :{ nameof(GetTableUniqueKeysQuery.SchemaName) } and ac.CONSTRAINT_TYPE = 'U'";
+where ac.OWNER = :{ nameof(GetTableUniqueKeysQuery.SchemaName) } and ac.TABLE_NAME = :{ nameof(GetTableUniqueKeysQuery.TableName) } and ac.CONSTRAINT_TYPE = 'U'";
 
         /// <summary>
         /// Retrieves child keys that relate to the given table.
