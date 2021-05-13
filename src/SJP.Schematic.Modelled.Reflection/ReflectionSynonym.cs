@@ -10,7 +10,7 @@ namespace SJP.Schematic.Modelled.Reflection
         public ReflectionSynonym(IRelationalDatabase database, IDatabaseDialect dialect, Type synonymType)
         {
             if (database == null)
-                throw new ArgumentException(nameof(database));
+                throw new ArgumentNullException(nameof(database));
             if (dialect == null)
                 throw new ArgumentNullException(nameof(dialect));
             if (synonymType == null)

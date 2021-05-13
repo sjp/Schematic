@@ -37,8 +37,8 @@ namespace SJP.Schematic.Graphviz
             if (string.IsNullOrWhiteSpace(dot))
                 throw new ArgumentNullException(nameof(dot));
 
-            var tmpInputFilePath = Path.GetTempFileName();
-            var tmpOutputFilePath = Path.GetTempFileName();
+            var tmpInputFilePath = Path.GetRandomFileName();
+            var tmpOutputFilePath = Path.GetRandomFileName();
 
             File.Delete(tmpInputFilePath);
             File.Delete(tmpOutputFilePath);
@@ -94,8 +94,8 @@ namespace SJP.Schematic.Graphviz
 
         private async Task<string> RenderToSvgAsyncCore(string dot, CancellationToken cancellationToken)
         {
-            var tmpInputFilePath = Path.GetTempFileName();
-            var tmpOutputFilePath = Path.GetTempFileName();
+            var tmpInputFilePath = Path.GetRandomFileName();
+            var tmpOutputFilePath = Path.GetRandomFileName();
 
             File.Delete(tmpInputFilePath);
             File.Delete(tmpOutputFilePath);

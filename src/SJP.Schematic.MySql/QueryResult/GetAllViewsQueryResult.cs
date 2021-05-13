@@ -1,6 +1,5 @@
 ﻿namespace SJP.Schematic.MySql.QueryResult
 {
-
     internal sealed record GetAllViewsQueryResult
     {
         public string SchemaName { get; init; } = default!;

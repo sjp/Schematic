@@ -203,7 +203,7 @@ where OWNER = :{ nameof(GetPackageNameQuery.SchemaName) } and OBJECT_NAME = :{ n
         private async Task<IOracleDatabasePackage> LoadPackageAsyncCore(Identifier packageName, CancellationToken cancellationToken)
         {
             if (string.Equals(packageName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal)) // fast path
-                return await LoadUserPackageAsyncCore(packageName, cancellationToken);
+                return await LoadUserPackageAsyncCore(packageName, cancellationToken).ConfigureAwait(false);
 
             var lines = await Connection.QueryAsync<GetPackageDefinitionQueryResult>(
                 PackageDefinitionQuery,

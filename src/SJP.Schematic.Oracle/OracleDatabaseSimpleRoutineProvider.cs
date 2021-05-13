@@ -214,7 +214,7 @@ where OWNER = :{ nameof(GetRoutineNameQuery.SchemaName) } and OBJECT_NAME = :{ n
         {
             // fast path
             if (string.Equals(routineName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal))
-                return await LoadUserDefinitionAsyncCore(routineName, cancellationToken);
+                return await LoadUserDefinitionAsyncCore(routineName, cancellationToken).ConfigureAwait(false);
 
             var lines = await Connection.QueryAsync<string>(
                 DefinitionQuery,

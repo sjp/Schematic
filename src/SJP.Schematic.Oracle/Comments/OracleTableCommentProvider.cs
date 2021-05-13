@@ -197,7 +197,7 @@ where
         private async Task<IRelationalDatabaseTableComments> LoadTableCommentsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             if (string.Equals(tableName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal)) // fast path
-                return await LoadUserTableCommentsAsyncCore(tableName, cancellationToken);
+                return await LoadUserTableCommentsAsyncCore(tableName, cancellationToken).ConfigureAwait(false);
 
             var result = await Connection.QueryAsync<GetTableCommentsQueryResult>(
                 TableCommentsQuery,

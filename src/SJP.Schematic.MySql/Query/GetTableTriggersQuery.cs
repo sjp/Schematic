@@ -1,6 +1,5 @@
 ﻿namespace SJP.Schematic.MySql.Query
 {
-
     internal sealed record GetTableTriggersQuery
     {
         public string SchemaName { get; init; } = default!;

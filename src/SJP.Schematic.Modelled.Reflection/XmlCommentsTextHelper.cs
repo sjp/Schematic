@@ -29,7 +29,7 @@ namespace SJP.Schematic.Modelled.Reflection
                 var line = lines[i].TrimEnd('\r'); // remove trailing '\r'
 
                 if (padLen != 0 && line.Length >= padLen && string.Equals(line.Substring(0, padLen), padding, StringComparison.Ordinal))
-                    line = line.Substring(padLen);
+                    line = line[padLen..];
 
                 lines[i] = line;
             }

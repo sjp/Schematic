@@ -174,7 +174,7 @@ where v.OWNER = :{ nameof(GetViewNameQuery.SchemaName) } and v.VIEW_NAME = :{ na
         private async Task<IDatabaseViewComments> LoadViewCommentsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
         {
             if (string.Equals(viewName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal)) // fast path
-                return await LoadUserViewCommentsAsyncCore(viewName, cancellationToken);
+                return await LoadUserViewCommentsAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
 
             var result = await Connection.QueryAsync<GetViewCommentsQueryResult>(
                 ViewCommentsQuery,
