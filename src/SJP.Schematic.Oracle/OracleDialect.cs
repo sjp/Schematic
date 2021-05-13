@@ -8,7 +8,6 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Oracle.Comments;
-using SJP.Schematic.Oracle.Query;
 using SJP.Schematic.Oracle.QueryResult;
 
 namespace SJP.Schematic.Oracle

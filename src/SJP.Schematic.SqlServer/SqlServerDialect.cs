@@ -7,7 +7,6 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.SqlServer.Comments;
-using SJP.Schematic.SqlServer.Query;
 using SJP.Schematic.SqlServer.QueryResult;
 
 namespace SJP.Schematic.SqlServer

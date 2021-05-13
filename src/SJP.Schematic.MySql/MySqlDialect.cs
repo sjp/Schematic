@@ -8,7 +8,6 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.MySql.Comments;
-using SJP.Schematic.MySql.Query;
 using SJP.Schematic.MySql.QueryResult;
 
 namespace SJP.Schematic.MySql

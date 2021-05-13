@@ -1,6 +1,4 @@
-﻿using SJP.Schematic.Core;
-
-namespace SJP.Schematic.MySql.QueryResult
+﻿namespace SJP.Schematic.MySql.QueryResult
 {
 
     internal sealed record GetAllViewsQueryResult
