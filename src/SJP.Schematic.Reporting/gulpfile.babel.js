@@ -3,7 +3,7 @@
 import { src, dest, parallel } from 'gulp';
 import gzip from 'gulp-gzip';
 import newer from 'gulp-newer';
-import uglify from 'gulp-uglify';
+import terser from 'gulp-terser';
 import concat from 'gulp-concat';
 import cssnano from 'gulp-cssnano';
 import postcss from 'gulp-postcss';
@@ -105,7 +105,7 @@ const scriptsProd = () => {
         ])
         .pipe(newer('assets/js/reporting-app.js'))
         .pipe(concat('reporting-app.js'))
-        .pipe(uglify())
+        .pipe(terser())
         .pipe(gzip({ append: true, gzipOptions: { level: 9 } }))
         .pipe(dest('assets/js'));
 }
