@@ -7,7 +7,7 @@
         <TreatSpecificWarningsAsErrors />
         <Features>strict</Features>
         <AnalysisLevel>latest</AnalysisLevel>
-        <Copyright>Copyright © Simon Potter 2020</Copyright>
+        <Copyright>Copyright © Simon Potter 2021</Copyright>
         <RepositoryUrl>https://github.com/sjp/Schematic.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <NeutralLanguage>en-US</NeutralLanguage>
@@ -20,12 +20,6 @@
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
-
-    <!-- disable sourcelink for now -->
-    <!--<PropertyGroup Condition="'$(Configuration)' == 'Release'">
-        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-        <Deterministic>true</Deterministic>
-    </PropertyGroup>-->
 
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
