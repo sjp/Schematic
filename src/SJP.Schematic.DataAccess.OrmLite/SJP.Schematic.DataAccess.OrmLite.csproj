@@ -4,7 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <Description>Library for generating ServiceStack OrmLite data access projects</Description>
     <Nullable>enable</Nullable>
-  <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
