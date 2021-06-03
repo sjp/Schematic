@@ -107,7 +107,7 @@ The helpful database schema querying tool.
 
             context.Console.ResetTerminalForegroundColor();
 
-            context.ResultCode = 1;
+            context.ExitCode = 1;
         }
     }
 }

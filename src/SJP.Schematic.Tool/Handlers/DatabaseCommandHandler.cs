@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.DataAccess;
+using SJP.Schematic.Tool.Commands;
 
 namespace SJP.Schematic.Tool.Handlers
 {
@@ -81,16 +82,15 @@ namespace SJP.Schematic.Tool.Handlers
             return connectionString;
         }
 
-        protected static INameTranslator GetNameTranslator(string translator)
+        protected static INameTranslator GetNameTranslator(NamingConvention convention)
         {
-            translator = translator.ToLowerInvariant();
-            return translator switch
+            return convention switch
             {
-                "verbatim" => new VerbatimNameTranslator(),
-                "pascal" => new PascalCaseNameTranslator(),
-                "camel" => new CamelCaseNameTranslator(),
-                "snake" => new SnakeCaseNameTranslator(),
-                _ => throw new NotSupportedException($"The given naming convention is not supported {translator}, expected one of: ..."),
+                NamingConvention.Verbatim => new VerbatimNameTranslator(),
+                NamingConvention.Pascal => new PascalCaseNameTranslator(),
+                NamingConvention.Camel => new CamelCaseNameTranslator(),
+                NamingConvention.Snake => new SnakeCaseNameTranslator(),
+                _ => throw new NotSupportedException($"The given naming convention is not supported {convention}, expected one of: ..."),
             };
         }
     }

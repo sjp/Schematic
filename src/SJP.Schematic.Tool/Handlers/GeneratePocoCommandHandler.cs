@@ -4,6 +4,7 @@ using System.IO.Abstractions;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.DataAccess.Poco;
+using SJP.Schematic.Tool.Commands;
 
 namespace SJP.Schematic.Tool.Handlers
 {
@@ -14,7 +15,7 @@ namespace SJP.Schematic.Tool.Handlers
         {
         }
 
-        public async Task<int> HandleCommandAsync(IConsole console, FileInfo projectPath, string baseNamespace, string convention, CancellationToken cancellationToken)
+        public async Task<int> HandleCommandAsync(IConsole console, FileInfo projectPath, string baseNamespace, NamingConvention convention, CancellationToken cancellationToken)
         {
             var fileSystem = new FileSystem();
             var nameTranslator = GetNameTranslator(convention);

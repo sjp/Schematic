@@ -11,13 +11,11 @@ namespace SJP.Schematic.Tool.Commands
         public GenerateOrmLiteCommand()
             : base("ormlite", "Generate a C# project for use with ServiceStack OrmLite.")
         {
-            var namingConventionArg = new Argument { Arity = ArgumentArity.ExactlyOne }
-                .FromAmong("verbatim", "pascal", "camel", "snake");
-            namingConventionArg.SetDefaultValue("pascal");
-            var namingOption = new Option("--convention", "The naming convention to use. Defaults to 'pascal'.")
-            {
-                Argument = namingConventionArg
-            };
+            var namingOption = new Option<NamingConvention>(
+                "--convention",
+                () => NamingConvention.Pascal,
+                "The naming convention to use."
+            );
             AddOption(namingOption);
 
             var projectPathOption = new Option<FileInfo>(
@@ -38,7 +36,7 @@ namespace SJP.Schematic.Tool.Commands
             };
             AddOption(baseNamespaceOption);
 
-            Handler = CommandHandler.Create<IConsole, FileInfo, string, FileInfo, string, CancellationToken>(static (console, config, convention, projectPath, baseNamespace, cancellationToken) =>
+            Handler = CommandHandler.Create<IConsole, FileInfo, NamingConvention, FileInfo, string, CancellationToken>(static (console, config, convention, projectPath, baseNamespace, cancellationToken) =>
             {
                 var handler = new GenerateOrmLiteCommandHandler(config);
                 return handler.HandleCommandAsync(console, projectPath, baseNamespace, convention, cancellationToken);
