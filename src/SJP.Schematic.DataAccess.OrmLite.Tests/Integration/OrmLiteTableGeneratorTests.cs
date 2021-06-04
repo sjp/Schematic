@@ -205,7 +205,7 @@ namespace OrmLiteTestNamespace.Main
     /// </summary>
     [Schema(""main"")]
     [Alias(""test_table_1"")]
-    public class TestTable1
+    public sealed record TestTable1
     {
         /// <summary>
         /// The <c>test_pk</c> column.
@@ -281,7 +281,7 @@ namespace OrmLiteTestNamespace.Main
     [UniqueConstraint(nameof(FirstName), nameof(MiddleName), nameof(LastName))]
     [CompositeIndex(true, nameof(FirstName), nameof(MiddleName))]
     [CompositeIndex(nameof(FirstName), nameof(LastName))]
-    public class TestTable2
+    public sealed record TestTable2
     {
         /// <summary>
         /// The <c>test_pk_1</c> column.
@@ -337,7 +337,7 @@ namespace OrmLiteTestNamespace.Main
     /// </summary>
     [Schema(""main"")]
     [Alias(""test_table_4"")]
-    public class TestTable4
+    public sealed record TestTable4
     {
         /// <summary>
         /// The <c>test_pk</c> column.
@@ -438,7 +438,7 @@ namespace OrmLiteTestNamespace.Main
     /// </summary>
     [Schema(""main"")]
     [Alias(""test_table_5"")]
-    public class TestTable5
+    public sealed record TestTable5
     {
         /// <summary>
         /// This is a test column comment for OrmLite
@@ -459,7 +459,7 @@ namespace OrmLiteTestNamespace.Main
     /// </summary>
     [Schema(""main"")]
     [Alias(""test_table_5"")]
-    public class TestTable5
+    public sealed record TestTable5
     {
         /// <summary>
         /// <para>This is a test column comment for OrmLite.</para>

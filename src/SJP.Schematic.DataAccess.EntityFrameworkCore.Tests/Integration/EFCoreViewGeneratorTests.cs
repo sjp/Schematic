@@ -112,7 +112,7 @@ namespace EFCoreTestNamespace.Main
     /// <summary>
     /// A mapping class to query the <c>test_view_1</c> view.
     /// </summary>
-    public class TestView1
+    public record TestView1
     {
         /// <summary>
         /// The <c>test_pk</c> column.
@@ -179,7 +179,7 @@ namespace EFCoreTestNamespace.Main
     /// <summary>
     /// This is a test view comment for EF Core
     /// </summary>
-    public class TestView1
+    public record TestView1
     {
         /// <summary>
         /// The <c>test_pk</c> column.
@@ -247,7 +247,7 @@ namespace EFCoreTestNamespace.Main
     /// <para>This is a test view comment for EF Core.</para>
     /// <para>This is a second line for it.</para>
     /// </summary>
-    public class TestView1
+    public record TestView1
     {
         /// <summary>
         /// The <c>test_pk</c> column.

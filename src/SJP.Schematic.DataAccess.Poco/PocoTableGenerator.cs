@@ -91,7 +91,7 @@ namespace SJP.Schematic.DataAccess.Poco
             return Formatter.Format(document, workspace).ToFullString();
         }
 
-        private ClassDeclarationSyntax BuildClass(IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
+        private RecordDeclarationSyntax BuildClass(IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
         {
             if (table == null)
                 throw new ArgumentNullException(nameof(table));
@@ -101,10 +101,12 @@ namespace SJP.Schematic.DataAccess.Poco
                 .Select(c => BuildColumn(c, comment, className))
                 .ToList();
 
-            return ClassDeclaration(className)
-                .AddModifiers(Token(SyntaxKind.PublicKeyword))
+            return RecordDeclaration(Token(SyntaxKind.RecordKeyword), className)
+                .AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.SealedKeyword))
                 .WithLeadingTrivia(BuildTableComment(table.Name, comment))
-                .WithMembers(List<MemberDeclarationSyntax>(properties));
+                .WithOpenBraceToken(Token(SyntaxKind.OpenBraceToken))
+                .WithMembers(List<MemberDeclarationSyntax>(properties))
+                .WithCloseBraceToken(Token(SyntaxKind.CloseBraceToken));
         }
 
         private PropertyDeclarationSyntax BuildColumn(IDatabaseColumn column, Option<IRelationalDatabaseTableComments> comment, string className)

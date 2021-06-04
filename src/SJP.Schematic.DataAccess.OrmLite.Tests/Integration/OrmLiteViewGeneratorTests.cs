@@ -130,7 +130,7 @@ namespace OrmLiteTestNamespace.Main
     /// </summary>
     [Schema(""main"")]
     [Alias(""test_view_1"")]
-    public class TestView1
+    public sealed record TestView1
     {
         /// <summary>
         /// The <c>testint</c> column.
@@ -174,7 +174,7 @@ namespace OrmLiteTestNamespace.Main
     /// </summary>
     [Schema(""main"")]
     [Alias(""test_view_2"")]
-    public class TestView2
+    public sealed record TestView2
     {
         /// <summary>
         /// The <c>testint</c> column.
@@ -218,7 +218,7 @@ namespace OrmLiteTestNamespace.Main
     /// </summary>
     [Schema(""main"")]
     [Alias(""test_view_3"")]
-    public class TestView3
+    public sealed record TestView3
     {
         /// <summary>
         /// This is a test column comment for OrmLite
@@ -239,7 +239,7 @@ namespace OrmLiteTestNamespace.Main
     /// </summary>
     [Schema(""main"")]
     [Alias(""test_view_3"")]
-    public class TestView3
+    public sealed record TestView3
     {
         /// <summary>
         /// <para>This is a test column comment for OrmLite.</para>

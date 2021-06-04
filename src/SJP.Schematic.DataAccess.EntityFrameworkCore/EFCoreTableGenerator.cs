@@ -117,7 +117,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             return Formatter.Format(document, workspace).ToFullString();
         }
 
-        private ClassDeclarationSyntax BuildClass(IEnumerable<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
+        private RecordDeclarationSyntax BuildClass(IEnumerable<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
         {
             if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
@@ -147,11 +147,13 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             });
             var properties = columnProperties.Concat(parentKeyProperties).Concat(childKeyProperties);
 
-            return ClassDeclaration(className)
-                .AddModifiers(Token(SyntaxKind.PublicKeyword))
+            return RecordDeclaration(Token(SyntaxKind.RecordKeyword), className)
                 .AddAttributeLists(BuildClassAttributes(table, className).ToArray())
+                .AddModifiers(Token(SyntaxKind.PublicKeyword))
                 .WithLeadingTrivia(BuildTableComment(table.Name, comment))
-                .WithMembers(List<MemberDeclarationSyntax>(properties));
+                .WithOpenBraceToken(Token(SyntaxKind.OpenBraceToken))
+                .WithMembers(List<MemberDeclarationSyntax>(properties))
+                .WithCloseBraceToken(Token(SyntaxKind.CloseBraceToken));
         }
 
         private PropertyDeclarationSyntax BuildColumn(IDatabaseColumn column, Option<IRelationalDatabaseTableComments> comment, string className)

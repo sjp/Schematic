@@ -97,7 +97,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
             return Formatter.Format(document, workspace).ToFullString();
         }
 
-        private ClassDeclarationSyntax BuildClass(IDatabaseView view, Option<IDatabaseViewComments> comment)
+        private RecordDeclarationSyntax BuildClass(IDatabaseView view, Option<IDatabaseViewComments> comment)
         {
             if (view == null)
                 throw new ArgumentNullException(nameof(view));
@@ -107,10 +107,12 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                 .Select(vc => BuildColumn(vc, comment, className))
                 .ToList();
 
-            return ClassDeclaration(className)
+            return RecordDeclaration(Token(SyntaxKind.RecordKeyword), className)
                 .AddModifiers(Token(SyntaxKind.PublicKeyword))
                 .WithLeadingTrivia(BuildViewComment(view.Name, comment))
-                .WithMembers(List<MemberDeclarationSyntax>(properties));
+                .WithOpenBraceToken(Token(SyntaxKind.OpenBraceToken))
+                .WithMembers(List<MemberDeclarationSyntax>(properties))
+                .WithCloseBraceToken(Token(SyntaxKind.CloseBraceToken));
         }
 
         private PropertyDeclarationSyntax BuildColumn(IDatabaseColumn column, Option<IDatabaseViewComments> comment, string className)

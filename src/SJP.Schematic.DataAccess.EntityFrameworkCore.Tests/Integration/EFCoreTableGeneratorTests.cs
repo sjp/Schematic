@@ -316,7 +316,7 @@ namespace EFCoreTestNamespace.Main
     /// A mapping class to query the <c>test_table_1</c> table.
     /// </summary>
     [Table(""test_table_1"", Schema = ""main"")]
-    public class TestTable1
+    public record TestTable1
     {
         /// <summary>
         /// The <c>test_pk</c> column.
@@ -387,7 +387,7 @@ namespace EFCoreTestNamespace.Main
     /// A mapping class to query the <c>test_table_2</c> table.
     /// </summary>
     [Table(""test_table_2"", Schema = ""main"")]
-    public class TestTable2
+    public record TestTable2
     {
         /// <summary>
         /// The <c>test_pk_1</c> column.
@@ -441,7 +441,7 @@ namespace EFCoreTestNamespace.Main
     /// A mapping class to query the <c>test_table_3</c> table.
     /// </summary>
     [Table(""test_table_3"", Schema = ""main"")]
-    public class TestTable3
+    public record TestTable3
     {
         /// <summary>
         /// The <c>test_pk</c> column.
@@ -532,7 +532,7 @@ namespace EFCoreTestNamespace.Main
     /// A mapping class to query the <c>test_table_4</c> table.
     /// </summary>
     [Table(""test_table_4"", Schema = ""main"")]
-    public class TestTable4
+    public record TestTable4
     {
         /// <summary>
         /// The <c>test_pk</c> column.
@@ -647,7 +647,7 @@ namespace EFCoreTestNamespace.Main
     /// This is a test table comment for EF Core
     /// </summary>
     [Table(""test_table_5"", Schema = ""main"")]
-    public class TestTable5
+    public record TestTable5
     {
         /// <summary>
         /// This is a test column comment for EF Core
@@ -669,7 +669,7 @@ namespace EFCoreTestNamespace.Main
     /// <para>This is a second line for it.</para>
     /// </summary>
     [Table(""test_table_5"", Schema = ""main"")]
-    public class TestTable5
+    public record TestTable5
     {
         /// <summary>
         /// <para>This is a test column comment for EF Core.</para>
@@ -691,7 +691,7 @@ namespace EFCoreTestNamespace.Main
     /// A mapping class to query the <c>test_table_6</c> table.
     /// </summary>
     [Table(""test_table_6"", Schema = ""main"")]
-    public class TestTable6
+    public record TestTable6
     {
         /// <summary>
         /// The <c>test_pk</c> column.
@@ -734,7 +734,7 @@ namespace EFCoreTestNamespace.Main
     /// This is a test table comment for EF Core
     /// </summary>
     [Table(""test_table_7"", Schema = ""main"")]
-    public class TestTable7
+    public record TestTable7
     {
         /// <summary>
         /// The <c>test_pk</c> column.
@@ -768,7 +768,7 @@ namespace EFCoreTestNamespace.Main
     /// <para>This is a second line for it.</para>
     /// </summary>
     [Table(""test_table_7"", Schema = ""main"")]
-    public class TestTable7
+    public record TestTable7
     {
         /// <summary>
         /// The <c>test_pk</c> column.

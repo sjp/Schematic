@@ -93,7 +93,7 @@ namespace SJP.Schematic.DataAccess.OrmLite
             return Formatter.Format(document, workspace).ToFullString();
         }
 
-        private ClassDeclarationSyntax BuildClass(IEnumerable<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
+        private RecordDeclarationSyntax BuildClass(IEnumerable<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
         {
             if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
@@ -101,15 +101,17 @@ namespace SJP.Schematic.DataAccess.OrmLite
                 throw new ArgumentNullException(nameof(table));
 
             var className = NameTranslator.TableToClassName(table.Name);
-            var columnProperties = table.Columns
+            var properties = table.Columns
                 .Select(c => BuildColumn(table, c, comment, className))
                 .ToList();
 
-            return ClassDeclaration(className)
-                .AddModifiers(Token(SyntaxKind.PublicKeyword))
+            return RecordDeclaration(Token(SyntaxKind.RecordKeyword), className)
                 .AddAttributeLists(BuildClassAttributes(table, className).ToArray())
+                .AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.SealedKeyword))
                 .WithLeadingTrivia(BuildTableComment(table.Name, comment))
-                .WithMembers(List<MemberDeclarationSyntax>(columnProperties));
+                .WithOpenBraceToken(Token(SyntaxKind.OpenBraceToken))
+                .WithMembers(List<MemberDeclarationSyntax>(properties))
+                .WithCloseBraceToken(Token(SyntaxKind.CloseBraceToken));
         }
 
         private PropertyDeclarationSyntax BuildColumn(IRelationalDatabaseTable table, IDatabaseColumn column, Option<IRelationalDatabaseTableComments> comment, string className)

@@ -120,7 +120,7 @@ namespace PocoTestNamespace.Main
     /// <summary>
     /// A mapping class to query the <c>test_table_1</c> table.
     /// </summary>
-    public class TestTable1
+    public sealed record TestTable1
     {
         /// <summary>
         /// The <c>testint</c> column.
@@ -156,7 +156,7 @@ namespace PocoTestNamespace.Main
     /// <summary>
     /// This is a test table comment for Poco
     /// </summary>
-    public class TestTable2
+    public sealed record TestTable2
     {
         /// <summary>
         /// This is a test column comment for Poco
@@ -173,7 +173,7 @@ namespace PocoTestNamespace.Main
     /// <para>This is a test table comment for Poco.</para>
     /// <para>This is a second line for it.</para>
     /// </summary>
-    public class TestTable2
+    public sealed record TestTable2
     {
         /// <summary>
         /// <para>This is a test column comment for Poco.</para>

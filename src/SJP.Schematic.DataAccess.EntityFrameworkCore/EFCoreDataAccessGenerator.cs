@@ -167,7 +167,10 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                     new XElement("TargetFramework", "netstandard2.1"),
                     new XElement("CheckForOverflowUnderflow", true),
                     new XElement("TreatWarningsAsErrors", true),
-                    new XElement("Nullable", "enable")
+                    new XElement("Nullable", "enable"),
+                    new XElement("LangVersion", "latest"),
+                    new XElement("Features", "strict"),
+                    new XElement("AnalysisLevel", "latest")
                 ),
                 new XElement(
                     "ItemGroup",

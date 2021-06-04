@@ -127,7 +127,7 @@ namespace PocoTestNamespace.Main
     /// <summary>
     /// A mapping class to query the <c>test_view_1</c> view.
     /// </summary>
-    public class TestView1
+    public sealed record TestView1
     {
         /// <summary>
         /// The <c>testint</c> column.
@@ -163,7 +163,7 @@ namespace PocoTestNamespace.Main
     /// <summary>
     /// A mapping class to query the <c>test_view_2</c> view.
     /// </summary>
-    public class TestView2
+    public sealed record TestView2
     {
         /// <summary>
         /// The <c>testint</c> column.
@@ -199,7 +199,7 @@ namespace PocoTestNamespace.Main
     /// <summary>
     /// This is a test view comment for Poco
     /// </summary>
-    public class TestView3
+    public sealed record TestView3
     {
         /// <summary>
         /// This is a test column comment for Poco
@@ -216,7 +216,7 @@ namespace PocoTestNamespace.Main
     /// <para>This is a test view comment for Poco.</para>
     /// <para>This is a second line for it.</para>
     /// </summary>
-    public class TestView3
+    public sealed record TestView3
     {
         /// <summary>
         /// <para>This is a test column comment for Poco.</para>
