@@ -1,7 +1,7 @@
-#tool nuget:?package=Codecov&version=1.12.0
-#addin nuget:?package=Cake.Codecov&version=0.8.0
-#tool nuget:?package=docfx.console&version=2.55.0
-#addin nuget:?package=Cake.DocFx&version=0.13.1
+#tool nuget:?package=Codecov&version=1.13.0
+#addin nuget:?package=Cake.Codecov&version=1.0.1
+#tool nuget:?package=docfx.console&version=2.57.2
+#addin nuget:?package=Cake.DocFx&version=1.0.0
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS
