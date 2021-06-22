@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SJP.Schematic.Lint\SJP.Schematic.Lint.csproj" />
-    <ProjectReference Include="..\SJP.Schematic.Sqlite\SJP.Schematic.Sqlite.csproj" />
     <ProjectReference Include="..\SJP.Schematic.Tests.Utilities\SJP.Schematic.Tests.Utilities.csproj" />
   </ItemGroup>
 

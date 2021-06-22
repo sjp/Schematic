@@ -17,7 +17,6 @@
   <ItemGroup>
     <ProjectReference Include="..\SJP.Schematic.Core\SJP.Schematic.Core.csproj" />
     <ProjectReference Include="..\SJP.Schematic.Modelled.Reflection\SJP.Schematic.Modelled.Reflection.csproj" />
-    <ProjectReference Include="..\SJP.Schematic.Modelled\SJP.Schematic.Modelled.csproj" />
   </ItemGroup>
 
 </Project>

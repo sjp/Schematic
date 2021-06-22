@@ -8,17 +8,12 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="3.0.3" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Xml" Version="5.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
-    <PackageReference Include="Moq" Version="4.16.1" />
     <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
-    <PackageReference Include="System.Data.Common" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SJP.Schematic.Core\SJP.Schematic.Core.csproj" />
     <ProjectReference Include="..\SJP.Schematic.Tool\SJP.Schematic.Tool.csproj" />
   </ItemGroup>
 
