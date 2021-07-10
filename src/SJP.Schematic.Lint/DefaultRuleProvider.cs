@@ -37,6 +37,7 @@ namespace SJP.Schematic.Lint
                 new ForeignKeyIsPrimaryKeyRule(level),
                 new ForeignKeyMissingRule(level),
                 new ForeignKeyRelationshipCycleRule(level),
+                new ForeignKeySelfReferenceRule(connection, level),
                 new InvalidViewDefinitionRule(connection, level),
                 new NoIndexesPresentOnTableRule(level),
                 new NoNonNullableColumnsPresentRule(level),
