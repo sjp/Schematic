@@ -212,7 +212,7 @@ namespace SJP.Schematic.Lint.Rules
         {
             var quotedTableName = Dialect.QuoteName(Identifier.CreateQualifiedIdentifier(tableName.Schema, tableName.LocalName));
             var quotedColumnName = Dialect.QuoteIdentifier(columnName.LocalName);
-            var filterSql = $"select * from { quotedTableName } where { quotedColumnName } is not null";
+            var filterSql = $"select 1 as exists_val from { quotedTableName } where { quotedColumnName } is not null";
             var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy";
 
             var suffix = await _fromQuerySuffixAsync.ConfigureAwait(false);
