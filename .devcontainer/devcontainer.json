@@ -1,0 +1,16 @@
+{
+	"name": "Schematic Development",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"args": { 
+			"VARIANT": "5.0",
+			"INSTALL_NODE": "false",
+			"NODE_VERSION": "lts/*"
+		}
+	},
+	"settings": { },
+	"extensions": [
+		"ms-dotnettools.csharp"
+	],
+	"remoteUser": "vscode"
+}
