@@ -1,11 +1,14 @@
-﻿using System.Threading;
+﻿using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization
 {
-    public interface IRelationalDatabaseSerializer : ISerializer<IRelationalDatabase, string>
+    public interface IRelationalDatabaseSerializer
     {
-        Task<IRelationalDatabase> DeserializeAsync(string input, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken = default);
+        Task SerializeAsync(Stream stream, IRelationalDatabase database, CancellationToken cancellationToken = default);
+
+        Task<IRelationalDatabase> DeserializeAsync(Stream stream, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken = default);
     }
 }

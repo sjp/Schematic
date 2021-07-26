@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -18,39 +19,20 @@ namespace SJP.Schematic.Serialization
 
         protected IMapper Mapper { get; }
 
-        public Task<IRelationalDatabase> DeserializeAsync(string input, CancellationToken cancellationToken = default)
-            => DeserializeAsync(input, new VerbatimIdentifierResolutionStrategy(), cancellationToken);
-
-        // TODO: update this so that it deserialises in async way
-        public Task<IRelationalDatabase> DeserializeAsync(string input, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken = default)
+        public async Task SerializeAsync(Stream stream, IRelationalDatabase database, CancellationToken cancellationToken = default)
         {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-            if (identifierResolver == null)
-                throw new ArgumentNullException(nameof(identifierResolver));
+            var dto = await Mapper.ToDtoAsync(database, cancellationToken).ConfigureAwait(false);
+            await JsonSerializer.SerializeAsync(stream, dto, _settings.Value, cancellationToken).ConfigureAwait(false);
+        }
 
-            var dto = JsonSerializer.Deserialize<Dto.RelationalDatabase>(input, _settings.Value);
+        public async Task<IRelationalDatabase> DeserializeAsync(Stream stream, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken = default)
+        {
+            var dto = await JsonSerializer.DeserializeAsync<Dto.RelationalDatabase>(stream, _settings.Value, cancellationToken);
             if (dto == null)
                 throw new InvalidOperationException("Unable to parse the given JSON as a database definition.");
 
             dto.IdentifierResolver = identifierResolver;
-            var db = Mapper.Map<Dto.RelationalDatabase, RelationalDatabase>(dto);
-
-            return Task.FromResult<IRelationalDatabase>(db);
-        }
-
-        public Task<string> SerializeAsync(IRelationalDatabase obj, CancellationToken cancellationToken = default)
-        {
-            if (obj == null)
-                throw new ArgumentNullException(nameof(obj));
-
-            return SerializeAsyncCore(obj, cancellationToken);
-        }
-
-        private async Task<string> SerializeAsyncCore(IRelationalDatabase obj, CancellationToken cancellationToken)
-        {
-            var dto = await Mapper.ToDtoAsync(obj, cancellationToken).ConfigureAwait(false);
-            return JsonSerializer.Serialize(dto, _settings.Value);
+            return Mapper.Map<Dto.RelationalDatabase, RelationalDatabase>(dto);
         }
 
         private static readonly Lazy<JsonSerializerOptions> _settings = new(LoadSettings);

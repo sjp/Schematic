@@ -159,10 +159,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
             public Uri TargetUri { get; }
 
-            public override string ToString()
-            {
-                return string.Empty;
-            }
+            public override string ToString() => string.Empty;
         }
     }
 }

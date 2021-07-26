@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using FluentAssertions;
@@ -27,7 +29,9 @@ namespace SJP.Schematic.Serialization.Tests
         public async Task Serialize_WhenInvoked_ExportsWithoutError()
         {
             var db = GetDatabase();
-            var json = await Serializer.SerializeAsync(db).ConfigureAwait(false);
+            using var jsonOutputStream = new MemoryStream();
+            await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
+            var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
 
             Assert.Multiple(() =>
             {
@@ -41,8 +45,11 @@ namespace SJP.Schematic.Serialization.Tests
         {
             var db = new EmptyRelationalDatabase(new IdentifierDefaults(null, null, "main"));
 
-            var json = await Serializer.SerializeAsync(db).ConfigureAwait(false);
-            var importedDb = await Serializer.DeserializeAsync(json).ConfigureAwait(false);
+            using var jsonOutputStream = new MemoryStream();
+            await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
+
+            jsonOutputStream.Seek(0, SeekOrigin.Begin);
+            var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
 
             db.Should().BeEquivalentTo(importedDb);
         }
@@ -52,9 +59,16 @@ namespace SJP.Schematic.Serialization.Tests
         {
             var db = new EmptyRelationalDatabase(new IdentifierDefaults(null, null, "main"));
 
-            var json = await Serializer.SerializeAsync(db).ConfigureAwait(false);
-            var importedDb = await Serializer.DeserializeAsync(json).ConfigureAwait(false);
-            var reExportedJson = await Serializer.SerializeAsync(importedDb).ConfigureAwait(false);
+            using var jsonOutputStream = new MemoryStream();
+            await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
+            var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+            jsonOutputStream.Seek(0, SeekOrigin.Begin);
+            var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
+
+            using var jsonOutputStream2 = new MemoryStream();
+            await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
+            var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
 
             Assert.Multiple(() =>
             {
@@ -68,8 +82,12 @@ namespace SJP.Schematic.Serialization.Tests
         public async Task SerializeDeserialize_WhenRoundTripped_ExportsAndParsesWithoutError()
         {
             var db = GetDatabase();
-            var json = await Serializer.SerializeAsync(db).ConfigureAwait(false);
-            var importedDb = await Serializer.DeserializeAsync(json).ConfigureAwait(false);
+
+            using var jsonOutputStream = new MemoryStream();
+            await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
+
+            jsonOutputStream.Seek(0, SeekOrigin.Begin);
+            var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
 
             db.Should().BeEquivalentTo(importedDb);
         }
@@ -78,9 +96,17 @@ namespace SJP.Schematic.Serialization.Tests
         public async Task SerializeDeserialize_WhenRoundTripped_PreservesJsonStructure()
         {
             var db = GetDatabase();
-            var json = await Serializer.SerializeAsync(db).ConfigureAwait(false);
-            var importedDb = await Serializer.DeserializeAsync(json).ConfigureAwait(false);
-            var reExportedJson = await Serializer.SerializeAsync(importedDb).ConfigureAwait(false);
+
+            using var jsonOutputStream = new MemoryStream();
+            await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
+            var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+            jsonOutputStream.Seek(0, SeekOrigin.Begin);
+            var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
+
+            using var jsonOutputStream2 = new MemoryStream();
+            await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
+            var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
 
             Assert.Multiple(() =>
             {
@@ -120,8 +146,11 @@ namespace SJP.Schematic.Serialization.Tests
                 routines
             );
 
-            var json = await Serializer.SerializeAsync(db).ConfigureAwait(false);
-            var importedDb = await Serializer.DeserializeAsync(json).ConfigureAwait(false);
+            using var jsonOutputStream = new MemoryStream();
+            await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
+
+            jsonOutputStream.Seek(0, SeekOrigin.Begin);
+            var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
 
             db.Should().BeEquivalentTo(importedDb);
         }
@@ -154,9 +183,17 @@ namespace SJP.Schematic.Serialization.Tests
                 synonyms,
                 routines
             );
-            var json = await Serializer.SerializeAsync(db).ConfigureAwait(false);
-            var importedDb = await Serializer.DeserializeAsync(json).ConfigureAwait(false);
-            var reExportedJson = await Serializer.SerializeAsync(importedDb).ConfigureAwait(false);
+
+            using var jsonOutputStream = new MemoryStream();
+            await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
+            var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+            jsonOutputStream.Seek(0, SeekOrigin.Begin);
+            var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
+
+            using var jsonOutputStream2 = new MemoryStream();
+            await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
+            var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
 
             Assert.Multiple(() =>
             {
@@ -187,8 +224,11 @@ namespace SJP.Schematic.Serialization.Tests
                 routines
             );
 
-            var json = await Serializer.SerializeAsync(db).ConfigureAwait(false);
-            var importedDb = await Serializer.DeserializeAsync(json).ConfigureAwait(false);
+            using var jsonOutputStream = new MemoryStream();
+            await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
+
+            jsonOutputStream.Seek(0, SeekOrigin.Begin);
+            var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
 
             db.Should().BeEquivalentTo(importedDb);
         }
@@ -213,9 +253,17 @@ namespace SJP.Schematic.Serialization.Tests
                 synonyms,
                 routines
             );
-            var json = await Serializer.SerializeAsync(db).ConfigureAwait(false);
-            var importedDb = await Serializer.DeserializeAsync(json).ConfigureAwait(false);
-            var reExportedJson = await Serializer.SerializeAsync(importedDb).ConfigureAwait(false);
+
+            using var jsonOutputStream = new MemoryStream();
+            await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
+            var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+            jsonOutputStream.Seek(0, SeekOrigin.Begin);
+            var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
+
+            using var jsonOutputStream2 = new MemoryStream();
+            await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
+            var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
 
             Assert.Multiple(() =>
             {
@@ -246,8 +294,11 @@ namespace SJP.Schematic.Serialization.Tests
                 routines
             );
 
-            var json = await Serializer.SerializeAsync(db).ConfigureAwait(false);
-            var importedDb = await Serializer.DeserializeAsync(json).ConfigureAwait(false);
+            using var jsonOutputStream = new MemoryStream();
+            await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
+
+            jsonOutputStream.Seek(0, SeekOrigin.Begin);
+            var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
 
             db.Should().BeEquivalentTo(importedDb);
         }
@@ -272,9 +323,17 @@ namespace SJP.Schematic.Serialization.Tests
                 synonyms,
                 routines
             );
-            var json = await Serializer.SerializeAsync(db).ConfigureAwait(false);
-            var importedDb = await Serializer.DeserializeAsync(json).ConfigureAwait(false);
-            var reExportedJson = await Serializer.SerializeAsync(importedDb).ConfigureAwait(false);
+
+            using var jsonOutputStream = new MemoryStream();
+            await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
+            var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+            jsonOutputStream.Seek(0, SeekOrigin.Begin);
+            var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
+
+            using var jsonOutputStream2 = new MemoryStream();
+            await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
+            var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
 
             Assert.Multiple(() =>
             {
