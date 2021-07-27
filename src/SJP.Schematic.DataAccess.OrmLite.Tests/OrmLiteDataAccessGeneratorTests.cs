@@ -13,10 +13,12 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
     {
         private const string TestCsprojFileName = "DataAccessGeneratorTest.csproj";
 
+        private static IIdentifierDefaults IdentifierDefaults => new IdentifierDefaults("a", "b", "c");
+
         [Test]
         public static void Ctor_GivenNullFileSystem_ThrowsArgumentNullException()
         {
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
             var database = Mock.Of<IRelationalDatabase>();
             var nameTranslator = new VerbatimNameTranslator();
 
@@ -27,7 +29,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         public static void Ctor_GivenNullDatabase_ThrowsArgumentNullException()
         {
             var mockFs = new MockFileSystem();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
             var nameTranslator = new VerbatimNameTranslator();
 
             Assert.That(() => new OrmLiteDataAccessGenerator(mockFs, null, commentProvider, nameTranslator), Throws.ArgumentNullException);
@@ -48,7 +50,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         {
             var mockFs = new MockFileSystem();
             var database = Mock.Of<IRelationalDatabase>();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
 
             Assert.That(() => new OrmLiteDataAccessGenerator(mockFs, database, commentProvider, null), Throws.ArgumentNullException);
         }
@@ -60,7 +62,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         {
             var mockFs = new MockFileSystem();
             var database = Mock.Of<IRelationalDatabase>();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
             var nameTranslator = new VerbatimNameTranslator();
             var generator = new OrmLiteDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
 
@@ -74,7 +76,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         {
             var mockFs = new MockFileSystem();
             var database = Mock.Of<IRelationalDatabase>();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
             var nameTranslator = new VerbatimNameTranslator();
             var generator = new OrmLiteDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
             using var tempDir = new TemporaryDirectory();
@@ -88,7 +90,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests
         {
             var mockFs = new MockFileSystem();
             var database = Mock.Of<IRelationalDatabase>();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
             var nameTranslator = new VerbatimNameTranslator();
             var generator = new OrmLiteDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
             using var tempDir = new TemporaryDirectory();

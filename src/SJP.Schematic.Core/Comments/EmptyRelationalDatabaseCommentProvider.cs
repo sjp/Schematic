@@ -12,6 +12,22 @@ namespace SJP.Schematic.Core.Comments
     public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvider
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="EmptyRelationalDatabaseCommentProvider"/> class.
+        /// </summary>
+        /// <param name="identifierDefaults">Database identifier defaults.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/> is <c>null</c>.</exception>
+        public EmptyRelationalDatabaseCommentProvider(IIdentifierDefaults identifierDefaults)
+        {
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+        }
+
+        /// <summary>
+        /// Default values for identifiers in a database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
+        public IIdentifierDefaults IdentifierDefaults { get; }
+
+        /// <summary>
         /// Retrieves all database routine comments defined within a database.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>

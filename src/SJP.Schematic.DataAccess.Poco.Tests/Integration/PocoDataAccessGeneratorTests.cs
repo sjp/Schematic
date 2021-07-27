@@ -70,7 +70,7 @@ select
             });
 
             var nameTranslator = new PascalCaseNameTranslator();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
             var generator = new PocoDataAccessGenerator(mockFs, Database, commentProvider, nameTranslator);
             await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
 
@@ -94,7 +94,7 @@ select
             var database = new EmptyRelationalDatabase(Database.IdentifierDefaults);
 
             var fileSystem = new FileSystem();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
             var nameTranslator = new PascalCaseNameTranslator();
             var generator = new PocoDataAccessGenerator(fileSystem, database, commentProvider, nameTranslator);
             await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
@@ -110,7 +110,7 @@ select
             var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFilename);
 
             var fileSystem = new FileSystem();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
             var nameTranslator = new PascalCaseNameTranslator();
             var generator = new PocoDataAccessGenerator(fileSystem, Database, commentProvider, nameTranslator);
             await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);

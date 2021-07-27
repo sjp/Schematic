@@ -22,7 +22,7 @@ namespace SJP.Schematic.Modelled.Reflection.Tests.Fakes
             => Task.FromResult<IRelationalDatabase>(null);
 
         public Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
-            => Task.FromResult<IRelationalDatabaseCommentProvider>(new EmptyRelationalDatabaseCommentProvider());
+            => Task.FromResult<IRelationalDatabaseCommentProvider>(new EmptyRelationalDatabaseCommentProvider(null));
 
         public string QuoteName(Identifier name)
         {

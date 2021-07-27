@@ -23,12 +23,17 @@ namespace SJP.Schematic.MySql.Comments
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
-            if (identifierDefaults == null)
-                throw new ArgumentNullException(nameof(identifierDefaults));
 
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             _tableCommentProvider = new MySqlTableCommentProvider(connection, identifierDefaults);
             _routineCommentProvider = new MySqlRoutineCommentProvider(connection, identifierDefaults);
         }
+
+        /// <summary>
+        /// Default values for identifiers in a database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
+        public IIdentifierDefaults IdentifierDefaults { get; }
 
         /// <summary>
         /// Retrieves comments for a database table, if available.

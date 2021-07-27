@@ -15,5 +15,10 @@
           IDatabaseSynonymCommentProvider,
           IDatabaseRoutineCommentProvider
     {
+        /// <summary>
+        /// Identifier defaults. Used to determine the default name resolution applied to the database.
+        /// </summary>
+        /// <value>The identifier defaults.</value>
+        IIdentifierDefaults IdentifierDefaults { get; }
     }
 }

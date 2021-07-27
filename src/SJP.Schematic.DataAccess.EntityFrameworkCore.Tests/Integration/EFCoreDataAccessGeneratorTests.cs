@@ -60,7 +60,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
             });
 
             var nameTranslator = new PascalCaseNameTranslator();
-            var generator = new EFCoreDataAccessGenerator(mockFs, Database, new EmptyRelationalDatabaseCommentProvider(), nameTranslator);
+            var generator = new EFCoreDataAccessGenerator(mockFs, Database, new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults), nameTranslator);
             await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
 
             Assert.Multiple(() =>
@@ -83,7 +83,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
             var database = new EmptyRelationalDatabase(Database.IdentifierDefaults);
 
             var fileSystem = new FileSystem();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
             var nameTranslator = new PascalCaseNameTranslator();
             var generator = new EFCoreDataAccessGenerator(fileSystem, database, commentProvider, nameTranslator);
             await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
@@ -99,7 +99,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
             var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFilename);
 
             var fileSystem = new FileSystem();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
             var nameTranslator = new PascalCaseNameTranslator();
             var generator = new EFCoreDataAccessGenerator(fileSystem, Database, commentProvider, nameTranslator);
             await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);

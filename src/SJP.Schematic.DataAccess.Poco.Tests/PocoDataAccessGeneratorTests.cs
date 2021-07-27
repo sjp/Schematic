@@ -13,11 +13,13 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
     {
         private const string TestCsprojFileName = "DataAccessGeneratorTest.csproj";
 
+        private static IIdentifierDefaults IdentifierDefaults => new IdentifierDefaults("a", "b", "c");
+
         [Test]
         public static void Ctor_GivenNullFileSystem_ThrowsArgumentNullException()
         {
             var database = Mock.Of<IRelationalDatabase>();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
             var nameTranslator = new VerbatimNameTranslator();
             Assert.That(() => new PocoDataAccessGenerator(null, database, commentProvider, nameTranslator), Throws.ArgumentNullException);
         }
@@ -26,7 +28,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         public static void Ctor_GivenNullDatabase_ThrowsArgumentNullException()
         {
             var mockFs = new MockFileSystem();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
             var nameTranslator = new VerbatimNameTranslator();
             Assert.That(() => new PocoDataAccessGenerator(mockFs, null, commentProvider, nameTranslator), Throws.ArgumentNullException);
         }
@@ -45,7 +47,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         {
             var mockFs = new MockFileSystem();
             var database = Mock.Of<IRelationalDatabase>();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
             Assert.That(() => new PocoDataAccessGenerator(mockFs, database, commentProvider, null), Throws.ArgumentNullException);
         }
 
@@ -56,7 +58,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         {
             var mockFs = new MockFileSystem();
             var database = Mock.Of<IRelationalDatabase>();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
             var nameTranslator = new VerbatimNameTranslator();
             var generator = new PocoDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
 
@@ -70,7 +72,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         {
             var mockFs = new MockFileSystem();
             var database = Mock.Of<IRelationalDatabase>();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
             var nameTranslator = new VerbatimNameTranslator();
             var generator = new PocoDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
             using var tempDir = new TemporaryDirectory();
@@ -84,7 +86,7 @@ namespace SJP.Schematic.DataAccess.Poco.Tests
         {
             var mockFs = new MockFileSystem();
             var database = Mock.Of<IRelationalDatabase>();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider();
+            var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
             var nameTranslator = new VerbatimNameTranslator();
             var generator = new PocoDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
             using var tempDir = new TemporaryDirectory();

@@ -24,16 +24,21 @@ namespace SJP.Schematic.PostgreSql.Comments
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
-            if (identifierDefaults == null)
-                throw new ArgumentNullException(nameof(identifierDefaults));
             if (identifierResolver == null)
                 throw new ArgumentNullException(nameof(identifierResolver));
 
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             _tableCommentProvider = new PostgreSqlTableCommentProvider(connection, identifierDefaults, identifierResolver);
             _viewCommentProvider = new PostgreSqlViewCommentProvider(connection, identifierDefaults, identifierResolver);
             _sequenceCommentProvider = new PostgreSqlSequenceCommentProvider(connection, identifierDefaults, identifierResolver);
             _routineCommentProvider = new PostgreSqlRoutineCommentProvider(connection, identifierDefaults, identifierResolver);
         }
+
+        /// <summary>
+        /// Default values for identifiers in a database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
+        public IIdentifierDefaults IdentifierDefaults { get; }
 
         /// <summary>
         /// Retrieves comments for a database table, if available.

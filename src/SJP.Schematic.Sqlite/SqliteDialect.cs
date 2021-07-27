@@ -111,8 +111,11 @@ namespace SJP.Schematic.Sqlite
         /// <param name="cancellationToken">A cancellation token.</param>
         /// <returns>A comment provider.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
-        public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
-            => Task.FromResult<IRelationalDatabaseCommentProvider>(new EmptyRelationalDatabaseCommentProvider());
+        public override async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
+        {
+            var identifierDefaults = await GetIdentifierDefaultsAsyncCore().ConfigureAwait(false);
+            return new EmptyRelationalDatabaseCommentProvider(identifierDefaults);
+        }
 
         /// <summary>
         /// Gets a dependency provider that retrieves dependencies for SQLite statements.

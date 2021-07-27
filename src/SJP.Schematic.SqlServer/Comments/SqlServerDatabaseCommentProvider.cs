@@ -23,15 +23,20 @@ namespace SJP.Schematic.SqlServer.Comments
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
-            if (identifierDefaults == null)
-                throw new ArgumentNullException(nameof(identifierDefaults));
 
+            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             _tableCommentProvider = new SqlServerTableCommentProvider(connection, identifierDefaults);
             _viewCommentProvider = new SqlServerViewCommentProvider(connection, identifierDefaults);
             _sequenceCommentProvider = new SqlServerSequenceCommentProvider(connection, identifierDefaults);
             _synonymCommentProvider = new SqlServerSynonymCommentProvider(connection, identifierDefaults);
             _routineCommentProvider = new SqlServerRoutineCommentProvider(connection, identifierDefaults);
         }
+
+        /// <summary>
+        /// Default values for identifiers in a database.
+        /// </summary>
+        /// <value>Identifier defaults.</value>
+        public IIdentifierDefaults IdentifierDefaults { get; }
 
         /// <summary>
         /// Retrieves comments for a database table, if available.
