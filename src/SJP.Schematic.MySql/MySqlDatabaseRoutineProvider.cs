@@ -57,6 +57,7 @@ namespace SJP.Schematic.MySql
         {
             var queryResults = await DbConnection.QueryAsync<GetAllRoutineNamesQueryResult>(
                 RoutinesQuery,
+                new GetAllRoutineNamesQuery { SchemaName = IdentifierDefaults.Schema! },
                 cancellationToken
             ).ConfigureAwait(false);
 
