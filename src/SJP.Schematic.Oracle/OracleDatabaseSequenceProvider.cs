@@ -62,7 +62,7 @@ namespace SJP.Schematic.Oracle
             {
                 var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.SequenceName));
 
-                var cycle = string.Equals(row.Cycle, "Y", StringComparison.Ordinal);
+                var cycle = string.Equals(row.Cycle, Constants.Y, StringComparison.Ordinal);
                 var start = row.Increment >= 0
                     ? row.MinValue
                     : row.MaxValue;
@@ -214,7 +214,7 @@ where SEQUENCE_OWNER = :{ nameof(GetSequenceDefinitionQuery.SchemaName) } and SE
                 cancellationToken
             ).Map<IDatabaseSequence>(row =>
             {
-                var cycle = string.Equals(row.Cycle, "Y", StringComparison.Ordinal);
+                var cycle = string.Equals(row.Cycle, Constants.Y, StringComparison.Ordinal);
                 var start = row.Increment >= 0
                     ? row.MinValue
                     : row.MaxValue;
@@ -244,6 +244,11 @@ where SEQUENCE_OWNER = :{ nameof(GetSequenceDefinitionQuery.SchemaName) } and SE
 
             var schema = sequenceName.Schema ?? IdentifierDefaults.Schema;
             return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, sequenceName.LocalName);
+        }
+
+        private static class Constants
+        {
+            public const string Y = "Y";
         }
     }
 }
