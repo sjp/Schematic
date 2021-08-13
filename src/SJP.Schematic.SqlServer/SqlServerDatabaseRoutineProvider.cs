@@ -49,34 +49,33 @@ namespace SJP.Schematic.SqlServer
         /// <returns>A collection of database routines.</returns>
         public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResult = await Connection.QueryAsync<GetAllRoutinesQueryResult>(RoutinesQuery, cancellationToken).ConfigureAwait(false);
-            var routines = queryResult
-                .Where(static row => row.SchemaName != null && row.RoutineName != null && row.Definition != null)
-                .Select(row =>
-                {
-                    var routineName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.RoutineName));
-                    return new DatabaseRoutine(routineName, row.Definition!);
-                });
+            var queryResults = await Connection.QueryAsync<GetAllRoutineNamesQueryResult>(
+                RoutinesQuery,
+                cancellationToken
+            ).ConfigureAwait(false);
 
-            foreach (var routine in routines)
-                yield return routine;
+            var routineNames = queryResults
+                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
+                .Select(QualifyRoutineName);
+
+            foreach (var routineName in routineNames)
+                yield return await LoadRoutineAsyncCore(routineName, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// A SQL query that retrieves all database routines.
+        /// A SQL query that retrieves all database routine names.
         /// </summary>
         /// <value>A SQL query definition.</value>
         protected virtual string RoutinesQuery => RoutinesQuerySql;
 
         private static readonly string RoutinesQuerySql = @$"
 select
-    schema_name(o.schema_id) as [{ nameof(GetAllRoutinesQueryResult.SchemaName) }],
-    o.name as [{ nameof(GetAllRoutinesQueryResult.RoutineName) }],
-    m.definition as [{ nameof(GetAllRoutinesQueryResult.Definition) }]
-from sys.sql_modules m
-inner join sys.objects o on o.object_id = m.object_id
-where o.is_ms_shipped = 0 and o.type in ('P', 'FN', 'IF', 'TF')
-order by schema_name(o.schema_id), o.name";
+    schema_name(schema_id) as [{ nameof(GetAllRoutineNamesQueryResult.SchemaName) }],
+    name as [{ nameof(GetAllRoutineNamesQueryResult.RoutineName) }]
+from sys.objects
+where type in ('P', 'FN', 'IF', 'TF') and is_ms_shipped = 0
+order by schema_name(schema_id), name";
+
 
         /// <summary>
         /// Retrieves a database routine, if available.

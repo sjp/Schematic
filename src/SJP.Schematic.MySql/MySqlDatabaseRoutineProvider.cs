@@ -55,37 +55,31 @@ namespace SJP.Schematic.MySql
         /// <returns>A collection of database routines.</returns>
         public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResult = await DbConnection.QueryAsync<GetAllRoutinesQueryResult>(
+            var queryResults = await DbConnection.QueryAsync<GetAllRoutineNamesQueryResult>(
                 RoutinesQuery,
-                new GetAllRoutinesQuery { SchemaName = IdentifierDefaults.Schema! },
                 cancellationToken
             ).ConfigureAwait(false);
 
-            var routines = queryResult
-                .Where(static row => !row.Definition.IsNullOrWhiteSpace())
-                .Select(row =>
-                {
-                    var routineName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.RoutineName));
-                    return new DatabaseRoutine(routineName, row.Definition!);
-                });
+            var routineNames = queryResults
+                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
+                .Select(QualifyRoutineName);
 
-            foreach (var routine in routines)
-                yield return routine;
+            foreach (var routineName in routineNames)
+                yield return await LoadRoutineAsyncCore(routineName, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// A SQL query that retrieves all database routines.
+        /// A SQL query that retrieves all database routine names.
         /// </summary>
         /// <value>A SQL query definition.</value>
         protected virtual string RoutinesQuery => RoutinesQuerySql;
 
         private static readonly string RoutinesQuerySql = @$"
 select
-    ROUTINE_SCHEMA as `{ nameof(GetAllRoutinesQueryResult.SchemaName) }`,
-    ROUTINE_NAME as `{ nameof(GetAllRoutinesQueryResult.RoutineName) }`,
-    ROUTINE_DEFINITION as `{ nameof(GetAllRoutinesQueryResult.Definition) }`
+    ROUTINE_SCHEMA as `{ nameof(GetAllRoutineNamesQueryResult.SchemaName) }`,
+    ROUTINE_NAME as `{ nameof(GetAllRoutineNamesQueryResult.RoutineName) }`
 from information_schema.routines
-where ROUTINE_SCHEMA = @{ nameof(GetAllRoutinesQuery.SchemaName) }
+where ROUTINE_SCHEMA = @{ nameof(GetAllRoutineNamesQuery.SchemaName) }
 order by ROUTINE_SCHEMA, ROUTINE_NAME";
 
         /// <summary>
