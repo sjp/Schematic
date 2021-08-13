@@ -57,47 +57,32 @@ namespace SJP.Schematic.Oracle
         /// <returns>A collection of database routines.</returns>
         public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResult = await Connection.QueryAsync<GetAllRoutinesQueryResult>(
-                AllSourcesQuery,
+            var queryResults = await Connection.QueryAsync<GetAllRoutineNamesQueryResult>(
+                RoutinesQuery,
                 cancellationToken
             ).ConfigureAwait(false);
 
-            var routines = queryResult
-                .GroupBy(static r => new { r.SchemaName, r.RoutineName })
-                .Select(r =>
-                {
-                    var name = Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, r.Key.SchemaName, r.Key.RoutineName);
+            var routineNames = queryResults
+                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
+                .Select(QualifyRoutineName);
 
-                    var definition = r
-                        .Where(static r => r.Text != null)
-                        .OrderBy(static r => r.LineNumber)
-                        .Select(static r => r.Text!)
-                        .Join(string.Empty);
-                    var unwrappedDefinition = OracleUnwrapper.Unwrap(definition);
-
-                    return new DatabaseRoutine(name, unwrappedDefinition);
-                });
-
-            foreach (var routine in routines)
-                yield return routine;
+            foreach (var routineName in routineNames)
+                yield return await LoadRoutineAsyncCore(routineName, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Gets a query that retrieves routine information for all routines.
         /// </summary>
         /// <value>A SQL query.</value>
-        protected virtual string AllSourcesQuery => AllSourcesQuerySql;
+        protected virtual string RoutinesQuery => RoutinesQuerySql;
 
-        private static readonly string AllSourcesQuerySql = @$"
+        private static readonly string RoutinesQuerySql = @$"
 SELECT
-    OWNER as ""{ nameof(GetAllRoutinesQueryResult.SchemaName) }"",
-    NAME as ""{ nameof(GetAllRoutinesQueryResult.RoutineName) }"",
-    TYPE as ""{ nameof(GetAllRoutinesQueryResult.RoutineType) }"",
-    LINE as ""{ nameof(GetAllRoutinesQueryResult.LineNumber) }"",
-    TEXT as ""{ nameof(GetAllRoutinesQueryResult.Text) }""
-FROM SYS.ALL_SOURCE
-    WHERE TYPE in ('FUNCTION', 'PROCEDURE')
-ORDER BY OWNER, NAME, LINE";
+    OWNER as ""{ nameof(GetAllRoutineNamesQueryResult.SchemaName) }"",
+    OBJECT_NAME as ""{ nameof(GetAllRoutineNamesQueryResult.RoutineName) }""
+FROM SYS.ALL_OBJECTS
+WHERE ORACLE_MAINTAINED <> 'Y' AND OBJECT_TYPE in ('FUNCTION', 'PROCEDURE')
+ORDER BY OWNER, OBJECT_NAME";
 
         /// <summary>
         /// Retrieves a database routine, if available.

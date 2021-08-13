@@ -57,58 +57,32 @@ namespace SJP.Schematic.Oracle
         /// <returns>A collection of database packages.</returns>
         public async IAsyncEnumerable<IOracleDatabasePackage> GetAllPackages([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var queryResult = await Connection.QueryAsync<GetAllPackagesQueryResult>(
-                AllSourcesQuery,
+            var queryResults = await Connection.QueryAsync<GetAllPackageNamesQueryResult>(
+                PackagesQuery,
                 cancellationToken
             ).ConfigureAwait(false);
 
-            var packages = queryResult
-                .GroupBy(static r => new { r.SchemaName, r.PackageName })
-                .Select(r =>
-                {
-                    var name = Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, r.Key.SchemaName, r.Key.PackageName);
+            var routineNames = queryResults
+                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.PackageName))
+                .Select(QualifyPackageName);
 
-                    var specLines = r
-                        .Where(static p => string.Equals(p.RoutineType, PackageObjectType, StringComparison.Ordinal) && p.Text != null)
-                        .OrderBy(static p => p.LineNumber)
-                        .Select(static p => p.Text!);
-                    var spec = specLines.Join(string.Empty);
-
-                    var bodyLines = r
-                        .Where(static p => string.Equals(p.RoutineType, PackageBodyObjectType, StringComparison.Ordinal) && p.Text != null)
-                        .OrderBy(static p => p.LineNumber)
-                        .Select(static p => p.Text!);
-
-                    var body = bodyLines.Any()
-                        ? Option<string>.Some(bodyLines.Join(string.Empty))
-                        : Option<string>.None;
-
-                    var specification = OracleUnwrapper.Unwrap(spec);
-                    var packageBody = body.Map(OracleUnwrapper.Unwrap);
-
-                    return new OracleDatabasePackage(name, specification, packageBody);
-                });
-
-            foreach (var package in packages)
-                yield return package;
+            foreach (var packageName in routineNames)
+                yield return await LoadPackageAsyncCore(packageName, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Gets a query that retrieves all package sources.
         /// </summary>
         /// <value>A SQL query.</value>
-        protected virtual string AllSourcesQuery => AllSourcesQuerySql;
+        protected virtual string PackagesQuery => PackagesQuerySql;
 
-        private static readonly string AllSourcesQuerySql = @$"
+        private static readonly string PackagesQuerySql = @$"
 SELECT
-    OWNER as ""{ nameof(GetAllPackagesQueryResult.SchemaName) }"",
-    NAME as ""{ nameof(GetAllPackagesQueryResult.PackageName) }"",
-    TYPE as ""{ nameof(GetAllPackagesQueryResult.RoutineType) }"",
-    LINE as ""{ nameof(GetAllPackagesQueryResult.LineNumber) }"",
-    TEXT as ""{ nameof(GetAllPackagesQueryResult.Text) }""
-FROM SYS.ALL_SOURCE
-    WHERE TYPE in ('PACKAGE', 'PACKAGE BODY')
-ORDER BY OWNER, NAME, LINE";
+    OWNER as ""{ nameof(GetAllPackageNamesQueryResult.SchemaName) }"",
+    OBJECT_NAME as ""{ nameof(GetAllPackageNamesQueryResult.PackageName) }""
+FROM SYS.ALL_OBJECTS
+WHERE ORACLE_MAINTAINED <> 'Y' AND OBJECT_TYPE = 'PACKAGE'
+ORDER BY OWNER, OBJECT_NAME";
 
         /// <summary>
         /// Retrieves a database package, if available.
