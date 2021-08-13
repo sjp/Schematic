@@ -30,16 +30,15 @@ namespace SJP.Schematic.Oracle
                 return false;
             }
 
-            try
+            if (TryDecodeBase64Package(payload, out var decodedPackage)
+                && !string.IsNullOrWhiteSpace(decodedPackage))
             {
-                unwrapped = DecodeBase64Package(payload);
+                unwrapped = decodedPackage;
                 return true;
             }
-            catch (InvalidDataException)
-            {
-                unwrapped = null;
-                return false;
-            }
+
+            unwrapped = null;
+            return false;
         }
 
         /// <summary>
@@ -70,7 +69,7 @@ namespace SJP.Schematic.Oracle
             if (!TryGetPayload(input, out var payload))
                 throw new InvalidDataException("The given input is not a wrapped definition");
 
-            return DecodeBase64Package(payload);
+            return DecodeBase64PackageUnsafe(payload);
         }
 
         // The expected input is:
@@ -196,7 +195,7 @@ namespace SJP.Schematic.Oracle
             }
         }
 
-        private static string DecodeBase64Package(string base64Input)
+        private static string DecodeBase64PackageUnsafe(string base64Input)
         {
             if (base64Input == null)
                 throw new ArgumentNullException(nameof(base64Input));
@@ -235,6 +234,51 @@ namespace SJP.Schematic.Oracle
             var decompressed = writer.ToArray();
             var textResult = Encoding.UTF8.GetString(decompressed);
             return textResult.TrimEnd('\0'); // remove a trailing NUL char
+        }
+
+        private static bool TryDecodeBase64Package(string base64Input, out string? decodedPackage)
+        {
+            decodedPackage = null;
+
+            if (base64Input == null)
+                return false;
+
+            var bytes = Convert.FromBase64String(base64Input);
+
+            var mappedCharBuffer = new Span<byte>(new byte[bytes.Length]);
+            for (var i = 0; i < bytes.Length; i++)
+            {
+                mappedCharBuffer[i] = CharMap[bytes[i]];
+            }
+
+            const int hashSize = 20; // bytes
+            var hashBuffer = mappedCharBuffer[..hashSize];
+            var dataBuffer = mappedCharBuffer[hashSize..];
+
+            using (var sha1 = new SHA1Managed())
+            {
+                var computedHashBuffer = new Span<byte>(new byte[hashSize]);
+
+                var areEqual = sha1.TryComputeHash(dataBuffer, computedHashBuffer, out _)
+                    && computedHashBuffer.SequenceEqual(hashBuffer);
+
+                if (!areEqual)
+                    return false;
+            }
+
+            // need to skip zlib header bytes and trim trailing zlib checksum bytes to enable decompression
+            var trimmedBuffer = ZlibToDeflate(dataBuffer);
+
+            using var reader = new MemoryStream(trimmedBuffer.ToArray());
+            using var unzipper = new DeflateStream(reader, CompressionMode.Decompress);
+            using var writer = new MemoryStream(trimmedBuffer.Length);
+            unzipper.CopyTo(writer);
+
+            var decompressed = writer.ToArray();
+            var textResult = Encoding.UTF8.GetString(decompressed);
+            decodedPackage = textResult.TrimEnd('\0'); // remove a trailing NUL char
+
+            return true;
         }
 
         private static bool IsValidBase64String(string input)
