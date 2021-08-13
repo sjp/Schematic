@@ -71,7 +71,7 @@ namespace SJP.Schematic.Oracle
         }
 
         /// <summary>
-        /// Gets a query that retrieves routine information for all routines.
+        /// Gets a query that retrieves routine names for all routines.
         /// </summary>
         /// <value>A SQL query.</value>
         protected virtual string RoutinesQuery => RoutinesQuerySql;

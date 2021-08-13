@@ -71,7 +71,7 @@ namespace SJP.Schematic.Oracle
         }
 
         /// <summary>
-        /// Gets a query that retrieves all package sources.
+        /// Gets a query that retrieves all package names.
         /// </summary>
         /// <value>A SQL query.</value>
         protected virtual string PackagesQuery => PackagesQuerySql;
