@@ -56,32 +56,13 @@ namespace SJP.Schematic.SqlServer.Comments
         /// <returns>A collection of database synonyms comments.</returns>
         public async IAsyncEnumerable<IDatabaseSynonymComments> GetAllSynonymComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var allCommentsData = await Connection.QueryAsync<GetAllSynonymCommentsQueryResult>(
-                AllSynonymCommentsQuery,
-                new GetAllSynonymCommentsQuery { CommentProperty = CommentProperty },
-                cancellationToken
-            ).ConfigureAwait(false);
+            var queryResults = await Connection.QueryAsync<GetAllSynonymNamesQueryResult>(SynonymsQuery, cancellationToken).ConfigureAwait(false);
+            var synonymNames = queryResults
+                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.SynonymName))
+                .Select(QualifySynonymName);
 
-            var comments = allCommentsData
-                .GroupBy(static row => new { row.SchemaName, row.SynonymName })
-                .Select(g =>
-                {
-                    var synonymName = QualifySynonymName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.SynonymName));
-                    var comments = g.Select(r => new CommentData
-                    {
-                        SchemaName = r.SchemaName,
-                        SynonymName = r.SynonymName,
-                        ObjectName = r.ObjectName,
-                        ObjectType = r.ObjectType,
-                        Comment = r.Comment
-                    }).ToList();
-
-                    var synonymComment = GetFirstCommentByType(comments, Constants.Synonym);
-                    return new DatabaseSynonymComments(synonymName, synonymComment);
-                });
-
-            foreach (var comment in comments)
-                yield return comment;
+            foreach (var synonymName in synonymNames)
+                yield return await LoadSynonymCommentsAsyncCore(synonymName, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -176,23 +157,18 @@ where schema_id = schema_id(@{ nameof(GetSynonymNameQueryResult.SchemaName) }) a
         }
 
         /// <summary>
-        /// Gets a query that retrieves comment information on all synonyms.
+        /// A SQL query that retrieves the names of all synonyms in the database.
         /// </summary>
         /// <value>A SQL query.</value>
-        protected virtual string AllSynonymCommentsQuery => AllSynonymCommentsQuerySql;
+        protected virtual string SynonymsQuery => SynonymsQuerySql;
 
-        private static readonly string AllSynonymCommentsQuerySql = @$"
+        private static readonly string SynonymsQuerySql = @$"
 select
-    SCHEMA_NAME(s.schema_id) as [{ nameof(GetAllSynonymCommentsQueryResult.SchemaName) }],
-    s.name as [{ nameof(GetAllSynonymCommentsQueryResult.SynonymName) }],
-    'SYNONYM' as [{ nameof(GetAllSynonymCommentsQueryResult.ObjectType) }],
-    s.name as [{ nameof(GetAllSynonymCommentsQueryResult.ObjectName) }],
-    ep.value as [{ nameof(GetAllSynonymCommentsQueryResult.Comment) }]
-from sys.synonyms s
-left join sys.extended_properties ep on s.object_id = ep.major_id and ep.name = @{ nameof(GetAllSynonymCommentsQuery.CommentProperty) } and ep.minor_id = 0
-where s.is_ms_shipped = 0
-order by SCHEMA_NAME(s.schema_id), s.name
-";
+    schema_name(schema_id) as [{ nameof(GetAllSynonymNamesQueryResult.SchemaName) }],
+    name as [{ nameof(GetAllSynonymNamesQueryResult.SynonymName) }]
+from sys.synonyms
+where is_ms_shipped = 0
+order by schema_name(schema_id), name";
 
         /// <summary>
         /// Gets a query that retrieves comment information on a single synonym.

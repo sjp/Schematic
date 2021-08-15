@@ -56,50 +56,13 @@ namespace SJP.Schematic.SqlServer.Comments
         /// <returns>A collection of database table comments, where available.</returns>
         public async IAsyncEnumerable<IRelationalDatabaseTableComments> GetAllTableComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var commentsData = await Connection.QueryAsync<GetAllTableCommentsQueryResult>(
-                AllTableCommentsQuery,
-                new GetAllTableCommentsQuery { CommentProperty = CommentProperty },
-                cancellationToken
-            ).ConfigureAwait(false);
+            var queryResults = await Connection.QueryAsync<GetAllTableNamesQueryResult>(TablesQuery, cancellationToken).ConfigureAwait(false);
+            var tableNames = queryResults
+                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
+                .Select(QualifyTableName);
 
-            var comments = commentsData
-                .GroupBy(static row => new { row.SchemaName, row.TableName })
-                .Select(g =>
-                {
-                    var tableName = QualifyTableName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName));
-                    var comments = g.Select(r => new CommentData
-                    {
-                        SchemaName = r.SchemaName,
-                        TableName = r.TableName,
-                        ObjectName = r.ObjectName,
-                        ObjectType = r.ObjectType,
-                        Comment = r.Comment
-                    }).ToList();
-
-                    var tableComment = GetFirstCommentByType(comments, Constants.Table);
-                    var primaryKeyComment = GetFirstCommentByType(comments, Constants.Primary);
-                    var columnComments = GetCommentLookupByType(comments, Constants.Column);
-                    var checkComments = GetCommentLookupByType(comments, Constants.Check);
-                    var foreignKeyComments = GetCommentLookupByType(comments, Constants.ForeignKey);
-                    var uniqueKeyComments = GetCommentLookupByType(comments, Constants.Unique);
-                    var indexComments = GetCommentLookupByType(comments, Constants.Index);
-                    var triggerComments = GetCommentLookupByType(comments, Constants.Trigger);
-
-                    return new RelationalDatabaseTableComments(
-                        tableName,
-                        tableComment,
-                        primaryKeyComment,
-                        columnComments,
-                        checkComments,
-                        uniqueKeyComments,
-                        foreignKeyComments,
-                        indexComments,
-                        triggerComments
-                    );
-                });
-
-            foreach (var comment in comments)
-                yield return comment;
+            foreach (var tableName in tableNames)
+                yield return await LoadTableCommentsAsyncCore(tableName, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -213,123 +176,16 @@ where schema_id = schema_id(@{ nameof(GetTableNameQuery.SchemaName) }) and name 
         }
 
         /// <summary>
-        /// A SQL query definition which retrieves all comment information for all tables.
+        /// A SQL query that retrieves the names of all tables in the database.
         /// </summary>
         /// <value>A SQL query.</value>
-        protected virtual string AllTableCommentsQuery => AllTableCommentsQuerySql;
+        protected virtual string TablesQuery => TablesQuerySql;
 
-        private static readonly string AllTableCommentsQuerySql = @$"
-select wrapped.* from (
--- table
-select
-    SCHEMA_NAME(t.schema_id) as [{ nameof(GetAllTableCommentsQueryResult.SchemaName) }],
-    t.name as [{ nameof(GetAllTableCommentsQueryResult.TableName) }],
-    'TABLE' as [{ nameof(GetAllTableCommentsQueryResult.ObjectType) }],
-    t.name as [{ nameof(GetAllTableCommentsQueryResult.ObjectName) }],
-    ep.value as [{ nameof(GetAllTableCommentsQueryResult.Comment) }]
-from sys.tables t
-left join sys.extended_properties ep on t.object_id = ep.major_id and ep.name = @{ nameof(GetAllTableCommentsQuery.CommentProperty) } and ep.minor_id = 0
-where t.is_ms_shipped = 0
-
-union
-
--- columns
-select
-    SCHEMA_NAME(t.schema_id) as [{ nameof(GetAllTableCommentsQueryResult.SchemaName) }],
-    t.name as [{ nameof(GetAllTableCommentsQueryResult.TableName) }],
-    'COLUMN' as [{ nameof(GetAllTableCommentsQueryResult.ObjectType) }],
-    c.name as [{ nameof(GetAllTableCommentsQueryResult.ObjectName) }],
-    ep.value as [{ nameof(GetAllTableCommentsQueryResult.Comment) }]
-from sys.tables t
-inner join sys.columns c on t.object_id = c.object_id
-left join sys.extended_properties ep on t.object_id = ep.major_id and c.column_id = ep.minor_id and ep.name = @{ nameof(GetAllTableCommentsQuery.CommentProperty) }
-where t.is_ms_shipped = 0
-
-union
-
--- checks
-select
-    SCHEMA_NAME(t.schema_id) as [{ nameof(GetAllTableCommentsQueryResult.SchemaName) }],
-    t.name as [{ nameof(GetAllTableCommentsQueryResult.TableName) }],
-    'CHECK' as [{ nameof(GetAllTableCommentsQueryResult.ObjectType) }],
-    cc.name as [{ nameof(GetAllTableCommentsQueryResult.ObjectName) }],
-    ep.value as [{ nameof(GetAllTableCommentsQueryResult.Comment) }]
-from sys.tables t
-inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
-left join sys.extended_properties ep on cc.object_id = ep.major_id and ep.name = @{ nameof(GetAllTableCommentsQuery.CommentProperty) }
-where t.is_ms_shipped = 0
-
-union
-
--- foreign keys
-select
-    SCHEMA_NAME(t.schema_id) as [{ nameof(GetAllTableCommentsQueryResult.SchemaName) }],
-    t.name as [{ nameof(GetAllTableCommentsQueryResult.TableName) }],
-    'FOREIGN KEY' as [{ nameof(GetAllTableCommentsQueryResult.ObjectType) }],
-    fk.name as [{ nameof(GetAllTableCommentsQueryResult.ObjectName) }],
-    ep.value as [{ nameof(GetAllTableCommentsQueryResult.Comment) }]
-from sys.tables t
-inner join sys.foreign_keys fk on t.object_id = fk.parent_object_id
-left join sys.extended_properties ep on fk.object_id = ep.major_id and ep.name = @{ nameof(GetAllTableCommentsQuery.CommentProperty) }
-where t.is_ms_shipped = 0
-
-union
-
--- unique keys
-select
-    SCHEMA_NAME(t.schema_id) as [{ nameof(GetAllTableCommentsQueryResult.SchemaName) }],
-    t.name as [{ nameof(GetAllTableCommentsQueryResult.TableName) }],
-    'UNIQUE' as [{ nameof(GetAllTableCommentsQueryResult.ObjectType) }],
-    kc.name as [{ nameof(GetAllTableCommentsQueryResult.ObjectName) }],
-    ep.value as [{ nameof(GetAllTableCommentsQueryResult.Comment) }]
-from sys.tables t
-inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
-left join sys.extended_properties ep on kc.object_id = ep.major_id and ep.name = @{ nameof(GetAllTableCommentsQuery.CommentProperty) }
-where t.is_ms_shipped = 0 and kc.type = 'UQ'
-
-union
-
--- primary key
-select
-    SCHEMA_NAME(t.schema_id) as [{ nameof(GetAllTableCommentsQueryResult.SchemaName) }],
-    t.name as [{ nameof(GetAllTableCommentsQueryResult.TableName) }],
-    'PRIMARY' as [{ nameof(GetAllTableCommentsQueryResult.ObjectType) }],
-    kc.name as [{ nameof(GetAllTableCommentsQueryResult.ObjectName) }],
-    ep.value as [{ nameof(GetAllTableCommentsQueryResult.Comment) }]
-from sys.tables t
-inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
-left join sys.extended_properties ep on kc.object_id = ep.major_id and ep.name = @{ nameof(GetAllTableCommentsQuery.CommentProperty) }
-where t.is_ms_shipped = 0 and kc.type = 'PK'
-
-union
-
--- indexes
-select
-    SCHEMA_NAME(t.schema_id) as [{ nameof(GetAllTableCommentsQueryResult.SchemaName) }],
-    t.name as [{ nameof(GetAllTableCommentsQueryResult.TableName) }],
-    'INDEX' as [{ nameof(GetAllTableCommentsQueryResult.ObjectType) }],
-    i.name as [{ nameof(GetAllTableCommentsQueryResult.ObjectName) }],
-    ep.value as [{ nameof(GetAllTableCommentsQueryResult.Comment) }]
-from sys.tables t
-inner join sys.indexes i on t.object_id = i.object_id
-left join sys.extended_properties ep on t.object_id = ep.major_id and i.index_id = ep.minor_id and ep.name = @{ nameof(GetAllTableCommentsQuery.CommentProperty) }
-where t.is_ms_shipped = 0 and i.is_primary_key = 0 and i.is_unique_constraint = 0
-    and i.is_hypothetical = 0 and i.type <> 0 -- type = 0 is a heap, ignore
-
-union
-
--- triggers
-select
-    SCHEMA_NAME(t.schema_id) as [{ nameof(GetAllTableCommentsQueryResult.SchemaName) }],
-    t.name as [{ nameof(GetAllTableCommentsQueryResult.TableName) }],
-    'TRIGGER' as [{ nameof(GetAllTableCommentsQueryResult.ObjectType) }],
-    tr.name as [{ nameof(GetAllTableCommentsQueryResult.ObjectName) }],
-    ep.value as [{ nameof(GetAllTableCommentsQueryResult.Comment) }]
-from sys.tables t
-inner join sys.triggers tr on t.object_id = tr.parent_id
-left join sys.extended_properties ep on tr.object_id = ep.major_id and ep.name = @{ nameof(GetAllTableCommentsQuery.CommentProperty) }
-where t.is_ms_shipped = 0
-) wrapped order by wrapped.{ nameof(GetAllTableCommentsQueryResult.SchemaName) }, wrapped.{ nameof(GetAllTableCommentsQueryResult.TableName) }";
+        private static readonly string TablesQuerySql = @$"
+select schema_name(schema_id) as [{ nameof(GetAllTableNamesQueryResult.SchemaName) }], name as [{ nameof(GetAllTableNamesQueryResult.TableName) }]
+from sys.tables
+where is_ms_shipped = 0
+order by schema_name(schema_id), name";
 
         /// <summary>
         /// A SQL query definition which retrieves all comment information for a particular table.

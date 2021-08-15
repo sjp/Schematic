@@ -56,32 +56,13 @@ namespace SJP.Schematic.SqlServer.Comments
         /// <returns>A collection of database sequence comments.</returns>
         public async IAsyncEnumerable<IDatabaseSequenceComments> GetAllSequenceComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var allCommentsData = await Connection.QueryAsync<GetAllSequenceCommentsQueryResult>(
-                AllSequenceCommentsQuery,
-                new GetAllSequenceCommentsQuery { CommentProperty = CommentProperty },
-                cancellationToken
-            ).ConfigureAwait(false);
+            var queryResults = await Connection.QueryAsync<GetAllSequenceNamesQueryResult>(SequencesQuery, cancellationToken).ConfigureAwait(false);
+            var sequenceNames = queryResults
+                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.SequenceName))
+                .Select(QualifySequenceName);
 
-            var sequenceComments = allCommentsData
-                .GroupBy(static row => new { row.SchemaName, row.SequenceName })
-                .Select(g =>
-                {
-                    var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.SequenceName));
-                    var comments = g.Select(r => new CommentData
-                    {
-                        SchemaName = r.SchemaName,
-                        SequenceName = r.SequenceName,
-                        ObjectName = r.ObjectName,
-                        ObjectType = r.ObjectType,
-                        Comment = r.Comment
-                    }).ToList();
-
-                    var sequenceComment = GetFirstCommentByType(comments, Constants.Sequence);
-                    return new DatabaseSequenceComments(sequenceName, sequenceComment);
-                });
-
-            foreach (var sequenceComment in sequenceComments)
-                yield return sequenceComment;
+            foreach (var sequenceName in sequenceNames)
+                yield return await LoadSequenceCommentsAsyncCore(sequenceName, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -176,23 +157,18 @@ where schema_id = schema_id(@{ nameof(GetSequenceNameQuery.SchemaName) }) and na
         }
 
         /// <summary>
-        /// Gets a query that retrieves comment information on all sequences.
+        /// Gets a query that retrieves names of all sequences in the database.
         /// </summary>
         /// <value>A SQL query.</value>
-        protected virtual string AllSequenceCommentsQuery => AllSequenceCommentsQuerySql;
+        protected virtual string SequencesQuery => SequencesQuerySql;
 
-        private static readonly string AllSequenceCommentsQuerySql = @$"
+        private static readonly string SequencesQuerySql = @$"
 select
-    SCHEMA_NAME(s.schema_id) as [{ nameof(GetAllSequenceCommentsQueryResult.SchemaName) }],
-    s.name as [{ nameof(GetAllSequenceCommentsQueryResult.SequenceName) }],
-    'SEQUENCE' as [{ nameof(GetAllSequenceCommentsQueryResult.ObjectType) }],
-    s.name as [{ nameof(GetAllSequenceCommentsQueryResult.ObjectName) }],
-    ep.value as [{ nameof(GetAllSequenceCommentsQueryResult.Comment) }]
-from sys.sequences s
-left join sys.extended_properties ep on s.object_id = ep.major_id and ep.name = @{ nameof(GetAllSequenceCommentsQuery.CommentProperty) } and ep.minor_id = 0
-where s.is_ms_shipped = 0
-order by SCHEMA_NAME(s.schema_id), s.name
-";
+    schema_name(schema_id) as [{ nameof(GetAllSequenceNamesQueryResult.SchemaName) }],
+    name as [{ nameof(GetAllSequenceNamesQueryResult.SequenceName) }]
+from sys.sequences
+where is_ms_shipped = 0
+order by schema_name(schema_id), name";
 
         /// <summary>
         /// Gets a query that retrieves comment information on a single comment.

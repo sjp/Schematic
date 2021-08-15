@@ -56,32 +56,13 @@ namespace SJP.Schematic.SqlServer.Comments
         /// <returns>A collection of database routine comments, where available.</returns>
         public async IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var allCommentsData = await Connection.QueryAsync<GetAllRoutineCommentsQueryResult>(
-                AllRoutineCommentsQuery,
-                new GetAllRoutineCommentsQuery { CommentProperty = CommentProperty },
-                cancellationToken
-            ).ConfigureAwait(false);
+            var queryResults = await Connection.QueryAsync<GetAllRoutineNamesQueryResult>(RoutinesQuery, cancellationToken).ConfigureAwait(false);
+            var routineNames = queryResults
+                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
+                .Select(QualifyRoutineName);
 
-            var comments = allCommentsData
-                .GroupBy(static row => new { row.SchemaName, row.RoutineName })
-                .Select(g =>
-                {
-                    var qualifiedName = QualifyRoutineName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.RoutineName));
-                    var commentsData = g.Select(r => new CommentData
-                    {
-                        SchemaName = r.SchemaName,
-                        RoutineName = r.RoutineName,
-                        ObjectName = r.ObjectName,
-                        ObjectType = r.ObjectType,
-                        Comment = r.Comment
-                    }).ToList();
-                    var routineComment = GetFirstCommentByType(commentsData, Constants.Routine);
-
-                    return new DatabaseRoutineComments(qualifiedName, routineComment);
-                });
-
-            foreach (var comment in comments)
-                yield return comment;
+            foreach (var routineName in routineNames)
+                yield return await LoadRoutineCommentsAsyncCore(routineName, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -177,23 +158,18 @@ where schema_id = schema_id(@{ nameof(GetRoutineNameQuery.SchemaName) }) and nam
         }
 
         /// <summary>
-        /// Gets a query that retrieves comments for all routines in the database.
+        /// A SQL query that retrieves all database routine names.
         /// </summary>
-        /// <value>A SQL query.</value>
-        protected virtual string AllRoutineCommentsQuery => AllRoutineCommentsQuerySql;
+        /// <value>A SQL query definition.</value>
+        protected virtual string RoutinesQuery => RoutinesQuerySql;
 
-        private static readonly string AllRoutineCommentsQuerySql = @$"
+        private static readonly string RoutinesQuerySql = @$"
 select
-    SCHEMA_NAME(r.schema_id) as [{ nameof(GetAllRoutineCommentsQueryResult.SchemaName) }],
-    r.name as [{ nameof(GetAllRoutineCommentsQueryResult.RoutineName) }],
-    'ROUTINE' as [{ nameof(GetAllRoutineCommentsQueryResult.ObjectType) }],
-    r.name as [{ nameof(GetAllRoutineCommentsQueryResult.ObjectName) }],
-    ep.value as [{ nameof(GetAllRoutineCommentsQueryResult.Comment) }]
-from sys.objects r
-left join sys.extended_properties ep on r.object_id = ep.major_id and ep.name = @{ nameof(GetAllRoutineCommentsQuery.CommentProperty) } and ep.minor_id = 0
-where r.is_ms_shipped = 0 and r.type in ('P', 'FN', 'IF', 'TF')
-order by SCHEMA_NAME(r.schema_id), r.name
-";
+    schema_name(schema_id) as [{ nameof(GetAllRoutineNamesQueryResult.SchemaName) }],
+    name as [{ nameof(GetAllRoutineNamesQueryResult.RoutineName) }]
+from sys.objects
+where type in ('P', 'FN', 'IF', 'TF') and is_ms_shipped = 0
+order by schema_name(schema_id), name";
 
         /// <summary>
         /// Gets a query that retrieves comments for a single routine.
