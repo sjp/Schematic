@@ -58,46 +58,13 @@ namespace SJP.Schematic.PostgreSql.Comments
         /// <returns>A collection of database table comments, where available.</returns>
         public async IAsyncEnumerable<IRelationalDatabaseTableComments> GetAllTableComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var allCommentsData = await Connection.QueryAsync<GetAllTableCommentsQueryResult>(AllTableCommentsQuery, cancellationToken).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<GetTableNamesQueryResult>(TablesQuery, cancellationToken).ConfigureAwait(false);
+            var tableNames = queryResult
+                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
+                .Select(QualifyTableName);
 
-            var comments = allCommentsData
-                .GroupBy(static row => new { row.SchemaName, row.TableName })
-                .Select(g =>
-                {
-                    var tableName = QualifyTableName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName));
-
-                    var commentData = g.Select(r => new CommentData
-                    {
-                        ObjectName = r.ObjectName,
-                        Comment = r.Comment,
-                        ObjectType = r.ObjectType
-                    }).ToList();
-
-                    var tableComment = GetFirstCommentByType(commentData, Constants.Table);
-                    var primaryKeyComment = GetFirstCommentByType(commentData, Constants.Primary);
-
-                    var columnComments = GetCommentLookupByType(commentData, Constants.Column);
-                    var checkComments = GetCommentLookupByType(commentData, Constants.Check);
-                    var foreignKeyComments = GetCommentLookupByType(commentData, Constants.ForeignKey);
-                    var uniqueKeyComments = GetCommentLookupByType(commentData, Constants.Unique);
-                    var indexComments = GetCommentLookupByType(commentData, Constants.Index);
-                    var triggerComments = GetCommentLookupByType(commentData, Constants.Trigger);
-
-                    return new RelationalDatabaseTableComments(
-                        tableName,
-                        tableComment,
-                        primaryKeyComment,
-                        columnComments,
-                        checkComments,
-                        uniqueKeyComments,
-                        foreignKeyComments,
-                        indexComments,
-                        triggerComments
-                    );
-                });
-
-            foreach (var comment in comments)
-                yield return comment;
+            foreach (var tableName in tableNames)
+                yield return await LoadTableCommentsAsyncCore(tableName, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -230,137 +197,18 @@ limit 1";
         }
 
         /// <summary>
-        /// A SQL query definition which retrieves all comment information for all tables.
+        /// A SQL query that retrieves the names of all tables in the database.
         /// </summary>
         /// <value>A SQL query.</value>
-        protected virtual string AllTableCommentsQuery => AllTableCommentsQuerySql;
+        protected virtual string TablesQuery => TablesQuerySql;
 
-        private static readonly string AllTableCommentsQuerySql = @$"
-select wrapped.* from (
--- table
+        private static readonly string TablesQuerySql = @$"
 select
-    ns.nspname as ""{ nameof(GetAllTableCommentsQueryResult.SchemaName) }"",
-    t.relname as ""{ nameof(GetAllTableCommentsQueryResult.TableName) }"",
-    'TABLE' as ""{ nameof(GetAllTableCommentsQueryResult.ObjectType) }"",
-    t.relname as ""{ nameof(GetAllTableCommentsQueryResult.ObjectName) }"",
-    d.description as ""{ nameof(GetAllTableCommentsQueryResult.Comment) }""
-from pg_catalog.pg_class t
-inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
-left join pg_catalog.pg_description d on d.objoid = t.oid and d.objsubid = 0
-where t.relkind = 'r' and ns.nspname not in ('pg_catalog', 'information_schema')
-
-union
-
--- columns
-select
-    ns.nspname as ""{ nameof(GetAllTableCommentsQueryResult.SchemaName) }"",
-    t.relname as ""{ nameof(GetAllTableCommentsQueryResult.TableName) }"",
-    'COLUMN' as ""{ nameof(GetAllTableCommentsQueryResult.ObjectType) }"",
-    a.attname as ""{ nameof(GetAllTableCommentsQueryResult.ObjectName) }"",
-    d.description as ""{ nameof(GetAllTableCommentsQueryResult.Comment) }""
-from pg_catalog.pg_class t
-inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
-inner join pg_catalog.pg_attribute a on a.attrelid = t.oid
-left join pg_description d on t.oid = d.objoid and a.attnum = d.objsubid
-where t.relkind = 'r' and ns.nspname not in ('pg_catalog', 'information_schema')
-    and a.attnum > 0 and not a.attisdropped
-
-union
-
--- checks
-select
-    ns.nspname as ""{ nameof(GetAllTableCommentsQueryResult.SchemaName) }"",
-    t.relname as ""{ nameof(GetAllTableCommentsQueryResult.TableName) }"",
-    'CHECK' as ""{ nameof(GetAllTableCommentsQueryResult.ObjectType) }"",
-    c.conname as ""{ nameof(GetAllTableCommentsQueryResult.ObjectName) }"",
-    d.description as ""{ nameof(GetAllTableCommentsQueryResult.Comment) }""
-from pg_catalog.pg_class t
-inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
-inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
-left join pg_catalog.pg_description d on d.objoid = c.oid
-where t.relkind = 'r' and ns.nspname not in ('pg_catalog', 'information_schema')
-    and c.conrelid > 0 and c.contype = 'c'
-
-union
-
--- foreign keys
-select
-    ns.nspname as ""{ nameof(GetAllTableCommentsQueryResult.SchemaName) }"",
-    t.relname as ""{ nameof(GetAllTableCommentsQueryResult.TableName) }"",
-    'FOREIGN KEY' as ""{ nameof(GetAllTableCommentsQueryResult.ObjectType) }"",
-    c.conname as ""{ nameof(GetAllTableCommentsQueryResult.ObjectName) }"",
-    d.description as ""{ nameof(GetAllTableCommentsQueryResult.Comment) }""
-from pg_catalog.pg_class t
-inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
-inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
-left join pg_catalog.pg_description d on d.objoid = c.oid
-where t.relkind = 'r' and ns.nspname not in ('pg_catalog', 'information_schema')
-    and c.conrelid > 0 and c.contype = 'f'
-
-union
-
--- unique keys
-select
-    ns.nspname as ""{ nameof(GetAllTableCommentsQueryResult.SchemaName) }"",
-    t.relname as ""{ nameof(GetAllTableCommentsQueryResult.TableName) }"",
-    'UNIQUE' as ""{ nameof(GetAllTableCommentsQueryResult.ObjectType) }"",
-    c.conname as ""{ nameof(GetAllTableCommentsQueryResult.ObjectName) }"",
-    d.description as ""{ nameof(GetAllTableCommentsQueryResult.Comment) }""
-from pg_catalog.pg_class t
-inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
-inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
-left join pg_catalog.pg_description d on d.objoid = c.oid
-where t.relkind = 'r' and ns.nspname not in ('pg_catalog', 'information_schema')
-    and c.conrelid > 0 and c.contype = 'u'
-
-union
-
--- primary key
-select
-    ns.nspname as ""{ nameof(GetAllTableCommentsQueryResult.SchemaName) }"",
-    t.relname as ""{ nameof(GetAllTableCommentsQueryResult.TableName) }"",
-    'PRIMARY' as ""{ nameof(GetAllTableCommentsQueryResult.ObjectType) }"",
-    c.conname as ""{ nameof(GetAllTableCommentsQueryResult.ObjectName) }"",
-    d.description as ""{ nameof(GetAllTableCommentsQueryResult.Comment) }""
-from pg_catalog.pg_class t
-inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
-inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
-left join pg_catalog.pg_description d on d.objoid = c.oid
-where t.relkind = 'r' and ns.nspname not in ('pg_catalog', 'information_schema')
-    and c.conrelid > 0 and c.contype = 'p'
-
-union
-
--- indexes
-select
-    ns.nspname as ""{ nameof(GetAllTableCommentsQueryResult.SchemaName) }"",
-    t.relname as ""{ nameof(GetAllTableCommentsQueryResult.TableName) }"",
-    'INDEX' as ""{ nameof(GetAllTableCommentsQueryResult.ObjectType) }"",
-    ci.relname as ""{ nameof(GetAllTableCommentsQueryResult.ObjectName) }"",
-    d.description as ""{ nameof(GetAllTableCommentsQueryResult.Comment) }""
-from pg_catalog.pg_class t
-inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
-inner join pg_catalog.pg_index i on i.indrelid = t.oid
-inner join pg_catalog.pg_class ci on i.indexrelid = ci.oid and ci.relkind = 'i'
-left join pg_catalog.pg_description d on d.objoid = i.indexrelid
-where t.relkind = 'r' and ns.nspname not in ('pg_catalog', 'information_schema')
-
-union
-
--- triggers
-select
-    ns.nspname as ""{ nameof(GetAllTableCommentsQueryResult.SchemaName) }"",
-    t.relname as ""{ nameof(GetAllTableCommentsQueryResult.TableName) }"",
-    'TRIGGER' as ""{ nameof(GetAllTableCommentsQueryResult.ObjectType) }"",
-    tr.tgname as ""{ nameof(GetAllTableCommentsQueryResult.ObjectName) }"",
-    d.description as ""{ nameof(GetAllTableCommentsQueryResult.Comment) }""
-from pg_catalog.pg_class t
-inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
-inner join pg_catalog.pg_trigger tr on tr.tgrelid = t.oid
-left join pg_catalog.pg_description d on d.objoid = tr.oid
-where t.relkind = 'r' and ns.nspname not in ('pg_catalog', 'information_schema')
-) wrapped order by wrapped.""{ nameof(GetAllTableCommentsQueryResult.SchemaName) }"", wrapped.""{ nameof(GetAllTableCommentsQueryResult.TableName) }""
-";
+    schemaname as ""{ nameof(GetTableNamesQueryResult.SchemaName) }"",
+    tablename as ""{ nameof(GetTableNamesQueryResult.TableName) }""
+from pg_catalog.pg_tables
+where schemaname not in ('pg_catalog', 'information_schema')
+order by schemaname, tablename";
 
         /// <summary>
         /// A SQL query definition which retrieves all comment information for a particular table.

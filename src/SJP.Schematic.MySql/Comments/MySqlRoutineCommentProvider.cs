@@ -50,27 +50,18 @@ namespace SJP.Schematic.MySql.Comments
         /// <returns>A collection of database routine comments, where available.</returns>
         public async IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var commentsData = await Connection.QueryAsync<GetAllRoutineCommentsQueryResult>(
-                AllRoutineCommentsQuery,
-                new GetAllRoutineCommentsQuery { SchemaName = IdentifierDefaults.Schema! },
+            var queryResults = await Connection.QueryAsync<GetAllRoutineNamesQueryResult>(
+                RoutinesQuery,
+                new GetAllRoutineNamesQuery { SchemaName = IdentifierDefaults.Schema! },
                 cancellationToken
             ).ConfigureAwait(false);
 
-            var comments = commentsData
-                .Select(comment =>
-                {
-                    var tmpIdentifier = Identifier.CreateQualifiedIdentifier(comment.SchemaName, comment.RoutineName);
-                    var qualifiedName = QualifyRoutineName(tmpIdentifier);
+            var routineNames = queryResults
+                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
+                .Select(QualifyRoutineName);
 
-                    var routineComment = !comment.Comment.IsNullOrWhiteSpace()
-                        ? Option<string>.Some(comment.Comment)
-                        : Option<string>.None;
-
-                    return new DatabaseRoutineComments(qualifiedName, routineComment);
-                });
-
-            foreach (var comment in comments)
-                yield return comment;
+            foreach (var routineName in routineNames)
+                yield return await LoadRoutineCommentsAsyncCore(routineName, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -158,18 +149,17 @@ limit 1";
         }
 
         /// <summary>
-        /// A SQL query definition that retrieves all routine comments in a given database.
+        /// A SQL query definition that retrieves all routine names in a given database.
         /// </summary>
         /// <value>A SQL query.</value>
-        protected virtual string AllRoutineCommentsQuery => AllRoutineCommentsQuerySql;
+        protected virtual string RoutinesQuery => RoutinesQuerySql;
 
-        private static readonly string AllRoutineCommentsQuerySql = @$"
+        private static readonly string RoutinesQuerySql = @$"
 select
-    ROUTINE_SCHEMA as `{ nameof(GetAllRoutineCommentsQueryResult.SchemaName) }`,
-    ROUTINE_NAME as `{ nameof(GetAllRoutineCommentsQueryResult.RoutineName) }`,
-    ROUTINE_COMMENT as `{ nameof(GetAllRoutineCommentsQueryResult.Comment) }`
-from INFORMATION_SCHEMA.ROUTINES
-where ROUTINE_SCHEMA = @{ nameof(GetAllRoutineCommentsQuery.SchemaName) }
+    ROUTINE_SCHEMA as `{ nameof(GetAllRoutineNamesQueryResult.SchemaName) }`,
+    ROUTINE_NAME as `{ nameof(GetAllRoutineNamesQueryResult.RoutineName) }`
+from information_schema.routines
+where ROUTINE_SCHEMA = @{ nameof(GetAllRoutineNamesQuery.SchemaName) }
 order by ROUTINE_SCHEMA, ROUTINE_NAME";
 
         /// <summary>

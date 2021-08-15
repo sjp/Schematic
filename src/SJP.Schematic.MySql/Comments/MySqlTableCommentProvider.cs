@@ -51,43 +51,18 @@ namespace SJP.Schematic.MySql.Comments
         /// <returns>A collection of database table comments, where available.</returns>
         public async IAsyncEnumerable<IRelationalDatabaseTableComments> GetAllTableComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var allCommentsData = await Connection.QueryAsync<GetAllTableCommentsQueryResult>(
-                AllTableCommentsQuery,
-                new GetAllTableCommentsQuery { SchemaName = IdentifierDefaults.Schema! },
+            var queryResults = await Connection.QueryAsync<GetAllTableNamesQueryResult>(
+                TablesQuery,
+                new GetAllTableNamesQuery { SchemaName = IdentifierDefaults.Schema! },
                 cancellationToken
             ).ConfigureAwait(false);
 
-            var comments = allCommentsData
-                .GroupBy(static row => new { row.SchemaName, row.TableName })
-                .Select(g =>
-                {
-                    var tableName = QualifyTableName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName));
-                    var comments = g.ToList();
+            var tableNames = queryResults
+                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
+                .Select(QualifyTableName);
 
-                    var tableComment = GetFirstCommentByType(comments, Constants.Table);
-                    var primaryKeyComment = Option<string>.None;
-                    var columnComments = GetCommentLookupByType(comments, Constants.Column);
-                    var checkComments = Empty.CommentLookup;
-                    var foreignKeyComments = Empty.CommentLookup;
-                    var uniqueKeyComments = Empty.CommentLookup;
-                    var indexComments = GetCommentLookupByType(comments, Constants.Index);
-                    var triggerComments = Empty.CommentLookup;
-
-                    return new RelationalDatabaseTableComments(
-                        tableName,
-                        tableComment,
-                        primaryKeyComment,
-                        columnComments,
-                        checkComments,
-                        uniqueKeyComments,
-                        foreignKeyComments,
-                        indexComments,
-                        triggerComments
-                    );
-                });
-
-            foreach (var comment in comments)
-                yield return comment;
+            foreach (var tableName in tableNames)
+                yield return await LoadTableCommentsAsyncCore(tableName, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -189,50 +164,17 @@ limit 1";
         }
 
         /// <summary>
-        /// A SQL query definition which retrieves all comment information for all tables.
+        /// A SQL query definition which retrieves table names all tables.
         /// </summary>
         /// <value>A SQL query.</value>
-        protected virtual string AllTableCommentsQuery => AllTableCommentsQuerySql;
+        protected virtual string TablesQuery => TablesQuerySql;
 
-        private static readonly string AllTableCommentsQuerySql = @$"
-select wrapped.* from (
--- table
+        private static readonly string TablesQuerySql = @$"
 select
-    TABLE_SCHEMA as `{ nameof(GetAllTableCommentsQueryResult.SchemaName) }`,
-    TABLE_NAME as `{ nameof(GetAllTableCommentsQueryResult.TableName) }`,
-    'TABLE' as `{ nameof(GetAllTableCommentsQueryResult.ObjectType) }`,
-    TABLE_NAME as `{ nameof(GetAllTableCommentsQueryResult.ObjectName) }`,
-    TABLE_COMMENT as `{ nameof(GetAllTableCommentsQueryResult.Comment) }`
-from INFORMATION_SCHEMA.TABLES
-where TABLE_SCHEMA = @{ nameof(GetAllTableCommentsQuery.SchemaName) }
-
-union
-
--- columns
-select
-    c.TABLE_SCHEMA as `{ nameof(GetAllTableCommentsQueryResult.SchemaName) }`,
-    c.TABLE_NAME as `{ nameof(GetAllTableCommentsQueryResult.TableName) }`,
-    'COLUMN' as `{ nameof(GetAllTableCommentsQueryResult.ObjectType) }`,
-    c.COLUMN_NAME as `{ nameof(GetAllTableCommentsQueryResult.ObjectName) }`,
-    c.COLUMN_COMMENT as `{ nameof(GetAllTableCommentsQueryResult.Comment) }`
-from INFORMATION_SCHEMA.COLUMNS c
-inner join INFORMATION_SCHEMA.TABLES t on c.TABLE_SCHEMA = t.TABLE_SCHEMA and c.TABLE_NAME = t.TABLE_NAME
-where c.TABLE_SCHEMA = @{ nameof(GetAllTableCommentsQuery.SchemaName) }
-
-union
-
--- indexes
-select
-    s.TABLE_SCHEMA as `{ nameof(GetAllTableCommentsQueryResult.SchemaName) }`,
-    s.TABLE_NAME as `{ nameof(GetAllTableCommentsQueryResult.TableName) }`,
-    'INDEX' as `{ nameof(GetAllTableCommentsQueryResult.ObjectType) }`,
-    s.INDEX_NAME as `{ nameof(GetAllTableCommentsQueryResult.ObjectName) }`,
-    s.INDEX_COMMENT as `{ nameof(GetAllTableCommentsQueryResult.Comment) }`
-from INFORMATION_SCHEMA.STATISTICS s
-inner join INFORMATION_SCHEMA.TABLES t on s.TABLE_SCHEMA = t.TABLE_SCHEMA and s.TABLE_NAME = t.TABLE_NAME
-where s.TABLE_SCHEMA = @{ nameof(GetAllTableCommentsQuery.SchemaName) }
-) wrapped order by wrapped.{ nameof(GetAllTableCommentsQueryResult.SchemaName) }, wrapped.{ nameof(GetAllTableCommentsQueryResult.TableName) }
-";
+    table_schema as `{ nameof(GetAllTableNamesQueryResult.SchemaName) }`,
+    table_name as `{ nameof(GetAllTableNamesQueryResult.TableName) }`
+from information_schema.tables
+where table_schema = @{ nameof(GetAllTableNamesQuery.SchemaName) }";
 
         /// <summary>
         /// A SQL query definition which retrieves all comment information for a particular table.
@@ -272,19 +214,6 @@ inner join INFORMATION_SCHEMA.TABLES t on s.TABLE_SCHEMA = t.TABLE_SCHEMA and s.
 where s.TABLE_SCHEMA = @{ nameof(GetTableCommentsQuery.SchemaName) } and s.TABLE_NAME = @{ nameof(GetTableCommentsQuery.TableName) }
 ";
 
-        private static Option<string> GetFirstCommentByType(IEnumerable<GetAllTableCommentsQueryResult> commentsData, string objectType)
-        {
-            if (commentsData == null)
-                throw new ArgumentNullException(nameof(commentsData));
-            if (objectType.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(objectType));
-
-            return commentsData
-                .Where(c => string.Equals(c.ObjectType, objectType, StringComparison.Ordinal))
-                .Select(static c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
-                .FirstOrDefault();
-        }
-
         private static Option<string> GetFirstCommentByType(IEnumerable<GetTableCommentsQueryResult> commentsData, string objectType)
         {
             if (commentsData == null)
@@ -296,22 +225,6 @@ where s.TABLE_SCHEMA = @{ nameof(GetTableCommentsQuery.SchemaName) } and s.TABLE
                 .Where(c => string.Equals(c.ObjectType, objectType, StringComparison.Ordinal))
                 .Select(static c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
                 .FirstOrDefault();
-        }
-
-        private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IEnumerable<GetAllTableCommentsQueryResult> commentsData, string objectType)
-        {
-            if (commentsData == null)
-                throw new ArgumentNullException(nameof(commentsData));
-            if (objectType.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(objectType));
-
-            return commentsData
-                .Where(c => string.Equals(c.ObjectType, objectType, StringComparison.Ordinal))
-                .Select(static c => new KeyValuePair<Identifier, Option<string>>(
-                    Identifier.CreateQualifiedIdentifier(c.ObjectName),
-                    !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None
-                ))
-                .ToReadOnlyDictionary(IdentifierComparer.Ordinal);
         }
 
         private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IEnumerable<GetTableCommentsQueryResult> commentsData, string objectType)

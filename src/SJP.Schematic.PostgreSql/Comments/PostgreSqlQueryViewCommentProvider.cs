@@ -58,29 +58,13 @@ namespace SJP.Schematic.PostgreSql.Comments
         /// <returns>A collection of view comments.</returns>
         public async IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var allCommentsData = await Connection.QueryAsync<GetAllViewCommentsQueryResult>(AllViewCommentsQuery, cancellationToken).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<GetAllViewNamesQueryResult>(ViewsQuery, cancellationToken).ConfigureAwait(false);
+            var viewNames = queryResult
+                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
+                .Select(QualifyViewName);
 
-            var comments = allCommentsData
-                .GroupBy(static row => new { row.SchemaName, row.ViewName })
-                .Select(g =>
-                {
-                    var qualifiedName = QualifyViewName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.ViewName));
-
-                    var commentData = g.Select(r => new CommentData
-                    {
-                        ObjectName = r.ObjectName,
-                        Comment = r.Comment,
-                        ObjectType = r.ObjectType
-                    }).ToList();
-
-                    var viewComment = GetFirstCommentByType(commentData, Constants.View);
-                    var columnComments = GetCommentLookupByType(commentData, Constants.Column);
-
-                    return new DatabaseViewComments(qualifiedName, viewComment, columnComments);
-                });
-
-            foreach (var comment in comments)
-                yield return comment;
+            foreach (var viewName in viewNames)
+                yield return await LoadViewCommentsAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -194,42 +178,16 @@ limit 1";
         }
 
         /// <summary>
-        /// Gets a query that retrieves view comments for all views.
+        /// A SQL query that retrieves the names of views available in the database.
         /// </summary>
         /// <value>A SQL query.</value>
-        protected virtual string AllViewCommentsQuery => AllViewCommentsQuerySql;
+        protected virtual string ViewsQuery => ViewsQuerySql;
 
-        private static readonly string AllViewCommentsQuerySql = @$"
-select wrapped.* from (
--- view
-select
-    n.nspname as ""{ nameof(GetAllViewCommentsQueryResult.SchemaName) }"",
-    c.relname as ""{ nameof(GetAllViewCommentsQueryResult.ViewName) }"",
-    'VIEW' as ""{ nameof(GetAllViewCommentsQueryResult.ObjectType) }"",
-    c.relname as ""{ nameof(GetAllViewCommentsQueryResult.ObjectName) }"",
-    d.description as ""{ nameof(GetAllViewCommentsQueryResult.Comment) }""
-from pg_catalog.pg_class c
-inner join pg_catalog.pg_namespace n on c.relnamespace = n.oid
-left join pg_catalog.pg_description d on c.oid = d.objoid and d.objsubid = 0
-where c.relkind = 'v' and n.nspname not in ('pg_catalog', 'information_schema')
-
-union
-
--- columns
-select
-    n.nspname as ""{ nameof(GetAllViewCommentsQueryResult.SchemaName) }"",
-    c.relname as ""{ nameof(GetAllViewCommentsQueryResult.ViewName) }"",
-    'COLUMN' as ""{ nameof(GetAllViewCommentsQueryResult.ObjectType) }"",
-    a.attname as ""{ nameof(GetAllViewCommentsQueryResult.ObjectName) }"",
-    d.description as ""{ nameof(GetAllViewCommentsQueryResult.Comment) }""
-from pg_catalog.pg_class c
-inner join pg_catalog.pg_namespace n on c.relnamespace = n.oid
-inner join pg_catalog.pg_attribute a on a.attrelid = c.oid
-left join pg_description d on c.oid = d.objoid and a.attnum = d.objsubid
-where c.relkind = 'v' and n.nspname not in ('pg_catalog', 'information_schema')
-    and a.attnum > 0 and not a.attisdropped
-) wrapped order by wrapped.""{ nameof(GetAllViewCommentsQueryResult.SchemaName) }"", wrapped.""{ nameof(GetAllViewCommentsQueryResult.ViewName) }""
-";
+        private static readonly string ViewsQuerySql = @$"
+select schemaname as ""{ nameof(GetAllViewNamesQueryResult.SchemaName) }"", viewname as ""{ nameof(GetAllViewNamesQueryResult.ViewName) }""
+from pg_catalog.pg_views
+where schemaname not in ('pg_catalog', 'information_schema')
+order by schemaname, viewname";
 
         /// <summary>
         /// Gets a query that retrieves view comments for a single view.
