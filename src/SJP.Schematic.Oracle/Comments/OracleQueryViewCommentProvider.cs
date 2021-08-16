@@ -58,29 +58,13 @@ namespace SJP.Schematic.Oracle.Comments
         /// <returns>A collection of view comments.</returns>
         public async IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var allCommentsData = await Connection.QueryAsync<GetAllViewCommentsQueryResult>(AllViewCommentsQuery, cancellationToken).ConfigureAwait(false);
+            var queryResult = await Connection.QueryAsync<GetAllViewNamesQueryResult>(ViewsQuery, cancellationToken).ConfigureAwait(false);
+            var viewNames = queryResult
+                .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
+                .Select(QualifyViewName);
 
-            var comments = allCommentsData
-                .GroupBy(static row => new { row.SchemaName, row.ViewName })
-                .Select(g =>
-                {
-                    var viewName = QualifyViewName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.ViewName));
-
-                    var commentData = g.Select(r => new CommentData
-                    {
-                        ColumnName = r.ColumnName,
-                        Comment = r.Comment,
-                        ObjectType = r.ObjectType
-                    }).ToList();
-
-                    var viewComment = GetViewComment(commentData);
-                    var columnComments = GetColumnComments(commentData);
-
-                    return new DatabaseViewComments(viewName, viewComment, columnComments);
-                });
-
-            foreach (var comment in comments)
-                yield return comment;
+            foreach (var viewName in viewNames)
+                yield return await LoadViewCommentsAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -217,40 +201,19 @@ where v.OWNER = :{ nameof(GetViewNameQuery.SchemaName) } and v.VIEW_NAME = :{ na
         }
 
         /// <summary>
-        /// Gets a query that retrieves view comments for all views.
+        /// A SQL query that retrieves the names of views available in the database.
         /// </summary>
         /// <value>A SQL query.</value>
-        protected virtual string AllViewCommentsQuery => AllViewCommentsQuerySql;
+        protected virtual string ViewsQuery => ViewsQuerySql;
 
-        private static readonly string AllViewCommentsQuerySql = @$"
-select wrapped.* from (
--- view
+        private static readonly string ViewsQuerySql = @$"
 select
-    v.OWNER as ""{ nameof(GetAllViewCommentsQueryResult.SchemaName) }"",
-    v.VIEW_NAME as ""{ nameof(GetAllViewCommentsQueryResult.ViewName) }"",
-    'VIEW' as ""{ nameof(GetAllViewCommentsQueryResult.ObjectType) }"",
-    NULL as ""{ nameof(GetAllViewCommentsQueryResult.ColumnName) }"",
-    c.COMMENTS as ""{ nameof(GetAllViewCommentsQueryResult.Comment) }""
+    v.OWNER as ""{ nameof(GetAllViewNamesQueryResult.SchemaName) }"",
+    v.VIEW_NAME as ""{ nameof(GetAllViewNamesQueryResult.ViewName) }""
 from SYS.ALL_VIEWS v
 inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.VIEW_NAME = o.OBJECT_NAME
-left join SYS.ALL_TAB_COMMENTS c on v.OWNER = c.OWNER and v.VIEW_NAME = c.TABLE_NAME and c.TABLE_TYPE = 'VIEW'
 where o.ORACLE_MAINTAINED <> 'Y'
-
-union
-
--- columns
-select
-    v.OWNER as ""{ nameof(GetAllViewCommentsQueryResult.SchemaName) }"",
-    v.VIEW_NAME as ""{ nameof(GetAllViewCommentsQueryResult.ViewName) }"",
-    'COLUMN' as ""{ nameof(GetAllViewCommentsQueryResult.ObjectType) }"",
-    vc.COLUMN_NAME as ""{ nameof(GetAllViewCommentsQueryResult.ColumnName) }"",
-    c.COMMENTS as ""{ nameof(GetAllViewCommentsQueryResult.Comment) }""
-from SYS.ALL_VIEWS v
-inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.VIEW_NAME = o.OBJECT_NAME
-inner join SYS.ALL_TAB_COLS vc on vc.OWNER = v.OWNER and vc.TABLE_NAME = v.VIEW_NAME
-left join SYS.ALL_COL_COMMENTS c on c.OWNER = vc.OWNER and c.TABLE_NAME = vc.TABLE_NAME and c.COLUMN_NAME = vc.COLUMN_NAME
-where o.ORACLE_MAINTAINED <> 'Y'
-) wrapped order by wrapped.""{ nameof(GetAllViewCommentsQueryResult.SchemaName) }"", wrapped.""{ nameof(GetAllViewCommentsQueryResult.ViewName) }""";
+order by v.OWNER, v.VIEW_NAME";
 
         /// <summary>
         /// Gets a query that retrieves view comments for a single view.

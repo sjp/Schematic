@@ -59,45 +59,13 @@ namespace SJP.Schematic.Oracle.Comments
         /// <returns>A collection of database table comments, where available.</returns>
         public async IAsyncEnumerable<IRelationalDatabaseTableComments> GetAllTableComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var allCommentsData = await Connection.QueryAsync<GetAllTableCommentsQueryResult>(AllTableCommentsQuery, cancellationToken).ConfigureAwait(false);
+            var queryResults = await Connection.QueryAsync<GetAllTableNamesQueryResult>(TablesQuery, cancellationToken).ConfigureAwait(false);
+            var tableNames = queryResults
+                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
+                .Select(QualifyTableName);
 
-            var comments = allCommentsData
-                .GroupBy(static row => new { row.SchemaName, row.TableName })
-                .Select(g =>
-                {
-                    var tableName = QualifyTableName(Identifier.CreateQualifiedIdentifier(g.Key.SchemaName, g.Key.TableName));
-
-                    var commentData = g.Select(r => new CommentData
-                    {
-                        ColumnName = r.ColumnName,
-                        Comment = r.Comment,
-                        ObjectType = r.ObjectType
-                    }).ToList();
-
-                    var tableComment = GetTableComment(commentData);
-                    var primaryKeyComment = Option<string>.None;
-                    var columnComments = GetColumnComments(commentData);
-                    var checkComments = Empty.CommentLookup;
-                    var foreignKeyComments = Empty.CommentLookup;
-                    var uniqueKeyComments = Empty.CommentLookup;
-                    var indexComments = Empty.CommentLookup;
-                    var triggerComments = Empty.CommentLookup;
-
-                    return new RelationalDatabaseTableComments(
-                        tableName,
-                        tableComment,
-                        primaryKeyComment,
-                        columnComments,
-                        checkComments,
-                        uniqueKeyComments,
-                        foreignKeyComments,
-                        indexComments,
-                        triggerComments
-                    );
-                });
-
-            foreach (var comment in comments)
-                yield return comment;
+            foreach (var tableName in tableNames)
+                yield return await LoadTableCommentsAsyncCore(tableName, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -274,48 +242,29 @@ where
         }
 
         /// <summary>
-        /// A SQL query definition which retrieves all comment information for all tables.
+        /// A SQL query that retrieves the names of all tables in the database.
         /// </summary>
         /// <value>A SQL query.</value>
-        protected virtual string AllTableCommentsQuery => AllTableCommentsQuerySql;
+        protected virtual string TablesQuery => TablesQuerySql;
 
-        private static readonly string AllTableCommentsQuerySql = @$"
-select wrapped.* from (
--- table
+        private static readonly string TablesQuerySql = @$"
 select
-    t.OWNER as ""{ nameof(GetAllTableCommentsQueryResult.SchemaName) }"",
-    t.TABLE_NAME as ""{ nameof(GetAllTableCommentsQueryResult.TableName) }"",
-    'TABLE' as ""{ nameof(GetAllTableCommentsQueryResult.ObjectType) }"",
-    NULL as ""{ nameof(GetAllTableCommentsQueryResult.ColumnName) }"",
-    c.COMMENTS as ""{ nameof(GetAllTableCommentsQueryResult.Comment) }""
+    t.OWNER as ""{ nameof(GetAllTableNamesQueryResult.SchemaName) }"",
+    t.TABLE_NAME as ""{ nameof(GetAllTableNamesQueryResult.TableName) }""
 from SYS.ALL_TABLES t
-left join SYS.ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
 inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
-left join SYS.ALL_TAB_COMMENTS c on t.OWNER = c.OWNER and t.TABLE_NAME = c.TABLE_NAME and c.TABLE_TYPE = 'TABLE'
-where o.ORACLE_MAINTAINED <> 'Y'
+left join SYS.ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
+left join SYS.ALL_NESTED_TABLES nt on t.OWNER = nt.OWNER and t.TABLE_NAME = nt.TABLE_NAME
+left join SYS.ALL_EXTERNAL_TABLES et on t.OWNER = et.OWNER and t.TABLE_NAME = et.TABLE_NAME
+where
+    o.ORACLE_MAINTAINED <> 'Y'
     and o.GENERATED <> 'Y'
     and o.SECONDARY <> 'Y'
+    and o.SUBOBJECT_NAME is null
     and mv.MVIEW_NAME is null
-
-union
-
--- columns
-select
-    t.OWNER as ""{ nameof(GetAllTableCommentsQueryResult.SchemaName) }"",
-    t.TABLE_NAME as ""{ nameof(GetAllTableCommentsQueryResult.TableName) }"",
-    'COLUMN' as ""{ nameof(GetAllTableCommentsQueryResult.ObjectType) }"",
-    tc.COLUMN_NAME as ""{ nameof(GetAllTableCommentsQueryResult.ColumnName) }"",
-    c.COMMENTS as ""{ nameof(GetAllTableCommentsQueryResult.Comment) }""
-from SYS.ALL_TABLES t
-left join SYS.ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
-inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
-inner join SYS.ALL_TAB_COLS tc on tc.OWNER = t.OWNER and tc.TABLE_NAME = t.TABLE_NAME
-left join SYS.ALL_COL_COMMENTS c on c.OWNER = tc.OWNER and c.TABLE_NAME = tc.TABLE_NAME and c.COLUMN_NAME = tc.COLUMN_NAME
-where o.ORACLE_MAINTAINED <> 'Y'
-    and o.GENERATED <> 'Y'
-    and o.SECONDARY <> 'Y'
-    and mv.MVIEW_NAME is null
-) wrapped order by wrapped.""{ nameof(GetAllTableCommentsQueryResult.SchemaName) }"", wrapped.""{ nameof(GetAllTableCommentsQueryResult.TableName) }""";
+    and nt.TABLE_NAME is null
+    and et.TABLE_NAME is null
+order by t.OWNER, t.TABLE_NAME";
 
         /// <summary>
         /// A SQL query definition which retrieves all comment information for a particular table.
