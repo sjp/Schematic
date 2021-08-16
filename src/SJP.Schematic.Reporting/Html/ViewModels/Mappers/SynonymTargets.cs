@@ -4,14 +4,17 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 {
+    /// <summary>
+    /// TODO: Refactor to avoid keeping all objects in memory in lookups.
+    /// </summary>
     internal sealed class SynonymTargets
     {
         public SynonymTargets(
-            IReadOnlyCollection<IRelationalDatabaseTable> tables,
-            IReadOnlyCollection<IDatabaseView> views,
-            IReadOnlyCollection<IDatabaseSequence> sequences,
-            IReadOnlyCollection<IDatabaseSynonym> synonyms,
-            IReadOnlyCollection<IDatabaseRoutine> routines
+            IEnumerable<IRelationalDatabaseTable> tables,
+            IEnumerable<IDatabaseView> views,
+            IEnumerable<IDatabaseSequence> sequences,
+            IEnumerable<IDatabaseSynonym> synonyms,
+            IEnumerable<IDatabaseRoutine> routines
         )
         {
             if (tables == null)

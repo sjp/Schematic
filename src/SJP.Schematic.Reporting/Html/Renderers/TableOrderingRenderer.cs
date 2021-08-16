@@ -13,21 +13,17 @@ namespace SJP.Schematic.Reporting.Html.Renderers
     {
         public TableOrderingRenderer(
             IDatabaseDialect dialect,
-            IReadOnlyCollection<IRelationalDatabaseTable> tables,
+            IEnumerable<IRelationalDatabaseTable> tables,
             DirectoryInfo exportDirectory)
         {
-            if (tables == null || tables.AnyNull())
-                throw new ArgumentNullException(nameof(tables));
-
-            Tables = tables;
-
+            Tables = tables ?? throw new ArgumentNullException(nameof(tables));
             Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
             ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
         }
 
         private IDatabaseDialect Dialect { get; }
 
-        private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
+        private IEnumerable<IRelationalDatabaseTable> Tables { get; }
 
         private DirectoryInfo ExportDirectory { get; }
 

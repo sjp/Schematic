@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint;
@@ -64,46 +65,51 @@ namespace SJP.Schematic.Reporting
             await assetExporter.SaveAssetsAsync(ExportDirectory, true, cancellationToken).ConfigureAwait(false);
         }
 
-        private async Task<IReadOnlyDictionary<Identifier, ulong>> GetRowCountsAsync(IReadOnlyCollection<IRelationalDatabaseTable> tables, CancellationToken cancellationToken)
+        private async Task<IReadOnlyDictionary<Identifier, ulong>> GetRowCountsAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken)
         {
-            var rowCountTasks = new List<Task<ulong>>();
+            var rowCountTasks = new List<Task<KeyValuePair<Identifier, ulong>>>();
 
             foreach (var table in tables)
-                rowCountTasks.Add(Connection.DbConnection.GetRowCountAsync(Connection.Dialect, table.Name, cancellationToken));
+                rowCountTasks.Add(GetTableRowCountAsync(table.Name, cancellationToken));
 
             await Task.WhenAll(rowCountTasks).ConfigureAwait(false);
 
             var result = new Dictionary<Identifier, ulong>();
 
-            var index = 0;
-            foreach (var table in tables)
+            foreach (var rowCountTask in rowCountTasks)
             {
-                result[table.Name] = await rowCountTasks[index].ConfigureAwait(false);
-                index++;
+                var rowCountInfo = rowCountTask.Result;
+                result[rowCountInfo.Key] = rowCountInfo.Value;
             }
 
             return result;
         }
 
+        private async Task<KeyValuePair<Identifier, ulong>> GetTableRowCountAsync(Identifier tableName, CancellationToken cancellationToken)
+        {
+            var rowCount = await Connection.DbConnection.GetRowCountAsync(Connection.Dialect, tableName, cancellationToken).ConfigureAwait(false);
+            return new KeyValuePair<Identifier, ulong>(tableName, rowCount);
+        }
+
         private IEnumerable<ITemplateRenderer> GetRenderers(
-            IReadOnlyCollection<IRelationalDatabaseTable> tables,
-            IReadOnlyCollection<IDatabaseView> views,
-            IReadOnlyCollection<IDatabaseSequence> sequences,
-            IReadOnlyCollection<IDatabaseSynonym> synonyms,
-            IReadOnlyCollection<IDatabaseRoutine> routines,
+            IEnumerable<IRelationalDatabaseTable> tables,
+            IEnumerable<IDatabaseView> views,
+            IEnumerable<IDatabaseSequence> sequences,
+            IEnumerable<IDatabaseSynonym> synonyms,
+            IEnumerable<IDatabaseRoutine> routines,
             IReadOnlyDictionary<Identifier, ulong> rowCounts,
             string databaseVersion
         )
         {
-            if (tables == null || tables.AnyNull())
+            if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
-            if (views == null || views.AnyNull())
+            if (views == null)
                 throw new ArgumentNullException(nameof(views));
-            if (sequences == null || sequences.AnyNull())
+            if (sequences == null)
                 throw new ArgumentNullException(nameof(sequences));
-            if (synonyms == null || synonyms.AnyNull())
+            if (synonyms == null)
                 throw new ArgumentNullException(nameof(synonyms));
-            if (routines == null || routines.AnyNull())
+            if (routines == null)
                 throw new ArgumentNullException(nameof(routines));
             if (rowCounts == null)
                 throw new ArgumentNullException(nameof(rowCounts));

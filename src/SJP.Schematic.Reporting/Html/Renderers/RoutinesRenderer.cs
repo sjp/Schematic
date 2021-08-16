@@ -16,14 +16,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         public RoutinesRenderer(
             IIdentifierDefaults identifierDefaults,
             IHtmlFormatter formatter,
-            IReadOnlyCollection<IDatabaseRoutine> routines,
+            IEnumerable<IDatabaseRoutine> routines,
             DirectoryInfo exportDirectory)
         {
-            if (routines == null || routines.AnyNull())
-                throw new ArgumentNullException(nameof(routines));
-
-            Routines = routines;
-
+            Routines = routines ?? throw new ArgumentNullException(nameof(routines));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
             ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
@@ -33,7 +29,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private IHtmlFormatter Formatter { get; }
 
-        private IReadOnlyCollection<IDatabaseRoutine> Routines { get; }
+        private IEnumerable<IDatabaseRoutine> Routines { get; }
 
         private DirectoryInfo ExportDirectory { get; }
 

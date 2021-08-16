@@ -16,14 +16,11 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         public IndexesRenderer(
             IIdentifierDefaults identifierDefaults,
             IHtmlFormatter formatter,
-            IReadOnlyCollection<IRelationalDatabaseTable> tables,
+            IEnumerable<IRelationalDatabaseTable> tables,
             DirectoryInfo exportDirectory
         )
         {
-            if (tables == null || tables.AnyNull())
-                throw new ArgumentNullException(nameof(tables));
-
-            Tables = tables;
+            Tables = tables ?? throw new ArgumentNullException(nameof(tables));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
             ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
@@ -33,7 +30,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private IHtmlFormatter Formatter { get; }
 
-        private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
+        private IEnumerable<IRelationalDatabaseTable> Tables { get; }
 
         private DirectoryInfo ExportDirectory { get; }
 

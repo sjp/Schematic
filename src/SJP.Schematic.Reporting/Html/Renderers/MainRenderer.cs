@@ -16,31 +16,20 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         public MainRenderer(
             IRelationalDatabase database,
             IHtmlFormatter formatter,
-            IReadOnlyCollection<IRelationalDatabaseTable> tables,
-            IReadOnlyCollection<IDatabaseView> views,
-            IReadOnlyCollection<IDatabaseSequence> sequences,
-            IReadOnlyCollection<IDatabaseSynonym> synonyms,
-            IReadOnlyCollection<IDatabaseRoutine> routines,
+            IEnumerable<IRelationalDatabaseTable> tables,
+            IEnumerable<IDatabaseView> views,
+            IEnumerable<IDatabaseSequence> sequences,
+            IEnumerable<IDatabaseSynonym> synonyms,
+            IEnumerable<IDatabaseRoutine> routines,
             IReadOnlyDictionary<Identifier, ulong> rowCounts,
             string dbVersion,
             DirectoryInfo exportDirectory)
         {
-            if (tables == null || tables.AnyNull())
-                throw new ArgumentNullException(nameof(tables));
-            if (views == null || views.AnyNull())
-                throw new ArgumentNullException(nameof(views));
-            if (sequences == null || sequences.AnyNull())
-                throw new ArgumentNullException(nameof(sequences));
-            if (synonyms == null || synonyms.AnyNull())
-                throw new ArgumentNullException(nameof(synonyms));
-            if (routines == null || routines.AnyNull())
-                throw new ArgumentNullException(nameof(routines));
-
-            Tables = tables;
-            Views = views;
-            Sequences = sequences;
-            Synonyms = synonyms;
-            Routines = routines;
+            Tables = tables ?? throw new ArgumentNullException(nameof(tables));
+            Views = views ?? throw new ArgumentNullException(nameof(views));
+            Sequences = sequences ?? throw new ArgumentNullException(nameof(sequences));
+            Synonyms = synonyms ?? throw new ArgumentNullException(nameof(synonyms));
+            Routines = routines ?? throw new ArgumentNullException(nameof(routines));
 
             Database = database ?? throw new ArgumentNullException(nameof(database));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
@@ -53,15 +42,15 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private IHtmlFormatter Formatter { get; }
 
-        private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
+        private IEnumerable<IRelationalDatabaseTable> Tables { get; }
 
-        private IReadOnlyCollection<IDatabaseView> Views { get; }
+        private IEnumerable<IDatabaseView> Views { get; }
 
-        private IReadOnlyCollection<IDatabaseSequence> Sequences { get; }
+        private IEnumerable<IDatabaseSequence> Sequences { get; }
 
-        private IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; }
+        private IEnumerable<IDatabaseSynonym> Synonyms { get; }
 
-        private IReadOnlyCollection<IDatabaseRoutine> Routines { get; }
+        private IEnumerable<IDatabaseRoutine> Routines { get; }
 
         private IReadOnlyDictionary<Identifier, ulong> RowCounts { get; }
 

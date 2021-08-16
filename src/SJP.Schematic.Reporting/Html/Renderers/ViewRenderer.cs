@@ -16,16 +16,12 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         public ViewRenderer(
             IIdentifierDefaults identifierDefaults,
             IHtmlFormatter formatter,
-            IReadOnlyCollection<IDatabaseView> views,
+            IEnumerable<IDatabaseView> views,
             ReferencedObjectTargets referencedObjectTargets,
             DirectoryInfo exportDirectory
         )
         {
-            if (views == null || views.AnyNull())
-                throw new ArgumentNullException(nameof(views));
-
-            Views = views;
-
+            Views = views ?? throw new ArgumentNullException(nameof(views));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
             ReferencedObjectTargets = referencedObjectTargets ?? throw new ArgumentNullException(nameof(referencedObjectTargets));
@@ -40,7 +36,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private IHtmlFormatter Formatter { get; }
 
-        private IReadOnlyCollection<IDatabaseView> Views { get; }
+        private IEnumerable<IDatabaseView> Views { get; }
 
         private ReferencedObjectTargets ReferencedObjectTargets { get; }
 

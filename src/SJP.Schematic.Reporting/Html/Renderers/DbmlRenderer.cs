@@ -4,7 +4,6 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Dbml;
 
 namespace SJP.Schematic.Reporting.Html.Renderers
@@ -12,18 +11,14 @@ namespace SJP.Schematic.Reporting.Html.Renderers
     internal sealed class DbmlRenderer : ITemplateRenderer
     {
         public DbmlRenderer(
-            IReadOnlyCollection<IRelationalDatabaseTable> tables,
+            IEnumerable<IRelationalDatabaseTable> tables,
             DirectoryInfo exportDirectory)
         {
-            if (tables == null || tables.AnyNull())
-                throw new ArgumentNullException(nameof(tables));
-
-            Tables = tables;
-
+            Tables = tables ?? throw new ArgumentNullException(nameof(tables));
             ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
         }
 
-        private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
+        private IEnumerable<IRelationalDatabaseTable> Tables { get; }
 
         private DirectoryInfo ExportDirectory { get; }
 

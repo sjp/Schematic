@@ -13,6 +13,8 @@
     <ProjectReference Include="..\SJP.Schematic.Dot\SJP.Schematic.Dot.csproj" />
     <ProjectReference Include="..\SJP.Schematic.Graphviz\SJP.Schematic.Graphviz.csproj" />
     <ProjectReference Include="..\SJP.Schematic.Lint\SJP.Schematic.Lint.csproj" />
+    <ProjectReference Include="..\SJP.Schematic.Serialization\SJP.Schematic.Serialization.csproj" />
+    <ProjectReference Include="..\SJP.Schematic.Sqlite\SJP.Schematic.Sqlite.csproj" />
   </ItemGroup>
 
   <ItemGroup>

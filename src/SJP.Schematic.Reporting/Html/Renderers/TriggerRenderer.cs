@@ -15,11 +15,11 @@ namespace SJP.Schematic.Reporting.Html.Renderers
     {
         public TriggerRenderer(
             IHtmlFormatter formatter,
-            IReadOnlyCollection<IRelationalDatabaseTable> tables,
+            IEnumerable<IRelationalDatabaseTable> tables,
             DirectoryInfo exportDirectory
         )
         {
-            if (tables == null || tables.AnyNull())
+            if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
 
             Tables = tables;
@@ -33,7 +33,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private IHtmlFormatter Formatter { get; }
 
-        private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
+        private IEnumerable<IRelationalDatabaseTable> Tables { get; }
 
         private DirectoryInfo ExportDirectory { get; }
 

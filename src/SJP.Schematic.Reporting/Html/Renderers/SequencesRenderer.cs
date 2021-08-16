@@ -16,14 +16,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         public SequencesRenderer(
             IIdentifierDefaults identifierDefaults,
             IHtmlFormatter formatter,
-            IReadOnlyCollection<IDatabaseSequence> sequences,
+            IEnumerable<IDatabaseSequence> sequences,
             DirectoryInfo exportDirectory)
         {
-            if (sequences == null || sequences.AnyNull())
-                throw new ArgumentNullException(nameof(sequences));
-
-            Sequences = sequences;
-
+            Sequences = sequences ?? throw new ArgumentNullException(nameof(sequences));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
             ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
@@ -33,7 +29,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private IHtmlFormatter Formatter { get; }
 
-        private IReadOnlyCollection<IDatabaseSequence> Sequences { get; }
+        private IEnumerable<IDatabaseSequence> Sequences { get; }
 
         private DirectoryInfo ExportDirectory { get; }
 

@@ -16,17 +16,15 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         public SynonymRenderer(
             IIdentifierDefaults identifierDefaults,
             IHtmlFormatter formatter,
-            IReadOnlyCollection<IDatabaseSynonym> synonyms,
+            IEnumerable<IDatabaseSynonym> synonyms,
             SynonymTargets synonymTargets,
             DirectoryInfo exportDirectory
         )
         {
-            if (synonyms == null || synonyms.AnyNull())
-                throw new ArgumentNullException(nameof(synonyms));
             if (exportDirectory == null)
                 throw new ArgumentNullException(nameof(exportDirectory));
 
-            Synonyms = synonyms;
+            Synonyms = synonyms ?? throw new ArgumentNullException(nameof(synonyms));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
             SynonymTargets = synonymTargets ?? throw new ArgumentNullException(nameof(synonymTargets));
@@ -37,7 +35,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private IHtmlFormatter Formatter { get; }
 
-        private IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; }
+        private IEnumerable<IDatabaseSynonym> Synonyms { get; }
 
         private SynonymTargets SynonymTargets { get; }
 

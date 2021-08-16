@@ -18,16 +18,12 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         public TableRenderer(
             IIdentifierDefaults identifierDefaults,
             IHtmlFormatter formatter,
-            IReadOnlyCollection<IRelationalDatabaseTable> tables,
+            IEnumerable<IRelationalDatabaseTable> tables,
             IReadOnlyDictionary<Identifier, ulong> rowCounts,
             DirectoryInfo exportDirectory
         )
         {
-            if (tables == null || tables.AnyNull())
-                throw new ArgumentNullException(nameof(tables));
-
-            Tables = tables;
-
+            Tables = tables ?? throw new ArgumentNullException(nameof(tables));
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
             Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
             RowCounts = rowCounts ?? throw new ArgumentNullException(nameof(rowCounts));
@@ -42,7 +38,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private IHtmlFormatter Formatter { get; }
 
-        private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
+        private IEnumerable<IRelationalDatabaseTable> Tables { get; }
 
         private IReadOnlyDictionary<Identifier, ulong> RowCounts { get; }
 

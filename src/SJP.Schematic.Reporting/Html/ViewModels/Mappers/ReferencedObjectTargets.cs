@@ -11,22 +11,22 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
     {
         public ReferencedObjectTargets(
             IDependencyProvider dependencyProvider,
-            IReadOnlyCollection<IRelationalDatabaseTable> tables,
-            IReadOnlyCollection<IDatabaseView> views,
-            IReadOnlyCollection<IDatabaseSequence> sequences,
-            IReadOnlyCollection<IDatabaseSynonym> synonyms,
-            IReadOnlyCollection<IDatabaseRoutine> routines
+            IEnumerable<IRelationalDatabaseTable> tables,
+            IEnumerable<IDatabaseView> views,
+            IEnumerable<IDatabaseSequence> sequences,
+            IEnumerable<IDatabaseSynonym> synonyms,
+            IEnumerable<IDatabaseRoutine> routines
         )
         {
-            if (tables == null || tables.AnyNull())
+            if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
-            if (views == null || views.AnyNull())
+            if (views == null)
                 throw new ArgumentNullException(nameof(views));
-            if (sequences == null || sequences.AnyNull())
+            if (sequences == null)
                 throw new ArgumentNullException(nameof(sequences));
-            if (synonyms == null || synonyms.AnyNull())
+            if (synonyms == null)
                 throw new ArgumentNullException(nameof(synonyms));
-            if (routines == null || routines.AnyNull())
+            if (routines == null)
                 throw new ArgumentNullException(nameof(routines));
 
             DependencyProvider = dependencyProvider ?? throw new ArgumentNullException(nameof(dependencyProvider));
@@ -39,15 +39,15 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
 
         private IDependencyProvider DependencyProvider { get; }
 
-        private IReadOnlyCollection<Identifier> TableNames { get; }
+        private IEnumerable<Identifier> TableNames { get; }
 
-        private IReadOnlyCollection<Identifier> ViewNames { get; }
+        private IEnumerable<Identifier> ViewNames { get; }
 
-        private IReadOnlyCollection<Identifier> SequenceNames { get; }
+        private IEnumerable<Identifier> SequenceNames { get; }
 
-        private IReadOnlyCollection<Identifier> SynonymNames { get; }
+        private IEnumerable<Identifier> SynonymNames { get; }
 
-        private IReadOnlyCollection<Identifier> RoutineNames { get; }
+        private IEnumerable<Identifier> RoutineNames { get; }
 
         public IReadOnlyCollection<HtmlString> GetReferencedObjectLinks(string rootPath, Identifier objectName, string expression)
         {
@@ -123,7 +123,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
             return result;
         }
 
-        private static IReadOnlyCollection<Identifier> GetMatchingObjects(IReadOnlyCollection<Identifier> objectNames, Identifier referenceName)
+        private static IReadOnlyCollection<Identifier> GetMatchingObjects(IEnumerable<Identifier> objectNames, Identifier referenceName)
         {
             return objectNames
                 .Where(name => string.Equals(name.Schema, referenceName.Schema, StringComparison.OrdinalIgnoreCase)

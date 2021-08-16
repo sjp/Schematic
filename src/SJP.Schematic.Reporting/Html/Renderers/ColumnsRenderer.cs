@@ -16,13 +16,13 @@ namespace SJP.Schematic.Reporting.Html.Renderers
         public ColumnsRenderer(
             IIdentifierDefaults identifierDefaults,
             IHtmlFormatter formatter,
-            IReadOnlyCollection<IRelationalDatabaseTable> tables,
-            IReadOnlyCollection<IDatabaseView> views,
+            IEnumerable<IRelationalDatabaseTable> tables,
+            IEnumerable<IDatabaseView> views,
             DirectoryInfo exportDirectory)
         {
-            if (tables == null || tables.AnyNull())
+            if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
-            if (views == null || views.AnyNull())
+            if (views == null)
                 throw new ArgumentNullException(nameof(views));
 
             IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
@@ -36,9 +36,9 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         private IHtmlFormatter Formatter { get; }
 
-        private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
+        private IEnumerable<IRelationalDatabaseTable> Tables { get; }
 
-        private IReadOnlyCollection<IDatabaseView> Views { get; }
+        private IEnumerable<IDatabaseView> Views { get; }
 
         private DirectoryInfo ExportDirectory { get; }
 
