@@ -17,11 +17,11 @@ namespace SJP.Schematic.Core.Utilities
         /// <param name="tables">The tables which may contain a cycle.</param>
         /// <returns>A set of cycles, each element contains the set of table names that form a cycle.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
-        public IReadOnlyCollection<IReadOnlyCollection<Identifier>> GetCyclePaths(IReadOnlyCollection<IRelationalDatabaseTable> tables)
+        public IReadOnlyCollection<IReadOnlyCollection<Identifier>> GetCyclePaths(IEnumerable<IRelationalDatabaseTable> tables)
         {
             if (tables == null)
                 throw new ArgumentNullException(nameof(tables));
-            if (tables.Count == 0)
+            if (!tables.Any())
                 return Array.Empty<IReadOnlyCollection<Identifier>>();
 
             var graph = new AdjacencyGraph<Identifier, SEquatableEdge<Identifier>>();
