@@ -39,10 +39,10 @@ namespace SJP.Schematic.Reporting.Html.Renderers
 
         public async Task RenderAsync(CancellationToken cancellationToken = default)
         {
-            var primaryKeys = Tables.SelectMany(static t => t.PrimaryKey.Select(pk => new { TableName = t.Name, PrimaryKey = pk })).ToList();
-            var uniqueKeys = Tables.SelectMany(static t => t.UniqueKeys.Select(uk => new { TableName = t.Name, UniqueKey = uk })).ToList();
-            var foreignKeys = Tables.SelectMany(static t => t.ParentKeys).ToList();
-            var checkConstraints = Tables.SelectMany(static t => t.Checks.Select(ck => new { TableName = t.Name, Check = ck })).ToList();
+            var primaryKeys = Tables.SelectMany(static t => t.PrimaryKey.Select(pk => new { TableName = t.Name, PrimaryKey = pk }));
+            var uniqueKeys = Tables.SelectMany(static t => t.UniqueKeys.Select(uk => new { TableName = t.Name, UniqueKey = uk }));
+            var foreignKeys = Tables.SelectMany(static t => t.ParentKeys);
+            var checkConstraints = Tables.SelectMany(static t => t.Checks.Select(ck => new { TableName = t.Name, Check = ck }));
 
             var mapper = new ConstraintsModelMapper();
 

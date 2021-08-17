@@ -66,6 +66,9 @@ namespace SJP.Schematic.Reporting.Html.Renderers
             var constraints = 0U;
             var indexesCount = 0U;
             var tableViewModels = new List<Main.Table>();
+
+            var tableNames = new List<Identifier>();
+
             foreach (var table in Tables)
             {
                 if (!RowCounts.TryGetValue(table.Name, out var rowCount))
@@ -92,23 +95,46 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 columns += renderTable.ColumnCount;
 
                 tableViewModels.Add(renderTable);
+                tableNames.Add(table.Name);
             }
 
-            var viewViewModels = Views.Select(mapper.Map).ToList();
+            var viewNames = new List<Identifier>();
+            var viewViewModels = new List<Main.View>();
+            foreach (var view in Views)
+            {
+                var vm = mapper.Map(view);
+                viewViewModels.Add(vm);
+                viewNames.Add(view.Name);
+            }
             columns += (uint)viewViewModels.Sum(static v => v.ColumnCount);
 
-            var sequenceViewModels = Sequences.Select(mapper.Map).ToList();
+            var sequenceNames = new List<Identifier>();
+            var sequenceViewModels = new List<Main.Sequence>();
+            foreach (var sequence in Sequences)
+            {
+                var vm = mapper.Map(sequence);
+                sequenceViewModels.Add(vm);
+                sequenceNames.Add(sequence.Name);
+            }
 
-            var synonymTargets = new SynonymTargets(Tables, Views, Sequences, Synonyms, Routines);
+            var routineNames = new List<Identifier>();
+            var routineViewModels = new List<Main.Routine>();
+            foreach (var routine in Routines)
+            {
+                var vm = mapper.Map(routine);
+                routineViewModels.Add(vm);
+                routineNames.Add(routine.Name);
+            }
+
+            var synonymNames = Synonyms.Select(static s => s.Name).ToList();
+            var synonymTargets = new SynonymTargets(tableNames, viewNames, sequenceNames, synonymNames, routineNames);
             var synonymViewModels = Synonyms.Select(s => mapper.Map(s, synonymTargets)).ToList();
 
-            var routineViewModels = Routines.Select(mapper.Map).ToList();
-
-            var schemas = Tables.Select(static t => t.Name)
-                .Union(Views.Select(static v => v.Name))
-                .Union(Sequences.Select(static s => s.Name))
-                .Union(Synonyms.Select(static s => s.Name))
-                .Union(Routines.Select(static r => r.Name))
+            var schemas = tableNames
+                .Union(viewNames)
+                .Union(sequenceNames)
+                .Union(synonymNames)
+                .Union(routineNames)
                 .Select(static n => n.Schema)
                 .Where(static n => n != null)
                 .Distinct(StringComparer.Ordinal)

@@ -11,30 +11,19 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers
     {
         public ReferencedObjectTargets(
             IDependencyProvider dependencyProvider,
-            IEnumerable<IRelationalDatabaseTable> tables,
-            IEnumerable<IDatabaseView> views,
-            IEnumerable<IDatabaseSequence> sequences,
-            IEnumerable<IDatabaseSynonym> synonyms,
-            IEnumerable<IDatabaseRoutine> routines
+            IEnumerable<Identifier> tableNames,
+            IEnumerable<Identifier> viewNames,
+            IEnumerable<Identifier> sequenceNames,
+            IEnumerable<Identifier> synonymNames,
+            IEnumerable<Identifier> routineNames
         )
         {
-            if (tables == null)
-                throw new ArgumentNullException(nameof(tables));
-            if (views == null)
-                throw new ArgumentNullException(nameof(views));
-            if (sequences == null)
-                throw new ArgumentNullException(nameof(sequences));
-            if (synonyms == null)
-                throw new ArgumentNullException(nameof(synonyms));
-            if (routines == null)
-                throw new ArgumentNullException(nameof(routines));
-
             DependencyProvider = dependencyProvider ?? throw new ArgumentNullException(nameof(dependencyProvider));
-            TableNames = tables.Select(static t => t.Name).ToList();
-            ViewNames = views.Select(static v => v.Name).ToList();
-            SequenceNames = sequences.Select(static s => s.Name).ToList();
-            SynonymNames = synonyms.Select(static s => s.Name).ToList();
-            RoutineNames = routines.Select(static r => r.Name).ToList();
+            TableNames = tableNames ?? throw new ArgumentNullException(nameof(tableNames));
+            ViewNames = viewNames ?? throw new ArgumentNullException(nameof(viewNames));
+            SequenceNames = sequenceNames ?? throw new ArgumentNullException(nameof(sequenceNames));
+            SynonymNames = synonymNames ?? throw new ArgumentNullException(nameof(synonymNames));
+            RoutineNames = routineNames ?? throw new ArgumentNullException(nameof(routineNames));
         }
 
         private IDependencyProvider DependencyProvider { get; }

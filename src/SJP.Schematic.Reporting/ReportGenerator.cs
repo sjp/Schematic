@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint;
 using SJP.Schematic.Reporting.Html;
 using SJP.Schematic.Reporting.Html.Lint;
@@ -39,19 +38,11 @@ namespace SJP.Schematic.Reporting
 
         public async Task GenerateAsync(CancellationToken cancellationToken = default)
         {
-            var tablesTask = Database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).AsTask();
-            var viewsTask = Database.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask();
-            var sequencesTask = Database.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).AsTask();
-            var synonymsTask = Database.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).AsTask();
-            var routinesTask = Database.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).AsTask();
-
-            await Task.WhenAll(tablesTask, viewsTask, sequencesTask, synonymsTask, routinesTask).ConfigureAwait(false);
-
-            var tables = await tablesTask.ConfigureAwait(false);
-            var views = await viewsTask.ConfigureAwait(false);
-            var sequences = await sequencesTask.ConfigureAwait(false);
-            var synonyms = await synonymsTask.ConfigureAwait(false);
-            var routines = await routinesTask.ConfigureAwait(false);
+            var tables = Database.GetAllTables(cancellationToken).ToEnumerable();
+            var views = Database.GetAllViews(cancellationToken).ToEnumerable();
+            var sequences = Database.GetAllSequences(cancellationToken).ToEnumerable();
+            var synonyms = Database.GetAllSynonyms(cancellationToken).ToEnumerable();
+            var routines = Database.GetAllRoutines(cancellationToken).ToEnumerable();
 
             var rowCounts = await GetRowCountsAsync(tables, cancellationToken).ConfigureAwait(false);
 
@@ -117,10 +108,16 @@ namespace SJP.Schematic.Reporting
             var ruleProvider = new ReportingRuleProvider();
             var rules = ruleProvider.GetRules(Connection, RuleLevel.Warning);
             var linter = new RelationalDatabaseLinter(rules);
-            var synonymTargets = new SynonymTargets(tables, views, sequences, synonyms, routines);
+
+            var tableNames = tables.Select(static t => t.Name).ToList();
+            var viewNames = views.Select(static v => v.Name).ToList();
+            var sequenceNames = sequences.Select(static s => s.Name).ToList();
+            var synonymNames = synonyms.Select(static s => s.Name).ToList();
+            var routineNames = routines.Select(static r => r.Name).ToList();
+            var synonymTargets = new SynonymTargets(tableNames, viewNames, sequenceNames, synonymNames, routineNames);
 
             var dependencyProvider = Connection.Dialect.GetDependencyProvider();
-            var referencedObjectTargets = new ReferencedObjectTargets(dependencyProvider, tables, views, sequences, synonyms, routines);
+            var referencedObjectTargets = new ReferencedObjectTargets(dependencyProvider, tableNames, viewNames, sequenceNames, synonymNames, routineNames);
 
             return new ITemplateRenderer[]
             {
