@@ -206,6 +206,9 @@ namespace SJP.Schematic.Reporting.Snapshot
 
         public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
         {
+            if (routineName == null)
+                throw new ArgumentNullException(nameof(routineName));
+
             var dbRecord = OptionAsync<Identifier>.OptionalAsync(QualifyObjectNameAsync(routineName, cancellationToken))
                 .Bind(n =>
                    Connection.QuerySingleOrNone<GetDatabaseObjectDefinitionQueryResult>(
@@ -231,6 +234,9 @@ namespace SJP.Schematic.Reporting.Snapshot
 
         public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default)
         {
+            if (sequenceName == null)
+                throw new ArgumentNullException(nameof(sequenceName));
+
             var dbRecord = OptionAsync<Identifier>.OptionalAsync(QualifyObjectNameAsync(sequenceName, cancellationToken))
                 .Bind(n =>
                    Connection.QuerySingleOrNone<GetDatabaseObjectDefinitionQueryResult>(
@@ -256,6 +262,9 @@ namespace SJP.Schematic.Reporting.Snapshot
 
         public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default)
         {
+            if (synonymName == null)
+                throw new ArgumentNullException(nameof(synonymName));
+
             var dbRecord = OptionAsync<Identifier>.OptionalAsync(QualifyObjectNameAsync(synonymName, cancellationToken))
                 .Bind(n =>
                    Connection.QuerySingleOrNone<GetDatabaseObjectDefinitionQueryResult>(
@@ -281,6 +290,9 @@ namespace SJP.Schematic.Reporting.Snapshot
 
         public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default)
         {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
             var dbRecord = OptionAsync<Identifier>.OptionalAsync(QualifyObjectNameAsync(tableName, cancellationToken))
                 .Bind(n =>
                    Connection.QuerySingleOrNone<GetDatabaseObjectDefinitionQueryResult>(
@@ -306,6 +318,9 @@ namespace SJP.Schematic.Reporting.Snapshot
 
         public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
         {
+            if (viewName == null)
+                throw new ArgumentNullException(nameof(viewName));
+
             var dbRecord = OptionAsync<Identifier>.OptionalAsync(QualifyObjectNameAsync(viewName, cancellationToken))
                 .Bind(n =>
                    Connection.QuerySingleOrNone<GetDatabaseObjectDefinitionQueryResult>(
