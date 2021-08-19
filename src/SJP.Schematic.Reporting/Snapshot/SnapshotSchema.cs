@@ -6,15 +6,36 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Snapshot
 {
+    /// <summary>
+    /// Initializes schema in a given database for storing a snapshot of another database's schema definition.
+    /// </summary>
     public class SnapshotSchema
     {
+        /// <summary>
+        /// Initializes an instance of <see cref="SnapshotSchema"/>.
+        /// </summary>
+        /// <param name="connection">A connection factory for a database that will have snapshot schema created.</param>
+        /// <throws cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</throws>
         public SnapshotSchema(IDbConnectionFactory connection)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
         }
 
+        /// <summary>
+        /// A database connection that is used to store snapshot data.
+        /// </summary>
         protected IDbConnectionFactory Connection { get; }
 
+        /// <summary>
+        /// <para>
+        /// Creates schema requires to store a snapshot of another database's schema definition.
+        /// </para>
+        /// <para>
+        /// This is an idempotent operation, subsequent requests will have no effect.
+        /// </para>
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A <see cref="Task"/> whose completion indicates that schema has been initialized.</returns>
         public async Task EnsureSchemaExistsAsync(CancellationToken cancellationToken = default)
         {
             await Connection.ExecuteAsync(CreateIdentifierDefaultsTable, cancellationToken).ConfigureAwait(false);
