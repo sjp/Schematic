@@ -106,7 +106,7 @@ namespace SJP.Schematic.Lint.Rules
 
             foreach (var foreignKey in matchingForeignKeys)
             {
-                var isSelfReferencing = await TableHasSelfReferencingForeignKeyRowsAsync(table, primaryKey, foreignKey, cancellationToken);
+                var isSelfReferencing = await TableHasSelfReferencingForeignKeyRowsAsync(table, primaryKey, foreignKey, cancellationToken).ConfigureAwait(false);
                 if (isSelfReferencing)
                 {
                     var message = BuildMessage(table.Name, primaryKey, foreignKey);

@@ -27,7 +27,7 @@ namespace SJP.Schematic.Serialization
 
         public async Task<IRelationalDatabase> DeserializeAsync(Stream stream, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken = default)
         {
-            var dto = await JsonSerializer.DeserializeAsync<Dto.RelationalDatabase>(stream, _settings.Value, cancellationToken);
+            var dto = await JsonSerializer.DeserializeAsync<Dto.RelationalDatabase>(stream, _settings.Value, cancellationToken).ConfigureAwait(false);
             if (dto == null)
                 throw new InvalidOperationException("Unable to parse the given JSON as a database definition.");
 
