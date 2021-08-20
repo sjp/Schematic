@@ -212,9 +212,9 @@ namespace SJP.Schematic.Reporting.Snapshot
 
             var dbRecord = OptionAsync<Identifier>.OptionalAsync(QualifyObjectNameAsync(routineName, cancellationToken))
                 .Bind(n =>
-                   Connection.QuerySingleOrNone<GetDatabaseObjectDefinitionQueryResult>(
+                   Connection.QuerySingleOrNone<GetDatabaseCommentDefinitionQueryResult>(
                        DatabaseCommentDefinitionQuery,
-                       new GetDatabaseObjectDefinitionQuery
+                       new GetDatabaseCommentDefinitionQuery
                        {
                            ObjectType = ObjectTypes.Routine,
                            DatabaseName = n.Database,
@@ -225,10 +225,10 @@ namespace SJP.Schematic.Reporting.Snapshot
                    ));
 
             return dbRecord
-                .Where(r => r.DefinitionJson != null)
+                .Where(r => r.CommentJson != null)
                 .Map<IDatabaseRoutineComments>(r =>
                 {
-                    var dto = JsonSerializer.Deserialize<Serialization.Dto.Comments.DatabaseRoutineComments>(r.DefinitionJson!, _settings.Value);
+                    var dto = JsonSerializer.Deserialize<Serialization.Dto.Comments.DatabaseRoutineComments>(r.CommentJson!, _settings.Value);
                     return Mapper.Map<DatabaseRoutineComments>(dto);
                 });
         }
@@ -240,9 +240,9 @@ namespace SJP.Schematic.Reporting.Snapshot
 
             var dbRecord = OptionAsync<Identifier>.OptionalAsync(QualifyObjectNameAsync(sequenceName, cancellationToken))
                 .Bind(n =>
-                   Connection.QuerySingleOrNone<GetDatabaseObjectDefinitionQueryResult>(
+                   Connection.QuerySingleOrNone<GetDatabaseCommentDefinitionQueryResult>(
                        DatabaseCommentDefinitionQuery,
-                       new GetDatabaseObjectDefinitionQuery
+                       new GetDatabaseCommentDefinitionQuery
                        {
                            ObjectType = ObjectTypes.Sequence,
                            DatabaseName = n.Database,
@@ -253,10 +253,10 @@ namespace SJP.Schematic.Reporting.Snapshot
                    ));
 
             return dbRecord
-                .Where(r => r.DefinitionJson != null)
+                .Where(r => r.CommentJson != null)
                 .Map<IDatabaseSequenceComments>(r =>
                 {
-                    var dto = JsonSerializer.Deserialize<Serialization.Dto.Comments.DatabaseSequenceComments>(r.DefinitionJson!, _settings.Value);
+                    var dto = JsonSerializer.Deserialize<Serialization.Dto.Comments.DatabaseSequenceComments>(r.CommentJson!, _settings.Value);
                     return Mapper.Map<DatabaseSequenceComments>(dto);
                 });
         }
@@ -268,9 +268,9 @@ namespace SJP.Schematic.Reporting.Snapshot
 
             var dbRecord = OptionAsync<Identifier>.OptionalAsync(QualifyObjectNameAsync(synonymName, cancellationToken))
                 .Bind(n =>
-                   Connection.QuerySingleOrNone<GetDatabaseObjectDefinitionQueryResult>(
+                   Connection.QuerySingleOrNone<GetDatabaseCommentDefinitionQueryResult>(
                        DatabaseCommentDefinitionQuery,
-                       new GetDatabaseObjectDefinitionQuery
+                       new GetDatabaseCommentDefinitionQuery
                        {
                            ObjectType = ObjectTypes.Synonym,
                            DatabaseName = n.Database,
@@ -281,10 +281,10 @@ namespace SJP.Schematic.Reporting.Snapshot
                    ));
 
             return dbRecord
-                .Where(r => r.DefinitionJson != null)
+                .Where(r => r.CommentJson != null)
                 .Map<IDatabaseSynonymComments>(r =>
                 {
-                    var dto = JsonSerializer.Deserialize<Serialization.Dto.Comments.DatabaseSynonymComments>(r.DefinitionJson!, _settings.Value);
+                    var dto = JsonSerializer.Deserialize<Serialization.Dto.Comments.DatabaseSynonymComments>(r.CommentJson!, _settings.Value);
                     return Mapper.Map<DatabaseSynonymComments>(dto);
                 });
         }
@@ -296,9 +296,9 @@ namespace SJP.Schematic.Reporting.Snapshot
 
             var dbRecord = OptionAsync<Identifier>.OptionalAsync(QualifyObjectNameAsync(tableName, cancellationToken))
                 .Bind(n =>
-                   Connection.QuerySingleOrNone<GetDatabaseObjectDefinitionQueryResult>(
+                   Connection.QuerySingleOrNone<GetDatabaseCommentDefinitionQueryResult>(
                        DatabaseCommentDefinitionQuery,
-                       new GetDatabaseObjectDefinitionQuery
+                       new GetDatabaseCommentDefinitionQuery
                        {
                            ObjectType = ObjectTypes.Table,
                            DatabaseName = n.Database,
@@ -309,10 +309,10 @@ namespace SJP.Schematic.Reporting.Snapshot
                    ));
 
             return dbRecord
-                .Where(r => r.DefinitionJson != null)
+                .Where(r => r.CommentJson != null)
                 .Map<IRelationalDatabaseTableComments>(r =>
                 {
-                    var dto = JsonSerializer.Deserialize<Serialization.Dto.Comments.DatabaseTableComments>(r.DefinitionJson!, _settings.Value);
+                    var dto = JsonSerializer.Deserialize<Serialization.Dto.Comments.DatabaseTableComments>(r.CommentJson!, _settings.Value);
                     return Mapper.Map<RelationalDatabaseTableComments>(dto);
                 });
         }
@@ -324,9 +324,9 @@ namespace SJP.Schematic.Reporting.Snapshot
 
             var dbRecord = OptionAsync<Identifier>.OptionalAsync(QualifyObjectNameAsync(viewName, cancellationToken))
                 .Bind(n =>
-                   Connection.QuerySingleOrNone<GetDatabaseObjectDefinitionQueryResult>(
+                   Connection.QuerySingleOrNone<GetDatabaseCommentDefinitionQueryResult>(
                        DatabaseCommentDefinitionQuery,
-                       new GetDatabaseObjectDefinitionQuery
+                       new GetDatabaseCommentDefinitionQuery
                        {
                            ObjectType = ObjectTypes.View,
                            DatabaseName = n.Database,
@@ -337,10 +337,10 @@ namespace SJP.Schematic.Reporting.Snapshot
                    ));
 
             return dbRecord
-                .Where(r => r.DefinitionJson != null)
+                .Where(r => r.CommentJson != null)
                 .Map<IDatabaseViewComments>(r =>
                 {
-                    var dto = JsonSerializer.Deserialize<Serialization.Dto.Comments.DatabaseViewComments>(r.DefinitionJson!, _settings.Value);
+                    var dto = JsonSerializer.Deserialize<Serialization.Dto.Comments.DatabaseViewComments>(r.CommentJson!, _settings.Value);
                     return Mapper.Map<DatabaseViewComments>(dto);
                 });
         }
@@ -362,10 +362,9 @@ SELECT
     database_name AS ""{ nameof(GetAllObjectNamesForTypeQueryResult.DatabaseName) }"",
     schema_name AS ""{ nameof(GetAllObjectNamesForTypeQueryResult.SchemaName) }"",
     local_name AS ""{ nameof(GetAllObjectNamesForTypeQueryResult.LocalName) }""
-FROM database_object
+FROM database_comment
 WHERE
-    object_type = @{ nameof(GetAllObjectNamesForTypeQuery.ObjectType) }
-";
+    object_type = @{ nameof(GetAllObjectNamesForTypeQuery.ObjectType) }";
 
         private static readonly string DatabaseIdentifierDefaultsQuery = @$"
 SELECT
@@ -387,6 +386,6 @@ WHERE
     object_type = @{ nameof(GetDatabaseCommentDefinitionQuery.ObjectType) }
     AND local_name = @{ nameof(GetDatabaseCommentDefinitionQuery.LocalName) }
     AND schema_name = @{ nameof(GetDatabaseCommentDefinitionQuery.SchemaName) }
-    AND database_name = @{ nameof(GetDatabaseCommentDefinitionQuery.DatabaseName) }";
+    AND ((database_name IS NULL AND @{ nameof(GetDatabaseCommentDefinitionQuery.DatabaseName) } IS NULL) OR (database_name = @{ nameof(GetDatabaseCommentDefinitionQuery.DatabaseName) }))";
     }
 }
