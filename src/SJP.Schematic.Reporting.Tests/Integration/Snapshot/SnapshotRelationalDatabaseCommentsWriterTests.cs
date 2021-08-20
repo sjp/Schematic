@@ -75,10 +75,14 @@ namespace SJP.Schematic.Reporting.Tests.Integration.Snapshot
             await _commentsWriter.SnapshotDatabaseCommentsAsync(dbComments).ConfigureAwait(false);
 
             var dbTableComments = await dbComments.GetAllTableComments().ToListAsync().ConfigureAwait(false);
-            foreach (var dbTableComment in dbTableComments)
+
+            Assert.Multiple(async () =>
             {
-                await AssertTableCommentsMatchAsync(dbTableComment).ConfigureAwait(false);
-            }
+                foreach (var dbTableComment in dbTableComments)
+                {
+                    await AssertTableCommentsMatchAsync(dbTableComment).ConfigureAwait(false);
+                }
+            });
         }
 
         [Test]
@@ -89,10 +93,14 @@ namespace SJP.Schematic.Reporting.Tests.Integration.Snapshot
             await _commentsWriter.SnapshotDatabaseCommentsAsync(dbComments).ConfigureAwait(false);
 
             var dbViewComments = await dbComments.GetAllViewComments().ToListAsync().ConfigureAwait(false);
-            foreach (var dbViewComment in dbViewComments)
+
+            Assert.Multiple(async () =>
             {
-                await AssertViewCommentsMatchAsync(dbViewComment).ConfigureAwait(false);
-            }
+                foreach (var dbViewComment in dbViewComments)
+                {
+                    await AssertViewCommentsMatchAsync(dbViewComment).ConfigureAwait(false);
+                }
+            });
         }
 
         [Test]
@@ -103,10 +111,14 @@ namespace SJP.Schematic.Reporting.Tests.Integration.Snapshot
             await _commentsWriter.SnapshotDatabaseCommentsAsync(dbComments).ConfigureAwait(false);
 
             var dbSequenceComments = await dbComments.GetAllSequenceComments().ToListAsync().ConfigureAwait(false);
-            foreach (var dbSequenceComment in dbSequenceComments)
+
+            Assert.Multiple(async () =>
             {
-                await AssertSequenceCommentsMatchAsync(dbSequenceComment).ConfigureAwait(false);
-            }
+                foreach (var dbSequenceComment in dbSequenceComments)
+                {
+                    await AssertSequenceCommentsMatchAsync(dbSequenceComment).ConfigureAwait(false);
+                }
+            });
         }
 
         [Test]
@@ -117,10 +129,14 @@ namespace SJP.Schematic.Reporting.Tests.Integration.Snapshot
             await _commentsWriter.SnapshotDatabaseCommentsAsync(dbComments).ConfigureAwait(false);
 
             var dbSynonymComments = await dbComments.GetAllSynonymComments().ToListAsync().ConfigureAwait(false);
-            foreach (var dbSynonymComment in dbSynonymComments)
+
+            Assert.Multiple(async () =>
             {
-                await AssertSynonymCommentsMatchAsync(dbSynonymComment).ConfigureAwait(false);
-            }
+                foreach (var dbSynonymComment in dbSynonymComments)
+                {
+                    await AssertSynonymCommentsMatchAsync(dbSynonymComment).ConfigureAwait(false);
+                }
+            });
         }
 
         [Test]
@@ -131,10 +147,14 @@ namespace SJP.Schematic.Reporting.Tests.Integration.Snapshot
             await _commentsWriter.SnapshotDatabaseCommentsAsync(dbComments).ConfigureAwait(false);
 
             var dbRoutineComments = await dbComments.GetAllRoutineComments().ToListAsync().ConfigureAwait(false);
-            foreach (var dbRoutineComment in dbRoutineComments)
+
+            Assert.Multiple(async () =>
             {
-                await AssertRoutineCommentsMatchAsync(dbRoutineComment).ConfigureAwait(false);
-            }
+                foreach (var dbRoutineComment in dbRoutineComments)
+                {
+                    await AssertRoutineCommentsMatchAsync(dbRoutineComment).ConfigureAwait(false);
+                }
+            });
         }
 
         private async Task AssertTableCommentsMatchAsync(IRelationalDatabaseTableComments tableComments)

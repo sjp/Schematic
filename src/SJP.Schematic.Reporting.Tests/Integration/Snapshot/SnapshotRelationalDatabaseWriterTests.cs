@@ -75,16 +75,20 @@ namespace SJP.Schematic.Reporting.Tests.Integration.Snapshot
             await _databaseWriter.SnapshotDatabaseObjectsAsync(db).ConfigureAwait(false);
 
             var dbTables = await db.GetAllTables().ToListAsync().ConfigureAwait(false);
-            foreach (var table in dbTables)
-            {
-                await AssertTableMatchesAsync(table).ConfigureAwait(false);
-            }
-
             var dbViews = await db.GetAllViews().ToListAsync().ConfigureAwait(false);
-            foreach (var view in dbViews)
+
+            Assert.Multiple(async () =>
             {
-                await AssertViewMatchesAsync(view).ConfigureAwait(false);
-            }
+                foreach (var table in dbTables)
+                {
+                    await AssertTableMatchesAsync(table).ConfigureAwait(false);
+                }
+
+                foreach (var view in dbViews)
+                {
+                    await AssertViewMatchesAsync(view).ConfigureAwait(false);
+                }
+            });
         }
 
         [Test]
@@ -119,10 +123,14 @@ namespace SJP.Schematic.Reporting.Tests.Integration.Snapshot
             await _databaseWriter.SnapshotDatabaseObjectsAsync(db).ConfigureAwait(false);
 
             var dbSequences = await db.GetAllSequences().ToListAsync().ConfigureAwait(false);
-            foreach (var dbSequence in dbSequences)
+
+            Assert.Multiple(async () =>
             {
-                await AssertSequenceMatchesAsync(dbSequence).ConfigureAwait(false);
-            }
+                foreach (var dbSequence in dbSequences)
+                {
+                    await AssertSequenceMatchesAsync(dbSequence).ConfigureAwait(false);
+                }
+            });
         }
 
         [Test]
@@ -152,10 +160,14 @@ namespace SJP.Schematic.Reporting.Tests.Integration.Snapshot
             await _databaseWriter.SnapshotDatabaseObjectsAsync(db).ConfigureAwait(false);
 
             var dbSynonyms = await db.GetAllSynonyms().ToListAsync().ConfigureAwait(false);
-            foreach (var dbSynonym in dbSynonyms)
+
+            Assert.Multiple(async () =>
             {
-                await AssertSynonymMatchesAsync(dbSynonym).ConfigureAwait(false);
-            }
+                foreach (var dbSynonym in dbSynonyms)
+                {
+                    await AssertSynonymMatchesAsync(dbSynonym).ConfigureAwait(false);
+                }
+            });
         }
 
         [Test]
@@ -185,10 +197,14 @@ namespace SJP.Schematic.Reporting.Tests.Integration.Snapshot
             await _databaseWriter.SnapshotDatabaseObjectsAsync(db).ConfigureAwait(false);
 
             var dbRoutines = await db.GetAllRoutines().ToListAsync().ConfigureAwait(false);
-            foreach (var dbRoutine in dbRoutines)
+
+            Assert.Multiple(async () =>
             {
-                await AssertRoutineMatchesAsync(dbRoutine).ConfigureAwait(false);
-            }
+                foreach (var dbRoutine in dbRoutines)
+                {
+                    await AssertRoutineMatchesAsync(dbRoutine).ConfigureAwait(false);
+                }
+            });
         }
 
         private async Task AssertTableMatchesAsync(IRelationalDatabaseTable table)
