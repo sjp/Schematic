@@ -68,7 +68,7 @@ namespace SJP.Schematic.Reporting.Tests.Integration.Snapshot
         }
 
         [Test]
-        public async Task SnapshotDatabaseCommentsAsync_WhenGivenDatabaseWithTables_SnapshotsExpectedData()
+        public async Task SnapshotDatabaseCommentsAsync_WhenGivenDatabaseWithTableComments_SnapshotsExpectedData()
         {
             var dbComments = SampleComments;
 
@@ -86,7 +86,7 @@ namespace SJP.Schematic.Reporting.Tests.Integration.Snapshot
         }
 
         [Test]
-        public async Task SnapshotDatabaseCommentsAsync_WhenGivenDatabaseWithViews_SnapshotsExpectedData()
+        public async Task SnapshotDatabaseCommentsAsync_WhenGivenDatabaseWithViewComments_SnapshotsExpectedData()
         {
             var dbComments = SampleComments;
 
@@ -104,7 +104,7 @@ namespace SJP.Schematic.Reporting.Tests.Integration.Snapshot
         }
 
         [Test]
-        public async Task SnapshotDatabaseCommentsAsync_WhenGivenDatabaseWithSequences_SnapshotsExpectedData()
+        public async Task SnapshotDatabaseCommentsAsync_WhenGivenDatabaseWithSequenceComments_SnapshotsExpectedData()
         {
             var dbComments = SampleComments;
 
@@ -122,7 +122,7 @@ namespace SJP.Schematic.Reporting.Tests.Integration.Snapshot
         }
 
         [Test]
-        public async Task SnapshotDatabaseCommentsAsync_WhenGivenDatabaseWithSynonyms_SnapshotsExpectedData()
+        public async Task SnapshotDatabaseCommentsAsync_WhenGivenDatabaseWithSynonymComments_SnapshotsExpectedData()
         {
             var dbComments = SampleComments;
 
@@ -140,7 +140,7 @@ namespace SJP.Schematic.Reporting.Tests.Integration.Snapshot
         }
 
         [Test]
-        public async Task SnapshotDatabaseCommentsAsync_WhenGivenDatabaseWithRoutines_SnapshotsExpectedData()
+        public async Task SnapshotDatabaseCommentsAsync_WhenGivenDatabaseWithRoutineComments_SnapshotsExpectedData()
         {
             var dbComments = SampleComments;
 
