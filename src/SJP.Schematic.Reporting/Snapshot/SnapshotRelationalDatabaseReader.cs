@@ -386,6 +386,6 @@ WHERE
     object_type = @{ nameof(GetDatabaseObjectDefinitionQuery.ObjectType) }
     AND local_name = @{ nameof(GetDatabaseObjectDefinitionQuery.LocalName) }
     AND schema_name = @{ nameof(GetDatabaseObjectDefinitionQuery.SchemaName) }
-    AND database_name = @{ nameof(GetDatabaseObjectDefinitionQuery.DatabaseName) }";
+    AND ((database_name IS NULL AND @{ nameof(GetDatabaseObjectDefinitionQuery.DatabaseName) } IS NULL) OR (database_name = @{ nameof(GetDatabaseObjectDefinitionQuery.DatabaseName) }))";
     }
 }
