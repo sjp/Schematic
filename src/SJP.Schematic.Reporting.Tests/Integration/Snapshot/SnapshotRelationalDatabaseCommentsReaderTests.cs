@@ -147,10 +147,10 @@ namespace SJP.Schematic.Reporting.Tests.Integration.Snapshot
             {
                 Assert.That(sequenceComments, OptionIs.Some);
 
-                var viewCommentsValue = sequenceComments.UnwrapSome();
-                var sourceViewCommentsValue = sourceSequenceComments.UnwrapSome();
+                var sequenceCommentsValue = sequenceComments.UnwrapSome();
+                var sourceSequenceCommentsValue = sourceSequenceComments.UnwrapSome();
 
-                viewCommentsValue.Should().BeEquivalentTo(sourceViewCommentsValue);
+                sequenceCommentsValue.Should().BeEquivalentTo(sourceSequenceCommentsValue);
             });
         }
 
@@ -165,10 +165,10 @@ namespace SJP.Schematic.Reporting.Tests.Integration.Snapshot
             {
                 Assert.That(synonymComments, OptionIs.Some);
 
-                var viewCommentsValue = synonymComments.UnwrapSome();
-                var sourceViewCommentsValue = sourceSynonymComments.UnwrapSome();
+                var synonymCommentsValue = synonymComments.UnwrapSome();
+                var sourceSynonymCommentsValue = sourceSynonymComments.UnwrapSome();
 
-                viewCommentsValue.Should().BeEquivalentTo(sourceViewCommentsValue);
+                synonymCommentsValue.Should().BeEquivalentTo(sourceSynonymCommentsValue);
             });
         }
 
@@ -183,10 +183,10 @@ namespace SJP.Schematic.Reporting.Tests.Integration.Snapshot
             {
                 Assert.That(routineComments, OptionIs.Some);
 
-                var viewCommentsValue = routineComments.UnwrapSome();
-                var sourceViewCommentsValue = sourceRoutineComments.UnwrapSome();
+                var routineCommentsValue = routineComments.UnwrapSome();
+                var sourceRoutineCommentsValue = sourceRoutineComments.UnwrapSome();
 
-                viewCommentsValue.Should().BeEquivalentTo(sourceViewCommentsValue);
+                routineCommentsValue.Should().BeEquivalentTo(sourceRoutineCommentsValue);
             });
         }
 
