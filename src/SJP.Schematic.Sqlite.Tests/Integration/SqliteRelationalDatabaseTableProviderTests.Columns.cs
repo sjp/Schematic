@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using SJP.Schematic.Core;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration
@@ -95,6 +96,57 @@ namespace SJP.Schematic.Sqlite.Tests.Integration
             var column = table.Columns.Single();
 
             Assert.That(column.AutoIncrement, OptionIs.None);
+        }
+
+        [Test]
+        public async Task Columns_WhenGivenTableWithNoGeneratedColumns_ReturnsNoComputedColumns()
+        {
+            const string tableName = "table_test_table_1";
+            var table = await GetTableAsync(tableName).ConfigureAwait(false);
+            var computedColumns = table.Columns.Where(c => c.IsComputed).ToList();
+
+            Assert.That(computedColumns, Is.Empty);
+        }
+
+        [Test]
+        public async Task Columns_WhenGivenTableWithGeneratedColumns_ReturnsExpectedComputedColumnCount()
+        {
+            const string tableName = "table_test_table_37";
+            var table = await GetTableAsync(tableName).ConfigureAwait(false);
+            var computedColumns = table.Columns.Where(c => c.IsComputed).ToList();
+
+            Assert.That(computedColumns, Has.Exactly(3).Items);
+        }
+
+        [Test]
+        public async Task Columns_WhenGivenTableWithGeneratedColumns_ReturnsExpectedComputedColumnNames()
+        {
+            const string tableName = "table_test_table_37";
+            var table = await GetTableAsync(tableName).ConfigureAwait(false);
+            var expectedColumnNames = new[] { "test_column_2", "test_column_3", "test_column_4" };
+            var computedColumnNames = table.Columns.Where(c => c.IsComputed).Select(c => c.Name.LocalName).ToList();
+
+            Assert.That(computedColumnNames, Is.EqualTo(expectedColumnNames));
+        }
+
+        [Test]
+        public async Task Columns_WhenGivenTableWithGeneratedColumns_ReturnsExpectedComputedColumnDefinitions()
+        {
+            const string tableName = "table_test_table_37";
+            var expectedDefinitions = new[]
+            {
+                "(test_column_1 * test_column_1)",
+                "(test_column_1 * test_column_1 * test_column_1)",
+                "(test_column_1 * test_column_1 * test_column_1 * test_column_1)"
+            };
+            var table = await GetTableAsync(tableName).ConfigureAwait(false);
+            var computedColumnDefinitions = table.Columns
+                .Where(c => c.IsComputed)
+                .Select(c => c as IDatabaseComputedColumn)
+                .Select(c => c.Definition.Match(x => x, () => string.Empty))
+                .ToList();
+
+            Assert.That(computedColumnDefinitions, Is.EqualTo(expectedDefinitions));
         }
     }
 }
