@@ -296,12 +296,12 @@ where
             var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
             var columnLookup = GetColumnLookup(columns);
 
-            var groupedByName = primaryKeyColumns.GroupBy(static row => new { row.ConstraintName, row.EnabledStatus });
+            var groupedByName = primaryKeyColumns.GroupAsDictionary(static row => new { row.ConstraintName, row.EnabledStatus });
             var firstRow = groupedByName.First();
             var constraintName = firstRow.Key.ConstraintName;
             var isEnabled = string.Equals(firstRow.Key.EnabledStatus, Constants.Enabled, StringComparison.Ordinal);
 
-            var keyColumns = firstRow
+            var keyColumns = firstRow.Value
                 .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
                 .OrderBy(static row => row.ColumnPosition)
                 .Select(row => columnLookup[row.ColumnName!])
@@ -360,7 +360,7 @@ where ac.OWNER = :{ nameof(GetTablePrimaryKeyQuery.SchemaName) } and ac.TABLE_NA
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
-            var indexColumns = queryResult.GroupBy(static row => new { row.IndexName, row.IndexProperty, row.Uniqueness }).ToList();
+            var indexColumns = queryResult.GroupAsDictionary(static row => new { row.IndexName, row.IndexProperty, row.Uniqueness }).ToList();
             if (indexColumns.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
@@ -374,7 +374,7 @@ where ac.OWNER = :{ nameof(GetTablePrimaryKeyQuery.SchemaName) } and ac.TABLE_NA
                 var isUnique = string.Equals(indexInfo.Key.Uniqueness, Constants.Unique, StringComparison.Ordinal);
                 var indexName = Identifier.CreateQualifiedIdentifier(indexInfo.Key.IndexName);
 
-                var indexCols = indexInfo
+                var indexCols = indexInfo.Value
                     .Where(static row => row.ColumnName != null)
                     .OrderBy(static row => row.ColumnPosition)
                     .Select(static row => new { row.IsDescending, Column = row.ColumnName! })
@@ -455,12 +455,12 @@ order by aic.COLUMN_POSITION";
 
             var groupedByName = uniqueKeyColumns
                 .Where(static row => row.ConstraintName != null)
-                .GroupBy(static row => new { ConstraintName = row.ConstraintName!, row.EnabledStatus });
+                .GroupAsDictionary(static row => new { ConstraintName = row.ConstraintName!, row.EnabledStatus });
             var constraintColumns = groupedByName
                 .Select(g => new
                 {
                     g.Key.ConstraintName,
-                    Columns = g
+                    Columns = g.Value
                         .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
                         .OrderBy(static row => row.ColumnPosition)
                         .Select(row => columnLookup[row.ColumnName!])
@@ -685,7 +685,7 @@ where OWNER = :{ nameof(GetTableChecksQuery.SchemaName) } and TABLE_NAME = :{ na
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
-            var foreignKeys = queryResult.GroupBy(static row => new
+            var foreignKeys = queryResult.GroupAsDictionary(static row => new
             {
                 row.ConstraintName,
                 row.EnabledStatus,
@@ -729,7 +729,7 @@ where OWNER = :{ nameof(GetTableChecksQuery.SchemaName) } and TABLE_NAME = :{ na
                     .Map(parentKey =>
                     {
                         var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ConstraintName);
-                        var childKeyColumns = fkey
+                        var childKeyColumns = fkey.Value
                             .Where(row => columnLookup.ContainsKey(row.ColumnName))
                             .OrderBy(static row => row.ColumnPosition)
                             .Select(row => columnLookup[row.ColumnName])

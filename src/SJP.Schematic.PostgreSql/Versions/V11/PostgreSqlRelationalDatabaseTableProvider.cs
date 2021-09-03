@@ -57,7 +57,7 @@ namespace SJP.Schematic.PostgreSql.Versions.V11
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
-            var indexColumns = queryResult.GroupBy(static row => new { row.IndexName, row.IsUnique, row.IsPrimary, row.KeyColumnCount }).ToList();
+            var indexColumns = queryResult.GroupAsDictionary(static row => new { row.IndexName, row.IsUnique, row.IsPrimary, row.KeyColumnCount }).ToList();
             if (indexColumns.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
@@ -70,7 +70,7 @@ namespace SJP.Schematic.PostgreSql.Versions.V11
                 var isUnique = indexInfo.Key.IsUnique;
                 var indexName = Identifier.CreateQualifiedIdentifier(indexInfo.Key.IndexName);
 
-                var indexCols = indexInfo
+                var indexCols = indexInfo.Value
                     .Where(static row => row.IndexColumnExpression != null)
                     .OrderBy(static row => row.IndexColumnId)
                     .Select(row => new
@@ -93,7 +93,7 @@ namespace SJP.Schematic.PostgreSql.Versions.V11
                     })
                     .Take(indexInfo.Key.KeyColumnCount)
                     .ToList();
-                var includedCols = indexInfo
+                var includedCols = indexInfo.Value
                     .OrderBy(static row => row.IndexColumnId)
                     .Skip(indexInfo.Key.KeyColumnCount)
                     .Where(row => row.IndexColumnExpression != null && columnLookup.ContainsKey(row.IndexColumnExpression))

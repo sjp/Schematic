@@ -232,7 +232,7 @@ where schema_id = schema_id(@{ nameof(GetTableNameQuery.SchemaName) }) and name 
             if (primaryKeyColumns.Empty())
                 return Option<IDatabaseKey>.None;
 
-            var groupedByName = primaryKeyColumns.GroupBy(static row => new { row.ConstraintName, row.IsDisabled });
+            var groupedByName = primaryKeyColumns.GroupAsDictionary(static row => new { row.ConstraintName, row.IsDisabled });
             var firstRow = groupedByName.First();
             var constraintName = firstRow.Key.ConstraintName;
             if (constraintName == null)
@@ -245,7 +245,7 @@ where schema_id = schema_id(@{ nameof(GetTableNameQuery.SchemaName) }) and name 
 
             var keyColumns = groupedByName
                 .Where(row => string.Equals(row.Key.ConstraintName, constraintName, StringComparison.Ordinal))
-                .SelectMany(g => g
+                .SelectMany(g => g.Value
                     .Where(row => columnLookup.ContainsKey(row.ColumnName))
                     .Select(row => columnLookup[row.ColumnName]))
                 .ToList();
@@ -304,7 +304,7 @@ order by ic.key_ordinal";
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
-            var indexColumns = queryResult.GroupBy(static row => new { row.IndexName, row.IsUnique, row.IsDisabled }).ToList();
+            var indexColumns = queryResult.GroupAsDictionary(static row => new { row.IndexName, row.IsUnique, row.IsDisabled }).ToList();
             if (indexColumns.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
@@ -318,7 +318,7 @@ order by ic.key_ordinal";
                 var indexName = Identifier.CreateQualifiedIdentifier(indexInfo.Key.IndexName);
                 var isEnabled = !indexInfo.Key.IsDisabled;
 
-                var indexCols = indexInfo
+                var indexCols = indexInfo.Value
                     .Where(row => !row.IsIncludedColumn && columnLookup.ContainsKey(row.ColumnName))
                     .OrderBy(static row => row.KeyOrdinal)
                     .ThenBy(static row => row.IndexColumnId)
@@ -332,7 +332,7 @@ order by ic.key_ordinal";
                     })
                     .ToList();
 
-                var includedCols = indexInfo
+                var includedCols = indexInfo.Value
                     .Where(row => row.IsIncludedColumn && columnLookup.ContainsKey(row.ColumnName))
                     .OrderBy(static row => row.KeyOrdinal)
                     .ThenBy(static row => row.ColumnName) // matches SSMS behaviour
@@ -403,12 +403,12 @@ order by ic.index_id, ic.key_ordinal, ic.index_column_id";
             var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
             var columnLookup = GetColumnLookup(columns);
 
-            var groupedByName = uniqueKeyColumns.GroupBy(static row => new { row.ConstraintName, row.IsDisabled });
+            var groupedByName = uniqueKeyColumns.GroupAsDictionary(static row => new { row.ConstraintName, row.IsDisabled });
             var constraintColumns = groupedByName
                 .Select(g => new
                 {
                     g.Key.ConstraintName,
-                    Columns = g
+                    Columns = g.Value
                         .Where(row => columnLookup.ContainsKey(row.ColumnName))
                         .Select(row => columnLookup[row.ColumnName])
                         .ToList(),
@@ -479,7 +479,7 @@ order by ic.key_ordinal";
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
-            var groupedChildKeys = queryResult.GroupBy(static row =>
+            var groupedChildKeys = queryResult.GroupAsDictionary(static row =>
             new
             {
                 row.ChildTableSchema,
@@ -640,7 +640,7 @@ where schema_name(t.schema_id) = @{ nameof(GetTableChecksQuery.SchemaName) } and
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
-            var foreignKeys = queryResult.GroupBy(static row => new
+            var foreignKeys = queryResult.GroupAsDictionary(static row => new
             {
                 row.ChildKeyName,
                 row.ParentTableSchema,
@@ -685,7 +685,7 @@ where schema_name(t.schema_id) = @{ nameof(GetTableChecksQuery.SchemaName) } and
                     .Map(parentKey =>
                     {
                         var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ChildKeyName);
-                        var childKeyColumns = fkey
+                        var childKeyColumns = fkey.Value
                             .Where(row => columnLookup.ContainsKey(row.ColumnName))
                             .OrderBy(static row => row.ConstraintColumnId)
                             .Select(row => columnLookup[row.ColumnName])
@@ -851,7 +851,7 @@ order by c.column_id";
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseTrigger>();
 
-            var triggers = queryResult.GroupBy(static row => new
+            var triggers = queryResult.GroupAsDictionary(static row => new
             {
                 row.TriggerName,
                 row.Definition,
@@ -870,7 +870,7 @@ order by c.column_id";
                 var isEnabled = !trig.Key.IsDisabled;
 
                 var events = TriggerEvent.None;
-                foreach (var trigEvent in trig)
+                foreach (var trigEvent in trig.Value)
                 {
                     if (string.Equals(trigEvent.TriggerEvent, Constants.Insert, StringComparison.Ordinal))
                         events |= TriggerEvent.Insert;

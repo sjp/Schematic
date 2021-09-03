@@ -277,7 +277,7 @@ limit 1";
             var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
             var columnLookup = GetColumnLookup(columns);
 
-            var groupedByName = primaryKeyColumns.GroupBy(static row => new { row.ConstraintName });
+            var groupedByName = primaryKeyColumns.GroupAsDictionary(static row => new { row.ConstraintName });
             var firstRow = groupedByName.First();
             var constraintName = firstRow.Key.ConstraintName;
             if (constraintName == null)
@@ -285,7 +285,7 @@ limit 1";
 
             var keyColumns = groupedByName
                 .Where(row => string.Equals(row.Key.ConstraintName, constraintName, StringComparison.Ordinal))
-                .SelectMany(g => g
+                .SelectMany(g => g.Value
                     .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
                     .OrderBy(static row => row.OrdinalPosition)
                     .Select(row => columnLookup[row.ColumnName!]))
@@ -343,7 +343,7 @@ where tc.table_schema = @{ nameof(GetTablePrimaryKeyQuery.SchemaName) } and tc.t
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
-            var indexColumns = queryResult.GroupBy(static row => new { row.IndexName, row.IsUnique, row.IsPrimary }).ToList();
+            var indexColumns = queryResult.GroupAsDictionary(static row => new { row.IndexName, row.IsUnique, row.IsPrimary }).ToList();
             if (indexColumns.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
@@ -356,7 +356,7 @@ where tc.table_schema = @{ nameof(GetTablePrimaryKeyQuery.SchemaName) } and tc.t
                 var isUnique = indexInfo.Key.IsUnique;
                 var indexName = Identifier.CreateQualifiedIdentifier(indexInfo.Key.IndexName);
 
-                var indexCols = indexInfo
+                var indexCols = indexInfo.Value
                     .Where(static row => row.IndexColumnExpression != null)
                     .OrderBy(static row => row.IndexColumnId)
                     .Select(row => new
@@ -450,12 +450,12 @@ where
             var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
             var columnLookup = GetColumnLookup(columns);
 
-            var groupedByName = uniqueKeyColumns.GroupBy(static row => new { row.ConstraintName });
+            var groupedByName = uniqueKeyColumns.GroupAsDictionary(static row => new { row.ConstraintName });
             var constraintColumns = groupedByName
                 .Select(g => new
                 {
                     g.Key.ConstraintName,
-                    Columns = g
+                    Columns = g.Value
                         .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
                         .OrderBy(static row => row.OrdinalPosition)
                         .Select(row => columnLookup[row.ColumnName!])
@@ -522,7 +522,7 @@ where tc.table_schema = @{ nameof(GetTableUniqueKeysQuery.SchemaName) } and tc.t
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
-            var groupedChildKeys = queryResult.GroupBy(static row =>
+            var groupedChildKeys = queryResult.GroupAsDictionary(static row =>
             new
             {
                 row.ChildTableSchema,
@@ -696,7 +696,7 @@ where
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
-            var foreignKeys = queryResult.GroupBy(static row => new
+            var foreignKeys = queryResult.GroupAsDictionary(static row => new
             {
                 row.ChildKeyName,
                 row.ParentSchemaName,
@@ -742,7 +742,7 @@ where
                         var parentTableName = resolvedParentTableName!;
 
                         var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ChildKeyName);
-                        var childKeyColumns = fkey
+                        var childKeyColumns = fkey.Value
                             .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
                             .OrderBy(static row => row.ConstraintColumnId)
                             .Select(row => columnLookup[row.ColumnName!])
@@ -927,7 +927,7 @@ order by ordinal_position";
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseTrigger>();
 
-            var triggers = queryResult.GroupBy(static row => new
+            var triggers = queryResult.GroupAsDictionary(static row => new
             {
                 row.TriggerName,
                 row.Definition,
@@ -945,7 +945,7 @@ order by ordinal_position";
                 var definition = trig.Key.Definition;
 
                 var events = TriggerEvent.None;
-                foreach (var trigEvent in trig)
+                foreach (var trigEvent in trig.Value)
                 {
                     if (string.Equals(trigEvent.TriggerEvent, Constants.Insert, StringComparison.Ordinal))
                         events |= TriggerEvent.Insert;

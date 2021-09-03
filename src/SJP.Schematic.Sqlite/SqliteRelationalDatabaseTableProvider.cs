@@ -641,7 +641,7 @@ namespace SJP.Schematic.Sqlite
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseRelationalKey>();
 
-            var foreignKeys = queryResult.GroupBy(static row => new
+            var foreignKeys = queryResult.GroupAsDictionary(static row => new
             {
                 ForeignKeyId = row.id,
                 ParentTableName = row.table,
@@ -668,7 +668,7 @@ namespace SJP.Schematic.Sqlite
                         var parentTableColumns = await queryCache.GetColumnsAsync(name, cancellationToken).ConfigureAwait(false);
                         var parentTableColumnLookup = GetColumnLookup(parentTableColumns);
 
-                        var rows = fkey.OrderBy(static row => row.seq).ToList();
+                        var rows = fkey.Value.OrderBy(static row => row.seq).ToList();
                         var parentColumns = rows
                             .Where(row => parentTableColumnLookup.ContainsKey(row.to))
                             .Select(row => parentTableColumnLookup[row.to])
@@ -693,7 +693,7 @@ namespace SJP.Schematic.Sqlite
                     })
                     .Map(key =>
                     {
-                        var rows = fkey.OrderBy(static row => row.seq).ToList();
+                        var rows = fkey.Value.OrderBy(static row => row.seq).ToList();
 
                         // don't need to check for the parent schema as cross-schema references are not supported
                         var parsedConstraint = parsedTable.ParentKeys

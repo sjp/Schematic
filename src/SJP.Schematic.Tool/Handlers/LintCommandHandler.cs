@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Tool.Handlers
@@ -41,14 +42,14 @@ namespace SJP.Schematic.Tool.Handlers
                 .Append(sequenceResults)
                 .Append(synonymResults)
                 .Append(routineResults)
-                .GroupBy(static r => r.RuleId, StringComparer.Ordinal)
+                .GroupAsDictionary(static r => r.RuleId, StringComparer.Ordinal)
                 .ToList();
 
             var hasDisplayedResults = false;
 
             foreach (var group in groupedResults)
             {
-                var ruleTitle = "Rule: " + group.First().Title;
+                var ruleTitle = "Rule: " + group.Value[0].Title;
                 var underline = new string('-', ruleTitle.Length);
 
                 if (hasDisplayedResults)
@@ -63,7 +64,7 @@ namespace SJP.Schematic.Tool.Handlers
                 console.Out.WriteLine(underline);
                 console.Out.WriteLine();
 
-                foreach (var message in group)
+                foreach (var message in group.Value)
                 {
                     console.Out.WriteLine(" * " + message.Message);
                 }

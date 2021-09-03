@@ -70,8 +70,8 @@ namespace SJP.Schematic.Reporting.Html.Renderers
                 .Concat(routineMessages);
 
             var groupedRules = messages
-                .GroupBy(static m => m.RuleId, StringComparer.Ordinal)
-                .Select(static m => new LintResults.LintRule(m.First().Title, m.Select(static r => new HtmlString(r.Message)).ToList()))
+                .GroupAsDictionary(static m => m.RuleId)
+                .Select(static m => new LintResults.LintRule(m.Value[0].Title, m.Value.ConvertAll(static r => new HtmlString(r.Message))))
                 .ToList();
 
             var templateParameter = new LintResults(groupedRules);

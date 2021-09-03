@@ -106,5 +106,72 @@ namespace SJP.Schematic.Core.Extensions
                 }
             }
         }
+
+        /// <summary>
+        /// An eagerly evaluating group by implementation that is faster and lower in memory allocation.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the key used for uniqueness testing.</typeparam>
+        /// <typeparam name="TValue">The type of the value used for each group member.</typeparam>
+        /// <param name="source">The source collection.</param>
+        /// <param name="keySelector">The selector which returns a key used for uniqueness testing.</param>
+        /// <returns>A <see cref="IReadOnlyDictionary{TKey, TValue}"/> whose keys are the group keys, and values are members of the given group.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="keySelector"/> is <c>null</c>.</exception>
+        public static IReadOnlyDictionary<TKey, List<TValue>> GroupAsDictionary<TKey, TValue>(this IEnumerable<TValue> source, Func<TValue, TKey> keySelector)
+            where TKey : notnull
+            where TValue : notnull
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (keySelector == null)
+                throw new ArgumentNullException(nameof(keySelector));
+
+            var dictionary = new Dictionary<TKey, List<TValue>>();
+            foreach (var item in source)
+            {
+                var key = keySelector(item);
+                if (!dictionary.TryGetValue(key, out var grouping))
+                {
+                    grouping = new List<TValue>(1);
+                    dictionary.Add(key, grouping);
+                }
+                grouping.Add(item);
+            }
+            return dictionary;
+        }
+
+        /// <summary>
+        /// An eagerly evaluating group by implementation that is faster and lower in memory allocation.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the key used for uniqueness testing.</typeparam>
+        /// <typeparam name="TValue">The type of the value used for each group member.</typeparam>
+        /// <param name="source">The source collection.</param>
+        /// <param name="keySelector">The selector which returns a key used for uniqueness testing.</param>
+        /// <param name="comparer">A comparer used for uniqueness testing. Defaults to <see cref="EqualityComparer{TKey}.Default"/> when <c>null</c>.</param>
+        /// <returns>A <see cref="IReadOnlyDictionary{TKey, TValue}"/> whose keys are the group keys, and values are members of the given group.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="keySelector"/> is <c>null</c>.</exception>
+        public static IReadOnlyDictionary<TKey, List<TValue>> GroupAsDictionary<TKey, TValue>(this IEnumerable<TValue> source, Func<TValue, TKey> keySelector, IEqualityComparer<TKey> comparer)
+            where TKey : notnull
+            where TValue : notnull
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (keySelector == null)
+                throw new ArgumentNullException(nameof(keySelector));
+
+            comparer ??= EqualityComparer<TKey>.Default;
+
+            var dictionary = new Dictionary<TKey, List<TValue>>(comparer);
+            foreach (var item in source)
+            {
+                var key = keySelector(item);
+                if (!dictionary.TryGetValue(key, out var grouping))
+                {
+                    grouping = new List<TValue>(1);
+                    dictionary.Add(key, grouping);
+                }
+                grouping.Add(item);
+            }
+            return dictionary;
+        }
     }
 }
