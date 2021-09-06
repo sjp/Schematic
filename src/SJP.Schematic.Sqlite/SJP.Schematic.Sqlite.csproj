@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SQLite" Version="5.0.9" />
-    <PackageReference Include="Superpower" Version="2.3.0" />
+    <PackageReference Include="Superpower" Version="3.0.0" />
   </ItemGroup>
 
   <ItemGroup>
