@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="3.21.3" />
-    <PackageReference Include="Superpower" Version="2.3.0" />
+    <PackageReference Include="Superpower" Version="3.0.0" />
   </ItemGroup>
 
   <ItemGroup>
