@@ -9,7 +9,7 @@
     <PackAsTool>true</PackAsTool>
     <PackageId>dotnet-schematic</PackageId>
     <ToolCommandName>dotnet-schematic</ToolCommandName>
-  <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
