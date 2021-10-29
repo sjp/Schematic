@@ -64,7 +64,7 @@ namespace SJP.Schematic.Lint
         public IRuleProvider Build()
         {
             return _ruleProviders.Empty()
-                ? new EmptyRuleProvider() as IRuleProvider
+                ? new EmptyRuleProvider()
                 : new CompositeRuleProvider(_ruleProviders);
         }
     }

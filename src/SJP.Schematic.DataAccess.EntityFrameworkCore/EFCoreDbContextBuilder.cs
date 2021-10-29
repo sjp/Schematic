@@ -594,7 +594,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                             ? PostfixUnaryExpression(
                                 SyntaxKind.SuppressNullableWarningExpression,
                                 IdentifierName(EntityLambdaParameterName))
-                            : IdentifierName(EntityLambdaParameterName) as ExpressionSyntax,
+                            : IdentifierName(EntityLambdaParameterName),
                         IdentifierName(propertyName)));
             }
 
@@ -607,7 +607,7 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore
                                 ? PostfixUnaryExpression(
                                     SyntaxKind.SuppressNullableWarningExpression,
                                     IdentifierName(EntityLambdaParameterName))
-                                : IdentifierName(EntityLambdaParameterName) as ExpressionSyntax,
+                                : IdentifierName(EntityLambdaParameterName),
                             IdentifierName(NameTranslator.ColumnToPropertyName(className, c.Name.LocalName)))))
                 .ToList();
 
