@@ -11,12 +11,15 @@ namespace SJP.Schematic.Tool.Handlers
 {
     internal sealed class LintCommandHandler : DatabaseCommandHandler
     {
-        public LintCommandHandler(FileInfo filePath)
+        private readonly IConsole _console;
+
+        public LintCommandHandler(IConsole console, FileInfo filePath)
             : base(filePath)
         {
+            _console = console ?? throw new ArgumentNullException(nameof(console));
         }
 
-        public async Task<int> HandleCommandAsync(IConsole console, CancellationToken cancellationToken)
+        public async Task<int> HandleCommandAsync(CancellationToken cancellationToken)
         {
             var connection = GetSchematicConnection();
             var database = await connection.Dialect.GetRelationalDatabaseAsync(connection, cancellationToken).ConfigureAwait(false);
@@ -54,19 +57,19 @@ namespace SJP.Schematic.Tool.Handlers
 
                 if (hasDisplayedResults)
                 {
-                    console.Out.WriteLine();
-                    console.Out.WriteLine();
+                    _console.Out.WriteLine();
+                    _console.Out.WriteLine();
                 }
                 hasDisplayedResults = true;
 
-                console.Out.WriteLine(underline);
-                console.Out.WriteLine(ruleTitle);
-                console.Out.WriteLine(underline);
-                console.Out.WriteLine();
+                _console.Out.WriteLine(underline);
+                _console.Out.WriteLine(ruleTitle);
+                _console.Out.WriteLine(underline);
+                _console.Out.WriteLine();
 
                 foreach (var message in group.Value)
                 {
-                    console.Out.WriteLine(" * " + message.Message);
+                    _console.Out.WriteLine(" * " + message.Message);
                 }
             }
 

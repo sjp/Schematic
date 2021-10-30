@@ -8,12 +8,15 @@ namespace SJP.Schematic.Tool.Handlers
 {
     internal sealed class TestCommandHandler : DatabaseCommandHandler
     {
-        public TestCommandHandler(FileInfo filePath)
+        private readonly IConsole _console;
+
+        public TestCommandHandler(IConsole console, FileInfo filePath)
             : base(filePath)
         {
+            _console = console ?? throw new ArgumentNullException(nameof(console));
         }
 
-        public async Task<int> HandleCommandAsync(IConsole console, int timeout, CancellationToken cancellationToken)
+        public async Task<int> HandleCommandAsync(int timeout, CancellationToken cancellationToken)
         {
             var factory = GetConnectionFactory();
 
@@ -24,9 +27,9 @@ namespace SJP.Schematic.Tool.Handlers
 
                 _ = await factory.OpenConnectionAsync(cts.Token).ConfigureAwait(false);
 
-                console.SetTerminalForegroundGreen();
-                console.Out.Write("Successfully connected to the database.");
-                console.ResetTerminalForegroundColor();
+                _console.SetTerminalForegroundGreen();
+                _console.Out.Write("Successfully connected to the database.");
+                _console.ResetTerminalForegroundColor();
 
                 return ErrorCode.Success;
             }
@@ -36,18 +39,18 @@ namespace SJP.Schematic.Tool.Handlers
                 cancellationToken.ThrowIfCancellationRequested();
 
                 // only handling when timed out, not when user interrupts
-                console.SetTerminalForegroundRed();
-                console.Error.Write("Database connection request timed out.");
-                console.ResetTerminalForegroundColor();
+                _console.SetTerminalForegroundRed();
+                _console.Error.Write("Database connection request timed out.");
+                _console.ResetTerminalForegroundColor();
 
                 return ErrorCode.Error;
             }
             catch (Exception ex)
             {
-                console.SetTerminalForegroundRed();
-                console.Error.WriteLine("Failed to connect to the database.");
-                console.Error.Write("    " + ex.Message);
-                console.ResetTerminalForegroundColor();
+                _console.SetTerminalForegroundRed();
+                _console.Error.WriteLine("Failed to connect to the database.");
+                _console.Error.Write("    " + ex.Message);
+                _console.ResetTerminalForegroundColor();
 
                 return ErrorCode.Error;
             }

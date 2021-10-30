@@ -38,8 +38,8 @@ namespace SJP.Schematic.Tool.Commands
 
             Handler = CommandHandler.Create<IConsole, FileInfo, NamingConvention, FileInfo, string, CancellationToken>(static (console, config, convention, projectPath, baseNamespace, cancellationToken) =>
             {
-                var handler = new GenerateEfCoreCommandHandler(config);
-                return handler.HandleCommandAsync(console, projectPath, baseNamespace, convention, cancellationToken);
+                var handler = new GenerateEfCoreCommandHandler(console, config);
+                return handler.HandleCommandAsync(projectPath, baseNamespace, convention, cancellationToken);
             });
         }
     }

@@ -12,13 +12,16 @@ namespace SJP.Schematic.Tool.Handlers
 {
     internal sealed class ReportCommandHandler : DatabaseCommandHandler
     {
-        public ReportCommandHandler(FileInfo filePath)
+        private readonly IConsole _console;
+
+        public ReportCommandHandler(IConsole console, FileInfo filePath)
             : base(filePath)
         {
+            _console = console ?? throw new ArgumentNullException(nameof(console));
             ConfigureDotPath();
         }
 
-        public async Task<int> HandleCommandAsync(IConsole console, DirectoryInfo outputPath, CancellationToken cancellationToken)
+        public async Task<int> HandleCommandAsync(DirectoryInfo outputPath, CancellationToken cancellationToken)
         {
             var connection = GetSchematicConnection();
             var database = await connection.Dialect.GetRelationalDatabaseAsync(connection, cancellationToken).ConfigureAwait(false);
@@ -28,7 +31,7 @@ namespace SJP.Schematic.Tool.Handlers
             var reportGenerator = new ReportGenerator(connection, snapshotDb, outputPath);
             await reportGenerator.GenerateAsync(cancellationToken).ConfigureAwait(false);
 
-            console.Out.Write("Report generated to: " + outputPath.FullName);
+            _console.Out.Write("Report generated to: " + outputPath.FullName);
             return ErrorCode.Success;
         }
 

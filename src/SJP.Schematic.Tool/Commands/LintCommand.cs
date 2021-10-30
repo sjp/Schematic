@@ -13,8 +13,8 @@ namespace SJP.Schematic.Tool.Commands
         {
             Handler = CommandHandler.Create<IConsole, FileInfo, CancellationToken>(static (console, config, cancellationToken) =>
             {
-                var handler = new LintCommandHandler(config);
-                return handler.HandleCommandAsync(console, cancellationToken);
+                var handler = new LintCommandHandler(console, config);
+                return handler.HandleCommandAsync(cancellationToken);
             });
         }
     }

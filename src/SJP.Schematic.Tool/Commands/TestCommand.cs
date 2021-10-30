@@ -21,8 +21,8 @@ namespace SJP.Schematic.Tool.Commands
 
             Handler = CommandHandler.Create<FileInfo, IConsole, int, CancellationToken>(static (config, console, timeout, cancellationToken) =>
             {
-                var handler = new TestCommandHandler(config);
-                return handler.HandleCommandAsync(console, timeout, cancellationToken);
+                var handler = new TestCommandHandler(console, config);
+                return handler.HandleCommandAsync(timeout, cancellationToken);
             });
         }
     }

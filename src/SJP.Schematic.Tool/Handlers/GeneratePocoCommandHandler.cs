@@ -1,4 +1,5 @@
-﻿using System.CommandLine;
+﻿using System;
+using System.CommandLine;
 using System.IO;
 using System.IO.Abstractions;
 using System.Threading;
@@ -10,12 +11,15 @@ namespace SJP.Schematic.Tool.Handlers
 {
     internal sealed class GeneratePocoCommandHandler : DatabaseCommandHandler
     {
-        public GeneratePocoCommandHandler(FileInfo filePath)
+        private readonly IConsole _console;
+
+        public GeneratePocoCommandHandler(IConsole console, FileInfo filePath)
             : base(filePath)
         {
+            _console = console ?? throw new ArgumentNullException(nameof(console));
         }
 
-        public async Task<int> HandleCommandAsync(IConsole console, FileInfo projectPath, string baseNamespace, NamingConvention convention, CancellationToken cancellationToken)
+        public async Task<int> HandleCommandAsync(FileInfo projectPath, string baseNamespace, NamingConvention convention, CancellationToken cancellationToken)
         {
             var fileSystem = new FileSystem();
             var nameTranslator = GetNameTranslator(convention);
@@ -27,7 +31,7 @@ namespace SJP.Schematic.Tool.Handlers
 
             await generator.GenerateAsync(projectPath.FullName, baseNamespace, cancellationToken).ConfigureAwait(false);
 
-            console.Out.Write("Project generated at: " + projectPath.FullName);
+            _console.Out.Write("Project generated at: " + projectPath.FullName);
             return ErrorCode.Success;
         }
     }
