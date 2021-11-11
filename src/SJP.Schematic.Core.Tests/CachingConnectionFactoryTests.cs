@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 
-namespace SJP.Schematic.Core.Tests.Extensions
+namespace SJP.Schematic.Core.Tests
 {
     [TestFixture]
     internal static class CachingConnectionFactoryTests

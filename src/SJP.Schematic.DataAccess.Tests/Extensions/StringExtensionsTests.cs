@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using SJP.Schematic.DataAccess.Extensions;
 
-namespace SJP.Schematic.DataAccess.Tests
+namespace SJP.Schematic.DataAccess.Tests.Extensions
 {
     [TestFixture]
     internal static class StringExtensionsTests

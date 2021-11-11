@@ -6,7 +6,7 @@ using NUnit.Framework;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Tests.Utilities;
 
-namespace SJP.Schematic.Core.Tests
+namespace SJP.Schematic.Core.Tests.Comments
 {
     [TestFixture]
     internal static class RelationalDatabaseCommentProviderTests
