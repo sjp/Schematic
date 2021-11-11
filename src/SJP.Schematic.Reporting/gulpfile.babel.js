@@ -16,7 +16,7 @@ export const clean = () =>
     ]);
 
 const sourceSansFont = () => {
-    return src('node_modules/source-sans-pro/WOFF/OTF/*.otf.woff')
+    return src('node_modules/source-sans/WOFF/OTF/*.otf.woff')
         .pipe(newer('assets/fonts'))
         .pipe(dest('assets/fonts'));
 }
