@@ -209,7 +209,7 @@ namespace SJP.Schematic.Reporting.Snapshot
             );
         }
 
-        private static readonly string InsertDatabaseDefaultsQuery = @$"
+        private const string InsertDatabaseDefaultsQuery = @$"
 INSERT INTO database_identifier_defaults (
     server_name,
     database_name,
@@ -221,7 +221,7 @@ VALUES (
     @{ nameof(AddDatabaseDefaultsQuery.SchemaName) }
 )";
 
-        private static readonly string InsertDatabaseObjectQuery = @$"
+        private const string InsertDatabaseObjectQuery = @$"
 INSERT INTO database_object (
     object_type,
     server_name,

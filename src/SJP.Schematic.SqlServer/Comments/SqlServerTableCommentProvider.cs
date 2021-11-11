@@ -93,7 +93,7 @@ namespace SJP.Schematic.SqlServer.Comments
         /// <value>A SQL query.</value>
         protected virtual string TableNameQuery => TableNameQuerySql;
 
-        private static readonly string TableNameQuerySql = @$"
+        private const string TableNameQuerySql = @$"
 select top 1 schema_name(schema_id) as [{ nameof(GetTableNameQueryResult.SchemaName) }], name as [{ nameof(GetTableNameQueryResult.TableName) }]
 from sys.tables
 where schema_id = schema_id(@{ nameof(GetTableNameQuery.SchemaName) }) and name = @{ nameof(GetTableNameQuery.TableName) }
@@ -181,7 +181,7 @@ where schema_id = schema_id(@{ nameof(GetTableNameQuery.SchemaName) }) and name 
         /// <value>A SQL query.</value>
         protected virtual string TablesQuery => TablesQuerySql;
 
-        private static readonly string TablesQuerySql = @$"
+        private const string TablesQuerySql = @$"
 select schema_name(schema_id) as [{ nameof(GetAllTableNamesQueryResult.SchemaName) }], name as [{ nameof(GetAllTableNamesQueryResult.TableName) }]
 from sys.tables
 where is_ms_shipped = 0
@@ -193,7 +193,7 @@ order by schema_name(schema_id), name";
         /// <value>A SQL query.</value>
         protected virtual string TableCommentsQuery => TableCommentsQuerySql;
 
-        private static readonly string TableCommentsQuerySql = @$"
+        private const string TableCommentsQuerySql = @$"
 -- table
 select
     'TABLE' as [{ nameof(GetTableCommentsQueryResult.ObjectType) }],

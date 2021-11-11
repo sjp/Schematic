@@ -52,7 +52,7 @@ namespace SJP.Schematic.MySql
             return await connection.DbConnection.QuerySingleAsync<GetIdentifierDefaultsResult>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
         }
 
-        private static readonly string IdentifierDefaultsQuerySql = @$"
+        private const string IdentifierDefaultsQuerySql = @$"
 select
     @@hostname as `{ nameof(GetIdentifierDefaultsResult.Server) }`,
     database() as `{ nameof(GetIdentifierDefaultsResult.Database) }`,

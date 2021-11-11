@@ -112,7 +112,7 @@ namespace SJP.Schematic.PostgreSql.Versions.V12
         // a little bit convoluted due to the quote_ident() being required.
         // when missing, case folding will occur (we should have guaranteed that this is already done)
         // additionally the default behaviour misses the schema which may be necessary
-        private static readonly string ColumnsQuerySql = @$"
+        private const string ColumnsQuerySql = @$"
 select
     column_name as ""{ nameof(GetV12TableColumnsQueryResult.ColumnName) }"",
     ordinal_position as ""{ nameof(GetV12TableColumnsQueryResult.OrdinalPosition) }"",
@@ -181,7 +181,7 @@ order by ordinal_position";
                 if (definition.StartsWith(checkPrefix, StringComparison.OrdinalIgnoreCase))
                     definition = definition[checkPrefix.Length..];
                 if (definition.EndsWith(')') && definition.Length > 0) // check suffix
-                    definition = definition.Substring(0, definition.Length - checkSuffix.Length);
+                    definition = definition[..^checkSuffix.Length];
 
                 var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);
 
@@ -198,7 +198,7 @@ order by ordinal_position";
         /// <value>A SQL query.</value>
         protected override string ChecksQuery => ChecksQuerySql;
 
-        private static readonly string ChecksQuerySql = @$"
+        private const string ChecksQuerySql = @$"
 select
     c.conname as ""{ nameof(GetTableChecksQueryResult.ConstraintName) }"",
     pg_catalog.pg_get_constraintdef(c.oid) as ""{ nameof(GetTableChecksQueryResult.Definition) }""

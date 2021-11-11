@@ -121,7 +121,7 @@ namespace SJP.Schematic.PostgreSql.Comments
         /// <value>A SQL query.</value>
         protected virtual string SequenceNameQuery => SequenceNameQuerySql;
 
-        private static readonly string SequenceNameQuerySql = @$"
+        private const string SequenceNameQuerySql = @$"
 select sequence_schema as ""{ nameof(GetSequenceNameQueryResult.SchemaName) }"", sequence_name as ""{ nameof(GetSequenceNameQueryResult.SequenceName) }""
 from information_schema.sequences
 where sequence_schema = @{ nameof(GetSequenceNameQuery.SchemaName) } and sequence_name = @{ nameof(GetSequenceNameQuery.SequenceName) }
@@ -180,7 +180,7 @@ limit 1";
         /// <value>A SQL query.</value>
         protected virtual string AllSequenceCommentsQuery => AllSequenceCommentsQuerySql;
 
-        private static readonly string AllSequenceCommentsQuerySql = @$"
+        private const string AllSequenceCommentsQuerySql = @$"
 select
     nc.nspname as ""{ nameof(GetAllSequenceCommentsQueryResult.SchemaName) }"",
     c.relname as ""{ nameof(GetAllSequenceCommentsQueryResult.SequenceName) }"",
@@ -197,7 +197,7 @@ order by nc.nspname, c.relname";
         /// <value>A SQL query.</value>
         protected virtual string SequenceCommentsQuery => SequenceCommentsQuerySql;
 
-        private static readonly string SequenceCommentsQuerySql = @$"
+        private const string SequenceCommentsQuerySql = @$"
 select
     d.description as ""{ nameof(GetSequenceCommentsQueryResult.Comment) }""
 from pg_catalog.pg_namespace nc

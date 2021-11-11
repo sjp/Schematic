@@ -113,7 +113,7 @@ namespace SJP.Schematic.PostgreSql.Versions.V11
         /// <value>A SQL query.</value>
         protected override string IndexesQuery => IndexesQuerySql;
 
-        private static readonly string IndexesQuerySql = @$"
+        private const string IndexesQuerySql = @$"
 select
     i.relname as ""{ nameof(GetTableIndexesQueryResult.IndexName) }"",
     idx.indisunique as ""{ nameof(GetTableIndexesQueryResult.IsUnique) }"",

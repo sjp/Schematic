@@ -106,7 +106,7 @@ namespace SJP.Schematic.Oracle
         /// <value>A SQL query.</value>
         protected virtual string TablesQuery => TablesQuerySql;
 
-        private static readonly string TablesQuerySql = @$"
+        private const string TablesQuerySql = @$"
 select
     t.OWNER as ""{ nameof(GetAllTableNamesQueryResult.SchemaName) }"",
     t.TABLE_NAME as ""{ nameof(GetAllTableNamesQueryResult.TableName) }""
@@ -192,7 +192,7 @@ order by t.OWNER, t.TABLE_NAME";
         /// <value>A SQL query.</value>
         protected virtual string TableNameQuery => TableNameQuerySql;
 
-        private static readonly string TableNameQuerySql = @$"
+        private const string TableNameQuerySql = @$"
 select t.OWNER as ""{ nameof(GetTableNameQueryResult.SchemaName) }"", t.TABLE_NAME as ""{ nameof(GetTableNameQueryResult.TableName) }""
 from SYS.ALL_TABLES t
 inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
@@ -321,7 +321,7 @@ where
         /// <value>A SQL query.</value>
         protected virtual string PrimaryKeyQuery => PrimaryKeyQuerySql;
 
-        private static readonly string PrimaryKeyQuerySql = @$"
+        private const string PrimaryKeyQuerySql = @$"
 select
     ac.CONSTRAINT_NAME as ""{ nameof(GetTablePrimaryKeyQueryResult.ConstraintName) }"",
     ac.STATUS as ""{ nameof(GetTablePrimaryKeyQueryResult.EnabledStatus) }"",
@@ -402,7 +402,7 @@ where ac.OWNER = :{ nameof(GetTablePrimaryKeyQuery.SchemaName) } and ac.TABLE_NA
         /// <value>A SQL query.</value>
         protected virtual string IndexesQuery => IndexesQuerySql;
 
-        private static readonly string IndexesQuerySql = @$"
+        private const string IndexesQuerySql = @$"
 select
     ai.OWNER as ""{ nameof(GetTableIndexesQueryResult.IndexOwner) }"",
     ai.INDEX_NAME as ""{ nameof(GetTableIndexesQueryResult.IndexName) }"",
@@ -482,7 +482,7 @@ order by aic.COLUMN_POSITION";
         /// <value>A SQL query.</value>
         protected virtual string UniqueKeysQuery => UniqueKeysQuerySql;
 
-        private static readonly string UniqueKeysQuerySql = @$"
+        private const string UniqueKeysQuerySql = @$"
 select
     ac.CONSTRAINT_NAME as ""{ nameof(GetTableUniqueKeysQueryResult.ConstraintName) }"",
     ac.STATUS as ""{ nameof(GetTableUniqueKeysQueryResult.EnabledStatus) }"",
@@ -574,7 +574,7 @@ where ac.OWNER = :{ nameof(GetTableUniqueKeysQuery.SchemaName) } and ac.TABLE_NA
         /// <value>A SQL query.</value>
         protected virtual string ChildKeysQuery => ChildKeysQuerySql;
 
-        private static readonly string ChildKeysQuerySql = @$"
+        private const string ChildKeysQuerySql = @$"
 select
     ac.OWNER as ""{ nameof(GetTableChildKeysQueryResult.ChildTableSchema) }"",
     ac.TABLE_NAME as ""{ nameof(GetTableChildKeysQueryResult.ChildTableName) }"",
@@ -648,7 +648,7 @@ where pac.OWNER = :{ nameof(GetTableChildKeysQuery.SchemaName) } and pac.TABLE_N
         /// <value>A SQL query.</value>
         protected virtual string ChecksQuery => ChecksQuerySql;
 
-        private static readonly string ChecksQuerySql = @$"
+        private const string ChecksQuerySql = @$"
 select
     CONSTRAINT_NAME as ""{ nameof(GetTableChecksQueryResult.ConstraintName) }"",
     SEARCH_CONDITION as ""{ nameof(GetTableChecksQueryResult.Definition) }"",
@@ -754,7 +754,7 @@ where OWNER = :{ nameof(GetTableChecksQuery.SchemaName) } and TABLE_NAME = :{ na
         /// <value>A SQL query.</value>
         protected virtual string ParentKeysQuery => ParentKeysQuerySql;
 
-        private static readonly string ParentKeysQuerySql = @$"
+        private const string ParentKeysQuerySql = @$"
 select
     ac.CONSTRAINT_NAME as ""{ nameof(GetTableParentKeysQueryResult.ConstraintName) }"",
     ac.STATUS as ""{ nameof(GetTableParentKeysQueryResult.EnabledStatus) }"",
@@ -841,7 +841,7 @@ where ac.OWNER = :{ nameof(GetTableParentKeysQuery.SchemaName) } and ac.TABLE_NA
         /// <value>A SQL query.</value>
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
-        private static readonly string ColumnsQuerySql = @$"
+        private const string ColumnsQuerySql = @$"
 select
     COLUMN_NAME as ""{ nameof(GetTableColumnsQueryResult.ColumnName) }"",
     DATA_TYPE_OWNER as ""{ nameof(GetTableColumnsQueryResult.ColumnTypeSchema) }"",
@@ -927,7 +927,7 @@ order by COLUMN_ID";
         /// <value>A SQL query.</value>
         protected virtual string TriggersQuery => TriggersQuerySql;
 
-        private static readonly string TriggersQuerySql = @$"
+        private const string TriggersQuerySql = @$"
 select
     OWNER as ""{ nameof(GetTableTriggersQueryResult.TriggerSchema) }"",
     TRIGGER_NAME as ""{ nameof(GetTableTriggersQueryResult.TriggerName) }"",

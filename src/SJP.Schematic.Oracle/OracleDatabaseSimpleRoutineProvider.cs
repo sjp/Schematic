@@ -76,7 +76,7 @@ namespace SJP.Schematic.Oracle
         /// <value>A SQL query.</value>
         protected virtual string RoutinesQuery => RoutinesQuerySql;
 
-        private static readonly string RoutinesQuerySql = @$"
+        private const string RoutinesQuerySql = @$"
 SELECT
     OWNER as ""{ nameof(GetAllRoutineNamesQueryResult.SchemaName) }"",
     OBJECT_NAME as ""{ nameof(GetAllRoutineNamesQueryResult.RoutineName) }""
@@ -149,7 +149,7 @@ ORDER BY OWNER, OBJECT_NAME";
         /// <value>A SQL query.</value>
         protected virtual string RoutineNameQuery => RoutineNameQuerySql;
 
-        private static readonly string RoutineNameQuerySql = @$"
+        private const string RoutineNameQuerySql = @$"
 select
     OWNER as ""{ nameof(GetRoutineNameQueryResult.SchemaName) }"",
     OBJECT_NAME as ""{ nameof(GetRoutineNameQueryResult.RoutineName) }""
@@ -235,7 +235,7 @@ where OWNER = :{ nameof(GetRoutineNameQuery.SchemaName) } and OBJECT_NAME = :{ n
         /// <value>A SQL query.</value>
         protected virtual string DefinitionQuery => DefinitionQuerySql;
 
-        private static readonly string DefinitionQuerySql = @$"
+        private const string DefinitionQuerySql = @$"
 select TEXT
 from SYS.ALL_SOURCE
 where OWNER = :{ nameof(GetRoutineDefinitionQuery.SchemaName) } and NAME = :{ nameof(GetRoutineDefinitionQuery.RoutineName) }
@@ -248,7 +248,7 @@ order by LINE";
         /// <value>A SQL query.</value>
         protected virtual string UserDefinitionQuery => UserDefinitionQuerySql;
 
-        private static readonly string UserDefinitionQuerySql = @$"
+        private const string UserDefinitionQuerySql = @$"
 select TEXT
 from SYS.USER_SOURCE
 where NAME = :{ nameof(GetUserRoutineDefinitionQuery.RoutineName) } AND TYPE IN ('FUNCTION', 'PROCEDURE')

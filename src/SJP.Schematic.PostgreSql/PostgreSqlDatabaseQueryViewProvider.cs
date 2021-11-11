@@ -84,7 +84,7 @@ namespace SJP.Schematic.PostgreSql
         /// <value>A SQL query.</value>
         protected virtual string ViewsQuery => ViewsQuerySql;
 
-        private static readonly string ViewsQuerySql = @$"
+        private const string ViewsQuerySql = @$"
 select schemaname as ""{ nameof(GetAllViewNamesQueryResult.SchemaName) }"", viewname as ""{ nameof(GetAllViewNamesQueryResult.ViewName) }""
 from pg_catalog.pg_views
 where schemaname not in ('pg_catalog', 'information_schema')
@@ -155,7 +155,7 @@ order by schemaname, viewname";
         /// <value>A SQL query.</value>
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
-        private static readonly string ViewNameQuerySql = @$"
+        private const string ViewNameQuerySql = @$"
 select schemaname as ""{ nameof(GetViewNameQueryResult.SchemaName) }"", viewname as ""{ nameof(GetViewNameQueryResult.ViewName) }""
 from pg_catalog.pg_views
 where schemaname = @{ nameof(GetViewNameQuery.SchemaName) } and viewname = @{ nameof(GetViewNameQuery.ViewName) }
@@ -217,7 +217,7 @@ limit 1";
         /// <value>A SQL query.</value>
         protected virtual string DefinitionQuery => DefinitionQuerySql;
 
-        private static readonly string DefinitionQuerySql = @$"
+        private const string DefinitionQuerySql = @$"
 select view_definition
 from information_schema.views
 where table_schema = @{ nameof(GetViewDefinitionQuery.SchemaName) } and table_name = @{ nameof(GetViewDefinitionQuery.ViewName) }";
@@ -281,7 +281,7 @@ where table_schema = @{ nameof(GetViewDefinitionQuery.SchemaName) } and table_na
         /// <value>A SQL query.</value>
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
-        private static readonly string ColumnsQuerySql = @$"
+        private const string ColumnsQuerySql = @$"
 select
     column_name as ""{ nameof(GetViewColumnsQueryResult.ColumnName) }"",
     ordinal_position as ""{ nameof(GetViewColumnsQueryResult.OrdinalPosition) }"",

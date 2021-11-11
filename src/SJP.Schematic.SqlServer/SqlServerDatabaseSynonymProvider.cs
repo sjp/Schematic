@@ -71,7 +71,7 @@ namespace SJP.Schematic.SqlServer
         /// <value>A SQL query.</value>
         protected virtual string SynonymsQuery => SynonymsQuerySql;
 
-        private static readonly string SynonymsQuerySql = @$"
+        private const string SynonymsQuerySql = @$"
 select
     schema_name(schema_id) as [{ nameof(GetAllSynonymDefinitionsQueryResult.SchemaName) }],
     name as [{ nameof(GetAllSynonymDefinitionsQueryResult.SynonymName) }],
@@ -127,7 +127,7 @@ order by schema_name(schema_id), name";
         /// <value>A SQL query.</value>
         protected virtual string SynonymNameQuery => SynonymNameQuerySql;
 
-        private static readonly string SynonymNameQuerySql = @$"
+        private const string SynonymNameQuerySql = @$"
 select top 1 schema_name(schema_id) as [{ nameof(GetSynonymNameQueryResult.SchemaName) }], name as [{ nameof(GetSynonymNameQueryResult.SynonymName) }]
 from sys.synonyms
 where schema_id = schema_id(@{ nameof(GetSynonymNameQuery.SchemaName) }) and name = @{ nameof(GetSynonymNameQuery.SynonymName) } and is_ms_shipped = 0";
@@ -173,7 +173,7 @@ where schema_id = schema_id(@{ nameof(GetSynonymNameQuery.SchemaName) }) and nam
         /// <value>A SQL query.</value>
         protected virtual string LoadSynonymQuery => LoadSynonymQuerySql;
 
-        private static readonly string LoadSynonymQuerySql = @$"
+        private const string LoadSynonymQuerySql = @$"
 select
     PARSENAME(base_object_name, 4) as [{ nameof(GetSynonymDefinitionQueryResult.TargetServerName) }],
     PARSENAME(base_object_name, 3) as [{ nameof(GetSynonymDefinitionQueryResult.TargetDatabaseName) }],

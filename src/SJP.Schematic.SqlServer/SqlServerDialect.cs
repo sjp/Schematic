@@ -38,7 +38,7 @@ namespace SJP.Schematic.SqlServer
             return await connection.DbConnection.QuerySingleAsync<SqlIdentifierDefaultsQueryResult>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
         }
 
-        private static readonly string IdentifierDefaultsQuerySql = @$"
+        private const string IdentifierDefaultsQuerySql = @$"
 select
     @@SERVERNAME as [{ nameof(SqlIdentifierDefaultsQueryResult.Server) }],
     db_name() as [{ nameof(SqlIdentifierDefaultsQueryResult.Database) }],

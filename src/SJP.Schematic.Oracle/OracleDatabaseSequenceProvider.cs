@@ -85,7 +85,7 @@ namespace SJP.Schematic.Oracle
         /// <value>A SQL query.</value>
         protected virtual string SequencesQuery => SequencesQuerySql;
 
-        private static readonly string SequencesQuerySql = @$"
+        private const string SequencesQuerySql = @$"
 select
     s.SEQUENCE_OWNER as ""{ nameof(GetAllSequencesQueryResult.SchemaName) }"",
     s.SEQUENCE_NAME as ""{ nameof(GetAllSequencesQueryResult.SequenceName) }"",
@@ -164,7 +164,7 @@ order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
         /// <value>A SQL query.</value>
         protected virtual string SequenceNameQuery => SequenceNameQuerySql;
 
-        private static readonly string SequenceNameQuerySql = @$"
+        private const string SequenceNameQuerySql = @$"
 select s.SEQUENCE_OWNER as ""{ nameof(GetSequenceNameQueryResult.SchemaName) }"", s.SEQUENCE_NAME as ""{ nameof(GetSequenceNameQueryResult.SequenceName) }""
 from SYS.ALL_SEQUENCES s
 inner join SYS.ALL_OBJECTS o on s.SEQUENCE_OWNER = o.OWNER and s.SEQUENCE_NAME = o.OBJECT_NAME
@@ -176,7 +176,7 @@ where s.SEQUENCE_OWNER = :{ nameof(GetSequenceNameQuery.SchemaName) } and s.SEQU
         /// <value>A SQL query.</value>
         protected virtual string SequenceQuery => SequenceQuerySql;
 
-        private static readonly string SequenceQuerySql = @$"
+        private const string SequenceQuerySql = @$"
 select
     INCREMENT_BY as ""{ nameof(GetSequenceDefinitionQueryResult.Increment) }"",
     MIN_VALUE as ""{ nameof(GetSequenceDefinitionQueryResult.MinValue) }"",

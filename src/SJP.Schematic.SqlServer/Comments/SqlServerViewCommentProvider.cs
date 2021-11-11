@@ -93,7 +93,7 @@ namespace SJP.Schematic.SqlServer.Comments
         /// <value>A SQL query.</value>
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
-        private static readonly string ViewNameQuerySql = @$"
+        private const string ViewNameQuerySql = @$"
 select top 1 schema_name(schema_id) as [{ nameof(GetViewNameQueryResult.SchemaName) }], name as [{ nameof(GetViewNameQueryResult.ViewName) }]
 from sys.views
 where schema_id = schema_id(@{ nameof(GetViewNameQuery.SchemaName) }) and name = @{ nameof(GetViewNameQuery.ViewName) }
@@ -164,7 +164,7 @@ where schema_id = schema_id(@{ nameof(GetViewNameQuery.SchemaName) }) and name =
         /// <value>A SQL query.</value>
         protected virtual string ViewsQuery => ViewsQuerySql;
 
-        private static readonly string ViewsQuerySql = @$"
+        private const string ViewsQuerySql = @$"
 select schema_name(schema_id) as [{ nameof(GetAllViewNamesQueryResult.SchemaName) }], name as [{ nameof(GetAllViewNamesQueryResult.ViewName) }]
 from sys.views
 where is_ms_shipped = 0
@@ -176,7 +176,7 @@ order by schema_name(schema_id), name";
         /// <value>A SQL query.</value>
         protected virtual string ViewCommentsQuery => ViewCommentsQuerySql;
 
-        private static readonly string ViewCommentsQuerySql = @$"
+        private const string ViewCommentsQuerySql = @$"
 -- view
 select
     'VIEW' as [{ nameof(GetViewCommentsQueryResult.ObjectType) }],

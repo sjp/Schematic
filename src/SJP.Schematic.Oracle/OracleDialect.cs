@@ -96,7 +96,7 @@ namespace SJP.Schematic.Oracle
             return new IdentifierDefaults(qualifiedServerName, dbName, defaultSchema);
         }
 
-        private static readonly string IdentifierDefaultsQuerySql = @$"
+        private const string IdentifierDefaultsQuerySql = @$"
 select
     SYS_CONTEXT('USERENV', 'SERVER_HOST') as ""{ nameof(GetIdentifierDefaultsQueryResult.ServerHost) }"",
     SYS_CONTEXT('USERENV', 'INSTANCE_NAME') as ""{ nameof(GetIdentifierDefaultsQueryResult.ServerSid) }"",
@@ -167,7 +167,7 @@ from DUAL";
                     : Option<Version>.None;
         }
 
-        private static readonly string DatabaseVersionQuerySql = @$"
+        private const string DatabaseVersionQuerySql = @$"
 select
     PRODUCT as ""{ nameof(GetDatabaseVersionQueryResult.ProductName) }"",
     VERSION as ""{ nameof(GetDatabaseVersionQueryResult.VersionNumber) }""

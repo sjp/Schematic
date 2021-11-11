@@ -91,7 +91,7 @@ namespace SJP.Schematic.SqlServer
         /// <value>A SQL query.</value>
         protected virtual string TablesQuery => TablesQuerySql;
 
-        private static readonly string TablesQuerySql = @$"
+        private const string TablesQuerySql = @$"
 select schema_name(schema_id) as [{ nameof(GetAllTableNamesQueryResult.SchemaName) }], name as [{ nameof(GetAllTableNamesQueryResult.TableName) }]
 from sys.tables
 where is_ms_shipped = 0
@@ -143,7 +143,7 @@ order by schema_name(schema_id), name";
         /// <value>A SQL query.</value>
         protected virtual string TableNameQuery => TableNameQuerySql;
 
-        private static readonly string TableNameQuerySql = @$"
+        private const string TableNameQuerySql = @$"
 select top 1 schema_name(schema_id) as [{ nameof(GetTableNameQueryResult.SchemaName) }], name as [{ nameof(GetTableNameQueryResult.TableName) }]
 from sys.tables
 where schema_id = schema_id(@{ nameof(GetTableNameQuery.SchemaName) }) and name = @{ nameof(GetTableNameQuery.TableName) } and is_ms_shipped = 0";
@@ -260,7 +260,7 @@ where schema_id = schema_id(@{ nameof(GetTableNameQuery.SchemaName) }) and name 
         /// <value>A SQL query.</value>
         protected virtual string PrimaryKeyQuery => PrimaryKeyQuerySql;
 
-        private static readonly string PrimaryKeyQuerySql = @$"
+        private const string PrimaryKeyQuerySql = @$"
 select
     kc.name as [{ nameof(GetTablePrimaryQueryResult.ConstraintName) }],
     c.name as [{ nameof(GetTablePrimaryQueryResult.ColumnName) }],
@@ -352,7 +352,7 @@ order by ic.key_ordinal";
         /// <value>A SQL query.</value>
         protected virtual string IndexesQuery => IndexesQuerySql;
 
-        private static readonly string IndexesQuerySql = @$"
+        private const string IndexesQuerySql = @$"
 select
     i.name as [{ nameof(GetTableIndexesQueryResult.IndexName) }],
     i.is_unique as [{ nameof(GetTableIndexesQueryResult.IsUnique) }],
@@ -433,7 +433,7 @@ order by ic.index_id, ic.key_ordinal, ic.index_column_id";
         /// <value>A SQL query.</value>
         protected virtual string UniqueKeysQuery => UniqueKeysQuerySql;
 
-        private static readonly string UniqueKeysQuerySql = @$"
+        private const string UniqueKeysQuerySql = @$"
 select
     kc.name as [{ nameof(GetTableUniqueKeysQueryResult.ConstraintName) }],
     c.name as [{ nameof(GetTableUniqueKeysQueryResult.ColumnName) }],
@@ -543,7 +543,7 @@ order by ic.key_ordinal";
         /// <value>A SQL query.</value>
         protected virtual string ChildKeysQuery => ChildKeysQuerySql;
 
-        private static readonly string ChildKeysQuerySql = @$"
+        private const string ChildKeysQuerySql = @$"
 select
     schema_name(child_t.schema_id) as [{ nameof(GetTableChildKeysQueryResult.ChildTableSchema) }],
     child_t.name as [{ nameof(GetTableChildKeysQueryResult.ChildTableName) }],
@@ -602,7 +602,7 @@ where schema_name(parent_t.schema_id) = @{ nameof(GetTableChildKeysQuery.SchemaN
         /// <value>A SQL query.</value>
         protected virtual string ChecksQuery => ChecksQuerySql;
 
-        private static readonly string ChecksQuerySql = @$"
+        private const string ChecksQuerySql = @$"
 select
     cc.name as [{ nameof(GetTableChecksQueryResult.ConstraintName) }],
     cc.definition as [{ nameof(GetTableChecksQueryResult.Definition) }],
@@ -712,7 +712,7 @@ where schema_name(t.schema_id) = @{ nameof(GetTableChecksQuery.SchemaName) } and
         /// <value>A SQL query.</value>
         protected virtual string ParentKeysQuery => ParentKeysQuerySql;
 
-        private static readonly string ParentKeysQuerySql = @$"
+        private const string ParentKeysQuerySql = @$"
 select
     schema_name(parent_t.schema_id) as [{ nameof(GetTableParentKeysQueryResult.ParentTableSchema) }],
     parent_t.name as [{ nameof(GetTableParentKeysQueryResult.ParentTableName) }],
@@ -800,7 +800,7 @@ where schema_name(child_t.schema_id) = @{ nameof(GetTableParentKeysQuery.SchemaN
         /// <value>A SQL query.</value>
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
-        private static readonly string ColumnsQuerySql = @$"
+        private const string ColumnsQuerySql = @$"
 select
     c.name as [{ nameof(GetTableColumnsQueryResult.ColumnName) }],
     schema_name(st.schema_id) as [{ nameof(GetTableColumnsQueryResult.ColumnTypeSchema) }],
@@ -895,7 +895,7 @@ order by c.column_id";
         /// <value>A SQL query.</value>
         protected virtual string TriggersQuery => TriggersQuerySql;
 
-        private static readonly string TriggersQuerySql = @$"
+        private const string TriggersQuerySql = @$"
 select
     st.name as [{ nameof(GetTableTriggersQueryResult.TriggerName) }],
     sm.definition as [{ nameof(GetTableTriggersQueryResult.Definition) }],

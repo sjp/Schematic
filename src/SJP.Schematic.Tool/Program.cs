@@ -68,7 +68,7 @@ The helpful database schema querying tool.
             context.Console.SetTerminalForegroundRed();
 
             if (exception is TargetInvocationException tie &&
-                tie.InnerException is object)
+                tie.InnerException is not null)
             {
                 exception = tie.InnerException;
             }

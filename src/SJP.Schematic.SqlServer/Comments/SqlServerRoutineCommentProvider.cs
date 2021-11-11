@@ -93,7 +93,7 @@ namespace SJP.Schematic.SqlServer.Comments
         /// <value>A SQL query.</value>
         protected virtual string RoutineNameQuery => RoutineNameQuerySql;
 
-        private static readonly string RoutineNameQuerySql = @$"
+        private const string RoutineNameQuerySql = @$"
 select top 1 schema_name(schema_id) as [{ nameof(GetRoutineNameQueryResult.SchemaName) }], name as [{ nameof(GetRoutineNameQueryResult.RoutineName) }]
 from sys.objects
 where schema_id = schema_id(@{ nameof(GetRoutineNameQuery.SchemaName) }) and name = @{ nameof(GetRoutineNameQuery.RoutineName) }
@@ -163,7 +163,7 @@ where schema_id = schema_id(@{ nameof(GetRoutineNameQuery.SchemaName) }) and nam
         /// <value>A SQL query definition.</value>
         protected virtual string RoutinesQuery => RoutinesQuerySql;
 
-        private static readonly string RoutinesQuerySql = @$"
+        private const string RoutinesQuerySql = @$"
 select
     schema_name(schema_id) as [{ nameof(GetAllRoutineNamesQueryResult.SchemaName) }],
     name as [{ nameof(GetAllRoutineNamesQueryResult.RoutineName) }]
@@ -177,7 +177,7 @@ order by schema_name(schema_id), name";
         /// <value>A SQL query.</value>
         protected virtual string RoutineCommentsQuery => RoutineCommentsQuerySql;
 
-        private static readonly string RoutineCommentsQuerySql = @$"
+        private const string RoutineCommentsQuerySql = @$"
 select
     'ROUTINE' as [{ nameof(GetRoutineCommentsQueryResult.ObjectType) }],
     r.name as [{ nameof(GetRoutineCommentsQueryResult.ObjectName) }],

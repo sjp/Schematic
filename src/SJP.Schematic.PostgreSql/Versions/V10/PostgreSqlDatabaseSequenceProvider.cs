@@ -27,7 +27,7 @@ namespace SJP.Schematic.PostgreSql.Versions.V10
         /// <value>A SQL query.</value>
         protected override string SequencesQuery => SequencesQuerySql;
 
-        private static readonly string SequencesQuerySql = @$"
+        private const string SequencesQuerySql = @$"
 select
     schemaname as ""{ nameof(GetAllSequenceDefinitionsQueryResult.SchemaName) }"",
     sequencename as ""{ nameof(GetAllSequenceDefinitionsQueryResult.SequenceName) }"",
@@ -46,7 +46,7 @@ order by schemaname, sequencename";
         /// <value>A SQL query.</value>
         protected override string SequenceQuery => SequenceQuerySql;
 
-        private static readonly string SequenceQuerySql = @$"
+        private const string SequenceQuerySql = @$"
 select
     start_value as ""{ nameof(GetSequenceDefinitionQueryResult.StartValue) }"",
     min_value as ""{ nameof(GetSequenceDefinitionQueryResult.MinValue) }"",

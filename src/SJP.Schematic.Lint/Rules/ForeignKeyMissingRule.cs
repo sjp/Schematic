@@ -95,11 +95,11 @@ namespace SJP.Schematic.Lint.Rules
 
             const string snakeCaseSuffix = "_id";
             if (columnName.EndsWith(snakeCaseSuffix, StringComparison.OrdinalIgnoreCase))
-                return columnName.Substring(0, columnName.Length - snakeCaseSuffix.Length);
+                return columnName[..^snakeCaseSuffix.Length];
 
             const string camelCaseSuffix = "Id";
             if (columnName.EndsWith(camelCaseSuffix, StringComparison.Ordinal))
-                return columnName.Substring(0, columnName.Length - camelCaseSuffix.Length);
+                return columnName[..^camelCaseSuffix.Length];
 
             return columnName;
         }

@@ -81,7 +81,7 @@ namespace SJP.Schematic.MySql
         /// <value>A SQL query.</value>
         protected virtual string ViewsQuery => ViewsQuerySql;
 
-        private static readonly string ViewsQuerySql = @$"
+        private const string ViewsQuerySql = @$"
 select
     TABLE_SCHEMA as `{ nameof(GetAllViewNamesQueryResult.SchemaName) }`,
     TABLE_NAME as `{ nameof(GetAllViewNamesQueryResult.ViewName) }`
@@ -132,7 +132,7 @@ where TABLE_SCHEMA = @{ nameof(GetAllViewNamesQuery.SchemaName) } order by TABLE
         /// <value>A SQL query.</value>
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
-        private static readonly string ViewNameQuerySql = @$"
+        private const string ViewNameQuerySql = @$"
 select
     table_schema as `{ nameof(GetViewNameQueryResult.SchemaName) }`,
     table_name as `{ nameof(GetViewNameQueryResult.ViewName) }`
@@ -195,7 +195,7 @@ limit 1";
         /// <value>A SQL query.</value>
         protected virtual string DefinitionQuery => DefinitionQuerySql;
 
-        private static readonly string DefinitionQuerySql = @$"
+        private const string DefinitionQuerySql = @$"
 select view_definition
 from information_schema.views
 where table_schema = @{ nameof(Query.GetViewDefinitionQuery.SchemaName) } and table_name = @{ nameof(Query.GetViewDefinitionQuery.ViewName) }
@@ -267,7 +267,7 @@ where table_schema = @{ nameof(Query.GetViewDefinitionQuery.SchemaName) } and ta
         /// <value>A SQL query.</value>
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
-        private static readonly string ColumnsQuerySql = @$"
+        private const string ColumnsQuerySql = @$"
 select
     column_name as `{ nameof(GetViewColumnsQueryResult.ColumnName) }`,
     data_type as `{ nameof(GetViewColumnsQueryResult.DataTypeName) }`,

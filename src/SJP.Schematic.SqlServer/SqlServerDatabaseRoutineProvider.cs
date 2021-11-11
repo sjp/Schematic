@@ -68,7 +68,7 @@ namespace SJP.Schematic.SqlServer
         /// <value>A SQL query definition.</value>
         protected virtual string RoutinesQuery => RoutinesQuerySql;
 
-        private static readonly string RoutinesQuerySql = @$"
+        private const string RoutinesQuerySql = @$"
 select
     schema_name(schema_id) as [{ nameof(GetAllRoutineNamesQueryResult.SchemaName) }],
     name as [{ nameof(GetAllRoutineNamesQueryResult.RoutineName) }]
@@ -120,7 +120,7 @@ order by schema_name(schema_id), name";
         /// <value>A SQL query.</value>
         protected virtual string RoutineNameQuery => RoutineNameQuerySql;
 
-        private static readonly string RoutineNameQuerySql = @$"
+        private const string RoutineNameQuerySql = @$"
 select top 1 schema_name(schema_id) as [{ nameof(GetRoutineNameQueryResult.SchemaName) }], name as [{ nameof(GetRoutineNameQueryResult.RoutineName) }]
 from sys.objects
 where schema_id = schema_id(@{ nameof(GetRoutineNameQuery.SchemaName) }) and name = @{ nameof(GetRoutineNameQuery.RoutineName) }
@@ -155,7 +155,7 @@ where schema_id = schema_id(@{ nameof(GetRoutineNameQuery.SchemaName) }) and nam
         /// <value>A SQL query.</value>
         protected virtual string DefinitionQuery => DefinitionQuerySql;
 
-        private static readonly string DefinitionQuerySql = @$"
+        private const string DefinitionQuerySql = @$"
 select m.definition
 from sys.sql_modules m
 inner join sys.objects o on o.object_id = m.object_id

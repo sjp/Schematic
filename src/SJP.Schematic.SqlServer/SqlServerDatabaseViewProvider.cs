@@ -76,7 +76,7 @@ namespace SJP.Schematic.SqlServer
         /// <value>A SQL query.</value>
         protected virtual string ViewsQuery => ViewsQuerySql;
 
-        private static readonly string ViewsQuerySql = @$"
+        private const string ViewsQuerySql = @$"
 select schema_name(schema_id) as [{ nameof(GetAllViewNamesQueryResult.SchemaName) }], name as [{ nameof(GetAllViewNamesQueryResult.ViewName) }]
 from sys.views
 where is_ms_shipped = 0
@@ -126,7 +126,7 @@ order by schema_name(schema_id), name";
         /// <value>A SQL query.</value>
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
-        private static readonly string ViewNameQuerySql = @$"
+        private const string ViewNameQuerySql = @$"
 select top 1 schema_name(schema_id) as [{ nameof(GetViewNameQueryResult.SchemaName) }], name as [{ nameof(GetViewNameQueryResult.ViewName) }]
 from sys.views
 where schema_id = schema_id(@{ nameof(GetViewNameQuery.SchemaName) }) and name = @{ nameof(GetViewNameQuery.ViewName) } and is_ms_shipped = 0";
@@ -188,7 +188,7 @@ where schema_id = schema_id(@{ nameof(GetViewNameQuery.SchemaName) }) and name =
         /// <value>A SQL query.</value>
         protected virtual string DefinitionQuery => DefinitionQuerySql;
 
-        private static readonly string DefinitionQuerySql = @$"
+        private const string DefinitionQuerySql = @$"
 select sm.definition
 from sys.sql_modules sm
 inner join sys.views v on sm.object_id = v.object_id
@@ -219,7 +219,7 @@ where schema_name(v.schema_id) = @{ nameof(GetViewDefinitionQuery.SchemaName) } 
         /// <value>A SQL query.</value>
         protected virtual string IndexExistsQuery => IndexExistsQuerySql;
 
-        private static readonly string IndexExistsQuerySql = @$"
+        private const string IndexExistsQuerySql = @$"
 select top 1 1
 from sys.views v
 inner join sys.indexes i on v.object_id = i.object_id
@@ -288,7 +288,7 @@ where schema_name(v.schema_id) = @{ nameof(GetViewIndexExistsQuery.SchemaName) }
         /// <value>A SQL query.</value>
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
-        private static readonly string ColumnsQuerySql = @$"
+        private const string ColumnsQuerySql = @$"
 select
     c.name as [{ nameof(GetViewColumnsQueryResult.ColumnName) }],
     schema_name(st.schema_id) as [{ nameof(GetViewColumnsQueryResult.ColumnTypeSchema) }],

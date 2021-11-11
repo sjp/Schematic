@@ -76,7 +76,7 @@ namespace SJP.Schematic.Oracle
         /// <value>A SQL query.</value>
         protected virtual string PackagesQuery => PackagesQuerySql;
 
-        private static readonly string PackagesQuerySql = @$"
+        private const string PackagesQuerySql = @$"
 SELECT
     OWNER as ""{ nameof(GetAllPackageNamesQueryResult.SchemaName) }"",
     OBJECT_NAME as ""{ nameof(GetAllPackageNamesQueryResult.PackageName) }""
@@ -149,7 +149,7 @@ ORDER BY OWNER, OBJECT_NAME";
         /// <value>A SQL query.</value>
         protected virtual string PackageNameQuery => PackageNameQuerySql;
 
-        private static readonly string PackageNameQuerySql = @$"
+        private const string PackageNameQuerySql = @$"
 select
     OWNER as ""{ nameof(GetPackageNameQueryResult.SchemaName) }"",
     OBJECT_NAME as ""{ nameof(GetPackageNameQueryResult.PackageName) }""
@@ -239,7 +239,7 @@ where OWNER = :{ nameof(GetPackageNameQuery.SchemaName) } and OBJECT_NAME = :{ n
         /// <value>A SQL query.</value>
         protected virtual string PackageDefinitionQuery => PackageDefinitionQuerySql;
 
-        private static readonly string PackageDefinitionQuerySql = @$"
+        private const string PackageDefinitionQuerySql = @$"
 select
     TYPE as ""{ nameof(GetPackageDefinitionQueryResult.RoutineType) }"",
     LINE as ""{ nameof(GetPackageDefinitionQueryResult.LineNumber) }"",
@@ -254,7 +254,7 @@ order by LINE";
         /// <value>A SQL query.</value>
         protected virtual string UserPackageDefinitionQuery => UserPackageDefinitionQuerySql;
 
-        private static readonly string UserPackageDefinitionQuerySql = @$"
+        private const string UserPackageDefinitionQuerySql = @$"
 select
     TYPE as ""{ nameof(GetUserPackageDefinitionQueryResult.RoutineType) }"",
     LINE as ""{ nameof(GetUserPackageDefinitionQueryResult.LineNumber) }"",

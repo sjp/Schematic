@@ -93,7 +93,7 @@ namespace SJP.Schematic.MySql.Comments
         /// <value>A SQL query.</value>
         protected virtual string TableNameQuery => TableNameQuerySql;
 
-        private static readonly string TableNameQuerySql = @$"
+        private const string TableNameQuerySql = @$"
 select table_schema as `{ nameof(GetTableNameQueryResult.SchemaName) }`, table_name as `{ nameof(GetTableNameQueryResult.TableName) }`
 from information_schema.tables
 where table_schema = @{ nameof(GetTableNameQuery.SchemaName) } and table_name = @{ nameof(GetTableNameQuery.TableName) }
@@ -169,7 +169,7 @@ limit 1";
         /// <value>A SQL query.</value>
         protected virtual string TablesQuery => TablesQuerySql;
 
-        private static readonly string TablesQuerySql = @$"
+        private const string TablesQuerySql = @$"
 select
     table_schema as `{ nameof(GetAllTableNamesQueryResult.SchemaName) }`,
     table_name as `{ nameof(GetAllTableNamesQueryResult.TableName) }`
@@ -182,7 +182,7 @@ where table_schema = @{ nameof(GetAllTableNamesQuery.SchemaName) }";
         /// <value>A SQL query.</value>
         protected virtual string TableCommentsQuery => TableCommentsQuerySql;
 
-        private static readonly string TableCommentsQuerySql = @$"
+        private const string TableCommentsQuerySql = @$"
 -- table
 select
     'TABLE' as `{ nameof(GetTableCommentsQueryResult.ObjectType) }`,

@@ -116,7 +116,7 @@ namespace SJP.Schematic.Oracle.Comments
         /// <value>A SQL query.</value>
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
-        private static readonly string ViewNameQuerySql = @$"
+        private const string ViewNameQuerySql = @$"
 select mv.OWNER as ""{ nameof(GetMaterializedViewNameQueryResult.SchemaName) }"", mv.MVIEW_NAME as ""{ nameof(GetMaterializedViewNameQueryResult.ViewName) }""
 from SYS.ALL_MVIEWS mv
 inner join SYS.ALL_OBJECTS o on mv.OWNER = o.OWNER and mv.MVIEW_NAME = o.OBJECT_NAME
@@ -207,7 +207,7 @@ where mv.OWNER = :{ nameof(GetMaterializedViewNameQuery.SchemaName) } and mv.MVI
         /// <value>A SQL query.</value>
         protected virtual string ViewsQuery => ViewsQuerySql;
 
-        private static readonly string ViewsQuerySql = @$"
+        private const string ViewsQuerySql = @$"
 select
     mv.OWNER as ""{ nameof(GetAllMaterializedViewNamesQueryResult.SchemaName) }"",
     mv.MVIEW_NAME as ""{ nameof(GetAllMaterializedViewNamesQueryResult.ViewName) }""
@@ -222,7 +222,7 @@ order by mv.OWNER, mv.MVIEW_NAME";
         /// <value>A SQL query.</value>
         protected virtual string ViewCommentsQuery => ViewCommentsQuerySql;
 
-        private static readonly string ViewCommentsQuerySql = @$"
+        private const string ViewCommentsQuerySql = @$"
 -- view
 select
     'VIEW' as ""{ nameof(GetMaterializedViewCommentsQueryResult.ObjectType) }"",
@@ -253,7 +253,7 @@ where v.OWNER = :{ nameof(GetMaterializedViewCommentsQuery.SchemaName) } and v.M
         /// <value>A SQL query.</value>
         protected virtual string UserViewCommentsQuery => UserViewCommentsQuerySql;
 
-        private static readonly string UserViewCommentsQuerySql = @$"
+        private const string UserViewCommentsQuerySql = @$"
 -- view
 select
     'VIEW' as ""{ nameof(GetUserMaterializedViewCommentsQueryResult.ObjectType) }"",

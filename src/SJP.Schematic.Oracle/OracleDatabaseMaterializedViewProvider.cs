@@ -85,7 +85,7 @@ namespace SJP.Schematic.Oracle
         /// <value>A SQL query.</value>
         protected virtual string ViewsQuery => ViewsQuerySql;
 
-        private static readonly string ViewsQuerySql = @$"
+        private const string ViewsQuerySql = @$"
 select
     mv.OWNER as ""{ nameof(GetAllMaterializedViewNamesQueryResult.SchemaName) }"",
     mv.MVIEW_NAME as ""{ nameof(GetAllMaterializedViewNamesQueryResult.ViewName) }""
@@ -159,7 +159,7 @@ order by mv.OWNER, mv.MVIEW_NAME";
         /// <value>A SQL query.</value>
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
-        private static readonly string ViewNameQuerySql = @$"
+        private const string ViewNameQuerySql = @$"
 select mv.OWNER as ""{ nameof(GetMaterializedViewNameQueryResult.SchemaName) }"", mv.MVIEW_NAME as ""{ nameof(GetMaterializedViewNameQueryResult.ViewName) }""
 from SYS.ALL_MVIEWS mv
 inner join SYS.ALL_OBJECTS o on mv.OWNER = o.OWNER and mv.MVIEW_NAME = o.OBJECT_NAME
@@ -219,7 +219,7 @@ where mv.OWNER = :{ nameof(GetMaterializedViewNameQuery.SchemaName) } and mv.MVI
         /// <value>A SQL query.</value>
         protected virtual string DefinitionQuery => DefinitionQuerySql;
 
-        private static readonly string DefinitionQuerySql = @$"
+        private const string DefinitionQuerySql = @$"
 select QUERY
 from SYS.ALL_MVIEWS
 where OWNER = :{ nameof(GetViewDefinitionQuery.SchemaName) } and MVIEW_NAME = :{ nameof(GetViewDefinitionQuery.ViewName) }";
@@ -289,7 +289,7 @@ where OWNER = :{ nameof(GetViewDefinitionQuery.SchemaName) } and MVIEW_NAME = :{
         /// <value>A SQL query.</value>
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
-        private static readonly string ColumnsQuerySql = @$"
+        private const string ColumnsQuerySql = @$"
 select
     atc.COLUMN_NAME as ""{ nameof(GetMaterializedViewColumnsQueryResult.ColumnName) }"",
     atc.DATA_TYPE_OWNER as ""{ nameof(GetMaterializedViewColumnsQueryResult.ColumnTypeSchema) }"",
@@ -350,7 +350,7 @@ order by atc.COLUMN_ID";
         /// <value>A SQL query.</value>
         protected virtual string ChecksQuery => ChecksQuerySql;
 
-        private static readonly string ChecksQuerySql = @$"
+        private const string ChecksQuerySql = @$"
 select
     CONSTRAINT_NAME as ""{ nameof(GetMaterializedViewChecksQueryResult.ConstraintName) }"",
     SEARCH_CONDITION as ""{ nameof(GetMaterializedViewChecksQueryResult.Definition) }"",

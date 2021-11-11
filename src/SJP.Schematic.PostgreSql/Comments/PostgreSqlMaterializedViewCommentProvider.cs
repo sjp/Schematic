@@ -116,7 +116,7 @@ namespace SJP.Schematic.PostgreSql.Comments
         /// <value>A SQL query.</value>
         protected virtual string ViewNameQuery => ViewNameQuerySql;
 
-        private static readonly string ViewNameQuerySql = @$"
+        private const string ViewNameQuerySql = @$"
 select schemaname as ""{ nameof(GetMaterializedViewNameQueryResult.SchemaName) }"", matviewname as ""{ nameof(GetMaterializedViewNameQueryResult.ViewName) }""
 from pg_catalog.pg_matviews
 where schemaname = @{ nameof(GetMaterializedViewNameQuery.SchemaName) } and matviewname = @{ nameof(GetMaterializedViewNameQuery.ViewName) }
@@ -183,7 +183,7 @@ limit 1";
         /// <value>A SQL query.</value>
         protected virtual string ViewsQuery => ViewsQuerySql;
 
-        private static readonly string ViewsQuerySql = @$"
+        private const string ViewsQuerySql = @$"
 select schemaname as ""{ nameof(GetAllMaterializedViewNamesQueryResult.SchemaName) }"", matviewname as ""{ nameof(GetAllMaterializedViewNamesQueryResult.ViewName) }""
 from pg_catalog.pg_matviews
 where schemaname not in ('pg_catalog', 'information_schema')
@@ -196,7 +196,7 @@ order by schemaname, matviewname
         /// <value>A SQL query.</value>
         protected virtual string ViewCommentsQuery => ViewCommentsQuerySql;
 
-        private static readonly string ViewCommentsQuerySql = @$"
+        private const string ViewCommentsQuerySql = @$"
 -- view
 select
     'VIEW' as ""{ nameof(GetMaterializedViewCommentsQueryResult.ObjectType) }"",

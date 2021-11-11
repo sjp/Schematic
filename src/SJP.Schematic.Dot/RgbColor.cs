@@ -22,9 +22,9 @@ namespace SJP.Schematic.Dot
 
             // validate hex string
             var hexOnly = hex.StartsWith('#') ? hex[1..] : hex;
-            var r = Convert.ToByte(hexOnly.Substring(0, 2), 16);
-            var g = Convert.ToByte(hexOnly.Substring(2, 2), 16);
-            var b = Convert.ToByte(hexOnly.Substring(4, 2), 16);
+            var r = Convert.ToByte(hexOnly[..2], 16);
+            var g = Convert.ToByte(hexOnly[2..4], 16);
+            var b = Convert.ToByte(hexOnly[4..6], 16);
 
             _hex = ToRgbHex(r, g, b);
             _hashCode = _hex.GetHashCode(StringComparison.Ordinal);

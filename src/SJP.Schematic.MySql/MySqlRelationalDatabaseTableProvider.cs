@@ -98,7 +98,7 @@ namespace SJP.Schematic.MySql
         /// <value>A SQL query.</value>
         protected virtual string TablesQuery => TablesQuerySql;
 
-        private static readonly string TablesQuerySql = @$"
+        private const string TablesQuerySql = @$"
 select
     TABLE_SCHEMA as `{ nameof(GetAllTableNamesQueryResult.SchemaName) }`,
     TABLE_NAME as `{ nameof(GetAllTableNamesQueryResult.TableName) }`
@@ -152,7 +152,7 @@ where TABLE_SCHEMA = @{ nameof(GetAllTableNamesQuery.SchemaName) } order by TABL
         /// <value>A SQL query.</value>
         protected virtual string TableNameQuery => TableNameQuerySql;
 
-        private static readonly string TableNameQuerySql = @$"
+        private const string TableNameQuerySql = @$"
 select
     table_schema as `{ nameof(GetTableNameQueryResult.SchemaName) }`,
     table_name as `{ nameof(GetTableNameQueryResult.TableName) }`
@@ -266,7 +266,7 @@ limit 1";
         /// <value>A SQL query.</value>
         protected virtual string PrimaryKeyQuery => PrimaryKeyQuerySql;
 
-        private static readonly string PrimaryKeyQuerySql = @$"
+        private const string PrimaryKeyQuerySql = @$"
 select
     kc.constraint_name as `{ nameof(GetTablePrimaryKeyQueryResult.ConstraintName) }`,
     kc.column_name as `{ nameof(GetTablePrimaryKeyQueryResult.ColumnName) }`
@@ -347,7 +347,7 @@ order by kc.ordinal_position";
         /// <value>A SQL query.</value>
         protected virtual string IndexesQuery => IndexesQuerySql;
 
-        private static readonly string IndexesQuerySql = @$"
+        private const string IndexesQuerySql = @$"
 select
     index_name as `{ nameof(GetTableIndexesQueryResult.IndexName) }`,
     non_unique as `{ nameof(GetTableIndexesQueryResult.IsNonUnique) }`,
@@ -414,7 +414,7 @@ where table_schema = @{ nameof(GetTableIndexesQuery.SchemaName) } and table_name
         /// <value>A SQL query.</value>
         protected virtual string UniqueKeysQuery => UniqueKeysQuerySql;
 
-        private static readonly string UniqueKeysQuerySql = @$"
+        private const string UniqueKeysQuerySql = @$"
 select
     kc.constraint_name as `{ nameof(GetTableUniqueKeysQueryResult.ConstraintName) }`,
     kc.column_name as `{ nameof(GetTableUniqueKeysQueryResult.ColumnName) }`
@@ -526,7 +526,7 @@ order by kc.ordinal_position";
         /// <value>A SQL query.</value>
         protected virtual string ChildKeysQuery => ChildKeysQuerySql;
 
-        private static readonly string ChildKeysQuerySql = @$"
+        private const string ChildKeysQuerySql = @$"
 select
     t.table_schema as `{ nameof(GetTableChildKeysQueryResult.ChildTableSchema) }`,
     t.table_name as `{ nameof(GetTableChildKeysQueryResult.ChildTableName) }`,
@@ -590,7 +590,7 @@ where pt.table_schema = @{ nameof(GetTableChildKeysQuery.SchemaName) } and pt.ta
         /// <value>A SQL query.</value>
         protected virtual string ChecksQuery => ChecksQuerySql;
 
-        private static readonly string ChecksQuerySql = @$"
+        private const string ChecksQuerySql = @$"
 select
     cc.constraint_name as `{ nameof(GetTableCheckConstraintsQueryResult.ConstraintName) }`,
     cc.check_clause as `{ nameof(GetTableCheckConstraintsQueryResult.Definition) }`,
@@ -698,7 +698,7 @@ where tc.table_schema = @{ nameof(GetTableCheckConstraintsQuery.SchemaName) } an
         /// <value>A SQL query.</value>
         protected virtual string ParentKeysQuery => ParentKeysQuerySql;
 
-        private static readonly string ParentKeysQuerySql = @$"
+        private const string ParentKeysQuerySql = @$"
 select
     pt.table_schema as `{ nameof(GetTableParentKeysQueryResult.ParentTableSchema) }`,
     pt.table_name as `{ nameof(GetTableParentKeysQueryResult.ParentTableName) }`,
@@ -785,7 +785,7 @@ where t.table_schema = @{ nameof(GetTableParentKeysQuery.SchemaName) } and t.tab
         /// <value>A SQL query.</value>
         protected virtual string ColumnsQuery => ColumnsQuerySql;
 
-        private static readonly string ColumnsQuerySql = @$"
+        private const string ColumnsQuerySql = @$"
 select
     column_name as `{ nameof(GetTableColumnsQueryResult.ColumnName) }`,
     data_type as `{ nameof(GetTableColumnsQueryResult.DataTypeName) }`,
@@ -870,7 +870,7 @@ order by ordinal_position";
         /// <value>A SQL query.</value>
         protected virtual string TriggersQuery => TriggersQuerySql;
 
-        private static readonly string TriggersQuerySql = @$"
+        private const string TriggersQuerySql = @$"
 select
     tr.trigger_name as `{ nameof(GetTableTriggersQueryResult.TriggerName) }`,
     tr.action_statement as `{ nameof(GetTableTriggersQueryResult.Definition) }`,

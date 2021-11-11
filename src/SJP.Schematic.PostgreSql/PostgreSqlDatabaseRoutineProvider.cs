@@ -76,7 +76,7 @@ namespace SJP.Schematic.PostgreSql
         /// <value>A SQL query definition.</value>
         protected virtual string RoutinesQuery => RoutinesQuerySql;
 
-        private static readonly string RoutinesQuerySql = @$"
+        private const string RoutinesQuerySql = @$"
 select
     ROUTINE_SCHEMA as ""{ nameof(GetAllRoutineNamesQueryResult.SchemaName) }"",
     ROUTINE_NAME as ""{ nameof(GetAllRoutineNamesQueryResult.RoutineName) }""
@@ -149,7 +149,7 @@ order by ROUTINE_SCHEMA, ROUTINE_NAME";
         /// <value>A SQL query.</value>
         protected virtual string RoutineNameQuery => RoutineNameQuerySql;
 
-        private static readonly string RoutineNameQuerySql = @$"
+        private const string RoutineNameQuerySql = @$"
 select
     ROUTINE_SCHEMA as ""{ nameof(GetRoutineNameQueryResult.SchemaName) }"",
     ROUTINE_NAME as ""{ nameof(GetRoutineNameQueryResult.RoutineName) }""
@@ -206,7 +206,7 @@ limit 1";
         /// <value>A SQL query.</value>
         protected virtual string DefinitionQuery => DefinitionQuerySql;
 
-        private static readonly string DefinitionQuerySql = @$"
+        private const string DefinitionQuerySql = @$"
 select ROUTINE_DEFINITION
 from information_schema.routines
 where ROUTINE_SCHEMA = @{ nameof(GetRoutineDefinitionQuery.SchemaName) } and ROUTINE_NAME = @{ nameof(GetRoutineDefinitionQuery.RoutineName) }";

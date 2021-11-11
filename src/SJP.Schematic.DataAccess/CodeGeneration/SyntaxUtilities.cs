@@ -47,7 +47,7 @@ namespace SJP.Schematic.DataAccess.CodeGeneration
         {
             var trimmedName = !attributeName.EndsWith(AttributeSuffix, StringComparison.Ordinal)
                 ? attributeName
-                : attributeName.Substring(0, attributeName.Length - AttributeSuffix.Length);
+                : attributeName[..^AttributeSuffix.Length];
 
             return IdentifierName(trimmedName);
         }

@@ -87,7 +87,7 @@ namespace SJP.Schematic.Oracle
         /// <value>A SQL query.</value>
         protected virtual string SynonymsQuery => SynonymsQuerySql;
 
-        private static readonly string SynonymsQuerySql = @$"
+        private const string SynonymsQuerySql = @$"
 select distinct
     s.OWNER as ""{ nameof(GetAllSynonymsQueryResult.SchemaName) }"",
     s.SYNONYM_NAME as ""{ nameof(GetAllSynonymsQueryResult.SynonymName) }"",
@@ -179,7 +179,7 @@ order by s.DB_LINK, s.OWNER, s.SYNONYM_NAME";
         /// <value>A SQL query.</value>
         protected virtual string SynonymNameQuery => SynonymNameQuerySql;
 
-        private static readonly string SynonymNameQuerySql = @$"
+        private const string SynonymNameQuerySql = @$"
 select s.OWNER as ""{ nameof(GetSynonymNameQueryResult.SchemaName) }"", s.SYNONYM_NAME as ""{ nameof(GetSynonymNameQueryResult.SynonymName) }""
 from SYS.ALL_SYNONYMS s
 inner join SYS.ALL_OBJECTS o on s.OWNER = o.OWNER and s.SYNONYM_NAME = o.OBJECT_NAME
@@ -191,7 +191,7 @@ where s.OWNER = :{ nameof(GetSynonymNameQuery.SchemaName) } and s.SYNONYM_NAME =
         /// <value>A SQL query.</value>
         protected virtual string UserSynonymNameQuery => UserSynonymNameQuerySql;
 
-        private static readonly string UserSynonymNameQuerySql = @$"
+        private const string UserSynonymNameQuerySql = @$"
 select s.SYNONYM_NAME
 from SYS.USER_SYNONYMS s
 inner join SYS.ALL_OBJECTS o on s.SYNONYM_NAME = o.OBJECT_NAME
@@ -230,7 +230,7 @@ where o.OWNER = SYS_CONTEXT('USERENV', 'CURRENT_USER') and s.SYNONYM_NAME = :{ n
         /// <value>A SQL query.</value>
         protected virtual string LoadSynonymQuery => LoadSynonymQuerySql;
 
-        private static readonly string LoadSynonymQuerySql = @$"
+        private const string LoadSynonymQuerySql = @$"
 select distinct
     s.DB_LINK as ""{ nameof(GetSynonymDefinitionQueryResult.TargetDatabaseName) }"",
     s.TABLE_OWNER as ""{ nameof(GetSynonymDefinitionQueryResult.TargetSchemaName) }"",
@@ -245,7 +245,7 @@ where s.OWNER = :{ nameof(GetSynonymDefinitionQuery.SchemaName) } and s.SYNONYM_
         /// <value>A SQL query.</value>
         protected virtual string LoadUserSynonymQuery => LoadUserSynonymQuerySql;
 
-        private static readonly string LoadUserSynonymQuerySql = @$"
+        private const string LoadUserSynonymQuerySql = @$"
 select distinct
     s.DB_LINK as ""{ nameof(GetUserSynonymDefinitionQueryResult.TargetDatabaseName) }"",
     s.TABLE_OWNER as ""{ nameof(GetUserSynonymDefinitionQueryResult.TargetSchemaName) }"",

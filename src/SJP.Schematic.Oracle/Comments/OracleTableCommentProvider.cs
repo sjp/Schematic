@@ -117,7 +117,7 @@ namespace SJP.Schematic.Oracle.Comments
         /// <value>A SQL query.</value>
         protected virtual string TableNameQuery => TableNameQuerySql;
 
-        private static readonly string TableNameQuerySql = @$"
+        private const string TableNameQuerySql = @$"
 select t.OWNER as ""{ nameof(GetTableNameQueryResult.SchemaName) }"", t.TABLE_NAME as ""{ nameof(GetTableNameQueryResult.TableName) }""
 from SYS.ALL_TABLES t
 inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
@@ -247,7 +247,7 @@ where
         /// <value>A SQL query.</value>
         protected virtual string TablesQuery => TablesQuerySql;
 
-        private static readonly string TablesQuerySql = @$"
+        private const string TablesQuerySql = @$"
 select
     t.OWNER as ""{ nameof(GetAllTableNamesQueryResult.SchemaName) }"",
     t.TABLE_NAME as ""{ nameof(GetAllTableNamesQueryResult.TableName) }""
@@ -272,7 +272,7 @@ order by t.OWNER, t.TABLE_NAME";
         /// <value>A SQL query.</value>
         protected virtual string TableCommentsQuery => TableCommentsQuerySql;
 
-        private static readonly string TableCommentsQuerySql = @$"
+        private const string TableCommentsQuerySql = @$"
 -- table
 select
     'TABLE' as ""{ nameof(GetTableCommentsQueryResult.ObjectType) }"",
@@ -313,7 +313,7 @@ where t.OWNER = :{ nameof(GetTableCommentsQuery.SchemaName) } and t.TABLE_NAME =
         /// <value>A SQL query.</value>
         protected virtual string UserTableCommentsQuery => UserTableCommentsQuerySql;
 
-        private static readonly string UserTableCommentsQuerySql = @$"
+        private const string UserTableCommentsQuerySql = @$"
 -- table
 select
     'TABLE' as ""{ nameof(GetUserTableCommentsQueryResult.ObjectType) }"",

@@ -116,7 +116,7 @@ namespace SJP.Schematic.PostgreSql.Comments
         /// <value>A SQL query.</value>
         protected virtual string TableNameQuery => TableNameQuerySql;
 
-        private static readonly string TableNameQuerySql = @$"
+        private const string TableNameQuerySql = @$"
 select schemaname as ""{ nameof(GetTableNameQueryResult.SchemaName) }"", tablename as ""{ nameof(GetTableNameQueryResult.TableName) }""
 from pg_catalog.pg_tables
 where schemaname = @{ nameof(GetTableNameQuery.SchemaName) } and tablename = @{ nameof(GetTableNameQuery.TableName) }
@@ -202,7 +202,7 @@ limit 1";
         /// <value>A SQL query.</value>
         protected virtual string TablesQuery => TablesQuerySql;
 
-        private static readonly string TablesQuerySql = @$"
+        private const string TablesQuerySql = @$"
 select
     schemaname as ""{ nameof(GetTableNamesQueryResult.SchemaName) }"",
     tablename as ""{ nameof(GetTableNamesQueryResult.TableName) }""
@@ -216,7 +216,7 @@ order by schemaname, tablename";
         /// <value>A SQL query.</value>
         protected virtual string TableCommentsQuery => TableCommentsQuerySql;
 
-        private static readonly string TableCommentsQuerySql = @$"
+        private const string TableCommentsQuerySql = @$"
 -- table
 select
     'TABLE' as ""{ nameof(GetTableCommentsQueryResult.ObjectType) }"",

@@ -43,7 +43,7 @@ namespace SJP.Schematic.PostgreSql
             return result;
         }
 
-        private static readonly string IdentifierDefaultsQuerySql = @$"
+        private const string IdentifierDefaultsQuerySql = @$"
 select
     pg_catalog.host(pg_catalog.inet_server_addr()) as ""{ nameof(PgIdentifierDefaultsQueryResult.Server) }"",
     pg_catalog.current_database() as ""{ nameof(PgIdentifierDefaultsQueryResult.Database) }"",
@@ -107,7 +107,7 @@ select
             if (versionStr.Length != 6)
                 throw new ArgumentException("The version string must be 6 characters long", nameof(versionStr));
 
-            var majorVersionStr = versionStr.Substring(0, 2);
+            var majorVersionStr = versionStr[..2];
             var minorVersionStr = versionStr.Substring(4, 2);
             var parsedMajor = int.TryParse(majorVersionStr, NumberStyles.Integer, CultureInfo.InvariantCulture, out var majorVersion);
             var parsedMinor = int.TryParse(minorVersionStr, NumberStyles.Integer, CultureInfo.InvariantCulture, out var minorVersion);
@@ -125,7 +125,7 @@ select
             if (versionStr.Length != 5)
                 throw new ArgumentException("The version string must be 5 characters long", nameof(versionStr));
 
-            var majorVersionStr = versionStr.Substring(0, 1);
+            var majorVersionStr = versionStr[..1];
             var minorVersionStr = versionStr.Substring(1, 2);
             var patchVersionStr = versionStr.Substring(3, 2);
             var parsedMajorVersion = int.TryParse(majorVersionStr, NumberStyles.Integer, CultureInfo.InvariantCulture, out var majorVersion);

@@ -93,7 +93,7 @@ namespace SJP.Schematic.SqlServer.Comments
         /// <value>A SQL query.</value>
         protected virtual string SynonymNameQuery => SynonymNameQuerySql;
 
-        private static readonly string SynonymNameQuerySql = @$"
+        private const string SynonymNameQuerySql = @$"
 select top 1 schema_name(schema_id) as [{ nameof(GetSynonymNameQueryResult.SchemaName) }], name as [{ nameof(GetSynonymNameQueryResult.SynonymName) }]
 from sys.synonyms
 where schema_id = schema_id(@{ nameof(GetSynonymNameQueryResult.SchemaName) }) and name = @{ nameof(GetSynonymNameQueryResult.SynonymName) } and is_ms_shipped = 0";
@@ -162,7 +162,7 @@ where schema_id = schema_id(@{ nameof(GetSynonymNameQueryResult.SchemaName) }) a
         /// <value>A SQL query.</value>
         protected virtual string SynonymsQuery => SynonymsQuerySql;
 
-        private static readonly string SynonymsQuerySql = @$"
+        private const string SynonymsQuerySql = @$"
 select
     schema_name(schema_id) as [{ nameof(GetAllSynonymNamesQueryResult.SchemaName) }],
     name as [{ nameof(GetAllSynonymNamesQueryResult.SynonymName) }]
@@ -176,7 +176,7 @@ order by schema_name(schema_id), name";
         /// <value>A SQL query.</value>
         protected virtual string SynonymCommentsQuery => SynonymCommentsQuerySql;
 
-        private static readonly string SynonymCommentsQuerySql = @$"
+        private const string SynonymCommentsQuerySql = @$"
 select
     'SYNONYM' as [{ nameof(GetSynonymCommentsQueryResult.ObjectType) }],
     s.name as [{ nameof(GetSynonymCommentsQueryResult.ObjectName) }],

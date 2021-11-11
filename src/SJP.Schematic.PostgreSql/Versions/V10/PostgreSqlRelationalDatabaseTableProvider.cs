@@ -105,7 +105,7 @@ namespace SJP.Schematic.PostgreSql.Versions.V10
         // a little bit convoluted due to the quote_ident() being required.
         // when missing, case folding will occur (we should have guaranteed that this is already done)
         // additionally the default behaviour misses the schema which may be necessary
-        private static readonly string ColumnsQuerySql = @$"
+        private const string ColumnsQuerySql = @$"
 select
     column_name as ""{ nameof(GetV10TableColumnsQueryResult.ColumnName) }"",
     ordinal_position as ""{ nameof(GetV10TableColumnsQueryResult.OrdinalPosition) }"",

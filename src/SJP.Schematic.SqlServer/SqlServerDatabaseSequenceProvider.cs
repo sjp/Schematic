@@ -74,7 +74,7 @@ namespace SJP.Schematic.SqlServer
         /// <value>A SQL query.</value>
         protected virtual string SequencesQuery => SequencesQuerySql;
 
-        private static readonly string SequencesQuerySql = @$"
+        private const string SequencesQuerySql = @$"
 select
     schema_name(schema_id) as [{ nameof(GetAllSequenceDefinitionsQueryResult.SchemaName) }],
     name as [{ nameof(GetAllSequenceDefinitionsQueryResult.SequenceName) }],
@@ -133,7 +133,7 @@ order by schema_name(schema_id), name";
         /// <value>A SQL query.</value>
         protected virtual string SequenceNameQuery => SequenceNameQuerySql;
 
-        private static readonly string SequenceNameQuerySql = @$"
+        private const string SequenceNameQuerySql = @$"
 select top 1 schema_name(schema_id) as [{ nameof(GetSequenceNameQueryResult.SchemaName) }], name as [{ nameof(GetSequenceNameQueryResult.SequenceName) }]
 from sys.sequences
 where schema_id = schema_id(@{ nameof(GetSequenceNameQuery.SchemaName) }) and name = @{ nameof(GetSequenceNameQuery.SequenceName) } and is_ms_shipped = 0";
@@ -144,7 +144,7 @@ where schema_id = schema_id(@{ nameof(GetSequenceNameQuery.SchemaName) }) and na
         /// <value>A SQL query.</value>
         protected virtual string SequenceQuery => SequenceQuerySql;
 
-        private static readonly string SequenceQuerySql = @$"
+        private const string SequenceQuerySql = @$"
 select
     start_value as [{ nameof(GetSequenceDefinitionQueryResult.StartValue) }],
     increment as [{ nameof(GetSequenceDefinitionQueryResult.Increment) }],

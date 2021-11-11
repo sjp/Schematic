@@ -355,7 +355,7 @@ namespace SJP.Schematic.Reporting.Snapshot
                 ));
         }
 
-        private static readonly string AllObjectNamesForTypeQuery = @$"
+        private const string AllObjectNamesForTypeQuery = @$"
 SELECT
     server_name AS ""{ nameof(GetAllObjectNamesForTypeQueryResult.ServerName) }"",
     database_name AS ""{ nameof(GetAllObjectNamesForTypeQueryResult.DatabaseName) }"",
@@ -366,7 +366,7 @@ WHERE
     object_type = @{ nameof(GetAllObjectNamesForTypeQuery.ObjectType) }
 ";
 
-        private static readonly string DatabaseIdentifierDefaultsQuery = @$"
+        private const string DatabaseIdentifierDefaultsQuery = @$"
 SELECT
     server_name AS ""{ nameof(GetIdentifierDefaultsQueryResult.Server) }"",
     database_name AS ""{ nameof(GetIdentifierDefaultsQueryResult.Database) }"",
@@ -374,7 +374,7 @@ SELECT
 FROM database_identifier_defaults
 ORDER BY ROWID ASC LIMIT 1";
 
-        private static readonly string DatabaseObjectDefinitionQuery = @$"
+        private const string DatabaseObjectDefinitionQuery = @$"
 SELECT
     server_name AS ""{ nameof(GetDatabaseObjectDefinitionQueryResult.ServerName) }"",
     database_name AS ""{ nameof(GetDatabaseObjectDefinitionQueryResult.DatabaseName) }"",
