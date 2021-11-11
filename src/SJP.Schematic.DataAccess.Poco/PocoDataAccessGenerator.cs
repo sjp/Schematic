@@ -154,7 +154,7 @@ namespace SJP.Schematic.DataAccess.Poco
                 new XAttribute("Sdk", "Microsoft.NET.Sdk"),
                 new XElement(
                     "PropertyGroup",
-                    new XElement("TargetFramework", "netstandard2.1"),
+                    new XElement("TargetFramework", "net6.0"),
                     new XElement("CheckForOverflowUnderflow", true),
                     new XElement("TreatWarningsAsErrors", true),
                     new XElement("Nullable", "enable"),
