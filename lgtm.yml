@@ -1,6 +1,0 @@
-extraction:
-  csharp:
-    index:
-      solution: src/SJP.Schematic.sln
-      dotnet:
-        version: 6.0.100
