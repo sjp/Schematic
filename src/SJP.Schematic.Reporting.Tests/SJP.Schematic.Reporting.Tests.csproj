@@ -21,4 +21,8 @@
     <ProjectReference Include="..\SJP.Schematic.Tests.Utilities\SJP.Schematic.Tests.Utilities.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" />
+  </ItemGroup>
+
 </Project>
