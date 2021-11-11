@@ -109,7 +109,7 @@ namespace SJP.Schematic.Oracle
             if (lastIndex < 0)
                 return false;
 
-            var textToTokenize = input.Substring(0, lastIndex + wrappedKeyword.Length);
+            var textToTokenize = input[..(lastIndex + wrappedKeyword.Length)];
             var tokens = Tokenizer.TryTokenize(textToTokenize);
 
             // Note that currently we are not validating the object type.
@@ -212,7 +212,7 @@ namespace SJP.Schematic.Oracle
             var hashBuffer = mappedCharBuffer[..hashSize];
             var dataBuffer = mappedCharBuffer[hashSize..];
 
-            using (var sha1 = new SHA1Managed())
+            using (var sha1 = SHA1.Create())
             {
                 var computedHashBuffer = new Span<byte>(new byte[hashSize]);
 
@@ -255,7 +255,7 @@ namespace SJP.Schematic.Oracle
             var hashBuffer = mappedCharBuffer[..hashSize];
             var dataBuffer = mappedCharBuffer[hashSize..];
 
-            using (var sha1 = new SHA1Managed())
+            using (var sha1 = SHA1.Create())
             {
                 var computedHashBuffer = new Span<byte>(new byte[hashSize]);
 

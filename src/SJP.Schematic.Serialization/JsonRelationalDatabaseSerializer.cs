@@ -42,7 +42,7 @@ namespace SJP.Schematic.Serialization
             var settings = new JsonSerializerOptions
             {
                 WriteIndented = true,
-                IgnoreNullValues = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             };
             settings.Converters.Add(new JsonStringEnumConverter());
 

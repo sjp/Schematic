@@ -93,7 +93,7 @@ namespace SJP.Schematic.Dot.Themes
             var settings = new JsonSerializerOptions
             {
                 WriteIndented = true,
-                IgnoreNullValues = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             };
             settings.Converters.Add(new JsonStringEnumConverter());
             settings.Converters.Add(new RgbColorConverter());

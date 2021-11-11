@@ -92,7 +92,7 @@ namespace SJP.Schematic.Reporting
             if (maxChars < 0)
                 throw new ArgumentOutOfRangeException(nameof(maxChars), "The number of characters to truncate to must be at least 1.");
 
-            return input.Substring(0, Math.Min(input.Length, maxChars));
+            return input[..Math.Min(input.Length, maxChars)];
         }
 
         private static string GenerateHashKey(Identifier identifier)
@@ -134,7 +134,7 @@ namespace SJP.Schematic.Reporting
 
             var bytes = Encoding.Unicode.GetBytes(input);
 
-            using var hasher = new SHA512Managed();
+            using var hasher = SHA512.Create();
             var hash = hasher.ComputeHash(bytes);
 
             var builder = StringBuilderCache.Acquire(hash.Length);
