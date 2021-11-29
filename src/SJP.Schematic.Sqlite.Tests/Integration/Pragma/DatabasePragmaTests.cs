@@ -34,7 +34,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         private const string MainSchema = "main";
 
         [Test]
-        public async Task ApplicationIdAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task ApplicationIdAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -48,7 +48,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task AutoVacuumAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task AutoVacuumAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -62,7 +62,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void AutoVacuumAsync_GivenInvalidAutoVacuumModeValue_ThrowsArgumentException()
+        public static void AutoVacuumAsync_GivenInvalidAutoVacuumModeValue_ThrowsArgumentException()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -72,7 +72,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task CacheSizeInPagesAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task CacheSizeInPagesAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -86,7 +86,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task CacheSizeInKibibytesAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task CacheSizeInKibibytesAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -100,7 +100,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task CacheSpillAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task CacheSpillAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -114,7 +114,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void DataVersionAsync_WhenGetInvoked_ReadsCorrectly()
+        public static void DataVersionAsync_WhenGetInvoked_ReadsCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -123,7 +123,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task ForeignKeyCheckDatabaseAsync_WhenBrokenRelationshipsExist_ReadsValuesCorrectly()
+        public static async Task ForeignKeyCheckDatabaseAsync_WhenBrokenRelationshipsExist_ReadsValuesCorrectly()
         {
             var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
@@ -142,7 +142,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task ForeignKeyCheckTableAsync_WhenBrokenRelationshipsExist_ReadsValuesCorrectly()
+        public static async Task ForeignKeyCheckTableAsync_WhenBrokenRelationshipsExist_ReadsValuesCorrectly()
         {
             var connection = CreateConnectionFactory();
             var connPragma = CreateConnectionPragma(connection);
@@ -161,7 +161,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void ForeignKeyCheckTableAsync_WhenGivenNullLocalName_ThrowsArgumentNullException()
+        public static void ForeignKeyCheckTableAsync_WhenGivenNullLocalName_ThrowsArgumentNullException()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -170,7 +170,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void ForeignKeyCheckTableAsync_WhenGivenMismatchingSchemaName_ThrowsArgumentException()
+        public static void ForeignKeyCheckTableAsync_WhenGivenMismatchingSchemaName_ThrowsArgumentException()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -180,7 +180,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task ForeignKeyListAsync_WhenTableExists_ReadsKeysCorrectly()
+        public static async Task ForeignKeyListAsync_WhenTableExists_ReadsKeysCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -196,7 +196,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void ForeignKeyListAsync_WhenGivenNullLocalName_ThrowsArgumentNullException()
+        public static void ForeignKeyListAsync_WhenGivenNullLocalName_ThrowsArgumentNullException()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -205,7 +205,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void ForeignKeyListAsync_WhenGivenMismatchingSchemaName_ThrowsArgumentException()
+        public static void ForeignKeyListAsync_WhenGivenMismatchingSchemaName_ThrowsArgumentException()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -215,7 +215,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void FreeListCountAsync_WhenGetInvoked_ReadsCorrectly()
+        public static void FreeListCountAsync_WhenGetInvoked_ReadsCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -224,7 +224,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void IncrementalVacuumAsync_GivenNonZeroValue_SetsCorrectly()
+        public static void IncrementalVacuumAsync_GivenNonZeroValue_SetsCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -233,7 +233,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void IncrementalVacuumAsync_GivenZeroValue_SetsCorrectly()
+        public static void IncrementalVacuumAsync_GivenZeroValue_SetsCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -242,7 +242,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task IndexInfoAsync_WhenIndexOnTableExists_ReadsIndexCorrectly()
+        public static async Task IndexInfoAsync_WhenIndexOnTableExists_ReadsIndexCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -261,7 +261,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task IndexListAsync_WhenIndexOnTableExists_ReadsIndexCorrectly()
+        public static async Task IndexListAsync_WhenIndexOnTableExists_ReadsIndexCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -280,7 +280,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void IndexListAsync_WhenGivenNullLocalName_ThrowsArgumentNullException()
+        public static void IndexListAsync_WhenGivenNullLocalName_ThrowsArgumentNullException()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -289,7 +289,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void IndexListAsync_WhenGivenMismatchingSchemaName_ThrowsArgumentException()
+        public static void IndexListAsync_WhenGivenMismatchingSchemaName_ThrowsArgumentException()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -299,7 +299,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task IndexXInfoAsync_WhenIndexOnTableExists_ReadsIndexCorrectly()
+        public static async Task IndexXInfoAsync_WhenIndexOnTableExists_ReadsIndexCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -318,7 +318,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task IntegrityCheckAsync_GivenNoMaxErrorsOnCorrectDb_ReturnsEmptyCollection()
+        public static async Task IntegrityCheckAsync_GivenNoMaxErrorsOnCorrectDb_ReturnsEmptyCollection()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -329,7 +329,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task IntegrityCheckAsync_GivenMaxErrorsLimitOnCorrectDb_ReturnsEmptyCollection()
+        public static async Task IntegrityCheckAsync_GivenMaxErrorsLimitOnCorrectDb_ReturnsEmptyCollection()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -352,7 +352,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 
         [Test]
         [Ignore("Can't change journaling mode for an in-memory db")]
-        public async Task JournalModeAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task JournalModeAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -366,7 +366,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void JournalModeAsync_GivenInvalidJournalModeValue_ThrowsArgumentException()
+        public static void JournalModeAsync_GivenInvalidJournalModeValue_ThrowsArgumentException()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -376,7 +376,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task JournalSizeLimitAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task JournalSizeLimitAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -390,7 +390,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task LockingModeAsync_GetAndSet_InvokesProperly()
+        public static async Task LockingModeAsync_GetAndSet_InvokesProperly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -403,7 +403,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void LockingModeAsync_GivenInvalidLockingModeValue_ThrowsArgumentException()
+        public static void LockingModeAsync_GivenInvalidLockingModeValue_ThrowsArgumentException()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -413,7 +413,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task MaxPageCountAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task MaxPageCountAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -428,7 +428,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
 
         [Test]
         [Ignore("Not using an mmaped database for testing")]
-        public async Task MmapSizeAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task MmapSizeAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -442,7 +442,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void OptimizeAsync_WhenInvoked_PerformsOperationSuccessfully()
+        public static void OptimizeAsync_WhenInvoked_PerformsOperationSuccessfully()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -451,7 +451,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void OptimizeAsync_GivenInvalidOptimizeFeaturesValue_ThrowsArgumentException()
+        public static void OptimizeAsync_GivenInvalidOptimizeFeaturesValue_ThrowsArgumentException()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -461,7 +461,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void PageCountAsync_WhenGetInvoked_ReadsCorrectly()
+        public static void PageCountAsync_WhenGetInvoked_ReadsCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -470,7 +470,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task PageSize_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task PageSize_GetAndSet_ReadsAndWritesCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -484,7 +484,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void PageSizeAsync_WhenSetValueLessThan512_ThrowsArgumentException()
+        public static void PageSizeAsync_WhenSetValueLessThan512_ThrowsArgumentException()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -494,7 +494,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void PageSizeAsync_WhenSetValueNotPowerOfTwo_ThrowsArgumentException()
+        public static void PageSizeAsync_WhenSetValueNotPowerOfTwo_ThrowsArgumentException()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -504,7 +504,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task QuickCheckAsync_GivenNoMaxErrorsOnCorrectDb_ReturnsEmptyCollection()
+        public static async Task QuickCheckAsync_GivenNoMaxErrorsOnCorrectDb_ReturnsEmptyCollection()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -515,7 +515,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task QuickCheckAsync_GivenMaxErrorsLimitOnCorrectDb_ReturnsEmptyCollection()
+        public static async Task QuickCheckAsync_GivenMaxErrorsLimitOnCorrectDb_ReturnsEmptyCollection()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -526,7 +526,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task SchemaVersionAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task SchemaVersionAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -540,7 +540,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task SecureDeleteAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task SecureDeleteAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -554,7 +554,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void SecureDeleteAsync_GivenInvalidSecureDeleteModeValue_ThrowsArgumentException()
+        public static void SecureDeleteAsync_GivenInvalidSecureDeleteModeValue_ThrowsArgumentException()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -564,7 +564,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task SynchronousAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task SynchronousAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -578,7 +578,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void SynchronousAsync_GivenInvalidSynchronousLevelValue_ThrowsArgumentException()
+        public static void SynchronousAsync_GivenInvalidSynchronousLevelValue_ThrowsArgumentException()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -588,7 +588,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task TableInfoAsync_WhenTableExists_ReadsValuesCorrectly()
+        public static async Task TableInfoAsync_WhenTableExists_ReadsValuesCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -601,7 +601,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void TableInfoAsync_WhenGivenNullLocalName_ThrowsArgumentNullException()
+        public static void TableInfoAsync_WhenGivenNullLocalName_ThrowsArgumentNullException()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -610,7 +610,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void TableInfoAsync_WhenGivenMismatchingSchemaName_ThrowsArgumentException()
+        public static void TableInfoAsync_WhenGivenMismatchingSchemaName_ThrowsArgumentException()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -619,8 +619,66 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
             Assert.That(() => dbPragma.TableInfoAsync(name), Throws.ArgumentException);
         }
 
+        [Test, Ignore("Requires v3.37")]
+        public static async Task TableListAsync_WhenTableExists_ReadsValuesCorrectlyForSchema()
+        {
+            var connection = CreateConnectionFactory();
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
+
+            await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
+
+            var tableInfo = await dbPragma.TableListAsync().ConfigureAwait(false);
+
+            Assert.That(tableInfo, Is.Not.Empty);
+        }
+
+        [Test, Ignore("Requires v3.37")]
+        public static async Task TableListAsync_WhenTableExists_ReadsValuesCorrectly()
+        {
+            var connection = CreateConnectionFactory();
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
+
+            await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
+
+            var tableInfo = await dbPragma.TableListAsync("test_table").ConfigureAwait(false);
+
+            Assert.That(tableInfo, Is.Not.Empty);
+        }
+
+        [Test, Ignore("Requires v3.37")]
+        public static async Task TableListAsync_WhenViewExists_ReadsValuesCorrectly()
+        {
+            var connection = CreateConnectionFactory();
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
+
+            await connection.ExecuteAsync("create view test_view as select 1 as dummy", CancellationToken.None).ConfigureAwait(false);
+
+            var tableInfo = await dbPragma.TableListAsync("test_view").ConfigureAwait(false);
+
+            Assert.That(tableInfo, Is.Not.Empty);
+        }
+
         [Test]
-        public async Task TableXInfoAsync_WhenTableExists_ReadsValuesCorrectly()
+        public static void TableListAsync_WhenGivenNullLocalName_ThrowsArgumentNullException()
+        {
+            var connection = CreateConnectionFactory();
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
+
+            Assert.That(() => dbPragma.TableListAsync(null), Throws.ArgumentNullException);
+        }
+
+        [Test]
+        public static void TableListAsync_WhenGivenMismatchingSchemaName_ThrowsArgumentException()
+        {
+            var connection = CreateConnectionFactory();
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
+
+            var name = new Identifier("test", "test");
+            Assert.That(() => dbPragma.TableListAsync(name), Throws.ArgumentException);
+        }
+
+        [Test]
+        public static async Task TableXInfoAsync_WhenTableExists_ReadsValuesCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -633,7 +691,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void TableXInfoAsync_WhenGivenNullLocalName_ThrowsArgumentNullException()
+        public static void TableXInfoAsync_WhenGivenNullLocalName_ThrowsArgumentNullException()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -642,7 +700,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void TableXInfoAsync_WhenGivenMismatchingSchemaName_ThrowsArgumentException()
+        public static void TableXInfoAsync_WhenGivenMismatchingSchemaName_ThrowsArgumentException()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -652,7 +710,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task UserVersionAsync_GetAndSet_ReadsAndWritesCorrectly()
+        public static async Task UserVersionAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -666,7 +724,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public async Task WalCheckpointAsync_WhenInvoked_ReadsCorrectly()
+        public static async Task WalCheckpointAsync_WhenInvoked_ReadsCorrectly()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
@@ -676,7 +734,7 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
-        public void WalCheckpointAsync_GivenInvalidWalCheckpointModeValue_ThrowsArgumentException()
+        public static void WalCheckpointAsync_GivenInvalidWalCheckpointModeValue_ThrowsArgumentException()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);

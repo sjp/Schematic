@@ -908,6 +908,50 @@ namespace SJP.Schematic.Sqlite.Pragma
         }
 
         /// <summary>
+        /// Returns information about each table or view in the schema.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of table or view information, one element for each table or view in the schema.</returns>
+        public Task<IEnumerable<pragma_table_list>> TableListAsync(CancellationToken cancellationToken = default) => DbConnection.QueryAsync<pragma_table_list>(TableListQuery, cancellationToken);
+
+        /// <summary>
+        /// Gets a query to read table information for the connection.
+        /// </summary>
+        /// <value>A SQL query.</value>
+        protected virtual string TableListQuery => PragmaPrefix + "table_list";
+
+        /// <summary>
+        /// Returns information about a given table or view in the given schema.
+        /// </summary>
+        /// <param name="tableName">A table or view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Information relevant to the given table or view. Will be <c>null</c> if the table or view does not exist.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        public Task<IEnumerable<pragma_table_list>> TableListAsync(Identifier tableName, CancellationToken cancellationToken = default)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            return DbConnection.QueryAsync<pragma_table_list>(TableListTableQuery(tableName), cancellationToken);
+        }
+
+        /// <summary>
+        /// Gets a query to read table information pragma for a given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <returns>A SQL query.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        protected virtual string TableListTableQuery(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+            if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
+
+            return PragmaPrefix + "table_list(" + Dialect.QuoteIdentifier(tableName.LocalName) + ")";
+        }
+
+        /// <summary>
         /// Returns information about each column, and hidden columns in a database table.
         /// </summary>
         /// <param name="tableName">A table name.</param>

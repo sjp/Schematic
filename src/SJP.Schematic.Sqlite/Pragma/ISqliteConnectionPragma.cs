@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite.Pragma.Query;
 
 namespace SJP.Schematic.Sqlite.Pragma
@@ -306,6 +307,21 @@ namespace SJP.Schematic.Sqlite.Pragma
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task indicating the completion of this query.</returns>
         Task SoftHeapLimitAsync(long heapLimit, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Returns information about each table or view in all schemas.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of table or view information, one element for each table or view in all schemas.</returns>
+        Task<IEnumerable<pragma_table_list>> TableListAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Returns information about a given table or view in the given schema.
+        /// </summary>
+        /// <param name="tableName">A table or view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Information relevant to the given table or view. Will be empty if the table or view does not exist.</returns>
+        Task<IEnumerable<pragma_table_list>> TableListAsync(Identifier tableName, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Queries where temporary storage is located.

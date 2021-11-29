@@ -13,15 +13,11 @@ namespace SJP.Schematic.Sqlite.Tests.Pragma
             Assert.That(() => encoding.AsTextEncoding(), Throws.ArgumentException);
         }
 
-        [TestCase(Encoding.Utf8, "Unicode (UTF-8)")]
-        [TestCase(Encoding.Utf16, "Unicode")]
-        [TestCase(Encoding.Utf16le, "Unicode")]
-        [TestCase(Encoding.Utf16be, "Unicode (Big-Endian)")]
-        public static void AsTextEncoding_GivenValidEncoding_ReturnsExpectedSysEncoding(Encoding encoding, string expectedEncodingName)
-        {
-            var sysEncoding = encoding.AsTextEncoding();
-
-            Assert.That(sysEncoding.EncodingName, Is.EqualTo(expectedEncodingName));
-        }
+        [TestCase(Encoding.Utf8, ExpectedResult = "Unicode (UTF-8)")]
+        [TestCase(Encoding.Utf16, ExpectedResult = "Unicode")]
+        [TestCase(Encoding.Utf16le, ExpectedResult = "Unicode")]
+        [TestCase(Encoding.Utf16be, ExpectedResult = "Unicode (Big-Endian)")]
+        public static string AsTextEncoding_GivenValidEncoding_ReturnsExpectedSysEncoding(Encoding encoding)
+            => encoding.AsTextEncoding().EncodingName;
     }
 }

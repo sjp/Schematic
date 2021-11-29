@@ -632,6 +632,50 @@ namespace SJP.Schematic.Sqlite.Pragma
         protected virtual string SoftHeapLimitSetQuery(long heapLimit) => PragmaPrefix + "soft_heap_limit = " + heapLimit.ToString(CultureInfo.InvariantCulture);
 
         /// <summary>
+        /// Returns information about each table or view in all schemas.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of table or view information, one element for each table or view in all schemas.</returns>
+        public Task<IEnumerable<pragma_table_list>> TableListAsync(CancellationToken cancellationToken = default) => DbConnection.QueryAsync<pragma_table_list>(TableListQuery, cancellationToken);
+
+        /// <summary>
+        /// Gets a query to read table information for the connection.
+        /// </summary>
+        /// <value>A SQL query.</value>
+        protected virtual string TableListQuery => PragmaPrefix + "table_list";
+
+        /// <summary>
+        /// Returns information about a given table or view in the given schema.
+        /// </summary>
+        /// <param name="tableName">A table or view name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Information relevant to the given table or view. Will be <c>null</c> if the table or view does not exist.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        public Task<IEnumerable<pragma_table_list>> TableListAsync(Identifier tableName, CancellationToken cancellationToken = default)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            return DbConnection.QueryAsync<pragma_table_list>(TableListTableQuery(tableName), cancellationToken);
+        }
+
+        /// <summary>
+        /// Gets a query to read table information pragma for a given table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <returns>A SQL query.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        protected virtual string TableListTableQuery(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+
+            // default to 'main'
+            var identifier = Identifier.CreateQualifiedIdentifier(tableName.Schema ?? "main", tableName.LocalName);
+            return PragmaPrefix + "table_list(" + Connection.Dialect.QuoteName(identifier) + ")";
+        }
+
+        /// <summary>
         /// Queries where temporary storage is located.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
