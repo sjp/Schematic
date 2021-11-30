@@ -5,10 +5,18 @@ import gzip from 'gulp-gzip';
 import newer from 'gulp-newer';
 import terser from 'gulp-terser';
 import concat from 'gulp-concat';
-import cssnano from 'gulp-cssnano';
+import cssnano from 'cssnano';
 import postcss from 'gulp-postcss';
 import cssnext from 'postcss-cssnext';
 import del from 'del';
+
+const cssNanoPreset = {
+    preset: ['default', {
+        discardComments: {
+            removeAll: true,
+        },
+    }]
+};
 
 export const clean = () =>
     del([
@@ -82,8 +90,7 @@ const stylesProd = () => {
         ])
         .pipe(newer('assets/css/reporting-app.css'))
         .pipe(concat('reporting-app.css'))
-        .pipe(postcss([cssnext]))
-        .pipe(cssnano())
+        .pipe(postcss([cssnext, cssnano(cssNanoPreset)]))
         .pipe(gzip({ append: true, gzipOptions: { level: 9 } }))
         .pipe(dest('assets/css'));
 }
