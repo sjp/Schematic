@@ -329,12 +329,36 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
+        public static async Task IntegrityCheckAsync_GivenZeroErrorsLimitOnCorrectDb_ReturnsEmptyCollection()
+        {
+            var connection = CreateConnectionFactory();
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
+
+            var errors = await dbPragma.IntegrityCheckAsync(0).ConfigureAwait(false);
+
+            Assert.That(errors, Is.Empty);
+        }
+
+        [Test]
         public static async Task IntegrityCheckAsync_GivenMaxErrorsLimitOnCorrectDb_ReturnsEmptyCollection()
         {
             var connection = CreateConnectionFactory();
             var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
             var errors = await dbPragma.IntegrityCheckAsync(10).ConfigureAwait(false);
+
+            Assert.That(errors, Is.Empty);
+        }
+
+        [Test]
+        public static async Task IntegrityCheckAsync_GivenNoErrorsForTableCorrectDb_ReturnsEmptyCollection()
+        {
+            var connection = CreateConnectionFactory();
+            var dbPragma = CreateDatabasePragma(connection, MainSchema);
+
+            await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
+
+            var errors = await dbPragma.IntegrityCheckAsync("test_table").ConfigureAwait(false);
 
             Assert.That(errors, Is.Empty);
         }

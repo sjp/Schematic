@@ -165,10 +165,25 @@ namespace SJP.Schematic.Sqlite.Pragma
         /// <summary>
         /// Integrity check of the entire database. The <c>integrity_check</c> pragma looks for out-of-order records, missing pages, malformed records, missing index entries, and <c>UNIQUE</c>, <c>CHECK</c>, and <c>NOT NULL</c> constraint errors.
         /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of informative error messages describing integrity failures.</returns>
+        Task<IEnumerable<string>> IntegrityCheckAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Integrity check of the entire database up to a given number of errors. The <c>integrity_check</c> pragma looks for out-of-order records, missing pages, malformed records, missing index entries, and <c>UNIQUE</c>, <c>CHECK</c>, and <c>NOT NULL</c> constraint errors.
+        /// </summary>
         /// <param name="maxErrors">The maximum errors.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A collection of informative error messages describing integrity failures.</returns>
-        Task<IEnumerable<string>> IntegrityCheckAsync(uint maxErrors = 0, CancellationToken cancellationToken = default);
+        Task<IEnumerable<string>> IntegrityCheckAsync(uint maxErrors, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Integrity check of a given table. The <c>integrity_check</c> pragma looks for out-of-order records, missing pages, malformed records, missing index entries, and <c>UNIQUE</c>, <c>CHECK</c>, and <c>NOT NULL</c> constraint errors.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of informative error messages describing integrity failures.</returns>
+        Task<IEnumerable<string>> IntegrityCheckAsync(Identifier tableName, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Queries the journal mode for the current database.

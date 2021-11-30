@@ -449,13 +449,11 @@ namespace SJP.Schematic.Sqlite.Pragma
         /// <summary>
         /// Integrity check of the entire database. The <c>integrity_check</c> pragma looks for out-of-order records, missing pages, malformed records, missing index entries, and <c>UNIQUE</c>, <c>CHECK</c>, and <c>NOT NULL</c> constraint errors.
         /// </summary>
-        /// <param name="maxErrors">The maximum error count.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A collection of informative error messages describing integrity failures.</returns>
-        public async Task<IEnumerable<string>> IntegrityCheckAsync(uint maxErrors = 0, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<string>> IntegrityCheckAsync(CancellationToken cancellationToken = default)
         {
-            var sql = IntegrityCheckQuery(maxErrors);
-            var errors = await DbConnection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
+            var errors = await DbConnection.QueryAsync<string>(IntegrityCheckDatabaseQuery, cancellationToken).ConfigureAwait(false);
             var result = errors.ToList();
             if (result.Count == 1 && string.Equals(result[0], "ok", StringComparison.Ordinal))
                 return Array.Empty<string>();
@@ -466,13 +464,78 @@ namespace SJP.Schematic.Sqlite.Pragma
         /// <summary>
         /// Gets a query to read the integrity check pragma.
         /// </summary>
+        /// <returns>A SQL query.</returns>
+        protected virtual string IntegrityCheckDatabaseQuery => PragmaPrefix + "integrity_check";
+
+        /// <summary>
+        /// Integrity check of the entire database. The <c>integrity_check</c> pragma looks for out-of-order records, missing pages, malformed records, missing index entries, and <c>UNIQUE</c>, <c>CHECK</c>, and <c>NOT NULL</c> constraint errors.
+        /// </summary>
+        /// <param name="maxErrors">The maximum error count.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of informative error messages describing integrity failures.</returns>
+        public async Task<IEnumerable<string>> IntegrityCheckAsync(uint maxErrors, CancellationToken cancellationToken = default)
+        {
+            var sql = IntegrityCheckMaxErrorsQuery(maxErrors);
+            var errors = await DbConnection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
+            var result = errors.ToList();
+            if (result.Count == 1 && string.Equals(result[0], "ok", StringComparison.Ordinal))
+                return Array.Empty<string>();
+
+            return result;
+        }
+
+        /// <summary>
+        /// Gets a query to read the integrity check pragma up to a given number of errors.
+        /// </summary>
         /// <param name="maxErrors">The maximum error count.</param>
         /// <returns>A SQL query.</returns>
-        protected virtual string IntegrityCheckQuery(uint maxErrors)
+        protected virtual string IntegrityCheckMaxErrorsQuery(uint maxErrors)
         {
             return maxErrors == 0
                 ? PragmaPrefix + "integrity_check"
                 : PragmaPrefix + "integrity_check(" + maxErrors.ToString(CultureInfo.InvariantCulture) + ")";
+        }
+
+        /// <summary>
+        /// Integrity check of a given table. The <c>integrity_check</c> pragma looks for out-of-order records, missing pages, malformed records, missing index entries, and <c>UNIQUE</c>, <c>CHECK</c>, and <c>NOT NULL</c> constraint errors.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of informative error messages describing integrity failures.</returns>
+        public Task<IEnumerable<string>> IntegrityCheckAsync(Identifier tableName, CancellationToken cancellationToken = default)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+            if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
+
+            return IntegrityCheckAsyncCore(tableName, cancellationToken);
+        }
+
+        private async Task<IEnumerable<string>> IntegrityCheckAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        {
+            var sql = IntegrityCheckTableQuery(tableName);
+            var errors = await DbConnection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
+            var result = errors.ToList();
+            if (result.Count == 1 && string.Equals(result[0], "ok", StringComparison.Ordinal))
+                return Array.Empty<string>();
+
+            return result;
+        }
+
+        /// <summary>
+        /// Gets a query to read the integrity check pragma for a particular table.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <returns>A SQL query.</returns>
+        protected virtual string IntegrityCheckTableQuery(Identifier tableName)
+        {
+            if (tableName == null)
+                throw new ArgumentNullException(nameof(tableName));
+            if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
+
+            return PragmaPrefix + "integrity_check(" + Dialect.QuoteIdentifier(tableName.LocalName) + ")";
         }
 
         /// <summary>
