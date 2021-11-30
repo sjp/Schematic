@@ -7,7 +7,7 @@ import terser from 'gulp-terser';
 import concat from 'gulp-concat';
 import cssnano from 'cssnano';
 import postcss from 'gulp-postcss';
-import cssnext from 'postcss-cssnext';
+import postcssPresetEnv from 'postcss-preset-env';
 import del from 'del';
 
 const cssNanoPreset = {
@@ -51,7 +51,7 @@ const stylesDev = () => {
         ])
         .pipe(newer('assets/css/reporting-app.css'))
         .pipe(concat('reporting-app.css'))
-        .pipe(postcss([cssnext]))
+        .pipe(postcss([postcssPresetEnv()]))
         .pipe(dest('assets/'));
 }
 
@@ -90,7 +90,7 @@ const stylesProd = () => {
         ])
         .pipe(newer('assets/css/reporting-app.css'))
         .pipe(concat('reporting-app.css'))
-        .pipe(postcss([cssnext, cssnano(cssNanoPreset)]))
+        .pipe(postcss([postcssPresetEnv(), cssnano(cssNanoPreset)]))
         .pipe(gzip({ append: true, gzipOptions: { level: 9 } }))
         .pipe(dest('assets/css'));
 }
