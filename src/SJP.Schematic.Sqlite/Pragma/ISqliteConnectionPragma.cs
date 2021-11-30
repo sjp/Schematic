@@ -13,6 +13,21 @@ namespace SJP.Schematic.Sqlite.Pragma
     public interface ISqliteConnectionPragma
     {
         /// <summary>
+        /// Queries the limit of the approximate <c>ANALYZE</c> setting. This is approximate number of rows examined in each index by the <c>ANALYZE</c> command.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The approximate number of rows analysis is limited to when running <c>ANALYZE</c>. Zero indicates analyzing all rows.</returns>
+        Task<uint> AnalysisLimitAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Changes the limit of the approximate <c>ANALYZE</c> setting. This is approximate number of rows examined in each index by the <c>ANALYZE</c> command.
+        /// </summary>
+        /// <param name="rowLimit">The approximate number of rows to limit analysis to. Zero indicates analyzing all rows.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task indicating the completion of this query.</returns>
+        Task AnalysisLimitAsync(uint rowLimit, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Queries the automatic indexing capability.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>

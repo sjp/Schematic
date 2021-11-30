@@ -58,6 +58,20 @@ namespace SJP.Schematic.Sqlite.Tests.Integration.Pragma
         }
 
         [Test]
+        public static async Task AnalysisLimitAsync_GetAndSet_ReadsAndWritesCorrectly()
+        {
+            var connectionFactory = CreateConnectionFactory();
+            var connPragma = CreateConnectionPragma(connectionFactory);
+
+            var analysisLimit = await connPragma.AnalysisLimitAsync().ConfigureAwait(false);
+            var newValue = analysisLimit + 100;
+            await connPragma.AnalysisLimitAsync(newValue).ConfigureAwait(false);
+            var readOfNewValue = await connPragma.AnalysisLimitAsync().ConfigureAwait(false);
+
+            Assert.That(readOfNewValue, Is.EqualTo(newValue));
+        }
+
+        [Test]
         public static async Task AutomaticIndexAsync_GetAndSet_ReadsAndWritesCorrectly()
         {
             var connectionFactory = CreateConnectionFactory();

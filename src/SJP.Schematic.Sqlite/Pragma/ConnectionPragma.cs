@@ -60,6 +60,34 @@ namespace SJP.Schematic.Sqlite.Pragma
         }
 
         /// <summary>
+        /// Queries the limit of the approximate <c>ANALYZE</c> setting. This is approximate number of rows examined in each index by the <c>ANALYZE</c> command.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The approximate number of rows analysis is limited to when running <c>ANALYZE</c>. Zero indicates analyzing all rows.</returns>
+        public Task<uint> AnalysisLimitAsync(CancellationToken cancellationToken = default) => DbConnection.ExecuteScalarAsync<uint>(AnalysisLimitReadQuery, cancellationToken);
+
+        /// <summary>
+        /// Changes the limit of the approximate <c>ANALYZE</c> setting. This is approximate number of rows examined in each index by the <c>ANALYZE</c> command.
+        /// </summary>
+        /// <param name="rowLimit">The approximate number of rows to limit analysis to. Zero indicates analyzing all rows.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task indicating the completion of this query.</returns>
+        public Task AnalysisLimitAsync(uint rowLimit, CancellationToken cancellationToken = default) => DbConnection.ExecuteAsync(AnalysisLimitSetQuery(rowLimit), cancellationToken);
+
+        /// <summary>
+        /// Gets a query to read the analysis limit pragma.
+        /// </summary>
+        /// <value>A SQL query.</value>
+        protected virtual string AnalysisLimitReadQuery => PragmaPrefix + "analysis_limit";
+
+        /// <summary>
+        /// Creates a query that sets the analysis limit pragma.
+        /// </summary>
+        /// <param name="rowLimit">The approximate number of rows to limit analysis to. Zero indicates analyzing all rows.</param>
+        /// <returns>A SQL query.</returns>
+        protected virtual string AnalysisLimitSetQuery(uint rowLimit) => PragmaPrefix + "analysis_limit = " + rowLimit.ToString(CultureInfo.InvariantCulture);
+
+        /// <summary>
         /// Queries the automatic indexing capability.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
