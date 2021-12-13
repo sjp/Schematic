@@ -43,7 +43,7 @@
     "jquery": "3.6.0",
     "jquery-ui-dist": "1.12.1",
     "natives": "1.1.6",
-    "node-sass": "6.0.1",
+    "node-sass": "7.0.0",
     "postcss": "8.4.5",
     "postcss-preset-env": "7.0.1",
     "source-sans": "3.46.0",
