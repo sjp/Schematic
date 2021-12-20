@@ -41,7 +41,7 @@
     "gulp-terser": "2.1.0",
     "hammerjs": "2.0.8",
     "jquery": "3.6.0",
-    "jquery-ui-dist": "1.12.1",
+    "jquery-ui-dist": "1.13.0",
     "natives": "1.1.6",
     "node-sass": "7.0.0",
     "postcss": "8.4.5",
