@@ -10,7 +10,7 @@
 
         public string? SchemaName { get; init; }
 
-        public string? LocalName { get; init; } = default!;
+        public string? LocalName { get; init; }
 
         public string DefinitionJson { get; init; } = default!;
     }

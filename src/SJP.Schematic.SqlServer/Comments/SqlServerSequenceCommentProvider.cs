@@ -219,7 +219,7 @@ where s.schema_id = SCHEMA_ID(@{ nameof(GetSequenceCommentsQuery.SchemaName) }) 
             public const string Sequence = "SEQUENCE";
         }
 
-        private record CommentData
+        private sealed record CommentData
         {
             public string SchemaName { get; init; } = default!;
 

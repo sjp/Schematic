@@ -396,7 +396,7 @@ where t.relkind = 'r' and ns.nspname = @{ nameof(GetTableCommentsQuery.SchemaNam
             public const string Trigger = "TRIGGER";
         }
 
-        private record CommentData
+        private sealed record CommentData
         {
             public string? ObjectName { get; init; }
 

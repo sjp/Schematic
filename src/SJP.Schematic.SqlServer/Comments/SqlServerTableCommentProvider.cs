@@ -355,7 +355,7 @@ where t.schema_id = SCHEMA_ID(@{ nameof(GetTableCommentsQuery.SchemaName) }) and
             public const string Trigger = "TRIGGER";
         }
 
-        private record CommentData
+        private sealed record CommentData
         {
             public string SchemaName { get; init; } = default!;
 

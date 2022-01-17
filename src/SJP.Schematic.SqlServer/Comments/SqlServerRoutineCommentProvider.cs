@@ -221,7 +221,7 @@ where r.schema_id = SCHEMA_ID(@{ nameof(GetRoutineCommentsQuery.SchemaName) }) a
             public const string Routine = "ROUTINE";
         }
 
-        private record CommentData
+        private sealed record CommentData
         {
             public string SchemaName { get; init; } = default!;
 

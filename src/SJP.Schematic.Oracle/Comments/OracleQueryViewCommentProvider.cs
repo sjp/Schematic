@@ -321,7 +321,7 @@ where v.VIEW_NAME = :{ nameof(GetUserViewCommentsQuery.ViewName) }
             public const string Column = "COLUMN";
         }
 
-        private record CommentData
+        private sealed record CommentData
         {
             public string? ColumnName { get; init; }
 

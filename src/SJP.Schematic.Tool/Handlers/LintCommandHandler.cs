@@ -50,9 +50,9 @@ namespace SJP.Schematic.Tool.Handlers
 
             var hasDisplayedResults = false;
 
-            foreach (var group in groupedResults)
+            foreach (var ruleGroup in groupedResults.Select(r => r.Value))
             {
-                var ruleTitle = "Rule: " + group.Value[0].Title;
+                var ruleTitle = "Rule: " + ruleGroup[0].Title;
                 var underline = new string('-', ruleTitle.Length);
 
                 if (hasDisplayedResults)
@@ -67,7 +67,7 @@ namespace SJP.Schematic.Tool.Handlers
                 _console.Out.WriteLine(underline);
                 _console.Out.WriteLine();
 
-                foreach (var message in group.Value)
+                foreach (var message in ruleGroup)
                 {
                     _console.Out.WriteLine(" * " + message.Message);
                 }

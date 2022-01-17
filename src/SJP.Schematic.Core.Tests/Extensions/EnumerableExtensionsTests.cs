@@ -98,67 +98,6 @@ namespace SJP.Schematic.Core.Tests.Extensions
         }
 
         [Test]
-        public static void DistinctBy_GivenNullCollection_ThrowsArgumentNullException()
-        {
-            Assert.That(() => EnumerableExtensions.DistinctBy<string, string>(null, x => x), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void DistinctBy_GivenNullSelector_ThrowsArgumentNullException()
-        {
-            var source = new[] { "first", "second", "third", "fourth", "fifth" };
-
-            Assert.That(() => source.DistinctBy<string, string>(null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void DistinctBy_ForComparerOverloadGivenNullCollection_ThrowsArgumentNullException()
-        {
-            Assert.That(() => EnumerableExtensions.DistinctBy<string, string>(null, x => x, StringComparer.Ordinal), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void DistinctBy_ForComparerOverloadGivenNullSelector_ThrowsArgumentNullException()
-        {
-            var source = new[] { "first", "second", "third", "fourth", "fifth" };
-
-            Assert.That(() => source.DistinctBy(null, StringComparer.Ordinal), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void DistinctBy_GivenValidSelector_ReturnsExpectedResult()
-        {
-            var source = new[] { "first", "second", "third", "fourth", "fifth" };
-            var expected = new[] { "first", "second" };
-
-            var distinct = source.DistinctBy(word => word.Length);
-
-            Assert.That(distinct, Is.EqualTo(expected));
-        }
-
-        [Test]
-        public static void DistinctBy_GivenCustomComparer_ReturnsExpectedResult()
-        {
-            var source = new[] { "first", "FIRST", "second", "second", "third" };
-            var expected = new[] { "first", "second", "third" };
-
-            var distinct = source.DistinctBy(word => word, StringComparer.OrdinalIgnoreCase);
-
-            Assert.That(distinct, Is.EqualTo(expected));
-        }
-
-        [Test]
-        public static void DistinctBy_GivenNullComparer_ReturnsSameResultsAsNoParam()
-        {
-            var source = new[] { "first", "second", "third", "fourth", "fifth" };
-            var expected = new[] { "first", "second" };
-
-            var distinct = source.DistinctBy(word => word.Length, null);
-
-            Assert.That(distinct, Is.EqualTo(expected));
-        }
-
-        [Test]
         public static void GroupAsDictionary_GivenNullCollection_ThrowsArgumentNullException()
         {
             Assert.That(() => EnumerableExtensions.GroupAsDictionary<string, string>(null, x => x), Throws.ArgumentNullException);

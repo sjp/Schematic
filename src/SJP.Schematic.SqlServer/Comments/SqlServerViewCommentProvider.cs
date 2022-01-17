@@ -250,7 +250,7 @@ where v.schema_id = SCHEMA_ID(@{ nameof(GetViewCommentsQuery.SchemaName) }) and 
             public const string Column = "COLUMN";
         }
 
-        private record CommentData
+        private sealed record CommentData
         {
             public string SchemaName { get; init; } = default!;
 

@@ -19,8 +19,6 @@ namespace SJP.Schematic.Tests.Utilities
         /// <value>The some asserting constraint.</value>
         public static SomeConstraint Some => new();
 
-#pragma warning disable CA1034 // Nested types should not be visible
-
         /// <summary>
         /// A helper class for retrieving constraints for <see cref="Option{A}"/> values.
         /// </summary>
@@ -41,6 +39,5 @@ namespace SJP.Schematic.Tests.Utilities
             public static NoneConstraint Some => new();
 #pragma warning restore S3218 // Inner class members should not shadow outer class "static" or type members
         }
-#pragma warning restore CA1034 // Nested types should not be visible
     }
 }

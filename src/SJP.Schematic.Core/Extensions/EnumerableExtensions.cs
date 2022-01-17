@@ -58,56 +58,6 @@ namespace SJP.Schematic.Core.Extensions
         }
 
         /// <summary>
-        /// Returns only the distinct elements in a collection, deriving uniqueness from a selector function. This uses the default comparer for <typeparamref name="TKey"/> to test uniqueness.
-        /// </summary>
-        /// <typeparam name="TSource">The type of objects to enumerate.</typeparam>
-        /// <typeparam name="TKey">The type of key to test for uniqueness with.</typeparam>
-        /// <param name="source">The source collection.</param>
-        /// <param name="keySelector">The selector which returns a key used for uniqueness testing.</param>
-        /// <returns>A collection that returns a unique set of results.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="keySelector"/> is <c>null</c>.</exception>
-        public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
-        {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
-            if (keySelector == null)
-                throw new ArgumentNullException(nameof(keySelector));
-
-            return source.DistinctBy(keySelector, EqualityComparer<TKey>.Default);
-        }
-
-        /// <summary>
-        /// Returns only the distinct elements in a collection, deriving uniqueness from a selector function.
-        /// </summary>
-        /// <typeparam name="TSource">The type of objects to enumerate.</typeparam>
-        /// <typeparam name="TKey">The type of key to test for uniqueness with.</typeparam>
-        /// <param name="source">The source collection.</param>
-        /// <param name="keySelector">The selector which returns a key used for uniqueness testing.</param>
-        /// <param name="comparer">A comparer used for uniqueness testing.</param>
-        /// <returns>A collection that returns a unique set of results.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="keySelector"/> or <paramref name="comparer"/> is <c>null</c>.</exception>
-        public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source,
-           Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer)
-        {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
-            if (keySelector == null)
-                throw new ArgumentNullException(nameof(keySelector));
-
-            comparer ??= EqualityComparer<TKey>.Default;
-
-            return _(); IEnumerable<TSource> _()
-            {
-                var knownKeys = new HashSet<TKey>(comparer);
-                foreach (var element in source)
-                {
-                    if (knownKeys.Add(keySelector(element)))
-                        yield return element;
-                }
-            }
-        }
-
-        /// <summary>
         /// An eagerly evaluating group by implementation that is faster and lower in memory allocation.
         /// </summary>
         /// <typeparam name="TKey">The type of the key used for uniqueness testing.</typeparam>

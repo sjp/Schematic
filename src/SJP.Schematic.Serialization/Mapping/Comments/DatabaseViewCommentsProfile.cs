@@ -63,4 +63,3 @@ namespace SJP.Schematic.Serialization.Mapping.Comments
         }
     }
 }
-

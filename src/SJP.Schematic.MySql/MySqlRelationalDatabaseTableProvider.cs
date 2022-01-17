@@ -477,38 +477,38 @@ order by kc.ordinal_position";
 
             var result = new List<IDatabaseRelationalKey>(groupedChildKeys.Count);
 
-            foreach (var groupedChildKey in groupedChildKeys)
+            foreach (var groupedChildKey in groupedChildKeys.Select(ck => ck.Key))
             {
                 // ensure we have a key to begin with
                 IDatabaseKey? parentKey = null;
-                if (string.Equals(groupedChildKey.Key.ParentKeyType, Constants.PrimaryKey, StringComparison.Ordinal))
+                if (string.Equals(groupedChildKey.ParentKeyType, Constants.PrimaryKey, StringComparison.Ordinal))
                 {
                     var pk = await queryCache.GetPrimaryKeyAsync(tableName, cancellationToken).ConfigureAwait(false);
                     pk.IfSome(k => parentKey = k);
                 }
-                else if (uniqueKeyLookup.ContainsKey(groupedChildKey.Key.ParentKeyName))
+                else if (uniqueKeyLookup.ContainsKey(groupedChildKey.ParentKeyName))
                 {
-                    parentKey = uniqueKeyLookup[groupedChildKey.Key.ParentKeyName];
+                    parentKey = uniqueKeyLookup[groupedChildKey.ParentKeyName];
                 }
 
                 if (parentKey == null)
                     continue;
 
-                var candidateChildTableName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
+                var candidateChildTableName = Identifier.CreateQualifiedIdentifier(groupedChildKey.ChildTableSchema, groupedChildKey.ChildTableName);
                 var resolvedName = await queryCache.GetTableNameAsync(candidateChildTableName, cancellationToken).ConfigureAwait(false);
 
                 await resolvedName
                     .BindAsync(async name =>
                     {
-                        var childKeyName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildKeyName);
+                        var childKeyName = Identifier.CreateQualifiedIdentifier(groupedChildKey.ChildKeyName);
 
                         var parentKeys = await queryCache.GetForeignKeysAsync(name, cancellationToken).ConfigureAwait(false);
                         var parentKeyLookup = GetDatabaseKeyLookup(parentKeys.Select(fk => fk.ChildKey).ToList());
                         if (!parentKeyLookup.TryGetValue(childKeyName, out var childKey))
                             return OptionAsync<IDatabaseRelationalKey>.None;
 
-                        var deleteAction = ReferentialActionMapping[groupedChildKey.Key.DeleteAction];
-                        var updateAction = ReferentialActionMapping[groupedChildKey.Key.UpdateAction];
+                        var deleteAction = ReferentialActionMapping[groupedChildKey.DeleteAction];
+                        var updateAction = ReferentialActionMapping[groupedChildKey.UpdateAction];
                         var relationalKey = new MySqlRelationalKey(name, childKey, tableName, parentKey, deleteAction, updateAction);
 
                         return OptionAsync<IDatabaseRelationalKey>.Some(relationalKey);
@@ -845,16 +845,16 @@ order by ordinal_position";
                 var definition = trig.Key.Definition;
 
                 var events = TriggerEvent.None;
-                foreach (var trigEvent in trig.Value)
+                foreach (var trigEvent in trig.Value.Select(tr => tr.TriggerEvent))
                 {
-                    if (string.Equals(trigEvent.TriggerEvent, Constants.Insert, StringComparison.Ordinal))
+                    if (string.Equals(trigEvent, Constants.Insert, StringComparison.Ordinal))
                         events |= TriggerEvent.Insert;
-                    else if (string.Equals(trigEvent.TriggerEvent, Constants.Update, StringComparison.Ordinal))
+                    else if (string.Equals(trigEvent, Constants.Update, StringComparison.Ordinal))
                         events |= TriggerEvent.Update;
-                    else if (string.Equals(trigEvent.TriggerEvent, Constants.Delete, StringComparison.Ordinal))
+                    else if (string.Equals(trigEvent, Constants.Delete, StringComparison.Ordinal))
                         events |= TriggerEvent.Delete;
                     else
-                        throw new UnsupportedTriggerEventException(tableName, trigEvent.TriggerEvent ?? string.Empty);
+                        throw new UnsupportedTriggerEventException(tableName, trigEvent ?? string.Empty);
                 }
 
                 var trigger = new MySqlDatabaseTrigger(triggerName, definition, queryTiming, events);

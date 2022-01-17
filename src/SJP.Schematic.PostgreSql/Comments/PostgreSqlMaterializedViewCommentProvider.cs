@@ -275,7 +275,7 @@ where n.nspname = @{ nameof(GetMaterializedViewCommentsQuery.SchemaName) } and c
             public const string Column = "COLUMN";
         }
 
-        private record CommentData
+        private sealed record CommentData
         {
             public string? ObjectName { get; init; }
 

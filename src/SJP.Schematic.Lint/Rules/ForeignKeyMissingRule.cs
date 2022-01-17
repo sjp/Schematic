@@ -63,19 +63,21 @@ namespace SJP.Schematic.Lint.Rules
                 .Distinct(StringComparer.Ordinal)
                 .ToList();
 
-            foreach (var column in table.Columns)
+            var columnNames = table.Columns.Select(c => c.Name.LocalName);
+
+            foreach (var columnName in columnNames)
             {
-                var impliedTable = GetImpliedTableName(column.Name.LocalName);
+                var impliedTable = GetImpliedTableName(columnName);
                 var targetTableName = tableNames.FirstOrDefault(t => string.Equals(impliedTable, t.LocalName, StringComparison.OrdinalIgnoreCase)
                     && !string.Equals(impliedTable, table.Name.LocalName, StringComparison.OrdinalIgnoreCase));
                 if (targetTableName == null)
                     continue;
 
                 // now check whether the column name is already part of an FK
-                if (foreignKeyColumnNames.Contains(column.Name.LocalName))
+                if (foreignKeyColumnNames.Contains(columnName))
                     continue;
 
-                var message = BuildMessage(column.Name.LocalName, table.Name, targetTableName);
+                var message = BuildMessage(columnName, table.Name, targetTableName);
                 result.Add(message);
             }
 

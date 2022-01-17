@@ -219,7 +219,7 @@ where s.schema_id = SCHEMA_ID(@{ nameof(GetSynonymCommentsQuery.SchemaName) }) a
             public const string Synonym = "SYNONYM";
         }
 
-        private record CommentData
+        private sealed record CommentData
         {
             public string SchemaName { get; init; } = default!;
 

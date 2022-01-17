@@ -385,7 +385,7 @@ where t.TABLE_NAME = :{ nameof(GetUserTableCommentsQuery.TableName) } and mv.MVI
             public const string Column = "COLUMN";
         }
 
-        private record CommentData
+        private sealed record CommentData
         {
             public string? ColumnName { get; init; }
 
