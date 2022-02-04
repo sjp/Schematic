@@ -45,7 +45,7 @@
     "natives": "1.1.6",
     "node-sass": "7.0.1",
     "postcss": "8.4.6",
-    "postcss-preset-env": "7.3.0",
+    "postcss-preset-env": "7.3.1",
     "source-sans": "3.46.0",
     "svg-pan-zoom": "3.6.1"
   }
