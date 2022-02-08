@@ -21,7 +21,7 @@
     "@babel/core": "7.17.0",
     "@babel/preset-env": "7.16.11",
     "@babel/register": "7.17.0",
-    "admin-lte": "3.1.0",
+    "admin-lte": "3.2.0",
     "bootstrap": "4.6.0",
     "codemirror": "5.65.1",
     "cssnano": "5.0.16",
