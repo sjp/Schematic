@@ -1,26 +1,21 @@
-﻿using System;
+﻿using Oracle.ManagedDataAccess.Client;
+using SJP.Schematic.Tool.Commands;
+using System;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Oracle.ManagedDataAccess.Client;
-using SJP.Schematic.Tool.Commands;
 
 namespace SJP.Schematic.Tool
 {
     internal static class Program
     {
-        public static Task<int> Main(string[] args)
-        {
-            var root = new RootCommand();
-            root.Handler = CommandHandler.Create<IConsole, IHelpBuilder>((console, help) =>
-            {
-                // looks a bit gross but avoids a newline
-                console.Out.Write(@"   _____      __                         __  _
+        private const string TitleText = @"   _____      __                         __  _
   / ___/_____/ /_  ___  ____ ___  ____ _/ /_(_)____
   \__ \/ ___/ __ \/ _ \/ __ `__ \/ __ `/ __/ / ___/
  ___/ / /__/ / / /  __/ / / / / / /_/ / /_/ / /__
@@ -28,11 +23,11 @@ namespace SJP.Schematic.Tool
 
 The helpful database schema querying tool.
 
-");
+";
 
-                help.Write(root);
-                return 1;
-            });
+        public static Task<int> Main(string[] args)
+        {
+            var root = new RootCommand();
 
             var configFileOption = new Option<FileInfo>(
                 "--config",
@@ -50,9 +45,12 @@ The helpful database schema querying tool.
             root.AddCommand(new TestCommand());
 
             var builder = new CommandLineBuilder(root);
-            builder.UseHelp();
+            builder.UseHelp(ctx =>
+            {
+                ctx.HelpBuilder.CustomizeLayout(_ =>
+                    HelpBuilder.Default.GetLayout().Skip(1).Prepend(hctx => hctx.Output.Write(TitleText)));
+            });
             builder.UseVersionOption();
-            builder.UseDebugDirective();
             builder.UseParseErrorReporting();
             builder.ParseResponseFileAs(ResponseFileHandling.ParseArgsAsSpaceSeparated);
             builder.CancelOnProcessTermination();

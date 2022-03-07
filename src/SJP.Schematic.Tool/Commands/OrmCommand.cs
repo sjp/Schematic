@@ -1,6 +1,4 @@
 ﻿using System.CommandLine;
-using System.CommandLine.Help;
-using System.CommandLine.Invocation;
 
 namespace SJP.Schematic.Tool.Commands
 {
@@ -12,12 +10,6 @@ namespace SJP.Schematic.Tool.Commands
             AddCommand(new GenerateEfCoreCommand());
             AddCommand(new GenerateOrmLiteCommand());
             AddCommand(new GeneratePocoCommand());
-
-            Handler = CommandHandler.Create<IHelpBuilder>(help =>
-            {
-                help.Write(this);
-                return 1;
-            });
         }
     }
 }
