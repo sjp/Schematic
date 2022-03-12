@@ -40,12 +40,10 @@ namespace SJP.Schematic.Core.Extensions
         {
             var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
 
-            var loggingContext = new QueryLoggingContext(connectionFactory, sql, null);
-            using var context = await QueryContext.CreateAsync(connectionFactory, loggingContext, cancellationToken).ConfigureAwait(false);
             var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             await using var _ = connection.WithDispose(connectionFactory);
 
-            var retryPolicy = BuildRetryPolicy(connectionFactory, loggingContext);
+            var retryPolicy = BuildRetryPolicy(connectionFactory);
             return await retryPolicy.ExecuteAsync(_ => connection.QueryAsync<T>(command), cancellationToken).ConfigureAwait(false);
         }
 
@@ -76,12 +74,10 @@ namespace SJP.Schematic.Core.Extensions
         {
             var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
 
-            var loggingContext = new QueryLoggingContext(connectionFactory, sql, parameters);
-            using var context = await QueryContext.CreateAsync(connectionFactory, loggingContext, cancellationToken).ConfigureAwait(false);
             var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             await using var _ = connection.WithDispose(connectionFactory);
 
-            var retryPolicy = BuildRetryPolicy(connectionFactory, loggingContext);
+            var retryPolicy = BuildRetryPolicy(connectionFactory);
             return await retryPolicy.ExecuteAsync(_ => connection.QueryAsync<T>(command), cancellationToken).ConfigureAwait(false);
         }
 
@@ -109,12 +105,10 @@ namespace SJP.Schematic.Core.Extensions
         {
             var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
 
-            var loggingContext = new QueryLoggingContext(connectionFactory, sql, null);
-            using var context = await QueryContext.CreateAsync(connectionFactory, loggingContext, cancellationToken).ConfigureAwait(false);
             var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             await using var _ = connection.WithDispose(connectionFactory);
 
-            var retryPolicy = BuildRetryPolicy(connectionFactory, loggingContext);
+            var retryPolicy = BuildRetryPolicy(connectionFactory);
             return await retryPolicy.ExecuteAsync(_ => connection.ExecuteScalarAsync<T>(command), cancellationToken).ConfigureAwait(false);
         }
 
@@ -145,12 +139,10 @@ namespace SJP.Schematic.Core.Extensions
         {
             var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
 
-            var loggingContext = new QueryLoggingContext(connectionFactory, sql, parameters);
-            using var context = await QueryContext.CreateAsync(connectionFactory, loggingContext, cancellationToken).ConfigureAwait(false);
             var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             await using var _ = connection.WithDispose(connectionFactory);
 
-            var retryPolicy = BuildRetryPolicy(connectionFactory, loggingContext);
+            var retryPolicy = BuildRetryPolicy(connectionFactory);
             return await retryPolicy.ExecuteAsync(_ => connection.ExecuteScalarAsync<T>(command), cancellationToken).ConfigureAwait(false);
         }
 
@@ -176,12 +168,10 @@ namespace SJP.Schematic.Core.Extensions
         {
             var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
 
-            var loggingContext = new QueryLoggingContext(connectionFactory, sql, null);
-            using var context = await QueryContext.CreateAsync(connectionFactory, loggingContext, cancellationToken).ConfigureAwait(false);
             var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             await using var _ = connection.WithDispose(connectionFactory);
 
-            var retryPolicy = BuildRetryPolicy(connectionFactory, loggingContext);
+            var retryPolicy = BuildRetryPolicy(connectionFactory);
             return await retryPolicy.ExecuteAsync(_ => connection.ExecuteAsync(command), cancellationToken).ConfigureAwait(false);
         }
 
@@ -210,12 +200,10 @@ namespace SJP.Schematic.Core.Extensions
         {
             var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
 
-            var loggingContext = new QueryLoggingContext(connectionFactory, sql, parameters);
-            using var context = await QueryContext.CreateAsync(connectionFactory, loggingContext, cancellationToken).ConfigureAwait(false);
             var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             await using var _ = connection.WithDispose(connectionFactory);
 
-            var retryPolicy = BuildRetryPolicy(connectionFactory, loggingContext);
+            var retryPolicy = BuildRetryPolicy(connectionFactory);
             return await retryPolicy.ExecuteAsync(_ => connection.ExecuteAsync(command), cancellationToken).ConfigureAwait(false);
         }
 
@@ -245,12 +233,10 @@ namespace SJP.Schematic.Core.Extensions
         {
             var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
 
-            var loggingContext = new QueryLoggingContext(connectionFactory, sql, null);
-            using var context = await QueryContext.CreateAsync(connectionFactory, loggingContext, cancellationToken).ConfigureAwait(false);
             var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             await using var _ = connection.WithDispose(connectionFactory);
 
-            var retryPolicy = BuildRetryPolicy(connectionFactory, loggingContext);
+            var retryPolicy = BuildRetryPolicy(connectionFactory);
             var result = await retryPolicy.ExecuteAsync(_ => connection.QueryFirstOrDefaultAsync<T>(command), cancellationToken).ConfigureAwait(false);
 
             return result != null
@@ -287,12 +273,10 @@ namespace SJP.Schematic.Core.Extensions
         {
             var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
 
-            var loggingContext = new QueryLoggingContext(connectionFactory, sql, parameters);
-            using var context = await QueryContext.CreateAsync(connectionFactory, loggingContext, cancellationToken).ConfigureAwait(false);
             var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             await using var _ = connection.WithDispose(connectionFactory);
 
-            var retryPolicy = BuildRetryPolicy(connectionFactory, loggingContext);
+            var retryPolicy = BuildRetryPolicy(connectionFactory);
             var result = await retryPolicy.ExecuteAsync(_ => connection.QueryFirstOrDefaultAsync<T>(command), cancellationToken).ConfigureAwait(false);
 
             return result != null
@@ -325,12 +309,10 @@ namespace SJP.Schematic.Core.Extensions
         {
             var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
 
-            var loggingContext = new QueryLoggingContext(connectionFactory, sql, null);
-            using var context = await QueryContext.CreateAsync(connectionFactory, loggingContext, cancellationToken).ConfigureAwait(false);
             var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             await using var _ = connection.WithDispose(connectionFactory);
 
-            var retryPolicy = BuildRetryPolicy(connectionFactory, loggingContext);
+            var retryPolicy = BuildRetryPolicy(connectionFactory);
             return await retryPolicy.ExecuteAsync(_ => connection.QuerySingleAsync<T>(command), cancellationToken).ConfigureAwait(false);
         }
 
@@ -362,12 +344,10 @@ namespace SJP.Schematic.Core.Extensions
         {
             var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
 
-            var loggingContext = new QueryLoggingContext(connectionFactory, sql, parameters);
-            using var context = await QueryContext.CreateAsync(connectionFactory, loggingContext, cancellationToken).ConfigureAwait(false);
             var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             await using var _ = connection.WithDispose(connectionFactory);
 
-            var retryPolicy = BuildRetryPolicy(connectionFactory, loggingContext);
+            var retryPolicy = BuildRetryPolicy(connectionFactory);
             return await retryPolicy.ExecuteAsync(_ => connection.QuerySingleAsync<T>(command), cancellationToken).ConfigureAwait(false);
         }
 
@@ -398,12 +378,10 @@ namespace SJP.Schematic.Core.Extensions
             {
                 var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
 
-                var loggingContext = new QueryLoggingContext(connectionFactory, sql, null);
-                using var context = await QueryContext.CreateAsync(connectionFactory, loggingContext, cancellationToken).ConfigureAwait(false);
                 var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
                 await using var _ = connection.WithDispose(connectionFactory);
 
-                var retryPolicy = BuildRetryPolicy(connectionFactory, loggingContext);
+                var retryPolicy = BuildRetryPolicy(connectionFactory);
                 var result = await retryPolicy.ExecuteAsync(_ => connection.QuerySingleOrDefaultAsync<T>(command), cancellationToken).ConfigureAwait(false);
 
                 return result != null
@@ -446,12 +424,10 @@ namespace SJP.Schematic.Core.Extensions
             {
                 var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
 
-                var loggingContext = new QueryLoggingContext(connectionFactory, sql, parameters);
-                using var context = await QueryContext.CreateAsync(connectionFactory, loggingContext, cancellationToken).ConfigureAwait(false);
                 var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
                 await using var _ = connection.WithDispose(connectionFactory);
 
-                var retryPolicy = BuildRetryPolicy(connectionFactory, loggingContext);
+                var retryPolicy = BuildRetryPolicy(connectionFactory);
                 var result = await retryPolicy.ExecuteAsync(_ => connection.QuerySingleOrDefaultAsync<T>(command), cancellationToken).ConfigureAwait(false);
 
                 return result != null
@@ -464,11 +440,10 @@ namespace SJP.Schematic.Core.Extensions
             }
         }
 
-        private static IAsyncPolicy BuildRetryPolicy(IDbConnectionFactory connectionFactory, QueryLoggingContext loggingContext)
+        private static IAsyncPolicy BuildRetryPolicy(IDbConnectionFactory connectionFactory)
         {
             return connectionFactory.RetryPolicy.WaitAndRetryAsync(
-                Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromMilliseconds(100), MaxRetryAttempts),
-                (ex, delay, retryAttempt, ctx) => loggingContext.Retry(retryAttempt, delay)
+                Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromMilliseconds(100), MaxRetryAttempts)
             );
         }
 

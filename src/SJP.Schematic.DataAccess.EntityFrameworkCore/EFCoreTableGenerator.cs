@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Globalization;
+using System.IO.Abstractions;
 using System.Linq;
 using LanguageExt;
 using Microsoft.CodeAnalysis;
@@ -13,10 +15,8 @@ using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.DataAccess.CodeGeneration;
 using SJP.Schematic.DataAccess.Extensions;
-using StringHashSet = System.Collections.Generic.HashSet<string>;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using System.IO.Abstractions;
-using System.Globalization;
+using StringHashSet = System.Collections.Generic.HashSet<string>;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore
 {
