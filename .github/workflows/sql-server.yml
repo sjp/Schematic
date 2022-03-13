@@ -12,13 +12,13 @@ jobs:
       matrix:
         tag: [2017-latest, 2019-latest, latest]
     services:
-      postgres:
+      sqlserver:
         image: mcr.microsoft.com/mssql/server:${{ matrix.tag }}
         env:
           ACCEPT_EULA: 'Y'
-          SA_PASSWORD: Schematic
+          SA_PASSWORD: Schematic0123!
         options: >-
-          --health-cmd /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$$SA_PASSWORD" -Q "SELECT 1" || exit 1
+          --health-cmd "/opt/mssql-tools/bin/sqlcmd -U $DB_USER -P 'Schematic0123!' -Q 'SELECT 1' -b -o /dev/null"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -40,4 +40,4 @@ jobs:
       run: dotnet test --no-restore --verbosity normal
       working-directory: src/SJP.Schematic.SqlServer.Tests
       env:
-        SqlServer_TestDb: Server=127.0.0.1,1419; User Id=sa; Password=Schematic0123!; MultipleActiveResultSets=True
+        SqlServer_TestDb: Server=localhost,1433; User Id=sa; Password=Schematic0123!; MultipleActiveResultSets=True
