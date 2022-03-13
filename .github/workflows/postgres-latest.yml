@@ -27,6 +27,9 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.100
+    - name: Install dependencies
+      run: dotnet restore
+      working-directory: src/SJP.Schematic.PostgreSql.Tests
     - name: Build
       run: dotnet build --configuration Release --no-restore
       working-directory: src/SJP.Schematic.PostgreSql.Tests
