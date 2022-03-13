@@ -1,7 +1,5 @@
 #tool nuget:?package=Codecov&version=1.13.0
 #addin nuget:?package=Cake.Codecov&version=1.0.1
-#tool nuget:?package=docfx.console&version=2.57.2
-#addin nuget:?package=Cake.DocFx&version=1.0.0
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -32,16 +30,6 @@ var testProjects = new Lazy<IEnumerable<string>>(() => solution.Value
 // TASKS
 //////////////////////////////////////////////////////////////////////
 
-Task("Clean")
-    .Does(() =>
-{
-    DotNetCoreClean(solutionFile.FullPath, new DotNetCoreCleanSettings
-    {
-        Configuration = configuration,
-        Verbosity = DotNetCoreVerbosity.Minimal
-    });
-});
-
 Task("Build")
     .Does(() =>
 {
@@ -50,21 +38,6 @@ Task("Build")
         Configuration = configuration,
         Verbosity = DotNetCoreVerbosity.Minimal
     });
-});
-
-Task("Pack")
-    .Does(() =>
-{
-    var packageDirectory = "./artifacts/packages";
-    EnsureDirectoryExists(packageDirectory);
-    DotNetCorePack(solutionFile.FullPath, new DotNetCorePackSettings
-    {
-        Configuration = configuration,
-        Verbosity = DotNetCoreVerbosity.Minimal,
-        OutputDirectory = packageDirectory
-    });
-    Zip(packageDirectory, "./artifacts/packages.zip");
-    DeleteDirectory(packageDirectory, new DeleteDirectorySettings { Recursive = true });
 });
 
 Task("Run-Unit-Tests")
@@ -109,37 +82,6 @@ Task("Run-Unit-Tests")
     }
 })
 .DeferOnError();
-
-Task("Build-Docs")
-    .Does(() =>
-{
-    var docConfigPath = "./docs/docfx.json";
-    DocFxMetadata(docConfigPath);
-    DocFxBuild(docConfigPath);
-});
-
-Task("Docs")
-    .IsDependentOn("Build-Docs")
-    .Does(() =>
-{
-    EnsureDirectoryExists("./artifacts");
-    Zip("./docs/_site", "./artifacts/docs.zip");
-});
-
-Task("Publish-Artifacts")
-    .IsDependentOn("Pack")
-    .IsDependentOn("Docs")
-    .Does(() =>
-{
-    if (AppVeyor.IsRunningOnAppVeyor)
-    {
-        var artifactFiles = GetFiles("./artifacts/*");
-        foreach (var artifactFile in artifactFiles)
-        {
-            AppVeyor.UploadArtifact(artifactFile);
-        }
-    }
-});
 
 //////////////////////////////////////////////////////////////////////
 // TASK TARGETS
