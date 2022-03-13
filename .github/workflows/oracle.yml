@@ -1,0 +1,46 @@
+name: oracle
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tag: [11, 18, 21, latest]
+    services:
+      oracle:
+        image: gvenzl/oracle-xe:${{ matrix.tag }}
+        env:
+          ORACLE_PASSWORD: schematic_root
+          ORACLE_DATABASE: schematic
+          APP_USER: schematic
+          APP_USER_PASSWORD: schematic
+        options: >-
+          --health-cmd healthcheck.sh
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 1521:1521
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.100
+    - name: Install dependencies
+      run: dotnet restore
+      working-directory: src/SJP.Schematic.Oracle.Tests
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+      working-directory: src/SJP.Schematic.Oracle.Tests
+    - name: Test
+      run: dotnet test --no-restore --verbosity normal
+      working-directory: src/SJP.Schematic.Oracle.Tests
+      env:
+        ConnectionStrings__Oracle_TestDb: Data Source=localhost/XEPDB1; User Id=schematic; Password=schematic
