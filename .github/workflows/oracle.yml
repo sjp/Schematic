@@ -22,9 +22,9 @@ jobs:
           APP_USER_PASSWORD: schematic
         options: >-
           --health-cmd healthcheck.sh
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-interval 20s
+          --health-timeout 10s
+          --health-retries 10
         ports:
           - 1521:1521
     steps:
