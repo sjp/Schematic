@@ -1,6 +1,6 @@
 # Schematic
 
-[![License (MIT)](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![GitHub Actions](https://github.com/sjp/Schematic/actions/workflows/ci.yml/badge.svg)](https://github.com/sjp/Schematic/actions/workflows/ci.yml) [![AppVeyor Build Status](https://img.shields.io/appveyor/build/sjp/sjp-schema/master?label=appveyor%3Amaster&logo=appveyor)](https://ci.appveyor.com/project/sjp/sjp-schema) [![Code coverage](https://img.shields.io/codecov/c/gh/sjp/Schematic/master?logo=codecov)](https://codecov.io/gh/sjp/Schematic)
+[![License (MIT)](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![GitHub Actions](https://github.com/sjp/Schematic/actions/workflows/ci.yml/badge.svg)](https://github.com/sjp/Schematic/actions/workflows/ci.yml) [![Code coverage](https://img.shields.io/codecov/c/gh/sjp/Schematic/master?logo=codecov)](https://codecov.io/gh/sjp/Schematic)
 
 ![Project icon](database.png)
 
