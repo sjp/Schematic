@@ -10,14 +10,6 @@ services:
         ports:
             - 3306:3306
 
-    postgres-9.6:
-        image: postgres:9.6-alpine
-        container_name: schematic_postgresql_v9_6
-        env_file:
-            - ./postgres.env
-        ports:
-            - 5436:5432
-
     postgres-10:
         image: postgres:10-alpine
         container_name: schematic_postgresql_v10
@@ -42,13 +34,21 @@ services:
         ports:
             - 5412:5432
 
-    postgres-12:
+    postgres-13:
         image: postgres:13-alpine
         container_name: schematic_postgresql_v13
         env_file:
             - ./postgres.env
         ports:
             - 5413:5432
+
+    postgres-14:
+        image: postgres:14-alpine
+        container_name: schematic_postgresql_v14
+        env_file:
+            - ./postgres.env
+        ports:
+            - 5414:5432
 
     sql-server-2017:
         image: mcr.microsoft.com/mssql/server:2017-latest
