@@ -37,4 +37,5 @@ jobs:
       run: dotnet test --no-restore --verbosity normal
       working-directory: src/SJP.Schematic.PostgreSql.Tests
       env:
+        ConnectionStrings__PostgreSql_TestDb: Server=localhost; Port=5432; Database=postgres; User Id=postgres; Password=postgres; Timeout=2
         ConnectionStrings__PostgreSql_TestDb_10: Server=localhost; Port=5432; Database=postgres; User Id=postgres; Password=postgres; Timeout=2
