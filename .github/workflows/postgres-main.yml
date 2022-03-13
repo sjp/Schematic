@@ -1,4 +1,4 @@
-name: postgres-latest
+name: postgres-main
 
 on:
   push:
@@ -9,9 +9,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tag: [10, 11, 12, 13, 14]
     services:
       postgres:
-        image: postgres:latest
+        image: postgres:${{ matrix.tag }}
         env:
           POSTGRES_PASSWORD: postgres
         options: >-
