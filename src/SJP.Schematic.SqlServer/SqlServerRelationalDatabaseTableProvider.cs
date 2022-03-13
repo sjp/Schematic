@@ -870,16 +870,16 @@ order by c.column_id";
                 var isEnabled = !trig.Key.IsDisabled;
 
                 var events = TriggerEvent.None;
-                foreach (var trigEvent in trig.Value)
+                foreach (var triggerEvent in trig.Value.Select(t => t.TriggerEvent))
                 {
-                    if (string.Equals(trigEvent.TriggerEvent, Constants.Insert, StringComparison.Ordinal))
+                    if (string.Equals(triggerEvent, Constants.Insert, StringComparison.Ordinal))
                         events |= TriggerEvent.Insert;
-                    else if (string.Equals(trigEvent.TriggerEvent, Constants.Update, StringComparison.Ordinal))
+                    else if (string.Equals(triggerEvent, Constants.Update, StringComparison.Ordinal))
                         events |= TriggerEvent.Update;
-                    else if (string.Equals(trigEvent.TriggerEvent, Constants.Delete, StringComparison.Ordinal))
+                    else if (string.Equals(triggerEvent, Constants.Delete, StringComparison.Ordinal))
                         events |= TriggerEvent.Delete;
                     else
-                        throw new UnsupportedTriggerEventException(tableName, trigEvent.TriggerEvent);
+                        throw new UnsupportedTriggerEventException(tableName, triggerEvent);
                 }
 
                 var trigger = new DatabaseTrigger(triggerName, definition, queryTiming, events, isEnabled);

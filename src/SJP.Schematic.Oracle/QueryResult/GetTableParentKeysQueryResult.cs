@@ -8,11 +8,11 @@
 
         public string DeleteAction { get; init; } = default!;
 
-        public string? ParentTableSchema { get; init; } = default!;
+        public string? ParentTableSchema { get; init; }
 
-        public string? ParentTableName { get; init; } = default!;
+        public string? ParentTableName { get; init; }
 
-        public string? ParentConstraintName { get; init; } = default!;
+        public string? ParentConstraintName { get; init; }
 
         public string ParentKeyType { get; init; } = default!;
 
