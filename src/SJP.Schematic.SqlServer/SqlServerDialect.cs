@@ -127,24 +127,6 @@ select
         }
 
         /// <summary>
-        /// Gets the server properties available on SQL Server 2008.
-        /// </summary>
-        /// <param name="connection">A database connection.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>Server properties available on SQL Server 2008.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
-        public Task<IServerProperties2008?> GetServerProperties2008(IDbConnectionFactory connection, CancellationToken cancellationToken = default)
-        {
-            if (connection == null)
-                throw new ArgumentNullException(nameof(connection));
-
-            var query = BuildServerPropertiesQuery<QueryResult.ServerProperties2008QueryResult>();
-            return connection.QueryFirstOrNone<QueryResult.ServerProperties2008QueryResult>(query, cancellationToken)
-                .Map<IServerProperties2008?>(static row => new ServerProperties2008(row))
-                .IfNoneUnsafe(static () => null);
-        }
-
-        /// <summary>
         /// Gets the server properties available on SQL Server 2012.
         /// </summary>
         /// <param name="connection">A database connection.</param>

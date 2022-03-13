@@ -11,14 +11,6 @@ namespace SJP.Schematic.SqlServer
     public interface ISqlServerDialect : IDatabaseDialect
     {
         /// <summary>
-        /// Gets the server properties available on SQL Server 2008.
-        /// </summary>
-        /// <param name="connection">A database connection.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>Server properties available on SQL Server 2008.</returns>
-        Task<IServerProperties2008?> GetServerProperties2008(IDbConnectionFactory connection, CancellationToken cancellationToken = default);
-
-        /// <summary>
         /// Gets the server properties available on SQL Server 2012.
         /// </summary>
         /// <param name="connection">A database connection.</param>
