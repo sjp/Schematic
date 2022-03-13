@@ -1,0 +1,45 @@
+name: mysql
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tag: [8, latest]
+    services:
+      mysql:
+        image: mysql:${{ matrix.tag }}
+        env:
+          MYSQL_ROOT_PASSWORD: Schematic1234
+        options: >-
+          --health-cmd "mysqladmin ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 3306:3306
+    steps:
+    - name: Create Test Database
+      run: mysql --host 127.0.0.1 --port 3306 -uroot -e "CREATE DATABASE IF NOT EXISTS schematic;"
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.100
+    - name: Install dependencies
+      run: dotnet restore
+      working-directory: src/SJP.Schematic.MySql.Tests
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+      working-directory: src/SJP.Schematic.MySql.Tests
+    - name: Test
+      run: dotnet test --no-restore --verbosity normal
+      working-directory: src/SJP.Schematic.MySql.Tests
+      env:
+        ConnectionStrings__MySql_TestDb: Server=localhost; Port=3306; Database=schematic; Uid=root; Pwd=Schematic1234; ConnectionTimeout=2
