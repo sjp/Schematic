@@ -1,0 +1,40 @@
+name: postgres-13
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.100
+    - name: Install dependencies
+      run: dotnet restore
+      working-directory: src/SJP.Schematic.PostgreSql.Tests
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+      working-directory: src/SJP.Schematic.PostgreSql.Tests
+    - name: Test
+      run: dotnet test --no-restore --verbosity normal
+      working-directory: src/SJP.Schematic.PostgreSql.Tests
+      env:
+        ConnectionStrings__PostgreSql_TestDb_13: Server=localhost; Port=5432; Database=postgres; User Id=postgres; Password=postgres; Timeout=2
