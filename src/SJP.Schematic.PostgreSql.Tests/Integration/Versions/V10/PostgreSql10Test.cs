@@ -30,7 +30,7 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration.Versions.V10
 
         protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
-        protected IIdentifierDefaults IdentifierDefaults { get; } = Config.SchematicConnection.Dialect.GetIdentifierDefaultsAsync(Config10.SchematicConnection).GetAwaiter().GetResult();
+        protected IIdentifierDefaults IdentifierDefaults { get; } = Config10.SchematicConnection.Dialect.GetIdentifierDefaultsAsync(Config10.SchematicConnection).GetAwaiter().GetResult();
 
         protected IIdentifierResolutionStrategy IdentifierResolver { get; } = new DefaultPostgreSqlIdentifierResolutionStrategy();
     }
