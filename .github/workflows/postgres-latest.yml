@@ -27,7 +27,6 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.100
-      working-directory: src
     - name: Build
       run: dotnet build --configuration Release --no-restore
       working-directory: src/SJP.Schematic.PostgreSql.Tests
@@ -36,4 +35,3 @@ jobs:
       working-directory: src/SJP.Schematic.PostgreSql.Tests
       env:
         ConnectionStrings__PostgreSql_TestDb: Server=localhost; Port=5432; Database=postgres; User Id=postgres; Password=postgres; Timeout=2
-        
