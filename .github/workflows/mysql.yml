@@ -26,7 +26,7 @@ jobs:
           - 3306:3306
     steps:
     - name: Create Test Database
-      run: mysql --host 127.0.0.1 --port 3306 -uroot -e "CREATE DATABASE IF NOT EXISTS schematic;"
+      run: mysql --host 127.0.0.1 --port 3306 --user root --password Schematic1234 -e "CREATE DATABASE IF NOT EXISTS schematic;"
     - uses: actions/checkout@v2
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
