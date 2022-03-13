@@ -18,10 +18,11 @@ jobs:
           ACCEPT_EULA: 'Y'
           SA_PASSWORD: Schematic0123!
         options: >-
-          --health-cmd "/opt/mssql-tools/bin/sqlcmd -U $DB_USER -P 'Schematic0123!' -Q 'SELECT 1' -b -o /dev/null"
+          --health-cmd "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Schematic0123!' -Q 'SELECT 1' || exit 1"
           --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-timeout 3s
+          --health-retries 10
+          --health-start-period 10s
         ports:
           - 1433:1433
     steps:
