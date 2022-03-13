@@ -84,17 +84,16 @@ namespace SJP.Schematic.PostgreSql
 
         private const string SequencesQuerySql = @$"
 select
-    nc.nspname as ""{ nameof(GetAllSequenceDefinitionsQueryResult.SchemaName) }"",
-    c.relname as ""{ nameof(GetAllSequenceDefinitionsQueryResult.SequenceName) }"",
-    p.start_value as ""{ nameof(GetAllSequenceDefinitionsQueryResult.StartValue) }"",
-    p.minimum_value as ""{ nameof(GetAllSequenceDefinitionsQueryResult.MinValue) }"",
-    p.maximum_value as ""{ nameof(GetAllSequenceDefinitionsQueryResult.MaxValue) }"",
-    p.increment as ""{ nameof(GetAllSequenceDefinitionsQueryResult.Increment) }"",
-    1 as ""{ nameof(GetAllSequenceDefinitionsQueryResult.CacheSize) }"",
-    p.cycle_option as ""{ nameof(GetAllSequenceDefinitionsQueryResult.Cycle) }""
-from pg_catalog.pg_namespace nc, pg_catalog.pg_class c, lateral pg_catalog.pg_sequence_parameters(c.oid) p
-where c.relnamespace = nc.oid and c.relkind = 'S'
-order by nc.nspname, c.relname";
+    schemaname as ""{ nameof(GetAllSequenceDefinitionsQueryResult.SchemaName) }"",
+    sequencename as ""{ nameof(GetAllSequenceDefinitionsQueryResult.SequenceName) }"",
+    start_value as ""{ nameof(GetAllSequenceDefinitionsQueryResult.StartValue) }"",
+    min_value as ""{ nameof(GetAllSequenceDefinitionsQueryResult.MinValue) }"",
+    max_value as ""{ nameof(GetAllSequenceDefinitionsQueryResult.MaxValue) }"",
+    increment_by as ""{ nameof(GetAllSequenceDefinitionsQueryResult.Increment) }"",
+    cycle as ""{ nameof(GetAllSequenceDefinitionsQueryResult.Cycle) }"",
+    cache_size as ""{ nameof(GetAllSequenceDefinitionsQueryResult.CacheSize) }""
+from pg_catalog.pg_sequences
+order by schemaname, sequencename";
 
         /// <summary>
         /// Gets a database sequence.
@@ -176,17 +175,14 @@ limit 1";
 
         private const string SequenceQuerySql = @$"
 select
-    p.start_value as ""{ nameof(GetSequenceDefinitionQueryResult.StartValue) }"",
-    p.minimum_value as ""{ nameof(GetSequenceDefinitionQueryResult.MinValue) }"",
-    p.maximum_value as ""{ nameof(GetSequenceDefinitionQueryResult.MaxValue) }"",
-    p.increment as ""{ nameof(GetSequenceDefinitionQueryResult.Increment) }"",
-    1 as ""{ nameof(GetSequenceDefinitionQueryResult.CacheSize) }"",
-    p.cycle_option as ""{ nameof(GetSequenceDefinitionQueryResult.Cycle) }""
-from pg_catalog.pg_namespace nc, pg_catalog.pg_class c, lateral pg_catalog.pg_sequence_parameters(c.oid) p
-where c.relnamespace = nc.oid
-    and c.relkind = 'S'
-    and nc.nspname = @{ nameof(GetSequenceDefinitionQuery.SchemaName) }
-    and c.relname = @{ nameof(GetSequenceDefinitionQuery.SequenceName) }";
+    start_value as ""{ nameof(GetSequenceDefinitionQueryResult.StartValue) }"",
+    min_value as ""{ nameof(GetSequenceDefinitionQueryResult.MinValue) }"",
+    max_value as ""{ nameof(GetSequenceDefinitionQueryResult.MaxValue) }"",
+    increment_by as ""{ nameof(GetSequenceDefinitionQueryResult.Increment) }"",
+    cycle as ""{ nameof(GetSequenceDefinitionQueryResult.Cycle) }"",
+    cache_size as ""{ nameof(GetSequenceDefinitionQueryResult.CacheSize) }""
+from pg_catalog.pg_sequences
+where schemaname = @{ nameof(GetSequenceDefinitionQuery.SchemaName) } and sequencename = @{ nameof(GetSequenceDefinitionQuery.SequenceName) }";
 
         /// <summary>
         /// Retrieves database sequence information.

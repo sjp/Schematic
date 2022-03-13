@@ -13,8 +13,7 @@ namespace SJP.Schematic.PostgreSql.Versions.V11
     /// <summary>
     /// A database table provider for PostgreSQL v11 and higher.
     /// </summary>
-    /// <seealso cref="V11.PostgreSqlRelationalDatabaseTableProvider" />
-    public class PostgreSqlRelationalDatabaseTableProvider : V10.PostgreSqlRelationalDatabaseTableProvider
+    public class PostgreSqlRelationalDatabaseTableProvider : PostgreSqlRelationalDatabaseTableProviderBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PostgreSqlRelationalDatabaseTableProvider"/> class.

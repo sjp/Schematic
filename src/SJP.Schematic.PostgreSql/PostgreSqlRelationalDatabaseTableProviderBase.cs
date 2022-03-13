@@ -846,10 +846,17 @@ where t.relname = @{ nameof(GetTableParentKeysQuery.TableName) } and ns.nspname 
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
 
-                var isAutoIncrement = !row.SerialSequenceSchemaName.IsNullOrWhiteSpace() && !row.SerialSequenceLocalName.IsNullOrWhiteSpace();
+                var isAutoIncrement = string.Equals(row.IsIdentity, Constants.Yes, StringComparison.Ordinal);
                 var autoIncrement = isAutoIncrement
-                    ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
+                    && decimal.TryParse(row.IdentityStart, NumberStyles.Float, CultureInfo.InvariantCulture, out var seqStart)
+                    && decimal.TryParse(row.IdentityIncrement, NumberStyles.Float, CultureInfo.InvariantCulture, out var seqIncr)
+                    ? Option<IAutoIncrement>.Some(new AutoIncrement(seqStart, seqIncr))
                     : Option<IAutoIncrement>.None;
+
+                var isSerialAutoIncrement = !isAutoIncrement && !row.SerialSequenceSchemaName.IsNullOrWhiteSpace() && !row.SerialSequenceLocalName.IsNullOrWhiteSpace();
+                if (isSerialAutoIncrement)
+                    autoIncrement = Option<IAutoIncrement>.Some(new AutoIncrement(1, 1));
+
                 var defaultValue = !row.ColumnDefault.IsNullOrWhiteSpace()
                     ? Option<string>.Some(row.ColumnDefault)
                     : Option<string>.None;
@@ -896,9 +903,16 @@ select
     udt_name as ""{ nameof(GetTableColumnsQueryResult.UdtName) }"",
     dtd_identifier as ""{ nameof(GetTableColumnsQueryResult.DtdIdentifier) }"",
     (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[1] as ""{ nameof(GetTableColumnsQueryResult.SerialSequenceSchemaName) }"",
-    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[2] as ""{ nameof(GetTableColumnsQueryResult.SerialSequenceLocalName) }""
+    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[2] as ""{ nameof(GetTableColumnsQueryResult.SerialSequenceLocalName) }"",
+    is_identity as ""{ nameof(GetTableColumnsQueryResult.IsIdentity) }"",
+    identity_generation as ""{ nameof(GetTableColumnsQueryResult.IdentityGeneration) }"",
+    identity_start as ""{ nameof(GetTableColumnsQueryResult.IdentityStart) }"",
+    identity_increment as ""{ nameof(GetTableColumnsQueryResult.IdentityIncrement) }"",
+    identity_maximum as ""{ nameof(GetTableColumnsQueryResult.IdentityMaximum) }"",
+    identity_minimum as ""{ nameof(GetTableColumnsQueryResult.IdentityMinimum) }"",
+    identity_cycle as ""{ nameof(GetTableColumnsQueryResult.IdentityCycle) }""
 from information_schema.columns
-where table_schema = @{ nameof(GetTableColumnsQuery.SchemaName) } and table_name = @{ nameof(GetTableColumnsQuery.TableName) }
+where table_schema = @{ nameof(GetTableColumnsQuery.SchemaName) }  and table_name = @{ nameof(GetTableColumnsQuery.TableName) }
 order by ordinal_position";
 
         /// <summary>
