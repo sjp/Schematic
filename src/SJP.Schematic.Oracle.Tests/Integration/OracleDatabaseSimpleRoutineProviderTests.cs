@@ -168,7 +168,12 @@ END;", CancellationToken.None).ConfigureAwait(false);
         [Test]
         public async Task GetRoutine_WhenRoutinePresentGivenSchemaAndLocalNameWithDifferentCase_ReturnsMatchingName()
         {
-            var inputName = new Identifier("SYStem", "db_test_ROUTINE_1");
+            // lower-case the first and last letters only
+            var schemaName = IdentifierDefaults.Schema[0].ToLowerInvariant()
+                + IdentifierDefaults.Schema[1..^1].ToUpperInvariant()
+                + IdentifierDefaults.Schema[^1].ToLowerInvariant();
+
+            var inputName = new Identifier(schemaName, "db_test_ROUTINE_1");
             var routine = await RoutineProvider.GetRoutine(inputName).UnwrapSomeAsync().ConfigureAwait(false);
 
             var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, routine.Name.Schema)
