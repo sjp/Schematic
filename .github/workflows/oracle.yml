@@ -26,9 +26,10 @@ jobs:
           --health-interval 20s
           --health-timeout 10s
           --health-retries 10
-          --volume development/oracle:/container-entrypoint-initdb.d
         ports:
           - 1521:1521
+        volumes:
+          - development/oracle:/container-entrypoint-initdb.d
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET Core

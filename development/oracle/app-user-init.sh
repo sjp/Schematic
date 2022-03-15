@@ -1,3 +1,8 @@
+#!/bin/bash
+
+# Exit on errors
+# Great explanation on https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/
+set -Eeuo pipefail
 
 # Grant permissions for the app user
 function grant_app_user {
