@@ -29,7 +29,7 @@ jobs:
         ports:
           - 1521:1521
         volumes:
-          - development/oracle:/container-entrypoint-initdb.d
+          - ${{ github.workspace }}/development/oracle:/container-entrypoint-initdb.d
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET Core
