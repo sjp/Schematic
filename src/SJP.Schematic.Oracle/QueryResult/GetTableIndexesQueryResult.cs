@@ -6,8 +6,6 @@
 
         public string? IndexName { get; init; }
 
-        public int IndexProperty { get; init; }
-
         public string? Uniqueness { get; init; }
 
         public string? IsDescending { get; init; }

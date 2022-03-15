@@ -360,7 +360,7 @@ where ac.OWNER = :{ nameof(GetTablePrimaryKeyQuery.SchemaName) } and ac.TABLE_NA
             if (queryResult.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
-            var indexColumns = queryResult.GroupAsDictionary(static row => new { row.IndexName, row.IndexProperty, row.Uniqueness }).ToList();
+            var indexColumns = queryResult.GroupAsDictionary(static row => new { row.IndexName, row.Uniqueness }).ToList();
             if (indexColumns.Empty())
                 return Array.Empty<IDatabaseIndex>();
 
@@ -370,7 +370,6 @@ where ac.OWNER = :{ nameof(GetTablePrimaryKeyQuery.SchemaName) } and ac.TABLE_NA
             var result = new List<IDatabaseIndex>(indexColumns.Count);
             foreach (var indexInfo in indexColumns)
             {
-                var indexProperties = (OracleIndexProperties)indexInfo.Key.IndexProperty;
                 var isUnique = string.Equals(indexInfo.Key.Uniqueness, Constants.Unique, StringComparison.Ordinal);
                 var indexName = Identifier.CreateQualifiedIdentifier(indexInfo.Key.IndexName);
 
@@ -389,7 +388,7 @@ where ac.OWNER = :{ nameof(GetTablePrimaryKeyQuery.SchemaName) } and ac.TABLE_NA
                     })
                     .ToList();
 
-                var index = new OracleDatabaseIndex(indexName, isUnique, indexCols, indexProperties);
+                var index = new OracleDatabaseIndex(indexName, isUnique, indexCols);
                 result.Add(index);
             }
 
@@ -407,13 +406,11 @@ select
     ai.OWNER as ""{ nameof(GetTableIndexesQueryResult.IndexOwner) }"",
     ai.INDEX_NAME as ""{ nameof(GetTableIndexesQueryResult.IndexName) }"",
     ai.UNIQUENESS as ""{ nameof(GetTableIndexesQueryResult.Uniqueness) }"",
-    ind.PROPERTY as ""{ nameof(GetTableIndexesQueryResult.IndexProperty) }"",
     aic.COLUMN_NAME as ""{ nameof(GetTableIndexesQueryResult.ColumnName) }"",
     aic.COLUMN_POSITION as ""{ nameof(GetTableIndexesQueryResult.ColumnPosition) }"",
     aic.DESCEND as ""{ nameof(GetTableIndexesQueryResult.IsDescending) }""
 from SYS.ALL_INDEXES ai
 inner join SYS.ALL_OBJECTS ao on ai.OWNER = ao.OWNER and ai.INDEX_NAME = ao.OBJECT_NAME
-inner join SYS.IND$ ind on ao.OBJECT_ID = ind.OBJ#
 inner join SYS.ALL_IND_COLUMNS aic
     on ai.OWNER = aic.INDEX_OWNER and ai.INDEX_NAME = aic.INDEX_NAME
 where ai.TABLE_OWNER = :{ nameof(GetTableIndexesQuery.SchemaName) } and ai.TABLE_NAME = :{ nameof(GetTableIndexesQuery.TableName) }
