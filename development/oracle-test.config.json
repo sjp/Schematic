@@ -1,0 +1,5 @@
+{
+    "ConnectionStrings": {
+        "Oracle_TestDb": "Data Source=localhost/XEPDB1; User Id=schematic; Password=schematic"
+    }
+  }

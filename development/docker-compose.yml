@@ -10,6 +10,14 @@ services:
         ports:
             - 3306:3306
 
+    oracle-21:
+        image: gvenzl/oracle-xe:21-slim
+        container_name: schematic_oracle_v21
+        env_file:
+            - ./oracle.env
+        ports:
+            - 1521:1521
+
     postgres-10:
         image: postgres:10-alpine
         container_name: schematic_postgresql_v10
