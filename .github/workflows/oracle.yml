@@ -28,11 +28,7 @@ jobs:
           --health-retries 10
         ports:
           - 1521:1521
-        volumes:
-          - ${{ github.workspace }}/development/oracle:/container-entrypoint-initdb.d
     steps:
-    - name: Change dir owner to working user
-      run: sudo chown -R $USER:$USER $GITHUB_WORKSPACE
     - uses: actions/checkout@v2
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
