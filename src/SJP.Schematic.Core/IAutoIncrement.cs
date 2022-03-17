@@ -1,18 +1,17 @@
-﻿namespace SJP.Schematic.Core
+﻿namespace SJP.Schematic.Core;
+
+/// <summary>
+/// Describes an autoincrementing sequence.
+/// </summary>
+public interface IAutoIncrement
 {
     /// <summary>
-    /// Describes an autoincrementing sequence.
+    /// The starting value of the sequence.
     /// </summary>
-    public interface IAutoIncrement
-    {
-        /// <summary>
-        /// The starting value of the sequence.
-        /// </summary>
-        decimal InitialValue { get; }
+    decimal InitialValue { get; }
 
-        /// <summary>
-        /// The value incremented to the current value for each new row.
-        /// </summary>
-        decimal Increment { get; }
-    }
+    /// <summary>
+    /// The value incremented to the current value for each new row.
+    /// </summary>
+    decimal Increment { get; }
 }

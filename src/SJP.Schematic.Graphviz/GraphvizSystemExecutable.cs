@@ -1,39 +1,38 @@
 ﻿using System;
 using SJP.Schematic.Core.Extensions;
 
-namespace SJP.Schematic.Graphviz
+namespace SJP.Schematic.Graphviz;
+
+/// <summary>
+/// A Graphviz executable that is available on the system.
+/// </summary>
+/// <seealso cref="IGraphvizExecutable" />
+public sealed class GraphvizSystemExecutable : IGraphvizExecutable
 {
     /// <summary>
-    /// A Graphviz executable that is available on the system.
+    /// Initializes a new instance of the <see cref="GraphvizSystemExecutable"/> class.
     /// </summary>
-    /// <seealso cref="IGraphvizExecutable" />
-    public sealed class GraphvizSystemExecutable : IGraphvizExecutable
+    /// <param name="dotExecutablePath">A dot executable path.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="dotExecutablePath"/> is <c>null</c>, empty or whitespace.</exception>
+    public GraphvizSystemExecutable(string dotExecutablePath)
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GraphvizSystemExecutable"/> class.
-        /// </summary>
-        /// <param name="dotExecutablePath">A dot executable path.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="dotExecutablePath"/> is <c>null</c>, empty or whitespace.</exception>
-        public GraphvizSystemExecutable(string dotExecutablePath)
-        {
-            if (dotExecutablePath.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(dotExecutablePath));
+        if (dotExecutablePath.IsNullOrWhiteSpace())
+            throw new ArgumentNullException(nameof(dotExecutablePath));
 
-            DotPath = dotExecutablePath;
-        }
+        DotPath = dotExecutablePath;
+    }
 
-        /// <summary>
-        /// The path to the dot executable.
-        /// </summary>
-        /// <value>A string representing a path or executable name available in the <c>PATH</c> environment variable.</value>
-        public string DotPath { get; }
+    /// <summary>
+    /// The path to the dot executable.
+    /// </summary>
+    /// <value>A string representing a path or executable name available in the <c>PATH</c> environment variable.</value>
+    public string DotPath { get; }
 
-        /// <summary>
-        /// Intended to release resources, for this particular implementation it does nothing.
-        /// </summary>
-        public void Dispose()
-        {
-            // nothing to do here, only required to make shared interface cleaner
-        }
+    /// <summary>
+    /// Intended to release resources, for this particular implementation it does nothing.
+    /// </summary>
+    public void Dispose()
+    {
+        // nothing to do here, only required to make shared interface cleaner
     }
 }

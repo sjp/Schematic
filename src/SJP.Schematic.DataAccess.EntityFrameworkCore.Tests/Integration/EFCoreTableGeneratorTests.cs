@@ -12,20 +12,20 @@ using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Sqlite;
 using SJP.Schematic.Tests.Utilities;
 
-namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
+namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration;
+
+internal sealed class EFCoreTableGeneratorTests : SqliteTest
 {
-    internal sealed class EFCoreTableGeneratorTests : SqliteTest
+    private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults, Pragma);
+
+    private Task<IRelationalDatabaseTable> GetTable(Identifier tableName) => Database.GetTable(tableName).UnwrapSomeAsync();
+
+    private static IDatabaseTableGenerator TableGenerator => new EFCoreTableGenerator(new MockFileSystem(), new PascalCaseNameTranslator(), TestNamespace);
+
+    [OneTimeSetUp]
+    public async Task Init()
     {
-        private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults, Pragma);
-
-        private Task<IRelationalDatabaseTable> GetTable(Identifier tableName) => Database.GetTable(tableName).UnwrapSomeAsync();
-
-        private static IDatabaseTableGenerator TableGenerator => new EFCoreTableGenerator(new MockFileSystem(), new PascalCaseNameTranslator(), TestNamespace);
-
-        [OneTimeSetUp]
-        public async Task Init()
-        {
-            await DbConnection.ExecuteAsync(@"
+        await DbConnection.ExecuteAsync(@"
 create table test_table_1 (
     test_pk integer not null primary key autoincrement,
     test_int integer not null,
@@ -37,7 +37,7 @@ create table test_table_1 (
     test_string text,
     test_string_with_default default 'test'
 )", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync(@"
+        await DbConnection.ExecuteAsync(@"
 create table test_table_2 (
     test_pk_1 integer not null,
     test_pk_2 integer not null,
@@ -48,11 +48,11 @@ create table test_table_2 (
     constraint test_table_2_pk primary key (test_pk_1, test_pk_2),
     constraint test_table_2_multi_uk unique (first_name, middle_name, last_name)
 )", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("create index ix_test_table_2_first_name on test_table_2 (first_name, last_name)", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("create index ix_test_table_2_comment on test_table_2 (comment)", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("create unique index ux_test_table_2_first_name_middle_name on test_table_2 (first_name, middle_name)", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("create unique index ux_test_table_2_last_name on test_table_2 (last_name)", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync(@"
+        await DbConnection.ExecuteAsync("create index ix_test_table_2_first_name on test_table_2 (first_name, last_name)", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create index ix_test_table_2_comment on test_table_2 (comment)", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create unique index ux_test_table_2_first_name_middle_name on test_table_2 (first_name, middle_name)", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create unique index ux_test_table_2_last_name on test_table_2 (last_name)", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync(@"
 create table test_table_3 (
     test_pk integer not null primary key autoincrement,
     test_int integer not null,
@@ -64,7 +64,7 @@ create table test_table_3 (
     test_string text,
     test_string_with_default default 'test'
 )", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync(@"
+        await DbConnection.ExecuteAsync(@"
 create table test_table_4 (
     test_pk integer not null primary key autoincrement,
     test_int integer not null,
@@ -84,228 +84,228 @@ create table test_table_4 (
     constraint fk_test_table_4_test_table_3_fk3 foreign key (test_table_3_fk3) references test_table_3 (test_pk) on delete set null,
     constraint fk_test_table_4_test_table_3_fk4 foreign key (test_table_3_fk4) references test_table_3 (test_pk) on update set null on delete cascade
 )", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("create table test_table_5 ( test_column_1 integer )", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync(@"
+        await DbConnection.ExecuteAsync("create table test_table_5 ( test_column_1 integer )", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync(@"
 create table test_table_6 (
     test_pk integer not null primary key autoincrement,
     test_int integer not null
 )", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync(@"
+        await DbConnection.ExecuteAsync(@"
 create table test_table_7 (
     test_pk integer not null primary key autoincrement,
     test_table_6_fk1 integer not null,
     constraint fk_test_table_7_test_table_6_fk1 foreign key (test_table_6_fk1) references test_table_6 (test_pk)
 )", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync(@"
+        await DbConnection.ExecuteAsync(@"
 create table test_table_8 (
     test_pk integer not null primary key autoincrement,
     test_table_8_fk1 integer not null,
     constraint fk_test_table_8_test_table_6_fk1 foreign key (test_table_8_fk1) references test_table_6 (test_pk)
     constraint test_table_8_uk1 unique (test_table_8_fk1)
 )", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync(@"
+        await DbConnection.ExecuteAsync(@"
 create table test_table_9 (
     test_pk integer not null primary key autoincrement,
     test_table_9_fk1 integer not null,
     constraint fk_test_table_9_test_table_6_fk1 foreign key (test_table_9_fk1) references test_table_6 (test_pk)
 )", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("create unique index ux_test_table_9_fk1 on test_table_9 (test_table_9_fk1)", CancellationToken.None).ConfigureAwait(false);
-        }
+        await DbConnection.ExecuteAsync("create unique index ux_test_table_9_fk1 on test_table_9 (test_table_9_fk1)", CancellationToken.None).ConfigureAwait(false);
+    }
 
-        [OneTimeTearDown]
-        public async Task CleanUp()
-        {
-            await DbConnection.ExecuteAsync("drop table test_table_1", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop table test_table_2", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop table test_table_4", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop table test_table_3", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop table test_table_5", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop table test_table_7", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop table test_table_8", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop table test_table_9", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop table test_table_6", CancellationToken.None).ConfigureAwait(false);
-        }
+    [OneTimeTearDown]
+    public async Task CleanUp()
+    {
+        await DbConnection.ExecuteAsync("drop table test_table_1", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table test_table_2", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table test_table_4", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table test_table_3", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table test_table_5", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table test_table_7", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table test_table_8", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table test_table_9", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table test_table_6", CancellationToken.None).ConfigureAwait(false);
+    }
 
-        [Test]
-        public async Task Generate_GivenTableWithVariousColumnTypes_GeneratesExpectedOutput()
-        {
-            var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
-            var table = await GetTable("test_table_1").ConfigureAwait(false);
-            var generator = TableGenerator;
+    [Test]
+    public async Task Generate_GivenTableWithVariousColumnTypes_GeneratesExpectedOutput()
+    {
+        var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
+        var table = await GetTable("test_table_1").ConfigureAwait(false);
+        var generator = TableGenerator;
 
-            var expected = TestTable1Output;
-            var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
+        var expected = TestTable1Output;
+        var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
 
-            Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
-        }
+        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+    }
 
-        [Test]
-        public async Task Generate_GivenTableWithVariousIndexesAndConstraints_GeneratesExpectedOutput()
-        {
-            var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
-            var table = await GetTable("test_table_2").ConfigureAwait(false);
-            var generator = TableGenerator;
+    [Test]
+    public async Task Generate_GivenTableWithVariousIndexesAndConstraints_GeneratesExpectedOutput()
+    {
+        var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
+        var table = await GetTable("test_table_2").ConfigureAwait(false);
+        var generator = TableGenerator;
 
-            var expected = TestTable2Output;
-            var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
+        var expected = TestTable2Output;
+        var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
 
-            Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
-        }
+        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+    }
 
-        [Test]
-        public async Task Generate_GivenTableWithChildKeys_GeneratesExpectedOutput()
-        {
-            var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
-            var table = await GetTable("test_table_3").ConfigureAwait(false);
-            var generator = TableGenerator;
+    [Test]
+    public async Task Generate_GivenTableWithChildKeys_GeneratesExpectedOutput()
+    {
+        var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
+        var table = await GetTable("test_table_3").ConfigureAwait(false);
+        var generator = TableGenerator;
 
-            var expected = TestTable3Output;
-            var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
+        var expected = TestTable3Output;
+        var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
 
-            Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
-        }
+        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+    }
 
-        [Test]
-        public async Task Generate_GivenTableWithForeignKeys_GeneratesExpectedOutput()
-        {
-            var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
-            var table = await GetTable("test_table_4").ConfigureAwait(false);
-            var generator = TableGenerator;
+    [Test]
+    public async Task Generate_GivenTableWithForeignKeys_GeneratesExpectedOutput()
+    {
+        var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
+        var table = await GetTable("test_table_4").ConfigureAwait(false);
+        var generator = TableGenerator;
 
-            var expected = TestTable4Output;
-            var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
+        var expected = TestTable4Output;
+        var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
 
-            Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
-        }
+        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+    }
 
-        [Test]
-        public async Task Generate_GivenTableWithTableAndColumnComments_GeneratesExpectedOutput()
-        {
-            const string tableComment = "This is a test table comment for EF Core";
-            const string columnComment = "This is a test column comment for EF Core";
+    [Test]
+    public async Task Generate_GivenTableWithTableAndColumnComments_GeneratesExpectedOutput()
+    {
+        const string tableComment = "This is a test table comment for EF Core";
+        const string columnComment = "This is a test column comment for EF Core";
 
-            var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
-            var table = await GetTable("test_table_5").ConfigureAwait(false);
-            var generator = TableGenerator;
+        var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
+        var table = await GetTable("test_table_5").ConfigureAwait(false);
+        var generator = TableGenerator;
 
-            var comment = new RelationalDatabaseTableComments("test_table_5",
-                Option<string>.Some(tableComment),
-                Option<string>.None,
-                new Dictionary<Identifier, Option<string>> { ["test_column_1"] = Option<string>.Some(columnComment) },
-                Empty.CommentLookup,
-                Empty.CommentLookup,
-                Empty.CommentLookup,
-                Empty.CommentLookup,
-                Empty.CommentLookup
-            );
-            var result = generator.Generate(tables, table, comment);
+        var comment = new RelationalDatabaseTableComments("test_table_5",
+            Option<string>.Some(tableComment),
+            Option<string>.None,
+            new Dictionary<Identifier, Option<string>> { ["test_column_1"] = Option<string>.Some(columnComment) },
+            Empty.CommentLookup,
+            Empty.CommentLookup,
+            Empty.CommentLookup,
+            Empty.CommentLookup,
+            Empty.CommentLookup
+        );
+        var result = generator.Generate(tables, table, comment);
 
-            var expected = TestTable5Output;
-            Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
-        }
+        var expected = TestTable5Output;
+        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+    }
 
-        [Test]
-        public async Task Generate_GivenMultiLineTableWithTableAndColumnComments_GeneratesExpectedOutput()
-        {
-            const string tableComment = @"This is a test table comment for EF Core.
-
-This is a second line for it.";
-            const string columnComment = @"This is a test column comment for EF Core.
+    [Test]
+    public async Task Generate_GivenMultiLineTableWithTableAndColumnComments_GeneratesExpectedOutput()
+    {
+        const string tableComment = @"This is a test table comment for EF Core.
 
 This is a second line for it.";
-
-            var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
-            var table = await GetTable("test_table_5").ConfigureAwait(false);
-            var generator = TableGenerator;
-
-            var comment = new RelationalDatabaseTableComments("test_table_5",
-                Option<string>.Some(tableComment),
-                Option<string>.None,
-                new Dictionary<Identifier, Option<string>> { ["test_column_1"] = Option<string>.Some(columnComment) },
-                Empty.CommentLookup,
-                Empty.CommentLookup,
-                Empty.CommentLookup,
-                Empty.CommentLookup,
-                Empty.CommentLookup
-            );
-            var result = generator.Generate(tables, table, comment);
-
-            var expected = TestTable5MultiLineOutput;
-            Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
-        }
-
-        [Test]
-        public async Task Generate_GivenTableWithForeignKeyComments_GeneratesExpectedOutput()
-        {
-            const string tableComment = "This is a test table comment for EF Core";
-            const string foreignKeyComment = "This is a test foreign key comment for EF Core";
-
-            var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
-            var table = await GetTable("test_table_7").ConfigureAwait(false);
-            var generator = TableGenerator;
-
-            var comment = new RelationalDatabaseTableComments("test_table_7",
-                Option<string>.Some(tableComment),
-                Option<string>.None,
-                Empty.CommentLookup,
-                Empty.CommentLookup,
-                Empty.CommentLookup,
-                new Dictionary<Identifier, Option<string>> { ["fk_test_table_7_test_table_6_fk1"] = Option<string>.Some(foreignKeyComment) },
-                Empty.CommentLookup,
-                Empty.CommentLookup
-            );
-            var result = generator.Generate(tables, table, comment);
-
-            var expected = TestTable7Output;
-            Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
-        }
-
-        [Test]
-        public async Task Generate_GivenMultiLineTableWithForeignKeyComments_GeneratesExpectedOutput()
-        {
-            const string tableComment = @"This is a test table comment for EF Core.
-
-This is a second line for it.";
-            const string foreignKeyComment = @"This is a test foreign key comment for EF Core.
+        const string columnComment = @"This is a test column comment for EF Core.
 
 This is a second line for it.";
 
-            var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
-            var table = await GetTable("test_table_7").ConfigureAwait(false);
-            var generator = TableGenerator;
+        var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
+        var table = await GetTable("test_table_5").ConfigureAwait(false);
+        var generator = TableGenerator;
 
-            var comment = new RelationalDatabaseTableComments("test_table_7",
-                Option<string>.Some(tableComment),
-                Option<string>.None,
-                Empty.CommentLookup,
-                Empty.CommentLookup,
-                Empty.CommentLookup,
-                new Dictionary<Identifier, Option<string>> { ["fk_test_table_7_test_table_6_fk1"] = Option<string>.Some(foreignKeyComment) },
-                Empty.CommentLookup,
-                Empty.CommentLookup
-            );
-            var result = generator.Generate(tables, table, comment);
+        var comment = new RelationalDatabaseTableComments("test_table_5",
+            Option<string>.Some(tableComment),
+            Option<string>.None,
+            new Dictionary<Identifier, Option<string>> { ["test_column_1"] = Option<string>.Some(columnComment) },
+            Empty.CommentLookup,
+            Empty.CommentLookup,
+            Empty.CommentLookup,
+            Empty.CommentLookup,
+            Empty.CommentLookup
+        );
+        var result = generator.Generate(tables, table, comment);
 
-            var expected = TestTable7MultiLineOutput;
-            Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
-        }
+        var expected = TestTable5MultiLineOutput;
+        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+    }
 
-        [Test]
-        public async Task Generate_GivenTableWithUniqueChildKeys_GeneratesExpectedOutput()
-        {
-            var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
-            var table = await GetTable("test_table_6").ConfigureAwait(false);
-            var generator = TableGenerator;
+    [Test]
+    public async Task Generate_GivenTableWithForeignKeyComments_GeneratesExpectedOutput()
+    {
+        const string tableComment = "This is a test table comment for EF Core";
+        const string foreignKeyComment = "This is a test foreign key comment for EF Core";
 
-            var expected = TestTable6Output;
-            var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
+        var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
+        var table = await GetTable("test_table_7").ConfigureAwait(false);
+        var generator = TableGenerator;
 
-            Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
-        }
+        var comment = new RelationalDatabaseTableComments("test_table_7",
+            Option<string>.Some(tableComment),
+            Option<string>.None,
+            Empty.CommentLookup,
+            Empty.CommentLookup,
+            Empty.CommentLookup,
+            new Dictionary<Identifier, Option<string>> { ["fk_test_table_7_test_table_6_fk1"] = Option<string>.Some(foreignKeyComment) },
+            Empty.CommentLookup,
+            Empty.CommentLookup
+        );
+        var result = generator.Generate(tables, table, comment);
 
-        private const string TestNamespace = "EFCoreTestNamespace";
+        var expected = TestTable7Output;
+        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+    }
 
-        private readonly string TestTable1Output = @"using System;
+    [Test]
+    public async Task Generate_GivenMultiLineTableWithForeignKeyComments_GeneratesExpectedOutput()
+    {
+        const string tableComment = @"This is a test table comment for EF Core.
+
+This is a second line for it.";
+        const string foreignKeyComment = @"This is a test foreign key comment for EF Core.
+
+This is a second line for it.";
+
+        var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
+        var table = await GetTable("test_table_7").ConfigureAwait(false);
+        var generator = TableGenerator;
+
+        var comment = new RelationalDatabaseTableComments("test_table_7",
+            Option<string>.Some(tableComment),
+            Option<string>.None,
+            Empty.CommentLookup,
+            Empty.CommentLookup,
+            Empty.CommentLookup,
+            new Dictionary<Identifier, Option<string>> { ["fk_test_table_7_test_table_6_fk1"] = Option<string>.Some(foreignKeyComment) },
+            Empty.CommentLookup,
+            Empty.CommentLookup
+        );
+        var result = generator.Generate(tables, table, comment);
+
+        var expected = TestTable7MultiLineOutput;
+        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+    }
+
+    [Test]
+    public async Task Generate_GivenTableWithUniqueChildKeys_GeneratesExpectedOutput()
+    {
+        var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
+        var table = await GetTable("test_table_6").ConfigureAwait(false);
+        var generator = TableGenerator;
+
+        var expected = TestTable6Output;
+        var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
+
+        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+    }
+
+    private const string TestNamespace = "EFCoreTestNamespace";
+
+    private readonly string TestTable1Output = @"using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -376,7 +376,7 @@ namespace EFCoreTestNamespace.Main
     }
 }";
 
-        private readonly string TestTable2Output = @"using System;
+    private readonly string TestTable2Output = @"using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -430,7 +430,7 @@ namespace EFCoreTestNamespace.Main
     }
 }";
 
-        private readonly string TestTable3Output = @"using System;
+    private readonly string TestTable3Output = @"using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -521,7 +521,7 @@ namespace EFCoreTestNamespace.Main
     }
 }";
 
-        private readonly string TestTable4Output = @"using System;
+    private readonly string TestTable4Output = @"using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -636,7 +636,7 @@ namespace EFCoreTestNamespace.Main
     }
 }";
 
-        private readonly string TestTable5Output = @"using System;
+    private readonly string TestTable5Output = @"using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -657,7 +657,7 @@ namespace EFCoreTestNamespace.Main
     }
 }";
 
-        private readonly string TestTable5MultiLineOutput = @"using System;
+    private readonly string TestTable5MultiLineOutput = @"using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -680,7 +680,7 @@ namespace EFCoreTestNamespace.Main
     }
 }";
 
-        private readonly string TestTable6Output = @"using System;
+    private readonly string TestTable6Output = @"using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -723,7 +723,7 @@ namespace EFCoreTestNamespace.Main
     }
 }";
 
-        private readonly string TestTable7Output = @"using System;
+    private readonly string TestTable7Output = @"using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -756,7 +756,7 @@ namespace EFCoreTestNamespace.Main
     }
 }";
 
-        private readonly string TestTable7MultiLineOutput = @"using System;
+    private readonly string TestTable7MultiLineOutput = @"using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -790,5 +790,4 @@ namespace EFCoreTestNamespace.Main
         public virtual Main.TestTable6 TestTable6 { get; set; } = default!;
     }
 }";
-    }
 }

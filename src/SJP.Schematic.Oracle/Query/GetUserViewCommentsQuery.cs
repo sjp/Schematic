@@ -1,7 +1,6 @@
-﻿namespace SJP.Schematic.Oracle.Query
+﻿namespace SJP.Schematic.Oracle.Query;
+
+internal sealed record GetUserViewCommentsQuery
 {
-    internal sealed record GetUserViewCommentsQuery
-    {
-        public string ViewName { get; init; } = default!;
-    }
+    public string ViewName { get; init; } = default!;
 }

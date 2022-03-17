@@ -7,107 +7,106 @@ using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint.Rules;
 
-namespace SJP.Schematic.Lint.Tests.Rules
+namespace SJP.Schematic.Lint.Tests.Rules;
+
+[TestFixture]
+internal static class TooManyColumnsRuleTests
 {
-    [TestFixture]
-    internal static class TooManyColumnsRuleTests
+    [Test]
+    public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
     {
-        [Test]
-        public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
-        {
-            const RuleLevel level = (RuleLevel)999;
-            Assert.That(() => new TooManyColumnsRule(level), Throws.ArgumentException);
-        }
+        const RuleLevel level = (RuleLevel)999;
+        Assert.That(() => new TooManyColumnsRule(level), Throws.ArgumentException);
+    }
 
-        [Test]
-        public static void Ctor_GivenZeroColumnLimit_ThrowsArgumentOutOfRangeException()
-        {
-            Assert.That(() => new TooManyColumnsRule(RuleLevel.Error, 0), Throws.TypeOf<ArgumentOutOfRangeException>());
-        }
+    [Test]
+    public static void Ctor_GivenZeroColumnLimit_ThrowsArgumentOutOfRangeException()
+    {
+        Assert.That(() => new TooManyColumnsRule(RuleLevel.Error, 0), Throws.TypeOf<ArgumentOutOfRangeException>());
+    }
 
-        [Test]
-        public static void AnalyseTables_GivenNullTables_ThrowsArgumentNullException()
-        {
-            var rule = new TooManyColumnsRule(RuleLevel.Error);
-            Assert.That(() => rule.AnalyseTables(null), Throws.ArgumentNullException);
-        }
+    [Test]
+    public static void AnalyseTables_GivenNullTables_ThrowsArgumentNullException()
+    {
+        var rule = new TooManyColumnsRule(RuleLevel.Error);
+        Assert.That(() => rule.AnalyseTables(null), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static async Task AnalyseTables_GivenTableWithLimitedNumberOfColumns_ProducesNoMessages()
-        {
-            var rule = new TooManyColumnsRule(RuleLevel.Error);
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithLimitedNumberOfColumns_ProducesNoMessages()
+    {
+        var rule = new TooManyColumnsRule(RuleLevel.Error);
 
-            var testColumn = new DatabaseColumn(
-                "test_column",
-                Mock.Of<IDbType>(),
-                true,
-                null,
-                null
-            );
+        var testColumn = new DatabaseColumn(
+            "test_column",
+            Mock.Of<IDbType>(),
+            true,
+            null,
+            null
+        );
 
-            var table = new RelationalDatabaseTable(
-                "test",
-                new List<IDatabaseColumn> { testColumn },
-                null,
-                Array.Empty<IDatabaseKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseIndex>(),
-                Array.Empty<IDatabaseCheckConstraint>(),
-                Array.Empty<IDatabaseTrigger>()
-            );
-            var tables = new[] { table };
+        var table = new RelationalDatabaseTable(
+            "test",
+            new List<IDatabaseColumn> { testColumn },
+            null,
+            Array.Empty<IDatabaseKey>(),
+            Array.Empty<IDatabaseRelationalKey>(),
+            Array.Empty<IDatabaseRelationalKey>(),
+            Array.Empty<IDatabaseIndex>(),
+            Array.Empty<IDatabaseCheckConstraint>(),
+            Array.Empty<IDatabaseTrigger>()
+        );
+        var tables = new[] { table };
 
-            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.That(hasMessages, Is.False);
-        }
+        Assert.That(hasMessages, Is.False);
+    }
 
-        [Test]
-        public static async Task AnalyseTables_GivenTableWithColumnsExceedingLimit_ProducesMessages()
-        {
-            var rule = new TooManyColumnsRule(RuleLevel.Error, 2);
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithColumnsExceedingLimit_ProducesMessages()
+    {
+        var rule = new TooManyColumnsRule(RuleLevel.Error, 2);
 
-            var testColumn1 = new DatabaseColumn(
-                "test_column_1",
-                Mock.Of<IDbType>(),
-                true,
-                null,
-                null
-            );
+        var testColumn1 = new DatabaseColumn(
+            "test_column_1",
+            Mock.Of<IDbType>(),
+            true,
+            null,
+            null
+        );
 
-            var testColumn2 = new DatabaseColumn(
-                "test_column_2",
-                Mock.Of<IDbType>(),
-                true,
-                null,
-                null
-            );
+        var testColumn2 = new DatabaseColumn(
+            "test_column_2",
+            Mock.Of<IDbType>(),
+            true,
+            null,
+            null
+        );
 
-            var testColumn3 = new DatabaseColumn(
-                "test_column_3",
-                Mock.Of<IDbType>(),
-                true,
-                null,
-                null
-            );
+        var testColumn3 = new DatabaseColumn(
+            "test_column_3",
+            Mock.Of<IDbType>(),
+            true,
+            null,
+            null
+        );
 
-            var table = new RelationalDatabaseTable(
-                "test",
-                new List<IDatabaseColumn> { testColumn1, testColumn2, testColumn3 },
-                null,
-                Array.Empty<IDatabaseKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseIndex>(),
-                Array.Empty<IDatabaseCheckConstraint>(),
-                Array.Empty<IDatabaseTrigger>()
-            );
-            var tables = new[] { table };
+        var table = new RelationalDatabaseTable(
+            "test",
+            new List<IDatabaseColumn> { testColumn1, testColumn2, testColumn3 },
+            null,
+            Array.Empty<IDatabaseKey>(),
+            Array.Empty<IDatabaseRelationalKey>(),
+            Array.Empty<IDatabaseRelationalKey>(),
+            Array.Empty<IDatabaseIndex>(),
+            Array.Empty<IDatabaseCheckConstraint>(),
+            Array.Empty<IDatabaseTrigger>()
+        );
+        var tables = new[] { table };
 
-            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.That(hasMessages, Is.True);
-        }
+        Assert.That(hasMessages, Is.True);
     }
 }

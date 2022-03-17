@@ -2,48 +2,47 @@
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Oracle.Tests
+namespace SJP.Schematic.Oracle.Tests;
+
+[TestFixture]
+internal static class OracleDatabaseSequenceProviderTests
 {
-    [TestFixture]
-    internal static class OracleDatabaseSequenceProviderTests
+    [Test]
+    public static void Ctor_GivenNullConnection_ThrowsArgNullException()
     {
-        [Test]
-        public static void Ctor_GivenNullConnection_ThrowsArgNullException()
-        {
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
+        var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+        var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
-            Assert.That(() => new OracleDatabaseSequenceProvider(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
-        }
+        Assert.That(() => new OracleDatabaseSequenceProvider(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgNullException()
-        {
-            var connection = Mock.Of<IDbConnectionFactory>();
-            var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
+    [Test]
+    public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgNullException()
+    {
+        var connection = Mock.Of<IDbConnectionFactory>();
+        var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
-            Assert.That(() => new OracleDatabaseSequenceProvider(connection, null, identifierResolver), Throws.ArgumentNullException);
-        }
+        Assert.That(() => new OracleDatabaseSequenceProvider(connection, null, identifierResolver), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static void Ctor_GivenNullIdentifierResolver_ThrowsArgNullException()
-        {
-            var connection = Mock.Of<IDbConnectionFactory>();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+    [Test]
+    public static void Ctor_GivenNullIdentifierResolver_ThrowsArgNullException()
+    {
+        var connection = Mock.Of<IDbConnectionFactory>();
+        var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.That(() => new OracleDatabaseSequenceProvider(connection, identifierDefaults, null), Throws.ArgumentNullException);
-        }
+        Assert.That(() => new OracleDatabaseSequenceProvider(connection, identifierDefaults, null), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static void GetSequence_GivenNullSequenceName_ThrowsArgNullException()
-        {
-            var connection = Mock.Of<IDbConnectionFactory>();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
+    [Test]
+    public static void GetSequence_GivenNullSequenceName_ThrowsArgNullException()
+    {
+        var connection = Mock.Of<IDbConnectionFactory>();
+        var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+        var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
-            var sequenceProvider = new OracleDatabaseSequenceProvider(connection, identifierDefaults, identifierResolver);
+        var sequenceProvider = new OracleDatabaseSequenceProvider(connection, identifierDefaults, identifierResolver);
 
-            Assert.That(() => sequenceProvider.GetSequence(null), Throws.ArgumentNullException);
-        }
+        Assert.That(() => sequenceProvider.GetSequence(null), Throws.ArgumentNullException);
     }
 }

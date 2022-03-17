@@ -1,10 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace SJP.Schematic.Reporting.Html
+namespace SJP.Schematic.Reporting.Html;
+
+public interface ITemplateRenderer
 {
-    public interface ITemplateRenderer
-    {
-        Task RenderAsync(CancellationToken cancellationToken = default);
-    }
+    Task RenderAsync(CancellationToken cancellationToken = default);
 }

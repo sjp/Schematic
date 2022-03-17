@@ -4,194 +4,193 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
-namespace SJP.Schematic.Reporting.Html.ViewModels
+namespace SJP.Schematic.Reporting.Html.ViewModels;
+
+/// <summary>
+/// Internal. Not intended to be used outside of this assembly. Only required for templating.
+/// </summary>
+public sealed class Columns : ITemplateParameter
 {
+    public Columns(IEnumerable<Column> columns)
+    {
+        TableColumns = columns ?? throw new ArgumentNullException(nameof(columns));
+        ColumnsCount = columns.UCount();
+        ColumnsTableClass = ColumnsCount > 0 ? CssClasses.DataTableClass : string.Empty;
+    }
+
+    public ReportTemplate Template { get; } = ReportTemplate.Columns;
+
+    public IEnumerable<Column> TableColumns { get; }
+
+    public uint ColumnsCount { get; }
+
+    public HtmlString ColumnsTableClass { get; }
+
+    public abstract class Column
+    {
+        protected Column(
+            Identifier tableName,
+            int ordinalPosition,
+            string columnName,
+            string typeDefinition,
+            bool isNullable,
+            Option<string> defaultValue
+        )
+        {
+            if (columnName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(nameof(columnName));
+
+            ColumnName = columnName;
+            Name = tableName.ToVisibleName();
+            Ordinal = ordinalPosition;
+            TitleNullable = isNullable ? "Nullable" : string.Empty;
+            NullableText = isNullable ? "✓" : "✗";
+            Type = typeDefinition ?? string.Empty;
+            DefaultValue = defaultValue.Match(static def => def ?? string.Empty, static () => string.Empty);
+        }
+
+        public string Name { get; }
+
+        public abstract string TableUrl { get; }
+
+        public string TableType => ParentType.ToString();
+
+        public int Ordinal { get; }
+
+        public string ColumnName { get; }
+
+        public abstract ParentObjectType ParentType { get; }
+
+        public string TitleNullable { get; }
+
+        public string NullableText { get; }
+
+        public string Type { get; }
+
+        public virtual string DefaultValue { get; }
+
+        public virtual HtmlString ColumnClass => string.Empty;
+
+        public virtual HtmlString ColumnIcon { get; } = string.Empty;
+
+        public virtual string ColumnTitle { get; } = string.Empty;
+
+        public enum ParentObjectType
+        {
+            None, // not intended to be used
+            Table,
+            View
+        }
+    }
+
     /// <summary>
     /// Internal. Not intended to be used outside of this assembly. Only required for templating.
     /// </summary>
-    public sealed class Columns : ITemplateParameter
+    public sealed class TableColumn : Column
     {
-        public Columns(IEnumerable<Column> columns)
+        public TableColumn(
+            Identifier tableName,
+            int ordinalPosition,
+            string columnName,
+            string typeDefinition,
+            bool isNullable,
+            Option<string> defaultValue,
+            bool isPrimaryKeyColumn,
+            bool isUniqueKeyColumn,
+            bool isForeignKeyColumn
+        ) : base(
+            tableName,
+            ordinalPosition,
+            columnName,
+            typeDefinition,
+            isNullable,
+            defaultValue
+        )
         {
-            TableColumns = columns ?? throw new ArgumentNullException(nameof(columns));
-            ColumnsCount = columns.UCount();
-            ColumnsTableClass = ColumnsCount > 0 ? CssClasses.DataTableClass : string.Empty;
+            TableUrl = UrlRouter.GetTableUrl(tableName);
+
+            var isKey = isPrimaryKeyColumn || isUniqueKeyColumn || isForeignKeyColumn;
+            ColumnClass = isKey ? @"class=""is-key-column""" : string.Empty;
+
+            ColumnIcon = BuildColumnIcon(isPrimaryKeyColumn, isUniqueKeyColumn, isForeignKeyColumn);
+            ColumnTitle = BuildColumnTitle(isPrimaryKeyColumn, isUniqueKeyColumn, isForeignKeyColumn);
         }
 
-        public ReportTemplate Template { get; } = ReportTemplate.Columns;
+        public override string TableUrl { get; }
 
-        public IEnumerable<Column> TableColumns { get; }
+        public override ParentObjectType ParentType { get; } = ParentObjectType.Table;
 
-        public uint ColumnsCount { get; }
+        public override HtmlString ColumnClass { get; }
 
-        public HtmlString ColumnsTableClass { get; }
+        public override HtmlString ColumnIcon { get; }
 
-        public abstract class Column
+        public override string ColumnTitle { get; }
+
+        private static string BuildColumnTitle(bool isPrimaryKeyColumn, bool isUniqueKeyColumn, bool isForeignKeyColumn)
         {
-            protected Column(
-                Identifier tableName,
-                int ordinalPosition,
-                string columnName,
-                string typeDefinition,
-                bool isNullable,
-                Option<string> defaultValue
-            )
-            {
-                if (columnName.IsNullOrWhiteSpace())
-                    throw new ArgumentNullException(nameof(columnName));
+            var titlePieces = new List<string>();
 
-                ColumnName = columnName;
-                Name = tableName.ToVisibleName();
-                Ordinal = ordinalPosition;
-                TitleNullable = isNullable ? "Nullable" : string.Empty;
-                NullableText = isNullable ? "✓" : "✗";
-                Type = typeDefinition ?? string.Empty;
-                DefaultValue = defaultValue.Match(static def => def ?? string.Empty, static () => string.Empty);
-            }
+            if (isPrimaryKeyColumn)
+                titlePieces.Add("Primary Key");
+            if (isUniqueKeyColumn)
+                titlePieces.Add("Unique Key");
+            if (isForeignKeyColumn)
+                titlePieces.Add("Foreign Key");
 
-            public string Name { get; }
-
-            public abstract string TableUrl { get; }
-
-            public string TableType => ParentType.ToString();
-
-            public int Ordinal { get; }
-
-            public string ColumnName { get; }
-
-            public abstract ParentObjectType ParentType { get; }
-
-            public string TitleNullable { get; }
-
-            public string NullableText { get; }
-
-            public string Type { get; }
-
-            public virtual string DefaultValue { get; }
-
-            public virtual HtmlString ColumnClass => string.Empty;
-
-            public virtual HtmlString ColumnIcon { get; } = string.Empty;
-
-            public virtual string ColumnTitle { get; } = string.Empty;
-
-            public enum ParentObjectType
-            {
-                None, // not intended to be used
-                Table,
-                View
-            }
+            return titlePieces.Join(", ");
         }
 
-        /// <summary>
-        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
-        /// </summary>
-        public sealed class TableColumn : Column
+        private static string BuildColumnIcon(bool isPrimaryKeyColumn, bool isUniqueKeyColumn, bool isForeignKeyColumn)
         {
-            public TableColumn(
-                Identifier tableName,
-                int ordinalPosition,
-                string columnName,
-                string typeDefinition,
-                bool isNullable,
-                Option<string> defaultValue,
-                bool isPrimaryKeyColumn,
-                bool isUniqueKeyColumn,
-                bool isForeignKeyColumn
-            ) : base(
-                tableName,
-                ordinalPosition,
-                columnName,
-                typeDefinition,
-                isNullable,
-                defaultValue
-            )
+            var iconPieces = new List<string>();
+
+            if (isPrimaryKeyColumn)
             {
-                TableUrl = UrlRouter.GetTableUrl(tableName);
-
-                var isKey = isPrimaryKeyColumn || isUniqueKeyColumn || isForeignKeyColumn;
-                ColumnClass = isKey ? @"class=""is-key-column""" : string.Empty;
-
-                ColumnIcon = BuildColumnIcon(isPrimaryKeyColumn, isUniqueKeyColumn, isForeignKeyColumn);
-                ColumnTitle = BuildColumnTitle(isPrimaryKeyColumn, isUniqueKeyColumn, isForeignKeyColumn);
+                const string iconText = @"<i title=""Primary Key"" class=""fa fa-key icon-primary-key"" style=""padding-left: 5px; padding-right: 5px;"" aria-hidden=""true""></i>";
+                iconPieces.Add(iconText);
             }
 
-            public override string TableUrl { get; }
-
-            public override ParentObjectType ParentType { get; } = ParentObjectType.Table;
-
-            public override HtmlString ColumnClass { get; }
-
-            public override HtmlString ColumnIcon { get; }
-
-            public override string ColumnTitle { get; }
-
-            private static string BuildColumnTitle(bool isPrimaryKeyColumn, bool isUniqueKeyColumn, bool isForeignKeyColumn)
+            if (isUniqueKeyColumn)
             {
-                var titlePieces = new List<string>();
-
-                if (isPrimaryKeyColumn)
-                    titlePieces.Add("Primary Key");
-                if (isUniqueKeyColumn)
-                    titlePieces.Add("Unique Key");
-                if (isForeignKeyColumn)
-                    titlePieces.Add("Foreign Key");
-
-                return titlePieces.Join(", ");
+                const string iconText = @"<i title=""Unique Key"" class=""fa fa-key icon-unique-key"" style=""padding-left: 5px; padding-right: 5px;"" aria-hidden=""true""></i>";
+                iconPieces.Add(iconText);
             }
 
-            private static string BuildColumnIcon(bool isPrimaryKeyColumn, bool isUniqueKeyColumn, bool isForeignKeyColumn)
+            if (isForeignKeyColumn)
             {
-                var iconPieces = new List<string>();
-
-                if (isPrimaryKeyColumn)
-                {
-                    const string iconText = @"<i title=""Primary Key"" class=""fa fa-key icon-primary-key"" style=""padding-left: 5px; padding-right: 5px;"" aria-hidden=""true""></i>";
-                    iconPieces.Add(iconText);
-                }
-
-                if (isUniqueKeyColumn)
-                {
-                    const string iconText = @"<i title=""Unique Key"" class=""fa fa-key icon-unique-key"" style=""padding-left: 5px; padding-right: 5px;"" aria-hidden=""true""></i>";
-                    iconPieces.Add(iconText);
-                }
-
-                if (isForeignKeyColumn)
-                {
-                    const string iconText = @"<i title=""Foreign Key"" class=""fa fa-key icon-foreign-key"" style=""padding-left: 5px; padding-right: 5px;"" aria-hidden=""true""></i>";
-                    iconPieces.Add(iconText);
-                }
-
-                return string.Concat(iconPieces);
+                const string iconText = @"<i title=""Foreign Key"" class=""fa fa-key icon-foreign-key"" style=""padding-left: 5px; padding-right: 5px;"" aria-hidden=""true""></i>";
+                iconPieces.Add(iconText);
             }
+
+            return string.Concat(iconPieces);
+        }
+    }
+
+    /// <summary>
+    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// </summary>
+    public sealed class ViewColumn : Column
+    {
+        public ViewColumn(
+            Identifier viewName,
+            int ordinalPosition,
+            string columnName,
+            string typeDefinition,
+            bool isNullable
+        ) : base(
+            viewName,
+            ordinalPosition,
+            columnName,
+            typeDefinition,
+            isNullable,
+            string.Empty
+        )
+        {
+            TableUrl = UrlRouter.GetViewUrl(viewName);
         }
 
-        /// <summary>
-        /// Internal. Not intended to be used outside of this assembly. Only required for templating.
-        /// </summary>
-        public sealed class ViewColumn : Column
-        {
-            public ViewColumn(
-                Identifier viewName,
-                int ordinalPosition,
-                string columnName,
-                string typeDefinition,
-                bool isNullable
-            ) : base(
-                viewName,
-                ordinalPosition,
-                columnName,
-                typeDefinition,
-                isNullable,
-                string.Empty
-            )
-            {
-                TableUrl = UrlRouter.GetViewUrl(viewName);
-            }
+        public override string TableUrl { get; }
 
-            public override string TableUrl { get; }
-
-            public override ParentObjectType ParentType { get; } = ParentObjectType.View;
-        }
+        public override ParentObjectType ParentType { get; } = ParentObjectType.View;
     }
 }

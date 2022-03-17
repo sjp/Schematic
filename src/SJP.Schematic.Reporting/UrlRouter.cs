@@ -1,62 +1,61 @@
 ﻿using System;
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Reporting
+namespace SJP.Schematic.Reporting;
+
+internal static class UrlRouter
 {
-    internal static class UrlRouter
+    public static string GetTableUrl(Identifier tableName)
     {
-        public static string GetTableUrl(Identifier tableName)
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
+        if (tableName == null)
+            throw new ArgumentNullException(nameof(tableName));
 
-            return "tables/" + tableName.ToSafeKey() + ".html";
-        }
+        return "tables/" + tableName.ToSafeKey() + ".html";
+    }
 
-        public static string GetViewUrl(Identifier viewName)
-        {
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
+    public static string GetViewUrl(Identifier viewName)
+    {
+        if (viewName == null)
+            throw new ArgumentNullException(nameof(viewName));
 
-            return "views/" + viewName.ToSafeKey() + ".html";
-        }
+        return "views/" + viewName.ToSafeKey() + ".html";
+    }
 
-        public static string GetSequenceUrl(Identifier sequenceName)
-        {
-            if (sequenceName == null)
-                throw new ArgumentNullException(nameof(sequenceName));
+    public static string GetSequenceUrl(Identifier sequenceName)
+    {
+        if (sequenceName == null)
+            throw new ArgumentNullException(nameof(sequenceName));
 
-            return "sequences/" + sequenceName.ToSafeKey() + ".html";
-        }
+        return "sequences/" + sequenceName.ToSafeKey() + ".html";
+    }
 
-        public static string GetSynonymUrl(Identifier synonymName)
-        {
-            if (synonymName == null)
-                throw new ArgumentNullException(nameof(synonymName));
+    public static string GetSynonymUrl(Identifier synonymName)
+    {
+        if (synonymName == null)
+            throw new ArgumentNullException(nameof(synonymName));
 
-            return "synonyms/" + synonymName.ToSafeKey() + ".html";
-        }
+        return "synonyms/" + synonymName.ToSafeKey() + ".html";
+    }
 
-        public static string GetRoutineUrl(Identifier routineName)
-        {
-            if (routineName == null)
-                throw new ArgumentNullException(nameof(routineName));
+    public static string GetRoutineUrl(Identifier routineName)
+    {
+        if (routineName == null)
+            throw new ArgumentNullException(nameof(routineName));
 
-            return "routines/" + routineName.ToSafeKey() + ".html";
-        }
+        return "routines/" + routineName.ToSafeKey() + ".html";
+    }
 
-        public static string GetTriggerUrl(Identifier tableName, Identifier triggerName)
-        {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-            if (triggerName == null)
-                throw new ArgumentNullException(nameof(triggerName));
+    public static string GetTriggerUrl(Identifier tableName, Identifier triggerName)
+    {
+        if (tableName == null)
+            throw new ArgumentNullException(nameof(tableName));
+        if (triggerName == null)
+            throw new ArgumentNullException(nameof(triggerName));
 
-            return "tables/"
-                + tableName.ToSafeKey()
-                + "/triggers/"
-                + triggerName.ToSafeKey()
-                + ".html";
-        }
+        return "tables/"
+            + tableName.ToSafeKey()
+            + "/triggers/"
+            + triggerName.ToSafeKey()
+            + ".html";
     }
 }

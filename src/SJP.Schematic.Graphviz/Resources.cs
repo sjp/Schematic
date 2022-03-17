@@ -1,7 +1,6 @@
-﻿namespace SJP.Schematic.Graphviz
+﻿namespace SJP.Schematic.Graphviz;
+
+internal static class Resources
 {
-    internal static class Resources
-    {
-        public const string GraphVizZip = "graphviz.zip";
-    }
+    public const string GraphVizZip = "graphviz.zip";
 }

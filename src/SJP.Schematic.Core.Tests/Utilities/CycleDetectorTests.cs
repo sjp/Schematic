@@ -4,160 +4,159 @@ using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core.Utilities;
 
-namespace SJP.Schematic.Core.Tests.Utilities
+namespace SJP.Schematic.Core.Tests.Utilities;
+
+[TestFixture]
+internal static class CycleDetectorTests
 {
-    [TestFixture]
-    internal static class CycleDetectorTests
+    [Test]
+    public static void GetCyclePaths_GivenNullTables_ThrowsArgumentNullException()
     {
-        [Test]
-        public static void GetCyclePaths_GivenNullTables_ThrowsArgumentNullException()
+        var cycleDetector = new CycleDetector();
+
+        Assert.That(() => cycleDetector.GetCyclePaths(null), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void GetCyclePaths_GivenEmptyTables_ReturnsEmptyCollection()
+    {
+        var cycleDetector = new CycleDetector();
+        var result = cycleDetector.GetCyclePaths(Array.Empty<IRelationalDatabaseTable>());
+
+        Assert.That(result, Is.Empty);
+    }
+
+    [Test]
+    public static void GetCyclePaths_GivenTablesWithNoCycle_ReturnsEmptyCollection()
+    {
+        var cycleDetector = new CycleDetector();
+
+        var mockChildKey = new Mock<IDatabaseKey>(MockBehavior.Strict);
+        mockChildKey.Setup(c => c.KeyType).Returns(DatabaseKeyType.Foreign);
+        var childKey = mockChildKey.Object;
+
+        var mockParentKey = new Mock<IDatabaseKey>(MockBehavior.Strict);
+        mockParentKey.Setup(p => p.KeyType).Returns(DatabaseKeyType.Primary);
+        var parentKey = mockParentKey.Object;
+
+        // create tables with no cycle where the path is a -> b -> c
+        var tableAMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
+        tableAMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("a"));
+        tableAMock.Setup(t => t.ParentKeys).Returns(new[]
         {
-            var cycleDetector = new CycleDetector();
+            new DatabaseRelationalKey(
+                Identifier.CreateQualifiedIdentifier("a"),
+                childKey,
+                Identifier.CreateQualifiedIdentifier("b"),
+                parentKey,
+                ReferentialAction.NoAction,
+                ReferentialAction.NoAction
+            )
+        });
 
-            Assert.That(() => cycleDetector.GetCyclePaths(null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void GetCyclePaths_GivenEmptyTables_ReturnsEmptyCollection()
+        var tableBMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
+        tableBMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("b"));
+        tableBMock.Setup(t => t.ParentKeys).Returns(new[]
         {
-            var cycleDetector = new CycleDetector();
-            var result = cycleDetector.GetCyclePaths(Array.Empty<IRelationalDatabaseTable>());
+            new DatabaseRelationalKey(
+                Identifier.CreateQualifiedIdentifier("b"),
+                childKey,
+                Identifier.CreateQualifiedIdentifier("c"),
+                parentKey,
+                ReferentialAction.NoAction,
+                ReferentialAction.NoAction
+            )
+        });
 
-            Assert.That(result, Is.Empty);
-        }
+        var tableCMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
+        tableCMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("c"));
+        tableCMock.Setup(t => t.ParentKeys).Returns(Array.Empty<IDatabaseRelationalKey>());
 
-        [Test]
-        public static void GetCyclePaths_GivenTablesWithNoCycle_ReturnsEmptyCollection()
+        var tables = new[]
         {
-            var cycleDetector = new CycleDetector();
+            tableAMock.Object,
+            tableBMock.Object,
+            tableCMock.Object
+        };
 
-            var mockChildKey = new Mock<IDatabaseKey>(MockBehavior.Strict);
-            mockChildKey.Setup(c => c.KeyType).Returns(DatabaseKeyType.Foreign);
-            var childKey = mockChildKey.Object;
+        var result = cycleDetector.GetCyclePaths(tables);
 
-            var mockParentKey = new Mock<IDatabaseKey>(MockBehavior.Strict);
-            mockParentKey.Setup(p => p.KeyType).Returns(DatabaseKeyType.Primary);
-            var parentKey = mockParentKey.Object;
+        Assert.That(result, Is.Empty);
+    }
 
-            // create tables with no cycle where the path is a -> b -> c
-            var tableAMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
-            tableAMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("a"));
-            tableAMock.Setup(t => t.ParentKeys).Returns(new[]
-            {
-                new DatabaseRelationalKey(
-                    Identifier.CreateQualifiedIdentifier("a"),
-                    childKey,
-                    Identifier.CreateQualifiedIdentifier("b"),
-                    parentKey,
-                    ReferentialAction.NoAction,
-                    ReferentialAction.NoAction
-                )
-            });
+    [Test]
+    public static void GetCyclePaths_GivenTablesWithCycle_ReturnsEmptyCollection()
+    {
+        var cycleDetector = new CycleDetector();
 
-            var tableBMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
-            tableBMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("b"));
-            tableBMock.Setup(t => t.ParentKeys).Returns(new[]
-            {
-                new DatabaseRelationalKey(
-                    Identifier.CreateQualifiedIdentifier("b"),
-                    childKey,
-                    Identifier.CreateQualifiedIdentifier("c"),
-                    parentKey,
-                    ReferentialAction.NoAction,
-                    ReferentialAction.NoAction
-                )
-            });
+        var mockChildKey = new Mock<IDatabaseKey>(MockBehavior.Strict);
+        mockChildKey.Setup(c => c.KeyType).Returns(DatabaseKeyType.Foreign);
+        var childKey = mockChildKey.Object;
 
-            var tableCMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
-            tableCMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("c"));
-            tableCMock.Setup(t => t.ParentKeys).Returns(Array.Empty<IDatabaseRelationalKey>());
+        var mockParentKey = new Mock<IDatabaseKey>(MockBehavior.Strict);
+        mockParentKey.Setup(p => p.KeyType).Returns(DatabaseKeyType.Primary);
+        var parentKey = mockParentKey.Object;
 
-            var tables = new[]
-            {
-                tableAMock.Object,
-                tableBMock.Object,
-                tableCMock.Object
-            };
-
-            var result = cycleDetector.GetCyclePaths(tables);
-
-            Assert.That(result, Is.Empty);
-        }
-
-        [Test]
-        public static void GetCyclePaths_GivenTablesWithCycle_ReturnsEmptyCollection()
+        // create tables with no cycle where the path is a -> b -> c -> a
+        var tableAMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
+        tableAMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("a"));
+        tableAMock.Setup(t => t.ParentKeys).Returns(new[]
         {
-            var cycleDetector = new CycleDetector();
+            new DatabaseRelationalKey(
+                Identifier.CreateQualifiedIdentifier("a"),
+                childKey,
+                Identifier.CreateQualifiedIdentifier("b"),
+                parentKey,
+                ReferentialAction.NoAction,
+                ReferentialAction.NoAction
+            )
+        });
 
-            var mockChildKey = new Mock<IDatabaseKey>(MockBehavior.Strict);
-            mockChildKey.Setup(c => c.KeyType).Returns(DatabaseKeyType.Foreign);
-            var childKey = mockChildKey.Object;
+        var tableBMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
+        tableBMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("b"));
+        tableBMock.Setup(t => t.ParentKeys).Returns(new[]
+        {
+            new DatabaseRelationalKey(
+                Identifier.CreateQualifiedIdentifier("b"),
+                childKey,
+                Identifier.CreateQualifiedIdentifier("c"),
+                parentKey,
+                ReferentialAction.NoAction,
+                ReferentialAction.NoAction
+            )
+        });
 
-            var mockParentKey = new Mock<IDatabaseKey>(MockBehavior.Strict);
-            mockParentKey.Setup(p => p.KeyType).Returns(DatabaseKeyType.Primary);
-            var parentKey = mockParentKey.Object;
+        var tableCMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
+        tableCMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("c"));
+        tableCMock.Setup(t => t.ParentKeys).Returns(new[]
+        {
+            new DatabaseRelationalKey(
+                Identifier.CreateQualifiedIdentifier("c"),
+                childKey,
+                Identifier.CreateQualifiedIdentifier("a"),
+                parentKey,
+                ReferentialAction.NoAction,
+                ReferentialAction.NoAction
+            )
+        });
 
-            // create tables with no cycle where the path is a -> b -> c -> a
-            var tableAMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
-            tableAMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("a"));
-            tableAMock.Setup(t => t.ParentKeys).Returns(new[]
-            {
-                new DatabaseRelationalKey(
-                    Identifier.CreateQualifiedIdentifier("a"),
-                    childKey,
-                    Identifier.CreateQualifiedIdentifier("b"),
-                    parentKey,
-                    ReferentialAction.NoAction,
-                    ReferentialAction.NoAction
-                )
-            });
+        var tables = new[]
+        {
+            tableAMock.Object,
+            tableBMock.Object,
+            tableCMock.Object
+        };
 
-            var tableBMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
-            tableBMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("b"));
-            tableBMock.Setup(t => t.ParentKeys).Returns(new[]
-            {
-                new DatabaseRelationalKey(
-                    Identifier.CreateQualifiedIdentifier("b"),
-                    childKey,
-                    Identifier.CreateQualifiedIdentifier("c"),
-                    parentKey,
-                    ReferentialAction.NoAction,
-                    ReferentialAction.NoAction
-                )
-            });
+        var result = cycleDetector.GetCyclePaths(tables);
 
-            var tableCMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
-            tableCMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("c"));
-            tableCMock.Setup(t => t.ParentKeys).Returns(new[]
-            {
-                new DatabaseRelationalKey(
-                    Identifier.CreateQualifiedIdentifier("c"),
-                    childKey,
-                    Identifier.CreateQualifiedIdentifier("a"),
-                    parentKey,
-                    ReferentialAction.NoAction,
-                    ReferentialAction.NoAction
-                )
-            });
+        var cycleTableNames = result.SelectMany(c => c.Select(t => t.LocalName)).ToList();
+        var expectedCycle = new[] { "a", "b", "c" };
 
-            var tables = new[]
-            {
-                tableAMock.Object,
-                tableBMock.Object,
-                tableCMock.Object
-            };
-
-            var result = cycleDetector.GetCyclePaths(tables);
-
-            var cycleTableNames = result.SelectMany(c => c.Select(t => t.LocalName)).ToList();
-            var expectedCycle = new[] { "a", "b", "c" };
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(result, Has.Exactly(1).Items);
-                Assert.That(cycleTableNames, Has.Exactly(3).Items);
-                Assert.That(cycleTableNames, Is.EquivalentTo(expectedCycle));
-            });
-        }
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Has.Exactly(1).Items);
+            Assert.That(cycleTableNames, Has.Exactly(3).Items);
+            Assert.That(cycleTableNames, Is.EquivalentTo(expectedCycle));
+        });
     }
 }

@@ -1,7 +1,6 @@
-﻿namespace SJP.Schematic.Oracle.Query
+﻿namespace SJP.Schematic.Oracle.Query;
+
+internal sealed record GetUserSynonymNameQuery
 {
-    internal sealed record GetUserSynonymNameQuery
-    {
-        public string SynonymName { get; init; } = default!;
-    }
+    public string SynonymName { get; init; } = default!;
 }

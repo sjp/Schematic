@@ -1,11 +1,10 @@
-﻿namespace SJP.Schematic.SqlServer.Query
+﻿namespace SJP.Schematic.SqlServer.Query;
+
+internal sealed record GetSequenceCommentsQuery
 {
-    internal sealed record GetSequenceCommentsQuery
-    {
-        public string SchemaName { get; init; } = default!;
+    public string SchemaName { get; init; } = default!;
 
-        public string SequenceName { get; init; } = default!;
+    public string SequenceName { get; init; } = default!;
 
-        public string CommentProperty { get; init; } = default!;
-    }
+    public string CommentProperty { get; init; } = default!;
 }

@@ -1,528 +1,527 @@
 ﻿using NUnit.Framework;
 
-namespace SJP.Schematic.Core.Tests
+namespace SJP.Schematic.Core.Tests;
+
+[TestFixture]
+internal static class IdentifierTests
 {
-    [TestFixture]
-    internal static class IdentifierTests
+    [TestCase((string)null)]
+    [TestCase("")]
+    [TestCase("    ")]
+    public static void Ctor_GivenNullOrWhiteSpaceLocalName_ThrowsArgumentNullException(string localName)
     {
-        [TestCase((string)null)]
-        [TestCase("")]
-        [TestCase("    ")]
-        public static void Ctor_GivenNullOrWhiteSpaceLocalName_ThrowsArgumentNullException(string localName)
+        Assert.That(() => new Identifier(localName), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void LocalName_PropertyGet_EqualsCtorArgument()
+    {
+        const string name = "test";
+        var identifier = new Identifier(name);
+        Assert.That(identifier.LocalName, Is.EqualTo(name));
+    }
+
+    [Test, Combinatorial]
+    public static void Ctor_GivenNullWhiteSpaceSchemaAndLocalNames_ThrowsArgumentNullException(
+        [Values(null, "", "    ")] string schemaName,
+        [Values(null, "", "    ")] string localName
+    )
+    {
+        Assert.That(() => new Identifier(schemaName, localName), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void SchemaAndLocalName_PropertyGets_MatchCtorArguments()
+    {
+        const string localName = "local";
+        const string schema = "schema";
+        var identifier = new Identifier(schema, localName);
+
+        Assert.Multiple(() =>
         {
-            Assert.That(() => new Identifier(localName), Throws.ArgumentNullException);
-        }
+            Assert.That(identifier.LocalName, Is.EqualTo(localName));
+            Assert.That(identifier.Schema, Is.EqualTo(schema));
+        });
+    }
 
-        [Test]
-        public static void LocalName_PropertyGet_EqualsCtorArgument()
+    [Test, Combinatorial]
+    public static void Ctor_GivenNullWhiteSpaceDatabaseAndSchemaAndLocalNames_ThrowsArgumentNullException(
+        [Values(null, "", "    ")] string databaseName,
+        [Values(null, "", "    ")] string schemaName,
+        [Values(null, "", "    ")] string localName
+    )
+    {
+        Assert.That(() => new Identifier(databaseName, schemaName, localName), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void DatabaseAndSchemaAndLocalName_PropertyGets_MatchCtorArguments()
+    {
+        const string localName = "local";
+        const string schema = "schema";
+        const string database = "database";
+        var identifier = new Identifier(database, schema, localName);
+
+        Assert.Multiple(() =>
         {
-            const string name = "test";
-            var identifier = new Identifier(name);
-            Assert.That(identifier.LocalName, Is.EqualTo(name));
-        }
+            Assert.That(identifier.LocalName, Is.EqualTo(localName));
+            Assert.That(identifier.Schema, Is.EqualTo(schema));
+            Assert.That(identifier.Database, Is.EqualTo(database));
+        });
+    }
 
-        [Test, Combinatorial]
-        public static void Ctor_GivenNullWhiteSpaceSchemaAndLocalNames_ThrowsArgumentNullException(
-            [Values(null, "", "    ")] string schemaName,
-            [Values(null, "", "    ")] string localName
-        )
+    [Test]
+    public static void Ctor_GivenNullWhiteSpaceServerAndDatabaseAndSchemaAndLocalNames_ThrowsArgumentNullException(
+        [Values(null, "", "    ")] string serverName,
+        [Values(null, "", "    ")] string databaseName,
+        [Values(null, "", "    ")] string schemaName,
+        [Values(null, "", "    ")] string localName
+    )
+    {
+        Assert.That(() => new Identifier(serverName, databaseName, schemaName, localName), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void ServerAndDatabaseAndSchemaAndLocalName_PropertyGets_MatchCtorArguments()
+    {
+        const string localName = "local";
+        const string schema = "schema";
+        const string database = "database";
+        const string server = "server";
+        var identifier = new Identifier(server, database, schema, localName);
+
+        Assert.Multiple(() =>
         {
-            Assert.That(() => new Identifier(schemaName, localName), Throws.ArgumentNullException);
-        }
+            Assert.That(identifier.LocalName, Is.EqualTo(localName));
+            Assert.That(identifier.Schema, Is.EqualTo(schema));
+            Assert.That(identifier.Database, Is.EqualTo(database));
+            Assert.That(identifier.Server, Is.EqualTo(server));
+        });
+    }
 
-        [Test]
-        public static void SchemaAndLocalName_PropertyGets_MatchCtorArguments()
+    [Test]
+    public static void Equals_GivenEqualIdentifiers_ReturnsTrue()
+    {
+        const string name = "test";
+        var identifier = new Identifier(name, name);
+        var otherIdentifier = new Identifier(name, name);
+        Assert.That(identifier, Is.EqualTo(otherIdentifier));
+    }
+
+    [Test]
+    public static void Equals_GivenDifferentIdentifiers_ReturnsFalse()
+    {
+        const string name = "test";
+        const string otherName = "another";
+        var identifier = new Identifier(name, name);
+        var otherIdentifier = new Identifier(otherName, name);
+        Assert.That(identifier, Is.Not.EqualTo(otherIdentifier));
+    }
+
+    [Test]
+    public static void Equals_GivenDifferentIdentifierAsObject_ReturnsFalse()
+    {
+        const string name = "test";
+        const string otherName = "another";
+        var identifier = new Identifier(name, name);
+        object otherIdentifier = new Identifier(otherName, name);
+
+        Assert.That(identifier, Is.Not.EqualTo(otherIdentifier));
+    }
+
+    [Test]
+    public static void Equals_GivenDifferentIdentifierAsObject_ReturnsTrue()
+    {
+        const string name = "test";
+        var identifier = new Identifier(name, name);
+        object otherIdentifier = new Identifier(name, name);
+
+        var areEqual = identifier.Equals(otherIdentifier);
+
+        Assert.That(areEqual, Is.True);
+    }
+
+    [Test]
+    public static void EqualsOp_GivenEqualIdentifiers_ReturnsTrue()
+    {
+        const string name = "test";
+        var identifier = new Identifier(name, name);
+        var otherIdentifier = new Identifier(name, name);
+        var isEqual = identifier == otherIdentifier;
+        Assert.That(isEqual, Is.True);
+    }
+
+    [Test]
+    public static void EqualsOp_GivenDifferentIdentifiers_ReturnsFalse()
+    {
+        const string name = "test";
+        const string otherName = "alternative";
+        var identifier = new Identifier(name, name);
+        var otherIdentifier = new Identifier(otherName, name);
+        var isEqual = identifier == otherIdentifier;
+        Assert.That(isEqual, Is.False);
+    }
+
+    [Test]
+    public static void ObjectsEquals_GivenEqualIdentifiers_ReturnsTrue()
+    {
+        const string name = "test";
+        object identifier = new Identifier(name, name);
+        object otherIdentifier = new Identifier(name, name);
+
+        Assert.Multiple(() =>
         {
-            const string localName = "local";
-            const string schema = "schema";
-            var identifier = new Identifier(schema, localName);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(identifier.LocalName, Is.EqualTo(localName));
-                Assert.That(identifier.Schema, Is.EqualTo(schema));
-            });
-        }
-
-        [Test, Combinatorial]
-        public static void Ctor_GivenNullWhiteSpaceDatabaseAndSchemaAndLocalNames_ThrowsArgumentNullException(
-            [Values(null, "", "    ")] string databaseName,
-            [Values(null, "", "    ")] string schemaName,
-            [Values(null, "", "    ")] string localName
-        )
-        {
-            Assert.That(() => new Identifier(databaseName, schemaName, localName), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void DatabaseAndSchemaAndLocalName_PropertyGets_MatchCtorArguments()
-        {
-            const string localName = "local";
-            const string schema = "schema";
-            const string database = "database";
-            var identifier = new Identifier(database, schema, localName);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(identifier.LocalName, Is.EqualTo(localName));
-                Assert.That(identifier.Schema, Is.EqualTo(schema));
-                Assert.That(identifier.Database, Is.EqualTo(database));
-            });
-        }
-
-        [Test]
-        public static void Ctor_GivenNullWhiteSpaceServerAndDatabaseAndSchemaAndLocalNames_ThrowsArgumentNullException(
-            [Values(null, "", "    ")] string serverName,
-            [Values(null, "", "    ")] string databaseName,
-            [Values(null, "", "    ")] string schemaName,
-            [Values(null, "", "    ")] string localName
-        )
-        {
-            Assert.That(() => new Identifier(serverName, databaseName, schemaName, localName), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void ServerAndDatabaseAndSchemaAndLocalName_PropertyGets_MatchCtorArguments()
-        {
-            const string localName = "local";
-            const string schema = "schema";
-            const string database = "database";
-            const string server = "server";
-            var identifier = new Identifier(server, database, schema, localName);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(identifier.LocalName, Is.EqualTo(localName));
-                Assert.That(identifier.Schema, Is.EqualTo(schema));
-                Assert.That(identifier.Database, Is.EqualTo(database));
-                Assert.That(identifier.Server, Is.EqualTo(server));
-            });
-        }
-
-        [Test]
-        public static void Equals_GivenEqualIdentifiers_ReturnsTrue()
-        {
-            const string name = "test";
-            var identifier = new Identifier(name, name);
-            var otherIdentifier = new Identifier(name, name);
+            Assert.That(identifier, Is.EqualTo(identifier));
             Assert.That(identifier, Is.EqualTo(otherIdentifier));
-        }
+        });
+    }
 
-        [Test]
-        public static void Equals_GivenDifferentIdentifiers_ReturnsFalse()
+    [Test]
+    public static void ObjectsEquals_GivenDifferentObjects_ReturnsFalse()
+    {
+        const string name = "test";
+        const string otherName = "another";
+        object identifier = new Identifier(name, name);
+        object otherIdentifier = new Identifier(otherName, name);
+
+        Assert.Multiple(() =>
         {
-            const string name = "test";
-            const string otherName = "another";
-            var identifier = new Identifier(name, name);
-            var otherIdentifier = new Identifier(otherName, name);
+            Assert.That(identifier, Is.Not.EqualTo(null));
+            Assert.That(null, Is.Not.EqualTo(identifier));
+            Assert.That(identifier, Is.Not.EqualTo(1));
             Assert.That(identifier, Is.Not.EqualTo(otherIdentifier));
-        }
+        });
+    }
 
-        [Test]
-        public static void Equals_GivenDifferentIdentifierAsObject_ReturnsFalse()
+    [Test]
+    public static void Identifier_WhenOnlyLocalNameProvided_OnlyHasLocalNamePropertySet()
+    {
+        var identifier = new Identifier("test");
+
+        Assert.Multiple(() =>
         {
-            const string name = "test";
-            const string otherName = "another";
-            var identifier = new Identifier(name, name);
-            object otherIdentifier = new Identifier(otherName, name);
+            Assert.That(identifier.Server, Is.Null);
+            Assert.That(identifier.Database, Is.Null);
+            Assert.That(identifier.Schema, Is.Null);
+            Assert.That(identifier.LocalName, Is.Not.Null);
+        });
+    }
 
-            Assert.That(identifier, Is.Not.EqualTo(otherIdentifier));
-        }
+    [Test]
+    public static void CreateQualifiedIdentifier_GivenFullyQualifiedArguments_CreatesFullyQualifiedIdentifier()
+    {
+        var identifier = Identifier.CreateQualifiedIdentifier("a", "b", "c", "d");
 
-        [Test]
-        public static void Equals_GivenDifferentIdentifierAsObject_ReturnsTrue()
+        Assert.Multiple(() =>
         {
-            const string name = "test";
-            var identifier = new Identifier(name, name);
-            object otherIdentifier = new Identifier(name, name);
+            Assert.That(identifier.Server, Is.EqualTo("a"));
+            Assert.That(identifier.Database, Is.EqualTo("b"));
+            Assert.That(identifier.Schema, Is.EqualTo("c"));
+            Assert.That(identifier.LocalName, Is.EqualTo("d"));
+        });
+    }
 
-            var areEqual = identifier.Equals(otherIdentifier);
+    [Test]
+    public static void CreateQualifiedIdentifier_GivenArgumentsWithoutServer_CreatesCorrectlyQualifiedIdentifier()
+    {
+        var identifier = Identifier.CreateQualifiedIdentifier(null, "b", "c", "d");
 
-            Assert.That(areEqual, Is.True);
-        }
-
-        [Test]
-        public static void EqualsOp_GivenEqualIdentifiers_ReturnsTrue()
+        Assert.Multiple(() =>
         {
-            const string name = "test";
-            var identifier = new Identifier(name, name);
-            var otherIdentifier = new Identifier(name, name);
-            var isEqual = identifier == otherIdentifier;
-            Assert.That(isEqual, Is.True);
-        }
+            Assert.That(identifier.Server, Is.Null);
+            Assert.That(identifier.Database, Is.EqualTo("b"));
+            Assert.That(identifier.Schema, Is.EqualTo("c"));
+            Assert.That(identifier.LocalName, Is.EqualTo("d"));
+        });
+    }
 
-        [Test]
-        public static void EqualsOp_GivenDifferentIdentifiers_ReturnsFalse()
+    [Test]
+    public static void CreateQualifiedIdentifier_GivenArgumentsWithoutServerAndDatabase_CreatesCorrectlyQualifiedIdentifier()
+    {
+        var identifier = Identifier.CreateQualifiedIdentifier(null, null, "c", "d");
+
+        Assert.Multiple(() =>
         {
-            const string name = "test";
-            const string otherName = "alternative";
-            var identifier = new Identifier(name, name);
-            var otherIdentifier = new Identifier(otherName, name);
-            var isEqual = identifier == otherIdentifier;
-            Assert.That(isEqual, Is.False);
-        }
+            Assert.That(identifier.Server, Is.Null);
+            Assert.That(identifier.Database, Is.Null);
+            Assert.That(identifier.Schema, Is.EqualTo("c"));
+            Assert.That(identifier.LocalName, Is.EqualTo("d"));
+        });
+    }
 
-        [Test]
-        public static void ObjectsEquals_GivenEqualIdentifiers_ReturnsTrue()
+    [Test]
+    public static void CreateQualifiedIdentifier_GivenArgumentsWithoutServerAndDatabaseAndSchema_CreatesCorrectlyQualifiedIdentifier()
+    {
+        var identifier = Identifier.CreateQualifiedIdentifier(null, null, null, "d");
+
+        Assert.Multiple(() =>
         {
-            const string name = "test";
-            object identifier = new Identifier(name, name);
-            object otherIdentifier = new Identifier(name, name);
+            Assert.That(identifier.Server, Is.Null);
+            Assert.That(identifier.Database, Is.Null);
+            Assert.That(identifier.Schema, Is.Null);
+            Assert.That(identifier.LocalName, Is.EqualTo("d"));
+        });
+    }
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(identifier, Is.EqualTo(identifier));
-                Assert.That(identifier, Is.EqualTo(otherIdentifier));
-            });
-        }
+    [Test]
+    public static void CreateQualifiedIdentifier_GivenArgumentsMissingServer_CreatesCorrectlyQualifiedIdentifier()
+    {
+        var identifier = Identifier.CreateQualifiedIdentifier("b", "c", "d");
 
-        [Test]
-        public static void ObjectsEquals_GivenDifferentObjects_ReturnsFalse()
+        Assert.Multiple(() =>
         {
-            const string name = "test";
-            const string otherName = "another";
-            object identifier = new Identifier(name, name);
-            object otherIdentifier = new Identifier(otherName, name);
+            Assert.That(identifier.Server, Is.Null);
+            Assert.That(identifier.Database, Is.EqualTo("b"));
+            Assert.That(identifier.Schema, Is.EqualTo("c"));
+            Assert.That(identifier.LocalName, Is.EqualTo("d"));
+        });
+    }
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(identifier, Is.Not.EqualTo(null));
-                Assert.That(null, Is.Not.EqualTo(identifier));
-                Assert.That(identifier, Is.Not.EqualTo(1));
-                Assert.That(identifier, Is.Not.EqualTo(otherIdentifier));
-            });
-        }
+    [Test]
+    public static void CreateQualifiedIdentifier_GivenArgumentsMissingServerAndWithoutDatabase_CreatesCorrectlyQualifiedIdentifier()
+    {
+        var identifier = Identifier.CreateQualifiedIdentifier(null, "c", "d");
 
-        [Test]
-        public static void Identifier_WhenOnlyLocalNameProvided_OnlyHasLocalNamePropertySet()
+        Assert.Multiple(() =>
         {
-            var identifier = new Identifier("test");
+            Assert.That(identifier.Server, Is.Null);
+            Assert.That(identifier.Database, Is.Null);
+            Assert.That(identifier.Schema, Is.EqualTo("c"));
+            Assert.That(identifier.LocalName, Is.EqualTo("d"));
+        });
+    }
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(identifier.Server, Is.Null);
-                Assert.That(identifier.Database, Is.Null);
-                Assert.That(identifier.Schema, Is.Null);
-                Assert.That(identifier.LocalName, Is.Not.Null);
-            });
-        }
+    [Test]
+    public static void CreateQualifiedIdentifier_GivenArgumentsMissingServerAndWithoutDatabaseAndSchema_CreatesCorrectlyQualifiedIdentifier()
+    {
+        var identifier = Identifier.CreateQualifiedIdentifier(null, null, "d");
 
-        [Test]
-        public static void CreateQualifiedIdentifier_GivenFullyQualifiedArguments_CreatesFullyQualifiedIdentifier()
+        Assert.Multiple(() =>
         {
-            var identifier = Identifier.CreateQualifiedIdentifier("a", "b", "c", "d");
+            Assert.That(identifier.Server, Is.Null);
+            Assert.That(identifier.Database, Is.Null);
+            Assert.That(identifier.Schema, Is.Null);
+            Assert.That(identifier.LocalName, Is.EqualTo("d"));
+        });
+    }
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(identifier.Server, Is.EqualTo("a"));
-                Assert.That(identifier.Database, Is.EqualTo("b"));
-                Assert.That(identifier.Schema, Is.EqualTo("c"));
-                Assert.That(identifier.LocalName, Is.EqualTo("d"));
-            });
-        }
+    [Test]
+    public static void CreateQualifiedIdentifier_GivenArgumentsWithOnlyDatabaseAndLocalName_CreatesCorrectlyQualifiedIdentifier()
+    {
+        var identifier = Identifier.CreateQualifiedIdentifier("c", "d");
 
-        [Test]
-        public static void CreateQualifiedIdentifier_GivenArgumentsWithoutServer_CreatesCorrectlyQualifiedIdentifier()
+        Assert.Multiple(() =>
         {
-            var identifier = Identifier.CreateQualifiedIdentifier(null, "b", "c", "d");
+            Assert.That(identifier.Server, Is.Null);
+            Assert.That(identifier.Database, Is.Null);
+            Assert.That(identifier.Schema, Is.EqualTo("c"));
+            Assert.That(identifier.LocalName, Is.EqualTo("d"));
+        });
+    }
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(identifier.Server, Is.Null);
-                Assert.That(identifier.Database, Is.EqualTo("b"));
-                Assert.That(identifier.Schema, Is.EqualTo("c"));
-                Assert.That(identifier.LocalName, Is.EqualTo("d"));
-            });
-        }
+    [Test]
+    public static void CreateQualifiedIdentifier_GivenArgumentsWithoutSchemaAndWithLocalName_CreatesCorrectlyQualifiedIdentifier()
+    {
+        var identifier = Identifier.CreateQualifiedIdentifier(null, "d");
 
-        [Test]
-        public static void CreateQualifiedIdentifier_GivenArgumentsWithoutServerAndDatabase_CreatesCorrectlyQualifiedIdentifier()
+        Assert.Multiple(() =>
         {
-            var identifier = Identifier.CreateQualifiedIdentifier(null, null, "c", "d");
+            Assert.That(identifier.Server, Is.Null);
+            Assert.That(identifier.Database, Is.Null);
+            Assert.That(identifier.Schema, Is.Null);
+            Assert.That(identifier.LocalName, Is.EqualTo("d"));
+        });
+    }
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(identifier.Server, Is.Null);
-                Assert.That(identifier.Database, Is.Null);
-                Assert.That(identifier.Schema, Is.EqualTo("c"));
-                Assert.That(identifier.LocalName, Is.EqualTo("d"));
-            });
-        }
+    [Test]
+    public static void CreateQualifiedIdentifier_GivenArgumentsWithOnlyLocalName_CreatesCorrectlyQualifiedIdentifier()
+    {
+        var identifier = Identifier.CreateQualifiedIdentifier("d");
 
-        [Test]
-        public static void CreateQualifiedIdentifier_GivenArgumentsWithoutServerAndDatabaseAndSchema_CreatesCorrectlyQualifiedIdentifier()
+        Assert.Multiple(() =>
         {
-            var identifier = Identifier.CreateQualifiedIdentifier(null, null, null, "d");
+            Assert.That(identifier.Server, Is.Null);
+            Assert.That(identifier.Database, Is.Null);
+            Assert.That(identifier.Schema, Is.Null);
+            Assert.That(identifier.LocalName, Is.EqualTo("d"));
+        });
+    }
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(identifier.Server, Is.Null);
-                Assert.That(identifier.Database, Is.Null);
-                Assert.That(identifier.Schema, Is.Null);
-                Assert.That(identifier.LocalName, Is.EqualTo("d"));
-            });
-        }
+    [TestCase(null, null, null, null)]
+    [TestCase("a", null, "c", "d")]
+    [TestCase("a", "b", null, "d")]
+    [TestCase("a", "b", "c", null)]
+    [TestCase(null, "b", null, "d")]
+    [TestCase(null, "b", null, null)]
+    [TestCase(null, null, "c", null)]
+    public static void CreateQualifiedIdentifier_GivenInvalidArguments_ThrowsArgumentNullException(string serverName, string databaseName, string schemaName, string localName)
+    {
+        Assert.That(() => Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName), Throws.ArgumentNullException);
 
-        [Test]
-        public static void CreateQualifiedIdentifier_GivenArgumentsMissingServer_CreatesCorrectlyQualifiedIdentifier()
-        {
-            var identifier = Identifier.CreateQualifiedIdentifier("b", "c", "d");
+        Assert.That(() => Identifier.CreateQualifiedIdentifier(null, null, null, null), Throws.ArgumentNullException);
+    }
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(identifier.Server, Is.Null);
-                Assert.That(identifier.Database, Is.EqualTo("b"));
-                Assert.That(identifier.Schema, Is.EqualTo("c"));
-                Assert.That(identifier.LocalName, Is.EqualTo("d"));
-            });
-        }
+    [Test]
+    public static void CompareTo_GivenSameIdentifier_ReturnsZero()
+    {
+        var identifier = new Identifier("name", "name", "name", "test");
 
-        [Test]
-        public static void CreateQualifiedIdentifier_GivenArgumentsMissingServerAndWithoutDatabase_CreatesCorrectlyQualifiedIdentifier()
-        {
-            var identifier = Identifier.CreateQualifiedIdentifier(null, "c", "d");
+        var compareResult = identifier.CompareTo(identifier);
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(identifier.Server, Is.Null);
-                Assert.That(identifier.Database, Is.Null);
-                Assert.That(identifier.Schema, Is.EqualTo("c"));
-                Assert.That(identifier.LocalName, Is.EqualTo("d"));
-            });
-        }
+        Assert.That(compareResult, Is.Zero);
+    }
 
-        [Test]
-        public static void CreateQualifiedIdentifier_GivenArgumentsMissingServerAndWithoutDatabaseAndSchema_CreatesCorrectlyQualifiedIdentifier()
-        {
-            var identifier = Identifier.CreateQualifiedIdentifier(null, null, "d");
+    [Test]
+    public static void CompareTo_GivenNullIdentifier_ReturnsNonZero()
+    {
+        var identifier = new Identifier("name", "name", "name", "test");
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(identifier.Server, Is.Null);
-                Assert.That(identifier.Database, Is.Null);
-                Assert.That(identifier.Schema, Is.Null);
-                Assert.That(identifier.LocalName, Is.EqualTo("d"));
-            });
-        }
+        var compareResult = identifier.CompareTo(null);
 
-        [Test]
-        public static void CreateQualifiedIdentifier_GivenArgumentsWithOnlyDatabaseAndLocalName_CreatesCorrectlyQualifiedIdentifier()
-        {
-            var identifier = Identifier.CreateQualifiedIdentifier("c", "d");
+        Assert.That(compareResult, Is.Not.Zero);
+    }
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(identifier.Server, Is.Null);
-                Assert.That(identifier.Database, Is.Null);
-                Assert.That(identifier.Schema, Is.EqualTo("c"));
-                Assert.That(identifier.LocalName, Is.EqualTo("d"));
-            });
-        }
+    [Test]
+    public static void CompareTo_GivenEqualIdentifiers_ReturnsZero()
+    {
+        var identifier = new Identifier("name", "name", "name", "test");
+        var otherIdentifier = new Identifier("name", "name", "name", "test");
 
-        [Test]
-        public static void CreateQualifiedIdentifier_GivenArgumentsWithoutSchemaAndWithLocalName_CreatesCorrectlyQualifiedIdentifier()
-        {
-            var identifier = Identifier.CreateQualifiedIdentifier(null, "d");
+        var compareResult = identifier.CompareTo(otherIdentifier);
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(identifier.Server, Is.Null);
-                Assert.That(identifier.Database, Is.Null);
-                Assert.That(identifier.Schema, Is.Null);
-                Assert.That(identifier.LocalName, Is.EqualTo("d"));
-            });
-        }
+        Assert.That(compareResult, Is.Zero);
+    }
 
-        [Test]
-        public static void CreateQualifiedIdentifier_GivenArgumentsWithOnlyLocalName_CreatesCorrectlyQualifiedIdentifier()
-        {
-            var identifier = Identifier.CreateQualifiedIdentifier("d");
+    [Test]
+    public static void CompareTo_GivenDifferentIdentifiers_ReturnsNonZero()
+    {
+        var identifier = new Identifier("name", "name", "name", "test");
+        var otherIdentifier = new Identifier("name", "name", "name", "name");
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(identifier.Server, Is.Null);
-                Assert.That(identifier.Database, Is.Null);
-                Assert.That(identifier.Schema, Is.Null);
-                Assert.That(identifier.LocalName, Is.EqualTo("d"));
-            });
-        }
+        var compareResult = identifier.CompareTo(otherIdentifier);
 
-        [TestCase(null, null, null, null)]
-        [TestCase("a", null, "c", "d")]
-        [TestCase("a", "b", null, "d")]
-        [TestCase("a", "b", "c", null)]
-        [TestCase(null, "b", null, "d")]
-        [TestCase(null, "b", null, null)]
-        [TestCase(null, null, "c", null)]
-        public static void CreateQualifiedIdentifier_GivenInvalidArguments_ThrowsArgumentNullException(string serverName, string databaseName, string schemaName, string localName)
-        {
-            Assert.That(() => Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName), Throws.ArgumentNullException);
+        Assert.That(compareResult, Is.Not.Zero);
+    }
 
-            Assert.That(() => Identifier.CreateQualifiedIdentifier(null, null, null, null), Throws.ArgumentNullException);
-        }
+    [Test]
+    public static void GtOp_GivenDifferentServer_ReturnsTrueWhenExpected()
+    {
+        var identifier = new Identifier("z", "name", "name", "name");
+        var otherIdentifier = new Identifier("name", "name", "name", "name");
 
-        [Test]
-        public static void CompareTo_GivenSameIdentifier_ReturnsZero()
-        {
-            var identifier = new Identifier("name", "name", "name", "test");
+        var isGt = identifier > otherIdentifier;
 
-            var compareResult = identifier.CompareTo(identifier);
+        Assert.That(isGt, Is.True);
+    }
 
-            Assert.That(compareResult, Is.Zero);
-        }
+    [Test]
+    public static void GtOp_GivenDifferentServer_ReturnsFalseWhenExpected()
+    {
+        var identifier = new Identifier("name", "name", "name", "name");
+        var otherIdentifier = new Identifier("z", "name", "name", "name");
 
-        [Test]
-        public static void CompareTo_GivenNullIdentifier_ReturnsNonZero()
-        {
-            var identifier = new Identifier("name", "name", "name", "test");
+        var isGt = identifier > otherIdentifier;
 
-            var compareResult = identifier.CompareTo(null);
+        Assert.That(isGt, Is.False);
+    }
 
-            Assert.That(compareResult, Is.Not.Zero);
-        }
+    [Test]
+    public static void GteOp_GivenDifferentServer_ReturnsTrueWhenExpected()
+    {
+        var identifier = new Identifier("z", "name", "name", "name");
+        var otherIdentifier = new Identifier("name", "name", "name", "name");
 
-        [Test]
-        public static void CompareTo_GivenEqualIdentifiers_ReturnsZero()
-        {
-            var identifier = new Identifier("name", "name", "name", "test");
-            var otherIdentifier = new Identifier("name", "name", "name", "test");
+        var isGte = identifier >= otherIdentifier;
 
-            var compareResult = identifier.CompareTo(otherIdentifier);
+        Assert.That(isGte, Is.True);
+    }
 
-            Assert.That(compareResult, Is.Zero);
-        }
+    [Test]
+    public static void GteOp_GivenDifferentServer_ReturnsFalseWhenExpected()
+    {
+        var identifier = new Identifier("name", "name", "name", "name");
+        var otherIdentifier = new Identifier("z", "name", "name", "name");
 
-        [Test]
-        public static void CompareTo_GivenDifferentIdentifiers_ReturnsNonZero()
-        {
-            var identifier = new Identifier("name", "name", "name", "test");
-            var otherIdentifier = new Identifier("name", "name", "name", "name");
+        var isGte = identifier >= otherIdentifier;
 
-            var compareResult = identifier.CompareTo(otherIdentifier);
+        Assert.That(isGte, Is.False);
+    }
 
-            Assert.That(compareResult, Is.Not.Zero);
-        }
+    [Test]
+    public static void GteOp_GivenSameIdentifiers_ReturnsTrue()
+    {
+        var identifier = new Identifier("name", "name", "name", "name");
+        var otherIdentifier = new Identifier("name", "name", "name", "name");
 
-        [Test]
-        public static void GtOp_GivenDifferentServer_ReturnsTrueWhenExpected()
-        {
-            var identifier = new Identifier("z", "name", "name", "name");
-            var otherIdentifier = new Identifier("name", "name", "name", "name");
+        var isGte = identifier >= otherIdentifier;
 
-            var isGt = identifier > otherIdentifier;
+        Assert.That(isGte, Is.True);
+    }
 
-            Assert.That(isGt, Is.True);
-        }
+    [Test]
+    public static void LtOp_GivenDifferentServer_ReturnsFalseWhenExpected()
+    {
+        var identifier = new Identifier("z", "name", "name", "name");
+        var otherIdentifier = new Identifier("name", "name", "name", "name");
 
-        [Test]
-        public static void GtOp_GivenDifferentServer_ReturnsFalseWhenExpected()
-        {
-            var identifier = new Identifier("name", "name", "name", "name");
-            var otherIdentifier = new Identifier("z", "name", "name", "name");
+        var isLt = identifier < otherIdentifier;
 
-            var isGt = identifier > otherIdentifier;
+        Assert.That(isLt, Is.False);
+    }
 
-            Assert.That(isGt, Is.False);
-        }
+    [Test]
+    public static void LtOp_GivenDifferentServer_ReturnsTrueWhenExpected()
+    {
+        var identifier = new Identifier("name", "name", "name", "name");
+        var otherIdentifier = new Identifier("z", "name", "name", "name");
 
-        [Test]
-        public static void GteOp_GivenDifferentServer_ReturnsTrueWhenExpected()
-        {
-            var identifier = new Identifier("z", "name", "name", "name");
-            var otherIdentifier = new Identifier("name", "name", "name", "name");
+        var isLt = identifier < otherIdentifier;
 
-            var isGte = identifier >= otherIdentifier;
+        Assert.That(isLt, Is.True);
+    }
 
-            Assert.That(isGte, Is.True);
-        }
+    [Test]
+    public static void LteOp_GivenDifferentServer_ReturnsFalseWhenExpected()
+    {
+        var identifier = new Identifier("z", "name", "name", "name");
+        var otherIdentifier = new Identifier("name", "name", "name", "name");
 
-        [Test]
-        public static void GteOp_GivenDifferentServer_ReturnsFalseWhenExpected()
-        {
-            var identifier = new Identifier("name", "name", "name", "name");
-            var otherIdentifier = new Identifier("z", "name", "name", "name");
+        var isLte = identifier <= otherIdentifier;
 
-            var isGte = identifier >= otherIdentifier;
+        Assert.That(isLte, Is.False);
+    }
 
-            Assert.That(isGte, Is.False);
-        }
+    [Test]
+    public static void LteOp_GivenDifferentServer_ReturnsTrueWhenExpected()
+    {
+        var identifier = new Identifier("name", "name", "name", "name");
+        var otherIdentifier = new Identifier("z", "name", "name", "name");
 
-        [Test]
-        public static void GteOp_GivenSameIdentifiers_ReturnsTrue()
-        {
-            var identifier = new Identifier("name", "name", "name", "name");
-            var otherIdentifier = new Identifier("name", "name", "name", "name");
+        var isLte = identifier <= otherIdentifier;
 
-            var isGte = identifier >= otherIdentifier;
+        Assert.That(isLte, Is.True);
+    }
 
-            Assert.That(isGte, Is.True);
-        }
+    [Test]
+    public static void LteOp_GivenSameIdentifiers_ReturnsTrue()
+    {
+        var identifier = new Identifier("name", "name", "name", "name");
+        var otherIdentifier = new Identifier("name", "name", "name", "name");
 
-        [Test]
-        public static void LtOp_GivenDifferentServer_ReturnsFalseWhenExpected()
-        {
-            var identifier = new Identifier("z", "name", "name", "name");
-            var otherIdentifier = new Identifier("name", "name", "name", "name");
+        var isLte = identifier <= otherIdentifier;
 
-            var isLt = identifier < otherIdentifier;
+        Assert.That(isLte, Is.True);
+    }
 
-            Assert.That(isLt, Is.False);
-        }
+    [TestCase("", "", "", "localName", "LocalName = localName")]
+    [TestCase("", "", "schemaName", "localName", "Schema = schemaName, LocalName = localName")]
+    [TestCase("", "databaseName", "schemaName", "localName", "Database = databaseName, Schema = schemaName, LocalName = localName")]
+    [TestCase("serverName", "databaseName", "schemaName", "localName", "Server = serverName, Database = databaseName, Schema = schemaName, LocalName = localName")]
+    public static void ToString_WhenInvoked_ReturnsExpectedOutput(string server, string database, string schema, string localName, string expectedOutput)
+    {
+        var identifier = Identifier.CreateQualifiedIdentifier(server, database, schema, localName);
+        var result = identifier.ToString();
 
-        [Test]
-        public static void LtOp_GivenDifferentServer_ReturnsTrueWhenExpected()
-        {
-            var identifier = new Identifier("name", "name", "name", "name");
-            var otherIdentifier = new Identifier("z", "name", "name", "name");
-
-            var isLt = identifier < otherIdentifier;
-
-            Assert.That(isLt, Is.True);
-        }
-
-        [Test]
-        public static void LteOp_GivenDifferentServer_ReturnsFalseWhenExpected()
-        {
-            var identifier = new Identifier("z", "name", "name", "name");
-            var otherIdentifier = new Identifier("name", "name", "name", "name");
-
-            var isLte = identifier <= otherIdentifier;
-
-            Assert.That(isLte, Is.False);
-        }
-
-        [Test]
-        public static void LteOp_GivenDifferentServer_ReturnsTrueWhenExpected()
-        {
-            var identifier = new Identifier("name", "name", "name", "name");
-            var otherIdentifier = new Identifier("z", "name", "name", "name");
-
-            var isLte = identifier <= otherIdentifier;
-
-            Assert.That(isLte, Is.True);
-        }
-
-        [Test]
-        public static void LteOp_GivenSameIdentifiers_ReturnsTrue()
-        {
-            var identifier = new Identifier("name", "name", "name", "name");
-            var otherIdentifier = new Identifier("name", "name", "name", "name");
-
-            var isLte = identifier <= otherIdentifier;
-
-            Assert.That(isLte, Is.True);
-        }
-
-        [TestCase("", "", "", "localName", "LocalName = localName")]
-        [TestCase("", "", "schemaName", "localName", "Schema = schemaName, LocalName = localName")]
-        [TestCase("", "databaseName", "schemaName", "localName", "Database = databaseName, Schema = schemaName, LocalName = localName")]
-        [TestCase("serverName", "databaseName", "schemaName", "localName", "Server = serverName, Database = databaseName, Schema = schemaName, LocalName = localName")]
-        public static void ToString_WhenInvoked_ReturnsExpectedOutput(string server, string database, string schema, string localName, string expectedOutput)
-        {
-            var identifier = Identifier.CreateQualifiedIdentifier(server, database, schema, localName);
-            var result = identifier.ToString();
-
-            Assert.That(result, Is.EqualTo(expectedOutput));
-        }
+        Assert.That(result, Is.EqualTo(expectedOutput));
     }
 }

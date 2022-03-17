@@ -1,7 +1,6 @@
-﻿namespace SJP.Schematic.Oracle.QueryResult
+﻿namespace SJP.Schematic.Oracle.QueryResult;
+
+internal sealed record GetUserRoutineDefinitionQuery
 {
-    internal sealed record GetUserRoutineDefinitionQuery
-    {
-        public string RoutineName { get; init; } = default!;
-    }
+    public string RoutineName { get; init; } = default!;
 }

@@ -4,88 +4,87 @@ using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Tests.Utilities;
 
-namespace SJP.Schematic.Sqlite.Tests.Integration
+namespace SJP.Schematic.Sqlite.Tests.Integration;
+
+internal sealed partial class SqliteRelationalDatabaseTableProviderTests : SqliteTest
 {
-    internal sealed partial class SqliteRelationalDatabaseTableProviderTests : SqliteTest
+    [Test]
+    public async Task PrimaryKey_WhenGivenTableWithNoPrimaryKey_ReturnsNone()
     {
-        [Test]
-        public async Task PrimaryKey_WhenGivenTableWithNoPrimaryKey_ReturnsNone()
+        var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
+
+        Assert.That(table.PrimaryKey, OptionIs.None);
+    }
+
+    [Test]
+    public async Task PrimaryKey_WhenGivenTableWithPrimaryKey_ReturnsCorrectKeyType()
+    {
+        var table = await GetTableAsync("table_test_table_2").ConfigureAwait(false);
+        var primaryKey = table.PrimaryKey.UnwrapSome();
+
+        Assert.That(primaryKey.KeyType, Is.EqualTo(DatabaseKeyType.Primary));
+    }
+
+    [Test]
+    public async Task PrimaryKey_WhenGivenTableWithColumnAsPrimaryKey_ReturnsPrimaryKeyWithColumnOnly()
+    {
+        var table = await GetTableAsync("table_test_table_2").ConfigureAwait(false);
+        var pk = table.PrimaryKey.UnwrapSome();
+        var pkColumns = pk.Columns.ToList();
+
+        Assert.Multiple(() =>
         {
-            var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
+            Assert.That(pkColumns, Has.Exactly(1).Items);
+            Assert.That(pkColumns.Single().Name.LocalName, Is.EqualTo("test_column"));
+        });
+    }
 
-            Assert.That(table.PrimaryKey, OptionIs.None);
-        }
+    [Test]
+    public async Task PrimaryKey_WhenGivenTableWithSingleColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithColumnOnly()
+    {
+        var table = await GetTableAsync("table_test_table_3").ConfigureAwait(false);
+        var pk = table.PrimaryKey.UnwrapSome();
+        var pkColumns = pk.Columns.ToList();
 
-        [Test]
-        public async Task PrimaryKey_WhenGivenTableWithPrimaryKey_ReturnsCorrectKeyType()
+        Assert.Multiple(() =>
         {
-            var table = await GetTableAsync("table_test_table_2").ConfigureAwait(false);
-            var primaryKey = table.PrimaryKey.UnwrapSome();
+            Assert.That(pkColumns, Has.Exactly(1).Items);
+            Assert.That(pkColumns.Single().Name.LocalName, Is.EqualTo("test_column"));
+        });
+    }
 
-            Assert.That(primaryKey.KeyType, Is.EqualTo(DatabaseKeyType.Primary));
-        }
+    [Test]
+    public async Task PrimaryKey_WhenGivenTableWithSingleColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithCorrectName()
+    {
+        var table = await GetTableAsync("table_test_table_3").ConfigureAwait(false);
+        var pk = table.PrimaryKey.UnwrapSome();
 
-        [Test]
-        public async Task PrimaryKey_WhenGivenTableWithColumnAsPrimaryKey_ReturnsPrimaryKeyWithColumnOnly()
+        Assert.That(pk.Name.UnwrapSome().LocalName, Is.EqualTo("pk_test_table_3"));
+    }
+
+    [Test]
+    public async Task PrimaryKey_WhenGivenTableWithMultiColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithColumnsInCorrectOrder()
+    {
+        var expectedColumnNames = new[] { "first_name", "last_name", "middle_name" };
+
+        var table = await GetTableAsync("table_test_table_4").ConfigureAwait(false);
+        var pk = table.PrimaryKey.UnwrapSome();
+        var pkColumns = pk.Columns.ToList();
+        var pkColumnNames = pkColumns.ConvertAll(c => c.Name.LocalName);
+
+        Assert.Multiple(() =>
         {
-            var table = await GetTableAsync("table_test_table_2").ConfigureAwait(false);
-            var pk = table.PrimaryKey.UnwrapSome();
-            var pkColumns = pk.Columns.ToList();
+            Assert.That(pkColumns, Has.Exactly(3).Items);
+            Assert.That(pkColumnNames, Is.EqualTo(expectedColumnNames));
+        });
+    }
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(pkColumns, Has.Exactly(1).Items);
-                Assert.That(pkColumns.Single().Name.LocalName, Is.EqualTo("test_column"));
-            });
-        }
+    [Test]
+    public async Task PrimaryKey_WhenGivenTableWithMultiColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithCorrectName()
+    {
+        var table = await GetTableAsync("table_test_table_4").ConfigureAwait(false);
+        var pk = table.PrimaryKey.UnwrapSome();
 
-        [Test]
-        public async Task PrimaryKey_WhenGivenTableWithSingleColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithColumnOnly()
-        {
-            var table = await GetTableAsync("table_test_table_3").ConfigureAwait(false);
-            var pk = table.PrimaryKey.UnwrapSome();
-            var pkColumns = pk.Columns.ToList();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(pkColumns, Has.Exactly(1).Items);
-                Assert.That(pkColumns.Single().Name.LocalName, Is.EqualTo("test_column"));
-            });
-        }
-
-        [Test]
-        public async Task PrimaryKey_WhenGivenTableWithSingleColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithCorrectName()
-        {
-            var table = await GetTableAsync("table_test_table_3").ConfigureAwait(false);
-            var pk = table.PrimaryKey.UnwrapSome();
-
-            Assert.That(pk.Name.UnwrapSome().LocalName, Is.EqualTo("pk_test_table_3"));
-        }
-
-        [Test]
-        public async Task PrimaryKey_WhenGivenTableWithMultiColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithColumnsInCorrectOrder()
-        {
-            var expectedColumnNames = new[] { "first_name", "last_name", "middle_name" };
-
-            var table = await GetTableAsync("table_test_table_4").ConfigureAwait(false);
-            var pk = table.PrimaryKey.UnwrapSome();
-            var pkColumns = pk.Columns.ToList();
-            var pkColumnNames = pkColumns.ConvertAll(c => c.Name.LocalName);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(pkColumns, Has.Exactly(3).Items);
-                Assert.That(pkColumnNames, Is.EqualTo(expectedColumnNames));
-            });
-        }
-
-        [Test]
-        public async Task PrimaryKey_WhenGivenTableWithMultiColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithCorrectName()
-        {
-            var table = await GetTableAsync("table_test_table_4").ConfigureAwait(false);
-            var pk = table.PrimaryKey.UnwrapSome();
-
-            Assert.That(pk.Name.UnwrapSome().LocalName, Is.EqualTo("pk_test_table_4"));
-        }
+        Assert.That(pk.Name.UnwrapSome().LocalName, Is.EqualTo("pk_test_table_4"));
     }
 }

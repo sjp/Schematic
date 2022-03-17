@@ -3,36 +3,35 @@ using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.MySql.Comments;
 
-namespace SJP.Schematic.MySql.Tests.Comments
+namespace SJP.Schematic.MySql.Tests.Comments;
+
+[TestFixture]
+internal static class MySqlTableCommentProviderTests
 {
-    [TestFixture]
-    internal static class MySqlTableCommentProviderTests
+    [Test]
+    public static void Ctor_GivenNullConnection_ThrowsArgNullException()
     {
-        [Test]
-        public static void Ctor_GivenNullConnection_ThrowsArgNullException()
-        {
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+        var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.That(() => new MySqlTableCommentProvider(null, identifierDefaults), Throws.ArgumentNullException);
-        }
+        Assert.That(() => new MySqlTableCommentProvider(null, identifierDefaults), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgNullException()
-        {
-            var connection = Mock.Of<IDbConnectionFactory>();
+    [Test]
+    public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgNullException()
+    {
+        var connection = Mock.Of<IDbConnectionFactory>();
 
-            Assert.That(() => new MySqlTableCommentProvider(connection, null), Throws.ArgumentNullException);
-        }
+        Assert.That(() => new MySqlTableCommentProvider(connection, null), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static void GetTableComments_GivenNullTableName_ThrowsArgNullException()
-        {
-            var connection = Mock.Of<IDbConnectionFactory>();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+    [Test]
+    public static void GetTableComments_GivenNullTableName_ThrowsArgNullException()
+    {
+        var connection = Mock.Of<IDbConnectionFactory>();
+        var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            var commentProvider = new MySqlTableCommentProvider(connection, identifierDefaults);
+        var commentProvider = new MySqlTableCommentProvider(connection, identifierDefaults);
 
-            Assert.That(() => commentProvider.GetTableComments(null), Throws.ArgumentNullException);
-        }
+        Assert.That(() => commentProvider.GetTableComments(null), Throws.ArgumentNullException);
     }
 }

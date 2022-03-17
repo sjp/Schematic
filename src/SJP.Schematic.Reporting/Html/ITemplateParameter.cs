@@ -1,7 +1,6 @@
-﻿namespace SJP.Schematic.Reporting.Html
+﻿namespace SJP.Schematic.Reporting.Html;
+
+public interface ITemplateParameter
 {
-    public interface ITemplateParameter
-    {
-        ReportTemplate Template { get; }
-    }
+    ReportTemplate Template { get; }
 }

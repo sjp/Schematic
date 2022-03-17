@@ -3,30 +3,29 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
 
-namespace SJP.Schematic.Core.Tests.Extensions
+namespace SJP.Schematic.Core.Tests.Extensions;
+
+[TestFixture]
+internal static class ReadOnlyCollectionExtensionsTests
 {
-    [TestFixture]
-    internal static class ReadOnlyCollectionExtensionsTests
+    [Test]
+    public static void Empty_GivenNullCollection_ThrowsArgumentNullException()
     {
-        [Test]
-        public static void Empty_GivenNullCollection_ThrowsArgumentNullException()
-        {
-            IReadOnlyCollection<string> input = null;
-            Assert.That(() => input.Empty(), Throws.ArgumentNullException);
-        }
+        IReadOnlyCollection<string> input = null;
+        Assert.That(() => input.Empty(), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static void Empty_GivenEmptyCollection_ReturnsTrue()
-        {
-            IReadOnlyCollection<string> input = Array.Empty<string>();
-            Assert.That(input.Empty(), Is.True);
-        }
+    [Test]
+    public static void Empty_GivenEmptyCollection_ReturnsTrue()
+    {
+        IReadOnlyCollection<string> input = Array.Empty<string>();
+        Assert.That(input.Empty(), Is.True);
+    }
 
-        [Test]
-        public static void Empty_GivenNonEmptyCollection_ReturnsFalse()
-        {
-            IReadOnlyCollection<string> input = new[] { "A" };
-            Assert.That(input.Empty(), Is.False);
-        }
+    [Test]
+    public static void Empty_GivenNonEmptyCollection_ReturnsFalse()
+    {
+        IReadOnlyCollection<string> input = new[] { "A" };
+        Assert.That(input.Empty(), Is.False);
     }
 }

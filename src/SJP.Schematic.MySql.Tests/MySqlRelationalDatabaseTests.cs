@@ -4,112 +4,111 @@ using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.MySql.Tests
+namespace SJP.Schematic.MySql.Tests;
+
+[TestFixture]
+internal static class MySqlRelationalDatabaseTests
 {
-    [TestFixture]
-    internal static class MySqlRelationalDatabaseTests
+    private static IRelationalDatabase Database
     {
-        private static IRelationalDatabase Database
-        {
-            get
-            {
-                var connection = Mock.Of<ISchematicConnection>();
-                var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-
-                return new MySqlRelationalDatabase(connection, identifierDefaults);
-            }
-        }
-
-        [Test]
-        public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
-        {
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-
-            Assert.That(() => new MySqlRelationalDatabase(null, identifierDefaults), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgumentNullException()
+        get
         {
             var connection = Mock.Of<ISchematicConnection>();
+            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.That(() => new MySqlRelationalDatabase(connection, null), Throws.ArgumentNullException);
+            return new MySqlRelationalDatabase(connection, identifierDefaults);
+        }
+    }
+
+    [Test]
+    public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
+    {
+        var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+
+        Assert.That(() => new MySqlRelationalDatabase(null, identifierDefaults), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgumentNullException()
+    {
+        var connection = Mock.Of<ISchematicConnection>();
+
+        Assert.That(() => new MySqlRelationalDatabase(connection, null), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void GetTable_GivenNullIdentifier_ThrowsArgumentNullException()
+    {
+        Assert.That(() => Database.GetTable(null), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void GetView_GivenNullIdentifier_ThrowsArgumentNullException()
+    {
+        Assert.That(() => Database.GetView(null), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void GetRoutine_GivenNullIdentifier_ThrowsArgumentNullException()
+    {
+        Assert.That(() => Database.GetRoutine(null), Throws.ArgumentNullException);
+    }
+
+    // testing that the behaviour is equivalent to an empty sequence provider
+    [TestFixture]
+    internal static class SequenceTests
+    {
+        [Test]
+        public static void GetSequence_GivenNullSequenceName_ThrowsArgumentNullException()
+        {
+            Assert.That(() => Database.GetSequence(null), Throws.ArgumentNullException);
         }
 
         [Test]
-        public static void GetTable_GivenNullIdentifier_ThrowsArgumentNullException()
+        public static async Task GetSequence_GivenValidSequenceName_ReturnsNone()
         {
-            Assert.That(() => Database.GetTable(null), Throws.ArgumentNullException);
+            var sequenceName = new Identifier("test");
+            var sequenceIsNone = await Database.GetSequence(sequenceName).IsNone.ConfigureAwait(false);
+
+            Assert.That(sequenceIsNone, Is.True);
         }
 
         [Test]
-        public static void GetView_GivenNullIdentifier_ThrowsArgumentNullException()
+        public static async Task GetAllSequences_WhenEnumerated_ContainsNoValues()
         {
-            Assert.That(() => Database.GetView(null), Throws.ArgumentNullException);
+            var hasSequences = await Database.GetAllSequences()
+                .AnyAsync()
+                .ConfigureAwait(false);
+
+            Assert.That(hasSequences, Is.False);
+        }
+    }
+
+    // testing that the behaviour is equivalent to an empty synonym provider
+    [TestFixture]
+    internal static class SynonymTests
+    {
+        [Test]
+        public static void GetSynonym_GivenNullSynonymName_ThrowsArgumentNullException()
+        {
+            Assert.That(() => Database.GetSynonym(null), Throws.ArgumentNullException);
         }
 
         [Test]
-        public static void GetRoutine_GivenNullIdentifier_ThrowsArgumentNullException()
+        public static async Task GetSynonym_GivenValidSynonymName_ReturnsNone()
         {
-            Assert.That(() => Database.GetRoutine(null), Throws.ArgumentNullException);
+            var synonymName = new Identifier("test");
+            var synonymIsNone = await Database.GetSynonym(synonymName).IsNone.ConfigureAwait(false);
+
+            Assert.That(synonymIsNone, Is.True);
         }
 
-        // testing that the behaviour is equivalent to an empty sequence provider
-        [TestFixture]
-        internal static class SequenceTests
+        [Test]
+        public static async Task GetAllSynonyms_WhenEnumerated_ContainsNoValues()
         {
-            [Test]
-            public static void GetSequence_GivenNullSequenceName_ThrowsArgumentNullException()
-            {
-                Assert.That(() => Database.GetSequence(null), Throws.ArgumentNullException);
-            }
+            var synonyms = await Database.GetAllSynonyms().ToListAsync().ConfigureAwait(false);
 
-            [Test]
-            public static async Task GetSequence_GivenValidSequenceName_ReturnsNone()
-            {
-                var sequenceName = new Identifier("test");
-                var sequenceIsNone = await Database.GetSequence(sequenceName).IsNone.ConfigureAwait(false);
-
-                Assert.That(sequenceIsNone, Is.True);
-            }
-
-            [Test]
-            public static async Task GetAllSequences_WhenEnumerated_ContainsNoValues()
-            {
-                var hasSequences = await Database.GetAllSequences()
-                    .AnyAsync()
-                    .ConfigureAwait(false);
-
-                Assert.That(hasSequences, Is.False);
-            }
-        }
-
-        // testing that the behaviour is equivalent to an empty synonym provider
-        [TestFixture]
-        internal static class SynonymTests
-        {
-            [Test]
-            public static void GetSynonym_GivenNullSynonymName_ThrowsArgumentNullException()
-            {
-                Assert.That(() => Database.GetSynonym(null), Throws.ArgumentNullException);
-            }
-
-            [Test]
-            public static async Task GetSynonym_GivenValidSynonymName_ReturnsNone()
-            {
-                var synonymName = new Identifier("test");
-                var synonymIsNone = await Database.GetSynonym(synonymName).IsNone.ConfigureAwait(false);
-
-                Assert.That(synonymIsNone, Is.True);
-            }
-
-            [Test]
-            public static async Task GetAllSynonyms_WhenEnumerated_ContainsNoValues()
-            {
-                var synonyms = await Database.GetAllSynonyms().ToListAsync().ConfigureAwait(false);
-
-                Assert.That(synonyms, Is.Empty);
-            }
+            Assert.That(synonyms, Is.Empty);
         }
     }
 }

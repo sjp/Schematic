@@ -10,20 +10,20 @@ using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite;
 using SJP.Schematic.Tests.Utilities;
 
-namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration
+namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests.Integration;
+
+internal sealed class EFCoreViewGeneratorTests : SqliteTest
 {
-    internal sealed class EFCoreViewGeneratorTests : SqliteTest
+    private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults, Pragma);
+
+    private Task<IDatabaseView> GetView(Identifier viewName) => Database.GetView(viewName).UnwrapSomeAsync();
+
+    private static IDatabaseViewGenerator ViewGenerator => new EFCoreViewGenerator(new MockFileSystem(), new PascalCaseNameTranslator(), TestNamespace);
+
+    [OneTimeSetUp]
+    public async Task Init()
     {
-        private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults, Pragma);
-
-        private Task<IDatabaseView> GetView(Identifier viewName) => Database.GetView(viewName).UnwrapSomeAsync();
-
-        private static IDatabaseViewGenerator ViewGenerator => new EFCoreViewGenerator(new MockFileSystem(), new PascalCaseNameTranslator(), TestNamespace);
-
-        [OneTimeSetUp]
-        public async Task Init()
-        {
-            await DbConnection.ExecuteAsync(@"
+        await DbConnection.ExecuteAsync(@"
 create table test_view_table_1 (
     test_pk integer not null primary key autoincrement,
     test_int integer not null,
@@ -35,75 +35,75 @@ create table test_view_table_1 (
     test_string text,
     test_string_with_default default 'test'
 )", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("create view test_view_1 as select * from test_view_table_1", CancellationToken.None).ConfigureAwait(false);
-        }
+        await DbConnection.ExecuteAsync("create view test_view_1 as select * from test_view_table_1", CancellationToken.None).ConfigureAwait(false);
+    }
 
-        [OneTimeTearDown]
-        public async Task CleanUp()
-        {
-            await DbConnection.ExecuteAsync("drop view test_view_1", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop table test_view_table_1", CancellationToken.None).ConfigureAwait(false);
-        }
+    [OneTimeTearDown]
+    public async Task CleanUp()
+    {
+        await DbConnection.ExecuteAsync("drop view test_view_1", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table test_view_table_1", CancellationToken.None).ConfigureAwait(false);
+    }
 
-        [Test]
-        public async Task Generate_GivenViewWithVariousColumnTypes_GeneratesExpectedOutput()
-        {
-            var view = await GetView("test_view_1").ConfigureAwait(false);
-            var generator = ViewGenerator;
+    [Test]
+    public async Task Generate_GivenViewWithVariousColumnTypes_GeneratesExpectedOutput()
+    {
+        var view = await GetView("test_view_1").ConfigureAwait(false);
+        var generator = ViewGenerator;
 
-            var expected = TestView1Output;
-            var result = generator.Generate(view, Option<IDatabaseViewComments>.None);
+        var expected = TestView1Output;
+        var result = generator.Generate(view, Option<IDatabaseViewComments>.None);
 
-            Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
-        }
+        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+    }
 
-        [Test]
-        public async Task Generate_GivenViewWithViewAndColumnComments_GeneratesExpectedOutput()
-        {
-            const string viewComment = "This is a test view comment for EF Core";
-            const string columnComment = "This is a test column comment for EF Core";
+    [Test]
+    public async Task Generate_GivenViewWithViewAndColumnComments_GeneratesExpectedOutput()
+    {
+        const string viewComment = "This is a test view comment for EF Core";
+        const string columnComment = "This is a test column comment for EF Core";
 
-            var view = await GetView("test_view_1").ConfigureAwait(false);
-            var generator = ViewGenerator;
+        var view = await GetView("test_view_1").ConfigureAwait(false);
+        var generator = ViewGenerator;
 
-            var comment = new DatabaseViewComments(
-                "test_view_1",
-                Option<string>.Some(viewComment),
-                new Dictionary<Identifier, Option<string>> { ["test_int"] = Option<string>.Some(columnComment) }
-            );
-            var result = generator.Generate(view, comment);
+        var comment = new DatabaseViewComments(
+            "test_view_1",
+            Option<string>.Some(viewComment),
+            new Dictionary<Identifier, Option<string>> { ["test_int"] = Option<string>.Some(columnComment) }
+        );
+        var result = generator.Generate(view, comment);
 
-            var expected = TestView1WithCommentOutput;
-            Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
-        }
+        var expected = TestView1WithCommentOutput;
+        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+    }
 
-        [Test]
-        public async Task Generate_GivenMultiLineViewWithViewAndColumnComments_GeneratesExpectedOutput()
-        {
-            const string viewComment = @"This is a test view comment for EF Core.
-
-This is a second line for it.";
-            const string columnComment = @"This is a test column comment for EF Core.
+    [Test]
+    public async Task Generate_GivenMultiLineViewWithViewAndColumnComments_GeneratesExpectedOutput()
+    {
+        const string viewComment = @"This is a test view comment for EF Core.
 
 This is a second line for it.";
+        const string columnComment = @"This is a test column comment for EF Core.
 
-            var view = await GetView("test_view_1").ConfigureAwait(false);
-            var generator = ViewGenerator;
+This is a second line for it.";
 
-            var comment = new DatabaseViewComments(
-                "test_view_1",
-                Option<string>.Some(viewComment),
-                new Dictionary<Identifier, Option<string>> { ["test_int"] = Option<string>.Some(columnComment) }
-            );
-            var result = generator.Generate(view, comment);
+        var view = await GetView("test_view_1").ConfigureAwait(false);
+        var generator = ViewGenerator;
 
-            var expected = TestView1MultiLineOutput;
-            Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
-        }
+        var comment = new DatabaseViewComments(
+            "test_view_1",
+            Option<string>.Some(viewComment),
+            new Dictionary<Identifier, Option<string>> { ["test_int"] = Option<string>.Some(columnComment) }
+        );
+        var result = generator.Generate(view, comment);
 
-        private const string TestNamespace = "EFCoreTestNamespace";
+        var expected = TestView1MultiLineOutput;
+        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+    }
 
-        private readonly string TestView1Output = @"using System;
+    private const string TestNamespace = "EFCoreTestNamespace";
+
+    private readonly string TestView1Output = @"using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -170,7 +170,7 @@ namespace EFCoreTestNamespace.Main
     }
 }";
 
-        private readonly string TestView1WithCommentOutput = @"using System;
+    private readonly string TestView1WithCommentOutput = @"using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -237,7 +237,7 @@ namespace EFCoreTestNamespace.Main
     }
 }";
 
-        private readonly string TestView1MultiLineOutput = @"using System;
+    private readonly string TestView1MultiLineOutput = @"using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -305,5 +305,4 @@ namespace EFCoreTestNamespace.Main
         public decimal? TestStringWithDefault { get; set; }
     }
 }";
-    }
 }

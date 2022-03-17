@@ -1,11 +1,10 @@
-﻿namespace SJP.Schematic.Oracle.QueryResult
+﻿namespace SJP.Schematic.Oracle.QueryResult;
+
+internal sealed record GetViewCommentsQueryResult
 {
-    internal sealed record GetViewCommentsQueryResult
-    {
-        public string ColumnName { get; init; } = default!;
+    public string ColumnName { get; init; } = default!;
 
-        public string ObjectType { get; init; } = default!;
+    public string ObjectType { get; init; } = default!;
 
-        public string? Comment { get; init; }
-    }
+    public string? Comment { get; init; }
 }

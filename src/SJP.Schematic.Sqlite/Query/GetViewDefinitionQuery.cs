@@ -1,7 +1,6 @@
-﻿namespace SJP.Schematic.Sqlite.Query
+﻿namespace SJP.Schematic.Sqlite.Query;
+
+internal sealed record GetViewDefinitionQuery
 {
-    internal sealed record GetViewDefinitionQuery
-    {
-        public string ViewName { get; set; } = default!;
-    }
+    public string ViewName { get; set; } = default!;
 }

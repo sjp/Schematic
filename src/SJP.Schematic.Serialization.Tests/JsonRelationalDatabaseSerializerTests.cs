@@ -9,338 +9,337 @@ using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Tests.Utilities.Integration;
 
-namespace SJP.Schematic.Serialization.Tests
+namespace SJP.Schematic.Serialization.Tests;
+
+internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
 {
-    internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
+    private static readonly Lazy<IMapper> _mapper = new(() =>
     {
-        private static readonly Lazy<IMapper> _mapper = new(() =>
-        {
-            var config = new MapperConfiguration(config => config.AddMaps(typeof(Mapping.RelationalDatabaseProfile).Assembly));
-            config.AssertConfigurationIsValid();
+        var config = new MapperConfiguration(config => config.AddMaps(typeof(Mapping.RelationalDatabaseProfile).Assembly));
+        config.AssertConfigurationIsValid();
 
-            return new Mapper(config);
+        return new Mapper(config);
+    });
+
+    private static IMapper Mapper { get; } = _mapper.Value;
+
+    private static IRelationalDatabaseSerializer Serializer { get; } = new JsonRelationalDatabaseSerializer(Mapper);
+
+    [Test]
+    public async Task Serialize_WhenInvoked_ExportsWithoutError()
+    {
+        var db = GetDatabase();
+        using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
+        var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(json, Is.Not.Null);
+            Assert.That(json, Is.Not.Empty);
         });
+    }
 
-        private static IMapper Mapper { get; } = _mapper.Value;
+    [Test]
+    public async Task SerializeDeserialize_WhenEmptyDatabaseRoundTripped_ExportsAndParsesWithoutError()
+    {
+        var db = new EmptyRelationalDatabase(new IdentifierDefaults(null, null, "main"));
 
-        private static IRelationalDatabaseSerializer Serializer { get; } = new JsonRelationalDatabaseSerializer(Mapper);
+        using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
 
-        [Test]
-        public async Task Serialize_WhenInvoked_ExportsWithoutError()
+        jsonOutputStream.Seek(0, SeekOrigin.Begin);
+        var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
+
+        db.Should().BeEquivalentTo(importedDb);
+    }
+
+    [Test]
+    public async Task SerializeDeserialize_WhenEmptyDatabaseRoundTripped_PreservesJsonStructure()
+    {
+        var db = new EmptyRelationalDatabase(new IdentifierDefaults(null, null, "main"));
+
+        using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
+        var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+        jsonOutputStream.Seek(0, SeekOrigin.Begin);
+        var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
+
+        using var jsonOutputStream2 = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
+        var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
+
+        Assert.Multiple(() =>
         {
-            var db = GetDatabase();
-            using var jsonOutputStream = new MemoryStream();
-            await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
-            var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+            Assert.That(reExportedJson, Is.Not.Null);
+            Assert.That(reExportedJson, Is.Not.Empty);
+            Assert.That(reExportedJson, Is.EqualTo(json));
+        });
+    }
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(json, Is.Not.Null);
-                Assert.That(json, Is.Not.Empty);
-            });
-        }
+    [Test]
+    public async Task SerializeDeserialize_WhenRoundTripped_ExportsAndParsesWithoutError()
+    {
+        var db = GetDatabase();
 
-        [Test]
-        public async Task SerializeDeserialize_WhenEmptyDatabaseRoundTripped_ExportsAndParsesWithoutError()
+        using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
+
+        jsonOutputStream.Seek(0, SeekOrigin.Begin);
+        var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
+
+        db.Should().BeEquivalentTo(importedDb);
+    }
+
+    [Test]
+    public async Task SerializeDeserialize_WhenRoundTripped_PreservesJsonStructure()
+    {
+        var db = GetDatabase();
+
+        using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
+        var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+        jsonOutputStream.Seek(0, SeekOrigin.Begin);
+        var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
+
+        using var jsonOutputStream2 = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
+        var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
+
+        Assert.Multiple(() =>
         {
-            var db = new EmptyRelationalDatabase(new IdentifierDefaults(null, null, "main"));
+            Assert.That(reExportedJson, Is.Not.Null);
+            Assert.That(reExportedJson, Is.Not.Empty);
+            Assert.That(reExportedJson, Is.EqualTo(json));
+        });
+    }
 
-            using var jsonOutputStream = new MemoryStream();
-            await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
+    // the above covers tables and views, but as the test database has no sequences, synonyms and routines we need to implement it
+    [Test]
+    public async Task SerializeDeserialize_WhenSequenceRoundTripped_ExportsAndParsesWithoutError()
+    {
+        var sequence = new DatabaseSequence(
+            "test_sequence_name",
+            1,
+            10,
+            Option<decimal>.Some(-10),
+            Option<decimal>.Some(1000),
+            true,
+            20
+        );
+        var sequences = new[] { sequence };
 
-            jsonOutputStream.Seek(0, SeekOrigin.Begin);
-            var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
+        var tables = Array.Empty<IRelationalDatabaseTable>();
+        var views = Array.Empty<IDatabaseView>();
+        var synonyms = Array.Empty<IDatabaseSynonym>();
+        var routines = Array.Empty<IDatabaseRoutine>();
 
-            db.Should().BeEquivalentTo(importedDb);
-        }
+        var db = new RelationalDatabase(
+            new IdentifierDefaults(null, null, "main"),
+            new VerbatimIdentifierResolutionStrategy(),
+            tables,
+            views,
+            sequences,
+            synonyms,
+            routines
+        );
 
-        [Test]
-        public async Task SerializeDeserialize_WhenEmptyDatabaseRoundTripped_PreservesJsonStructure()
+        using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
+
+        jsonOutputStream.Seek(0, SeekOrigin.Begin);
+        var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
+
+        db.Should().BeEquivalentTo(importedDb);
+    }
+
+    [Test]
+    public async Task SerializeDeserialize_WhenSequenceRoundTripped_PreservesJsonStructure()
+    {
+        var sequence = new DatabaseSequence(
+            "test_sequence_name",
+            1,
+            10,
+            Option<decimal>.Some(-10),
+            Option<decimal>.Some(1000),
+            true,
+            20
+        );
+        var sequences = new[] { sequence };
+
+        var tables = Array.Empty<IRelationalDatabaseTable>();
+        var views = Array.Empty<IDatabaseView>();
+        var synonyms = Array.Empty<IDatabaseSynonym>();
+        var routines = Array.Empty<IDatabaseRoutine>();
+
+        var db = new RelationalDatabase(
+            new IdentifierDefaults(null, null, "main"),
+            new VerbatimIdentifierResolutionStrategy(),
+            tables,
+            views,
+            sequences,
+            synonyms,
+            routines
+        );
+
+        using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
+        var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+        jsonOutputStream.Seek(0, SeekOrigin.Begin);
+        var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
+
+        using var jsonOutputStream2 = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
+        var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
+
+        Assert.Multiple(() =>
         {
-            var db = new EmptyRelationalDatabase(new IdentifierDefaults(null, null, "main"));
+            Assert.That(reExportedJson, Is.Not.Null);
+            Assert.That(reExportedJson, Is.Not.Empty);
+            Assert.That(reExportedJson, Is.EqualTo(json));
+        });
+    }
 
-            using var jsonOutputStream = new MemoryStream();
-            await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
-            var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+    [Test]
+    public async Task SerializeDeserialize_WhenSynonymRoundTripped_ExportsAndParsesWithoutError()
+    {
+        var synonym = new DatabaseSynonym("test_synonym_name", "test_target_name");
+        var synonyms = new[] { synonym };
 
-            jsonOutputStream.Seek(0, SeekOrigin.Begin);
-            var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
+        var tables = Array.Empty<IRelationalDatabaseTable>();
+        var views = Array.Empty<IDatabaseView>();
+        var sequences = Array.Empty<IDatabaseSequence>();
+        var routines = Array.Empty<IDatabaseRoutine>();
 
-            using var jsonOutputStream2 = new MemoryStream();
-            await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
-            var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
+        var db = new RelationalDatabase(
+            new IdentifierDefaults(null, null, "main"),
+            new VerbatimIdentifierResolutionStrategy(),
+            tables,
+            views,
+            sequences,
+            synonyms,
+            routines
+        );
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(reExportedJson, Is.Not.Null);
-                Assert.That(reExportedJson, Is.Not.Empty);
-                Assert.That(reExportedJson, Is.EqualTo(json));
-            });
-        }
+        using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
 
-        [Test]
-        public async Task SerializeDeserialize_WhenRoundTripped_ExportsAndParsesWithoutError()
+        jsonOutputStream.Seek(0, SeekOrigin.Begin);
+        var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
+
+        db.Should().BeEquivalentTo(importedDb);
+    }
+
+    [Test]
+    public async Task SerializeDeserialize_WhenSynonymRoundTripped_PreservesJsonStructure()
+    {
+        var synonym = new DatabaseSynonym("test_synonym_name", "test_target_name");
+        var synonyms = new[] { synonym };
+
+        var tables = Array.Empty<IRelationalDatabaseTable>();
+        var views = Array.Empty<IDatabaseView>();
+        var sequences = Array.Empty<IDatabaseSequence>();
+        var routines = Array.Empty<IDatabaseRoutine>();
+
+        var db = new RelationalDatabase(
+            new IdentifierDefaults(null, null, "main"),
+            new VerbatimIdentifierResolutionStrategy(),
+            tables,
+            views,
+            sequences,
+            synonyms,
+            routines
+        );
+
+        using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
+        var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+        jsonOutputStream.Seek(0, SeekOrigin.Begin);
+        var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
+
+        using var jsonOutputStream2 = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
+        var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
+
+        Assert.Multiple(() =>
         {
-            var db = GetDatabase();
+            Assert.That(reExportedJson, Is.Not.Null);
+            Assert.That(reExportedJson, Is.Not.Empty);
+            Assert.That(reExportedJson, Is.EqualTo(json));
+        });
+    }
 
-            using var jsonOutputStream = new MemoryStream();
-            await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
+    [Test]
+    public async Task SerializeDeserialize_WhenRoutineRoundTripped_ExportsAndParsesWithoutError()
+    {
+        var routine = new DatabaseRoutine("test_routine_name", "test_routine_definition");
+        var routines = new[] { routine };
 
-            jsonOutputStream.Seek(0, SeekOrigin.Begin);
-            var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
+        var tables = Array.Empty<IRelationalDatabaseTable>();
+        var views = Array.Empty<IDatabaseView>();
+        var sequences = Array.Empty<IDatabaseSequence>();
+        var synonyms = Array.Empty<IDatabaseSynonym>();
 
-            db.Should().BeEquivalentTo(importedDb);
-        }
+        var db = new RelationalDatabase(
+            new IdentifierDefaults(null, null, "main"),
+            new VerbatimIdentifierResolutionStrategy(),
+            tables,
+            views,
+            sequences,
+            synonyms,
+            routines
+        );
 
-        [Test]
-        public async Task SerializeDeserialize_WhenRoundTripped_PreservesJsonStructure()
+        using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
+
+        jsonOutputStream.Seek(0, SeekOrigin.Begin);
+        var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
+
+        db.Should().BeEquivalentTo(importedDb);
+    }
+
+    [Test]
+    public async Task SerializeDeserialize_WhenRoutineRoundTripped_PreservesJsonStructure()
+    {
+        var routine = new DatabaseRoutine("test_routine_name", "test_routine_definition");
+        var routines = new[] { routine };
+
+        var tables = Array.Empty<IRelationalDatabaseTable>();
+        var views = Array.Empty<IDatabaseView>();
+        var sequences = Array.Empty<IDatabaseSequence>();
+        var synonyms = Array.Empty<IDatabaseSynonym>();
+
+        var db = new RelationalDatabase(
+            new IdentifierDefaults(null, null, "main"),
+            new VerbatimIdentifierResolutionStrategy(),
+            tables,
+            views,
+            sequences,
+            synonyms,
+            routines
+        );
+
+        using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
+        var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+        jsonOutputStream.Seek(0, SeekOrigin.Begin);
+        var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
+
+        using var jsonOutputStream2 = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
+        var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
+
+        Assert.Multiple(() =>
         {
-            var db = GetDatabase();
-
-            using var jsonOutputStream = new MemoryStream();
-            await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
-            var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
-
-            jsonOutputStream.Seek(0, SeekOrigin.Begin);
-            var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
-
-            using var jsonOutputStream2 = new MemoryStream();
-            await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
-            var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(reExportedJson, Is.Not.Null);
-                Assert.That(reExportedJson, Is.Not.Empty);
-                Assert.That(reExportedJson, Is.EqualTo(json));
-            });
-        }
-
-        // the above covers tables and views, but as the test database has no sequences, synonyms and routines we need to implement it
-        [Test]
-        public async Task SerializeDeserialize_WhenSequenceRoundTripped_ExportsAndParsesWithoutError()
-        {
-            var sequence = new DatabaseSequence(
-                "test_sequence_name",
-                1,
-                10,
-                Option<decimal>.Some(-10),
-                Option<decimal>.Some(1000),
-                true,
-                20
-            );
-            var sequences = new[] { sequence };
-
-            var tables = Array.Empty<IRelationalDatabaseTable>();
-            var views = Array.Empty<IDatabaseView>();
-            var synonyms = Array.Empty<IDatabaseSynonym>();
-            var routines = Array.Empty<IDatabaseRoutine>();
-
-            var db = new RelationalDatabase(
-                new IdentifierDefaults(null, null, "main"),
-                new VerbatimIdentifierResolutionStrategy(),
-                tables,
-                views,
-                sequences,
-                synonyms,
-                routines
-            );
-
-            using var jsonOutputStream = new MemoryStream();
-            await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
-
-            jsonOutputStream.Seek(0, SeekOrigin.Begin);
-            var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
-
-            db.Should().BeEquivalentTo(importedDb);
-        }
-
-        [Test]
-        public async Task SerializeDeserialize_WhenSequenceRoundTripped_PreservesJsonStructure()
-        {
-            var sequence = new DatabaseSequence(
-                "test_sequence_name",
-                1,
-                10,
-                Option<decimal>.Some(-10),
-                Option<decimal>.Some(1000),
-                true,
-                20
-            );
-            var sequences = new[] { sequence };
-
-            var tables = Array.Empty<IRelationalDatabaseTable>();
-            var views = Array.Empty<IDatabaseView>();
-            var synonyms = Array.Empty<IDatabaseSynonym>();
-            var routines = Array.Empty<IDatabaseRoutine>();
-
-            var db = new RelationalDatabase(
-                new IdentifierDefaults(null, null, "main"),
-                new VerbatimIdentifierResolutionStrategy(),
-                tables,
-                views,
-                sequences,
-                synonyms,
-                routines
-            );
-
-            using var jsonOutputStream = new MemoryStream();
-            await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
-            var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
-
-            jsonOutputStream.Seek(0, SeekOrigin.Begin);
-            var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
-
-            using var jsonOutputStream2 = new MemoryStream();
-            await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
-            var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(reExportedJson, Is.Not.Null);
-                Assert.That(reExportedJson, Is.Not.Empty);
-                Assert.That(reExportedJson, Is.EqualTo(json));
-            });
-        }
-
-        [Test]
-        public async Task SerializeDeserialize_WhenSynonymRoundTripped_ExportsAndParsesWithoutError()
-        {
-            var synonym = new DatabaseSynonym("test_synonym_name", "test_target_name");
-            var synonyms = new[] { synonym };
-
-            var tables = Array.Empty<IRelationalDatabaseTable>();
-            var views = Array.Empty<IDatabaseView>();
-            var sequences = Array.Empty<IDatabaseSequence>();
-            var routines = Array.Empty<IDatabaseRoutine>();
-
-            var db = new RelationalDatabase(
-                new IdentifierDefaults(null, null, "main"),
-                new VerbatimIdentifierResolutionStrategy(),
-                tables,
-                views,
-                sequences,
-                synonyms,
-                routines
-            );
-
-            using var jsonOutputStream = new MemoryStream();
-            await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
-
-            jsonOutputStream.Seek(0, SeekOrigin.Begin);
-            var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
-
-            db.Should().BeEquivalentTo(importedDb);
-        }
-
-        [Test]
-        public async Task SerializeDeserialize_WhenSynonymRoundTripped_PreservesJsonStructure()
-        {
-            var synonym = new DatabaseSynonym("test_synonym_name", "test_target_name");
-            var synonyms = new[] { synonym };
-
-            var tables = Array.Empty<IRelationalDatabaseTable>();
-            var views = Array.Empty<IDatabaseView>();
-            var sequences = Array.Empty<IDatabaseSequence>();
-            var routines = Array.Empty<IDatabaseRoutine>();
-
-            var db = new RelationalDatabase(
-                new IdentifierDefaults(null, null, "main"),
-                new VerbatimIdentifierResolutionStrategy(),
-                tables,
-                views,
-                sequences,
-                synonyms,
-                routines
-            );
-
-            using var jsonOutputStream = new MemoryStream();
-            await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
-            var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
-
-            jsonOutputStream.Seek(0, SeekOrigin.Begin);
-            var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
-
-            using var jsonOutputStream2 = new MemoryStream();
-            await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
-            var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(reExportedJson, Is.Not.Null);
-                Assert.That(reExportedJson, Is.Not.Empty);
-                Assert.That(reExportedJson, Is.EqualTo(json));
-            });
-        }
-
-        [Test]
-        public async Task SerializeDeserialize_WhenRoutineRoundTripped_ExportsAndParsesWithoutError()
-        {
-            var routine = new DatabaseRoutine("test_routine_name", "test_routine_definition");
-            var routines = new[] { routine };
-
-            var tables = Array.Empty<IRelationalDatabaseTable>();
-            var views = Array.Empty<IDatabaseView>();
-            var sequences = Array.Empty<IDatabaseSequence>();
-            var synonyms = Array.Empty<IDatabaseSynonym>();
-
-            var db = new RelationalDatabase(
-                new IdentifierDefaults(null, null, "main"),
-                new VerbatimIdentifierResolutionStrategy(),
-                tables,
-                views,
-                sequences,
-                synonyms,
-                routines
-            );
-
-            using var jsonOutputStream = new MemoryStream();
-            await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
-
-            jsonOutputStream.Seek(0, SeekOrigin.Begin);
-            var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
-
-            db.Should().BeEquivalentTo(importedDb);
-        }
-
-        [Test]
-        public async Task SerializeDeserialize_WhenRoutineRoundTripped_PreservesJsonStructure()
-        {
-            var routine = new DatabaseRoutine("test_routine_name", "test_routine_definition");
-            var routines = new[] { routine };
-
-            var tables = Array.Empty<IRelationalDatabaseTable>();
-            var views = Array.Empty<IDatabaseView>();
-            var sequences = Array.Empty<IDatabaseSequence>();
-            var synonyms = Array.Empty<IDatabaseSynonym>();
-
-            var db = new RelationalDatabase(
-                new IdentifierDefaults(null, null, "main"),
-                new VerbatimIdentifierResolutionStrategy(),
-                tables,
-                views,
-                sequences,
-                synonyms,
-                routines
-            );
-
-            using var jsonOutputStream = new MemoryStream();
-            await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
-            var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
-
-            jsonOutputStream.Seek(0, SeekOrigin.Begin);
-            var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
-
-            using var jsonOutputStream2 = new MemoryStream();
-            await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
-            var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(reExportedJson, Is.Not.Null);
-                Assert.That(reExportedJson, Is.Not.Empty);
-                Assert.That(reExportedJson, Is.EqualTo(json));
-            });
-        }
+            Assert.That(reExportedJson, Is.Not.Null);
+            Assert.That(reExportedJson, Is.Not.Empty);
+            Assert.That(reExportedJson, Is.EqualTo(json));
+        });
     }
 }

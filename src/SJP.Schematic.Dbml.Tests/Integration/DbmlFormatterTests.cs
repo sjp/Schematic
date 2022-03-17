@@ -6,20 +6,20 @@ using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite;
 using SJP.Schematic.Tests.Utilities;
 
-namespace SJP.Schematic.Dbml.Tests.Integration
+namespace SJP.Schematic.Dbml.Tests.Integration;
+
+internal sealed class DbmlFormatterTests : SqliteTest
 {
-    internal sealed class DbmlFormatterTests : SqliteTest
+    private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults, Pragma);
+
+    private Task<IRelationalDatabaseTable> GetTable(Identifier tableName) => Database.GetTable(tableName).UnwrapSomeAsync();
+
+    private static IDbmlFormatter Formatter => new DbmlFormatter();
+
+    [OneTimeSetUp]
+    public async Task Init()
     {
-        private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults, Pragma);
-
-        private Task<IRelationalDatabaseTable> GetTable(Identifier tableName) => Database.GetTable(tableName).UnwrapSomeAsync();
-
-        private static IDbmlFormatter Formatter => new DbmlFormatter();
-
-        [OneTimeSetUp]
-        public async Task Init()
-        {
-            await DbConnection.ExecuteAsync(@"
+        await DbConnection.ExecuteAsync(@"
 create table test_table_1 (
     test_pk integer not null primary key autoincrement,
     test_int integer not null,
@@ -31,7 +31,7 @@ create table test_table_1 (
     test_string text,
     test_string_with_default default 'test'
 )", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync(@"
+        await DbConnection.ExecuteAsync(@"
 create table test_table_2 (
     test_pk_1 integer not null,
     test_pk_2 integer not null,
@@ -42,11 +42,11 @@ create table test_table_2 (
     constraint test_table_2_pk primary key (test_pk_1, test_pk_2),
     constraint test_table_2_multi_uk unique (first_name, middle_name, last_name)
 )", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("create index ix_test_table_2_first_name on test_table_2 (first_name, last_name)", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("create index ix_test_table_2_comment on test_table_2 (comment)", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("create unique index ux_test_table_2_first_name_middle_name on test_table_2 (first_name, middle_name)", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("create unique index ux_test_table_2_last_name on test_table_2 (last_name)", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync(@"
+        await DbConnection.ExecuteAsync("create index ix_test_table_2_first_name on test_table_2 (first_name, last_name)", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create index ix_test_table_2_comment on test_table_2 (comment)", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create unique index ux_test_table_2_first_name_middle_name on test_table_2 (first_name, middle_name)", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create unique index ux_test_table_2_last_name on test_table_2 (last_name)", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync(@"
 create table test_table_3 (
     test_pk integer not null primary key autoincrement,
     test_int integer not null,
@@ -58,7 +58,7 @@ create table test_table_3 (
     test_string text,
     test_string_with_default default 'test'
 )", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync(@"
+        await DbConnection.ExecuteAsync(@"
 create table test_table_4 (
     test_pk integer not null primary key autoincrement,
     test_int integer not null,
@@ -78,98 +78,98 @@ create table test_table_4 (
     constraint fk_test_table_4_test_table_3_fk3 foreign key (test_table_3_fk3) references test_table_3 (test_pk) on delete set null,
     constraint fk_test_table_4_test_table_3_fk4 foreign key (test_table_3_fk4) references test_table_3 (test_pk) on update set null on delete cascade
 )", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("create table test_table_5 ( test_column_1 integer )", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync(@"
+        await DbConnection.ExecuteAsync("create table test_table_5 ( test_column_1 integer )", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync(@"
 create table test_table_6 (
     test_pk integer not null primary key autoincrement,
     test_int integer not null
 )", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync(@"
+        await DbConnection.ExecuteAsync(@"
 create table test_table_7 (
     test_pk integer not null primary key autoincrement,
     test_table_6_fk1 integer not null,
     constraint fk_test_table_7_test_table_6_fk1 foreign key (test_table_6_fk1) references test_table_6 (test_pk)
 )", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync(@"
+        await DbConnection.ExecuteAsync(@"
 create table test_table_8 (
     test_pk integer not null primary key autoincrement,
     test_table_8_fk1 integer not null,
     constraint fk_test_table_8_test_table_6_fk1 foreign key (test_table_8_fk1) references test_table_6 (test_pk)
     constraint test_table_8_uk1 unique (test_table_8_fk1)
 )", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync(@"
+        await DbConnection.ExecuteAsync(@"
 create table test_table_9 (
     test_pk integer not null primary key autoincrement,
     test_table_9_fk1 integer not null,
     constraint fk_test_table_9_test_table_6_fk1 foreign key (test_table_9_fk1) references test_table_6 (test_pk)
 )", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("create unique index ux_test_table_9_fk1 on test_table_9 (test_table_9_fk1)", CancellationToken.None).ConfigureAwait(false);
-        }
+        await DbConnection.ExecuteAsync("create unique index ux_test_table_9_fk1 on test_table_9 (test_table_9_fk1)", CancellationToken.None).ConfigureAwait(false);
+    }
 
-        [OneTimeTearDown]
-        public async Task CleanUp()
+    [OneTimeTearDown]
+    public async Task CleanUp()
+    {
+        await DbConnection.ExecuteAsync("drop table test_table_1", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table test_table_2", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table test_table_4", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table test_table_3", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table test_table_5", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table test_table_7", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table test_table_8", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table test_table_9", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table test_table_6", CancellationToken.None).ConfigureAwait(false);
+    }
+
+    [Test]
+    public async Task RenderTables_GivenSimpleTable_GeneratesExpectedDbml()
+    {
+        var table = await GetTable("test_table_5").ConfigureAwait(false);
+        var tables = new[] { table };
+
+        var result = Formatter.RenderTables(tables);
+
+        Assert.That(result, Is.EqualTo(TestTable5Dbml).Using(LineEndingInvariantStringComparer.Ordinal));
+    }
+
+    [Test]
+    public async Task RenderTables_GivenTableWithMultipleOptions_GeneratesExpectedDbml()
+    {
+        var table = await GetTable("test_table_1").ConfigureAwait(false);
+        var tables = new[] { table };
+
+        var result = Formatter.RenderTables(tables);
+
+        Assert.That(result, Is.EqualTo(TestTable1Dbml).Using(LineEndingInvariantStringComparer.Ordinal));
+    }
+
+    [Test]
+    public async Task RenderTables_GivenTableWithMultipleIndexes_GeneratesExpectedDbml()
+    {
+        var table = await GetTable("test_table_2").ConfigureAwait(false);
+        var tables = new[] { table };
+
+        var result = Formatter.RenderTables(tables);
+
+        Assert.That(result, Is.EqualTo(TestTable2Dbml).Using(LineEndingInvariantStringComparer.Ordinal));
+    }
+
+    [Test]
+    public async Task RenderTables_GivenTablesWithMultipleRelationalKeys_GeneratesExpectedDbml()
+    {
+        var tables = new[]
         {
-            await DbConnection.ExecuteAsync("drop table test_table_1", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop table test_table_2", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop table test_table_4", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop table test_table_3", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop table test_table_5", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop table test_table_7", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop table test_table_8", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop table test_table_9", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop table test_table_6", CancellationToken.None).ConfigureAwait(false);
-        }
+            await GetTable("test_table_6").ConfigureAwait(false),
+            await GetTable("test_table_7").ConfigureAwait(false),
+            await GetTable("test_table_8").ConfigureAwait(false),
+            await GetTable("test_table_9").ConfigureAwait(false)
+        };
 
-        [Test]
-        public async Task RenderTables_GivenSimpleTable_GeneratesExpectedDbml()
-        {
-            var table = await GetTable("test_table_5").ConfigureAwait(false);
-            var tables = new[] { table };
+        var result = Formatter.RenderTables(tables);
 
-            var result = Formatter.RenderTables(tables);
+        Assert.That(result, Is.EqualTo(MultipleRelationshipsDbml).Using(LineEndingInvariantStringComparer.Ordinal));
+    }
 
-            Assert.That(result, Is.EqualTo(TestTable5Dbml).Using(LineEndingInvariantStringComparer.Ordinal));
-        }
-
-        [Test]
-        public async Task RenderTables_GivenTableWithMultipleOptions_GeneratesExpectedDbml()
-        {
-            var table = await GetTable("test_table_1").ConfigureAwait(false);
-            var tables = new[] { table };
-
-            var result = Formatter.RenderTables(tables);
-
-            Assert.That(result, Is.EqualTo(TestTable1Dbml).Using(LineEndingInvariantStringComparer.Ordinal));
-        }
-
-        [Test]
-        public async Task RenderTables_GivenTableWithMultipleIndexes_GeneratesExpectedDbml()
-        {
-            var table = await GetTable("test_table_2").ConfigureAwait(false);
-            var tables = new[] { table };
-
-            var result = Formatter.RenderTables(tables);
-
-            Assert.That(result, Is.EqualTo(TestTable2Dbml).Using(LineEndingInvariantStringComparer.Ordinal));
-        }
-
-        [Test]
-        public async Task RenderTables_GivenTablesWithMultipleRelationalKeys_GeneratesExpectedDbml()
-        {
-            var tables = new[]
-            {
-                await GetTable("test_table_6").ConfigureAwait(false),
-                await GetTable("test_table_7").ConfigureAwait(false),
-                await GetTable("test_table_8").ConfigureAwait(false),
-                await GetTable("test_table_9").ConfigureAwait(false)
-            };
-
-            var result = Formatter.RenderTables(tables);
-
-            Assert.That(result, Is.EqualTo(MultipleRelationshipsDbml).Using(LineEndingInvariantStringComparer.Ordinal));
-        }
-
-        private const string TestTable1Dbml = @"Table main_test_table_1 {
+    private const string TestTable1Dbml = @"Table main_test_table_1 {
     test_pk INTEGER [not null, increment, primary key]
     test_int INTEGER [not null]
     test_nullable_int INTEGER [null]
@@ -181,7 +181,7 @@ create table test_table_9 (
     test_string_with_default NUMERIC [null, default: ""'test'""]
 }";
 
-        private const string TestTable2Dbml = @"Table main_test_table_2 {
+    private const string TestTable2Dbml = @"Table main_test_table_2 {
     test_pk_1 INTEGER [not null]
     test_pk_2 INTEGER [not null]
     first_name TEXT [not null]
@@ -197,11 +197,11 @@ create table test_table_9 (
     }
 }";
 
-        private const string TestTable5Dbml = @"Table main_test_table_5 {
+    private const string TestTable5Dbml = @"Table main_test_table_5 {
     test_column_1 INTEGER [null]
 }";
 
-        private const string MultipleRelationshipsDbml = @"Table main_test_table_6 {
+    private const string MultipleRelationshipsDbml = @"Table main_test_table_6 {
     test_pk INTEGER [not null, increment, primary key]
     test_int INTEGER [not null]
 }
@@ -228,5 +228,4 @@ Table main_test_table_9 {
 Ref: main_test_table_7.test_table_6_fk1 > main_test_table_6.test_pk
 Ref: main_test_table_8.test_table_8_fk1 - main_test_table_6.test_pk
 Ref: main_test_table_9.test_table_9_fk1 - main_test_table_6.test_pk";
-    }
 }

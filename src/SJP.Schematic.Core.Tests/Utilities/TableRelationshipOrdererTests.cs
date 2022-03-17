@@ -1,25 +1,24 @@
 ﻿using NUnit.Framework;
 using SJP.Schematic.Core.Utilities;
 
-namespace SJP.Schematic.Core.Tests.Utilities
+namespace SJP.Schematic.Core.Tests.Utilities;
+
+[TestFixture]
+internal static class TableRelationshipOrdererTests
 {
-    [TestFixture]
-    internal static class TableRelationshipOrdererTests
+    [Test]
+    public static void GetDeletionOrder_GivenNullTables_ThrowsArgumentNullException()
     {
-        [Test]
-        public static void GetDeletionOrder_GivenNullTables_ThrowsArgumentNullException()
-        {
-            var tableOrder = new TableRelationshipOrderer();
+        var tableOrder = new TableRelationshipOrderer();
 
-            Assert.That(() => tableOrder.GetDeletionOrder(null), Throws.ArgumentNullException);
-        }
+        Assert.That(() => tableOrder.GetDeletionOrder(null), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static void GetInsertionOrder_GivenNullTables_ThrowsArgumentNullException()
-        {
-            var tableOrder = new TableRelationshipOrderer();
+    [Test]
+    public static void GetInsertionOrder_GivenNullTables_ThrowsArgumentNullException()
+    {
+        var tableOrder = new TableRelationshipOrderer();
 
-            Assert.That(() => tableOrder.GetInsertionOrder(null), Throws.ArgumentNullException);
-        }
+        Assert.That(() => tableOrder.GetInsertionOrder(null), Throws.ArgumentNullException);
     }
 }

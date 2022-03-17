@@ -2,126 +2,125 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SJP.Schematic.Core.Extensions
+namespace SJP.Schematic.Core.Extensions;
+
+/// <summary>
+/// Convenience extension methods for working with <see cref="IEnumerable{T}"/> instances.
+/// </summary>
+public static class EnumerableExtensions
 {
     /// <summary>
-    /// Convenience extension methods for working with <see cref="IEnumerable{T}"/> instances.
+    /// Determines whether a collection is empty.
     /// </summary>
-    public static class EnumerableExtensions
+    /// <typeparam name="T">The type of objects to enumerate.</typeparam>
+    /// <param name="source">The source collection.</param>
+    /// <returns><c>true</c> if the collection has no elements; otherwise <c>false</c>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
+    public static bool Empty<T>(this IEnumerable<T> source)
     {
-        /// <summary>
-        /// Determines whether a collection is empty.
-        /// </summary>
-        /// <typeparam name="T">The type of objects to enumerate.</typeparam>
-        /// <param name="source">The source collection.</param>
-        /// <returns><c>true</c> if the collection has no elements; otherwise <c>false</c>.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
-        public static bool Empty<T>(this IEnumerable<T> source)
+        if (source == null)
+            throw new ArgumentNullException(nameof(source));
+
+        return !source.Any();
+    }
+
+    /// <summary>
+    /// Determines whether a collection has no elements matching a given predicate.
+    /// </summary>
+    /// <typeparam name="T">The type of objects to enumerate.</typeparam>
+    /// <param name="source">The source collection.</param>
+    /// <param name="predicate">A filter to match against elements in <paramref name="source"/>.</param>
+    /// <returns><c>true</c> if the collection has no elements matching the predicate; otherwise <c>false</c>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="predicate"/> is <c>null</c>.</exception>
+    public static bool Empty<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+    {
+        if (source == null)
+            throw new ArgumentNullException(nameof(source));
+        if (predicate == null)
+            throw new ArgumentNullException(nameof(predicate));
+
+        return !source.Any(predicate);
+    }
+
+    /// <summary>
+    /// Determines whether a collection has elements which are <c>null</c>.
+    /// </summary>
+    /// <typeparam name="T">The type of objects to enumerate.</typeparam>
+    /// <param name="source">The source collection.</param>
+    /// <returns><c>true</c> if the collection has elements which are <c>null</c>; otherwise <c>false</c>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
+    public static bool AnyNull<T>(this IEnumerable<T> source) where T : notnull
+    {
+        if (source == null)
+            throw new ArgumentNullException(nameof(source));
+
+        return source.Any(static x => x == null);
+    }
+
+    /// <summary>
+    /// An eagerly evaluating group by implementation that is faster and lower in memory allocation.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key used for uniqueness testing.</typeparam>
+    /// <typeparam name="TValue">The type of the value used for each group member.</typeparam>
+    /// <param name="source">The source collection.</param>
+    /// <param name="keySelector">The selector which returns a key used for uniqueness testing.</param>
+    /// <returns>A <see cref="IReadOnlyDictionary{TKey, TValue}"/> whose keys are the group keys, and values are members of the given group.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="keySelector"/> is <c>null</c>.</exception>
+    public static IReadOnlyDictionary<TKey, List<TValue>> GroupAsDictionary<TKey, TValue>(this IEnumerable<TValue> source, Func<TValue, TKey> keySelector)
+        where TKey : notnull
+        where TValue : notnull
+    {
+        if (source == null)
+            throw new ArgumentNullException(nameof(source));
+        if (keySelector == null)
+            throw new ArgumentNullException(nameof(keySelector));
+
+        var dictionary = new Dictionary<TKey, List<TValue>>();
+        foreach (var item in source)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
-
-            return !source.Any();
-        }
-
-        /// <summary>
-        /// Determines whether a collection has no elements matching a given predicate.
-        /// </summary>
-        /// <typeparam name="T">The type of objects to enumerate.</typeparam>
-        /// <param name="source">The source collection.</param>
-        /// <param name="predicate">A filter to match against elements in <paramref name="source"/>.</param>
-        /// <returns><c>true</c> if the collection has no elements matching the predicate; otherwise <c>false</c>.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="predicate"/> is <c>null</c>.</exception>
-        public static bool Empty<T>(this IEnumerable<T> source, Func<T, bool> predicate)
-        {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
-            if (predicate == null)
-                throw new ArgumentNullException(nameof(predicate));
-
-            return !source.Any(predicate);
-        }
-
-        /// <summary>
-        /// Determines whether a collection has elements which are <c>null</c>.
-        /// </summary>
-        /// <typeparam name="T">The type of objects to enumerate.</typeparam>
-        /// <param name="source">The source collection.</param>
-        /// <returns><c>true</c> if the collection has elements which are <c>null</c>; otherwise <c>false</c>.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
-        public static bool AnyNull<T>(this IEnumerable<T> source) where T : notnull
-        {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
-
-            return source.Any(static x => x == null);
-        }
-
-        /// <summary>
-        /// An eagerly evaluating group by implementation that is faster and lower in memory allocation.
-        /// </summary>
-        /// <typeparam name="TKey">The type of the key used for uniqueness testing.</typeparam>
-        /// <typeparam name="TValue">The type of the value used for each group member.</typeparam>
-        /// <param name="source">The source collection.</param>
-        /// <param name="keySelector">The selector which returns a key used for uniqueness testing.</param>
-        /// <returns>A <see cref="IReadOnlyDictionary{TKey, TValue}"/> whose keys are the group keys, and values are members of the given group.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="keySelector"/> is <c>null</c>.</exception>
-        public static IReadOnlyDictionary<TKey, List<TValue>> GroupAsDictionary<TKey, TValue>(this IEnumerable<TValue> source, Func<TValue, TKey> keySelector)
-            where TKey : notnull
-            where TValue : notnull
-        {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
-            if (keySelector == null)
-                throw new ArgumentNullException(nameof(keySelector));
-
-            var dictionary = new Dictionary<TKey, List<TValue>>();
-            foreach (var item in source)
+            var key = keySelector(item);
+            if (!dictionary.TryGetValue(key, out var grouping))
             {
-                var key = keySelector(item);
-                if (!dictionary.TryGetValue(key, out var grouping))
-                {
-                    grouping = new List<TValue>(1);
-                    dictionary.Add(key, grouping);
-                }
-                grouping.Add(item);
+                grouping = new List<TValue>(1);
+                dictionary.Add(key, grouping);
             }
-            return dictionary;
+            grouping.Add(item);
         }
+        return dictionary;
+    }
 
-        /// <summary>
-        /// An eagerly evaluating group by implementation that is faster and lower in memory allocation.
-        /// </summary>
-        /// <typeparam name="TKey">The type of the key used for uniqueness testing.</typeparam>
-        /// <typeparam name="TValue">The type of the value used for each group member.</typeparam>
-        /// <param name="source">The source collection.</param>
-        /// <param name="keySelector">The selector which returns a key used for uniqueness testing.</param>
-        /// <param name="comparer">A comparer used for uniqueness testing. Defaults to <see cref="EqualityComparer{TKey}.Default"/> when <c>null</c>.</param>
-        /// <returns>A <see cref="IReadOnlyDictionary{TKey, TValue}"/> whose keys are the group keys, and values are members of the given group.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="keySelector"/> is <c>null</c>.</exception>
-        public static IReadOnlyDictionary<TKey, List<TValue>> GroupAsDictionary<TKey, TValue>(this IEnumerable<TValue> source, Func<TValue, TKey> keySelector, IEqualityComparer<TKey> comparer)
-            where TKey : notnull
-            where TValue : notnull
+    /// <summary>
+    /// An eagerly evaluating group by implementation that is faster and lower in memory allocation.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key used for uniqueness testing.</typeparam>
+    /// <typeparam name="TValue">The type of the value used for each group member.</typeparam>
+    /// <param name="source">The source collection.</param>
+    /// <param name="keySelector">The selector which returns a key used for uniqueness testing.</param>
+    /// <param name="comparer">A comparer used for uniqueness testing. Defaults to <see cref="EqualityComparer{TKey}.Default"/> when <c>null</c>.</param>
+    /// <returns>A <see cref="IReadOnlyDictionary{TKey, TValue}"/> whose keys are the group keys, and values are members of the given group.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="keySelector"/> is <c>null</c>.</exception>
+    public static IReadOnlyDictionary<TKey, List<TValue>> GroupAsDictionary<TKey, TValue>(this IEnumerable<TValue> source, Func<TValue, TKey> keySelector, IEqualityComparer<TKey> comparer)
+        where TKey : notnull
+        where TValue : notnull
+    {
+        if (source == null)
+            throw new ArgumentNullException(nameof(source));
+        if (keySelector == null)
+            throw new ArgumentNullException(nameof(keySelector));
+
+        comparer ??= EqualityComparer<TKey>.Default;
+
+        var dictionary = new Dictionary<TKey, List<TValue>>(comparer);
+        foreach (var item in source)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
-            if (keySelector == null)
-                throw new ArgumentNullException(nameof(keySelector));
-
-            comparer ??= EqualityComparer<TKey>.Default;
-
-            var dictionary = new Dictionary<TKey, List<TValue>>(comparer);
-            foreach (var item in source)
+            var key = keySelector(item);
+            if (!dictionary.TryGetValue(key, out var grouping))
             {
-                var key = keySelector(item);
-                if (!dictionary.TryGetValue(key, out var grouping))
-                {
-                    grouping = new List<TValue>(1);
-                    dictionary.Add(key, grouping);
-                }
-                grouping.Add(item);
+                grouping = new List<TValue>(1);
+                dictionary.Add(key, grouping);
             }
-            return dictionary;
+            grouping.Add(item);
         }
+        return dictionary;
     }
 }

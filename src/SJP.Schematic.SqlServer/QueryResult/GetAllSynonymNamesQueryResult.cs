@@ -1,9 +1,8 @@
-﻿namespace SJP.Schematic.SqlServer.QueryResult
-{
-    internal sealed record GetAllSynonymNamesQueryResult
-    {
-        public string SchemaName { get; init; } = default!;
+﻿namespace SJP.Schematic.SqlServer.QueryResult;
 
-        public string SynonymName { get; init; } = default!;
-    }
+internal sealed record GetAllSynonymNamesQueryResult
+{
+    public string SchemaName { get; init; } = default!;
+
+    public string SynonymName { get; init; } = default!;
 }

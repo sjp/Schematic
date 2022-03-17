@@ -1,9 +1,8 @@
-﻿namespace SJP.Schematic.MySql.QueryResult
-{
-    internal sealed record GetTablePrimaryKeyQueryResult
-    {
-        public string ConstraintName { get; init; } = default!;
+﻿namespace SJP.Schematic.MySql.QueryResult;
 
-        public string ColumnName { get; init; } = default!;
-    }
+internal sealed record GetTablePrimaryKeyQueryResult
+{
+    public string ConstraintName { get; init; } = default!;
+
+    public string ColumnName { get; init; } = default!;
 }

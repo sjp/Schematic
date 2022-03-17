@@ -1,10 +1,9 @@
-﻿namespace SJP.Schematic.Dot
+﻿namespace SJP.Schematic.Dot;
+
+internal enum RankDirection
 {
-    internal enum RankDirection
-    {
-        RB,
-        LR,
-        BT,
-        RL
-    }
+    RB,
+    LR,
+    BT,
+    RL
 }

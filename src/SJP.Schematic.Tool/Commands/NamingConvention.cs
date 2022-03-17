@@ -1,10 +1,9 @@
-﻿namespace SJP.Schematic.Tool.Commands
+﻿namespace SJP.Schematic.Tool.Commands;
+
+internal enum NamingConvention
 {
-    internal enum NamingConvention
-    {
-        Pascal,
-        Verbatim,
-        Camel,
-        Snake
-    }
+    Pascal,
+    Verbatim,
+    Camel,
+    Snake
 }

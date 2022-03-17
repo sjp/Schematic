@@ -2,54 +2,53 @@
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite.Exceptions;
 
-namespace SJP.Schematic.Sqlite.Tests.Exceptions
+namespace SJP.Schematic.Sqlite.Tests.Exceptions;
+
+[TestFixture]
+internal static class SqliteTableParsingExceptionTests
 {
-    [TestFixture]
-    internal static class SqliteTableParsingExceptionTests
+    [TestCase("", "test_table", "Unable to parse the CREATE TABLE statement for the table 'LocalName = test_table'.")]
+    [TestCase("test_schema", "test_table", "Unable to parse the CREATE TABLE statement for the table 'Schema = test_schema, LocalName = test_table'.")]
+    public static void Message_PropertyGet_ConstructsExpectedMessage(string schema, string localName, string expectedOutput)
     {
-        [TestCase("", "test_table", "Unable to parse the CREATE TABLE statement for the table 'LocalName = test_table'.")]
-        [TestCase("test_schema", "test_table", "Unable to parse the CREATE TABLE statement for the table 'Schema = test_schema, LocalName = test_table'.")]
-        public static void Message_PropertyGet_ConstructsExpectedMessage(string schema, string localName, string expectedOutput)
-        {
-            var tableName = Identifier.CreateQualifiedIdentifier(schema, localName);
-            const string sql = "select * from test_table";
-            const string errorMessage = "unknown error";
-            var ex = new SqliteTableParsingException(tableName, sql, errorMessage);
+        var tableName = Identifier.CreateQualifiedIdentifier(schema, localName);
+        const string sql = "select * from test_table";
+        const string errorMessage = "unknown error";
+        var ex = new SqliteTableParsingException(tableName, sql, errorMessage);
 
-            Assert.That(ex.Message, Is.EqualTo(expectedOutput));
-        }
+        Assert.That(ex.Message, Is.EqualTo(expectedOutput));
+    }
 
-        [Test]
-        public static void TableName_PropertyGet_MatchesCtorArg()
-        {
-            var tableName = Identifier.CreateQualifiedIdentifier("test_table");
-            const string sql = "select * from test_table";
-            const string errorMessage = "unknown error";
-            var ex = new SqliteTableParsingException(tableName, sql, errorMessage);
+    [Test]
+    public static void TableName_PropertyGet_MatchesCtorArg()
+    {
+        var tableName = Identifier.CreateQualifiedIdentifier("test_table");
+        const string sql = "select * from test_table";
+        const string errorMessage = "unknown error";
+        var ex = new SqliteTableParsingException(tableName, sql, errorMessage);
 
-            Assert.That(ex.TableName, Is.EqualTo(tableName));
-        }
+        Assert.That(ex.TableName, Is.EqualTo(tableName));
+    }
 
-        [Test]
-        public static void Sql_PropertyGet_MatchesCtorArg()
-        {
-            const string tableName = "test_table";
-            const string sql = "select * from test_table";
-            const string errorMessage = "unknown error";
-            var ex = new SqliteTableParsingException(tableName, sql, errorMessage);
+    [Test]
+    public static void Sql_PropertyGet_MatchesCtorArg()
+    {
+        const string tableName = "test_table";
+        const string sql = "select * from test_table";
+        const string errorMessage = "unknown error";
+        var ex = new SqliteTableParsingException(tableName, sql, errorMessage);
 
-            Assert.That(ex.Sql, Is.EqualTo(sql));
-        }
+        Assert.That(ex.Sql, Is.EqualTo(sql));
+    }
 
-        [Test]
-        public static void ParsingErrorMessage_PropertyGet_MatchesCtorArg()
-        {
-            const string tableName = "test_table";
-            const string sql = "select * from test_table";
-            const string errorMessage = "unknown error";
-            var ex = new SqliteTableParsingException(tableName, sql, errorMessage);
+    [Test]
+    public static void ParsingErrorMessage_PropertyGet_MatchesCtorArg()
+    {
+        const string tableName = "test_table";
+        const string sql = "select * from test_table";
+        const string errorMessage = "unknown error";
+        var ex = new SqliteTableParsingException(tableName, sql, errorMessage);
 
-            Assert.That(ex.ParsingErrorMessage, Is.EqualTo(errorMessage));
-        }
+        Assert.That(ex.ParsingErrorMessage, Is.EqualTo(errorMessage));
     }
 }

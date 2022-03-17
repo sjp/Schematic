@@ -3,48 +3,47 @@ using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.PostgreSql.Comments;
 
-namespace SJP.Schematic.PostgreSql.Tests.Comments
+namespace SJP.Schematic.PostgreSql.Tests.Comments;
+
+[TestFixture]
+internal static class PostgreSqlSequenceCommentProviderTests
 {
-    [TestFixture]
-    internal static class PostgreSqlSequenceCommentProviderTests
+    [Test]
+    public static void Ctor_GivenNullConnection_ThrowsArgNullException()
     {
-        [Test]
-        public static void Ctor_GivenNullConnection_ThrowsArgNullException()
-        {
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
+        var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+        var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            Assert.That(() => new PostgreSqlSequenceCommentProvider(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
-        }
+        Assert.That(() => new PostgreSqlSequenceCommentProvider(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgNullException()
-        {
-            var connection = Mock.Of<IDbConnectionFactory>();
-            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
+    [Test]
+    public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgNullException()
+    {
+        var connection = Mock.Of<IDbConnectionFactory>();
+        var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            Assert.That(() => new PostgreSqlSequenceCommentProvider(connection, null, identifierResolver), Throws.ArgumentNullException);
-        }
+        Assert.That(() => new PostgreSqlSequenceCommentProvider(connection, null, identifierResolver), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static void Ctor_GivenNullIdentifierResolver_ThrowsArgNullException()
-        {
-            var connection = Mock.Of<IDbConnectionFactory>();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+    [Test]
+    public static void Ctor_GivenNullIdentifierResolver_ThrowsArgNullException()
+    {
+        var connection = Mock.Of<IDbConnectionFactory>();
+        var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.That(() => new PostgreSqlSequenceCommentProvider(connection, identifierDefaults, null), Throws.ArgumentNullException);
-        }
+        Assert.That(() => new PostgreSqlSequenceCommentProvider(connection, identifierDefaults, null), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static void GetSequenceComments_GivenNullSequenceName_ThrowsArgNullException()
-        {
-            var connection = Mock.Of<IDbConnectionFactory>();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
-            var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
+    [Test]
+    public static void GetSequenceComments_GivenNullSequenceName_ThrowsArgNullException()
+    {
+        var connection = Mock.Of<IDbConnectionFactory>();
+        var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+        var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-            var commentProvider = new PostgreSqlSequenceCommentProvider(connection, identifierDefaults, identifierResolver);
+        var commentProvider = new PostgreSqlSequenceCommentProvider(connection, identifierDefaults, identifierResolver);
 
-            Assert.That(() => commentProvider.GetSequenceComments(null), Throws.ArgumentNullException);
-        }
+        Assert.That(() => commentProvider.GetSequenceComments(null), Throws.ArgumentNullException);
     }
 }

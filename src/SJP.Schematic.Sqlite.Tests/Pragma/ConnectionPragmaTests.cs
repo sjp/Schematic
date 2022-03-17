@@ -1,15 +1,14 @@
 ﻿using NUnit.Framework;
 using SJP.Schematic.Sqlite.Pragma;
 
-namespace SJP.Schematic.Sqlite.Tests.Pragma
+namespace SJP.Schematic.Sqlite.Tests.Pragma;
+
+[TestFixture]
+internal static class ConnectionPragmaTests
 {
-    [TestFixture]
-    internal static class ConnectionPragmaTests
+    [Test]
+    public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
     {
-        [Test]
-        public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
-        {
-            Assert.That(() => new ConnectionPragma(null), Throws.ArgumentNullException);
-        }
+        Assert.That(() => new ConnectionPragma(null), Throws.ArgumentNullException);
     }
 }

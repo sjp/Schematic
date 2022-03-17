@@ -1,10 +1,9 @@
-﻿namespace SJP.Schematic.Dot
+﻿namespace SJP.Schematic.Dot;
+
+internal enum EdgeDirection
 {
-    internal enum EdgeDirection
-    {
-        Forward,
-        Back,
-        Both,
-        None
-    }
+    Forward,
+    Back,
+    Both,
+    None
 }

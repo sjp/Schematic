@@ -2,25 +2,24 @@
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
 
-namespace SJP.Schematic.MySql.Tests.Integration
+namespace SJP.Schematic.MySql.Tests.Integration;
+
+internal sealed class MySqlDialectTests : MySqlTest
 {
-    internal sealed class MySqlDialectTests : MySqlTest
+    [Test]
+    public async Task GetDatabaseDisplayVersionAsync_GivenValidConnection_ReturnsNonEmptyString()
     {
-        [Test]
-        public async Task GetDatabaseDisplayVersionAsync_GivenValidConnection_ReturnsNonEmptyString()
-        {
-            var versionStr = await Dialect.GetDatabaseDisplayVersionAsync(Connection).ConfigureAwait(false);
-            var validStr = !versionStr.IsNullOrWhiteSpace();
+        var versionStr = await Dialect.GetDatabaseDisplayVersionAsync(Connection).ConfigureAwait(false);
+        var validStr = !versionStr.IsNullOrWhiteSpace();
 
-            Assert.That(validStr, Is.True);
-        }
+        Assert.That(validStr, Is.True);
+    }
 
-        [Test]
-        public async Task GetDatabaseVersionAsync_GivenValidConnection_ReturnsNonNullVersion()
-        {
-            var version = await Dialect.GetDatabaseVersionAsync(Connection).ConfigureAwait(false);
+    [Test]
+    public async Task GetDatabaseVersionAsync_GivenValidConnection_ReturnsNonNullVersion()
+    {
+        var version = await Dialect.GetDatabaseVersionAsync(Connection).ConfigureAwait(false);
 
-            Assert.That(version, Is.Not.Null);
-        }
+        Assert.That(version, Is.Not.Null);
     }
 }

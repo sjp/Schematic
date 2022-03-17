@@ -110,6 +110,8 @@ csharp_using_directive_placement = outside_namespace:silent
 
 #### C# Formatting Rules ####
 
+csharp_style_namespace_declarations = file_scoped:warning
+
 # New line preferences
 csharp_new_line_before_catch = true
 csharp_new_line_before_else = true

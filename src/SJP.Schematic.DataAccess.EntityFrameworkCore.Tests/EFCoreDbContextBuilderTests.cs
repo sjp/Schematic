@@ -4,84 +4,84 @@ using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Tests.Utilities;
 
-namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests
+namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests;
+
+[TestFixture]
+internal static class EFCoreDbContextBuilderTests
 {
-    [TestFixture]
-    internal static class EFCoreDbContextBuilderTests
+    [Test]
+    public static void Ctor_GivenNullNameTranslator_ThrowsArgumentNullException()
     {
-        [Test]
-        public static void Ctor_GivenNullNameTranslator_ThrowsArgumentNullException()
-        {
-            Assert.That(() => new EFCoreDbContextBuilder(null, "test"), Throws.ArgumentNullException);
-        }
+        Assert.That(() => new EFCoreDbContextBuilder(null, "test"), Throws.ArgumentNullException);
+    }
 
-        [TestCase((string)null)]
-        [TestCase("")]
-        [TestCase("    ")]
-        public static void Ctor_GivenNullOrWhiteSpaceNamespace_ThrowsArgumentNullException(string ns)
-        {
-            var nameTranslator = new VerbatimNameTranslator();
-            Assert.That(() => new EFCoreDbContextBuilder(nameTranslator, ns), Throws.ArgumentNullException);
-        }
+    [TestCase((string)null)]
+    [TestCase("")]
+    [TestCase("    ")]
+    public static void Ctor_GivenNullOrWhiteSpaceNamespace_ThrowsArgumentNullException(string ns)
+    {
+        var nameTranslator = new VerbatimNameTranslator();
+        Assert.That(() => new EFCoreDbContextBuilder(nameTranslator, ns), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static void Generate_GivenNullTables_ThrowsArgumentNullException()
-        {
-            var nameTranslator = new VerbatimNameTranslator();
-            var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
-            var views = Array.Empty<IDatabaseView>();
-            var sequences = Array.Empty<IDatabaseSequence>();
+    [Test]
+    public static void Generate_GivenNullTables_ThrowsArgumentNullException()
+    {
+        var nameTranslator = new VerbatimNameTranslator();
+        var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
+        var views = Array.Empty<IDatabaseView>();
+        var sequences = Array.Empty<IDatabaseSequence>();
 
-            Assert.That(() => dbContextBuilder.Generate(null, views, sequences), Throws.ArgumentNullException);
-        }
+        Assert.That(() => dbContextBuilder.Generate(null, views, sequences), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static void Generate_GivenNullViews_ThrowsArgumentNullException()
-        {
-            var nameTranslator = new VerbatimNameTranslator();
-            var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
-            var tables = Array.Empty<IRelationalDatabaseTable>();
-            var sequences = Array.Empty<IDatabaseSequence>();
+    [Test]
+    public static void Generate_GivenNullViews_ThrowsArgumentNullException()
+    {
+        var nameTranslator = new VerbatimNameTranslator();
+        var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
+        var tables = Array.Empty<IRelationalDatabaseTable>();
+        var sequences = Array.Empty<IDatabaseSequence>();
 
-            Assert.That(() => dbContextBuilder.Generate(tables, null, sequences), Throws.ArgumentNullException);
-        }
+        Assert.That(() => dbContextBuilder.Generate(tables, null, sequences), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static void Generate_GivenNullSequences_ThrowsArgumentNullException()
-        {
-            var nameTranslator = new VerbatimNameTranslator();
-            var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
-            var tables = Array.Empty<IRelationalDatabaseTable>();
-            var views = Array.Empty<IDatabaseView>();
+    [Test]
+    public static void Generate_GivenNullSequences_ThrowsArgumentNullException()
+    {
+        var nameTranslator = new VerbatimNameTranslator();
+        var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
+        var tables = Array.Empty<IRelationalDatabaseTable>();
+        var views = Array.Empty<IDatabaseView>();
 
-            Assert.That(() => dbContextBuilder.Generate(tables, views, null), Throws.ArgumentNullException);
-        }
+        Assert.That(() => dbContextBuilder.Generate(tables, views, null), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static void Generate_GivenValidSequence_ReturnsExpectedConfiguration()
-        {
-            var nameTranslator = new VerbatimNameTranslator();
-            var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
-            var tables = Array.Empty<IRelationalDatabaseTable>();
-            var views = Array.Empty<IDatabaseView>();
+    [Test]
+    public static void Generate_GivenValidSequence_ReturnsExpectedConfiguration()
+    {
+        var nameTranslator = new VerbatimNameTranslator();
+        var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
+        var tables = Array.Empty<IRelationalDatabaseTable>();
+        var views = Array.Empty<IDatabaseView>();
 
-            var sequence = new DatabaseSequence(
-                "test_sequence",
-                3,
-                20,
-                Option<decimal>.Some(0),
-                Option<decimal>.Some(100),
-                true,
-                2
-            );
-            var sequences = new[] { sequence };
+        var sequence = new DatabaseSequence(
+            "test_sequence",
+            3,
+            20,
+            Option<decimal>.Some(0),
+            Option<decimal>.Some(100),
+            true,
+            2
+        );
+        var sequences = new[] { sequence };
 
-            var result = dbContextBuilder.Generate(tables, views, sequences);
+        var result = dbContextBuilder.Generate(tables, views, sequences);
 
-            Assert.That(result, Is.EqualTo(ExpectedSequenceTestResult).Using(LineEndingInvariantStringComparer.Ordinal));
-        }
+        Assert.That(result, Is.EqualTo(ExpectedSequenceTestResult).Using(LineEndingInvariantStringComparer.Ordinal));
+    }
 
-        private const string ExpectedSequenceTestResult = @"using System;
+    private const string ExpectedSequenceTestResult = @"using System;
 using Microsoft.EntityFrameworkCore;
 
 namespace test
@@ -98,5 +98,4 @@ namespace test
         }
     }
 }";
-    }
 }

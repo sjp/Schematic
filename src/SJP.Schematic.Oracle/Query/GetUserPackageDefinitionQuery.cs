@@ -1,7 +1,6 @@
-﻿namespace SJP.Schematic.Oracle.Query
+﻿namespace SJP.Schematic.Oracle.Query;
+
+internal sealed record GetUserPackageDefinitionQuery
 {
-    internal sealed record GetUserPackageDefinitionQuery
-    {
-        public string PackageName { get; init; } = default!;
-    }
+    public string PackageName { get; init; } = default!;
 }

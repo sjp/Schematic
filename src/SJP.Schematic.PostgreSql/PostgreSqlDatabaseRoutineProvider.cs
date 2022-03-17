@@ -10,73 +10,73 @@ using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.PostgreSql.Query;
 using SJP.Schematic.PostgreSql.QueryResult;
 
-namespace SJP.Schematic.PostgreSql
+namespace SJP.Schematic.PostgreSql;
+
+/// <summary>
+/// A database routine provider for PostgreSQL databases.
+/// </summary>
+/// <seealso cref="IDatabaseRoutineProvider" />
+public class PostgreSqlDatabaseRoutineProvider : IDatabaseRoutineProvider
 {
     /// <summary>
-    /// A database routine provider for PostgreSQL databases.
+    /// Initializes a new instance of the <see cref="PostgreSqlDatabaseRoutineProvider"/> class.
     /// </summary>
-    /// <seealso cref="IDatabaseRoutineProvider" />
-    public class PostgreSqlDatabaseRoutineProvider : IDatabaseRoutineProvider
+    /// <param name="connection">A database connection factory.</param>
+    /// <param name="identifierDefaults">Database identifier defaults.</param>
+    /// <param name="identifierResolver">An identifier resolver.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
+    public PostgreSqlDatabaseRoutineProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PostgreSqlDatabaseRoutineProvider"/> class.
-        /// </summary>
-        /// <param name="connection">A database connection factory.</param>
-        /// <param name="identifierDefaults">Database identifier defaults.</param>
-        /// <param name="identifierResolver">An identifier resolver.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
-        public PostgreSqlDatabaseRoutineProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
-        {
-            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
-            IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
-        }
+        Connection = connection ?? throw new ArgumentNullException(nameof(connection));
+        IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+        IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
+    }
 
-        /// <summary>
-        /// A database connection factory.
-        /// </summary>
-        /// <value>A database connection factory.</value>
-        protected IDbConnectionFactory Connection { get; }
+    /// <summary>
+    /// A database connection factory.
+    /// </summary>
+    /// <value>A database connection factory.</value>
+    protected IDbConnectionFactory Connection { get; }
 
-        /// <summary>
-        /// Identifier defaults for the associated database.
-        /// </summary>
-        /// <value>Identifier defaults.</value>
-        protected IIdentifierDefaults IdentifierDefaults { get; }
+    /// <summary>
+    /// Identifier defaults for the associated database.
+    /// </summary>
+    /// <value>Identifier defaults.</value>
+    protected IIdentifierDefaults IdentifierDefaults { get; }
 
-        /// <summary>
-        /// Gets an identifier resolver that enables more relaxed matching against database object names.
-        /// </summary>
-        /// <value>An identifier resolver.</value>
-        protected IIdentifierResolutionStrategy IdentifierResolver { get; }
+    /// <summary>
+    /// Gets an identifier resolver that enables more relaxed matching against database object names.
+    /// </summary>
+    /// <value>An identifier resolver.</value>
+    protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
-        /// <summary>
-        /// Retrieves all database routines.
-        /// </summary>
-        /// <param name="cancellationToken">A cancellation token.</param>
-        /// <returns>A collection of database routines.</returns>
-        public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
-        {
-            var queryResults = await Connection.QueryAsync<GetAllRoutineNamesQueryResult>(
-                RoutinesQuery,
-                cancellationToken
-            ).ConfigureAwait(false);
+    /// <summary>
+    /// Retrieves all database routines.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database routines.</returns>
+    public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        var queryResults = await Connection.QueryAsync<GetAllRoutineNamesQueryResult>(
+            RoutinesQuery,
+            cancellationToken
+        ).ConfigureAwait(false);
 
-            var routineNames = queryResults
-                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
-                .Select(QualifyRoutineName);
+        var routineNames = queryResults
+            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
+            .Select(QualifyRoutineName);
 
-            foreach (var routineName in routineNames)
-                yield return await LoadRoutineAsyncCore(routineName, cancellationToken).ConfigureAwait(false);
-        }
+        foreach (var routineName in routineNames)
+            yield return await LoadRoutineAsyncCore(routineName, cancellationToken).ConfigureAwait(false);
+    }
 
-        /// <summary>
-        /// A SQL query that retrieves all database routine names.
-        /// </summary>
-        /// <value>A SQL query definition.</value>
-        protected virtual string RoutinesQuery => RoutinesQuerySql;
+    /// <summary>
+    /// A SQL query that retrieves all database routine names.
+    /// </summary>
+    /// <value>A SQL query definition.</value>
+    protected virtual string RoutinesQuery => RoutinesQuerySql;
 
-        private const string RoutinesQuerySql = @$"
+    private const string RoutinesQuerySql = @$"
 select
     ROUTINE_SCHEMA as ""{ nameof(GetAllRoutineNamesQueryResult.SchemaName) }"",
     ROUTINE_NAME as ""{ nameof(GetAllRoutineNamesQueryResult.RoutineName) }""
@@ -84,72 +84,72 @@ from information_schema.routines
 where ROUTINE_SCHEMA not in ('pg_catalog', 'information_schema')
 order by ROUTINE_SCHEMA, ROUTINE_NAME";
 
-        /// <summary>
-        /// Retrieves a database routine, if available.
-        /// </summary>
-        /// <param name="routineName">A database routine name.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A database routine in the 'some' state if found; otherwise 'none'.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
-        public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
-        {
-            if (routineName == null)
-                throw new ArgumentNullException(nameof(routineName));
+    /// <summary>
+    /// Retrieves a database routine, if available.
+    /// </summary>
+    /// <param name="routineName">A database routine name.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A database routine in the 'some' state if found; otherwise 'none'.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
+    public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
+    {
+        if (routineName == null)
+            throw new ArgumentNullException(nameof(routineName));
 
-            var candidateRoutineName = QualifyRoutineName(routineName);
-            return LoadRoutine(candidateRoutineName, cancellationToken);
-        }
+        var candidateRoutineName = QualifyRoutineName(routineName);
+        return LoadRoutine(candidateRoutineName, cancellationToken);
+    }
 
-        /// <summary>
-        /// Gets the resolved name of the routine. This enables non-strict name matching to be applied.
-        /// </summary>
-        /// <param name="routineName">A routine name that will be resolved.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A routine name that, if available, can be assumed to exist and applied strictly.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
-        protected OptionAsync<Identifier> GetResolvedRoutineName(Identifier routineName, CancellationToken cancellationToken = default)
-        {
-            if (routineName == null)
-                throw new ArgumentNullException(nameof(routineName));
+    /// <summary>
+    /// Gets the resolved name of the routine. This enables non-strict name matching to be applied.
+    /// </summary>
+    /// <param name="routineName">A routine name that will be resolved.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A routine name that, if available, can be assumed to exist and applied strictly.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
+    protected OptionAsync<Identifier> GetResolvedRoutineName(Identifier routineName, CancellationToken cancellationToken = default)
+    {
+        if (routineName == null)
+            throw new ArgumentNullException(nameof(routineName));
 
-            var resolvedNames = IdentifierResolver
-                .GetResolutionOrder(routineName)
-                .Select(QualifyRoutineName);
+        var resolvedNames = IdentifierResolver
+            .GetResolutionOrder(routineName)
+            .Select(QualifyRoutineName);
 
-            return resolvedNames
-                .Select(name => GetResolvedRoutineNameStrict(name, cancellationToken))
-                .FirstSome(cancellationToken);
-        }
+        return resolvedNames
+            .Select(name => GetResolvedRoutineNameStrict(name, cancellationToken))
+            .FirstSome(cancellationToken);
+    }
 
-        /// <summary>
-        /// Gets the resolved name of the routine without name resolution. i.e. the name must match strictly to return a result.
-        /// </summary>
-        /// <param name="routineName">A routine name that will be resolved.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A routine name that, if available, can be assumed to exist and applied strictly.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
-        protected OptionAsync<Identifier> GetResolvedRoutineNameStrict(Identifier routineName, CancellationToken cancellationToken)
-        {
-            if (routineName == null)
-                throw new ArgumentNullException(nameof(routineName));
+    /// <summary>
+    /// Gets the resolved name of the routine without name resolution. i.e. the name must match strictly to return a result.
+    /// </summary>
+    /// <param name="routineName">A routine name that will be resolved.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A routine name that, if available, can be assumed to exist and applied strictly.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
+    protected OptionAsync<Identifier> GetResolvedRoutineNameStrict(Identifier routineName, CancellationToken cancellationToken)
+    {
+        if (routineName == null)
+            throw new ArgumentNullException(nameof(routineName));
 
-            var candidateRoutineName = QualifyRoutineName(routineName);
-            var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineNameQueryResult>(
-                RoutineNameQuery,
-                new GetRoutineNameQuery { SchemaName = candidateRoutineName.Schema!, RoutineName = candidateRoutineName.LocalName },
-                cancellationToken
-            );
+        var candidateRoutineName = QualifyRoutineName(routineName);
+        var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineNameQueryResult>(
+            RoutineNameQuery,
+            new GetRoutineNameQuery { SchemaName = candidateRoutineName.Schema!, RoutineName = candidateRoutineName.LocalName },
+            cancellationToken
+        );
 
-            return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(candidateRoutineName.Server, candidateRoutineName.Database, name.SchemaName, name.RoutineName));
-        }
+        return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(candidateRoutineName.Server, candidateRoutineName.Database, name.SchemaName, name.RoutineName));
+    }
 
-        /// <summary>
-        /// A SQL query that retrieves the resolved routine name.
-        /// </summary>
-        /// <value>A SQL query.</value>
-        protected virtual string RoutineNameQuery => RoutineNameQuerySql;
+    /// <summary>
+    /// A SQL query that retrieves the resolved routine name.
+    /// </summary>
+    /// <value>A SQL query.</value>
+    protected virtual string RoutineNameQuery => RoutineNameQuerySql;
 
-        private const string RoutineNameQuerySql = @$"
+    private const string RoutineNameQuerySql = @$"
 select
     ROUTINE_SCHEMA as ""{ nameof(GetRoutineNameQueryResult.SchemaName) }"",
     ROUTINE_NAME as ""{ nameof(GetRoutineNameQueryResult.RoutineName) }""
@@ -158,72 +158,71 @@ where ROUTINE_SCHEMA = @{ nameof(GetRoutineNameQuery.SchemaName) } and ROUTINE_N
     and ROUTINE_SCHEMA not in ('pg_catalog', 'information_schema')
 limit 1";
 
-        /// <summary>
-        /// Retrieves a routine from the database, if available.
-        /// </summary>
-        /// <param name="routineName">A routine name.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A database routine, if available.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
-        protected virtual OptionAsync<IDatabaseRoutine> LoadRoutine(Identifier routineName, CancellationToken cancellationToken)
-        {
-            if (routineName == null)
-                throw new ArgumentNullException(nameof(routineName));
+    /// <summary>
+    /// Retrieves a routine from the database, if available.
+    /// </summary>
+    /// <param name="routineName">A routine name.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A database routine, if available.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
+    protected virtual OptionAsync<IDatabaseRoutine> LoadRoutine(Identifier routineName, CancellationToken cancellationToken)
+    {
+        if (routineName == null)
+            throw new ArgumentNullException(nameof(routineName));
 
-            var candidateRoutineName = QualifyRoutineName(routineName);
-            return GetResolvedRoutineName(candidateRoutineName, cancellationToken)
-                .MapAsync(name => LoadRoutineAsyncCore(name, cancellationToken));
-        }
+        var candidateRoutineName = QualifyRoutineName(routineName);
+        return GetResolvedRoutineName(candidateRoutineName, cancellationToken)
+            .MapAsync(name => LoadRoutineAsyncCore(name, cancellationToken));
+    }
 
-        private async Task<IDatabaseRoutine> LoadRoutineAsyncCore(Identifier routineName, CancellationToken cancellationToken)
-        {
-            var definition = await LoadDefinitionAsync(routineName, cancellationToken).ConfigureAwait(false);
-            return new DatabaseRoutine(routineName, definition);
-        }
+    private async Task<IDatabaseRoutine> LoadRoutineAsyncCore(Identifier routineName, CancellationToken cancellationToken)
+    {
+        var definition = await LoadDefinitionAsync(routineName, cancellationToken).ConfigureAwait(false);
+        return new DatabaseRoutine(routineName, definition);
+    }
 
-        /// <summary>
-        /// Retrieves the definition of a routine.
-        /// </summary>
-        /// <param name="routineName">A routine name.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A string representing the definition of a routine.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
-        protected virtual Task<string> LoadDefinitionAsync(Identifier routineName, CancellationToken cancellationToken)
-        {
-            if (routineName == null)
-                throw new ArgumentNullException(nameof(routineName));
+    /// <summary>
+    /// Retrieves the definition of a routine.
+    /// </summary>
+    /// <param name="routineName">A routine name.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A string representing the definition of a routine.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
+    protected virtual Task<string> LoadDefinitionAsync(Identifier routineName, CancellationToken cancellationToken)
+    {
+        if (routineName == null)
+            throw new ArgumentNullException(nameof(routineName));
 
-            return Connection.ExecuteScalarAsync<string>(
-                DefinitionQuery,
-                new GetRoutineDefinitionQuery { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
-                cancellationToken
-            );
-        }
+        return Connection.ExecuteScalarAsync<string>(
+            DefinitionQuery,
+            new GetRoutineDefinitionQuery { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
+            cancellationToken
+        );
+    }
 
-        /// <summary>
-        /// A SQL query that retrieves the definition of a routine.
-        /// </summary>
-        /// <value>A SQL query.</value>
-        protected virtual string DefinitionQuery => DefinitionQuerySql;
+    /// <summary>
+    /// A SQL query that retrieves the definition of a routine.
+    /// </summary>
+    /// <value>A SQL query.</value>
+    protected virtual string DefinitionQuery => DefinitionQuerySql;
 
-        private const string DefinitionQuerySql = @$"
+    private const string DefinitionQuerySql = @$"
 select ROUTINE_DEFINITION
 from information_schema.routines
 where ROUTINE_SCHEMA = @{ nameof(GetRoutineDefinitionQuery.SchemaName) } and ROUTINE_NAME = @{ nameof(GetRoutineDefinitionQuery.RoutineName) }";
 
-        /// <summary>
-        /// Qualifies the name of a routine, using known identifier defaults.
-        /// </summary>
-        /// <param name="routineName">A routine name to qualify.</param>
-        /// <returns>A routine name that is at least as qualified as its input.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
-        protected Identifier QualifyRoutineName(Identifier routineName)
-        {
-            if (routineName == null)
-                throw new ArgumentNullException(nameof(routineName));
+    /// <summary>
+    /// Qualifies the name of a routine, using known identifier defaults.
+    /// </summary>
+    /// <param name="routineName">A routine name to qualify.</param>
+    /// <returns>A routine name that is at least as qualified as its input.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
+    protected Identifier QualifyRoutineName(Identifier routineName)
+    {
+        if (routineName == null)
+            throw new ArgumentNullException(nameof(routineName));
 
-            var schema = routineName.Schema ?? IdentifierDefaults.Schema;
-            return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, routineName.LocalName);
-        }
+        var schema = routineName.Schema ?? IdentifierDefaults.Schema;
+        return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, routineName.LocalName);
     }
 }

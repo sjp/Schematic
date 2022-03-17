@@ -9,53 +9,52 @@ using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Reporting.Html.ViewModels;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
-namespace SJP.Schematic.Reporting.Html.Renderers
+namespace SJP.Schematic.Reporting.Html.Renderers;
+
+internal sealed class SequencesRenderer : ITemplateRenderer
 {
-    internal sealed class SequencesRenderer : ITemplateRenderer
+    public SequencesRenderer(
+        IIdentifierDefaults identifierDefaults,
+        IHtmlFormatter formatter,
+        IEnumerable<IDatabaseSequence> sequences,
+        DirectoryInfo exportDirectory)
     {
-        public SequencesRenderer(
-            IIdentifierDefaults identifierDefaults,
-            IHtmlFormatter formatter,
-            IEnumerable<IDatabaseSequence> sequences,
-            DirectoryInfo exportDirectory)
-        {
-            Sequences = sequences ?? throw new ArgumentNullException(nameof(sequences));
-            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
-            Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
-            ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
-        }
+        Sequences = sequences ?? throw new ArgumentNullException(nameof(sequences));
+        IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+        Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
+        ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
+    }
 
-        private IIdentifierDefaults IdentifierDefaults { get; }
+    private IIdentifierDefaults IdentifierDefaults { get; }
 
-        private IHtmlFormatter Formatter { get; }
+    private IHtmlFormatter Formatter { get; }
 
-        private IEnumerable<IDatabaseSequence> Sequences { get; }
+    private IEnumerable<IDatabaseSequence> Sequences { get; }
 
-        private DirectoryInfo ExportDirectory { get; }
+    private DirectoryInfo ExportDirectory { get; }
 
-        public async Task RenderAsync(CancellationToken cancellationToken = default)
-        {
-            var mapper = new MainModelMapper();
+    public async Task RenderAsync(CancellationToken cancellationToken = default)
+    {
+        var mapper = new MainModelMapper();
 
-            var sequenceViewModels = Sequences.Select(mapper.Map).ToList();
-            var sequencesVm = new Sequences(sequenceViewModels);
+        var sequenceViewModels = Sequences.Select(mapper.Map).ToList();
+        var sequencesVm = new Sequences(sequenceViewModels);
 
-            var renderedMain = await Formatter.RenderTemplateAsync(sequencesVm, cancellationToken).ConfigureAwait(false);
+        var renderedMain = await Formatter.RenderTemplateAsync(sequencesVm, cancellationToken).ConfigureAwait(false);
 
-            var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
-                ? IdentifierDefaults.Database + " Database"
-                : "Database";
-            var pageTitle = "Sequences · " + databaseName;
-            var mainContainer = new Container(renderedMain, pageTitle, string.Empty);
-            var renderedPage = await Formatter.RenderTemplateAsync(mainContainer, cancellationToken).ConfigureAwait(false);
+        var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
+            ? IdentifierDefaults.Database + " Database"
+            : "Database";
+        var pageTitle = "Sequences · " + databaseName;
+        var mainContainer = new Container(renderedMain, pageTitle, string.Empty);
+        var renderedPage = await Formatter.RenderTemplateAsync(mainContainer, cancellationToken).ConfigureAwait(false);
 
-            if (!ExportDirectory.Exists)
-                ExportDirectory.Create();
-            var outputPath = Path.Combine(ExportDirectory.FullName, "sequences.html");
+        if (!ExportDirectory.Exists)
+            ExportDirectory.Create();
+        var outputPath = Path.Combine(ExportDirectory.FullName, "sequences.html");
 
-            using var writer = File.CreateText(outputPath);
-            await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
-            await writer.FlushAsync().ConfigureAwait(false);
-        }
+        using var writer = File.CreateText(outputPath);
+        await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
+        await writer.FlushAsync().ConfigureAwait(false);
     }
 }

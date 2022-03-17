@@ -1,9 +1,8 @@
-﻿namespace SJP.Schematic.SqlServer.QueryResult
-{
-    internal sealed record GetTableNameQueryResult
-    {
-        public string SchemaName { get; init; } = default!;
+﻿namespace SJP.Schematic.SqlServer.QueryResult;
 
-        public string TableName { get; init; } = default!;
-    }
+internal sealed record GetTableNameQueryResult
+{
+    public string SchemaName { get; init; } = default!;
+
+    public string TableName { get; init; } = default!;
 }

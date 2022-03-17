@@ -1,14 +1,13 @@
 ﻿using AutoMapper;
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Serialization.Mapping
+namespace SJP.Schematic.Serialization.Mapping;
+
+public class IdentifierDefaultsProfile : Profile
 {
-    public class IdentifierDefaultsProfile : Profile
+    public IdentifierDefaultsProfile()
     {
-        public IdentifierDefaultsProfile()
-        {
-            CreateMap<Dto.IdentifierDefaults, IdentifierDefaults>();
-            CreateMap<IIdentifierDefaults, Dto.IdentifierDefaults>();
-        }
+        CreateMap<Dto.IdentifierDefaults, IdentifierDefaults>();
+        CreateMap<IIdentifierDefaults, Dto.IdentifierDefaults>();
     }
 }

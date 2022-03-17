@@ -4,27 +4,26 @@ using System.CommandLine.NamingConventionBinder;
 using System.IO;
 using System.Threading;
 
-namespace SJP.Schematic.Tool.Commands
-{
-    internal sealed class ReportCommand : Command
-    {
-        public ReportCommand()
-            : base("report", "Creates a detailed graphical report on database schema and relationships.")
-        {
-            var outputOption = new Option<DirectoryInfo>(
-                "--output",
-                description: "The directory to save the generated report."
-            )
-            {
-                IsRequired = true
-            };
-            AddOption(outputOption);
+namespace SJP.Schematic.Tool.Commands;
 
-            Handler = CommandHandler.Create<FileInfo, IConsole, DirectoryInfo, CancellationToken>(static (config, console, output, cancellationToken) =>
-            {
-                var handler = new ReportCommandHandler(console, config);
-                return handler.HandleCommandAsync(output, cancellationToken);
-            });
-        }
+internal sealed class ReportCommand : Command
+{
+    public ReportCommand()
+        : base("report", "Creates a detailed graphical report on database schema and relationships.")
+    {
+        var outputOption = new Option<DirectoryInfo>(
+            "--output",
+            description: "The directory to save the generated report."
+        )
+        {
+            IsRequired = true
+        };
+        AddOption(outputOption);
+
+        Handler = CommandHandler.Create<FileInfo, IConsole, DirectoryInfo, CancellationToken>(static (config, console, output, cancellationToken) =>
+        {
+            var handler = new ReportCommandHandler(console, config);
+            return handler.HandleCommandAsync(output, cancellationToken);
+        });
     }
 }

@@ -1,15 +1,14 @@
-﻿namespace SJP.Schematic.Sqlite.QueryResult
+﻿namespace SJP.Schematic.Sqlite.QueryResult;
+
+internal sealed record GetSqliteMasterQueryResult
 {
-    internal sealed record GetSqliteMasterQueryResult
-    {
-        public string type { get; init; } = default!;
+    public string type { get; init; } = default!;
 
-        public string name { get; init; } = default!;
+    public string name { get; init; } = default!;
 
-        public string tbl_name { get; init; } = default!;
+    public string tbl_name { get; init; } = default!;
 
-        public long rootpage { get; init; }
+    public long rootpage { get; init; }
 
-        public string sql { get; init; } = default!;
-    }
+    public string sql { get; init; } = default!;
 }

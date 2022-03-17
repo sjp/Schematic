@@ -1,21 +1,20 @@
-﻿namespace SJP.Schematic.SqlServer.QueryResult
+﻿namespace SJP.Schematic.SqlServer.QueryResult;
+
+internal sealed record GetTableIndexesQueryResult
 {
-    internal sealed record GetTableIndexesQueryResult
-    {
-        public string IndexName { get; init; } = default!;
+    public string IndexName { get; init; } = default!;
 
-        public bool IsUnique { get; init; }
+    public bool IsUnique { get; init; }
 
-        public int KeyOrdinal { get; init; }
+    public int KeyOrdinal { get; init; }
 
-        public int IndexColumnId { get; init; }
+    public int IndexColumnId { get; init; }
 
-        public bool IsIncludedColumn { get; init; }
+    public bool IsIncludedColumn { get; init; }
 
-        public bool IsDescending { get; init; }
+    public bool IsDescending { get; init; }
 
-        public string ColumnName { get; init; } = default!;
+    public string ColumnName { get; init; } = default!;
 
-        public bool IsDisabled { get; init; }
-    }
+    public bool IsDisabled { get; init; }
 }

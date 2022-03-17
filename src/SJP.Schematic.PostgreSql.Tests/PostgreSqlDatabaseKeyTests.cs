@@ -4,126 +4,125 @@ using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Tests.Utilities;
 
-namespace SJP.Schematic.PostgreSql.Tests
+namespace SJP.Schematic.PostgreSql.Tests;
+
+[TestFixture]
+internal static class PostgreSqlDatabaseKeyTests
 {
-    [TestFixture]
-    internal static class PostgreSqlDatabaseKeyTests
+    [Test]
+    public static void Ctor_GivenNullName_ThrowsArgumentNullException()
     {
-        [Test]
-        public static void Ctor_GivenNullName_ThrowsArgumentNullException()
-        {
-            const DatabaseKeyType keyType = DatabaseKeyType.Primary;
-            var column = Mock.Of<IDatabaseColumn>();
-            var columns = new[] { column };
+        const DatabaseKeyType keyType = DatabaseKeyType.Primary;
+        var column = Mock.Of<IDatabaseColumn>();
+        var columns = new[] { column };
 
-            Assert.That(() => new PostgreSqlDatabaseKey(null, keyType, columns), Throws.ArgumentNullException);
-        }
+        Assert.That(() => new PostgreSqlDatabaseKey(null, keyType, columns), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static void Ctor_GivenInvalidDatabaseKeyType_ThrowsArgumentException()
-        {
-            Identifier keyName = "test_key";
-            const DatabaseKeyType keyType = (DatabaseKeyType)55;
-            var column = Mock.Of<IDatabaseColumn>();
-            var columns = new[] { column };
+    [Test]
+    public static void Ctor_GivenInvalidDatabaseKeyType_ThrowsArgumentException()
+    {
+        Identifier keyName = "test_key";
+        const DatabaseKeyType keyType = (DatabaseKeyType)55;
+        var column = Mock.Of<IDatabaseColumn>();
+        var columns = new[] { column };
 
-            Assert.That(() => new PostgreSqlDatabaseKey(keyName, keyType, columns), Throws.ArgumentException);
-        }
+        Assert.That(() => new PostgreSqlDatabaseKey(keyName, keyType, columns), Throws.ArgumentException);
+    }
 
-        [Test]
-        public static void Ctor_GivenNullColumnSet_ThrowsArgumentNullException()
-        {
-            Identifier keyName = "test_key";
-            const DatabaseKeyType keyType = DatabaseKeyType.Primary;
+    [Test]
+    public static void Ctor_GivenNullColumnSet_ThrowsArgumentNullException()
+    {
+        Identifier keyName = "test_key";
+        const DatabaseKeyType keyType = DatabaseKeyType.Primary;
 
-            Assert.That(() => new PostgreSqlDatabaseKey(keyName, keyType, null), Throws.ArgumentNullException);
-        }
+        Assert.That(() => new PostgreSqlDatabaseKey(keyName, keyType, null), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static void Ctor_GivenEmptyColumnSet_ThrowsArgumentNullException()
-        {
-            Identifier keyName = "test_key";
-            const DatabaseKeyType keyType = DatabaseKeyType.Primary;
-            var columns = Array.Empty<IDatabaseColumn>();
+    [Test]
+    public static void Ctor_GivenEmptyColumnSet_ThrowsArgumentNullException()
+    {
+        Identifier keyName = "test_key";
+        const DatabaseKeyType keyType = DatabaseKeyType.Primary;
+        var columns = Array.Empty<IDatabaseColumn>();
 
-            Assert.That(() => new PostgreSqlDatabaseKey(keyName, keyType, columns), Throws.ArgumentNullException);
-        }
+        Assert.That(() => new PostgreSqlDatabaseKey(keyName, keyType, columns), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static void Ctor_GivenColumnSetContainingNullColumn_ThrowsArgumentNullException()
-        {
-            Identifier keyName = "test_key";
-            const DatabaseKeyType keyType = DatabaseKeyType.Primary;
-            var columns = new IDatabaseColumn[] { null };
+    [Test]
+    public static void Ctor_GivenColumnSetContainingNullColumn_ThrowsArgumentNullException()
+    {
+        Identifier keyName = "test_key";
+        const DatabaseKeyType keyType = DatabaseKeyType.Primary;
+        var columns = new IDatabaseColumn[] { null };
 
-            Assert.That(() => new PostgreSqlDatabaseKey(keyName, keyType, columns), Throws.ArgumentNullException);
-        }
+        Assert.That(() => new PostgreSqlDatabaseKey(keyName, keyType, columns), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static void Name_PropertyGet_EqualsCtorArg()
-        {
-            Identifier keyName = "test_key";
-            const DatabaseKeyType keyType = DatabaseKeyType.Primary;
-            var column = Mock.Of<IDatabaseColumn>();
-            var columns = new[] { column };
+    [Test]
+    public static void Name_PropertyGet_EqualsCtorArg()
+    {
+        Identifier keyName = "test_key";
+        const DatabaseKeyType keyType = DatabaseKeyType.Primary;
+        var column = Mock.Of<IDatabaseColumn>();
+        var columns = new[] { column };
 
-            var key = new PostgreSqlDatabaseKey(keyName, keyType, columns);
+        var key = new PostgreSqlDatabaseKey(keyName, keyType, columns);
 
-            Assert.That(key.Name.UnwrapSome(), Is.EqualTo(keyName));
-        }
+        Assert.That(key.Name.UnwrapSome(), Is.EqualTo(keyName));
+    }
 
-        [Test]
-        public static void KeyType_PropertyGet_EqualsCtorArg()
-        {
-            Identifier keyName = "test_key";
-            const DatabaseKeyType keyType = DatabaseKeyType.Foreign;
-            var column = Mock.Of<IDatabaseColumn>();
-            var columns = new[] { column };
+    [Test]
+    public static void KeyType_PropertyGet_EqualsCtorArg()
+    {
+        Identifier keyName = "test_key";
+        const DatabaseKeyType keyType = DatabaseKeyType.Foreign;
+        var column = Mock.Of<IDatabaseColumn>();
+        var columns = new[] { column };
 
-            var key = new PostgreSqlDatabaseKey(keyName, keyType, columns);
+        var key = new PostgreSqlDatabaseKey(keyName, keyType, columns);
 
-            Assert.That(key.KeyType, Is.EqualTo(keyType));
-        }
+        Assert.That(key.KeyType, Is.EqualTo(keyType));
+    }
 
-        [Test]
-        public static void Columns_PropertyGet_EqualsCtorArg()
-        {
-            Identifier keyName = "test_key";
-            const DatabaseKeyType keyType = DatabaseKeyType.Foreign;
-            var column = Mock.Of<IDatabaseColumn>();
-            var columns = new[] { column };
+    [Test]
+    public static void Columns_PropertyGet_EqualsCtorArg()
+    {
+        Identifier keyName = "test_key";
+        const DatabaseKeyType keyType = DatabaseKeyType.Foreign;
+        var column = Mock.Of<IDatabaseColumn>();
+        var columns = new[] { column };
 
-            var key = new PostgreSqlDatabaseKey(keyName, keyType, columns);
+        var key = new PostgreSqlDatabaseKey(keyName, keyType, columns);
 
-            Assert.That(key.Columns, Is.EqualTo(columns));
-        }
+        Assert.That(key.Columns, Is.EqualTo(columns));
+    }
 
-        [Test]
-        public static void IsEnabled_GivenRegularObject_ReturnsTrue()
-        {
-            Identifier keyName = "test_key";
-            const DatabaseKeyType keyType = DatabaseKeyType.Foreign;
-            var column = Mock.Of<IDatabaseColumn>();
-            var columns = new[] { column };
+    [Test]
+    public static void IsEnabled_GivenRegularObject_ReturnsTrue()
+    {
+        Identifier keyName = "test_key";
+        const DatabaseKeyType keyType = DatabaseKeyType.Foreign;
+        var column = Mock.Of<IDatabaseColumn>();
+        var columns = new[] { column };
 
-            var key = new PostgreSqlDatabaseKey(keyName, keyType, columns);
+        var key = new PostgreSqlDatabaseKey(keyName, keyType, columns);
 
-            Assert.That(key.IsEnabled, Is.True);
-        }
+        Assert.That(key.IsEnabled, Is.True);
+    }
 
-        [TestCase(DatabaseKeyType.Foreign, "test_foreign_key", "Foreign Key: test_foreign_key")]
-        [TestCase(DatabaseKeyType.Primary, "test_primary_key", "Primary Key: test_primary_key")]
-        [TestCase(DatabaseKeyType.Unique, "test_unique_key", "Unique Key: test_unique_key")]
-        public static void ToString_WhenInvoked_ReturnsExpectedValues(DatabaseKeyType keyType, string name, string expectedResult)
-        {
-            var keyName = Identifier.CreateQualifiedIdentifier(name);
-            var column = Mock.Of<IDatabaseColumn>();
-            var columns = new[] { column };
+    [TestCase(DatabaseKeyType.Foreign, "test_foreign_key", "Foreign Key: test_foreign_key")]
+    [TestCase(DatabaseKeyType.Primary, "test_primary_key", "Primary Key: test_primary_key")]
+    [TestCase(DatabaseKeyType.Unique, "test_unique_key", "Unique Key: test_unique_key")]
+    public static void ToString_WhenInvoked_ReturnsExpectedValues(DatabaseKeyType keyType, string name, string expectedResult)
+    {
+        var keyName = Identifier.CreateQualifiedIdentifier(name);
+        var column = Mock.Of<IDatabaseColumn>();
+        var columns = new[] { column };
 
-            var key = new PostgreSqlDatabaseKey(keyName, keyType, columns);
-            var result = key.ToString();
+        var key = new PostgreSqlDatabaseKey(keyName, keyType, columns);
+        var result = key.ToString();
 
-            Assert.That(result, Is.EqualTo(expectedResult));
-        }
+        Assert.That(result, Is.EqualTo(expectedResult));
     }
 }

@@ -9,64 +9,63 @@ using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Reporting.Html.ViewModels;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
-namespace SJP.Schematic.Reporting.Html.Renderers
+namespace SJP.Schematic.Reporting.Html.Renderers;
+
+internal sealed class IndexesRenderer : ITemplateRenderer
 {
-    internal sealed class IndexesRenderer : ITemplateRenderer
+    public IndexesRenderer(
+        IIdentifierDefaults identifierDefaults,
+        IHtmlFormatter formatter,
+        IEnumerable<IRelationalDatabaseTable> tables,
+        DirectoryInfo exportDirectory
+    )
     {
-        public IndexesRenderer(
-            IIdentifierDefaults identifierDefaults,
-            IHtmlFormatter formatter,
-            IEnumerable<IRelationalDatabaseTable> tables,
-            DirectoryInfo exportDirectory
-        )
+        Tables = tables ?? throw new ArgumentNullException(nameof(tables));
+        IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+        Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
+        ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
+    }
+
+    private IIdentifierDefaults IdentifierDefaults { get; }
+
+    private IHtmlFormatter Formatter { get; }
+
+    private IEnumerable<IRelationalDatabaseTable> Tables { get; }
+
+    private DirectoryInfo ExportDirectory { get; }
+
+    public async Task RenderAsync(CancellationToken cancellationToken = default)
+    {
+        var mapper = new IndexesModelMapper();
+        var allIndexes = new List<Indexes.Index>();
+
+        foreach (var table in Tables)
         {
-            Tables = tables ?? throw new ArgumentNullException(nameof(tables));
-            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
-            Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
-            ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
+            var mappedIndexes = table.Indexes.Select(i => mapper.Map(table.Name, i));
+            allIndexes.AddRange(mappedIndexes);
         }
 
-        private IIdentifierDefaults IdentifierDefaults { get; }
+        var indexes = allIndexes
+            .OrderBy(static i => i.TableName)
+            .ThenBy(static i => i.Name)
+            .ToList();
 
-        private IHtmlFormatter Formatter { get; }
+        var templateParameter = new Indexes(indexes);
+        var renderedIndexes = await Formatter.RenderTemplateAsync(templateParameter, cancellationToken).ConfigureAwait(false);
 
-        private IEnumerable<IRelationalDatabaseTable> Tables { get; }
+        var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
+            ? IdentifierDefaults.Database + " Database"
+            : "Database";
+        var pageTitle = "Indexes · " + databaseName;
+        var indexesContainer = new Container(renderedIndexes, pageTitle, string.Empty);
+        var renderedPage = await Formatter.RenderTemplateAsync(indexesContainer, cancellationToken).ConfigureAwait(false);
 
-        private DirectoryInfo ExportDirectory { get; }
+        if (!ExportDirectory.Exists)
+            ExportDirectory.Create();
+        var outputPath = Path.Combine(ExportDirectory.FullName, "indexes.html");
 
-        public async Task RenderAsync(CancellationToken cancellationToken = default)
-        {
-            var mapper = new IndexesModelMapper();
-            var allIndexes = new List<Indexes.Index>();
-
-            foreach (var table in Tables)
-            {
-                var mappedIndexes = table.Indexes.Select(i => mapper.Map(table.Name, i));
-                allIndexes.AddRange(mappedIndexes);
-            }
-
-            var indexes = allIndexes
-                .OrderBy(static i => i.TableName)
-                .ThenBy(static i => i.Name)
-                .ToList();
-
-            var templateParameter = new Indexes(indexes);
-            var renderedIndexes = await Formatter.RenderTemplateAsync(templateParameter, cancellationToken).ConfigureAwait(false);
-
-            var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
-                ? IdentifierDefaults.Database + " Database"
-                : "Database";
-            var pageTitle = "Indexes · " + databaseName;
-            var indexesContainer = new Container(renderedIndexes, pageTitle, string.Empty);
-            var renderedPage = await Formatter.RenderTemplateAsync(indexesContainer, cancellationToken).ConfigureAwait(false);
-
-            if (!ExportDirectory.Exists)
-                ExportDirectory.Create();
-            var outputPath = Path.Combine(ExportDirectory.FullName, "indexes.html");
-
-            using var writer = File.CreateText(outputPath);
-            await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
-            await writer.FlushAsync().ConfigureAwait(false);
-        }
+        using var writer = File.CreateText(outputPath);
+        await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
+        await writer.FlushAsync().ConfigureAwait(false);
     }
 }

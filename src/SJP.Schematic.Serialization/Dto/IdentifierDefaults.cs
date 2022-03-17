@@ -1,11 +1,10 @@
-﻿namespace SJP.Schematic.Serialization.Dto
+﻿namespace SJP.Schematic.Serialization.Dto;
+
+public class IdentifierDefaults
 {
-    public class IdentifierDefaults
-    {
-        public string? Server { get; set; }
+    public string? Server { get; set; }
 
-        public string? Database { get; set; }
+    public string? Database { get; set; }
 
-        public string? Schema { get; set; }
-    }
+    public string? Schema { get; set; }
 }

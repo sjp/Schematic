@@ -4,148 +4,147 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Sqlite.Tests.Integration
+namespace SJP.Schematic.Sqlite.Tests.Integration;
+
+internal sealed partial class SqliteRelationalDatabaseTableProviderTests : SqliteTest
 {
-    internal sealed partial class SqliteRelationalDatabaseTableProviderTests : SqliteTest
+    [Test]
+    public async Task Triggers_GivenTableWithNoTriggers_ReturnsEmptyCollection()
     {
-        [Test]
-        public async Task Triggers_GivenTableWithNoTriggers_ReturnsEmptyCollection()
-        {
-            var table = await GetTableAsync("trigger_test_table_2").ConfigureAwait(false);
+        var table = await GetTableAsync("trigger_test_table_2").ConfigureAwait(false);
 
-            Assert.That(table.Triggers, Is.Empty);
-        }
+        Assert.That(table.Triggers, Is.Empty);
+    }
 
-        [Test]
-        public async Task Triggers_GivenTableWithTrigger_ReturnsNonEmptyCollection()
-        {
-            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
+    [Test]
+    public async Task Triggers_GivenTableWithTrigger_ReturnsNonEmptyCollection()
+    {
+        var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
 
-            Assert.That(table.Triggers, Is.Not.Empty);
-        }
+        Assert.That(table.Triggers, Is.Not.Empty);
+    }
 
-        [Test]
-        public async Task Triggers_GivenTableWithTrigger_ReturnsCorrectName()
-        {
-            Identifier triggerName = "trigger_test_table_1_trigger_1";
+    [Test]
+    public async Task Triggers_GivenTableWithTrigger_ReturnsCorrectName()
+    {
+        Identifier triggerName = "trigger_test_table_1_trigger_1";
 
-            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var trigger = table.Triggers.First(t => t.Name == triggerName);
+        var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
+        var trigger = table.Triggers.First(t => t.Name == triggerName);
 
-            Assert.That(trigger.Name, Is.EqualTo(triggerName));
-        }
+        Assert.That(trigger.Name, Is.EqualTo(triggerName));
+    }
 
-        [Test]
-        public async Task Triggers_GivenTableWithTrigger_ReturnsCorrectDefinition()
-        {
-            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_1");
+    [Test]
+    public async Task Triggers_GivenTableWithTrigger_ReturnsCorrectDefinition()
+    {
+        var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
+        var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_1");
 
-            const string expectedDefinition = @"create trigger trigger_test_table_1_trigger_1
+        const string expectedDefinition = @"create trigger trigger_test_table_1_trigger_1
 before insert
 on trigger_test_table_1
 begin
     select 1;
 end";
 
-            var comparer = new SqliteExpressionComparer(StringComparer.OrdinalIgnoreCase);
-            Assert.That(comparer.Equals(expectedDefinition, trigger.Definition), Is.True);
-        }
+        var comparer = new SqliteExpressionComparer(StringComparer.OrdinalIgnoreCase);
+        Assert.That(comparer.Equals(expectedDefinition, trigger.Definition), Is.True);
+    }
 
-        [Test]
-        public async Task Triggers_GivenTableWithTriggerForInsert_ReturnsCorrectEventAndTiming()
+    [Test]
+    public async Task Triggers_GivenTableWithTriggerForInsert_ReturnsCorrectEventAndTiming()
+    {
+        var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
+        var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_1");
+
+        const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+        const TriggerEvent events = TriggerEvent.Insert;
+
+        Assert.Multiple(() =>
         {
-            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_1");
+            Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
+            Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
+        });
+    }
 
-            const TriggerQueryTiming timing = TriggerQueryTiming.Before;
-            const TriggerEvent events = TriggerEvent.Insert;
+    [Test]
+    public async Task Triggers_GivenTableWithTriggerForUpdate_ReturnsCorrectEventAndTiming()
+    {
+        var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
+        var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_2");
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
-                Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
-            });
-        }
+        const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+        const TriggerEvent events = TriggerEvent.Update;
 
-        [Test]
-        public async Task Triggers_GivenTableWithTriggerForUpdate_ReturnsCorrectEventAndTiming()
+        Assert.Multiple(() =>
         {
-            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_2");
+            Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
+            Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
+        });
+    }
 
-            const TriggerQueryTiming timing = TriggerQueryTiming.Before;
-            const TriggerEvent events = TriggerEvent.Update;
+    [Test]
+    public async Task Triggers_GivenTableWithTriggerForDelete_ReturnsCorrectEventAndTiming()
+    {
+        var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
+        var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_3");
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
-                Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
-            });
-        }
+        const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+        const TriggerEvent events = TriggerEvent.Delete;
 
-        [Test]
-        public async Task Triggers_GivenTableWithTriggerForDelete_ReturnsCorrectEventAndTiming()
+        Assert.Multiple(() =>
         {
-            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_3");
+            Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
+            Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
+        });
+    }
 
-            const TriggerQueryTiming timing = TriggerQueryTiming.Before;
-            const TriggerEvent events = TriggerEvent.Delete;
+    [Test]
+    public async Task Triggers_GivenTableWithTriggerAfterInsert_ReturnsCorrectEventAndTiming()
+    {
+        var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
+        var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_4");
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
-                Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
-            });
-        }
+        const TriggerQueryTiming timing = TriggerQueryTiming.After;
+        const TriggerEvent events = TriggerEvent.Insert;
 
-        [Test]
-        public async Task Triggers_GivenTableWithTriggerAfterInsert_ReturnsCorrectEventAndTiming()
+        Assert.Multiple(() =>
         {
-            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_4");
+            Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
+            Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
+        });
+    }
 
-            const TriggerQueryTiming timing = TriggerQueryTiming.After;
-            const TriggerEvent events = TriggerEvent.Insert;
+    [Test]
+    public async Task Triggers_GivenTableWithTriggerAfterUpdate_ReturnsCorrectEventAndTiming()
+    {
+        var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
+        var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_5");
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
-                Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
-            });
-        }
+        const TriggerQueryTiming timing = TriggerQueryTiming.After;
+        const TriggerEvent events = TriggerEvent.Update;
 
-        [Test]
-        public async Task Triggers_GivenTableWithTriggerAfterUpdate_ReturnsCorrectEventAndTiming()
+        Assert.Multiple(() =>
         {
-            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_5");
+            Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
+            Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
+        });
+    }
 
-            const TriggerQueryTiming timing = TriggerQueryTiming.After;
-            const TriggerEvent events = TriggerEvent.Update;
+    [Test]
+    public async Task Triggers_GivenTableWithTriggerAfterDelete_ReturnsCorrectEventAndTiming()
+    {
+        var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
+        var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_6");
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
-                Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
-            });
-        }
+        const TriggerQueryTiming timing = TriggerQueryTiming.After;
+        const TriggerEvent events = TriggerEvent.Delete;
 
-        [Test]
-        public async Task Triggers_GivenTableWithTriggerAfterDelete_ReturnsCorrectEventAndTiming()
+        Assert.Multiple(() =>
         {
-            var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
-            var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_6");
-
-            const TriggerQueryTiming timing = TriggerQueryTiming.After;
-            const TriggerEvent events = TriggerEvent.Delete;
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
-                Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
-            });
-        }
+            Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
+            Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
+        });
     }
 }

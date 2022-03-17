@@ -1,23 +1,22 @@
-﻿namespace SJP.Schematic.Core
+﻿namespace SJP.Schematic.Core;
+
+/// <summary>
+/// Default values for identifiers in a database.
+/// </summary>
+public interface IIdentifierDefaults
 {
     /// <summary>
-    /// Default values for identifiers in a database.
+    /// A server name.
     /// </summary>
-    public interface IIdentifierDefaults
-    {
-        /// <summary>
-        /// A server name.
-        /// </summary>
-        string? Server { get; }
+    string? Server { get; }
 
-        /// <summary>
-        /// A database name.
-        /// </summary>
-        string? Database { get; }
+    /// <summary>
+    /// A database name.
+    /// </summary>
+    string? Database { get; }
 
-        /// <summary>
-        /// A schema name.
-        /// </summary>
-        string? Schema { get; }
-    }
+    /// <summary>
+    /// A schema name.
+    /// </summary>
+    string? Schema { get; }
 }

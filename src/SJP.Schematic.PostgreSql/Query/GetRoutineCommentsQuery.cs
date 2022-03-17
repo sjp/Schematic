@@ -1,9 +1,8 @@
-﻿namespace SJP.Schematic.PostgreSql.Query
-{
-    internal sealed record GetRoutineCommentsQuery
-    {
-        public string SchemaName { get; init; } = default!;
+﻿namespace SJP.Schematic.PostgreSql.Query;
 
-        public string RoutineName { get; init; } = default!;
-    }
+internal sealed record GetRoutineCommentsQuery
+{
+    public string SchemaName { get; init; } = default!;
+
+    public string RoutineName { get; init; } = default!;
 }

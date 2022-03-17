@@ -11,158 +11,158 @@ using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.SqlServer.Query;
 using SJP.Schematic.SqlServer.QueryResult;
 
-namespace SJP.Schematic.SqlServer.Comments
+namespace SJP.Schematic.SqlServer.Comments;
+
+/// <summary>
+/// A database sequence comment provider for SQL Server.
+/// </summary>
+/// <seealso cref="IDatabaseSequenceCommentProvider" />
+public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
 {
     /// <summary>
-    /// A database sequence comment provider for SQL Server.
+    /// Initializes a new instance of the <see cref="SqlServerSequenceCommentProvider"/> class.
     /// </summary>
-    /// <seealso cref="IDatabaseSequenceCommentProvider" />
-    public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
+    /// <param name="connection">A database connection factory.</param>
+    /// <param name="identifierDefaults">Database identifier defaults.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <c>null</c>.</exception>
+    public SqlServerSequenceCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults)
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SqlServerSequenceCommentProvider"/> class.
-        /// </summary>
-        /// <param name="connection">A database connection factory.</param>
-        /// <param name="identifierDefaults">Database identifier defaults.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <c>null</c>.</exception>
-        public SqlServerSequenceCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults)
-        {
-            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
-        }
+        Connection = connection ?? throw new ArgumentNullException(nameof(connection));
+        IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+    }
 
-        /// <summary>
-        /// A database connection factory.
-        /// </summary>
-        /// <value>A database connection factory.</value>
-        protected IDbConnectionFactory Connection { get; }
+    /// <summary>
+    /// A database connection factory.
+    /// </summary>
+    /// <value>A database connection factory.</value>
+    protected IDbConnectionFactory Connection { get; }
 
-        /// <summary>
-        /// Identifier defaults for the associated database.
-        /// </summary>
-        /// <value>Identifier defaults.</value>
-        protected IIdentifierDefaults IdentifierDefaults { get; }
+    /// <summary>
+    /// Identifier defaults for the associated database.
+    /// </summary>
+    /// <value>Identifier defaults.</value>
+    protected IIdentifierDefaults IdentifierDefaults { get; }
 
-        /// <summary>
-        /// Retrieves the extended property name used to store comments on an object.
-        /// </summary>
-        /// <value>The comment property name.</value>
-        protected virtual string CommentProperty { get; } = "MS_Description";
+    /// <summary>
+    /// Retrieves the extended property name used to store comments on an object.
+    /// </summary>
+    /// <value>The comment property name.</value>
+    protected virtual string CommentProperty { get; } = "MS_Description";
 
-        /// <summary>
-        /// Retrieves comments for all database sequences.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A collection of database sequence comments.</returns>
-        public async IAsyncEnumerable<IDatabaseSequenceComments> GetAllSequenceComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
-        {
-            var queryResults = await Connection.QueryAsync<GetAllSequenceNamesQueryResult>(SequencesQuery, cancellationToken).ConfigureAwait(false);
-            var sequenceNames = queryResults
-                .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.SequenceName))
-                .Select(QualifySequenceName);
+    /// <summary>
+    /// Retrieves comments for all database sequences.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of database sequence comments.</returns>
+    public async IAsyncEnumerable<IDatabaseSequenceComments> GetAllSequenceComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        var queryResults = await Connection.QueryAsync<GetAllSequenceNamesQueryResult>(SequencesQuery, cancellationToken).ConfigureAwait(false);
+        var sequenceNames = queryResults
+            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.SequenceName))
+            .Select(QualifySequenceName);
 
-            foreach (var sequenceName in sequenceNames)
-                yield return await LoadSequenceCommentsAsyncCore(sequenceName, cancellationToken).ConfigureAwait(false);
-        }
+        foreach (var sequenceName in sequenceNames)
+            yield return await LoadSequenceCommentsAsyncCore(sequenceName, cancellationToken).ConfigureAwait(false);
+    }
 
-        /// <summary>
-        /// Gets the resolved name of the sequence. This enables non-strict name matching to be applied.
-        /// </summary>
-        /// <param name="sequenceName">A sequence name.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A sequence name that, if available, can be assumed to exist and applied strictly.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
-        protected OptionAsync<Identifier> GetResolvedSequenceName(Identifier sequenceName, CancellationToken cancellationToken)
-        {
-            if (sequenceName == null)
-                throw new ArgumentNullException(nameof(sequenceName));
+    /// <summary>
+    /// Gets the resolved name of the sequence. This enables non-strict name matching to be applied.
+    /// </summary>
+    /// <param name="sequenceName">A sequence name.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A sequence name that, if available, can be assumed to exist and applied strictly.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    protected OptionAsync<Identifier> GetResolvedSequenceName(Identifier sequenceName, CancellationToken cancellationToken)
+    {
+        if (sequenceName == null)
+            throw new ArgumentNullException(nameof(sequenceName));
 
-            sequenceName = QualifySequenceName(sequenceName);
-            var qualifiedSequenceName = Connection.QueryFirstOrNone<GetSequenceNameQueryResult>(
-                SequenceNameQuery,
-                new GetSequenceNameQuery { SchemaName = sequenceName.Schema!, SequenceName = sequenceName.LocalName },
-                cancellationToken
-            );
+        sequenceName = QualifySequenceName(sequenceName);
+        var qualifiedSequenceName = Connection.QueryFirstOrNone<GetSequenceNameQueryResult>(
+            SequenceNameQuery,
+            new GetSequenceNameQuery { SchemaName = sequenceName.Schema!, SequenceName = sequenceName.LocalName },
+            cancellationToken
+        );
 
-            return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(sequenceName.Server, sequenceName.Database, name.SchemaName, name.SequenceName));
-        }
+        return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(sequenceName.Server, sequenceName.Database, name.SchemaName, name.SequenceName));
+    }
 
-        /// <summary>
-        /// Gets a query that resolves the name of a sequence.
-        /// </summary>
-        /// <value>A SQL query.</value>
-        protected virtual string SequenceNameQuery => SequenceNameQuerySql;
+    /// <summary>
+    /// Gets a query that resolves the name of a sequence.
+    /// </summary>
+    /// <value>A SQL query.</value>
+    protected virtual string SequenceNameQuery => SequenceNameQuerySql;
 
-        private const string SequenceNameQuerySql = @$"
+    private const string SequenceNameQuerySql = @$"
 select top 1 schema_name(schema_id) as [{ nameof(GetSequenceNameQueryResult.SchemaName) }], name as [{ nameof(GetSequenceNameQueryResult.SequenceName) }]
 from sys.sequences
 where schema_id = schema_id(@{ nameof(GetSequenceNameQuery.SchemaName) }) and name = @{ nameof(GetSequenceNameQuery.SequenceName) } and is_ms_shipped = 0";
 
-        /// <summary>
-        /// Retrieves comments for a particular database sequence.
-        /// </summary>
-        /// <param name="sequenceName">The name of a database sequence.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>An <see cref="OptionAsync{A}" /> instance which holds the value of the sequence's comments, if available.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
-        public OptionAsync<IDatabaseSequenceComments> GetSequenceComments(Identifier sequenceName, CancellationToken cancellationToken = default)
-        {
-            if (sequenceName == null)
-                throw new ArgumentNullException(nameof(sequenceName));
+    /// <summary>
+    /// Retrieves comments for a particular database sequence.
+    /// </summary>
+    /// <param name="sequenceName">The name of a database sequence.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>An <see cref="OptionAsync{A}" /> instance which holds the value of the sequence's comments, if available.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    public OptionAsync<IDatabaseSequenceComments> GetSequenceComments(Identifier sequenceName, CancellationToken cancellationToken = default)
+    {
+        if (sequenceName == null)
+            throw new ArgumentNullException(nameof(sequenceName));
 
-            var candidateSequenceName = QualifySequenceName(sequenceName);
-            return LoadSequenceComments(candidateSequenceName, cancellationToken);
-        }
+        var candidateSequenceName = QualifySequenceName(sequenceName);
+        return LoadSequenceComments(candidateSequenceName, cancellationToken);
+    }
 
-        /// <summary>
-        /// Retrieves comments for a particular database sequence.
-        /// </summary>
-        /// <param name="sequenceName">The name of a database sequence.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>An <see cref="OptionAsync{A}" /> instance which holds the value of the sequence's comments, if available.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
-        protected virtual OptionAsync<IDatabaseSequenceComments> LoadSequenceComments(Identifier sequenceName, CancellationToken cancellationToken)
-        {
-            if (sequenceName == null)
-                throw new ArgumentNullException(nameof(sequenceName));
+    /// <summary>
+    /// Retrieves comments for a particular database sequence.
+    /// </summary>
+    /// <param name="sequenceName">The name of a database sequence.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>An <see cref="OptionAsync{A}" /> instance which holds the value of the sequence's comments, if available.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    protected virtual OptionAsync<IDatabaseSequenceComments> LoadSequenceComments(Identifier sequenceName, CancellationToken cancellationToken)
+    {
+        if (sequenceName == null)
+            throw new ArgumentNullException(nameof(sequenceName));
 
-            var candidateSequenceName = QualifySequenceName(sequenceName);
-            return GetResolvedSequenceName(candidateSequenceName, cancellationToken)
-                .MapAsync(name => LoadSequenceCommentsAsyncCore(name, cancellationToken));
-        }
+        var candidateSequenceName = QualifySequenceName(sequenceName);
+        return GetResolvedSequenceName(candidateSequenceName, cancellationToken)
+            .MapAsync(name => LoadSequenceCommentsAsyncCore(name, cancellationToken));
+    }
 
-        private async Task<IDatabaseSequenceComments> LoadSequenceCommentsAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
-        {
-            var queryResult = await Connection.QueryAsync<GetSequenceCommentsQueryResult>(
-                SequenceCommentsQuery,
-                new GetSequenceCommentsQuery
-                {
-                    SchemaName = sequenceName.Schema!,
-                    SequenceName = sequenceName.LocalName,
-                    CommentProperty = CommentProperty
-                },
-                cancellationToken
-            ).ConfigureAwait(false);
-
-            var commentData = queryResult.Select(r => new CommentData
+    private async Task<IDatabaseSequenceComments> LoadSequenceCommentsAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
+    {
+        var queryResult = await Connection.QueryAsync<GetSequenceCommentsQueryResult>(
+            SequenceCommentsQuery,
+            new GetSequenceCommentsQuery
             {
-                ObjectName = r.ObjectName,
-                ObjectType = r.ObjectType,
-                Comment = r.Comment
-            }).ToList();
+                SchemaName = sequenceName.Schema!,
+                SequenceName = sequenceName.LocalName,
+                CommentProperty = CommentProperty
+            },
+            cancellationToken
+        ).ConfigureAwait(false);
 
-            var sequenceComment = GetFirstCommentByType(commentData, Constants.Sequence);
+        var commentData = queryResult.Select(r => new CommentData
+        {
+            ObjectName = r.ObjectName,
+            ObjectType = r.ObjectType,
+            Comment = r.Comment
+        }).ToList();
 
-            return new DatabaseSequenceComments(sequenceName, sequenceComment);
-        }
+        var sequenceComment = GetFirstCommentByType(commentData, Constants.Sequence);
 
-        /// <summary>
-        /// Gets a query that retrieves names of all sequences in the database.
-        /// </summary>
-        /// <value>A SQL query.</value>
-        protected virtual string SequencesQuery => SequencesQuerySql;
+        return new DatabaseSequenceComments(sequenceName, sequenceComment);
+    }
 
-        private const string SequencesQuerySql = @$"
+    /// <summary>
+    /// Gets a query that retrieves names of all sequences in the database.
+    /// </summary>
+    /// <value>A SQL query.</value>
+    protected virtual string SequencesQuery => SequencesQuerySql;
+
+    private const string SequencesQuerySql = @$"
 select
     schema_name(schema_id) as [{ nameof(GetAllSequenceNamesQueryResult.SchemaName) }],
     name as [{ nameof(GetAllSequenceNamesQueryResult.SequenceName) }]
@@ -170,13 +170,13 @@ from sys.sequences
 where is_ms_shipped = 0
 order by schema_name(schema_id), name";
 
-        /// <summary>
-        /// Gets a query that retrieves comment information on a single comment.
-        /// </summary>
-        /// <value>A SQL query.</value>
-        protected virtual string SequenceCommentsQuery => SequenceCommentsQuerySql;
+    /// <summary>
+    /// Gets a query that retrieves comment information on a single comment.
+    /// </summary>
+    /// <value>A SQL query.</value>
+    protected virtual string SequenceCommentsQuery => SequenceCommentsQuerySql;
 
-        private const string SequenceCommentsQuerySql = @$"
+    private const string SequenceCommentsQuerySql = @$"
 select
     'SEQUENCE' as [{ nameof(GetSequenceCommentsQueryResult.ObjectType) }],
     s.name as [{ nameof(GetSequenceCommentsQueryResult.ObjectName) }],
@@ -186,50 +186,49 @@ left join sys.extended_properties ep on s.object_id = ep.major_id and ep.name = 
 where s.schema_id = SCHEMA_ID(@{ nameof(GetSequenceCommentsQuery.SchemaName) }) and s.name = @{ nameof(GetSequenceCommentsQuery.SequenceName) } and s.is_ms_shipped = 0
 ";
 
-        private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
-        {
-            if (commentsData == null)
-                throw new ArgumentNullException(nameof(commentsData));
-            if (objectType.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(objectType));
+    private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
+    {
+        if (commentsData == null)
+            throw new ArgumentNullException(nameof(commentsData));
+        if (objectType.IsNullOrWhiteSpace())
+            throw new ArgumentNullException(nameof(objectType));
 
-            return commentsData
-                .Where(c => c.ObjectType == objectType)
-                .Select(static c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
-                .FirstOrDefault();
-        }
+        return commentsData
+            .Where(c => c.ObjectType == objectType)
+            .Select(static c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
+            .FirstOrDefault();
+    }
 
-        /// <summary>
-        /// Qualifies the name of the sequence.
-        /// </summary>
-        /// <param name="sequenceName">A view name.</param>
-        /// <returns>A sequence name is at least as qualified as the given sequence name.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
-        protected Identifier QualifySequenceName(Identifier sequenceName)
-        {
-            if (sequenceName == null)
-                throw new ArgumentNullException(nameof(sequenceName));
+    /// <summary>
+    /// Qualifies the name of the sequence.
+    /// </summary>
+    /// <param name="sequenceName">A view name.</param>
+    /// <returns>A sequence name is at least as qualified as the given sequence name.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    protected Identifier QualifySequenceName(Identifier sequenceName)
+    {
+        if (sequenceName == null)
+            throw new ArgumentNullException(nameof(sequenceName));
 
-            var schema = sequenceName.Schema ?? IdentifierDefaults.Schema;
-            return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, sequenceName.LocalName);
-        }
+        var schema = sequenceName.Schema ?? IdentifierDefaults.Schema;
+        return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, sequenceName.LocalName);
+    }
 
-        private static class Constants
-        {
-            public const string Sequence = "SEQUENCE";
-        }
+    private static class Constants
+    {
+        public const string Sequence = "SEQUENCE";
+    }
 
-        private sealed record CommentData
-        {
-            public string SchemaName { get; init; } = default!;
+    private sealed record CommentData
+    {
+        public string SchemaName { get; init; } = default!;
 
-            public string SequenceName { get; init; } = default!;
+        public string SequenceName { get; init; } = default!;
 
-            public string ObjectType { get; init; } = default!;
+        public string ObjectType { get; init; } = default!;
 
-            public string ObjectName { get; init; } = default!;
+        public string ObjectName { get; init; } = default!;
 
-            public string? Comment { get; init; }
-        }
+        public string? Comment { get; init; }
     }
 }

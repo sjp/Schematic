@@ -1,9 +1,8 @@
-﻿namespace SJP.Schematic.Serialization.Dto
-{
-    public class NumericPrecision
-    {
-        public int Precision { get; set; }
+﻿namespace SJP.Schematic.Serialization.Dto;
 
-        public int Scale { get; set; }
-    }
+public class NumericPrecision
+{
+    public int Precision { get; set; }
+
+    public int Scale { get; set; }
 }

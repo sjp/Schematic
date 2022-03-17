@@ -1,9 +1,8 @@
-﻿namespace SJP.Schematic.Oracle.Query
-{
-    internal sealed record GetMaterializedViewChecksQuery
-    {
-        public string SchemaName { get; init; } = default!;
+﻿namespace SJP.Schematic.Oracle.Query;
 
-        public string ViewName { get; init; } = default!;
-    }
+internal sealed record GetMaterializedViewChecksQuery
+{
+    public string SchemaName { get; init; } = default!;
+
+    public string ViewName { get; init; } = default!;
 }

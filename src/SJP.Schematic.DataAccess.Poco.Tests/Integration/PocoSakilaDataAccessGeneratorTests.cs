@@ -11,79 +11,78 @@ using SJP.Schematic.Sqlite;
 using SJP.Schematic.Tests.Utilities;
 using SJP.Schematic.Tests.Utilities.Integration;
 
-namespace SJP.Schematic.DataAccess.Poco.Tests.Integration
+namespace SJP.Schematic.DataAccess.Poco.Tests.Integration;
+
+internal sealed class PocoSakilaDataAccessGeneratorTests : SakilaTest
 {
-    internal sealed class PocoSakilaDataAccessGeneratorTests : SakilaTest
+    private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults, Pragma);
+
+    [Test]
+    public async Task Generate_GivenDatabaseWithoutTablesOrViews_BuildsProjectSuccessfully()
     {
-        private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults, Pragma);
+        using var tempDir = new TemporaryDirectory();
+        var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFilename);
 
-        [Test]
-        public async Task Generate_GivenDatabaseWithoutTablesOrViews_BuildsProjectSuccessfully()
-        {
-            using var tempDir = new TemporaryDirectory();
-            var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFilename);
+        var database = new EmptyRelationalDatabase(Database.IdentifierDefaults);
 
-            var database = new EmptyRelationalDatabase(Database.IdentifierDefaults);
+        var fileSystem = new FileSystem();
+        var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
+        var nameTranslator = new PascalCaseNameTranslator();
+        var generator = new PocoDataAccessGenerator(fileSystem, database, commentProvider, nameTranslator);
+        await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
 
-            var fileSystem = new FileSystem();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
-            var nameTranslator = new PascalCaseNameTranslator();
-            var generator = new PocoDataAccessGenerator(fileSystem, database, commentProvider, nameTranslator);
-            await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
-
-            var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
-            Assert.That(buildsSuccessfully, Is.True);
-        }
-
-        [Test]
-        public async Task Generate_GivenDatabaseWithTablesAndViews_BuildsProjectSuccessfully()
-        {
-            using var tempDir = new TemporaryDirectory();
-            var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFilename);
-
-            var fileSystem = new FileSystem();
-            var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
-            var nameTranslator = new PascalCaseNameTranslator();
-            var generator = new PocoDataAccessGenerator(fileSystem, Database, commentProvider, nameTranslator);
-            await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
-
-            var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
-            Assert.That(buildsSuccessfully, Is.True);
-        }
-
-        private static Task<bool> ProjectBuildsSuccessfullyAsync(string projectPath)
-        {
-            if (projectPath.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(projectPath));
-            if (!File.Exists(projectPath))
-                throw new FileNotFoundException("Expected to find a csproj at: " + projectPath, projectPath);
-
-            return ProjectBuildsSuccessfullyAsyncCore(projectPath);
-        }
-
-        private static async Task<bool> ProjectBuildsSuccessfullyAsyncCore(string projectPath)
-        {
-            var projectDir = Path.GetDirectoryName(projectPath);
-            var escapedProjectPath = projectPath.Replace("\"", "\\\"", StringComparison.Ordinal);
-
-            var startInfo = new ProcessStartInfo
-            {
-                ArgumentList = { "build", escapedProjectPath },
-                CreateNoWindow = true,
-                FileName = "dotnet",
-                WindowStyle = ProcessWindowStyle.Hidden,
-                WorkingDirectory = projectDir
-            };
-
-            using var process = new Process { StartInfo = startInfo };
-            process.Start();
-            await process.WaitForExitAsync().ConfigureAwait(false);
-
-            return process.ExitCode == ExitSuccess;
-        }
-
-        private const string TestNamespace = "PocoTestNamespace";
-        private const string TestCsprojFilename = "DataAccessGeneratorTest.csproj";
-        private const int ExitSuccess = 0;
+        var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
+        Assert.That(buildsSuccessfully, Is.True);
     }
+
+    [Test]
+    public async Task Generate_GivenDatabaseWithTablesAndViews_BuildsProjectSuccessfully()
+    {
+        using var tempDir = new TemporaryDirectory();
+        var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFilename);
+
+        var fileSystem = new FileSystem();
+        var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
+        var nameTranslator = new PascalCaseNameTranslator();
+        var generator = new PocoDataAccessGenerator(fileSystem, Database, commentProvider, nameTranslator);
+        await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
+
+        var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
+        Assert.That(buildsSuccessfully, Is.True);
+    }
+
+    private static Task<bool> ProjectBuildsSuccessfullyAsync(string projectPath)
+    {
+        if (projectPath.IsNullOrWhiteSpace())
+            throw new ArgumentNullException(nameof(projectPath));
+        if (!File.Exists(projectPath))
+            throw new FileNotFoundException("Expected to find a csproj at: " + projectPath, projectPath);
+
+        return ProjectBuildsSuccessfullyAsyncCore(projectPath);
+    }
+
+    private static async Task<bool> ProjectBuildsSuccessfullyAsyncCore(string projectPath)
+    {
+        var projectDir = Path.GetDirectoryName(projectPath);
+        var escapedProjectPath = projectPath.Replace("\"", "\\\"", StringComparison.Ordinal);
+
+        var startInfo = new ProcessStartInfo
+        {
+            ArgumentList = { "build", escapedProjectPath },
+            CreateNoWindow = true,
+            FileName = "dotnet",
+            WindowStyle = ProcessWindowStyle.Hidden,
+            WorkingDirectory = projectDir
+        };
+
+        using var process = new Process { StartInfo = startInfo };
+        process.Start();
+        await process.WaitForExitAsync().ConfigureAwait(false);
+
+        return process.ExitCode == ExitSuccess;
+    }
+
+    private const string TestNamespace = "PocoTestNamespace";
+    private const string TestCsprojFilename = "DataAccessGeneratorTest.csproj";
+    private const int ExitSuccess = 0;
 }

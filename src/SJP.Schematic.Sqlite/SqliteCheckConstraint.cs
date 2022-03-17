@@ -6,71 +6,70 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 
-namespace SJP.Schematic.Sqlite
+namespace SJP.Schematic.Sqlite;
+
+/// <summary>
+/// A check constraint definition.
+/// </summary>
+/// <seealso cref="IDatabaseCheckConstraint" />
+[DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+public class SqliteCheckConstraint : IDatabaseCheckConstraint
 {
     /// <summary>
-    /// A check constraint definition.
+    /// Initializes a new instance of the <see cref="SqliteCheckConstraint"/> class.
     /// </summary>
-    /// <seealso cref="IDatabaseCheckConstraint" />
-    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public class SqliteCheckConstraint : IDatabaseCheckConstraint
+    /// <param name="checkName">A check constraint name, if available.</param>
+    /// <param name="definition">The constraint definition.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <c>null</c>, empty or whitespace.</exception>
+    public SqliteCheckConstraint(Option<Identifier> checkName, string definition)
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SqliteCheckConstraint"/> class.
-        /// </summary>
-        /// <param name="checkName">A check constraint name, if available.</param>
-        /// <param name="definition">The constraint definition.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <c>null</c>, empty or whitespace.</exception>
-        public SqliteCheckConstraint(Option<Identifier> checkName, string definition)
+        if (definition.IsNullOrWhiteSpace())
+            throw new ArgumentNullException(nameof(definition));
+
+        Name = checkName.Map(static name => Identifier.CreateQualifiedIdentifier(name.LocalName));
+        Definition = definition;
+    }
+
+    /// <summary>
+    /// The check constraint name.
+    /// </summary>
+    /// <value>A constraint name, if available.</value>
+    public Option<Identifier> Name { get; }
+
+    /// <summary>
+    /// The definition of the check constraint.
+    /// </summary>
+    /// <value>The check constraint definition.</value>
+    public string Definition { get; }
+
+    /// <summary>
+    /// Indicates whether this constraint is enabled.
+    /// </summary>
+    /// <value>Always <c>true</c>.</value>
+    public bool IsEnabled { get; } = true;
+
+    /// <summary>
+    /// Returns a string that provides a basic string representation of this object.
+    /// </summary>
+    /// <returns>A <see cref="string"/> that represents this instance.</returns>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public override string ToString() => DebuggerDisplay;
+
+    private string DebuggerDisplay
+    {
+        get
         {
-            if (definition.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(definition));
+            var builder = StringBuilderCache.Acquire();
 
-            Name = checkName.Map(static name => Identifier.CreateQualifiedIdentifier(name.LocalName));
-            Definition = definition;
-        }
+            builder.Append("Check");
 
-        /// <summary>
-        /// The check constraint name.
-        /// </summary>
-        /// <value>A constraint name, if available.</value>
-        public Option<Identifier> Name { get; }
-
-        /// <summary>
-        /// The definition of the check constraint.
-        /// </summary>
-        /// <value>The check constraint definition.</value>
-        public string Definition { get; }
-
-        /// <summary>
-        /// Indicates whether this constraint is enabled.
-        /// </summary>
-        /// <value>Always <c>true</c>.</value>
-        public bool IsEnabled { get; } = true;
-
-        /// <summary>
-        /// Returns a string that provides a basic string representation of this object.
-        /// </summary>
-        /// <returns>A <see cref="string"/> that represents this instance.</returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString() => DebuggerDisplay;
-
-        private string DebuggerDisplay
-        {
-            get
+            Name.IfSome(name =>
             {
-                var builder = StringBuilderCache.Acquire();
+                builder.Append(": ")
+                    .Append(name.LocalName);
+            });
 
-                builder.Append("Check");
-
-                Name.IfSome(name =>
-                {
-                    builder.Append(": ")
-                        .Append(name.LocalName);
-                });
-
-                return builder.GetStringAndRelease();
-            }
+            return builder.GetStringAndRelease();
         }
     }
 }

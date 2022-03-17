@@ -1,7 +1,6 @@
-﻿namespace SJP.Schematic.PostgreSql.QueryResult
+﻿namespace SJP.Schematic.PostgreSql.QueryResult;
+
+internal sealed record GetSequenceCommentsQueryResult
 {
-    internal sealed record GetSequenceCommentsQueryResult
-    {
-        public string? Comment { get; init; }
-    }
+    public string? Comment { get; init; }
 }

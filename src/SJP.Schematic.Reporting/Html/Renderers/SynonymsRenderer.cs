@@ -9,57 +9,56 @@ using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Reporting.Html.ViewModels;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
-namespace SJP.Schematic.Reporting.Html.Renderers
+namespace SJP.Schematic.Reporting.Html.Renderers;
+
+internal sealed class SynonymsRenderer : ITemplateRenderer
 {
-    internal sealed class SynonymsRenderer : ITemplateRenderer
+    public SynonymsRenderer(
+        IIdentifierDefaults identifierDefaults,
+        IHtmlFormatter formatter,
+        IEnumerable<IDatabaseSynonym> synonyms,
+        SynonymTargets synonymTargets,
+        DirectoryInfo exportDirectory)
     {
-        public SynonymsRenderer(
-            IIdentifierDefaults identifierDefaults,
-            IHtmlFormatter formatter,
-            IEnumerable<IDatabaseSynonym> synonyms,
-            SynonymTargets synonymTargets,
-            DirectoryInfo exportDirectory)
-        {
-            Synonyms = synonyms ?? throw new ArgumentNullException(nameof(synonyms));
-            IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
-            Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
-            SynonymTargets = synonymTargets ?? throw new ArgumentNullException(nameof(synonymTargets));
-            ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
-        }
+        Synonyms = synonyms ?? throw new ArgumentNullException(nameof(synonyms));
+        IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+        Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
+        SynonymTargets = synonymTargets ?? throw new ArgumentNullException(nameof(synonymTargets));
+        ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
+    }
 
-        private IIdentifierDefaults IdentifierDefaults { get; }
+    private IIdentifierDefaults IdentifierDefaults { get; }
 
-        private IHtmlFormatter Formatter { get; }
+    private IHtmlFormatter Formatter { get; }
 
-        private IEnumerable<IDatabaseSynonym> Synonyms { get; }
+    private IEnumerable<IDatabaseSynonym> Synonyms { get; }
 
-        private SynonymTargets SynonymTargets { get; }
+    private SynonymTargets SynonymTargets { get; }
 
-        private DirectoryInfo ExportDirectory { get; }
+    private DirectoryInfo ExportDirectory { get; }
 
-        public async Task RenderAsync(CancellationToken cancellationToken = default)
-        {
-            var mapper = new MainModelMapper();
+    public async Task RenderAsync(CancellationToken cancellationToken = default)
+    {
+        var mapper = new MainModelMapper();
 
-            var synonymViewModels = Synonyms.Select(s => mapper.Map(s, SynonymTargets)).ToList();
-            var synonymsVm = new Synonyms(synonymViewModels);
+        var synonymViewModels = Synonyms.Select(s => mapper.Map(s, SynonymTargets)).ToList();
+        var synonymsVm = new Synonyms(synonymViewModels);
 
-            var renderedMain = await Formatter.RenderTemplateAsync(synonymsVm, cancellationToken).ConfigureAwait(false);
+        var renderedMain = await Formatter.RenderTemplateAsync(synonymsVm, cancellationToken).ConfigureAwait(false);
 
-            var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
-                ? IdentifierDefaults.Database + " Database"
-                : "Database";
-            var pageTitle = "Synonyms · " + databaseName;
-            var mainContainer = new Container(renderedMain, pageTitle, string.Empty);
-            var renderedPage = await Formatter.RenderTemplateAsync(mainContainer, cancellationToken).ConfigureAwait(false);
+        var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
+            ? IdentifierDefaults.Database + " Database"
+            : "Database";
+        var pageTitle = "Synonyms · " + databaseName;
+        var mainContainer = new Container(renderedMain, pageTitle, string.Empty);
+        var renderedPage = await Formatter.RenderTemplateAsync(mainContainer, cancellationToken).ConfigureAwait(false);
 
-            if (!ExportDirectory.Exists)
-                ExportDirectory.Create();
-            var outputPath = Path.Combine(ExportDirectory.FullName, "synonyms.html");
+        if (!ExportDirectory.Exists)
+            ExportDirectory.Create();
+        var outputPath = Path.Combine(ExportDirectory.FullName, "synonyms.html");
 
-            using var writer = File.CreateText(outputPath);
-            await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
-            await writer.FlushAsync().ConfigureAwait(false);
-        }
+        using var writer = File.CreateText(outputPath);
+        await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
+        await writer.FlushAsync().ConfigureAwait(false);
     }
 }

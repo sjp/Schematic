@@ -1,9 +1,8 @@
-﻿namespace SJP.Schematic.MySql.QueryResult
-{
-    internal sealed record GetAllRoutineNamesQueryResult
-    {
-        public string SchemaName { get; init; } = default!;
+﻿namespace SJP.Schematic.MySql.QueryResult;
 
-        public string RoutineName { get; init; } = default!;
-    }
+internal sealed record GetAllRoutineNamesQueryResult
+{
+    public string SchemaName { get; init; } = default!;
+
+    public string RoutineName { get; init; } = default!;
 }

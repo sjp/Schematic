@@ -8,128 +8,127 @@ using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint.Rules;
 
-namespace SJP.Schematic.Lint.Tests.Rules
+namespace SJP.Schematic.Lint.Tests.Rules;
+
+[TestFixture]
+internal static class OrphanedTableRuleTests
 {
-    [TestFixture]
-    internal static class OrphanedTableRuleTests
+    [Test]
+    public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
     {
-        [Test]
-        public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
-        {
-            const RuleLevel level = (RuleLevel)999;
-            Assert.That(() => new OrphanedTableRule(level), Throws.ArgumentException);
-        }
+        const RuleLevel level = (RuleLevel)999;
+        Assert.That(() => new OrphanedTableRule(level), Throws.ArgumentException);
+    }
 
-        [Test]
-        public static void AnalyseTables_GivenNullTables_ThrowsArgumentNullException()
-        {
-            var rule = new OrphanedTableRule(RuleLevel.Error);
-            Assert.That(() => rule.AnalyseTables(null), Throws.ArgumentNullException);
-        }
+    [Test]
+    public static void AnalyseTables_GivenNullTables_ThrowsArgumentNullException()
+    {
+        var rule = new OrphanedTableRule(RuleLevel.Error);
+        Assert.That(() => rule.AnalyseTables(null), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static async Task AnalyseTables_GivenTableWithParentKeys_ProducesNoMessages()
-        {
-            var rule = new OrphanedTableRule(RuleLevel.Error);
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithParentKeys_ProducesNoMessages()
+    {
+        var rule = new OrphanedTableRule(RuleLevel.Error);
 
-            var parentKey = new DatabaseRelationalKey(
-                "child_table",
-                new DatabaseKey(
-                    Option<Identifier>.Some("child_key"),
-                    DatabaseKeyType.Foreign,
-                    new[] { Mock.Of<IDatabaseColumn>() },
-                    true
-                ),
-                "parent_table",
-                new DatabaseKey(
-                    Option<Identifier>.Some("parent_key"),
-                    DatabaseKeyType.Primary,
-                    new[] { Mock.Of<IDatabaseColumn>() },
-                    true
-                ),
-                ReferentialAction.NoAction,
-                ReferentialAction.NoAction
-            );
-            var childTable = new RelationalDatabaseTable(
-                "test",
-                new List<IDatabaseColumn>(),
-                null,
-                Array.Empty<IDatabaseKey>(),
-                new[] { parentKey },
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseIndex>(),
-                Array.Empty<IDatabaseCheckConstraint>(),
-                Array.Empty<IDatabaseTrigger>()
-            );
-            var tables = new[] { childTable };
+        var parentKey = new DatabaseRelationalKey(
+            "child_table",
+            new DatabaseKey(
+                Option<Identifier>.Some("child_key"),
+                DatabaseKeyType.Foreign,
+                new[] { Mock.Of<IDatabaseColumn>() },
+                true
+            ),
+            "parent_table",
+            new DatabaseKey(
+                Option<Identifier>.Some("parent_key"),
+                DatabaseKeyType.Primary,
+                new[] { Mock.Of<IDatabaseColumn>() },
+                true
+            ),
+            ReferentialAction.NoAction,
+            ReferentialAction.NoAction
+        );
+        var childTable = new RelationalDatabaseTable(
+            "test",
+            new List<IDatabaseColumn>(),
+            null,
+            Array.Empty<IDatabaseKey>(),
+            new[] { parentKey },
+            Array.Empty<IDatabaseRelationalKey>(),
+            Array.Empty<IDatabaseIndex>(),
+            Array.Empty<IDatabaseCheckConstraint>(),
+            Array.Empty<IDatabaseTrigger>()
+        );
+        var tables = new[] { childTable };
 
-            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.That(hasMessages, Is.False);
-        }
+        Assert.That(hasMessages, Is.False);
+    }
 
-        [Test]
-        public static async Task AnalyseTables_GivenTableWithChildKeys_ProducesNoMessages()
-        {
-            var rule = new OrphanedTableRule(RuleLevel.Error);
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithChildKeys_ProducesNoMessages()
+    {
+        var rule = new OrphanedTableRule(RuleLevel.Error);
 
-            var childKey = new DatabaseRelationalKey(
-                "child_table",
-                new DatabaseKey(
-                    Option<Identifier>.Some("child_key"),
-                    DatabaseKeyType.Foreign,
-                    new[] { Mock.Of<IDatabaseColumn>() },
-                    true
-                ),
-                "parent_table",
-                new DatabaseKey(
-                    Option<Identifier>.Some("parent_key"),
-                    DatabaseKeyType.Primary,
-                    new[] { Mock.Of<IDatabaseColumn>() },
-                    true
-                ),
-                ReferentialAction.NoAction,
-                ReferentialAction.NoAction
-            );
-            var parentTable = new RelationalDatabaseTable(
-                "test",
-                new List<IDatabaseColumn>(),
-                null,
-                Array.Empty<IDatabaseKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                new[] { childKey },
-                Array.Empty<IDatabaseIndex>(),
-                Array.Empty<IDatabaseCheckConstraint>(),
-                Array.Empty<IDatabaseTrigger>()
-            );
-            var tables = new[] { parentTable };
+        var childKey = new DatabaseRelationalKey(
+            "child_table",
+            new DatabaseKey(
+                Option<Identifier>.Some("child_key"),
+                DatabaseKeyType.Foreign,
+                new[] { Mock.Of<IDatabaseColumn>() },
+                true
+            ),
+            "parent_table",
+            new DatabaseKey(
+                Option<Identifier>.Some("parent_key"),
+                DatabaseKeyType.Primary,
+                new[] { Mock.Of<IDatabaseColumn>() },
+                true
+            ),
+            ReferentialAction.NoAction,
+            ReferentialAction.NoAction
+        );
+        var parentTable = new RelationalDatabaseTable(
+            "test",
+            new List<IDatabaseColumn>(),
+            null,
+            Array.Empty<IDatabaseKey>(),
+            Array.Empty<IDatabaseRelationalKey>(),
+            new[] { childKey },
+            Array.Empty<IDatabaseIndex>(),
+            Array.Empty<IDatabaseCheckConstraint>(),
+            Array.Empty<IDatabaseTrigger>()
+        );
+        var tables = new[] { parentTable };
 
-            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.That(hasMessages, Is.False);
-        }
+        Assert.That(hasMessages, Is.False);
+    }
 
-        [Test]
-        public static async Task AnalyseTables_GivenTableWithNoRelations_ProducesMessages()
-        {
-            var rule = new OrphanedTableRule(RuleLevel.Error);
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithNoRelations_ProducesMessages()
+    {
+        var rule = new OrphanedTableRule(RuleLevel.Error);
 
-            var table = new RelationalDatabaseTable(
-                "test",
-                new List<IDatabaseColumn>(),
-                null,
-                Array.Empty<IDatabaseKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseRelationalKey>(),
-                Array.Empty<IDatabaseIndex>(),
-                Array.Empty<IDatabaseCheckConstraint>(),
-                Array.Empty<IDatabaseTrigger>()
-            );
-            var tables = new[] { table };
+        var table = new RelationalDatabaseTable(
+            "test",
+            new List<IDatabaseColumn>(),
+            null,
+            Array.Empty<IDatabaseKey>(),
+            Array.Empty<IDatabaseRelationalKey>(),
+            Array.Empty<IDatabaseRelationalKey>(),
+            Array.Empty<IDatabaseIndex>(),
+            Array.Empty<IDatabaseCheckConstraint>(),
+            Array.Empty<IDatabaseTrigger>()
+        );
+        var tables = new[] { table };
 
-            var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
 
-            Assert.That(hasMessages, Is.True);
-        }
+        Assert.That(hasMessages, Is.True);
     }
 }

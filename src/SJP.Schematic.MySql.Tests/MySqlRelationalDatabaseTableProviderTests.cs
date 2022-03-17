@@ -2,36 +2,35 @@
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.MySql.Tests
+namespace SJP.Schematic.MySql.Tests;
+
+[TestFixture]
+internal static class MySqlRelationalDatabaseTableProviderTests
 {
-    [TestFixture]
-    internal static class MySqlRelationalDatabaseTableProviderTests
+    [Test]
+    public static void Ctor_GivenNullConnection_ThrowsArgNullException()
     {
-        [Test]
-        public static void Ctor_GivenNullConnection_ThrowsArgNullException()
-        {
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+        var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            Assert.That(() => new MySqlRelationalDatabaseTableProvider(null, identifierDefaults), Throws.ArgumentNullException);
-        }
+        Assert.That(() => new MySqlRelationalDatabaseTableProvider(null, identifierDefaults), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgNullException()
-        {
-            var connection = Mock.Of<ISchematicConnection>();
+    [Test]
+    public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgNullException()
+    {
+        var connection = Mock.Of<ISchematicConnection>();
 
-            Assert.That(() => new MySqlRelationalDatabaseTableProvider(connection, null), Throws.ArgumentNullException);
-        }
+        Assert.That(() => new MySqlRelationalDatabaseTableProvider(connection, null), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static void GetTable_GivenNullTableName_ThrowsArgNullException()
-        {
-            var connection = Mock.Of<ISchematicConnection>();
-            var identifierDefaults = Mock.Of<IIdentifierDefaults>();
+    [Test]
+    public static void GetTable_GivenNullTableName_ThrowsArgNullException()
+    {
+        var connection = Mock.Of<ISchematicConnection>();
+        var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-            var tableProvider = new MySqlRelationalDatabaseTableProvider(connection, identifierDefaults);
+        var tableProvider = new MySqlRelationalDatabaseTableProvider(connection, identifierDefaults);
 
-            Assert.That(() => tableProvider.GetTable(null), Throws.ArgumentNullException);
-        }
+        Assert.That(() => tableProvider.GetTable(null), Throws.ArgumentNullException);
     }
 }

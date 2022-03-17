@@ -3,75 +3,74 @@ using System.Collections.Generic;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
-namespace SJP.Schematic.Reporting
+namespace SJP.Schematic.Reporting;
+
+internal sealed class RelationshipFinder
 {
-    internal sealed class RelationshipFinder
+    public RelationshipFinder(IEnumerable<IRelationalDatabaseTable> tables)
     {
-        public RelationshipFinder(IEnumerable<IRelationalDatabaseTable> tables)
+        if (tables == null)
+            throw new ArgumentNullException(nameof(tables));
+
+        var tableLookup = new Dictionary<Identifier, IRelationalDatabaseTable>();
+        foreach (var table in tables)
+            tableLookup[table.Name] = table;
+
+        Tables = tableLookup;
+    }
+
+    private IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> Tables { get; }
+
+    public IEnumerable<IRelationalDatabaseTable> GetTablesByDegrees(IRelationalDatabaseTable table, uint degrees)
+    {
+        if (table == null)
+            throw new ArgumentNullException(nameof(table));
+
+        var result = new Dictionary<Identifier, IRelationalDatabaseTable> { [table.Name] = table };
+        AddRelatedTables(result, new[] { table }, degrees);
+
+        return result.Values;
+    }
+
+    private void AddRelatedTables(IDictionary<Identifier, IRelationalDatabaseTable> tableLookup, IEnumerable<IRelationalDatabaseTable> tables, uint degree)
+    {
+        if (tables.Empty() || degree == 0)
+            return;
+
+        var addedTables = new Dictionary<Identifier, IRelationalDatabaseTable>();
+
+        foreach (var table in tables)
         {
-            if (tables == null)
-                throw new ArgumentNullException(nameof(tables));
+            var childKeys = table.ChildKeys;
+            var parentKeys = table.ParentKeys;
 
-            var tableLookup = new Dictionary<Identifier, IRelationalDatabaseTable>();
-            foreach (var table in tables)
-                tableLookup[table.Name] = table;
-
-            Tables = tableLookup;
-        }
-
-        private IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> Tables { get; }
-
-        public IEnumerable<IRelationalDatabaseTable> GetTablesByDegrees(IRelationalDatabaseTable table, uint degrees)
-        {
-            if (table == null)
-                throw new ArgumentNullException(nameof(table));
-
-            var result = new Dictionary<Identifier, IRelationalDatabaseTable> { [table.Name] = table };
-            AddRelatedTables(result, new[] { table }, degrees);
-
-            return result.Values;
-        }
-
-        private void AddRelatedTables(IDictionary<Identifier, IRelationalDatabaseTable> tableLookup, IEnumerable<IRelationalDatabaseTable> tables, uint degree)
-        {
-            if (tables.Empty() || degree == 0)
-                return;
-
-            var addedTables = new Dictionary<Identifier, IRelationalDatabaseTable>();
-
-            foreach (var table in tables)
+            foreach (var childKey in childKeys)
             {
-                var childKeys = table.ChildKeys;
-                var parentKeys = table.ParentKeys;
+                var childTableName = childKey.ChildTable;
+                var isNewTable = !tableLookup.ContainsKey(childTableName) && !addedTables.ContainsKey(childTableName);
+                if (!isNewTable)
+                    continue;
 
-                foreach (var childKey in childKeys)
-                {
-                    var childTableName = childKey.ChildTable;
-                    var isNewTable = !tableLookup.ContainsKey(childTableName) && !addedTables.ContainsKey(childTableName);
-                    if (!isNewTable)
-                        continue;
-
-                    if (Tables.TryGetValue(childTableName, out var childTable))
-                        addedTables[childTableName] = childTable;
-                }
-
-                foreach (var parentKey in parentKeys)
-                {
-                    var parentTableName = parentKey.ParentTable;
-                    var isNewTable = !tableLookup.ContainsKey(parentTableName) && !addedTables.ContainsKey(parentTableName);
-                    if (!isNewTable)
-                        continue;
-
-                    if (Tables.TryGetValue(parentTableName, out var parentTable))
-                        addedTables[parentTableName] = parentTable;
-                }
+                if (Tables.TryGetValue(childTableName, out var childTable))
+                    addedTables[childTableName] = childTable;
             }
 
-            foreach (var addedTable in addedTables)
-                tableLookup[addedTable.Key] = addedTable.Value;
+            foreach (var parentKey in parentKeys)
+            {
+                var parentTableName = parentKey.ParentTable;
+                var isNewTable = !tableLookup.ContainsKey(parentTableName) && !addedTables.ContainsKey(parentTableName);
+                if (!isNewTable)
+                    continue;
 
-            var newDegree = degree - 1;
-            AddRelatedTables(tableLookup, addedTables.Values, newDegree);
+                if (Tables.TryGetValue(parentTableName, out var parentTable))
+                    addedTables[parentTableName] = parentTable;
+            }
         }
+
+        foreach (var addedTable in addedTables)
+            tableLookup[addedTable.Key] = addedTable.Value;
+
+        var newDegree = degree - 1;
+        AddRelatedTables(tableLookup, addedTables.Values, newDegree);
     }
 }

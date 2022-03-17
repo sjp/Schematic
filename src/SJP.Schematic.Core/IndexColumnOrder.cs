@@ -1,18 +1,17 @@
-﻿namespace SJP.Schematic.Core
+﻿namespace SJP.Schematic.Core;
+
+/// <summary>
+/// Describes how a column is ordered within an index.
+/// </summary>
+public enum IndexColumnOrder
 {
     /// <summary>
-    /// Describes how a column is ordered within an index.
+    /// Ascending order. This is the default ordering.
     /// </summary>
-    public enum IndexColumnOrder
-    {
-        /// <summary>
-        /// Ascending order. This is the default ordering.
-        /// </summary>
-        Ascending,
+    Ascending,
 
-        /// <summary>
-        /// Descending order.
-        /// </summary>
-        Descending
-    }
+    /// <summary>
+    /// Descending order.
+    /// </summary>
+    Descending
 }

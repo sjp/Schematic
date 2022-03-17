@@ -4,17 +4,16 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 
-namespace SJP.Schematic.DataAccess.Tests
+namespace SJP.Schematic.DataAccess.Tests;
+
+internal sealed class FakeDatabaseTableGenerator : DatabaseTableGenerator
 {
-    internal sealed class FakeDatabaseTableGenerator : DatabaseTableGenerator
+    public FakeDatabaseTableGenerator(IFileSystem fileSystem, INameTranslator nameTranslator)
+        : base(fileSystem, nameTranslator)
     {
-        public FakeDatabaseTableGenerator(IFileSystem fileSystem, INameTranslator nameTranslator)
-            : base(fileSystem, nameTranslator)
-        {
-        }
-
-        public override string Generate(IReadOnlyCollection<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment) => string.Empty;
-
-        public IFileInfo InnerGetFilePath(DirectoryInfoBase baseDirectory, Identifier objectName) => GetFilePath(baseDirectory, objectName);
     }
+
+    public override string Generate(IReadOnlyCollection<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment) => string.Empty;
+
+    public IFileInfo InnerGetFilePath(DirectoryInfoBase baseDirectory, Identifier objectName) => GetFilePath(baseDirectory, objectName);
 }

@@ -1,7 +1,6 @@
-﻿namespace SJP.Schematic.MySql.Query
+﻿namespace SJP.Schematic.MySql.Query;
+
+internal sealed record GetAllTableNamesQuery
 {
-    internal sealed record GetAllTableNamesQuery
-    {
-        public string SchemaName { get; init; } = default!;
-    }
+    public string SchemaName { get; init; } = default!;
 }

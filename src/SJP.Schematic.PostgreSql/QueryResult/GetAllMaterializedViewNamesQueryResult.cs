@@ -1,9 +1,8 @@
-﻿namespace SJP.Schematic.PostgreSql.QueryResult
-{
-    internal sealed record GetAllMaterializedViewNamesQueryResult
-    {
-        public string SchemaName { get; init; } = default!;
+﻿namespace SJP.Schematic.PostgreSql.QueryResult;
 
-        public string ViewName { get; init; } = default!;
-    }
+internal sealed record GetAllMaterializedViewNamesQueryResult
+{
+    public string SchemaName { get; init; } = default!;
+
+    public string ViewName { get; init; } = default!;
 }

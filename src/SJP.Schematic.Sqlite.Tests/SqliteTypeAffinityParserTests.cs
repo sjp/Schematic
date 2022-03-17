@@ -1,15 +1,14 @@
 ﻿using NUnit.Framework;
 
-namespace SJP.Schematic.Sqlite.Tests
+namespace SJP.Schematic.Sqlite.Tests;
+
+[TestFixture]
+internal static class SqliteTypeAffinityParserTests
 {
-    [TestFixture]
-    internal static class SqliteTypeAffinityParserTests
+    // TODO
+    [Test]
+    public static void Ctor_GivenNoComparers_CreatesWithoutError()
     {
-        // TODO
-        [Test]
-        public static void Ctor_GivenNoComparers_CreatesWithoutError()
-        {
-            Assert.That(() => new SqliteTypeAffinityParser(), Throws.Nothing);
-        }
+        Assert.That(() => new SqliteTypeAffinityParser(), Throws.Nothing);
     }
 }

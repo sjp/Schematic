@@ -1,15 +1,14 @@
 ﻿using NUnit.Framework;
 
-namespace SJP.Schematic.Sqlite.Tests
+namespace SJP.Schematic.Sqlite.Tests;
+
+[TestFixture]
+internal static class SqliteDbTypeProviderTests
 {
-    [TestFixture]
-    internal static class SqliteDbTypeProviderTests
+    // TODO
+    [Test]
+    public static void Ctor_GivenNoComparers_CreatesWithoutError()
     {
-        // TODO
-        [Test]
-        public static void Ctor_GivenNoComparers_CreatesWithoutError()
-        {
-            Assert.That(() => new SqliteDbTypeProvider(), Throws.Nothing);
-        }
+        Assert.That(() => new SqliteDbTypeProvider(), Throws.Nothing);
     }
 }

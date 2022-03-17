@@ -1,26 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SJP.Schematic.Core
+namespace SJP.Schematic.Core;
+
+/// <summary>
+/// A simple resolution strategy that resolves to only the identifier itself.
+/// </summary>
+/// <seealso cref="IIdentifierResolutionStrategy" />
+public class VerbatimIdentifierResolutionStrategy : IIdentifierResolutionStrategy
 {
     /// <summary>
-    /// A simple resolution strategy that resolves to only the identifier itself.
+    /// Constructs the set of identifiers (in order) that should be used to query the database for an object.
     /// </summary>
-    /// <seealso cref="IIdentifierResolutionStrategy" />
-    public class VerbatimIdentifierResolutionStrategy : IIdentifierResolutionStrategy
+    /// <param name="identifier">A database identifier.</param>
+    /// <returns>A set of identifiers to query with.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <c>null</c>.</exception>
+    public IEnumerable<Identifier> GetResolutionOrder(Identifier identifier)
     {
-        /// <summary>
-        /// Constructs the set of identifiers (in order) that should be used to query the database for an object.
-        /// </summary>
-        /// <param name="identifier">A database identifier.</param>
-        /// <returns>A set of identifiers to query with.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <c>null</c>.</exception>
-        public IEnumerable<Identifier> GetResolutionOrder(Identifier identifier)
-        {
-            if (identifier == null)
-                throw new ArgumentNullException(nameof(identifier));
+        if (identifier == null)
+            throw new ArgumentNullException(nameof(identifier));
 
-            return new[] { identifier };
-        }
+        return new[] { identifier };
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace SJP.Schematic.Serialization.Dto
-{
-    public class DatabaseRoutine
-    {
-        public Identifier? RoutineName { get; set; }
+﻿namespace SJP.Schematic.Serialization.Dto;
 
-        public string? Definition { get; set; }
-    }
+public class DatabaseRoutine
+{
+    public Identifier? RoutineName { get; set; }
+
+    public string? Definition { get; set; }
 }

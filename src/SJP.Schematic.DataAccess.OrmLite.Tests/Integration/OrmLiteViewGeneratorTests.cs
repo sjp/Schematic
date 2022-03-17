@@ -10,20 +10,20 @@ using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite;
 using SJP.Schematic.Tests.Utilities;
 
-namespace SJP.Schematic.DataAccess.OrmLite.Tests.Integration
+namespace SJP.Schematic.DataAccess.OrmLite.Tests.Integration;
+
+internal sealed class OrmLiteViewGeneratorTests : SqliteTest
 {
-    internal sealed class OrmLiteViewGeneratorTests : SqliteTest
+    private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults, Pragma);
+
+    private Task<IDatabaseView> GetView(Identifier viewName) => Database.GetView(viewName).UnwrapSomeAsync();
+
+    private static IDatabaseViewGenerator ViewGenerator => new OrmLiteViewGenerator(new MockFileSystem(), new PascalCaseNameTranslator(), TestNamespace);
+
+    [OneTimeSetUp]
+    public async Task Init()
     {
-        private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults, Pragma);
-
-        private Task<IDatabaseView> GetView(Identifier viewName) => Database.GetView(viewName).UnwrapSomeAsync();
-
-        private static IDatabaseViewGenerator ViewGenerator => new OrmLiteViewGenerator(new MockFileSystem(), new PascalCaseNameTranslator(), TestNamespace);
-
-        [OneTimeSetUp]
-        public async Task Init()
-        {
-            await DbConnection.ExecuteAsync(@"
+        await DbConnection.ExecuteAsync(@"
 create view test_view_1 as
 select
     1 as testint,
@@ -32,95 +32,95 @@ select
     CURRENT_TIMESTAMP as testdatetime,
     'test' as teststring
 ", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync(@"create table view_test_table_1 (
+        await DbConnection.ExecuteAsync(@"create table view_test_table_1 (
     testint integer not null primary key autoincrement,
     testdecimal numeric default 2.45,
     testblob blob default X'DEADBEEF',
     testdatetime datetime default CURRENT_TIMESTAMP,
     teststring text default 'test'
 )", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("create view test_view_2 as select * from view_test_table_1", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("create view test_view_3 as select 1 as test_column_1", CancellationToken.None).ConfigureAwait(false);
-        }
+        await DbConnection.ExecuteAsync("create view test_view_2 as select * from view_test_table_1", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create view test_view_3 as select 1 as test_column_1", CancellationToken.None).ConfigureAwait(false);
+    }
 
-        [OneTimeTearDown]
-        public async Task CleanUp()
-        {
-            await DbConnection.ExecuteAsync("drop view test_view_1", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop view test_view_2", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop table view_test_table_1", CancellationToken.None).ConfigureAwait(false);
-            await DbConnection.ExecuteAsync("drop view test_view_3", CancellationToken.None).ConfigureAwait(false);
-        }
+    [OneTimeTearDown]
+    public async Task CleanUp()
+    {
+        await DbConnection.ExecuteAsync("drop view test_view_1", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop view test_view_2", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table view_test_table_1", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop view test_view_3", CancellationToken.None).ConfigureAwait(false);
+    }
 
-        [Test]
-        public async Task Generate_GivenViewWithLiteralColumnTypes_GeneratesExpectedOutput()
-        {
-            var view = await GetView("test_view_1").ConfigureAwait(false);
-            var generator = ViewGenerator;
+    [Test]
+    public async Task Generate_GivenViewWithLiteralColumnTypes_GeneratesExpectedOutput()
+    {
+        var view = await GetView("test_view_1").ConfigureAwait(false);
+        var generator = ViewGenerator;
 
-            var expected = TestView1Output;
-            var result = generator.Generate(view, Option<IDatabaseViewComments>.None);
+        var expected = TestView1Output;
+        var result = generator.Generate(view, Option<IDatabaseViewComments>.None);
 
-            Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
-        }
+        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+    }
 
-        [Test]
-        public async Task Generate_GivenViewSelectingFromTable_GeneratesExpectedOutput()
-        {
-            var view = await GetView("test_view_2").ConfigureAwait(false);
-            var generator = ViewGenerator;
+    [Test]
+    public async Task Generate_GivenViewSelectingFromTable_GeneratesExpectedOutput()
+    {
+        var view = await GetView("test_view_2").ConfigureAwait(false);
+        var generator = ViewGenerator;
 
-            var expected = TestView2Output;
-            var result = generator.Generate(view, Option<IDatabaseViewComments>.None);
+        var expected = TestView2Output;
+        var result = generator.Generate(view, Option<IDatabaseViewComments>.None);
 
-            Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
-        }
+        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+    }
 
-        [Test]
-        public async Task Generate_GivenViewWithViewAndColumnComments_GeneratesExpectedOutput()
-        {
-            const string viewComment = "This is a test view comment for OrmLite";
-            const string columnComment = "This is a test column comment for OrmLite";
+    [Test]
+    public async Task Generate_GivenViewWithViewAndColumnComments_GeneratesExpectedOutput()
+    {
+        const string viewComment = "This is a test view comment for OrmLite";
+        const string columnComment = "This is a test column comment for OrmLite";
 
-            var view = await GetView("test_view_3").ConfigureAwait(false);
-            var generator = ViewGenerator;
+        var view = await GetView("test_view_3").ConfigureAwait(false);
+        var generator = ViewGenerator;
 
-            var comment = new DatabaseViewComments("test_view_3",
-                Option<string>.Some(viewComment),
-                new Dictionary<Identifier, Option<string>> { ["test_column_1"] = Option<string>.Some(columnComment) }
-            );
-            var result = generator.Generate(view, comment);
+        var comment = new DatabaseViewComments("test_view_3",
+            Option<string>.Some(viewComment),
+            new Dictionary<Identifier, Option<string>> { ["test_column_1"] = Option<string>.Some(columnComment) }
+        );
+        var result = generator.Generate(view, comment);
 
-            var expected = TestView3Output;
-            Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
-        }
+        var expected = TestView3Output;
+        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+    }
 
-        [Test]
-        public async Task Generate_GivenMultiLineViewWithViewAndColumnComments_GeneratesExpectedOutput()
-        {
-            const string viewComment = @"This is a test view comment for OrmLite.
-
-This is a second line for it.";
-            const string columnComment = @"This is a test column comment for OrmLite.
+    [Test]
+    public async Task Generate_GivenMultiLineViewWithViewAndColumnComments_GeneratesExpectedOutput()
+    {
+        const string viewComment = @"This is a test view comment for OrmLite.
 
 This is a second line for it.";
+        const string columnComment = @"This is a test column comment for OrmLite.
 
-            var view = await GetView("test_view_3").ConfigureAwait(false);
-            var generator = ViewGenerator;
+This is a second line for it.";
 
-            var comment = new DatabaseViewComments("test_view_3",
-                Option<string>.Some(viewComment),
-                new Dictionary<Identifier, Option<string>> { ["test_column_1"] = Option<string>.Some(columnComment) }
-            );
-            var result = generator.Generate(view, comment);
+        var view = await GetView("test_view_3").ConfigureAwait(false);
+        var generator = ViewGenerator;
 
-            var expected = TestView3MultiLineOutput;
-            Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
-        }
+        var comment = new DatabaseViewComments("test_view_3",
+            Option<string>.Some(viewComment),
+            new Dictionary<Identifier, Option<string>> { ["test_column_1"] = Option<string>.Some(columnComment) }
+        );
+        var result = generator.Generate(view, comment);
 
-        private const string TestNamespace = "OrmLiteTestNamespace";
+        var expected = TestView3MultiLineOutput;
+        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+    }
 
-        private readonly string TestView1Output = @"using System;
+    private const string TestNamespace = "OrmLiteTestNamespace";
+
+    private readonly string TestView1Output = @"using System;
 using ServiceStack.DataAnnotations;
 
 namespace OrmLiteTestNamespace.Main
@@ -164,7 +164,7 @@ namespace OrmLiteTestNamespace.Main
     }
 }";
 
-        private readonly string TestView2Output = @"using System;
+    private readonly string TestView2Output = @"using System;
 using ServiceStack.DataAnnotations;
 
 namespace OrmLiteTestNamespace.Main
@@ -208,7 +208,7 @@ namespace OrmLiteTestNamespace.Main
     }
 }";
 
-        private readonly string TestView3Output = @"using System;
+    private readonly string TestView3Output = @"using System;
 using ServiceStack.DataAnnotations;
 
 namespace OrmLiteTestNamespace.Main
@@ -228,7 +228,7 @@ namespace OrmLiteTestNamespace.Main
     }
 }";
 
-        private readonly string TestView3MultiLineOutput = @"using System;
+    private readonly string TestView3MultiLineOutput = @"using System;
 using ServiceStack.DataAnnotations;
 
 namespace OrmLiteTestNamespace.Main
@@ -249,5 +249,4 @@ namespace OrmLiteTestNamespace.Main
         public long? TestColumn1 { get; set; }
     }
 }";
-    }
 }

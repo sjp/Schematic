@@ -1,9 +1,8 @@
-﻿namespace SJP.Schematic.Serialization.Dto.Comments
-{
-    public class DatabaseSynonymComments
-    {
-        public Identifier SynonymName { get; set; } = default!;
+﻿namespace SJP.Schematic.Serialization.Dto.Comments;
 
-        public string? Comment { get; set; }
-    }
+public class DatabaseSynonymComments
+{
+    public Identifier SynonymName { get; set; } = default!;
+
+    public string? Comment { get; set; }
 }

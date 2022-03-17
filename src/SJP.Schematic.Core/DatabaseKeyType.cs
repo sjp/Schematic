@@ -1,23 +1,22 @@
-﻿namespace SJP.Schematic.Core
+﻿namespace SJP.Schematic.Core;
+
+/// <summary>
+/// Describes the type of a key constraint on a table.
+/// </summary>
+public enum DatabaseKeyType
 {
     /// <summary>
-    /// Describes the type of a key constraint on a table.
+    /// Primary key.
     /// </summary>
-    public enum DatabaseKeyType
-    {
-        /// <summary>
-        /// Primary key.
-        /// </summary>
-        Primary,
+    Primary,
 
-        /// <summary>
-        /// Unique key.
-        /// </summary>
-        Unique,
+    /// <summary>
+    /// Unique key.
+    /// </summary>
+    Unique,
 
-        /// <summary>
-        /// Foreign key.
-        /// </summary>
-        Foreign
-    }
+    /// <summary>
+    /// Foreign key.
+    /// </summary>
+    Foreign
 }

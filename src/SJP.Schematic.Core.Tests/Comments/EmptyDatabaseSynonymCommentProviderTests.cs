@@ -3,37 +3,36 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core.Comments;
 
-namespace SJP.Schematic.Core.Tests.Comments
+namespace SJP.Schematic.Core.Tests.Comments;
+
+[TestFixture]
+internal static class EmptyDatabaseSynonymCommentProviderTests
 {
-    [TestFixture]
-    internal static class EmptyDatabaseSynonymCommentProviderTests
+    [Test]
+    public static void GetSynonymComments_GivenNullName_ThrowsArgumentNullException()
     {
-        [Test]
-        public static void GetSynonymComments_GivenNullName_ThrowsArgumentNullException()
-        {
-            var provider = new EmptyDatabaseSynonymCommentProvider();
-            Assert.That(() => provider.GetSynonymComments(null), Throws.ArgumentNullException);
-        }
+        var provider = new EmptyDatabaseSynonymCommentProvider();
+        Assert.That(() => provider.GetSynonymComments(null), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static async Task GetSynonymComments_GivenValidName_ReturnsNone()
-        {
-            var provider = new EmptyDatabaseSynonymCommentProvider();
-            var comment = provider.GetSynonymComments("test_synonym");
-            var isNone = await comment.IsNone.ConfigureAwait(false);
+    [Test]
+    public static async Task GetSynonymComments_GivenValidName_ReturnsNone()
+    {
+        var provider = new EmptyDatabaseSynonymCommentProvider();
+        var comment = provider.GetSynonymComments("test_synonym");
+        var isNone = await comment.IsNone.ConfigureAwait(false);
 
-            Assert.That(isNone, Is.True);
-        }
+        Assert.That(isNone, Is.True);
+    }
 
-        [Test]
-        public static async Task GetAllSynonymComments_WhenInvoked_DoesNotEnumerateAnyValues()
-        {
-            var provider = new EmptyDatabaseSynonymCommentProvider();
-            var hasComments = await provider.GetAllSynonymComments()
-                .AnyAsync()
-                .ConfigureAwait(false);
+    [Test]
+    public static async Task GetAllSynonymComments_WhenInvoked_DoesNotEnumerateAnyValues()
+    {
+        var provider = new EmptyDatabaseSynonymCommentProvider();
+        var hasComments = await provider.GetAllSynonymComments()
+            .AnyAsync()
+            .ConfigureAwait(false);
 
-            Assert.That(hasComments, Is.False);
-        }
+        Assert.That(hasComments, Is.False);
     }
 }

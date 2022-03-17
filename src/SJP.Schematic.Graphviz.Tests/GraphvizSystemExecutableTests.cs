@@ -1,37 +1,36 @@
 using NUnit.Framework;
 
-namespace SJP.Schematic.Graphviz.Tests
+namespace SJP.Schematic.Graphviz.Tests;
+
+[TestFixture]
+internal static class GraphvizSystemExecutableTests
 {
-    [TestFixture]
-    internal static class GraphvizSystemExecutableTests
+    [TestCase(null)]
+    [TestCase("")]
+    [TestCase("    ")]
+    public static void Ctor_GivenNullOrWhiteSpace_ThrowsArgNullException(string path)
     {
-        [TestCase(null)]
-        [TestCase("")]
-        [TestCase("    ")]
-        public static void Ctor_GivenNullOrWhiteSpace_ThrowsArgNullException(string path)
-        {
-            Assert.That(() => new GraphvizSystemExecutable(path), Throws.ArgumentNullException);
-        }
+        Assert.That(() => new GraphvizSystemExecutable(path), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public static void DotPath_PropertyGet_MatchesCtorArg()
-        {
-            const string exePath = "dot";
-            using var graphviz = new GraphvizSystemExecutable(exePath);
+    [Test]
+    public static void DotPath_PropertyGet_MatchesCtorArg()
+    {
+        const string exePath = "dot";
+        using var graphviz = new GraphvizSystemExecutable(exePath);
 
-            Assert.That(graphviz.DotPath, Is.EqualTo(exePath));
-        }
+        Assert.That(graphviz.DotPath, Is.EqualTo(exePath));
+    }
 
-        [Test]
-        public static void Dispose_WhenInvokedMoreThanOnce_DoesNotThrowError()
+    [Test]
+    public static void Dispose_WhenInvokedMoreThanOnce_DoesNotThrowError()
+    {
+        using var graphviz = new GraphvizSystemExecutable("dot");
+        Assert.That(() =>
         {
-            using var graphviz = new GraphvizSystemExecutable("dot");
-            Assert.That(() =>
-            {
-                graphviz.Dispose();
-                graphviz.Dispose();
-                graphviz.Dispose();
-            }, Throws.Nothing);
-        }
+            graphviz.Dispose();
+            graphviz.Dispose();
+            graphviz.Dispose();
+        }, Throws.Nothing);
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace SJP.Schematic.Oracle.QueryResult
-{
-    internal sealed record GetAllPackageNamesQueryResult
-    {
-        public string SchemaName { get; init; } = default!;
+﻿namespace SJP.Schematic.Oracle.QueryResult;
 
-        public string PackageName { get; init; } = default!;
-    }
+internal sealed record GetAllPackageNamesQueryResult
+{
+    public string SchemaName { get; init; } = default!;
+
+    public string PackageName { get; init; } = default!;
 }

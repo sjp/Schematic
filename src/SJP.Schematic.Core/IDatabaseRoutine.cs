@@ -1,15 +1,14 @@
-﻿namespace SJP.Schematic.Core
+﻿namespace SJP.Schematic.Core;
+
+/// <summary>
+/// Defines a database routine.
+/// </summary>
+/// <seealso cref="IDatabaseEntity" />
+public interface IDatabaseRoutine : IDatabaseEntity
 {
     /// <summary>
-    /// Defines a database routine.
+    /// The definition of the routine.
     /// </summary>
-    /// <seealso cref="IDatabaseEntity" />
-    public interface IDatabaseRoutine : IDatabaseEntity
-    {
-        /// <summary>
-        /// The definition of the routine.
-        /// </summary>
-        /// <value>A textual routine definition.</value>
-        string Definition { get; }
-    }
+    /// <value>A textual routine definition.</value>
+    string Definition { get; }
 }

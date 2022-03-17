@@ -1,9 +1,8 @@
-﻿namespace SJP.Schematic.PostgreSql.Query
-{
-    internal sealed record GetMaterializedViewCommentsQuery
-    {
-        public string SchemaName { get; init; } = default!;
+﻿namespace SJP.Schematic.PostgreSql.Query;
 
-        public string ViewName { get; init; } = default!;
-    }
+internal sealed record GetMaterializedViewCommentsQuery
+{
+    public string SchemaName { get; init; } = default!;
+
+    public string ViewName { get; init; } = default!;
 }

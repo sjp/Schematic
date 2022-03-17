@@ -1,7 +1,6 @@
-﻿namespace SJP.Schematic.Sqlite.QueryResult
+﻿namespace SJP.Schematic.Sqlite.QueryResult;
+
+internal sealed record GetTableDefinitionQueryResult
 {
-    internal sealed record GetTableDefinitionQueryResult
-    {
-        public string Definition { get; set; } = default!;
-    }
+    public string Definition { get; set; } = default!;
 }

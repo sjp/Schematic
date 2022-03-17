@@ -1,7 +1,6 @@
-﻿namespace SJP.Schematic.Reporting.Html
+﻿namespace SJP.Schematic.Reporting.Html;
+
+internal static class CssClasses
 {
-    internal static class CssClasses
-    {
-        internal static string DataTableClass { get; } = "table-db-objects";
-    }
+    internal static string DataTableClass { get; } = "table-db-objects";
 }

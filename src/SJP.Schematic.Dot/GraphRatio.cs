@@ -1,10 +1,9 @@
-﻿namespace SJP.Schematic.Dot
+﻿namespace SJP.Schematic.Dot;
+
+internal enum GraphRatio
 {
-    internal enum GraphRatio
-    {
-        Fill,
-        Compress,
-        Expand,
-        Auto
-    }
+    Fill,
+    Compress,
+    Expand,
+    Auto
 }

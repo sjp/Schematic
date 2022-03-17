@@ -3,97 +3,97 @@ using System.Xml.Linq;
 using NUnit.Framework;
 using SJP.Schematic.Tests.Utilities;
 
-namespace SJP.Schematic.Graphviz.Tests
+namespace SJP.Schematic.Graphviz.Tests;
+
+[TestFixture]
+internal sealed class DotSvgRendererTests
 {
-    [TestFixture]
-    internal sealed class DotSvgRendererTests
+    private IGraphvizExecutable GraphvizExe { get; set; }
+
+    private DotSvgRenderer Renderer => new(GraphvizExe.DotPath);
+
+    [OneTimeSetUp]
+    public void Init()
     {
-        private IGraphvizExecutable GraphvizExe { get; set; }
+        var factory = new GraphvizExecutableFactory();
+        GraphvizExe = factory.GetExecutable();
+    }
 
-        private DotSvgRenderer Renderer => new(GraphvizExe.DotPath);
+    [OneTimeTearDown]
+    public void CleanUp()
+    {
+        GraphvizExe.Dispose();
+    }
 
-        [OneTimeSetUp]
-        public void Init()
-        {
-            var factory = new GraphvizExecutableFactory();
-            GraphvizExe = factory.GetExecutable();
-        }
+    [TestCase((string)null)]
+    [TestCase("")]
+    [TestCase("    ")]
+    public void DotRenderer_GivenNullOrWhiteSpaceExecutablePath_ThrowsArgumentNullException(string exePath)
+    {
+        Assert.That(() => new DotSvgRenderer(exePath), Throws.ArgumentNullException);
+    }
 
-        [OneTimeTearDown]
-        public void CleanUp()
-        {
-            GraphvizExe.Dispose();
-        }
+    [TestCase((string)null)]
+    [TestCase("")]
+    [TestCase("    ")]
+    public void RenderToSvg_GivenNullOrWhiteSpaceDotDiagram_ThrowsArgumentNullException(string dot)
+    {
+        Assert.That(() => Renderer.RenderToSvg(dot), Throws.ArgumentNullException);
+    }
 
-        [TestCase((string)null)]
-        [TestCase("")]
-        [TestCase("    ")]
-        public void DotRenderer_GivenNullOrWhiteSpaceExecutablePath_ThrowsArgumentNullException(string exePath)
-        {
-            Assert.That(() => new DotSvgRenderer(exePath), Throws.ArgumentNullException);
-        }
+    [Test, GraphvizAvailable]
+    public void RenderToSvg_GivenInvalidDot_ThrowsGraphvizException()
+    {
+        Assert.That(() => Renderer.RenderToSvg("this is not dot"), Throws.TypeOf<GraphvizException>());
+    }
 
-        [TestCase((string)null)]
-        [TestCase("")]
-        [TestCase("    ")]
-        public void RenderToSvg_GivenNullOrWhiteSpaceDotDiagram_ThrowsArgumentNullException(string dot)
-        {
-            Assert.That(() => Renderer.RenderToSvg(dot), Throws.ArgumentNullException);
-        }
+    [Test, GraphvizAvailable]
+    public void RenderToSvg_GivenValidDot_ReturnsValidSvgXml()
+    {
+        var svg = Renderer.RenderToSvg("digraph g { a -> b }");
 
-        [Test, GraphvizAvailable]
-        public void RenderToSvg_GivenInvalidDot_ThrowsGraphvizException()
-        {
-            Assert.That(() => Renderer.RenderToSvg("this is not dot"), Throws.TypeOf<GraphvizException>());
-        }
+        Assert.That(() => _ = XDocument.Parse(svg, LoadOptions.PreserveWhitespace), Throws.Nothing);
+    }
 
-        [Test, GraphvizAvailable]
-        public void RenderToSvg_GivenValidDot_ReturnsValidSvgXml()
-        {
-            var svg = Renderer.RenderToSvg("digraph g { a -> b }");
+    [Test, GraphvizAvailable]
+    public void RenderToSvg_GivenVizJsGraphExample_ReturnsValidSvgXml()
+    {
+        var svg = Renderer.RenderToSvg(VizJsExample);
 
-            Assert.That(() => _ = XDocument.Parse(svg, LoadOptions.PreserveWhitespace), Throws.Nothing);
-        }
+        Assert.That(() => _ = XDocument.Parse(svg, LoadOptions.PreserveWhitespace), Throws.Nothing);
+    }
 
-        [Test, GraphvizAvailable]
-        public void RenderToSvg_GivenVizJsGraphExample_ReturnsValidSvgXml()
-        {
-            var svg = Renderer.RenderToSvg(VizJsExample);
+    [TestCase((string)null)]
+    [TestCase("")]
+    [TestCase("    ")]
+    public void RenderToSvgAsync_GivenNullOrWhiteSpaceDotDiagram_ThrowsArgumentNullException(string dot)
+    {
+        Assert.That(() => Renderer.RenderToSvgAsync(dot), Throws.ArgumentNullException);
+    }
 
-            Assert.That(() => _ = XDocument.Parse(svg, LoadOptions.PreserveWhitespace), Throws.Nothing);
-        }
+    [Test, GraphvizAvailable]
+    public void RenderToSvgAsync_GivenInvalidDot_ThrowsGraphvizException()
+    {
+        Assert.That(async () => await Renderer.RenderToSvgAsync("this is not dot").ConfigureAwait(false), Throws.TypeOf<GraphvizException>());
+    }
 
-        [TestCase((string)null)]
-        [TestCase("")]
-        [TestCase("    ")]
-        public void RenderToSvgAsync_GivenNullOrWhiteSpaceDotDiagram_ThrowsArgumentNullException(string dot)
-        {
-            Assert.That(() => Renderer.RenderToSvgAsync(dot), Throws.ArgumentNullException);
-        }
+    [Test, GraphvizAvailable]
+    public async Task RenderToSvgAsync_GivenValidDot_ReturnsValidSvgXml()
+    {
+        var svg = await Renderer.RenderToSvgAsync("digraph g { a -> b }").ConfigureAwait(false);
 
-        [Test, GraphvizAvailable]
-        public void RenderToSvgAsync_GivenInvalidDot_ThrowsGraphvizException()
-        {
-            Assert.That(async () => await Renderer.RenderToSvgAsync("this is not dot").ConfigureAwait(false), Throws.TypeOf<GraphvizException>());
-        }
+        Assert.That(() => _ = XDocument.Parse(svg, LoadOptions.PreserveWhitespace), Throws.Nothing);
+    }
 
-        [Test, GraphvizAvailable]
-        public async Task RenderToSvgAsync_GivenValidDot_ReturnsValidSvgXml()
-        {
-            var svg = await Renderer.RenderToSvgAsync("digraph g { a -> b }").ConfigureAwait(false);
+    [Test, GraphvizAvailable]
+    public async Task RenderToSvgAsync_GivenVizJsGraphExample_ReturnsValidSvgXml()
+    {
+        var svg = await Renderer.RenderToSvgAsync(VizJsExample).ConfigureAwait(false);
 
-            Assert.That(() => _ = XDocument.Parse(svg, LoadOptions.PreserveWhitespace), Throws.Nothing);
-        }
+        Assert.That(() => _ = XDocument.Parse(svg, LoadOptions.PreserveWhitespace), Throws.Nothing);
+    }
 
-        [Test, GraphvizAvailable]
-        public async Task RenderToSvgAsync_GivenVizJsGraphExample_ReturnsValidSvgXml()
-        {
-            var svg = await Renderer.RenderToSvgAsync(VizJsExample).ConfigureAwait(false);
-
-            Assert.That(() => _ = XDocument.Parse(svg, LoadOptions.PreserveWhitespace), Throws.Nothing);
-        }
-
-        private const string VizJsExample = @"digraph G {
+    private const string VizJsExample = @"digraph G {
 
     subgraph cluster_0 {
         style=filled;
@@ -121,5 +121,4 @@ namespace SJP.Schematic.Graphviz.Tests
     start[shape = Mdiamond];
     end[shape = Msquare];
 }";
-    }
 }

@@ -4,115 +4,114 @@ using System.Linq;
 using QuikGraph;
 using QuikGraph.Algorithms.Search;
 
-namespace SJP.Schematic.Core.Utilities
+namespace SJP.Schematic.Core.Utilities;
+
+/// <summary>
+/// Discovers cyclical foreign key relationships within a database.
+/// </summary>
+public class CycleDetector
 {
     /// <summary>
-    /// Discovers cyclical foreign key relationships within a database.
+    /// For a set of tables, determines any cycles and retrieves any cycles detected.
     /// </summary>
-    public class CycleDetector
+    /// <param name="tables">The tables which may contain a cycle.</param>
+    /// <returns>A set of cycles, each element contains the set of table names that form a cycle.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
+    public IReadOnlyCollection<IReadOnlyCollection<Identifier>> GetCyclePaths(IEnumerable<IRelationalDatabaseTable> tables)
     {
-        /// <summary>
-        /// For a set of tables, determines any cycles and retrieves any cycles detected.
-        /// </summary>
-        /// <param name="tables">The tables which may contain a cycle.</param>
-        /// <returns>A set of cycles, each element contains the set of table names that form a cycle.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
-        public IReadOnlyCollection<IReadOnlyCollection<Identifier>> GetCyclePaths(IEnumerable<IRelationalDatabaseTable> tables)
+        if (tables == null)
+            throw new ArgumentNullException(nameof(tables));
+        if (!tables.Any())
+            return Array.Empty<IReadOnlyCollection<Identifier>>();
+
+        var graph = new AdjacencyGraph<Identifier, SEquatableEdge<Identifier>>();
+        var tableNames = tables.Select(static t => t.Name).Distinct().ToList();
+        graph.AddVertexRange(tableNames);
+
+        var foreignKeys = tables
+            .SelectMany(static t => t.ParentKeys)
+            .Where(static fk => fk.ChildTable != fk.ParentTable)
+            .ToList();
+        foreach (var foreignKey in foreignKeys)
+            graph.AddEdge(new SEquatableEdge<Identifier>(foreignKey.ChildTable, foreignKey.ParentTable));
+
+        return GetCyclePaths(graph);
+    }
+
+    private IReadOnlyCollection<IReadOnlyCollection<Identifier>> GetCyclePaths(IVertexListGraph<Identifier, SEquatableEdge<Identifier>> graph)
+    {
+        if (graph == null)
+            throw new ArgumentNullException(nameof(graph));
+
+        var examinedEdges = new List<IEdge<Identifier>>();
+        var cycles = new List<IReadOnlyCollection<Identifier>>();
+        var dfs = new DepthFirstSearchAlgorithm<Identifier, SEquatableEdge<Identifier>>(graph);
+
+        void onExamineEdge(SEquatableEdge<Identifier> e) => examinedEdges.Add(e);
+        void onCyclingEdgeFound(SEquatableEdge<Identifier> e) => OnCyclingEdgeFound(examinedEdges, cycles, e);
+
+        try
         {
-            if (tables == null)
-                throw new ArgumentNullException(nameof(tables));
-            if (!tables.Any())
-                return Array.Empty<IReadOnlyCollection<Identifier>>();
-
-            var graph = new AdjacencyGraph<Identifier, SEquatableEdge<Identifier>>();
-            var tableNames = tables.Select(static t => t.Name).Distinct().ToList();
-            graph.AddVertexRange(tableNames);
-
-            var foreignKeys = tables
-                .SelectMany(static t => t.ParentKeys)
-                .Where(static fk => fk.ChildTable != fk.ParentTable)
-                .ToList();
-            foreach (var foreignKey in foreignKeys)
-                graph.AddEdge(new SEquatableEdge<Identifier>(foreignKey.ChildTable, foreignKey.ParentTable));
-
-            return GetCyclePaths(graph);
+            dfs.ExamineEdge += onExamineEdge;
+            dfs.BackEdge += onCyclingEdgeFound;
+            dfs.Compute();
+            return cycles;
         }
-
-        private IReadOnlyCollection<IReadOnlyCollection<Identifier>> GetCyclePaths(IVertexListGraph<Identifier, SEquatableEdge<Identifier>> graph)
+        finally
         {
-            if (graph == null)
-                throw new ArgumentNullException(nameof(graph));
-
-            var examinedEdges = new List<IEdge<Identifier>>();
-            var cycles = new List<IReadOnlyCollection<Identifier>>();
-            var dfs = new DepthFirstSearchAlgorithm<Identifier, SEquatableEdge<Identifier>>(graph);
-
-            void onExamineEdge(SEquatableEdge<Identifier> e) => examinedEdges.Add(e);
-            void onCyclingEdgeFound(SEquatableEdge<Identifier> e) => OnCyclingEdgeFound(examinedEdges, cycles, e);
-
-            try
-            {
-                dfs.ExamineEdge += onExamineEdge;
-                dfs.BackEdge += onCyclingEdgeFound;
-                dfs.Compute();
-                return cycles;
-            }
-            finally
-            {
-                dfs.ExamineEdge -= onExamineEdge;
-                dfs.BackEdge -= onCyclingEdgeFound;
-            }
+            dfs.ExamineEdge -= onExamineEdge;
+            dfs.BackEdge -= onCyclingEdgeFound;
         }
+    }
 
-        private static void OnCyclingEdgeFound(IEnumerable<IEdge<Identifier>> examinedEdges, ICollection<IReadOnlyCollection<Identifier>> cycles, SEquatableEdge<Identifier> e)
+    private static void OnCyclingEdgeFound(IEnumerable<IEdge<Identifier>> examinedEdges, ICollection<IReadOnlyCollection<Identifier>> cycles, SEquatableEdge<Identifier> e)
+    {
+        var startingNode = e.Target;
+        var nextNode = e.Source;
+
+        var knownNodes = new List<Identifier> { startingNode, nextNode };
+
+        var edges = examinedEdges.Reverse().Skip(1); // skipping first edge because that's the back edge
+        foreach (var edge in edges)
         {
-            var startingNode = e.Target;
-            var nextNode = e.Source;
+            if (edge.Target != nextNode)
+                continue;
 
-            var knownNodes = new List<Identifier> { startingNode, nextNode };
-
-            var edges = examinedEdges.Reverse().Skip(1); // skipping first edge because that's the back edge
-            foreach (var edge in edges)
+            if (!knownNodes.Contains(edge.Source))
             {
-                if (edge.Target != nextNode)
-                    continue;
-
-                if (!knownNodes.Contains(edge.Source))
-                {
-                    knownNodes.Add(edge.Source);
-                    nextNode = edge.Source;
-                }
-                else
-                {
-                    knownNodes.Reverse();
-                    if (!ContainsCycle(cycles, knownNodes))
-                        cycles.Add(knownNodes);
-                    return;
-                }
+                knownNodes.Add(edge.Source);
+                nextNode = edge.Source;
+            }
+            else
+            {
+                knownNodes.Reverse();
+                if (!ContainsCycle(cycles, knownNodes))
+                    cycles.Add(knownNodes);
+                return;
             }
         }
+    }
 
-        private static bool ContainsCycle(IEnumerable<IReadOnlyCollection<Identifier>> existingCycles, IReadOnlyCollection<Identifier> newCycle)
-        {
-            if (existingCycles == null)
-                throw new ArgumentNullException(nameof(existingCycles));
-            if (newCycle == null)
-                throw new ArgumentNullException(nameof(newCycle));
+    private static bool ContainsCycle(IEnumerable<IReadOnlyCollection<Identifier>> existingCycles, IReadOnlyCollection<Identifier> newCycle)
+    {
+        if (existingCycles == null)
+            throw new ArgumentNullException(nameof(existingCycles));
+        if (newCycle == null)
+            throw new ArgumentNullException(nameof(newCycle));
 
-            return existingCycles.Any(ec => CyclesEqual(ec, newCycle));
-        }
+        return existingCycles.Any(ec => CyclesEqual(ec, newCycle));
+    }
 
-        private static bool CyclesEqual(IReadOnlyCollection<Identifier> existingCycle, IReadOnlyCollection<Identifier> newCycle)
-        {
-            if (existingCycle == null)
-                throw new ArgumentNullException(nameof(existingCycle));
-            if (newCycle == null)
-                throw new ArgumentNullException(nameof(newCycle));
+    private static bool CyclesEqual(IReadOnlyCollection<Identifier> existingCycle, IReadOnlyCollection<Identifier> newCycle)
+    {
+        if (existingCycle == null)
+            throw new ArgumentNullException(nameof(existingCycle));
+        if (newCycle == null)
+            throw new ArgumentNullException(nameof(newCycle));
 
-            var orderedExisting = existingCycle.OrderBy(static name => name).Distinct().ToList();
-            var orderedNewCycle = newCycle.OrderBy(static name => name).Distinct().ToList();
+        var orderedExisting = existingCycle.OrderBy(static name => name).Distinct().ToList();
+        var orderedNewCycle = newCycle.OrderBy(static name => name).Distinct().ToList();
 
-            return orderedExisting.SequenceEqual(orderedNewCycle);
-        }
+        return orderedExisting.SequenceEqual(orderedNewCycle);
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace SJP.Schematic.Dot
+﻿namespace SJP.Schematic.Dot;
+
+internal enum FontFace
 {
-    internal enum FontFace
-    {
-        Times,
-        Courier,
-        Helvetica
-    }
+    Times,
+    Courier,
+    Helvetica
 }
