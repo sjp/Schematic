@@ -3,7 +3,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class DatabaseSynonymProfile
+public class DatabaseSynonymMapper
     : IImmutableMapper<Dto.DatabaseSynonym, IDatabaseSynonym>
     , IImmutableMapper<IDatabaseSynonym, Dto.DatabaseSynonym>
 {

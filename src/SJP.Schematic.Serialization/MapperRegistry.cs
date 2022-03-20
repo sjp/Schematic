@@ -27,86 +27,86 @@ internal static class MapperRegistry
 
     private static void RegisterMappers()
     {
-        RegisterMapper<Dto.AutoIncrement?, Option<IAutoIncrement>>(() => new AutoIncrementProfile());
-        RegisterMapper<Option<IAutoIncrement>, Dto.AutoIncrement?>(() => new AutoIncrementProfile());
+        RegisterMapper<Dto.AutoIncrement?, Option<IAutoIncrement>>(() => new AutoIncrementMapper());
+        RegisterMapper<Option<IAutoIncrement>, Dto.AutoIncrement?>(() => new AutoIncrementMapper());
 
-        RegisterMapper<Dto.DatabaseCheckConstraint, IDatabaseCheckConstraint>(() => new DatabaseCheckProfile());
-        RegisterMapper<IDatabaseCheckConstraint, Dto.DatabaseCheckConstraint>(() => new DatabaseCheckProfile());
+        RegisterMapper<Dto.DatabaseCheckConstraint, IDatabaseCheckConstraint>(() => new DatabaseCheckMapper());
+        RegisterMapper<IDatabaseCheckConstraint, Dto.DatabaseCheckConstraint>(() => new DatabaseCheckMapper());
 
-        RegisterMapper<Dto.DatabaseColumn, IDatabaseColumn>(() => new DatabaseColumnProfile());
-        RegisterMapper<IDatabaseColumn, Dto.DatabaseColumn>(() => new DatabaseColumnProfile());
-        RegisterMapper<IDatabaseComputedColumn, Dto.DatabaseColumn>(() => new DatabaseColumnProfile());
+        RegisterMapper<Dto.DatabaseColumn, IDatabaseColumn>(() => new DatabaseColumnMapper());
+        RegisterMapper<IDatabaseColumn, Dto.DatabaseColumn>(() => new DatabaseColumnMapper());
+        RegisterMapper<IDatabaseComputedColumn, Dto.DatabaseColumn>(() => new DatabaseColumnMapper());
 
-        RegisterMapper<Dto.DatabaseIndexColumn, IDatabaseIndexColumn>(() => new DatabaseIndexColumnProfile());
-        RegisterMapper<IDatabaseIndexColumn, Dto.DatabaseIndexColumn>(() => new DatabaseIndexColumnProfile());
+        RegisterMapper<Dto.DatabaseIndexColumn, IDatabaseIndexColumn>(() => new DatabaseIndexColumnMapper());
+        RegisterMapper<IDatabaseIndexColumn, Dto.DatabaseIndexColumn>(() => new DatabaseIndexColumnMapper());
 
-        RegisterMapper<Dto.DatabaseKey, IDatabaseKey>(() => new DatabaseKeyProfile());
-        RegisterMapper<IDatabaseKey, Dto.DatabaseKey>(() => new DatabaseKeyProfile());
-        RegisterMapper<Dto.DatabaseKey?, Option<IDatabaseKey>>(() => new DatabaseKeyProfile());
-        RegisterMapper<Option<IDatabaseKey>, Dto.DatabaseKey?>(() => new DatabaseKeyProfile());
+        RegisterMapper<Dto.DatabaseKey, IDatabaseKey>(() => new DatabaseKeyMapper());
+        RegisterMapper<IDatabaseKey, Dto.DatabaseKey>(() => new DatabaseKeyMapper());
+        RegisterMapper<Dto.DatabaseKey?, Option<IDatabaseKey>>(() => new DatabaseKeyMapper());
+        RegisterMapper<Option<IDatabaseKey>, Dto.DatabaseKey?>(() => new DatabaseKeyMapper());
 
-        RegisterMapper<Dto.DatabaseRelationalKey, IDatabaseRelationalKey>(() => new DatabaseRelationalKeyProfile());
-        RegisterMapper<IDatabaseRelationalKey, Dto.DatabaseRelationalKey>(() => new DatabaseRelationalKeyProfile());
+        RegisterMapper<Dto.DatabaseRelationalKey, IDatabaseRelationalKey>(() => new DatabaseRelationalKeyMapper());
+        RegisterMapper<IDatabaseRelationalKey, Dto.DatabaseRelationalKey>(() => new DatabaseRelationalKeyMapper());
 
-        RegisterMapper<Dto.DatabaseRoutine, IDatabaseRoutine>(() => new DatabaseRoutineProfile());
-        RegisterMapper<IDatabaseRoutine, Dto.DatabaseRoutine>(() => new DatabaseRoutineProfile());
+        RegisterMapper<Dto.DatabaseRoutine, IDatabaseRoutine>(() => new DatabaseRoutineMapper());
+        RegisterMapper<IDatabaseRoutine, Dto.DatabaseRoutine>(() => new DatabaseRoutineMapper());
 
-        RegisterMapper<Dto.DatabaseSequence, IDatabaseSequence>(() => new DatabaseSequenceProfile());
-        RegisterMapper<IDatabaseSequence, Dto.DatabaseSequence>(() => new DatabaseSequenceProfile());
+        RegisterMapper<Dto.DatabaseSequence, IDatabaseSequence>(() => new DatabaseSequenceMapper());
+        RegisterMapper<IDatabaseSequence, Dto.DatabaseSequence>(() => new DatabaseSequenceMapper());
 
-        RegisterMapper<Dto.DatabaseSynonym, IDatabaseSynonym>(() => new DatabaseSynonymProfile());
-        RegisterMapper<IDatabaseSynonym, Dto.DatabaseSynonym>(() => new DatabaseSynonymProfile());
+        RegisterMapper<Dto.DatabaseSynonym, IDatabaseSynonym>(() => new DatabaseSynonymMapper());
+        RegisterMapper<IDatabaseSynonym, Dto.DatabaseSynonym>(() => new DatabaseSynonymMapper());
 
-        RegisterMapper<Dto.DatabaseTrigger, IDatabaseTrigger>(() => new DatabaseTriggerProfile());
-        RegisterMapper<IDatabaseTrigger, Dto.DatabaseTrigger>(() => new DatabaseTriggerProfile());
+        RegisterMapper<Dto.DatabaseTrigger, IDatabaseTrigger>(() => new DatabaseTriggerMapper());
+        RegisterMapper<IDatabaseTrigger, Dto.DatabaseTrigger>(() => new DatabaseTriggerMapper());
 
-        RegisterMapper<Dto.DatabaseView, IDatabaseView>(() => new DatabaseViewProfile());
-        RegisterMapper<IDatabaseView, Dto.DatabaseView>(() => new DatabaseViewProfile());
+        RegisterMapper<Dto.DatabaseView, IDatabaseView>(() => new DatabaseViewMapper());
+        RegisterMapper<IDatabaseView, Dto.DatabaseView>(() => new DatabaseViewMapper());
 
-        RegisterMapper<Dto.DbType, IDbType>(() => new DbTypeProfile());
-        RegisterMapper<IDbType, Dto.DbType>(() => new DbTypeProfile());
+        RegisterMapper<Dto.DbType, IDbType>(() => new DbTypeMapper());
+        RegisterMapper<IDbType, Dto.DbType>(() => new DbTypeMapper());
 
-        RegisterMapper<Dto.IdentifierDefaults, IIdentifierDefaults>(() => new IdentifierDefaultsProfile());
-        RegisterMapper<IIdentifierDefaults, Dto.IdentifierDefaults>(() => new IdentifierDefaultsProfile());
+        RegisterMapper<Dto.IdentifierDefaults, IIdentifierDefaults>(() => new IdentifierDefaultsMapper());
+        RegisterMapper<IIdentifierDefaults, Dto.IdentifierDefaults>(() => new IdentifierDefaultsMapper());
 
-        RegisterMapper<Dto.Identifier?, Option<Identifier>>(() => new IdentifierProfile());
-        RegisterMapper<Option<Identifier>, Dto.Identifier>(() => new IdentifierProfile());
-        RegisterMapper<Identifier, Dto.Identifier>(() => new IdentifierProfile());
-        RegisterMapper<Dto.Identifier, Identifier>(() => new IdentifierProfile());
+        RegisterMapper<Dto.Identifier?, Option<Identifier>>(() => new IdentifierMapper());
+        RegisterMapper<Option<Identifier>, Dto.Identifier>(() => new IdentifierMapper());
+        RegisterMapper<Identifier, Dto.Identifier>(() => new IdentifierMapper());
+        RegisterMapper<Dto.Identifier, Identifier>(() => new IdentifierMapper());
 
-        RegisterMapper<Dto.DatabaseIndex, IDatabaseIndex>(() => new IndexProfile());
-        RegisterMapper<IDatabaseIndex, Dto.DatabaseIndex>(() => new IndexProfile());
+        RegisterMapper<Dto.DatabaseIndex, IDatabaseIndex>(() => new IndexMapper());
+        RegisterMapper<IDatabaseIndex, Dto.DatabaseIndex>(() => new IndexMapper());
 
-        RegisterMapper<Dto.NumericPrecision?, Option<INumericPrecision>>(() => new NumericPrecisionProfile());
-        RegisterMapper<Option<INumericPrecision>, Dto.NumericPrecision?>(() => new NumericPrecisionProfile());
+        RegisterMapper<Dto.NumericPrecision?, Option<INumericPrecision>>(() => new NumericPrecisionMapper());
+        RegisterMapper<Option<INumericPrecision>, Dto.NumericPrecision?>(() => new NumericPrecisionMapper());
 
-        RegisterMapper<string?, Option<string>>(() => new OptionProfile());
-        RegisterMapper<Option<string>, string?>(() => new OptionProfile());
-        RegisterMapper<decimal?, Option<decimal>>(() => new OptionProfile());
-        RegisterMapper<Option<decimal>, decimal?>(() => new OptionProfile());
+        RegisterMapper<string?, Option<string>>(() => new OptionMapper());
+        RegisterMapper<Option<string>, string?>(() => new OptionMapper());
+        RegisterMapper<decimal?, Option<decimal>>(() => new OptionMapper());
+        RegisterMapper<Option<decimal>, decimal?>(() => new OptionMapper());
 
-        RegisterMapper(() => new RelationalDatabaseProfile());
+        RegisterMapper(() => new RelationalDatabaseMapper());
 
-        RegisterMapper<Dto.RelationalDatabaseTable, IRelationalDatabaseTable>(() => new RelationalDatabaseTableProfile());
-        RegisterMapper<IRelationalDatabaseTable, Dto.RelationalDatabaseTable>(() => new RelationalDatabaseTableProfile());
+        RegisterMapper<Dto.RelationalDatabaseTable, IRelationalDatabaseTable>(() => new RelationalDatabaseTableMapper());
+        RegisterMapper<IRelationalDatabaseTable, Dto.RelationalDatabaseTable>(() => new RelationalDatabaseTableMapper());
 
         // Comments
-        RegisterMapper(() => new DatabaseCommentProviderProfile());
+        RegisterMapper(() => new DatabaseCommentProviderMapper());
 
-        RegisterMapper<Dto.Comments.DatabaseRoutineComments, IDatabaseRoutineComments>(() => new DatabaseRoutineCommentsProfile());
-        RegisterMapper<IDatabaseRoutineComments, Dto.Comments.DatabaseRoutineComments>(() => new DatabaseRoutineCommentsProfile());
+        RegisterMapper<Dto.Comments.DatabaseRoutineComments, IDatabaseRoutineComments>(() => new DatabaseRoutineCommentsMapper());
+        RegisterMapper<IDatabaseRoutineComments, Dto.Comments.DatabaseRoutineComments>(() => new DatabaseRoutineCommentsMapper());
 
-        RegisterMapper<Dto.Comments.DatabaseSequenceComments, IDatabaseSequenceComments>(() => new DatabaseSequenceCommentsProfile());
-        RegisterMapper<IDatabaseSequenceComments, Dto.Comments.DatabaseSequenceComments>(() => new DatabaseSequenceCommentsProfile());
+        RegisterMapper<Dto.Comments.DatabaseSequenceComments, IDatabaseSequenceComments>(() => new DatabaseSequenceCommentsMapper());
+        RegisterMapper<IDatabaseSequenceComments, Dto.Comments.DatabaseSequenceComments>(() => new DatabaseSequenceCommentsMapper());
 
-        RegisterMapper<Dto.Comments.DatabaseSynonymComments, IDatabaseSynonymComments>(() => new DatabaseSynonymCommentsProfile());
-        RegisterMapper<IDatabaseSynonymComments, Dto.Comments.DatabaseSynonymComments>(() => new DatabaseSynonymCommentsProfile());
+        RegisterMapper<Dto.Comments.DatabaseSynonymComments, IDatabaseSynonymComments>(() => new DatabaseSynonymCommentsMapper());
+        RegisterMapper<IDatabaseSynonymComments, Dto.Comments.DatabaseSynonymComments>(() => new DatabaseSynonymCommentsMapper());
 
-        RegisterMapper<Dto.Comments.DatabaseTableComments, IRelationalDatabaseTableComments>(() => new DatabaseTableCommentsProfile());
-        RegisterMapper<IRelationalDatabaseTableComments, Dto.Comments.DatabaseTableComments>(() => new DatabaseTableCommentsProfile());
+        RegisterMapper<Dto.Comments.DatabaseTableComments, IRelationalDatabaseTableComments>(() => new DatabaseTableCommentsMapper());
+        RegisterMapper<IRelationalDatabaseTableComments, Dto.Comments.DatabaseTableComments>(() => new DatabaseTableCommentsMapper());
 
-        RegisterMapper<Dto.Comments.DatabaseViewComments, IDatabaseViewComments>(() => new DatabaseViewCommentsProfile());
-        RegisterMapper<IDatabaseViewComments, Dto.Comments.DatabaseViewComments>(() => new DatabaseViewCommentsProfile());
+        RegisterMapper<Dto.Comments.DatabaseViewComments, IDatabaseViewComments>(() => new DatabaseViewCommentsMapper());
+        RegisterMapper<IDatabaseViewComments, Dto.Comments.DatabaseViewComments>(() => new DatabaseViewCommentsMapper());
     }
 
     private static void RegisterMapper<TSource, TDestination>(Func<IImmutableMapper<TSource, TDestination>> factory)

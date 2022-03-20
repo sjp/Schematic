@@ -3,7 +3,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class DatabaseIndexColumnProfile
+public class DatabaseIndexColumnMapper
     : IImmutableMapper<Dto.DatabaseIndexColumn, IDatabaseIndexColumn>
     , IImmutableMapper<IDatabaseIndexColumn, Dto.DatabaseIndexColumn>
 {

@@ -3,7 +3,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class DatabaseTriggerProfile
+public class DatabaseTriggerMapper
     : IImmutableMapper<Dto.DatabaseTrigger, IDatabaseTrigger>
     , IImmutableMapper<IDatabaseTrigger, Dto.DatabaseTrigger>
 {

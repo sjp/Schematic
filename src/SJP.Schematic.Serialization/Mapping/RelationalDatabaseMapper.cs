@@ -6,7 +6,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class RelationalDatabaseProfile
+public class RelationalDatabaseMapper
     : IImmutableMapper<Dto.RelationalDatabase, IRelationalDatabase>
     , IAsyncImmutableMapper<IRelationalDatabase, Dto.RelationalDatabase>
 {

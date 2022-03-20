@@ -3,7 +3,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class DatabaseViewProfile
+public class DatabaseViewMapper
     : IImmutableMapper<Dto.DatabaseView, IDatabaseView>
     , IImmutableMapper<IDatabaseView, Dto.DatabaseView>
 {

@@ -8,7 +8,7 @@ using SJP.Schematic.Serialization.Dto.Comments;
 
 namespace SJP.Schematic.Serialization.Mapping.Comments;
 
-public class DatabaseCommentProviderProfile
+public class DatabaseCommentProviderMapper
     : IImmutableMapper<DatabaseCommentProvider, IRelationalDatabaseCommentProvider>
     , IAsyncImmutableMapper<IRelationalDatabaseCommentProvider, DatabaseCommentProvider>
 {

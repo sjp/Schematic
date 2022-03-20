@@ -4,7 +4,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class DatabaseCheckProfile
+public class DatabaseCheckMapper
     : IImmutableMapper<Dto.DatabaseCheckConstraint, IDatabaseCheckConstraint>
     , IImmutableMapper<IDatabaseCheckConstraint, Dto.DatabaseCheckConstraint>
 {

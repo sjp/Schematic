@@ -3,7 +3,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class IdentifierDefaultsProfile
+public class IdentifierDefaultsMapper
     : IImmutableMapper<Dto.IdentifierDefaults, IIdentifierDefaults>
     , IImmutableMapper<IIdentifierDefaults, Dto.IdentifierDefaults>
 {

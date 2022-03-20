@@ -3,7 +3,7 @@ using LanguageExt;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class OptionProfile
+public class OptionMapper
     : IImmutableMapper<string?, Option<string>>
     , IImmutableMapper<Option<string>, string?>
     , IImmutableMapper<decimal?, Option<decimal>>

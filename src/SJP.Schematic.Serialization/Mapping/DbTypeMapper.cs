@@ -5,7 +5,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class DbTypeProfile
+public class DbTypeMapper
     : IImmutableMapper<Dto.DbType, IDbType>
     , IImmutableMapper<IDbType, Dto.DbType>
 {

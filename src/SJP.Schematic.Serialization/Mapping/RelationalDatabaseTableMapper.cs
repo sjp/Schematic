@@ -4,7 +4,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class RelationalDatabaseTableProfile
+public class RelationalDatabaseTableMapper
     : IImmutableMapper<Dto.RelationalDatabaseTable, IRelationalDatabaseTable>
     , IImmutableMapper<IRelationalDatabaseTable, Dto.RelationalDatabaseTable>
 {

@@ -3,7 +3,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class DatabaseRoutineProfile
+public class DatabaseRoutineMapper
     : IImmutableMapper<Dto.DatabaseRoutine, IDatabaseRoutine>
     , IImmutableMapper<IDatabaseRoutine, Dto.DatabaseRoutine>
 {

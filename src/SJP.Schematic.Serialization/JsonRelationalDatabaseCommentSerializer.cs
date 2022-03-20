@@ -14,7 +14,7 @@ public class JsonRelationalDatabaseCommentSerializer : IRelationalDatabaseCommen
 {
     public async Task SerializeAsync(Stream stream, IRelationalDatabaseCommentProvider databaseComments, CancellationToken cancellationToken = default)
     {
-        var dbCommentMapper = new DatabaseCommentProviderProfile();
+        var dbCommentMapper = new DatabaseCommentProviderMapper();
         var dto = await dbCommentMapper.MapAsync(databaseComments, cancellationToken).ConfigureAwait(false);
         await JsonSerializer.SerializeAsync(stream, dto, _settings.Value, cancellationToken).ConfigureAwait(false);
     }
@@ -27,7 +27,7 @@ public class JsonRelationalDatabaseCommentSerializer : IRelationalDatabaseCommen
 
         dto.IdentifierResolver = identifierResolver;
 
-        var mapper = new DatabaseCommentProviderProfile();
+        var mapper = new DatabaseCommentProviderMapper();
         return mapper.Map(dto);
     }
 

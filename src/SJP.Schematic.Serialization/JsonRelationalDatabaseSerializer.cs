@@ -13,7 +13,7 @@ public class JsonRelationalDatabaseSerializer : IRelationalDatabaseSerializer
 {
     public async Task SerializeAsync(Stream stream, IRelationalDatabase database, CancellationToken cancellationToken = default)
     {
-        var dbMapper = new RelationalDatabaseProfile();
+        var dbMapper = new RelationalDatabaseMapper();
         var dto = await dbMapper.MapAsync(database, cancellationToken).ConfigureAwait(false);
         await JsonSerializer.SerializeAsync(stream, dto, _settings.Value, cancellationToken).ConfigureAwait(false);
     }
@@ -26,7 +26,7 @@ public class JsonRelationalDatabaseSerializer : IRelationalDatabaseSerializer
 
         dto.IdentifierResolver = identifierResolver;
 
-        var mapper = new RelationalDatabaseProfile();
+        var mapper = new RelationalDatabaseMapper();
         return mapper.Map(dto);
     }
 

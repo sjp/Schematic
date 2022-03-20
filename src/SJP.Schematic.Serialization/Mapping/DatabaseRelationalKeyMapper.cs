@@ -3,7 +3,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class DatabaseRelationalKeyProfile
+public class DatabaseRelationalKeyMapper
     : IImmutableMapper<Dto.DatabaseRelationalKey, IDatabaseRelationalKey>
     , IImmutableMapper<IDatabaseRelationalKey, Dto.DatabaseRelationalKey>
 {

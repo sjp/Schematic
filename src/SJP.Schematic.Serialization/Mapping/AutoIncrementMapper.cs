@@ -5,7 +5,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class AutoIncrementProfile
+public class AutoIncrementMapper
     : IImmutableMapper<Dto.AutoIncrement?, Option<IAutoIncrement>>
     , IImmutableMapper<Option<IAutoIncrement>, Dto.AutoIncrement?>
 {

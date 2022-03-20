@@ -4,7 +4,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class DatabaseKeyProfile
+public class DatabaseKeyMapper
     : IImmutableMapper<Dto.DatabaseKey, IDatabaseKey>
     , IImmutableMapper<IDatabaseKey, Dto.DatabaseKey>
     , IImmutableMapper<Dto.DatabaseKey?, Option<IDatabaseKey>>

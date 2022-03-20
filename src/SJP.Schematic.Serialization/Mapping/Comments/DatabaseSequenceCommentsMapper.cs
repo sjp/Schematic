@@ -5,7 +5,7 @@ using SJP.Schematic.Core.Comments;
 
 namespace SJP.Schematic.Serialization.Mapping.Comments;
 
-public class DatabaseSequenceCommentsProfile
+public class DatabaseSequenceCommentsMapper
     : IImmutableMapper<Dto.Comments.DatabaseSequenceComments, IDatabaseSequenceComments>
     , IImmutableMapper<IDatabaseSequenceComments, Dto.Comments.DatabaseSequenceComments>
 {

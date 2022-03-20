@@ -5,7 +5,7 @@ using SJP.Schematic.Core.Comments;
 
 namespace SJP.Schematic.Serialization.Mapping.Comments;
 
-public class DatabaseSynonymCommentsProfile
+public class DatabaseSynonymCommentsMapper
     : IImmutableMapper<Dto.Comments.DatabaseSynonymComments, IDatabaseSynonymComments>
     , IImmutableMapper<IDatabaseSynonymComments, Dto.Comments.DatabaseSynonymComments>
 {

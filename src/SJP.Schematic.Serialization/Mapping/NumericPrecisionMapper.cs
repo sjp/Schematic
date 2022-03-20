@@ -4,7 +4,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class NumericPrecisionProfile
+public class NumericPrecisionMapper
     : IImmutableMapper<Dto.NumericPrecision?, Option<INumericPrecision>>
     , IImmutableMapper<Option<INumericPrecision>, Dto.NumericPrecision?>
 {

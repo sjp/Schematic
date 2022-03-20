@@ -4,7 +4,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class IdentifierProfile
+public class IdentifierMapper
     : IImmutableMapper<Dto.Identifier?, Option<Identifier>>
     , IImmutableMapper<Option<Identifier>, Dto.Identifier>
     , IImmutableMapper<Identifier, Dto.Identifier>

@@ -4,7 +4,7 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class DatabaseSequenceProfile
+public class DatabaseSequenceMapper
     : IImmutableMapper<Dto.DatabaseSequence, IDatabaseSequence>
     , IImmutableMapper<IDatabaseSequence, Dto.DatabaseSequence>
 {
