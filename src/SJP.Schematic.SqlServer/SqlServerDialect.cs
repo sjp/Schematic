@@ -15,8 +15,7 @@ namespace SJP.Schematic.SqlServer;
 /// A database dialect specific to SQL Server.
 /// </summary>
 /// <seealso cref="DatabaseDialect" />
-/// <seealso cref="ISqlServerDialect" />
-public class SqlServerDialect : DatabaseDialect, ISqlServerDialect
+public class SqlServerDialect : DatabaseDialect
 {
     /// <summary>
     /// Retrieves the set of identifier defaults for the given database connection.
@@ -124,87 +123,6 @@ select
     {
         var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken).ConfigureAwait(false);
         return new SqlServerDatabaseCommentProvider(connection.DbConnection, identifierDefaults);
-    }
-
-    /// <summary>
-    /// Gets the server properties available on SQL Server 2012.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>Server properties available on SQL Server 2012.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
-    public Task<IServerProperties2012?> GetServerProperties2012(IDbConnectionFactory connection, CancellationToken cancellationToken = default)
-    {
-        if (connection == null)
-            throw new ArgumentNullException(nameof(connection));
-
-        var query = BuildServerPropertiesQuery<ServerProperties2012QueryResult>();
-        return connection.QueryFirstOrNone<ServerProperties2012QueryResult>(query, cancellationToken)
-            .Map<IServerProperties2012?>(static row => new ServerProperties2012(row))
-            .IfNoneUnsafe(static () => null);
-    }
-
-    /// <summary>
-    /// Gets the server properties available on SQL Server 2014.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>Server properties available on SQL Server 2014.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
-    public Task<IServerProperties2014?> GetServerProperties2014(IDbConnectionFactory connection, CancellationToken cancellationToken = default)
-    {
-        if (connection == null)
-            throw new ArgumentNullException(nameof(connection));
-
-        var query = BuildServerPropertiesQuery<ServerProperties2014QueryResult>();
-        return connection.QueryFirstOrNone<ServerProperties2014QueryResult>(query, cancellationToken)
-            .Map<IServerProperties2014?>(static row => new ServerProperties2014(row))
-            .IfNoneUnsafe(static () => null);
-    }
-
-    /// <summary>
-    /// Gets the server properties available on SQL Server 2017.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>Server properties available on SQL Server 2017.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
-    public Task<IServerProperties2017?> GetServerProperties2017(IDbConnectionFactory connection, CancellationToken cancellationToken = default)
-    {
-        if (connection == null)
-            throw new ArgumentNullException(nameof(connection));
-
-        var query = BuildServerPropertiesQuery<ServerProperties2017QueryResult>();
-        return connection.QueryFirstOrNone<ServerProperties2017QueryResult>(query, cancellationToken)
-            .Map<IServerProperties2017?>(static row => new ServerProperties2017(row))
-            .IfNoneUnsafe(static () => null);
-    }
-
-    /// <summary>
-    /// Gets the server properties available on SQL Server 2019.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>Server properties available on SQL Server 2019.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
-    public Task<IServerProperties2019?> GetServerProperties2019(IDbConnectionFactory connection, CancellationToken cancellationToken = default)
-    {
-        if (connection == null)
-            throw new ArgumentNullException(nameof(connection));
-
-        var query = BuildServerPropertiesQuery<ServerProperties2019QueryResult>();
-        return connection.QueryFirstOrNone<ServerProperties2019QueryResult>(query, cancellationToken)
-            .Map<IServerProperties2019?>(static row => new ServerProperties2019(row))
-            .IfNoneUnsafe(static () => null);
-    }
-
-    private static string BuildServerPropertiesQuery<T>()
-    {
-        var propNames = typeof(T).GetProperties()
-            .Select(static pi => "    SERVERPROPERTY('" + pi.Name + "') AS [" + pi.Name + "]")
-            .Join("," + Environment.NewLine);
-
-        return "SELECT " + propNames;
     }
 
     /// <summary>
