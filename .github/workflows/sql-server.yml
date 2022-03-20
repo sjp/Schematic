@@ -42,6 +42,6 @@ jobs:
       run: dotnet test --no-restore --verbosity detailed --collect:"XPlat Code Coverage"
       working-directory: src/SJP.Schematic.SqlServer.Tests
       env:
-        SqlServer_TestDb: Data Source=localhost,1433; User Id=sa; Password=Schematic0123!; MultipleActiveResultSets=True; TrustServerCertificate=True;
+        ConnectionStrings__SqlServer_TestDb: Data Source=localhost,1433; User Id=sa; Password=Schematic0123!; MultipleActiveResultSets=True;
     - name: Coverage
       uses: codecov/codecov-action@v2.1.0
