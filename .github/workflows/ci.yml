@@ -27,3 +27,5 @@ jobs:
     - name: Test
       run: dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage"
       working-directory: src
+    - name: Coverage
+      uses: codecov/codecov-action@v2.1.0

@@ -38,3 +38,5 @@ jobs:
       working-directory: src/SJP.Schematic.PostgreSql.Tests
       env:
         ConnectionStrings__PostgreSql_TestDb_11: Server=localhost; Port=5432; Database=postgres; User Id=postgres; Password=postgres; Timeout=2
+    - name: Coverage
+      uses: codecov/codecov-action@v2.1.0

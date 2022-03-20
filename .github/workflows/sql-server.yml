@@ -43,3 +43,5 @@ jobs:
       working-directory: src/SJP.Schematic.SqlServer.Tests
       env:
         SqlServer_TestDb: Server=localhost,1433; User Id=sa; Password=Schematic0123!; MultipleActiveResultSets=True
+    - name: Coverage
+      uses: codecov/codecov-action@v2.1.0

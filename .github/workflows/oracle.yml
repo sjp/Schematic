@@ -45,5 +45,5 @@ jobs:
       working-directory: src/SJP.Schematic.Oracle.Tests
       env:
         ConnectionStrings__Oracle_TestDb: Data Source=localhost/XEPDB1; User Id=schematic; Password=schematic
-    - name: Codecov
+    - name: Coverage
       uses: codecov/codecov-action@v2.1.0
