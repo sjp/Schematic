@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using AutoMapper;
 using FluentAssertions;
 using LanguageExt;
 using NUnit.Framework;
@@ -13,17 +12,7 @@ namespace SJP.Schematic.Serialization.Tests;
 
 internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
 {
-    private static readonly Lazy<IMapper> _mapper = new(() =>
-    {
-        var config = new MapperConfiguration(config => config.AddMaps(typeof(Mapping.RelationalDatabaseProfile).Assembly));
-        config.AssertConfigurationIsValid();
-
-        return new Mapper(config);
-    });
-
-    private static IMapper Mapper { get; } = _mapper.Value;
-
-    private static IRelationalDatabaseSerializer Serializer { get; } = new JsonRelationalDatabaseSerializer(Mapper);
+    private static IRelationalDatabaseSerializer Serializer { get; } = new JsonRelationalDatabaseSerializer();
 
     [Test]
     public async Task Serialize_WhenInvoked_ExportsWithoutError()

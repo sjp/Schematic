@@ -1,33 +1,38 @@
 ﻿using System.Collections.Generic;
-using AutoMapper;
+using Boxed.Mapping;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 
 namespace SJP.Schematic.Serialization.Mapping.Comments;
 
-public class DatabaseViewCommentsProfile : Profile
+public class DatabaseViewCommentsProfile
+    : IImmutableMapper<Dto.Comments.DatabaseViewComments, IDatabaseViewComments>
+    , IImmutableMapper<IDatabaseViewComments, Dto.Comments.DatabaseViewComments>
 {
-    public DatabaseViewCommentsProfile()
+    public IDatabaseViewComments Map(Dto.Comments.DatabaseViewComments source)
     {
-        CreateMap<Dto.Comments.DatabaseViewComments, DatabaseViewComments>()
-            .ConstructUsing(static (dto, ctx) => new DatabaseViewComments(
-                ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.ViewName!),
-                dto.Comment == null
-                    ? Option<string>.None
-                    : Option<string>.Some(dto.Comment),
-                AsCoreCommentLookup(dto.ColumnComments)
-            ))
-            .ForAllMembers(static cfg => cfg.Ignore());
+        var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
+        var optionMapper = MapperRegistry.GetMapper<string?, Option<string>>();
 
-        CreateMap<IDatabaseViewComments, Dto.Comments.DatabaseViewComments>()
-            .ConstructUsing(static (src, ctx) => new Dto.Comments.DatabaseViewComments
-            {
-                ViewName = ctx.Mapper.Map<Identifier, Dto.Identifier>(src.ViewName!),
-                Comment = src.Comment.MatchUnsafe(c => c, (string?)null),
-                ColumnComments = AsDtoCommentLookup(src.ColumnComments)
-            })
-            .ForAllMembers(static cfg => cfg.Ignore());
+        return new DatabaseViewComments(
+            identifierMapper.Map(source.ViewName),
+            optionMapper.Map(source.Comment),
+            AsCoreCommentLookup(source.ColumnComments)
+        );
+    }
+
+    public Dto.Comments.DatabaseViewComments Map(IDatabaseViewComments source)
+    {
+        var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
+        var optionMapper = MapperRegistry.GetMapper<Option<string>, string?>();
+
+        return new Dto.Comments.DatabaseViewComments
+        {
+            ViewName = identifierMapper.Map(source.ViewName),
+            Comment = optionMapper.Map(source.Comment),
+            ColumnComments = AsDtoCommentLookup(source.ColumnComments)
+        };
     }
 
     private static IReadOnlyDictionary<string, string?> AsDtoCommentLookup(IReadOnlyDictionary<Identifier, Option<string>> coreCommentLookup)

@@ -1,28 +1,59 @@
-﻿using System.Collections.Generic;
-using AutoMapper;
+﻿using Boxed.Mapping;
 using LanguageExt;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class RelationalDatabaseTableProfile : Profile
+public class RelationalDatabaseTableProfile
+    : IImmutableMapper<Dto.RelationalDatabaseTable, IRelationalDatabaseTable>
+    , IImmutableMapper<IRelationalDatabaseTable, Dto.RelationalDatabaseTable>
 {
-    public RelationalDatabaseTableProfile()
+    public IRelationalDatabaseTable Map(Dto.RelationalDatabaseTable source)
     {
-        CreateMap<Dto.RelationalDatabaseTable, RelationalDatabaseTable>()
-            .ConstructUsing(static (dto, ctx) => new RelationalDatabaseTable(
-                ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.TableName!),
-                ctx.Mapper.Map<IEnumerable<Dto.DatabaseColumn>, List<DatabaseColumn>>(dto.Columns),
-                ctx.Mapper.Map<Dto.DatabaseKey?, Option<IDatabaseKey>>(dto.PrimaryKey),
-                ctx.Mapper.Map<IEnumerable<Dto.DatabaseKey>, List<DatabaseKey>>(dto.UniqueKeys),
-                ctx.Mapper.Map<IEnumerable<Dto.DatabaseRelationalKey>, List<DatabaseRelationalKey>>(dto.ParentKeys),
-                ctx.Mapper.Map<IEnumerable<Dto.DatabaseRelationalKey>, List<DatabaseRelationalKey>>(dto.ChildKeys),
-                ctx.Mapper.Map<IEnumerable<Dto.DatabaseIndex>, List<DatabaseIndex>>(dto.Indexes),
-                ctx.Mapper.Map<IEnumerable<Dto.DatabaseCheckConstraint>, List<DatabaseCheckConstraint>>(dto.Checks),
-                ctx.Mapper.Map<IEnumerable<Dto.DatabaseTrigger>, List<DatabaseTrigger>>(dto.Triggers)
-            ))
-            .ForAllMembers(static cfg => cfg.Ignore());
-        CreateMap<IRelationalDatabaseTable, Dto.RelationalDatabaseTable>()
-            .ForMember(static dest => dest.TableName, static src => src.MapFrom(static t => t.Name));
+        var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
+        var columnMapper = MapperRegistry.GetMapper<Dto.DatabaseColumn, IDatabaseColumn>();
+        var optionalKeyMapper = MapperRegistry.GetMapper<Dto.DatabaseKey?, Option<IDatabaseKey>>();
+        var keyMapper = MapperRegistry.GetMapper<Dto.DatabaseKey, IDatabaseKey>();
+        var relationalKeyMapper = MapperRegistry.GetMapper<Dto.DatabaseRelationalKey, IDatabaseRelationalKey>();
+        var indexMapper = MapperRegistry.GetMapper<Dto.DatabaseIndex, IDatabaseIndex>();
+        var checkMapper = MapperRegistry.GetMapper<Dto.DatabaseCheckConstraint, IDatabaseCheckConstraint>();
+        var triggerMapper = MapperRegistry.GetMapper<Dto.DatabaseTrigger, IDatabaseTrigger>();
+
+        return new RelationalDatabaseTable(
+            identifierMapper.Map<Dto.Identifier, Identifier>(source.TableName!),
+            columnMapper.MapList(source.Columns),
+            optionalKeyMapper.Map(source.PrimaryKey),
+            keyMapper.MapList(source.UniqueKeys),
+            relationalKeyMapper.MapList(source.ParentKeys),
+            relationalKeyMapper.MapList(source.ChildKeys),
+            indexMapper.MapList(source.Indexes),
+            checkMapper.MapList(source.Checks),
+            triggerMapper.MapList(source.Triggers)
+        );
+    }
+
+    public Dto.RelationalDatabaseTable Map(IRelationalDatabaseTable source)
+    {
+        var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
+        var columnMapper = MapperRegistry.GetMapper<IDatabaseColumn, Dto.DatabaseColumn>();
+        var optionalKeyMapper = MapperRegistry.GetMapper<Option<IDatabaseKey>, Dto.DatabaseKey?>();
+        var keyMapper = MapperRegistry.GetMapper<IDatabaseKey, Dto.DatabaseKey>();
+        var relationalKeyMapper = MapperRegistry.GetMapper<IDatabaseRelationalKey, Dto.DatabaseRelationalKey>();
+        var indexMapper = MapperRegistry.GetMapper<IDatabaseIndex, Dto.DatabaseIndex>();
+        var checkMapper = MapperRegistry.GetMapper<IDatabaseCheckConstraint, Dto.DatabaseCheckConstraint>();
+        var triggerMapper = MapperRegistry.GetMapper<IDatabaseTrigger, Dto.DatabaseTrigger>();
+
+        return new Dto.RelationalDatabaseTable
+        {
+            TableName = identifierMapper.Map(source.Name),
+            Columns = columnMapper.MapList(source.Columns),
+            PrimaryKey = optionalKeyMapper.Map(source.PrimaryKey),
+            UniqueKeys = keyMapper.MapList(source.UniqueKeys),
+            ParentKeys = relationalKeyMapper.MapList(source.ParentKeys),
+            ChildKeys = relationalKeyMapper.MapList(source.ChildKeys),
+            Indexes = indexMapper.MapList(source.Indexes),
+            Checks = checkMapper.MapList(source.Checks),
+            Triggers = triggerMapper.MapList(source.Triggers)
+        };
     }
 }

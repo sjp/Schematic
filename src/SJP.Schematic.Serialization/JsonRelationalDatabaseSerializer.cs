@@ -4,7 +4,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoMapper;
 using SJP.Schematic.Core;
 using SJP.Schematic.Serialization.Mapping;
 
@@ -12,16 +11,10 @@ namespace SJP.Schematic.Serialization;
 
 public class JsonRelationalDatabaseSerializer : IRelationalDatabaseSerializer
 {
-    public JsonRelationalDatabaseSerializer(IMapper mapper)
-    {
-        Mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-    }
-
-    protected IMapper Mapper { get; }
-
     public async Task SerializeAsync(Stream stream, IRelationalDatabase database, CancellationToken cancellationToken = default)
     {
-        var dto = await Mapper.ToDtoAsync(database, cancellationToken).ConfigureAwait(false);
+        var dbMapper = new RelationalDatabaseProfile();
+        var dto = await dbMapper.MapAsync(database, cancellationToken).ConfigureAwait(false);
         await JsonSerializer.SerializeAsync(stream, dto, _settings.Value, cancellationToken).ConfigureAwait(false);
     }
 
@@ -32,7 +25,9 @@ public class JsonRelationalDatabaseSerializer : IRelationalDatabaseSerializer
             throw new InvalidOperationException("Unable to parse the given JSON as a database definition.");
 
         dto.IdentifierResolver = identifierResolver;
-        return Mapper.Map<Dto.RelationalDatabase, RelationalDatabase>(dto);
+
+        var mapper = new RelationalDatabaseProfile();
+        return mapper.Map(dto);
     }
 
     private static readonly Lazy<JsonSerializerOptions> _settings = new(LoadSettings);

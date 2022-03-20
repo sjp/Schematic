@@ -1,19 +1,30 @@
-﻿using AutoMapper;
+﻿using Boxed.Mapping;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class DatabaseSynonymProfile : Profile
+public class DatabaseSynonymProfile
+    : IImmutableMapper<Dto.DatabaseSynonym, IDatabaseSynonym>
+    , IImmutableMapper<IDatabaseSynonym, Dto.DatabaseSynonym>
 {
-    public DatabaseSynonymProfile()
+    public Dto.DatabaseSynonym Map(IDatabaseSynonym source)
     {
-        CreateMap<Dto.DatabaseSynonym, DatabaseSynonym>()
-            .ConstructUsing(static (dto, ctx) => new DatabaseSynonym(
-                ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.SynonymName!),
-                ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.Target!)
-            ))
-            .ForAllMembers(static cfg => cfg.Ignore());
-        CreateMap<IDatabaseSynonym, Dto.DatabaseSynonym>()
-            .ForMember(static dest => dest.SynonymName, static src => src.MapFrom(static s => s.Name));
+        var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
+
+        return new Dto.DatabaseSynonym
+        {
+            SynonymName = identifierMapper.Map(source.Name),
+            Target = identifierMapper.Map(source.Target)
+        };
+    }
+
+    public IDatabaseSynonym Map(Dto.DatabaseSynonym source)
+    {
+        var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier?, Identifier>();
+
+        return new DatabaseSynonym(
+            identifierMapper.Map(source.SynonymName),
+            identifierMapper.Map(source.Target)
+        );
     }
 }

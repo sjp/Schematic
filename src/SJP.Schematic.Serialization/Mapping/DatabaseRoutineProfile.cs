@@ -1,19 +1,30 @@
-﻿using AutoMapper;
+﻿using Boxed.Mapping;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class DatabaseRoutineProfile : Profile
+public class DatabaseRoutineProfile
+    : IImmutableMapper<Dto.DatabaseRoutine, IDatabaseRoutine>
+    , IImmutableMapper<IDatabaseRoutine, Dto.DatabaseRoutine>
 {
-    public DatabaseRoutineProfile()
+    public IDatabaseRoutine Map(Dto.DatabaseRoutine source)
     {
-        CreateMap<Dto.DatabaseRoutine, DatabaseRoutine>()
-            .ConstructUsing(static (dto, ctx) => new DatabaseRoutine(
-                ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.RoutineName!),
-                dto.Definition!
-            ))
-            .ForAllMembers(static cfg => cfg.Ignore());
-        CreateMap<IDatabaseRoutine, Dto.DatabaseRoutine>()
-            .ForMember(static dest => dest.RoutineName, static src => src.MapFrom(static r => r.Name));
+        var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
+
+        return new DatabaseRoutine(
+            identifierMapper.Map(source.RoutineName!),
+            source.Definition!
+        );
+    }
+
+    public Dto.DatabaseRoutine Map(IDatabaseRoutine source)
+    {
+        var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
+
+        return new Dto.DatabaseRoutine
+        {
+            RoutineName = identifierMapper.Map(source.Name),
+            Definition = source.Definition
+        };
     }
 }

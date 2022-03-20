@@ -1,32 +1,32 @@
-﻿using AutoMapper;
+﻿using System;
+using Boxed.Mapping;
 using LanguageExt;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class AutoIncrementProfile : Profile
+public class AutoIncrementProfile
+    : IImmutableMapper<Dto.AutoIncrement?, Option<IAutoIncrement>>
+    , IImmutableMapper<Option<IAutoIncrement>, Dto.AutoIncrement?>
 {
-    public AutoIncrementProfile()
+    public Option<IAutoIncrement> Map(Dto.AutoIncrement? source)
     {
-        CreateMap<Dto.AutoIncrement?, Option<IAutoIncrement>>()
-            .ConstructUsing(static dto =>
-                dto == null
-                    ? Option<IAutoIncrement>.None
-                    : Option<IAutoIncrement>.Some(new AutoIncrement(dto.InitialValue, dto.Increment))
-            )
-            .ForAllMembers(static cfg => cfg.Ignore());
+        return source == null
+            ? Option<IAutoIncrement>.None
+            : Option<IAutoIncrement>.Some(new AutoIncrement(source.InitialValue, source.Increment));
+    }
 
-        CreateMap<Option<IAutoIncrement>, Dto.AutoIncrement?>()
-            .ConstructUsing(static ai =>
-                ai.MatchUnsafe(
-                    static incr => new Dto.AutoIncrement
-                    {
-                        Increment = incr.Increment,
-                        InitialValue = incr.InitialValue
-                    },
-                    static () => (Dto.AutoIncrement?)null
-                )
-            )
-            .ForAllMembers(static cfg => cfg.Ignore());
+    public Dto.AutoIncrement? Map(Option<IAutoIncrement> source)
+    {
+        ArgumentNullException.ThrowIfNull(source, nameof(source));
+
+        return source.MatchUnsafe(
+            static incr => new Dto.AutoIncrement
+            {
+                Increment = incr.Increment,
+                InitialValue = incr.InitialValue
+            },
+            static () => (Dto.AutoIncrement?)null
+        );
     }
 }

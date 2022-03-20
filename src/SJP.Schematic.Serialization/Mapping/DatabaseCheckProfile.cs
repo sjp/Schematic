@@ -1,21 +1,31 @@
-﻿using AutoMapper;
+﻿using Boxed.Mapping;
 using LanguageExt;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class DatabaseCheckProfile : Profile
+public class DatabaseCheckProfile
+    : IImmutableMapper<Dto.DatabaseCheckConstraint, IDatabaseCheckConstraint>
+    , IImmutableMapper<IDatabaseCheckConstraint, Dto.DatabaseCheckConstraint>
 {
-    public DatabaseCheckProfile()
+    public IDatabaseCheckConstraint Map(Dto.DatabaseCheckConstraint source)
     {
-        CreateMap<Dto.DatabaseCheckConstraint, DatabaseCheckConstraint>()
-            .ConstructUsing(static (dto, ctx) => new DatabaseCheckConstraint(
-                ctx.Mapper.Map<Dto.Identifier?, Option<Identifier>>(dto.CheckName),
-                dto.Definition!,
-                dto.IsEnabled
-            ))
-            .ForAllMembers(static cfg => cfg.Ignore());
-        CreateMap<IDatabaseCheckConstraint, Dto.DatabaseCheckConstraint>()
-            .ForMember(static dest => dest.CheckName, static src => src.MapFrom(static ck => ck.Name));
+        var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier?, Option<Identifier>>();
+        return new DatabaseCheckConstraint(
+            identifierMapper.Map(source.CheckName),
+            source.Definition!,
+            source.IsEnabled
+        );
+    }
+
+    public Dto.DatabaseCheckConstraint Map(IDatabaseCheckConstraint source)
+    {
+        var identifierMapper = MapperRegistry.GetMapper<Option<Identifier>, Dto.Identifier?>();
+        return new Dto.DatabaseCheckConstraint
+        {
+            CheckName = identifierMapper.Map(source.Name),
+            Definition = source.Definition,
+            IsEnabled = source.IsEnabled
+        };
     }
 }

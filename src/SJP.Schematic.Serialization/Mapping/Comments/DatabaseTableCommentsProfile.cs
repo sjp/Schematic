@@ -1,47 +1,51 @@
 ﻿using System.Collections.Generic;
-using AutoMapper;
+using Boxed.Mapping;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
+using SJP.Schematic.Serialization.Dto.Comments;
 
 namespace SJP.Schematic.Serialization.Mapping.Comments;
 
-public class DatabaseTableCommentsProfile : Profile
+public class DatabaseTableCommentsProfile
+    : IImmutableMapper<DatabaseTableComments, IRelationalDatabaseTableComments>
+    , IImmutableMapper<IRelationalDatabaseTableComments, DatabaseTableComments>
 {
-    public DatabaseTableCommentsProfile()
+    public IRelationalDatabaseTableComments Map(DatabaseTableComments source)
     {
-        CreateMap<Dto.Comments.DatabaseTableComments, RelationalDatabaseTableComments>()
-            .ConstructUsing(static (dto, ctx) => new RelationalDatabaseTableComments(
-                ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.TableName!),
-                dto.Comment == null
-                    ? Option<string>.None
-                    : Option<string>.Some(dto.Comment),
-                dto.PrimaryKeyComment == null
-                    ? Option<string>.None
-                    : Option<string>.Some(dto.PrimaryKeyComment),
-                AsCoreCommentLookup(dto.ColumnComments),
-                AsCoreCommentLookup(dto.CheckComments),
-                AsCoreCommentLookup(dto.UniqueKeyComments),
-                AsCoreCommentLookup(dto.ForeignKeyComments),
-                AsCoreCommentLookup(dto.IndexComments),
-                AsCoreCommentLookup(dto.TriggerComments)
-            ))
-            .ForAllMembers(static cfg => cfg.Ignore());
+        var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
+        var optionMapper = MapperRegistry.GetMapper<string?, Option<string>>();
 
-        CreateMap<IRelationalDatabaseTableComments, Dto.Comments.DatabaseTableComments>()
-            .ConstructUsing(static (src, ctx) => new Dto.Comments.DatabaseTableComments
-            {
-                TableName = ctx.Mapper.Map<Identifier, Dto.Identifier>(src.TableName!),
-                Comment = src.Comment.MatchUnsafe(c => c, (string?)null),
-                PrimaryKeyComment = src.PrimaryKeyComment.MatchUnsafe(c => c, (string?)null),
-                ColumnComments = AsDtoCommentLookup(src.ColumnComments),
-                CheckComments = AsDtoCommentLookup(src.CheckComments),
-                UniqueKeyComments = AsDtoCommentLookup(src.UniqueKeyComments),
-                ForeignKeyComments = AsDtoCommentLookup(src.ForeignKeyComments),
-                IndexComments = AsDtoCommentLookup(src.IndexComments),
-                TriggerComments = AsDtoCommentLookup(src.TriggerComments)
-            })
-            .ForAllMembers(static cfg => cfg.Ignore());
+        return new RelationalDatabaseTableComments(
+            identifierMapper.Map(source.TableName),
+            optionMapper.Map(source.Comment),
+            optionMapper.Map(source.PrimaryKeyComment),
+            AsCoreCommentLookup(source.ColumnComments),
+            AsCoreCommentLookup(source.CheckComments),
+            AsCoreCommentLookup(source.UniqueKeyComments),
+            AsCoreCommentLookup(source.ForeignKeyComments),
+            AsCoreCommentLookup(source.IndexComments),
+            AsCoreCommentLookup(source.TriggerComments)
+        );
+    }
+
+    public DatabaseTableComments Map(IRelationalDatabaseTableComments source)
+    {
+        var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
+        var optionMapper = MapperRegistry.GetMapper<Option<string>, string?>();
+
+        return new DatabaseTableComments
+        {
+            TableName = identifierMapper.Map(source.TableName),
+            Comment = optionMapper.Map(source.Comment),
+            PrimaryKeyComment = optionMapper.Map(source.PrimaryKeyComment),
+            ColumnComments = AsDtoCommentLookup(source.ColumnComments),
+            CheckComments = AsDtoCommentLookup(source.CheckComments),
+            UniqueKeyComments = AsDtoCommentLookup(source.UniqueKeyComments),
+            ForeignKeyComments = AsDtoCommentLookup(source.ForeignKeyComments),
+            IndexComments = AsDtoCommentLookup(source.IndexComments),
+            TriggerComments = AsDtoCommentLookup(source.TriggerComments)
+        };
     }
 
     private static IReadOnlyDictionary<string, string?> AsDtoCommentLookup(IReadOnlyDictionary<Identifier, Option<string>> coreCommentLookup)

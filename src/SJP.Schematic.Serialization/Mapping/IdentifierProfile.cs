@@ -1,36 +1,49 @@
-﻿using AutoMapper;
+﻿using Boxed.Mapping;
 using LanguageExt;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class IdentifierProfile : Profile
+public class IdentifierProfile
+    : IImmutableMapper<Dto.Identifier?, Option<Identifier>>
+    , IImmutableMapper<Option<Identifier>, Dto.Identifier>
+    , IImmutableMapper<Identifier, Dto.Identifier>
+    , IImmutableMapper<Dto.Identifier, Identifier>
 {
-    public IdentifierProfile()
+    public Option<Identifier> Map(Dto.Identifier? source)
     {
-        CreateMap<Dto.Identifier?, Option<Identifier>>()
-            .ConstructUsing(static dto =>
-                dto == null
-                    ? Option<Identifier>.None
-                    : Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(dto.Server, dto.Database, dto.Schema, dto.LocalName)))
-            .ForAllMembers(static cfg => cfg.Ignore());
+        return source == null
+            ? Option<Identifier>.None
+            : Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(source.Server, source.Database, source.Schema, source.LocalName));
+    }
 
-        CreateMap<Option<Identifier>, Dto.Identifier>()
-            .ConstructUsing(static identifier =>
-                identifier.MatchUnsafe(
-                    static ident => new Dto.Identifier
-                    {
-                        Server = ident.Server,
-                        Database = ident.Database,
-                        Schema = ident.Schema,
-                        LocalName = ident.LocalName
-                    },
-                    static () => default!
-                ))
-            .ForAllMembers(static cfg => cfg.Ignore());
+    public Dto.Identifier Map(Option<Identifier> source)
+    {
+        return source.MatchUnsafe(
+            static ident => new Dto.Identifier
+            {
+                Server = ident.Server,
+                Database = ident.Database,
+                Schema = ident.Schema,
+                LocalName = ident.LocalName
+            },
+            static () => default!
+        );
+    }
 
-        CreateMap<Identifier, Dto.Identifier>();
-        CreateMap<Dto.Identifier, Identifier>()
-            .ConstructUsing(static dto => Identifier.CreateQualifiedIdentifier(dto.Server, dto.Database, dto.Schema, dto.LocalName));
+    public Dto.Identifier Map(Identifier source)
+    {
+        return new Dto.Identifier
+        {
+            Server = source.Server,
+            Database = source.Database,
+            Schema = source.Schema,
+            LocalName = source.LocalName
+        };
+    }
+
+    Identifier IImmutableMapper<Dto.Identifier, Identifier>.Map(Dto.Identifier source)
+    {
+        return Identifier.CreateQualifiedIdentifier(source.Server, source.Database, source.Schema, source.LocalName);
     }
 }

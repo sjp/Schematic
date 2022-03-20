@@ -1,25 +1,43 @@
-﻿using AutoMapper;
+﻿using Boxed.Mapping;
 using LanguageExt;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class DatabaseSequenceProfile : Profile
+public class DatabaseSequenceProfile
+    : IImmutableMapper<Dto.DatabaseSequence, IDatabaseSequence>
+    , IImmutableMapper<IDatabaseSequence, Dto.DatabaseSequence>
 {
-    public DatabaseSequenceProfile()
+    public IDatabaseSequence Map(Dto.DatabaseSequence source)
     {
-        CreateMap<Dto.DatabaseSequence, DatabaseSequence>()
-            .ConstructUsing(static (dto, ctx) => new DatabaseSequence(
-                ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.SequenceName!),
-                dto.Start,
-                dto.Increment,
-                ctx.Mapper.Map<decimal?, Option<decimal>>(dto.MinValue),
-                ctx.Mapper.Map<decimal?, Option<decimal>>(dto.MaxValue),
-                dto.Cycle,
-                dto.Cache
-            ))
-            .ForAllMembers(static cfg => cfg.Ignore());
-        CreateMap<IDatabaseSequence, Dto.DatabaseSequence>()
-            .ForMember(static dest => dest.SequenceName, static src => src.MapFrom(static s => s.Name));
+        var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
+        var decimalMapper = MapperRegistry.GetMapper<decimal?, Option<decimal>>();
+
+        return new DatabaseSequence(
+            identifierMapper.Map(source.SequenceName!),
+            source.Start,
+            source.Increment,
+            decimalMapper.Map(source.MinValue),
+            decimalMapper.Map(source.MaxValue),
+            source.Cycle,
+            source.Cache
+        );
+    }
+
+    public Dto.DatabaseSequence Map(IDatabaseSequence source)
+    {
+        var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
+        var decimalMapper = MapperRegistry.GetMapper<Option<decimal>, decimal?>();
+
+        return new Dto.DatabaseSequence
+        {
+            SequenceName = identifierMapper.Map(source.Name),
+            Start = source.Start,
+            Increment = source.Increment,
+            MinValue = decimalMapper.Map(source.MinValue),
+            MaxValue = decimalMapper.Map(source.MaxValue),
+            Cycle = source.Cycle,
+            Cache = source.Cache
+        };
     }
 }

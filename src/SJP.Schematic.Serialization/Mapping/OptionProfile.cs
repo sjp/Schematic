@@ -1,24 +1,31 @@
-﻿using AutoMapper;
+﻿using Boxed.Mapping;
 using LanguageExt;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class OptionProfile : Profile
+public class OptionProfile
+    : IImmutableMapper<string?, Option<string>>
+    , IImmutableMapper<Option<string>, string?>
+    , IImmutableMapper<decimal?, Option<decimal>>
+    , IImmutableMapper<Option<decimal>, decimal?>
 {
-    public OptionProfile()
+    public Option<string> Map(string? source)
     {
-        CreateMap<Option<string>, string?>()
-            .ConstructUsing(static opt => opt.MatchUnsafe(static v => v, (string?)null))
-            .ForAllMembers(static cfg => cfg.Ignore());
-        CreateMap<string?, Option<string>>()
-            .ConstructUsing(static val => val == null ? Option<string>.None : Option<string>.Some(val))
-            .ForAllMembers(static cfg => cfg.Ignore());
+        return source == null ? Option<string>.None : Option<string>.Some(source);
+    }
 
-        CreateMap<Option<decimal>, decimal?>()
-            .ConstructUsing(static opt => opt.MatchUnsafe(static v => v, (decimal?)null))
-            .ForAllMembers(static cfg => cfg.Ignore());
-        CreateMap<decimal?, Option<decimal>>()
-            .ConstructUsing(static val => val.ToOption())
-            .ForAllMembers(static cfg => cfg.Ignore());
+    public string? Map(Option<string> source)
+    {
+        return source.MatchUnsafe(static v => v, (string?)null);
+    }
+
+    public Option<decimal> Map(decimal? source)
+    {
+        return !source.HasValue ? Option<decimal>.None : Option<decimal>.Some(source.Value);
+    }
+
+    public decimal? Map(Option<decimal> source)
+    {
+        return source.MatchUnsafe(static v => v, (decimal?)null);
     }
 }

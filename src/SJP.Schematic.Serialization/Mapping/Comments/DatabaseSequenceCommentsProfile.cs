@@ -1,24 +1,34 @@
-﻿using AutoMapper;
+﻿using Boxed.Mapping;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 
 namespace SJP.Schematic.Serialization.Mapping.Comments;
 
-public class DatabaseSequenceCommentsProfile : Profile
+public class DatabaseSequenceCommentsProfile
+    : IImmutableMapper<Dto.Comments.DatabaseSequenceComments, IDatabaseSequenceComments>
+    , IImmutableMapper<IDatabaseSequenceComments, Dto.Comments.DatabaseSequenceComments>
 {
-    public DatabaseSequenceCommentsProfile()
+    public IDatabaseSequenceComments Map(Dto.Comments.DatabaseSequenceComments source)
     {
-        CreateMap<Dto.Comments.DatabaseSequenceComments, DatabaseSequenceComments>()
-            .ConstructUsing(static (dto, ctx) => new DatabaseSequenceComments(
-                ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.SequenceName!),
-                dto.Comment == null
-                    ? Option<string>.None
-                    : Option<string>.Some(dto.Comment)
-            ))
-            .ForAllMembers(static cfg => cfg.Ignore());
-        CreateMap<IDatabaseSequenceComments, Dto.Comments.DatabaseSequenceComments>()
-            .ForMember(static dest => dest.SequenceName, static src => src.MapFrom(static s => s.SequenceName))
-            .ForMember(static dest => dest.Comment, static src => src.MapFrom(static s => s.Comment.MatchUnsafe(c => c, (string?)null)));
+        var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
+        var optionMapper = MapperRegistry.GetMapper<string?, Option<string>>();
+
+        return new DatabaseSequenceComments(
+            identifierMapper.Map(source.SequenceName),
+            optionMapper.Map(source.Comment)
+        );
+    }
+
+    public Dto.Comments.DatabaseSequenceComments Map(IDatabaseSequenceComments source)
+    {
+        var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
+        var optionMapper = MapperRegistry.GetMapper<Option<string>, string?>();
+
+        return new Dto.Comments.DatabaseSequenceComments
+        {
+            SequenceName = identifierMapper.Map(source.SequenceName),
+            Comment = optionMapper.Map(source.Comment)
+        };
     }
 }

@@ -1,22 +1,40 @@
-﻿using AutoMapper;
+﻿using Boxed.Mapping;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class DatabaseRelationalKeyProfile : Profile
+public class DatabaseRelationalKeyProfile
+    : IImmutableMapper<Dto.DatabaseRelationalKey, IDatabaseRelationalKey>
+    , IImmutableMapper<IDatabaseRelationalKey, Dto.DatabaseRelationalKey>
 {
-    public DatabaseRelationalKeyProfile()
+    public IDatabaseRelationalKey Map(Dto.DatabaseRelationalKey source)
     {
-        CreateMap<Dto.DatabaseRelationalKey, DatabaseRelationalKey>()
-            .ConstructUsing(static (dto, ctx) => new DatabaseRelationalKey(
-                ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.ChildTable!),
-                ctx.Mapper.Map<Dto.DatabaseKey, DatabaseKey>(dto.ChildKey!),
-                ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.ParentTable!),
-                ctx.Mapper.Map<Dto.DatabaseKey, DatabaseKey>(dto.ParentKey!),
-                dto.DeleteAction,
-                dto.UpdateAction
-            ))
-            .ForAllMembers(static cfg => cfg.Ignore());
-        CreateMap<IDatabaseRelationalKey, Dto.DatabaseRelationalKey>();
+        var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
+        var databaseKeyMapper = MapperRegistry.GetMapper<Dto.DatabaseKey, IDatabaseKey>();
+
+        return new DatabaseRelationalKey(
+            identifierMapper.Map(source.ChildTable!),
+            databaseKeyMapper.Map(source.ChildKey!),
+            identifierMapper.Map(source.ParentTable!),
+            databaseKeyMapper.Map(source.ParentKey!),
+            source.DeleteAction,
+            source.UpdateAction
+        );
+    }
+
+    public Dto.DatabaseRelationalKey Map(IDatabaseRelationalKey source)
+    {
+        var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
+        var databaseKeyMapper = MapperRegistry.GetMapper<IDatabaseKey, Dto.DatabaseKey>();
+
+        return new Dto.DatabaseRelationalKey
+        {
+            ChildTable = identifierMapper.Map(source.ChildTable),
+            ChildKey = databaseKeyMapper.Map(source.ChildKey),
+            ParentTable = identifierMapper.Map(source.ParentTable),
+            ParentKey = databaseKeyMapper.Map(source.ParentKey),
+            DeleteAction = source.DeleteAction,
+            UpdateAction = source.UpdateAction
+        };
     }
 }

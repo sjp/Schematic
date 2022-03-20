@@ -1,13 +1,28 @@
-﻿using AutoMapper;
+﻿using Boxed.Mapping;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class IdentifierDefaultsProfile : Profile
+public class IdentifierDefaultsProfile
+    : IImmutableMapper<Dto.IdentifierDefaults, IIdentifierDefaults>
+    , IImmutableMapper<IIdentifierDefaults, Dto.IdentifierDefaults>
 {
-    public IdentifierDefaultsProfile()
+    public IIdentifierDefaults Map(Dto.IdentifierDefaults source)
     {
-        CreateMap<Dto.IdentifierDefaults, IdentifierDefaults>();
-        CreateMap<IIdentifierDefaults, Dto.IdentifierDefaults>();
+        return new IdentifierDefaults(
+            source.Server,
+            source.Database,
+            source.Schema
+        );
+    }
+
+    public Dto.IdentifierDefaults Map(IIdentifierDefaults source)
+    {
+        return new Dto.IdentifierDefaults
+        {
+            Server = source.Server,
+            Database = source.Database,
+            Schema = source.Schema
+        };
     }
 }

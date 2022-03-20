@@ -1,23 +1,48 @@
-﻿using System.Collections.Generic;
-using AutoMapper;
+﻿using Boxed.Mapping;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class IndexProfile : Profile
+public class IndexProfile
+    : IImmutableMapper<Dto.DatabaseIndex, IDatabaseIndex>
+    , IImmutableMapper<IDatabaseIndex, Dto.DatabaseIndex>
 {
-    public IndexProfile()
+    public IDatabaseIndex Map(Dto.DatabaseIndex source)
     {
-        CreateMap<Dto.DatabaseIndex, DatabaseIndex>()
-            .ConstructUsing(static (dto, ctx) => new DatabaseIndex(
-                ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.IndexName!),
-                dto.IsUnique,
-                ctx.Mapper.Map<IEnumerable<Dto.DatabaseIndexColumn>, List<DatabaseIndexColumn>>(dto.Columns),
-                ctx.Mapper.Map<IEnumerable<Dto.DatabaseColumn>, List<DatabaseColumn>>(dto.IncludedColumns),
-                dto.IsEnabled
-            ))
-            .ForAllMembers(static cfg => cfg.Ignore());
-        CreateMap<IDatabaseIndex, Dto.DatabaseIndex>()
-            .ForMember(static dest => dest.IndexName, static src => src.MapFrom(static i => i.Name));
+        var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier?, Identifier>();
+        var indexColumnMapper = MapperRegistry.GetMapper<Dto.DatabaseIndexColumn, IDatabaseIndexColumn>();
+        var columnMapper = MapperRegistry.GetMapper<Dto.DatabaseColumn, IDatabaseColumn>();
+
+        var indexName = identifierMapper.Map(source.IndexName);
+        var indexColumns = indexColumnMapper.MapList(source.Columns);
+        var includedColumns = columnMapper.MapList(source.IncludedColumns);
+
+        return new DatabaseIndex(
+            indexName,
+            source.IsUnique,
+            indexColumns,
+            includedColumns,
+            source.IsEnabled
+        );
+    }
+
+    public Dto.DatabaseIndex Map(IDatabaseIndex source)
+    {
+        var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
+        var indexColumnMapper = MapperRegistry.GetMapper<IDatabaseIndexColumn, Dto.DatabaseIndexColumn>();
+        var columnMapper = MapperRegistry.GetMapper<IDatabaseColumn, Dto.DatabaseColumn>();
+
+        var indexName = identifierMapper.Map(source.Name);
+        var indexColumns = indexColumnMapper.MapList(source.Columns);
+        var includedColumns = columnMapper.MapList(source.IncludedColumns);
+
+        return new Dto.DatabaseIndex
+        {
+            IndexName = indexName,
+            Columns = indexColumns,
+            IncludedColumns = includedColumns,
+            IsEnabled = source.IsEnabled,
+            IsUnique = source.IsUnique
+        };
     }
 }

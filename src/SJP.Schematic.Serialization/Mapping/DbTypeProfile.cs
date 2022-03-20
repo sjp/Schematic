@@ -1,28 +1,48 @@
 ﻿using System;
-using AutoMapper;
+using Boxed.Mapping;
 using LanguageExt;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class DbTypeProfile : Profile
+public class DbTypeProfile
+    : IImmutableMapper<Dto.DbType, IDbType>
+    , IImmutableMapper<IDbType, Dto.DbType>
 {
-    public DbTypeProfile()
+    public IDbType Map(Dto.DbType source)
     {
-        CreateMap<Dto.DbType, ColumnDataType>()
-            .ConstructUsing(static (dto, ctx) => new ColumnDataType(
-                ctx.Mapper.Map<Dto.Identifier, Identifier>(dto.TypeName!),
-                dto.DataType,
-                dto.Definition!,
-                Type.GetType(dto.ClrTypeName ?? "System.Object")!,
-                dto.IsFixedLength,
-                dto.MaxLength,
-                ctx.Mapper.Map<Dto.NumericPrecision?, Option<INumericPrecision>>(dto.NumericPrecision),
-                ctx.Mapper.Map<Dto.Identifier?, Option<Identifier>>(dto.Collation)
-            ))
-            .ForAllMembers(static cfg => cfg.Ignore());
+        var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
+        var numericPrecisionMapper = MapperRegistry.GetMapper<Dto.NumericPrecision?, Option<INumericPrecision>>();
+        var collationMapper = MapperRegistry.GetMapper<Dto.Identifier?, Option<Identifier>>();
 
-        CreateMap<IDbType, Dto.DbType>()
-            .ForMember(static dest => dest.ClrTypeName, static src => src.MapFrom(static dbType => dbType.ClrType.ToString()));
+        return new ColumnDataType(
+            identifierMapper.Map(source.TypeName!),
+            source.DataType,
+            source.Definition!,
+            Type.GetType(source.ClrTypeName ?? "System.Object")!,
+            source.IsFixedLength,
+            source.MaxLength,
+            numericPrecisionMapper.Map(source.NumericPrecision),
+            collationMapper.Map(source.Collation)
+        );
+    }
+
+    public Dto.DbType Map(IDbType source)
+    {
+        var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
+        var numericPrecisionMapper = MapperRegistry.GetMapper<Option<INumericPrecision>, Dto.NumericPrecision?>();
+        var collationMapper = MapperRegistry.GetMapper<Option<Identifier>, Dto.Identifier?>();
+
+        return new Dto.DbType
+        {
+            TypeName = identifierMapper.Map(source.TypeName),
+            DataType = source.DataType,
+            Definition = source.Definition,
+            ClrTypeName = source.ClrType.ToString(),
+            IsFixedLength = source.IsFixedLength,
+            MaxLength = source.MaxLength,
+            NumericPrecision = numericPrecisionMapper.Map(source.NumericPrecision),
+            Collation = collationMapper.Map(source.Collation)
+        };
     }
 }

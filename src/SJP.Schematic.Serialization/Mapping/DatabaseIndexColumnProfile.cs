@@ -1,20 +1,32 @@
-﻿using System.Collections.Generic;
-using AutoMapper;
+﻿using Boxed.Mapping;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
-public class DatabaseIndexColumnProfile : Profile
+public class DatabaseIndexColumnProfile
+    : IImmutableMapper<Dto.DatabaseIndexColumn, IDatabaseIndexColumn>
+    , IImmutableMapper<IDatabaseIndexColumn, Dto.DatabaseIndexColumn>
 {
-    public DatabaseIndexColumnProfile()
+    public IDatabaseIndexColumn Map(Dto.DatabaseIndexColumn source)
     {
-        CreateMap<Dto.DatabaseIndexColumn, DatabaseIndexColumn>()
-            .ConstructUsing(static (dto, ctx) => new DatabaseIndexColumn(
-                dto.Expression!,
-                ctx.Mapper.Map<IEnumerable<Dto.DatabaseColumn>, IEnumerable<DatabaseColumn>>(dto.DependentColumns),
-                dto.Order
-            ))
-            .ForAllMembers(static cfg => cfg.Ignore());
-        CreateMap<IDatabaseIndexColumn, Dto.DatabaseIndexColumn>();
+        var columnMapper = MapperRegistry.GetMapper<Dto.DatabaseColumn, IDatabaseColumn>();
+
+        return new DatabaseIndexColumn(
+            source.Expression!,
+            columnMapper.MapList(source.DependentColumns),
+            source.Order
+        );
+    }
+
+    public Dto.DatabaseIndexColumn Map(IDatabaseIndexColumn source)
+    {
+        var columnMapper = MapperRegistry.GetMapper<IDatabaseColumn, Dto.DatabaseColumn>();
+
+        return new Dto.DatabaseIndexColumn
+        {
+            Expression = source.Expression!,
+            DependentColumns = columnMapper.MapList(source.DependentColumns),
+            Order = source.Order
+        };
     }
 }
