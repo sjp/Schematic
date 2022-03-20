@@ -39,7 +39,7 @@ jobs:
       run: dotnet build --configuration Release --no-restore
       working-directory: src/SJP.Schematic.SqlServer.Tests
     - name: Test
-      run: dotnet test --no-restore --verbosity detailed --collect:"XPlat Code Coverage"
+      run: dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage"
       working-directory: src/SJP.Schematic.SqlServer.Tests
       env:
         ConnectionStrings__SqlServer_TestDb: Data Source=localhost,1433; User Id=sa; Password=Schematic0123!; MultipleActiveResultSets=True; TrustServerCertificate=True;
