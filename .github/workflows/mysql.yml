@@ -39,7 +39,7 @@ jobs:
       run: dotnet build --configuration Release --no-restore
       working-directory: src/SJP.Schematic.MySql.Tests
     - name: Test
-      run: dotnet test --no-restore --verbosity normal
+      run: dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage"
       working-directory: src/SJP.Schematic.MySql.Tests
       env:
         ConnectionStrings__MySql_TestDb: Server=localhost; Port=3306; Database=schematic; Uid=root; Pwd=Schematic1234; ConnectionTimeout=2
