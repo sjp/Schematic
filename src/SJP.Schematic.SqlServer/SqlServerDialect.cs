@@ -138,8 +138,8 @@ select
         if (connection == null)
             throw new ArgumentNullException(nameof(connection));
 
-        var query = BuildServerPropertiesQuery<QueryResult.ServerProperties2012QueryResult>();
-        return connection.QueryFirstOrNone<QueryResult.ServerProperties2012QueryResult>(query, cancellationToken)
+        var query = BuildServerPropertiesQuery<ServerProperties2012QueryResult>();
+        return connection.QueryFirstOrNone<ServerProperties2012QueryResult>(query, cancellationToken)
             .Map<IServerProperties2012?>(static row => new ServerProperties2012(row))
             .IfNoneUnsafe(static () => null);
     }
@@ -156,8 +156,8 @@ select
         if (connection == null)
             throw new ArgumentNullException(nameof(connection));
 
-        var query = BuildServerPropertiesQuery<QueryResult.ServerProperties2014QueryResult>();
-        return connection.QueryFirstOrNone<QueryResult.ServerProperties2014QueryResult>(query, cancellationToken)
+        var query = BuildServerPropertiesQuery<ServerProperties2014QueryResult>();
+        return connection.QueryFirstOrNone<ServerProperties2014QueryResult>(query, cancellationToken)
             .Map<IServerProperties2014?>(static row => new ServerProperties2014(row))
             .IfNoneUnsafe(static () => null);
     }
@@ -174,8 +174,8 @@ select
         if (connection == null)
             throw new ArgumentNullException(nameof(connection));
 
-        var query = BuildServerPropertiesQuery<QueryResult.ServerProperties2017QueryResult>();
-        return connection.QueryFirstOrNone<QueryResult.ServerProperties2017QueryResult>(query, cancellationToken)
+        var query = BuildServerPropertiesQuery<ServerProperties2017QueryResult>();
+        return connection.QueryFirstOrNone<ServerProperties2017QueryResult>(query, cancellationToken)
             .Map<IServerProperties2017?>(static row => new ServerProperties2017(row))
             .IfNoneUnsafe(static () => null);
     }
@@ -192,8 +192,8 @@ select
         if (connection == null)
             throw new ArgumentNullException(nameof(connection));
 
-        var query = BuildServerPropertiesQuery<QueryResult.ServerProperties2019QueryResult>();
-        return connection.QueryFirstOrNone<QueryResult.ServerProperties2019QueryResult>(query, cancellationToken)
+        var query = BuildServerPropertiesQuery<ServerProperties2019QueryResult>();
+        return connection.QueryFirstOrNone<ServerProperties2019QueryResult>(query, cancellationToken)
             .Map<IServerProperties2019?>(static row => new ServerProperties2019(row))
             .IfNoneUnsafe(static () => null);
     }
