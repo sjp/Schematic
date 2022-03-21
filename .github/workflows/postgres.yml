@@ -1,4 +1,4 @@
-name: postgres-main
+name: postgres
 
 on:
   push:
