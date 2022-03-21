@@ -1,6 +1,4 @@
-﻿using Oracle.ManagedDataAccess.Client;
-using SJP.Schematic.Tool.Commands;
-using System;
+﻿using System;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Help;
@@ -10,6 +8,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Oracle.ManagedDataAccess.Client;
+using SJP.Schematic.Tool.Commands;
 
 namespace SJP.Schematic.Tool;
 

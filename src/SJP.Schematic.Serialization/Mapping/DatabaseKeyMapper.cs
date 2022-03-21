@@ -41,7 +41,7 @@ public class DatabaseKeyMapper
     {
         return source.MatchUnsafe(
             key => Map(key),
-            (Dto.DatabaseKey ?)null
+            (Dto.DatabaseKey?)null
         );
     }
 

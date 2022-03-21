@@ -1,8 +1,8 @@
-﻿using SJP.Schematic.Tool.Handlers;
-using System.CommandLine;
+﻿using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.IO;
 using System.Threading;
+using SJP.Schematic.Tool.Handlers;
 
 namespace SJP.Schematic.Tool.Commands;
 

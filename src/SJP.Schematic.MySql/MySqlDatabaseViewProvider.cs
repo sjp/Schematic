@@ -147,7 +147,7 @@ limit 1";
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A view definition, if available.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
-    protected virtual OptionAsync <IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
+    protected virtual OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
     {
         if (viewName == null)
             throw new ArgumentNullException(nameof(viewName));
