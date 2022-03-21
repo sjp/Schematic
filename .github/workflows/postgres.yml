@@ -1,0 +1,99 @@
+name: postgres-main
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.100
+    - name: Install dependencies
+      run: dotnet restore
+      working-directory: src/SJP.Schematic.PostgreSql.Tests
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+      working-directory: src/SJP.Schematic.PostgreSql.Tests
+
+  db-11:
+    runs-on: ubuntu-latest
+    needs: build
+    services:
+      postgres:
+        image: postgres:11
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+    - name: Test
+      run: dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage"
+      working-directory: src/SJP.Schematic.PostgreSql.Tests
+      env:
+        ConnectionStrings__PostgreSql_TestDb_11: Server=localhost; Port=5432; Database=postgres; User Id=postgres; Password=postgres; Timeout=2
+    - name: Coverage
+      uses: codecov/codecov-action@v2.1.0
+
+  db-12:
+    runs-on: ubuntu-latest
+    needs: build
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+    - name: Test
+      run: dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage"
+      working-directory: src/SJP.Schematic.PostgreSql.Tests
+      env:
+        ConnectionStrings__PostgreSql_TestDb_12: Server=localhost; Port=5432; Database=postgres; User Id=postgres; Password=postgres; Timeout=2
+    - name: Coverage
+      uses: codecov/codecov-action@v2.1.0
+
+  db:
+    runs-on: ubuntu-latest
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        tag: [10, 11, 12, 13, 14, latest]
+    services:
+      postgres:
+        image: postgres:${{ matrix.tag }}
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+    - name: Test
+      run: dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage"
+      working-directory: src/SJP.Schematic.PostgreSql.Tests
+      env:
+        ConnectionStrings__PostgreSql_TestDb: Server=localhost; Port=5432; Database=postgres; User Id=postgres; Password=postgres; Timeout=2
+    - name: Coverage
+      uses: codecov/codecov-action@v2.1.0
