@@ -351,9 +351,11 @@ internal static class IdentifierTests
     [TestCase(null, null, "c", null)]
     public static void CreateQualifiedIdentifier_GivenInvalidArguments_ThrowsArgumentNullException(string serverName, string databaseName, string schemaName, string localName)
     {
-        Assert.That(() => Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName), Throws.ArgumentNullException);
-
-        Assert.That(() => Identifier.CreateQualifiedIdentifier(null, null, null, null), Throws.ArgumentNullException);
+        Assert.Multiple(() =>
+        {
+            Assert.That(() => Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName), Throws.ArgumentNullException);
+            Assert.That(() => Identifier.CreateQualifiedIdentifier(null, null, null, null), Throws.ArgumentNullException);
+        });
     }
 
     [Test]

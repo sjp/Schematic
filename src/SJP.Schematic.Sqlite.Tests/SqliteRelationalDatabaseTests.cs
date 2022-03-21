@@ -191,6 +191,7 @@ internal static class SqliteRelationalDatabaseTests
         Assert.That(() => Database.AttachDatabaseAsync("test", fileName), Throws.ArgumentNullException);
     }
 
+    [Test]
     public static void AttachDatabaseAsync_WhenGivenMainSchemaName_ThrowsArgumentException()
     {
         Assert.That(() => Database.AttachDatabaseAsync("main", ":memory:"), Throws.ArgumentException);
