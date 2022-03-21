@@ -169,11 +169,7 @@ internal static class IdentifierTests
         object identifier = new Identifier(name, name);
         object otherIdentifier = new Identifier(name, name);
 
-        Assert.Multiple(() =>
-        {
-            Assert.That(identifier, Is.EqualTo(identifier));
-            Assert.That(identifier, Is.EqualTo(otherIdentifier));
-        });
+        Assert.That(identifier, Is.EqualTo(otherIdentifier));
     }
 
     [Test]
@@ -187,7 +183,6 @@ internal static class IdentifierTests
         Assert.Multiple(() =>
         {
             Assert.That(identifier, Is.Not.EqualTo(null));
-            Assert.That(null, Is.Not.EqualTo(identifier));
             Assert.That(identifier, Is.Not.EqualTo(1));
             Assert.That(identifier, Is.Not.EqualTo(otherIdentifier));
         });

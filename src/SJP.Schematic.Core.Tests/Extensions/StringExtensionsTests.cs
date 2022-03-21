@@ -82,7 +82,7 @@ internal static class StringExtensionsTests
         var values = new[] { "test1", "test2", "test3" };
         var result = values.Join(",");
 
-        Assert.That(expectedResult, Is.EqualTo(result));
+        Assert.That(result, Is.EqualTo(expectedResult));
     }
 
     [Test]
@@ -92,6 +92,6 @@ internal static class StringExtensionsTests
         var values = new[] { "test1", "test2", "test3" };
         var result = values.Join(string.Empty);
 
-        Assert.That(expectedResult, Is.EqualTo(result));
+        Assert.That(result, Is.EqualTo(expectedResult));
     }
 }
