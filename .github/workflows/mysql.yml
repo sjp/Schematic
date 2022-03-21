@@ -28,20 +28,25 @@ jobs:
           - 3306:3306
     steps:
     - uses: actions/checkout@v2
+
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.100
+        dotnet-version: 6.0.x
+
     - name: Install dependencies
       run: dotnet restore
       working-directory: src/SJP.Schematic.MySql.Tests
+
     - name: Build
       run: dotnet build --configuration Release --no-restore
       working-directory: src/SJP.Schematic.MySql.Tests
+
     - name: Test
       run: dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage"
       working-directory: src/SJP.Schematic.MySql.Tests
       env:
         ConnectionStrings__MySql_TestDb: Server=localhost; Port=3306; Database=schematic; Uid=root; Pwd=Schematic1234; ConnectionTimeout=2
+
     - name: Coverage
       uses: codecov/codecov-action@v2.1.0

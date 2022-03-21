@@ -30,20 +30,25 @@ jobs:
           - 1521:1521
     steps:
     - uses: actions/checkout@v2
+
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.100
+        dotnet-version: 6.0.x
+
     - name: Install dependencies
       run: dotnet restore
       working-directory: src/SJP.Schematic.Oracle.Tests
+
     - name: Build
       run: dotnet build --configuration Release --no-restore
       working-directory: src/SJP.Schematic.Oracle.Tests
+
     - name: Test
       run: dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage"
       working-directory: src/SJP.Schematic.Oracle.Tests
       env:
         ConnectionStrings__Oracle_TestDb: Data Source=localhost/XEPDB1; User Id=schematic; Password=schematic
+
     - name: Coverage
       uses: codecov/codecov-action@v2.1.0

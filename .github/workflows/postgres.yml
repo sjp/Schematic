@@ -27,20 +27,25 @@ jobs:
           - 5432:5432
     steps:
     - uses: actions/checkout@v2
+
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.100
+        dotnet-version: 6.0.x
+
     - name: Install dependencies
       run: dotnet restore
       working-directory: src/SJP.Schematic.PostgreSql.Tests
+
     - name: Build
       run: dotnet build --configuration Release --no-restore
       working-directory: src/SJP.Schematic.PostgreSql.Tests
+
     - name: Test
       run: dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage"
       working-directory: src/SJP.Schematic.PostgreSql.Tests
       env:
         ConnectionStrings__PostgreSql_TestDb: Server=localhost; Port=5432; Database=postgres; User Id=postgres; Password=postgres; Timeout=2
+
     - name: Coverage
       uses: codecov/codecov-action@v2.1.0
