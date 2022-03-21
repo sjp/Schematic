@@ -9,7 +9,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Oracle.Tests.Integration;
 
-[Ignore("Disabling until synonym permissions available in CI tests")]
 internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
 {
     private IDatabaseSynonymProvider SynonymProvider => new OracleDatabaseSynonymProvider(DbConnection, IdentifierDefaults, IdentifierResolver);
