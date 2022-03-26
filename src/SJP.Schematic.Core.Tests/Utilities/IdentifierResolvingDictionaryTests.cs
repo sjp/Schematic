@@ -62,7 +62,7 @@ internal static class IdentifierResolvingDictionaryTests
         var resolver = new FakeIdentifierResolver();
         var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
 
-        Assert.That(dictionary.Count, Is.EqualTo(resolvingDictionary.Count));
+        Assert.That(dictionary, Has.Count.EqualTo(resolvingDictionary.Count));
     }
 
     [Test]

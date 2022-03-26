@@ -10,6 +10,7 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
 {
     private static IIdentifierDefaults IdentifierDefaults => new IdentifierDefaults("a", "b", "c");
 
+    [Test]
     public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgumentNullException()
     {
         Assert.That(() => new EmptyRelationalDatabaseCommentProvider(null), Throws.ArgumentNullException);
