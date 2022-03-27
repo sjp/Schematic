@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Oracle;
 
@@ -54,13 +54,10 @@ public class OracleDatabaseViewProvider : IDatabaseViewProvider
     /// <returns>A collection of database views.</returns>
     public async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryViewsTask = QueryViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask();
-        var materializedViewsTask = MaterializedViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask();
-
-        await Task.WhenAll(queryViewsTask, materializedViewsTask).ConfigureAwait(false);
-
-        var queryViews = await queryViewsTask.ConfigureAwait(false);
-        var materializedViews = await materializedViewsTask.ConfigureAwait(false);
+        var (queryViews, materializedViews) = await TaskUtilities.WhenAll(
+            QueryViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            MaterializedViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask()
+        ).ConfigureAwait(false);
 
         var views = queryViews
             .Concat(materializedViews)

@@ -231,25 +231,25 @@ where
 
     private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var columnsTask = queryCache.GetColumnsAsync(tableName, cancellationToken);
-        var triggersTask = LoadTriggersAsync(tableName, cancellationToken);
-        var primaryKeyTask = queryCache.GetPrimaryKeyAsync(tableName, cancellationToken);
-        var uniqueKeysTask = queryCache.GetUniqueKeysAsync(tableName, cancellationToken);
-        var indexesTask = LoadIndexesAsync(tableName, queryCache, cancellationToken);
-        var checksTask = LoadChecksAsync(tableName, queryCache, cancellationToken);
-        var childKeysTask = LoadChildKeysAsync(tableName, queryCache, cancellationToken);
-        var parentKeysTask = queryCache.GetForeignKeysAsync(tableName, cancellationToken);
-
-        await Task.WhenAll(columnsTask, triggersTask, primaryKeyTask, uniqueKeysTask, indexesTask, checksTask, childKeysTask, parentKeysTask).ConfigureAwait(false);
-
-        var columns = await columnsTask.ConfigureAwait(false);
-        var triggers = await triggersTask.ConfigureAwait(false);
-        var primaryKey = await primaryKeyTask.ConfigureAwait(false);
-        var uniqueKeys = await uniqueKeysTask.ConfigureAwait(false);
-        var indexes = await indexesTask.ConfigureAwait(false);
-        var checks = await checksTask.ConfigureAwait(false);
-        var childKeys = await childKeysTask.ConfigureAwait(false);
-        var parentKeys = await parentKeysTask.ConfigureAwait(false);
+        var (
+            columns,
+            checks,
+            triggers,
+            indexes,
+            primaryKey,
+            uniqueKeys,
+            parentKeys,
+            childKeys
+        ) = await TaskUtilities.WhenAll(
+            queryCache.GetColumnsAsync(tableName, cancellationToken),
+            LoadChecksAsync(tableName, queryCache, cancellationToken),
+            LoadTriggersAsync(tableName, cancellationToken),
+            LoadIndexesAsync(tableName, queryCache, cancellationToken),
+            queryCache.GetPrimaryKeyAsync(tableName, cancellationToken),
+            queryCache.GetUniqueKeysAsync(tableName, cancellationToken),
+            queryCache.GetForeignKeysAsync(tableName, cancellationToken),
+            LoadChildKeysAsync(tableName, queryCache, cancellationToken)
+        ).ConfigureAwait(false);
 
         return new RelationalDatabaseTable(
             tableName,

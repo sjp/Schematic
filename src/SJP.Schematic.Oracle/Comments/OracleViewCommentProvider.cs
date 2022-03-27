@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Oracle.Comments;
 
@@ -55,13 +55,10 @@ public class OracleViewCommentProvider : IDatabaseViewCommentProvider
     /// <returns>A collection of view comments.</returns>
     public async IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryViewCommentsTask = QueryViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask();
-        var materializedViewCommentsTask = MaterializedViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask();
-
-        await Task.WhenAll(queryViewCommentsTask, materializedViewCommentsTask).ConfigureAwait(false);
-
-        var queryViewComments = await queryViewCommentsTask.ConfigureAwait(false);
-        var materializedViewComments = await materializedViewCommentsTask.ConfigureAwait(false);
+        var (queryViewComments, materializedViewComments) = await TaskUtilities.WhenAll(
+            QueryViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            MaterializedViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask()
+        ).ConfigureAwait(false);
 
         var comments = queryViewComments
             .Concat(materializedViewComments)

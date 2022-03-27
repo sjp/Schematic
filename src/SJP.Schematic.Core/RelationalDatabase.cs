@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core;
 
@@ -259,19 +260,19 @@ public class RelationalDatabase : IRelationalDatabase
 
     private static async Task<IRelationalDatabase> SnapshotAsyncCore(IRelationalDatabase database, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken)
     {
-        var tablesTask = database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).AsTask();
-        var viewsTask = database.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask();
-        var sequencesTask = database.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).AsTask();
-        var synonymsTask = database.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).AsTask();
-        var routinesTask = database.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).AsTask();
-
-        await Task.WhenAll(new Task[] { tablesTask, viewsTask, sequencesTask, synonymsTask, routinesTask }).ConfigureAwait(false);
-
-        var tables = await tablesTask.ConfigureAwait(false);
-        var views = await viewsTask.ConfigureAwait(false);
-        var sequences = await sequencesTask.ConfigureAwait(false);
-        var synonyms = await synonymsTask.ConfigureAwait(false);
-        var routines = await routinesTask.ConfigureAwait(false);
+        var (
+            tables,
+            views,
+            sequences,
+            synonyms,
+            routines
+        ) = await TaskUtilities.WhenAll(
+            database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            database.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            database.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            database.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            database.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).AsTask()
+        ).ConfigureAwait(false);
 
         return new RelationalDatabase(
             database.IdentifierDefaults,

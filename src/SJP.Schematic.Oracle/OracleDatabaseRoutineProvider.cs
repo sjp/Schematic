@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Oracle;
 
@@ -54,13 +54,10 @@ public class OracleDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <returns>A collection of database routines.</returns>
     public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var simpleRoutinesTask = SimpleRoutineProvider.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).AsTask();
-        var packagesTask = PackageProvider.GetAllPackages(cancellationToken).ToListAsync(cancellationToken).AsTask();
-
-        await Task.WhenAll(simpleRoutinesTask, packagesTask).ConfigureAwait(false);
-
-        var simpleRoutines = await simpleRoutinesTask.ConfigureAwait(false);
-        var packages = await packagesTask.ConfigureAwait(false);
+        var (simpleRoutines, packages) = await TaskUtilities.WhenAll(
+            SimpleRoutineProvider.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            PackageProvider.GetAllPackages(cancellationToken).ToListAsync(cancellationToken).AsTask()
+        ).ConfigureAwait(false);
 
         var routines = simpleRoutines
             .Concat(packages)

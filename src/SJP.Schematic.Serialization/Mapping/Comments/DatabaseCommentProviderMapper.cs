@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Boxed.Mapping;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
+using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Serialization.Dto.Comments;
 
 namespace SJP.Schematic.Serialization.Mapping.Comments;
@@ -40,36 +41,37 @@ public class DatabaseCommentProviderMapper
         var synonymCommentMapper = MapperRegistry.GetMapper<IDatabaseSynonymComments, Dto.Comments.DatabaseSynonymComments>();
         var routineCommentMapper = MapperRegistry.GetMapper<IDatabaseRoutineComments, Dto.Comments.DatabaseRoutineComments>();
 
-        var tableCommentsTask = source.GetAllTableComments(cancellationToken)
-            .Select(t => tableCommentMapper.Map<IRelationalDatabaseTableComments, DatabaseTableComments>(t))
-            .ToListAsync(cancellationToken)
-            .AsTask();
-        var viewCommentsTask = source.GetAllViewComments(cancellationToken)
-            .Select(v => viewCommentMapper.Map<IDatabaseViewComments, Dto.Comments.DatabaseViewComments>(v))
-            .ToListAsync(cancellationToken)
-            .AsTask();
-        var sequenceCommentsTask = source.GetAllSequenceComments(cancellationToken)
-            .Select(s => sequenceCommentMapper.Map<IDatabaseSequenceComments, Dto.Comments.DatabaseSequenceComments>(s))
-            .ToListAsync(cancellationToken)
-            .AsTask();
-        var synonymCommentsTask = source.GetAllSynonymComments(cancellationToken)
-            .Select(s => synonymCommentMapper.Map<IDatabaseSynonymComments, Dto.Comments.DatabaseSynonymComments>(s))
-            .ToListAsync(cancellationToken)
-            .AsTask();
-        var routineCommentsTask = source.GetAllRoutineComments(cancellationToken)
-            .Select(r => routineCommentMapper.Map<IDatabaseRoutineComments, Dto.Comments.DatabaseRoutineComments>(r))
-            .ToListAsync(cancellationToken)
-            .AsTask();
-
-        await Task.WhenAll(tableCommentsTask, viewCommentsTask, sequenceCommentsTask, synonymCommentsTask, routineCommentsTask).ConfigureAwait(false);
+        var (
+            dtoTableComments,
+            dtoViewComments,
+            dtoSequenceComments,
+            dtoSynonymComments,
+            dtoRoutineComments
+        ) = await TaskUtilities.WhenAll(
+            source.GetAllTableComments(cancellationToken)
+                .Select(t => tableCommentMapper.Map<IRelationalDatabaseTableComments, DatabaseTableComments>(t))
+                .ToListAsync(cancellationToken)
+                .AsTask(),
+            source.GetAllViewComments(cancellationToken)
+                .Select(v => viewCommentMapper.Map<IDatabaseViewComments, Dto.Comments.DatabaseViewComments>(v))
+                .ToListAsync(cancellationToken)
+                .AsTask(),
+            source.GetAllSequenceComments(cancellationToken)
+                .Select(s => sequenceCommentMapper.Map<IDatabaseSequenceComments, Dto.Comments.DatabaseSequenceComments>(s))
+                .ToListAsync(cancellationToken)
+                .AsTask(),
+            source.GetAllSynonymComments(cancellationToken)
+                .Select(s => synonymCommentMapper.Map<IDatabaseSynonymComments, Dto.Comments.DatabaseSynonymComments>(s))
+                .ToListAsync(cancellationToken)
+                .AsTask(),
+            source.GetAllRoutineComments(cancellationToken)
+                .Select(r => routineCommentMapper.Map<IDatabaseRoutineComments, Dto.Comments.DatabaseRoutineComments>(r))
+                .ToListAsync(cancellationToken)
+                .AsTask()
+        );
 
         var identifierDefaultsMapper = MapperRegistry.GetMapper<IIdentifierDefaults, Dto.IdentifierDefaults>();
         var dtoIdentifierDefaults = identifierDefaultsMapper.Map<IIdentifierDefaults, Dto.IdentifierDefaults>(source.IdentifierDefaults);
-        var dtoTableComments = await tableCommentsTask.ConfigureAwait(false);
-        var dtoViewComments = await viewCommentsTask.ConfigureAwait(false);
-        var dtoSequenceComments = await sequenceCommentsTask.ConfigureAwait(false);
-        var dtoSynonymComments = await synonymCommentsTask.ConfigureAwait(false);
-        var dtoRoutineComments = await routineCommentsTask.ConfigureAwait(false);
 
         return new DatabaseCommentProvider
         {

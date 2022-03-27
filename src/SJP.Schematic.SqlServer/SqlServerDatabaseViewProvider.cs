@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.SqlServer.Query;
 using SJP.Schematic.SqlServer.QueryResult;
 
@@ -150,13 +151,15 @@ where schema_id = schema_id(@{ nameof(GetViewNameQuery.SchemaName) }) and name =
 
     private async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var columnsTask = LoadColumnsAsync(viewName, cancellationToken);
-        var definitionTask = LoadDefinitionAsync(viewName, cancellationToken);
-        await Task.WhenAll(columnsTask, definitionTask).ConfigureAwait(false);
-
-        var columns = await columnsTask.ConfigureAwait(false);
-        var definition = await definitionTask.ConfigureAwait(false);
-        var isMaterialized = await LoadIndexExistsAsync(viewName, cancellationToken).ConfigureAwait(false);
+        var (
+            columns,
+            definition,
+            isMaterialized
+        ) = await TaskUtilities.WhenAll(
+            LoadColumnsAsync(viewName, cancellationToken),
+            LoadDefinitionAsync(viewName, cancellationToken),
+            LoadIndexExistsAsync(viewName, cancellationToken)
+        ).ConfigureAwait(false);
 
         return isMaterialized
             ? new DatabaseMaterializedView(viewName, definition, columns)

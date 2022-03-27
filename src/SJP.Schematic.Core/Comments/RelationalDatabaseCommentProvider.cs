@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core.Comments;
 
@@ -293,19 +294,19 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
 
     private static async Task<IRelationalDatabaseCommentProvider> SnapshotAsyncCore(IRelationalDatabaseCommentProvider databaseComments, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken)
     {
-        var tableCommentsTask = databaseComments.GetAllTableComments(cancellationToken).ToListAsync(cancellationToken).AsTask();
-        var viewCommentsTask = databaseComments.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask();
-        var sequenceCommentsTask = databaseComments.GetAllSequenceComments(cancellationToken).ToListAsync(cancellationToken).AsTask();
-        var synonymCommentsTask = databaseComments.GetAllSynonymComments(cancellationToken).ToListAsync(cancellationToken).AsTask();
-        var routineCommentsTask = databaseComments.GetAllRoutineComments(cancellationToken).ToListAsync(cancellationToken).AsTask();
-
-        await Task.WhenAll(new Task[] { tableCommentsTask, viewCommentsTask, sequenceCommentsTask, synonymCommentsTask, routineCommentsTask }).ConfigureAwait(false);
-
-        var tableComments = await tableCommentsTask.ConfigureAwait(false);
-        var viewComments = await viewCommentsTask.ConfigureAwait(false);
-        var sequenceComments = await sequenceCommentsTask.ConfigureAwait(false);
-        var synonymComments = await synonymCommentsTask.ConfigureAwait(false);
-        var routineComments = await routineCommentsTask.ConfigureAwait(false);
+        var (
+            tableComments,
+            viewComments,
+            sequenceComments,
+            synonymComments,
+            routineComments
+        ) = await TaskUtilities.WhenAll(
+            databaseComments.GetAllTableComments(cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            databaseComments.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            databaseComments.GetAllSequenceComments(cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            databaseComments.GetAllSynonymComments(cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            databaseComments.GetAllRoutineComments(cancellationToken).ToListAsync(cancellationToken).AsTask()
+        ).ConfigureAwait(false);
 
         return new RelationalDatabaseCommentProvider(
             identifierDefaults,

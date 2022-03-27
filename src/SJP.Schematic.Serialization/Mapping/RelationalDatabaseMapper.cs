@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Boxed.Mapping;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
@@ -38,36 +39,37 @@ public class RelationalDatabaseMapper
         var synonymMapper = MapperRegistry.GetMapper<IDatabaseSynonym, Dto.DatabaseSynonym>();
         var routineMapper = MapperRegistry.GetMapper<IDatabaseRoutine, Dto.DatabaseRoutine>();
 
-        var tablesTask = source.GetAllTables(cancellationToken)
-            .Select(t => tableMapper.Map<IRelationalDatabaseTable, Dto.RelationalDatabaseTable>(t))
-            .ToListAsync(cancellationToken)
-            .AsTask();
-        var viewsTask = source.GetAllViews(cancellationToken)
-            .Select(v => viewMapper.Map<IDatabaseView, Dto.DatabaseView>(v))
-            .ToListAsync(cancellationToken)
-            .AsTask();
-        var sequencesTask = source.GetAllSequences(cancellationToken)
-            .Select(s => sequenceMapper.Map<IDatabaseSequence, Dto.DatabaseSequence>(s))
-            .ToListAsync(cancellationToken)
-            .AsTask();
-        var synonymsTask = source.GetAllSynonyms(cancellationToken)
-            .Select(s => synonymMapper.Map<IDatabaseSynonym, Dto.DatabaseSynonym>(s))
-            .ToListAsync(cancellationToken)
-            .AsTask();
-        var routinesTask = source.GetAllRoutines(cancellationToken)
-            .Select(r => routineMapper.Map<IDatabaseRoutine, Dto.DatabaseRoutine>(r))
-            .ToListAsync(cancellationToken)
-            .AsTask();
-
-        await Task.WhenAll(tablesTask, viewsTask, sequencesTask, synonymsTask, routinesTask).ConfigureAwait(false);
+        var (
+            dtoTables,
+            dtoViews,
+            dtoSequences,
+            dtoSynonyms,
+            dtoRoutines
+        ) = await TaskUtilities.WhenAll(
+            source.GetAllTables(cancellationToken)
+                .Select(t => tableMapper.Map<IRelationalDatabaseTable, Dto.RelationalDatabaseTable>(t))
+                .ToListAsync(cancellationToken)
+                .AsTask(),
+            source.GetAllViews(cancellationToken)
+                .Select(v => viewMapper.Map<IDatabaseView, Dto.DatabaseView>(v))
+                .ToListAsync(cancellationToken)
+                .AsTask(),
+            source.GetAllSequences(cancellationToken)
+                .Select(s => sequenceMapper.Map<IDatabaseSequence, Dto.DatabaseSequence>(s))
+                .ToListAsync(cancellationToken)
+                .AsTask(),
+            source.GetAllSynonyms(cancellationToken)
+                .Select(s => synonymMapper.Map<IDatabaseSynonym, Dto.DatabaseSynonym>(s))
+                .ToListAsync(cancellationToken)
+                .AsTask(),
+            source.GetAllRoutines(cancellationToken)
+                .Select(r => routineMapper.Map<IDatabaseRoutine, Dto.DatabaseRoutine>(r))
+                .ToListAsync(cancellationToken)
+                .AsTask()
+        );
 
         var identifierDefaultsMapper = MapperRegistry.GetMapper<IIdentifierDefaults, Dto.IdentifierDefaults>();
         var dtoIdentifierDefaults = identifierDefaultsMapper.Map<IIdentifierDefaults, Dto.IdentifierDefaults>(source.IdentifierDefaults);
-        var dtoTables = await tablesTask.ConfigureAwait(false);
-        var dtoViews = await viewsTask.ConfigureAwait(false);
-        var dtoSequences = await sequencesTask.ConfigureAwait(false);
-        var dtoSynonyms = await synonymsTask.ConfigureAwait(false);
-        var dtoRoutines = await routinesTask.ConfigureAwait(false);
 
         return new Dto.RelationalDatabase
         {

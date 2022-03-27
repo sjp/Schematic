@@ -69,7 +69,7 @@ public class ReportGenerator
 
         foreach (var rowCountTask in rowCountTasks)
         {
-            var rowCountInfo = rowCountTask.Result;
+            var rowCountInfo = await rowCountTask.ConfigureAwait(false);
             result[rowCountInfo.Key] = rowCountInfo.Value;
         }
 

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Oracle.Query;
 using SJP.Schematic.Oracle.QueryResult;
 
@@ -185,12 +186,10 @@ where mv.OWNER = :{ nameof(GetMaterializedViewNameQuery.SchemaName) } and mv.MVI
 
     private async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var columnsTask = LoadColumnsAsync(viewName, cancellationToken);
-        var definitionTask = LoadDefinitionAsync(viewName, cancellationToken);
-        await Task.WhenAll(columnsTask, definitionTask).ConfigureAwait(false);
-
-        var columns = await columnsTask.ConfigureAwait(false);
-        var definition = await definitionTask.ConfigureAwait(false);
+        var (columns, definition) = await TaskUtilities.WhenAll(
+            LoadColumnsAsync(viewName, cancellationToken),
+            LoadDefinitionAsync(viewName, cancellationToken)
+        ).ConfigureAwait(false);
 
         return new DatabaseMaterializedView(viewName, definition, columns);
     }

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.PostgreSql.Comments;
 
@@ -55,13 +55,10 @@ public class PostgreSqlViewCommentProvider : IDatabaseViewCommentProvider
     /// <returns>A collection of view comments.</returns>
     public async IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryViewsTask = QueryViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask();
-        var materializedViewsTask = MaterializedViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask();
-
-        await Task.WhenAll(queryViewsTask, materializedViewsTask).ConfigureAwait(false);
-
-        var queryViews = await queryViewsTask.ConfigureAwait(false);
-        var materializedViews = await materializedViewsTask.ConfigureAwait(false);
+        var (queryViews, materializedViews) = await TaskUtilities.WhenAll(
+            QueryViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            MaterializedViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask()
+        ).ConfigureAwait(false);
 
         var viewComments = queryViews
             .Concat(materializedViews)
