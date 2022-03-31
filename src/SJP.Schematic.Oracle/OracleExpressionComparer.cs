@@ -105,8 +105,7 @@ public sealed class OracleExpressionComparer : IEqualityComparer<string>
             return Array.Empty<Token<OracleToken>>();
 
         var result = new List<Token<OracleToken>>();
-        foreach (var token in tokens)
-            result.Add(token);
+        result.AddRange(tokens);
 
         var lastIndex = tokens.Count - 1;
         if (result[0].Kind == OracleToken.LParen && result[lastIndex].Kind == OracleToken.RParen)

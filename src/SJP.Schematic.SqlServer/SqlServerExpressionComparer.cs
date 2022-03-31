@@ -105,8 +105,7 @@ public sealed class SqlServerExpressionComparer : IEqualityComparer<string>
             return Array.Empty<Token<SqlServerToken>>();
 
         var result = new List<Token<SqlServerToken>>();
-        foreach (var token in tokens)
-            result.Add(token);
+        result.AddRange(tokens);
 
         var lastIndex = tokens.Count - 1;
         if (result[0].Kind == SqlServerToken.LParen && result[lastIndex].Kind == SqlServerToken.RParen)
