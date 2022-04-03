@@ -30,46 +30,6 @@ internal static class EnumerableExtensionsTests
     }
 
     [Test]
-    public static void Empty_GivenNullCollectionWithValidPredicate_ThrowsArgumentNullException()
-    {
-        IEnumerable<string> input = null;
-
-        static bool predicate(string _) => true;
-
-        Assert.That(() => input.Empty(predicate), Throws.ArgumentNullException);
-    }
-
-    [Test]
-    public static void Empty_GivenNullPredicate_ThrowsArgumentNullException()
-    {
-        IEnumerable<string> input = Array.Empty<string>();
-        Func<string, bool> predicate = null;
-
-        Assert.That(() => input.Empty(predicate), Throws.ArgumentNullException);
-    }
-
-    [Test]
-    public static void Empty_GivenEmptyCollectionWithPredicate_ReturnsTrue()
-    {
-        IEnumerable<string> input = Array.Empty<string>();
-        Assert.That(input.Empty(x => string.Equals(x, "A", StringComparison.Ordinal)), Is.True);
-    }
-
-    [Test]
-    public static void Empty_GivenNonEmptyCollectionWithNonMatchingPredicate_ReturnsTrue()
-    {
-        IEnumerable<string> input = new[] { "B" };
-        Assert.That(input.Empty(x => string.Equals(x, "A", StringComparison.Ordinal)), Is.True);
-    }
-
-    [Test]
-    public static void Empty_GivenNonEmptyCollectionWithMatchingPredicate_ReturnsFalse()
-    {
-        IEnumerable<string> input = new[] { "A" };
-        Assert.That(input.Empty(x => string.Equals(x, "A", StringComparison.Ordinal)), Is.False);
-    }
-
-    [Test]
     public static void AnyNull_GivenNullCollection_ThrowsArgumentNullException()
     {
         IEnumerable<string> input = null;

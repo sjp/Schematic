@@ -33,24 +33,6 @@ public static class EnumerableExtensions
     }
 
     /// <summary>
-    /// Determines whether a collection has no elements matching a given predicate.
-    /// </summary>
-    /// <typeparam name="T">The type of objects to enumerate.</typeparam>
-    /// <param name="source">The source collection.</param>
-    /// <param name="predicate">A filter to match against elements in <paramref name="source"/>.</param>
-    /// <returns><c>true</c> if the collection has no elements matching the predicate; otherwise <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="predicate"/> is <c>null</c>.</exception>
-    public static bool Empty<T>(this IEnumerable<T> source, Func<T, bool> predicate)
-    {
-        if (source == null)
-            throw new ArgumentNullException(nameof(source));
-        if (predicate == null)
-            throw new ArgumentNullException(nameof(predicate));
-
-        return !source.Any(predicate);
-    }
-
-    /// <summary>
     /// Determines whether a collection is <c>null</c> or has elements which are <c>null</c>.
     /// </summary>
     /// <typeparam name="T">The type of objects to enumerate.</typeparam>
