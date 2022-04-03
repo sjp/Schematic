@@ -28,7 +28,7 @@ public class SqliteDatabaseKey : IDatabaseKey
     /// <exception cref="ArgumentException"><paramref name="keyType"/> is not a valid enum.</exception>
     public SqliteDatabaseKey(Option<Identifier> name, DatabaseKeyType keyType, IEnumerable<IDatabaseColumn> columns)
     {
-        if (columns == null || columns.Empty() || columns.AnyNull())
+        if (columns.NullOrEmpty() || columns.AnyNull())
             throw new ArgumentNullException(nameof(columns));
         if (!keyType.IsValid())
             throw new ArgumentException($"The { nameof(DatabaseKeyType) } provided must be a valid enum.", nameof(keyType));

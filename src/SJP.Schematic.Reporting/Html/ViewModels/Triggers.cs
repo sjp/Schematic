@@ -11,7 +11,7 @@ public sealed class Triggers : ITemplateParameter
 {
     public Triggers(IEnumerable<Trigger> triggers)
     {
-        if (triggers == null || triggers.AnyNull())
+        if (triggers.NullOrAnyNull())
             throw new ArgumentNullException(nameof(triggers));
 
         TriggersCount = triggers.UCount();

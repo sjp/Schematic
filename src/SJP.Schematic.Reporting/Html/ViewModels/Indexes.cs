@@ -42,9 +42,9 @@ public sealed class Indexes : ITemplateParameter
         {
             if (tableName == null)
                 throw new ArgumentNullException(nameof(tableName));
-            if (columnNames == null || columnNames.Empty())
+            if (columnNames.NullOrEmpty())
                 throw new ArgumentNullException(nameof(columnNames));
-            if (columnSorts == null || columnSorts.Empty())
+            if (columnSorts.NullOrEmpty())
                 throw new ArgumentNullException(nameof(columnSorts));
             if (includedColumnNames == null)
                 throw new ArgumentNullException(nameof(includedColumnNames));

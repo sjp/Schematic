@@ -755,8 +755,7 @@ where t.table_schema = @{ nameof(GetTableParentKeysQuery.SchemaName) } and t.tab
             var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
             var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-            var isAutoIncrement = row.ExtraInformation != null
-                && row.ExtraInformation.Contains(Constants.AutoIncrement, StringComparison.OrdinalIgnoreCase);
+            var isAutoIncrement = row.ExtraInformation?.Contains(Constants.AutoIncrement, StringComparison.OrdinalIgnoreCase) == true;
             var autoIncrement = isAutoIncrement
                 ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
                 : Option<IAutoIncrement>.None;

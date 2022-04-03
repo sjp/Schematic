@@ -11,7 +11,7 @@ public sealed class Synonyms : ITemplateParameter
 {
     public Synonyms(IEnumerable<Main.Synonym> synonyms)
     {
-        if (synonyms == null || synonyms.AnyNull())
+        if (synonyms.NullOrAnyNull())
             throw new ArgumentNullException(nameof(synonyms));
 
         SynonymsCount = synonyms.UCount();

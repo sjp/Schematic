@@ -92,7 +92,7 @@ public sealed class Constraints : ITemplateParameter
         public PrimaryKeyConstraint(Identifier tableName, string constraintName, IEnumerable<string> columnNames)
             : base(tableName, constraintName)
         {
-            if (columnNames == null || columnNames.Empty())
+            if (columnNames.NullOrEmpty())
                 throw new ArgumentNullException(nameof(columnNames));
 
             ColumnNames = columnNames.Join(", ");
@@ -109,7 +109,7 @@ public sealed class Constraints : ITemplateParameter
         public UniqueKey(Identifier tableName, string constraintName, IEnumerable<string> columnNames)
             : base(tableName, constraintName)
         {
-            if (columnNames == null || columnNames.Empty())
+            if (columnNames.NullOrEmpty())
                 throw new ArgumentNullException(nameof(columnNames));
 
             ColumnNames = columnNames.Join(", ");
@@ -137,9 +137,9 @@ public sealed class Constraints : ITemplateParameter
         {
             if (parentTableName == null)
                 throw new ArgumentNullException(nameof(parentTableName));
-            if (childColumnNames == null || childColumnNames.Empty())
+            if (childColumnNames.NullOrEmpty())
                 throw new ArgumentNullException(nameof(childColumnNames));
-            if (parentColumnNames == null || parentColumnNames.Empty())
+            if (parentColumnNames.NullOrEmpty())
                 throw new ArgumentNullException(nameof(parentColumnNames));
             if (!deleteAction.IsValid())
                 throw new ArgumentException($"The { nameof(ReferentialAction) } provided must be a valid enum.", nameof(deleteAction));

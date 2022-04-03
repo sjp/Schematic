@@ -29,7 +29,7 @@ public class PrimaryKey
     /// <exception cref="ArgumentNullException"><paramref name="columns"/> is <c>null</c> or empty.</exception>
     public PrimaryKey(Option<string> constraintName, IEnumerable<IndexedColumn> columns)
     {
-        if (columns == null || columns.Empty())
+        if (columns.NullOrEmpty())
             throw new ArgumentNullException(nameof(columns));
 
         Name = constraintName;

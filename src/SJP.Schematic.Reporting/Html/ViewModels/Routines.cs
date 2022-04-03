@@ -11,7 +11,7 @@ public sealed class Routines : ITemplateParameter
 {
     public Routines(IEnumerable<Main.Routine> routines)
     {
-        if (routines == null || routines.AnyNull())
+        if (routines.NullOrAnyNull())
             throw new ArgumentNullException(nameof(routines));
 
         RoutinesCount = routines.UCount();

@@ -20,15 +20,10 @@ internal sealed class ColumnsRenderer : ITemplateRenderer
         IEnumerable<IDatabaseView> views,
         DirectoryInfo exportDirectory)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
-        if (views == null)
-            throw new ArgumentNullException(nameof(views));
-
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
-        Tables = tables;
-        Views = views;
+        Tables = tables ?? throw new ArgumentNullException(nameof(tables));
+        Views = views ?? throw new ArgumentNullException(nameof(views));
         ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
     }
 

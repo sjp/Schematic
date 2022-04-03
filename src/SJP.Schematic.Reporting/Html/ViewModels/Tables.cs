@@ -11,7 +11,7 @@ public sealed class Tables : ITemplateParameter
 {
     public Tables(IEnumerable<Main.Table> tables)
     {
-        if (tables == null || tables.AnyNull())
+        if (tables.NullOrAnyNull())
             throw new ArgumentNullException(nameof(tables));
 
         TablesCount = tables.UCount();

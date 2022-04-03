@@ -19,11 +19,7 @@ internal sealed class TablesRenderer : ITemplateRenderer
         IReadOnlyDictionary<Identifier, ulong> rowCounts,
         DirectoryInfo exportDirectory)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
-
-        Tables = tables;
-
+        Tables = tables ?? throw new ArgumentNullException(nameof(tables));
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
         RowCounts = rowCounts ?? throw new ArgumentNullException(nameof(rowCounts));

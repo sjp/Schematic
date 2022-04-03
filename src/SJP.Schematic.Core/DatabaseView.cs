@@ -29,7 +29,7 @@ public class DatabaseView : IDatabaseView
     {
         if (definition.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(definition));
-        if (columns == null || columns.AnyNull())
+        if (columns.NullOrAnyNull())
             throw new ArgumentNullException(nameof(columns));
 
         Name = viewName ?? throw new ArgumentNullException(nameof(viewName));

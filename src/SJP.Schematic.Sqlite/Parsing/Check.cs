@@ -20,7 +20,7 @@ public class Check
     /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <c>null</c>, or has no tokens.</exception>
     public Check(Option<string> constraintName, IEnumerable<Token<SqliteToken>> definition)
     {
-        if (definition == null || definition.Empty())
+        if (definition.NullOrEmpty())
             throw new ArgumentNullException(nameof(definition));
 
         Name = constraintName;

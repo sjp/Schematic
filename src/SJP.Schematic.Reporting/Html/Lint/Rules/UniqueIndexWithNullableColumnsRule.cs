@@ -20,7 +20,7 @@ internal sealed class UniqueIndexWithNullableColumnsRule : Schematic.Lint.Rules.
     {
         if (tableName == null)
             throw new ArgumentNullException(nameof(tableName));
-        if (columnNames == null || columnNames.Empty())
+        if (columnNames.NullOrEmpty())
             throw new ArgumentNullException(nameof(columnNames));
 
         var tableUrl = UrlRouter.GetTableUrl(tableName);

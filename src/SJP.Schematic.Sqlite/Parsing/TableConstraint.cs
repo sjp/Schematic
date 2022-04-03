@@ -45,7 +45,7 @@ internal abstract class TableConstraint
         public PrimaryKey(IReadOnlyCollection<IndexedColumn> columns)
             : base(TableConstraintType.PrimaryKey)
         {
-            if (columns == null || columns.Empty())
+            if (columns.NullOrEmpty())
                 throw new ArgumentNullException(nameof(columns));
 
             Columns = columns;
@@ -59,7 +59,7 @@ internal abstract class TableConstraint
         public UniqueKey(IReadOnlyCollection<IndexedColumn> columns)
             : base(TableConstraintType.UniqueKey)
         {
-            if (columns == null || columns.Empty())
+            if (columns.NullOrEmpty())
                 throw new ArgumentNullException(nameof(columns));
 
             Columns = columns;
@@ -73,9 +73,9 @@ internal abstract class TableConstraint
         public ForeignKey(IReadOnlyCollection<string> columnNames, Identifier parentTableName, IReadOnlyCollection<string> parentColumnNames)
             : base(TableConstraintType.ForeignKey)
         {
-            if (columnNames == null || columnNames.Empty())
+            if (columnNames.NullOrEmpty())
                 throw new ArgumentNullException(nameof(columnNames));
-            if (parentColumnNames == null || parentColumnNames.Empty())
+            if (parentColumnNames.NullOrEmpty())
                 throw new ArgumentNullException(nameof(parentColumnNames));
 
             Columns = columnNames;
@@ -95,10 +95,10 @@ internal abstract class TableConstraint
         public Check(SqlExpression definition)
             : base(TableConstraintType.Check)
         {
-            if (definition == null || definition.Tokens.Empty())
+            if (definition?.Tokens.NullOrEmpty() == true)
                 throw new ArgumentNullException(nameof(definition));
 
-            Definition = definition.Tokens.ToList();
+            Definition = definition!.Tokens.ToList();
         }
 
         public IReadOnlyCollection<Token<SqliteToken>> Definition { get; }

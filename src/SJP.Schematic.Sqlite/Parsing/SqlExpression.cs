@@ -11,7 +11,7 @@ internal sealed class SqlExpression
 {
     public SqlExpression(IEnumerable<Token<SqliteToken>> tokens)
     {
-        if (tokens == null || tokens.Empty())
+        if (tokens.NullOrEmpty())
             throw new ArgumentNullException(nameof(tokens));
 
         Tokens = tokens.ToList();

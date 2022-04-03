@@ -26,7 +26,7 @@ public class OracleDatabaseIndex : IDatabaseIndex
     {
         if (name == null)
             throw new ArgumentNullException(nameof(name));
-        if (columns == null || columns.Empty() || columns.AnyNull())
+        if (columns.NullOrEmpty() || columns.AnyNull())
             throw new ArgumentNullException(nameof(columns));
 
         Name = name.LocalName;

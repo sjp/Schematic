@@ -22,11 +22,11 @@ internal sealed class RedundantIndexesRule : Schematic.Lint.Rules.RedundantIndex
             throw new ArgumentNullException(nameof(tableName));
         if (indexName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(indexName));
-        if (redundantIndexColumnNames == null || redundantIndexColumnNames.Empty())
+        if (redundantIndexColumnNames.NullOrEmpty())
             throw new ArgumentNullException(nameof(redundantIndexColumnNames));
         if (otherIndexName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(otherIndexName));
-        if (otherIndexColumnNames == null || otherIndexColumnNames.Empty())
+        if (otherIndexColumnNames.NullOrEmpty())
             throw new ArgumentNullException(nameof(otherIndexColumnNames));
 
         var tableUrl = UrlRouter.GetTableUrl(tableName);

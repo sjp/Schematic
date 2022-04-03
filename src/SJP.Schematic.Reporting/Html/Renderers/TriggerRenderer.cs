@@ -18,10 +18,7 @@ internal sealed class TriggerRenderer : ITemplateRenderer
         DirectoryInfo exportDirectory
     )
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
-
-        Tables = tables;
+        Tables = tables ?? throw new ArgumentNullException(nameof(tables));
         Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
 
         if (exportDirectory == null)

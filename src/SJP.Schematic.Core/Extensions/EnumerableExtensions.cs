@@ -10,6 +10,14 @@ namespace SJP.Schematic.Core.Extensions;
 public static class EnumerableExtensions
 {
     /// <summary>
+    /// Determines whether a collection is null or empty.
+    /// </summary>
+    /// <typeparam name="T">The type of objects to enumerate.</typeparam>
+    /// <param name="source">The source collection.</param>
+    /// <returns><c>true</c> if the collection is <c>null</c> or has no elements; otherwise <c>false</c>.</returns>
+    public static bool NullOrEmpty<T>(this IEnumerable<T> source) => source?.Any() != true;
+
+    /// <summary>
     /// Determines whether a collection is empty.
     /// </summary>
     /// <typeparam name="T">The type of objects to enumerate.</typeparam>
@@ -41,6 +49,16 @@ public static class EnumerableExtensions
 
         return !source.Any(predicate);
     }
+
+    /// <summary>
+    /// Determines whether a collection is <c>null</c> or has elements which are <c>null</c>.
+    /// </summary>
+    /// <typeparam name="T">The type of objects to enumerate.</typeparam>
+    /// <param name="source">The source collection.</param>
+    /// <returns><c>true</c> if the collection is <c>null</c> or has elements which are <c>null</c>; otherwise <c>false</c>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
+    public static bool NullOrAnyNull<T>(this IEnumerable<T> source) where T : notnull
+        => source?.Any(static x => x == null) != false;
 
     /// <summary>
     /// Determines whether a collection has elements which are <c>null</c>.

@@ -28,9 +28,9 @@ public class SqliteDatabaseIndex : IDatabaseIndex
     {
         if (name == null)
             throw new ArgumentNullException(nameof(name));
-        if (columns == null || columns.Empty() || columns.AnyNull())
+        if (columns.NullOrEmpty() || columns.AnyNull())
             throw new ArgumentNullException(nameof(columns));
-        if (includedColumns != null && includedColumns.AnyNull())
+        if (includedColumns?.AnyNull() == true)
             throw new ArgumentNullException(nameof(includedColumns));
 
         if (includedColumns == null)

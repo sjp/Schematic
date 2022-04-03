@@ -75,7 +75,7 @@ internal abstract class ColumnConstraint
         public DefaultConstraint(IReadOnlyCollection<Token<SqliteToken>> tokens)
             : base(ColumnConstraintType.Default)
         {
-            if (tokens == null || tokens.Empty())
+            if (tokens.NullOrEmpty())
                 throw new ArgumentNullException(nameof(tokens));
 
             DefaultValue = tokens;
@@ -116,7 +116,7 @@ internal abstract class ColumnConstraint
         {
             if (parentTableName == null)
                 throw new ArgumentNullException(nameof(parentTableName));
-            if (parentColumnNames == null || parentColumnNames.Empty())
+            if (parentColumnNames.NullOrEmpty())
                 throw new ArgumentNullException(nameof(parentColumnNames));
 
             ParentTable = parentTableName.Value;
@@ -133,10 +133,10 @@ internal abstract class ColumnConstraint
         public Check(SqlExpression definition)
             : base(ColumnConstraintType.Check)
         {
-            if (definition == null || definition.Tokens.Empty())
+            if (definition?.Tokens.NullOrEmpty() == true)
                 throw new ArgumentNullException(nameof(definition));
 
-            Definition = definition.Tokens.ToList();
+            Definition = definition!.Tokens.ToList();
         }
 
         public IReadOnlyCollection<Token<SqliteToken>> Definition { get; }
@@ -152,10 +152,10 @@ internal abstract class ColumnConstraint
         public GeneratedAlways(SqlExpression definition, SqliteGeneratedColumnType generatedColumnType)
             : base(ColumnConstraintType.GeneratedAlways)
         {
-            if (definition == null || definition.Tokens.Empty())
+            if (definition?.Tokens.NullOrEmpty() == true)
                 throw new ArgumentNullException(nameof(definition));
 
-            Definition = definition.Tokens.ToList();
+            Definition = definition!.Tokens.ToList();
             GeneratedColumnType = generatedColumnType;
         }
 

@@ -25,7 +25,7 @@ public class DatabaseKey : IDatabaseKey
     /// <exception cref="ArgumentException"><paramref name="keyType"/> is an invalid enum value.</exception>
     public DatabaseKey(Option<Identifier> name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, bool isEnabled)
     {
-        if (columns == null || columns.Empty() || columns.AnyNull())
+        if (columns.NullOrEmpty() || columns.AnyNull())
             throw new ArgumentNullException(nameof(columns));
         if (!keyType.IsValid())
             throw new ArgumentException($"The { nameof(DatabaseKeyType) } provided must be a valid enum.", nameof(keyType));

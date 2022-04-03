@@ -41,7 +41,7 @@ public class IndexedColumn
 
     internal IndexedColumn(IReadOnlyCollection<Token<SqliteToken>> expression)
     {
-        if (expression == null || expression.Empty())
+        if (expression.NullOrEmpty())
             throw new ArgumentNullException(nameof(expression));
 
         Expression = expression;

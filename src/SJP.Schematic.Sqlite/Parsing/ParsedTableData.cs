@@ -31,7 +31,7 @@ public sealed class ParsedTableData
     {
         if (definition.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(definition));
-        if (columns == null || columns.Empty())
+        if (columns.NullOrEmpty())
             throw new ArgumentNullException(nameof(columns));
 
         Definition = definition;

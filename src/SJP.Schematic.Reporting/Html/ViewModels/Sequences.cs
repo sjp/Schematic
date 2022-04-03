@@ -11,7 +11,7 @@ public sealed class Sequences : ITemplateParameter
 {
     public Sequences(IEnumerable<Main.Sequence> sequences)
     {
-        if (sequences == null || sequences.AnyNull())
+        if (sequences.NullOrAnyNull())
             throw new ArgumentNullException(nameof(sequences));
 
         SequencesCount = sequences.UCount();

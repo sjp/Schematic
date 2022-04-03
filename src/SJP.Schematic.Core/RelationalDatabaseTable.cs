@@ -44,19 +44,19 @@ public class RelationalDatabaseTable : IRelationalDatabaseTable
         IReadOnlyCollection<IDatabaseCheckConstraint> checks,
         IReadOnlyCollection<IDatabaseTrigger> triggers)
     {
-        if (columns == null || columns.AnyNull())
+        if (columns.NullOrAnyNull())
             throw new ArgumentNullException(nameof(columns));
-        if (uniqueKeys == null || uniqueKeys.AnyNull())
+        if (uniqueKeys.NullOrAnyNull())
             throw new ArgumentNullException(nameof(uniqueKeys));
-        if (parentKeys == null || parentKeys.AnyNull())
+        if (parentKeys.NullOrAnyNull())
             throw new ArgumentNullException(nameof(parentKeys));
-        if (childKeys == null || childKeys.AnyNull())
+        if (childKeys.NullOrAnyNull())
             throw new ArgumentNullException(nameof(childKeys));
-        if (indexes == null || indexes.AnyNull())
+        if (indexes.NullOrAnyNull())
             throw new ArgumentNullException(nameof(indexes));
-        if (checks == null || checks.AnyNull())
+        if (checks.NullOrAnyNull())
             throw new ArgumentNullException(nameof(checks));
-        if (triggers == null || triggers.AnyNull())
+        if (triggers.NullOrAnyNull())
             throw new ArgumentNullException(nameof(triggers));
 
         primaryKey.IfSome(static pk =>

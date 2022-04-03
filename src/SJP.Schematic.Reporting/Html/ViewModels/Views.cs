@@ -11,7 +11,7 @@ public sealed class Views : ITemplateParameter
 {
     public Views(IEnumerable<Main.View> views)
     {
-        if (views == null || views.AnyNull())
+        if (views.NullOrAnyNull())
             throw new ArgumentNullException(nameof(views));
 
         ViewsCount = views.UCount();

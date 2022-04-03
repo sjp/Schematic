@@ -20,7 +20,7 @@ internal sealed class ConstraintsRenderer : ITemplateRenderer
         DirectoryInfo exportDirectory
     )
     {
-        if (tables == null || tables.AnyNull())
+        if (tables.NullOrAnyNull())
             throw new ArgumentNullException(nameof(tables));
 
         Tables = tables;
