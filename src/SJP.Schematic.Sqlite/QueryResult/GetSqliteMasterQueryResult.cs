@@ -2,13 +2,13 @@
 
 internal sealed record GetSqliteMasterQueryResult
 {
-    public string type { get; init; } = default!;
+    public string Type { get; init; } = default!;
 
-    public string name { get; init; } = default!;
+    public string Name { get; init; } = default!;
 
-    public string tbl_name { get; init; } = default!;
+    public string TableName { get; init; } = default!;
 
-    public long rootpage { get; init; }
+    public long RootPage { get; init; }
 
-    public string sql { get; init; } = default!;
+    public string Sql { get; init; } = default!;
 }

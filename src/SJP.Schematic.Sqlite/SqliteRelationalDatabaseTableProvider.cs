@@ -894,7 +894,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         foreach (var triggerInfo in triggerInfos)
         {
-            var triggerSql = triggerInfo.sql;
+            var triggerSql = triggerInfo.Sql;
             var parsedTrigger = _triggerParserCache.GetOrAdd(triggerSql, sql => new Lazy<ParsedTriggerData>(() =>
             {
                 var tokenizeResult = Tokenizer.TryTokenize(sql);
@@ -905,7 +905,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 return TriggerParser.ParseTokens(tokens);
             })).Value;
 
-            var trigger = new SqliteDatabaseTrigger(triggerInfo.name, triggerSql, parsedTrigger.Timing, parsedTrigger.Event);
+            var trigger = new SqliteDatabaseTrigger(triggerInfo.Name, triggerSql, parsedTrigger.Timing, parsedTrigger.Event);
             result.Add(trigger);
         }
 
@@ -923,7 +923,15 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         if (schema.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(schema));
 
-        return $"select * from { Dialect.QuoteIdentifier(schema) }.sqlite_master where type = 'trigger' and tbl_name = @{ nameof(GetSqliteMasterQuery.TableName) }";
+        return $@"
+select
+    type AS ""{ nameof(GetSqliteMasterQueryResult.Type) }"",
+    name AS ""{ nameof(GetSqliteMasterQueryResult.Name) }"",
+    tbl_name AS ""{ nameof(GetSqliteMasterQueryResult.TableName) }"",
+    rootpage AS ""{ nameof(GetSqliteMasterQueryResult.RootPage) }"",
+    sql AS ""{ nameof(GetSqliteMasterQueryResult.Sql) }""
+from { Dialect.QuoteIdentifier(schema) }.sqlite_master
+where type = 'trigger' and tbl_name = @{ nameof(GetSqliteMasterQuery.TableName) }";
     }
 
     private static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(IReadOnlyCollection<IDatabaseColumn> columns)
