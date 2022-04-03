@@ -9,6 +9,27 @@ namespace SJP.Schematic.Core.Tests.Extensions;
 internal static class EnumerableExtensionsTests
 {
     [Test]
+    public static void NullOrEmpty_GivenNullCollection_ReturnsTrue()
+    {
+        IEnumerable<string> input = null;
+        Assert.That(input.NullOrEmpty(), Is.True);
+    }
+
+    [Test]
+    public static void NullOrEmpty_GivenEmptyCollection_ReturnsTrue()
+    {
+        IEnumerable<string> input = Array.Empty<string>();
+        Assert.That(input.NullOrEmpty(), Is.True);
+    }
+
+    [Test]
+    public static void NullOrEmpty_GivenNonEmptyCollection_ReturnsFalse()
+    {
+        IEnumerable<string> input = new[] { "A" };
+        Assert.That(input.NullOrEmpty(), Is.False);
+    }
+
+    [Test]
     public static void Empty_GivenNullCollection_ThrowsArgumentNullException()
     {
         IEnumerable<string> input = null;
@@ -27,6 +48,34 @@ internal static class EnumerableExtensionsTests
     {
         IEnumerable<string> input = new[] { "A" };
         Assert.That(input.Empty(), Is.False);
+    }
+
+    [Test]
+    public static void NullOrAnyNull_GivenNullCollection_ReturnsTrue()
+    {
+        IEnumerable<string> input = null;
+        Assert.That(input.NullOrAnyNull(), Is.True);
+    }
+
+    [Test]
+    public static void NullOrAnyNull_GivenEmptyCollection_ReturnsFalse()
+    {
+        IEnumerable<string> input = Array.Empty<string>();
+        Assert.That(input.NullOrAnyNull(), Is.False);
+    }
+
+    [Test]
+    public static void NullOrAnyNull_GivenNonEmptyCollectionWithNoNullValues_ReturnsFalse()
+    {
+        IEnumerable<string> input = new[] { "A" };
+        Assert.That(input.NullOrAnyNull(), Is.False);
+    }
+
+    [Test]
+    public static void NullOrAnyNull_GivenNonEmptyCollectionWithNullValues_ReturnsTrue()
+    {
+        IEnumerable<string> input = new[] { "A", null, "C" };
+        Assert.That(input.NullOrAnyNull(), Is.True);
     }
 
     [Test]
