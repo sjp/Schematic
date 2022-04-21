@@ -23,7 +23,7 @@
     "@babel/register": "7.17.7",
     "admin-lte": "3.2.0",
     "bootstrap": "4.6.0",
-    "codemirror": "5.65.2",
+    "codemirror": "5.65.3",
     "cssnano": "5.1.7",
     "datatables.net": "1.10.25",
     "datatables.net-bs4": "1.10.24",
