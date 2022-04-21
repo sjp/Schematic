@@ -8,7 +8,7 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.MySql.Comments;
-using SJP.Schematic.MySql.QueryResult;
+using SJP.Schematic.MySql.Queries;
 
 namespace SJP.Schematic.MySql;
 
@@ -49,14 +49,8 @@ public class MySqlDialect : DatabaseDialect
 
     private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        return await connection.DbConnection.QuerySingleAsync<GetIdentifierDefaultsResult>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
+        return await connection.DbConnection.QuerySingleAsync<GetIdentifierDefaults.Result>(GetIdentifierDefaults.Sql, cancellationToken).ConfigureAwait(false);
     }
-
-    private const string IdentifierDefaultsQuerySql = @$"
-select
-    @@hostname as `{ nameof(GetIdentifierDefaultsResult.Server) }`,
-    database() as `{ nameof(GetIdentifierDefaultsResult.Database) }`,
-    schema() as `{ nameof(GetIdentifierDefaultsResult.Schema) }`";
 
     /// <summary>
     /// Gets the database display version. Usually a more user-friendly form of the database version.

@@ -8,8 +8,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
-using SJP.Schematic.MySql.Query;
-using SJP.Schematic.MySql.QueryResult;
+using SJP.Schematic.MySql.Queries;
 
 namespace SJP.Schematic.MySql;
 
@@ -62,9 +61,9 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
     /// <returns>A collection of database views.</returns>
     public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResult = await DbConnection.QueryAsync<GetAllViewNamesQueryResult>(
+        var queryResult = await DbConnection.QueryAsync<GetAllViewNames.Result>(
             ViewsQuery,
-            new GetAllViewNamesQuery { SchemaName = IdentifierDefaults.Schema! },
+            new GetAllViewNames.Query { SchemaName = IdentifierDefaults.Schema! },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -80,14 +79,7 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
     /// A SQL query that retrieves the names of views in the database.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ViewsQuery => ViewsQuerySql;
-
-    private const string ViewsQuerySql = @$"
-select
-    TABLE_SCHEMA as `{ nameof(GetAllViewNamesQueryResult.SchemaName) }`,
-    TABLE_NAME as `{ nameof(GetAllViewNamesQueryResult.ViewName) }`
-from information_schema.views
-where TABLE_SCHEMA = @{ nameof(GetAllViewNamesQuery.SchemaName) } order by TABLE_NAME";
+    protected virtual string ViewsQuery => GetAllViewNames.Sql;
 
     /// <summary>
     /// Gets a database view.
@@ -118,9 +110,9 @@ where TABLE_SCHEMA = @{ nameof(GetAllViewNamesQuery.SchemaName) } order by TABLE
             throw new ArgumentNullException(nameof(viewName));
 
         var candidateViewName = QualifyViewName(viewName);
-        var qualifiedViewName = DbConnection.QueryFirstOrNone<GetViewNameQueryResult>(
+        var qualifiedViewName = DbConnection.QueryFirstOrNone<GetViewName.Result>(
             ViewNameQuery,
-            new GetViewNameQuery { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
+            new GetViewName.Query { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
             cancellationToken
         );
 
@@ -131,15 +123,7 @@ where TABLE_SCHEMA = @{ nameof(GetAllViewNamesQuery.SchemaName) } order by TABLE
     /// A SQL query that retrieves the resolved name of a view.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ViewNameQuery => ViewNameQuerySql;
-
-    private const string ViewNameQuerySql = @$"
-select
-    table_schema as `{ nameof(GetViewNameQueryResult.SchemaName) }`,
-    table_name as `{ nameof(GetViewNameQueryResult.ViewName) }`
-from information_schema.views
-where table_schema = @{ nameof(GetViewNameQuery.SchemaName) } and table_name = @{ nameof(GetViewNameQuery.ViewName) }
-limit 1";
+    protected virtual string ViewNameQuery => GetViewName.Sql;
 
     /// <summary>) }
     /// Retrieves a database view, if available.
@@ -182,7 +166,7 @@ limit 1";
 
         return DbConnection.ExecuteScalarAsync<string>(
             DefinitionQuery,
-            new GetViewDefinitionQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            new GetViewDefinition.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         );
     }
@@ -191,13 +175,7 @@ limit 1";
     /// A SQL query that retrieves the definition of a view.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string DefinitionQuery => DefinitionQuerySql;
-
-    private const string DefinitionQuerySql = @$"
-select view_definition
-from information_schema.views
-where table_schema = @{ nameof(Query.GetViewDefinitionQuery.SchemaName) } and table_name = @{ nameof(Query.GetViewDefinitionQuery.ViewName) }
-";
+    protected virtual string DefinitionQuery => GetViewDefinition.Sql;
 
     /// <summary>
     /// Retrieves the columns for a given view.
@@ -216,9 +194,9 @@ where table_schema = @{ nameof(Query.GetViewDefinitionQuery.SchemaName) } and ta
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var query = await DbConnection.QueryAsync<GetViewColumnsQueryResult>(
+        var query = await DbConnection.QueryAsync<GetViewColumns.Result>(
             ColumnsQuery,
-            new GetViewColumnsQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            new GetViewColumns.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -262,24 +240,7 @@ where table_schema = @{ nameof(Query.GetViewDefinitionQuery.SchemaName) } and ta
     /// A SQL query that retrieves column definitions.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ColumnsQuery => ColumnsQuerySql;
-
-    private const string ColumnsQuerySql = @$"
-select
-    column_name as `{ nameof(GetViewColumnsQueryResult.ColumnName) }`,
-    data_type as `{ nameof(GetViewColumnsQueryResult.DataTypeName) }`,
-    character_maximum_length as `{ nameof(GetViewColumnsQueryResult.CharacterMaxLength) }`,
-    numeric_precision as `{ nameof(GetViewColumnsQueryResult.Precision) }`,
-    numeric_scale as `{ nameof(GetViewColumnsQueryResult.Scale) }`,
-    datetime_precision as `{ nameof(GetViewColumnsQueryResult.DateTimePrecision) }`,
-    collation_name as `{ nameof(GetViewColumnsQueryResult.Collation) }`,
-    is_nullable as `{ nameof(GetViewColumnsQueryResult.IsNullable) }`,
-    column_default as `{ nameof(GetViewColumnsQueryResult.DefaultValue) }`,
-    generation_expression as `{ nameof(GetViewColumnsQueryResult.ComputedColumnDefinition) }`,
-    extra as `{ nameof(GetViewColumnsQueryResult.ExtraInformation) }`
-from information_schema.columns
-where table_schema = @{ nameof(GetViewColumnsQuery.SchemaName) } and table_name = @{ nameof(GetViewColumnsQuery.ViewName) }
-order by ordinal_position";
+    protected virtual string ColumnsQuery => GetViewColumns.Sql;
 
     /// <summary>
     /// Qualifies the name of the view.

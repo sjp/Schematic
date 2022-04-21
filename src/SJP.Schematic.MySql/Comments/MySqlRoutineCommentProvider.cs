@@ -8,8 +8,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.MySql.Query;
-using SJP.Schematic.MySql.QueryResult;
+using SJP.Schematic.MySql.Queries;
 
 namespace SJP.Schematic.MySql.Comments;
 
@@ -50,9 +49,9 @@ public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
     /// <returns>A collection of database routine comments, where available.</returns>
     public async IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResults = await Connection.QueryAsync<GetAllRoutineNamesQueryResult>(
+        var queryResults = await Connection.QueryAsync<GetAllRoutineNames.Result>(
             RoutinesQuery,
-            new GetAllRoutineNamesQuery { SchemaName = IdentifierDefaults.Schema! },
+            new GetAllRoutineNames.Query { SchemaName = IdentifierDefaults.Schema! },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -77,9 +76,9 @@ public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
             throw new ArgumentNullException(nameof(routineName));
 
         routineName = QualifyRoutineName(routineName);
-        var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineNameQueryResult>(
+        var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineName.Result>(
             RoutineNameQuery,
-            new GetRoutineNameQuery { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
+            new GetRoutineName.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken
         );
 
@@ -90,15 +89,7 @@ public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
     /// A SQL query that retrieves the resolved routine name.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string RoutineNameQuery => RoutineNameQuerySql;
-
-    private const string RoutineNameQuerySql = @$"
-select
-    ROUTINE_SCHEMA as `{ nameof(GetRoutineNameQueryResult.SchemaName) }`,
-    ROUTINE_NAME as `{ nameof(GetRoutineNameQueryResult.RoutineName) }`
-from information_schema.routines
-where ROUTINE_SCHEMA = @{ nameof(GetRoutineNameQuery.SchemaName) } and ROUTINE_NAME = @{ nameof(GetRoutineNameQuery.RoutineName) }
-limit 1";
+    protected virtual string RoutineNameQuery => GetRoutineName.Sql;
 
     /// <summary>
     /// Retrieves comments for a database routine, if available.
@@ -137,7 +128,7 @@ limit 1";
     {
         var comment = await Connection.ExecuteScalarAsync<string>(
             RoutineCommentQuery,
-            new GetRoutineCommentsQuery { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
+            new GetRoutineComments.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -152,26 +143,13 @@ limit 1";
     /// A SQL query definition that retrieves all routine names in a given database.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string RoutinesQuery => RoutinesQuerySql;
-
-    private const string RoutinesQuerySql = @$"
-select
-    ROUTINE_SCHEMA as `{ nameof(GetAllRoutineNamesQueryResult.SchemaName) }`,
-    ROUTINE_NAME as `{ nameof(GetAllRoutineNamesQueryResult.RoutineName) }`
-from information_schema.routines
-where ROUTINE_SCHEMA = @{ nameof(GetAllRoutineNamesQuery.SchemaName) }
-order by ROUTINE_SCHEMA, ROUTINE_NAME";
+    protected virtual string RoutinesQuery => GetAllRoutineNames.Sql;
 
     /// <summary>
     /// A SQL query that retrieves the definition of a routine.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string RoutineCommentQuery => RoutineCommentQuerySql;
-
-    private const string RoutineCommentQuerySql = @$"
-select ROUTINE_COMMENT
-from information_schema.routines
-where ROUTINE_SCHEMA = @{ nameof(GetRoutineCommentsQuery.SchemaName) } and ROUTINE_NAME = @{ nameof(GetRoutineCommentsQuery.RoutineName) }";
+    protected virtual string RoutineCommentQuery => Queries.GetRoutineComments.Sql;
 
     /// <summary>
     /// Qualifies the name of a routine, using known identifier defaults.

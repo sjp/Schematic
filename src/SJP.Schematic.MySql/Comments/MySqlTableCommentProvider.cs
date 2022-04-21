@@ -9,8 +9,7 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
-using SJP.Schematic.MySql.Query;
-using SJP.Schematic.MySql.QueryResult;
+using SJP.Schematic.MySql.Queries;
 
 namespace SJP.Schematic.MySql.Comments;
 
@@ -51,9 +50,9 @@ public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
     /// <returns>A collection of database table comments, where available.</returns>
     public async IAsyncEnumerable<IRelationalDatabaseTableComments> GetAllTableComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResults = await Connection.QueryAsync<GetAllTableNamesQueryResult>(
+        var queryResults = await Connection.QueryAsync<GetAllTableNames.Result>(
             TablesQuery,
-            new GetAllTableNamesQuery { SchemaName = IdentifierDefaults.Schema! },
+            new GetAllTableNames.Query { SchemaName = IdentifierDefaults.Schema! },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -78,9 +77,9 @@ public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
             throw new ArgumentNullException(nameof(tableName));
 
         tableName = QualifyTableName(tableName);
-        var qualifiedTableName = Connection.QueryFirstOrNone<GetTableNameQueryResult>(
+        var qualifiedTableName = Connection.QueryFirstOrNone<GetTableName.Result>(
             TableNameQuery,
-            new GetTableNameQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+            new GetTableName.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         );
 
@@ -91,13 +90,7 @@ public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
     /// A SQL query definition that resolves a table name for the database.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string TableNameQuery => TableNameQuerySql;
-
-    private const string TableNameQuerySql = @$"
-select table_schema as `{ nameof(GetTableNameQueryResult.SchemaName) }`, table_name as `{ nameof(GetTableNameQueryResult.TableName) }`
-from information_schema.tables
-where table_schema = @{ nameof(GetTableNameQuery.SchemaName) } and table_name = @{ nameof(GetTableNameQuery.TableName) }
-limit 1";
+    protected virtual string TableNameQuery => GetTableName.Sql;
 
     /// <summary>
     /// Retrieves comments for a database table, if available.
@@ -134,9 +127,9 @@ limit 1";
 
     private async Task<IRelationalDatabaseTableComments> LoadTableCommentsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
-        var commentsData = await Connection.QueryAsync<GetTableCommentsQueryResult>(
+        var commentsData = await Connection.QueryAsync<GetTableComments.Result>(
             TableCommentsQuery,
-            new GetTableCommentsQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+            new GetTableComments.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -167,54 +160,15 @@ limit 1";
     /// A SQL query definition which retrieves table names all tables.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string TablesQuery => TablesQuerySql;
-
-    private const string TablesQuerySql = @$"
-select
-    table_schema as `{ nameof(GetAllTableNamesQueryResult.SchemaName) }`,
-    table_name as `{ nameof(GetAllTableNamesQueryResult.TableName) }`
-from information_schema.tables
-where table_schema = @{ nameof(GetAllTableNamesQuery.SchemaName) }";
+    protected virtual string TablesQuery => GetAllTableNames.Sql;
 
     /// <summary>
     /// A SQL query definition which retrieves all comment information for a particular table.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string TableCommentsQuery => TableCommentsQuerySql;
+    protected virtual string TableCommentsQuery => Queries.GetTableComments.Sql;
 
-    private const string TableCommentsQuerySql = @$"
--- table
-select
-    'TABLE' as `{ nameof(GetTableCommentsQueryResult.ObjectType) }`,
-    TABLE_NAME as `{ nameof(GetTableCommentsQueryResult.ObjectName) }`,
-    TABLE_COMMENT as `{ nameof(GetTableCommentsQueryResult.Comment) }`
-from INFORMATION_SCHEMA.TABLES
-where TABLE_SCHEMA = @{ nameof(GetTableCommentsQuery.SchemaName) } and TABLE_NAME = @{ nameof(GetTableCommentsQuery.TableName) }
-
-union
-
--- columns
-select
-    'COLUMN' as `{ nameof(GetTableCommentsQueryResult.ObjectType) }`,
-    c.COLUMN_NAME as `{ nameof(GetTableCommentsQueryResult.ObjectName) }`,
-    c.COLUMN_COMMENT as `{ nameof(GetTableCommentsQueryResult.Comment) }`
-from INFORMATION_SCHEMA.COLUMNS c
-inner join INFORMATION_SCHEMA.TABLES t on c.TABLE_SCHEMA = t.TABLE_SCHEMA and c.TABLE_NAME = t.TABLE_NAME
-where c.TABLE_SCHEMA = @{ nameof(GetTableCommentsQuery.SchemaName) } and c.TABLE_NAME = @{ nameof(GetTableCommentsQuery.TableName) }
-
-union
-
--- indexes
-select
-    'INDEX' as `{ nameof(GetTableCommentsQueryResult.ObjectType) }`,
-    s.INDEX_NAME as `{ nameof(GetTableCommentsQueryResult.ObjectName) }`,
-    s.INDEX_COMMENT as `{ nameof(GetTableCommentsQueryResult.Comment) }`
-from INFORMATION_SCHEMA.STATISTICS s
-inner join INFORMATION_SCHEMA.TABLES t on s.TABLE_SCHEMA = t.TABLE_SCHEMA and s.TABLE_NAME = t.TABLE_NAME
-where s.TABLE_SCHEMA = @{ nameof(GetTableCommentsQuery.SchemaName) } and s.TABLE_NAME = @{ nameof(GetTableCommentsQuery.TableName) }
-";
-
-    private static Option<string> GetFirstCommentByType(IEnumerable<GetTableCommentsQueryResult> commentsData, string objectType)
+    private static Option<string> GetFirstCommentByType(IEnumerable<GetTableComments.Result> commentsData, string objectType)
     {
         if (commentsData == null)
             throw new ArgumentNullException(nameof(commentsData));
@@ -227,7 +181,7 @@ where s.TABLE_SCHEMA = @{ nameof(GetTableCommentsQuery.SchemaName) } and s.TABLE
             .FirstOrDefault();
     }
 
-    private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IEnumerable<GetTableCommentsQueryResult> commentsData, string objectType)
+    private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IEnumerable<GetTableComments.Result> commentsData, string objectType)
     {
         if (commentsData == null)
             throw new ArgumentNullException(nameof(commentsData));
