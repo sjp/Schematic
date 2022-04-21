@@ -13,8 +13,7 @@ using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Sqlite.Exceptions;
 using SJP.Schematic.Sqlite.Parsing;
 using SJP.Schematic.Sqlite.Pragma;
-using SJP.Schematic.Sqlite.Query;
-using SJP.Schematic.Sqlite.QueryResult;
+using SJP.Schematic.Sqlite.Queries;
 
 namespace SJP.Schematic.Sqlite;
 
@@ -99,8 +98,8 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         foreach (var dbName in dbNames)
         {
-            var sql = TablesQuery(dbName);
-            var queryResult = await DbConnection.QueryAsync<GetAllTableNamesQueryResult>(sql, cancellationToken).ConfigureAwait(false);
+            var sql = GetAllTableNames.Sql(Dialect, dbName);
+            var queryResult = await DbConnection.QueryAsync<GetAllTableNames.Result>(sql, cancellationToken).ConfigureAwait(false);
             var names = queryResult
                 .Where(static result => !IsReservedTableName(result.TableName))
                 .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.TableName));
@@ -115,18 +114,6 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         var queryCache = CreateQueryCache();
         foreach (var tableName in tableNames)
             yield return await LoadTableAsyncCore(tableName, queryCache, cancellationToken).ConfigureAwait(false);
-    }
-
-    /// <summary>
-    /// Creates a SQL query that retrieves the names of all tables in a given schema.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string TablesQuery(string schemaName)
-    {
-        if (schemaName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(schemaName));
-
-        return $"select name as { nameof(GetAllTableNamesQueryResult.TableName) } from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'table' order by name";
     }
 
     /// <summary>
@@ -193,10 +180,10 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         if (tableName.Schema != null)
         {
-            var sql = TableNameQuery(tableName.Schema);
+            var sql = GetTableName.Sql(Dialect, tableName.Schema);
             var queryResult = await DbConnection.ExecuteScalarAsync<string>(
                 sql,
-                new GetTableNameQuery { TableName = tableName.LocalName },
+                new GetTableName.Query { TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -221,10 +208,10 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             .ToList();
         foreach (var dbName in dbNames)
         {
-            var sql = TableNameQuery(dbName);
+            var sql = GetTableName.Sql(Dialect, dbName);
             var tableLocalName = await DbConnection.ExecuteScalarAsync<string>(
                 sql,
-                new GetTableNameQuery { TableName = tableName.LocalName },
+                new GetTableName.Query { TableName = tableName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -233,20 +220,6 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         }
 
         return Option<Identifier>.None;
-    }
-
-    /// <summary>
-    /// Creates a SQL query that resolves a table name to its canonical form.
-    /// </summary>
-    /// <param name="schemaName">A schema name.</param>
-    /// <returns>A SQL query</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="schemaName"/> is <c>null</c>, empty or whitespace.</exception>
-    protected virtual string TableNameQuery(string schemaName)
-    {
-        if (schemaName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(schemaName));
-
-        return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'table' and lower(name) = lower(@{ nameof(GetTableNameQuery.TableName) })";
     }
 
     /// <summary>
@@ -551,8 +524,8 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         foreach (var dbName in dbNames)
         {
-            var sql = TablesQuery(dbName);
-            var queryResult = await DbConnection.QueryAsync<GetAllTableNamesQueryResult>(sql, cancellationToken).ConfigureAwait(false);
+            var sql = GetAllTableNames.Sql(Dialect, dbName);
+            var queryResult = await DbConnection.QueryAsync<GetAllTableNames.Result>(sql, cancellationToken).ConfigureAwait(false);
             var tableNames = queryResult
                 .Where(static result => !IsReservedTableName(result.TableName))
                 .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.TableName));
@@ -883,10 +856,10 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             tableName = resolvedName;
         }
 
-        var triggerQuery = TriggerDefinitionQuery(tableName.Schema!);
-        var triggerInfos = await DbConnection.QueryAsync<GetSqliteMasterQueryResult>(
+        var triggerQuery = GetTriggerDefinition.Sql(Dialect, tableName.Schema!);
+        var triggerInfos = await DbConnection.QueryAsync<GetTriggerDefinition.Result>(
             triggerQuery,
-            new GetSqliteMasterQuery { TableName = tableName.LocalName },
+            new GetTriggerDefinition.Query { TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -910,28 +883,6 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         }
 
         return result;
-    }
-
-    /// <summary>
-    /// Creates a SQL query that retrieves triggers for a given table.
-    /// </summary>
-    /// <param name="schema">A table's schema.</param>
-    /// <returns>A SQL query.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="schema"/> is <c>null</c>, empty or whitespace.</exception>
-    protected virtual string TriggerDefinitionQuery(string schema)
-    {
-        if (schema.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(schema));
-
-        return $@"
-select
-    type AS ""{ nameof(GetSqliteMasterQueryResult.Type) }"",
-    name AS ""{ nameof(GetSqliteMasterQueryResult.Name) }"",
-    tbl_name AS ""{ nameof(GetSqliteMasterQueryResult.TableName) }"",
-    rootpage AS ""{ nameof(GetSqliteMasterQueryResult.RootPage) }"",
-    sql AS ""{ nameof(GetSqliteMasterQueryResult.Sql) }""
-from { Dialect.QuoteIdentifier(schema) }.sqlite_master
-where type = 'trigger' and tbl_name = @{ nameof(GetSqliteMasterQuery.TableName) }";
     }
 
     private static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(IReadOnlyCollection<IDatabaseColumn> columns)
@@ -976,10 +927,10 @@ where type = 'trigger' and tbl_name = @{ nameof(GetSqliteMasterQuery.TableName) 
             tableName = resolvedName;
         }
 
-        var definitionQuery = TableDefinitionQuery(tableName.Schema!);
+        var definitionQuery = GetTableDefinition.Sql(Dialect, tableName.Schema!);
         var tableSql = await DbConnection.ExecuteScalarAsync<string>(
             definitionQuery,
-            new GetTableDefinitionQuery { TableName = tableName.LocalName },
+            new GetTableDefinition.Query { TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -992,20 +943,6 @@ where type = 'trigger' and tbl_name = @{ nameof(GetSqliteMasterQuery.TableName) 
             var tokens = tokenizeResult.Value;
             return TableParser.ParseTokens(sql, tokens);
         })).Value;
-    }
-
-    /// <summary>
-    /// Creates a query that retrieves a table's <c>CREATE TABLE</c> definition.
-    /// </summary>
-    /// <param name="schema">A schema name.</param>
-    /// <returns>A SQL query.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="schema"/> is <c>null</c>, empty or whitespace.</exception>
-    protected virtual string TableDefinitionQuery(string schema)
-    {
-        if (schema.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(schema));
-
-        return $"select sql from { Dialect.QuoteIdentifier(schema) }.sqlite_master where type = 'table' and tbl_name = @{ nameof(GetTableDefinitionQuery.TableName) }";
     }
 
     /// <summary>

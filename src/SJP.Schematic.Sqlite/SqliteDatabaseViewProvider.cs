@@ -10,7 +10,7 @@ using Microsoft.Data.Sqlite;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite.Pragma;
-using SJP.Schematic.Sqlite.Query;
+using SJP.Schematic.Sqlite.Queries;
 
 namespace SJP.Schematic.Sqlite;
 
@@ -170,10 +170,10 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     {
         if (viewName.Schema != null)
         {
-            var sql = ViewNameQuery(viewName.Schema);
+            var sql = GetViewName.Sql(Dialect, viewName.Schema);
             var viewLocalName = await DbConnection.ExecuteScalarAsync<string>(
                 sql,
-                new GetViewNameQuery { ViewName = viewName.LocalName },
+                new GetViewName.Query { ViewName = viewName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -198,10 +198,10 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
             .ToList();
         foreach (var dbName in dbNames)
         {
-            var sql = ViewNameQuery(dbName);
+            var sql = GetViewName.Sql(Dialect, dbName);
             var viewLocalName = await DbConnection.ExecuteScalarAsync<string>(
                 sql,
-                new GetViewNameQuery { ViewName = viewName.LocalName },
+                new GetViewName.Query { ViewName = viewName.LocalName },
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -210,20 +210,6 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
         }
 
         return Option<Identifier>.None;
-    }
-
-    /// <summary>
-    /// Creates a query that resolves a view name.
-    /// </summary>
-    /// <param name="schemaName">A schema name.</param>
-    /// <returns>A SQL query.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="schemaName"/> is <c>null</c>, empty or whitespace.</exception>
-    protected virtual string ViewNameQuery(string schemaName)
-    {
-        if (schemaName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(schemaName));
-
-        return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'view' and lower(name) = lower(@{ nameof(GetViewNameQuery.ViewName) })";
     }
 
     /// <summary>
@@ -265,26 +251,12 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
         if (viewName == null)
             throw new ArgumentNullException(nameof(viewName));
 
-        var sql = DefinitionQuery(viewName.Schema!);
+        var sql = GetViewDefinition.Sql(Dialect, viewName.Schema!);
         return DbConnection.ExecuteScalarAsync<string>(
             sql,
-            new GetViewDefinitionQuery { ViewName = viewName.LocalName },
+            new GetViewDefinition.Query { ViewName = viewName.LocalName },
             cancellationToken
         );
-    }
-
-    /// <summary>
-    /// Creates a query that retrieves a view's definition.
-    /// </summary>
-    /// <param name="schemaName">A schema name.</param>
-    /// <returns>A SQL query.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="schemaName"/> is <c>null</c>, empty or whitespace.</exception>
-    protected virtual string DefinitionQuery(string schemaName)
-    {
-        if (schemaName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(schemaName));
-
-        return $"select sql from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'view' and tbl_name = @{ nameof(GetViewDefinitionQuery.ViewName) }";
     }
 
     /// <summary>
@@ -363,25 +335,8 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
         if (columnName == null)
             throw new ArgumentNullException(nameof(columnName));
 
-        var sql = GetTypeofQuery(viewName, columnName.LocalName);
+        var sql = GetTypeofColumn.Sql(Dialect, viewName, columnName.LocalName);
         return DbConnection.ExecuteScalarAsync<string>(sql, cancellationToken);
-    }
-
-    /// <summary>
-    /// Creates a query that gets the runtime type of a column value.
-    /// </summary>
-    /// <param name="viewName">A view name.</param>
-    /// <param name="columnName">A column name for the given view.</param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c> or <paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
-    protected virtual string GetTypeofQuery(Identifier viewName, string columnName)
-    {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
-        if (columnName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(columnName));
-
-        return $"select typeof({ Dialect.QuoteName(columnName) }) from { Dialect.QuoteName(viewName) } limit 1";
     }
 
     /// <summary>
