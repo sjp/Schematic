@@ -15,7 +15,7 @@ using SJP.Schematic.Oracle.Queries;
 namespace SJP.Schematic.Oracle;
 
 /// <summary>
-/// A database table provider for MySQL.
+/// A database table provider for Oracle.
 /// </summary>
 /// <seealso cref="IRelationalDatabaseTableProvider" />
 public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTableProvider
