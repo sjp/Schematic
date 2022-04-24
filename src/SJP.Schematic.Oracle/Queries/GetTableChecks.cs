@@ -25,5 +25,4 @@ select
     STATUS as ""{ nameof(Result.EnabledStatus) }""
 from SYS.ALL_CONSTRAINTS
 where OWNER = :{ nameof(Query.SchemaName) } and TABLE_NAME = :{ nameof(Query.TableName) } and CONSTRAINT_TYPE = 'C'";
-
 }

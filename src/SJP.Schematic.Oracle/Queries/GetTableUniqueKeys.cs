@@ -29,5 +29,4 @@ select
 from SYS.ALL_CONSTRAINTS ac
 inner join SYS.ALL_CONS_COLUMNS acc on ac.OWNER = acc.OWNER and ac.CONSTRAINT_NAME = acc.CONSTRAINT_NAME and ac.TABLE_NAME = acc.TABLE_NAME
 where ac.OWNER = :{ nameof(Query.SchemaName) } and ac.TABLE_NAME = :{ nameof(Query.TableName) } and ac.CONSTRAINT_TYPE = 'U'";
-
 }
