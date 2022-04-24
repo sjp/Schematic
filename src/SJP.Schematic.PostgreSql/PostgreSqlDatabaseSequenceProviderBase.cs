@@ -6,8 +6,7 @@ using System.Threading;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.PostgreSql.Query;
-using SJP.Schematic.PostgreSql.QueryResult;
+using SJP.Schematic.PostgreSql.Queries;
 
 namespace SJP.Schematic.PostgreSql;
 
@@ -56,7 +55,7 @@ public class PostgreSqlDatabaseSequenceProviderBase : IDatabaseSequenceProvider
     /// <returns>A collection of database sequences.</returns>
     public async IAsyncEnumerable<IDatabaseSequence> GetAllSequences([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResult = await Connection.QueryAsync<GetAllSequenceDefinitionsQueryResult>(SequencesQuery, cancellationToken).ConfigureAwait(false);
+        var queryResult = await Connection.QueryAsync<GetAllSequenceDefinitions.Result>(SequencesQuery, cancellationToken).ConfigureAwait(false);
         var sequences = queryResult
             .Select(row =>
             {
@@ -80,20 +79,7 @@ public class PostgreSqlDatabaseSequenceProviderBase : IDatabaseSequenceProvider
     /// Gets a query that retrieves information on all sequences in the database.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string SequencesQuery => SequencesQuerySql;
-
-    private const string SequencesQuerySql = @$"
-select
-    schemaname as ""{ nameof(GetAllSequenceDefinitionsQueryResult.SchemaName) }"",
-    sequencename as ""{ nameof(GetAllSequenceDefinitionsQueryResult.SequenceName) }"",
-    start_value as ""{ nameof(GetAllSequenceDefinitionsQueryResult.StartValue) }"",
-    min_value as ""{ nameof(GetAllSequenceDefinitionsQueryResult.MinValue) }"",
-    max_value as ""{ nameof(GetAllSequenceDefinitionsQueryResult.MaxValue) }"",
-    increment_by as ""{ nameof(GetAllSequenceDefinitionsQueryResult.Increment) }"",
-    cycle as ""{ nameof(GetAllSequenceDefinitionsQueryResult.Cycle) }"",
-    cache_size as ""{ nameof(GetAllSequenceDefinitionsQueryResult.CacheSize) }""
-from pg_catalog.pg_sequences
-order by schemaname, sequencename";
+    protected virtual string SequencesQuery => GetAllSequenceDefinitions.Sql;
 
     /// <summary>
     /// Gets a database sequence.
@@ -145,9 +131,9 @@ order by schemaname, sequencename";
             throw new ArgumentNullException(nameof(sequenceName));
 
         var candidateSequenceName = QualifySequenceName(sequenceName);
-        var qualifiedSequenceName = Connection.QueryFirstOrNone<GetSequenceNameQueryResult>(
+        var qualifiedSequenceName = Connection.QueryFirstOrNone<GetSequenceName.Result>(
             SequenceNameQuery,
-            new GetSequenceNameQuery { SchemaName = candidateSequenceName.Schema!, SequenceName = candidateSequenceName.LocalName },
+            new GetSequenceName.Query { SchemaName = candidateSequenceName.Schema!, SequenceName = candidateSequenceName.LocalName },
             cancellationToken
         );
 
@@ -158,31 +144,13 @@ order by schemaname, sequencename";
     /// Gets a query that resolves the name of a sequence.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string SequenceNameQuery => SequenceNameQuerySql;
-
-    private const string SequenceNameQuerySql = @$"
-select sequence_schema as ""{ nameof(GetSequenceNameQueryResult.SchemaName) }"", sequence_name as ""{ nameof(GetSequenceNameQueryResult.SequenceName) }""
-from information_schema.sequences
-where sequence_schema = @{ nameof(GetSequenceNameQuery.SchemaName) } and sequence_name = @{ nameof(GetSequenceNameQuery.SequenceName) }
-    and sequence_schema not in ('pg_catalog', 'information_schema')
-limit 1";
+    protected virtual string SequenceNameQuery => GetSequenceName.Sql;
 
     /// <summary>
     /// Gets a query that retrieves all relevant information on a sequence.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string SequenceQuery => SequenceQuerySql;
-
-    private const string SequenceQuerySql = @$"
-select
-    start_value as ""{ nameof(GetSequenceDefinitionQueryResult.StartValue) }"",
-    min_value as ""{ nameof(GetSequenceDefinitionQueryResult.MinValue) }"",
-    max_value as ""{ nameof(GetSequenceDefinitionQueryResult.MaxValue) }"",
-    increment_by as ""{ nameof(GetSequenceDefinitionQueryResult.Increment) }"",
-    cycle as ""{ nameof(GetSequenceDefinitionQueryResult.Cycle) }"",
-    cache_size as ""{ nameof(GetSequenceDefinitionQueryResult.CacheSize) }""
-from pg_catalog.pg_sequences
-where schemaname = @{ nameof(GetSequenceDefinitionQuery.SchemaName) } and sequencename = @{ nameof(GetSequenceDefinitionQuery.SequenceName) }";
+    protected virtual string SequenceQuery => GetSequenceDefinition.Sql;
 
     /// <summary>
     /// Retrieves database sequence information.
@@ -206,9 +174,9 @@ where schemaname = @{ nameof(GetSequenceDefinitionQuery.SchemaName) } and sequen
         if (sequenceName == null)
             throw new ArgumentNullException(nameof(sequenceName));
 
-        return Connection.QueryFirstOrNone<GetSequenceDefinitionQueryResult>(
+        return Connection.QueryFirstOrNone<GetSequenceDefinition.Result>(
             SequenceQuery,
-            new GetSequenceDefinitionQuery { SchemaName = sequenceName.Schema!, SequenceName = sequenceName.LocalName },
+            new GetSequenceDefinition.Query { SchemaName = sequenceName.Schema!, SequenceName = sequenceName.LocalName },
             cancellationToken
         ).Map<IDatabaseSequence>(dto => new DatabaseSequence(
             sequenceName,

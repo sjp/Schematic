@@ -5,8 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.PostgreSql.Query;
-using SJP.Schematic.PostgreSql.QueryResult;
+using SJP.Schematic.PostgreSql.Queries;
 
 namespace SJP.Schematic.PostgreSql.Versions.V11;
 
@@ -47,9 +46,9 @@ public class PostgreSqlRelationalDatabaseTableProvider : PostgreSqlRelationalDat
 
     private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var queryResult = await DbConnection.QueryAsync<GetTableIndexesQueryResult>(
+        var queryResult = await DbConnection.QueryAsync<GetV11TableIndexes.Result>(
             IndexesQuery,
-            new GetTableIndexesQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+            new GetV11TableIndexes.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -110,32 +109,5 @@ public class PostgreSqlRelationalDatabaseTableProvider : PostgreSqlRelationalDat
     /// A SQL query that retrieves information on indexes for a given table.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected override string IndexesQuery => IndexesQuerySql;
-
-    private const string IndexesQuerySql = @$"
-select
-    i.relname as ""{ nameof(GetTableIndexesQueryResult.IndexName) }"",
-    idx.indisunique as ""{ nameof(GetTableIndexesQueryResult.IsUnique) }"",
-    idx.indisprimary as ""{ nameof(GetTableIndexesQueryResult.IsPrimary) }"",
-    idx.indnkeyatts as ""{ nameof(GetTableIndexesQueryResult.KeyColumnCount) }"",
-    pg_catalog.generate_subscripts(idx.indkey, 1) as ""{ nameof(GetTableIndexesQueryResult.IndexColumnId) }"",
-    pg_catalog.unnest(array(
-        select pg_catalog.pg_get_indexdef(idx.indexrelid, k + 1, true)
-        from pg_catalog.generate_subscripts(idx.indkey, 1) k
-        order by k
-    )) as ""{ nameof(GetTableIndexesQueryResult.IndexColumnExpression) }"",
-    pg_catalog.unnest(array(
-        select pg_catalog.pg_index_column_has_property(idx.indexrelid, k + 1, 'desc')
-        from pg_catalog.generate_subscripts(idx.indkey, 1) k
-        order by k
-    )) as ""{ nameof(GetTableIndexesQueryResult.IsDescending) }"",
-    (idx.indexprs is not null) or (idx.indkey::int[] @> array[0]) as ""{ nameof(GetTableIndexesQueryResult.IsFunctional) }""
-from pg_catalog.pg_index idx
-    inner join pg_catalog.pg_class t on idx.indrelid = t.oid
-    inner join pg_catalog.pg_namespace ns on ns.oid = t.relnamespace
-    inner join pg_catalog.pg_class i on i.oid = idx.indexrelid
-where
-    t.relkind = 'r'
-    and t.relname = @{ nameof(GetTableIndexesQuery.TableName) }
-    and ns.nspname = @{ nameof(GetTableIndexesQuery.SchemaName) }";
+    protected override string IndexesQuery => GetV11TableIndexes.Sql;
 }

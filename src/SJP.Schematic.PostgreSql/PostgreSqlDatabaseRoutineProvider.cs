@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.PostgreSql.Query;
-using SJP.Schematic.PostgreSql.QueryResult;
+using SJP.Schematic.PostgreSql.Queries;
 
 namespace SJP.Schematic.PostgreSql;
 
@@ -57,7 +56,7 @@ public class PostgreSqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <returns>A collection of database routines.</returns>
     public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResults = await Connection.QueryAsync<GetAllRoutineNamesQueryResult>(
+        var queryResults = await Connection.QueryAsync<GetAllRoutineNames.Result>(
             RoutinesQuery,
             cancellationToken
         ).ConfigureAwait(false);
@@ -74,15 +73,7 @@ public class PostgreSqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// A SQL query that retrieves all database routine names.
     /// </summary>
     /// <value>A SQL query definition.</value>
-    protected virtual string RoutinesQuery => RoutinesQuerySql;
-
-    private const string RoutinesQuerySql = @$"
-select
-    ROUTINE_SCHEMA as ""{ nameof(GetAllRoutineNamesQueryResult.SchemaName) }"",
-    ROUTINE_NAME as ""{ nameof(GetAllRoutineNamesQueryResult.RoutineName) }""
-from information_schema.routines
-where ROUTINE_SCHEMA not in ('pg_catalog', 'information_schema')
-order by ROUTINE_SCHEMA, ROUTINE_NAME";
+    protected virtual string RoutinesQuery => GetAllRoutineNames.Sql;
 
     /// <summary>
     /// Retrieves a database routine, if available.
@@ -134,9 +125,9 @@ order by ROUTINE_SCHEMA, ROUTINE_NAME";
             throw new ArgumentNullException(nameof(routineName));
 
         var candidateRoutineName = QualifyRoutineName(routineName);
-        var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineNameQueryResult>(
+        var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineName.Result>(
             RoutineNameQuery,
-            new GetRoutineNameQuery { SchemaName = candidateRoutineName.Schema!, RoutineName = candidateRoutineName.LocalName },
+            new GetRoutineName.Query { SchemaName = candidateRoutineName.Schema!, RoutineName = candidateRoutineName.LocalName },
             cancellationToken
         );
 
@@ -147,16 +138,7 @@ order by ROUTINE_SCHEMA, ROUTINE_NAME";
     /// A SQL query that retrieves the resolved routine name.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string RoutineNameQuery => RoutineNameQuerySql;
-
-    private const string RoutineNameQuerySql = @$"
-select
-    ROUTINE_SCHEMA as ""{ nameof(GetRoutineNameQueryResult.SchemaName) }"",
-    ROUTINE_NAME as ""{ nameof(GetRoutineNameQueryResult.RoutineName) }""
-from information_schema.routines
-where ROUTINE_SCHEMA = @{ nameof(GetRoutineNameQuery.SchemaName) } and ROUTINE_NAME = @{ nameof(GetRoutineNameQuery.RoutineName) }
-    and ROUTINE_SCHEMA not in ('pg_catalog', 'information_schema')
-limit 1";
+    protected virtual string RoutineNameQuery => GetRoutineName.Sql;
 
     /// <summary>
     /// Retrieves a routine from the database, if available.
@@ -195,7 +177,7 @@ limit 1";
 
         return Connection.ExecuteScalarAsync<string>(
             DefinitionQuery,
-            new GetRoutineDefinitionQuery { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
+            new GetRoutineDefinition.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken
         );
     }
@@ -204,12 +186,7 @@ limit 1";
     /// A SQL query that retrieves the definition of a routine.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string DefinitionQuery => DefinitionQuerySql;
-
-    private const string DefinitionQuerySql = @$"
-select ROUTINE_DEFINITION
-from information_schema.routines
-where ROUTINE_SCHEMA = @{ nameof(GetRoutineDefinitionQuery.SchemaName) } and ROUTINE_NAME = @{ nameof(GetRoutineDefinitionQuery.RoutineName) }";
+    protected virtual string DefinitionQuery => GetRoutineDefinition.Sql;
 
     /// <summary>
     /// Qualifies the name of a routine, using known identifier defaults.

@@ -8,8 +8,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
-using SJP.Schematic.PostgreSql.Query;
-using SJP.Schematic.PostgreSql.QueryResult;
+using SJP.Schematic.PostgreSql.Queries;
 
 namespace SJP.Schematic.PostgreSql;
 
@@ -70,7 +69,7 @@ public class PostgreSqlDatabaseQueryViewProvider : IDatabaseViewProvider
     /// <returns>A collection of database views.</returns>
     public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResult = await DbConnection.QueryAsync<GetAllViewNamesQueryResult>(ViewsQuery, cancellationToken).ConfigureAwait(false);
+        var queryResult = await DbConnection.QueryAsync<GetAllViewNames.Result>(ViewsQuery, cancellationToken).ConfigureAwait(false);
         var viewNames = queryResult
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName);
@@ -83,13 +82,7 @@ public class PostgreSqlDatabaseQueryViewProvider : IDatabaseViewProvider
     /// A SQL query that retrieves the names of views available in the database.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ViewsQuery => ViewsQuerySql;
-
-    private const string ViewsQuerySql = @$"
-select schemaname as ""{ nameof(GetAllViewNamesQueryResult.SchemaName) }"", viewname as ""{ nameof(GetAllViewNamesQueryResult.ViewName) }""
-from pg_catalog.pg_views
-where schemaname not in ('pg_catalog', 'information_schema')
-order by schemaname, viewname";
+    protected virtual string ViewsQuery => GetAllViewNames.Sql;
 
     /// <summary>
     /// Gets a database view.
@@ -141,9 +134,9 @@ order by schemaname, viewname";
             throw new ArgumentNullException(nameof(viewName));
 
         var candidateViewName = QualifyViewName(viewName);
-        var qualifiedViewName = DbConnection.QueryFirstOrNone<GetViewNameQueryResult>(
+        var qualifiedViewName = DbConnection.QueryFirstOrNone<GetViewName.Result>(
             ViewNameQuery,
-            new GetViewNameQuery { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
+            new GetViewName.Query { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
             cancellationToken
         );
 
@@ -154,14 +147,7 @@ order by schemaname, viewname";
     /// A SQL query that retrieves the resolved name of a view in the database.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ViewNameQuery => ViewNameQuerySql;
-
-    private const string ViewNameQuerySql = @$"
-select schemaname as ""{ nameof(GetViewNameQueryResult.SchemaName) }"", viewname as ""{ nameof(GetViewNameQueryResult.ViewName) }""
-from pg_catalog.pg_views
-where schemaname = @{ nameof(GetViewNameQuery.SchemaName) } and viewname = @{ nameof(GetViewNameQuery.ViewName) }
-    and schemaname not in ('pg_catalog', 'information_schema')
-limit 1";
+    protected virtual string ViewNameQuery => GetViewName.Sql;
 
     /// <summary>
     /// Retrieves a database view, if available.
@@ -204,7 +190,7 @@ limit 1";
 
         return DbConnection.ExecuteScalarAsync<string>(
             DefinitionQuery,
-            new GetViewDefinitionQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            new GetViewDefinition.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         );
     }
@@ -213,12 +199,7 @@ limit 1";
     /// A SQL query that retrieves the definition of a view.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string DefinitionQuery => DefinitionQuerySql;
-
-    private const string DefinitionQuerySql = @$"
-select view_definition
-from information_schema.views
-where table_schema = @{ nameof(GetViewDefinitionQuery.SchemaName) } and table_name = @{ nameof(GetViewDefinitionQuery.ViewName) }";
+    protected virtual string DefinitionQuery => GetViewDefinition.Sql;
 
     /// <summary>
     /// Retrieves the columns for a given view.
@@ -237,9 +218,9 @@ where table_schema = @{ nameof(GetViewDefinitionQuery.SchemaName) } and table_na
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var query = await DbConnection.QueryAsync<GetViewColumnsQueryResult>(
+        var query = await DbConnection.QueryAsync<GetViewColumns.Result>(
             ColumnsQuery,
-            new GetViewColumnsQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            new GetViewColumns.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -277,35 +258,7 @@ where table_schema = @{ nameof(GetViewDefinitionQuery.SchemaName) } and table_na
     /// A SQL query that retrieves column definitions.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ColumnsQuery => ColumnsQuerySql;
-
-    private const string ColumnsQuerySql = @$"
-select
-    column_name as ""{ nameof(GetViewColumnsQueryResult.ColumnName) }"",
-    ordinal_position as ""{ nameof(GetViewColumnsQueryResult.OrdinalPosition) }"",
-    column_default as ""{ nameof(GetViewColumnsQueryResult.ColumnDefault) }"",
-    is_nullable as ""{ nameof(GetViewColumnsQueryResult.IsNullable) }"",
-    data_type as ""{ nameof(GetViewColumnsQueryResult.DataType) }"",
-    character_maximum_length as ""{ nameof(GetViewColumnsQueryResult.CharacterMaximumLength) }"",
-    character_octet_length as ""{ nameof(GetViewColumnsQueryResult.CharacterOctetLength) }"",
-    numeric_precision as ""{ nameof(GetViewColumnsQueryResult.NumericPrecision) }"",
-    numeric_precision_radix as ""{ nameof(GetViewColumnsQueryResult.NumericPrecisionRadix) }"",
-    numeric_scale as ""{ nameof(GetViewColumnsQueryResult.NumericScale) }"",
-    datetime_precision as ""{ nameof(GetViewColumnsQueryResult.DatetimePrecision) }"",
-    interval_type as ""{ nameof(GetViewColumnsQueryResult.IntervalType) }"",
-    collation_catalog as ""{ nameof(GetViewColumnsQueryResult.CollationCatalog) }"",
-    collation_schema as ""{ nameof(GetViewColumnsQueryResult.CollationSchema) }"",
-    collation_name as ""{ nameof(GetViewColumnsQueryResult.CollationName) }"",
-    domain_catalog as ""{ nameof(GetViewColumnsQueryResult.DomainCatalog) }"",
-    domain_schema as ""{ nameof(GetViewColumnsQueryResult.DomainSchema) }"",
-    domain_name as ""{ nameof(GetViewColumnsQueryResult.DomainName) }"",
-    udt_catalog as ""{ nameof(GetViewColumnsQueryResult.UdtCatalog) }"",
-    udt_schema as ""{ nameof(GetViewColumnsQueryResult.UdtSchema) }"",
-    udt_name as ""{ nameof(GetViewColumnsQueryResult.UdtName) }"",
-    dtd_identifier as ""{ nameof(GetViewColumnsQueryResult.DtdIdentifier) }""
-from information_schema.columns
-where table_schema = @{ nameof(GetViewColumnsQuery.SchemaName) } and table_name = @{ nameof(GetViewColumnsQuery.ViewName) }
-order by ordinal_position";
+    protected virtual string ColumnsQuery => GetViewColumns.Sql;
 
     /// <summary>
     /// Qualifies the name of the view.

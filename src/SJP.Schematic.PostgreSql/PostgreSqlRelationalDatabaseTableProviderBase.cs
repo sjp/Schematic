@@ -10,8 +10,7 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Exceptions;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
-using SJP.Schematic.PostgreSql.Query;
-using SJP.Schematic.PostgreSql.QueryResult;
+using SJP.Schematic.PostgreSql.Queries;
 
 namespace SJP.Schematic.PostgreSql;
 
@@ -90,7 +89,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     /// <returns>A collection of database tables.</returns>
     public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResults = await DbConnection.QueryAsync<GetTableNamesQueryResult>(TablesQuery, cancellationToken).ConfigureAwait(false);
+        var queryResults = await DbConnection.QueryAsync<GetAllTableNames.Result>(TablesQuery, cancellationToken).ConfigureAwait(false);
         var tableNames = queryResults
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
             .Select(QualifyTableName);
@@ -104,15 +103,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     /// A SQL query that retrieves the names of all tables in the database.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string TablesQuery => TablesQuerySql;
-
-    private const string TablesQuerySql = @$"
-select
-    schemaname as ""{ nameof(GetTableNamesQueryResult.SchemaName) }"",
-    tablename as ""{ nameof(GetTableNamesQueryResult.TableName) }""
-from pg_catalog.pg_tables
-where schemaname not in ('pg_catalog', 'information_schema')
-order by schemaname, tablename";
+    protected virtual string TablesQuery => GetAllTableNames.Sql;
 
     /// <summary>
     /// Gets a database table.
@@ -166,9 +157,9 @@ order by schemaname, tablename";
             throw new ArgumentNullException(nameof(tableName));
 
         var candidateTableName = QualifyTableName(tableName);
-        var qualifiedTableName = DbConnection.QueryFirstOrNone<GetTableNameQueryResult>(
+        var qualifiedTableName = DbConnection.QueryFirstOrNone<GetTableName.Result>(
             TableNameQuery,
-            new GetTableNameQuery { SchemaName = candidateTableName.Schema!, TableName = candidateTableName.LocalName },
+            new GetTableName.Query { SchemaName = candidateTableName.Schema!, TableName = candidateTableName.LocalName },
             cancellationToken
         );
 
@@ -179,16 +170,7 @@ order by schemaname, tablename";
     /// A SQL query definition that resolves a table name for the database.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string TableNameQuery => TableNameQuerySql;
-
-    private const string TableNameQuerySql = @$"
-select
-    schemaname as ""{ nameof(GetTableNameQueryResult.SchemaName) }"",
-    tablename as ""{ nameof(GetTableNameQueryResult.TableName) }""
-from pg_catalog.pg_tables
-where schemaname = @{ nameof(GetTableNameQuery.SchemaName) } and tablename = @{ nameof(GetTableNameQuery.TableName) }
-    and schemaname not in ('pg_catalog', 'information_schema')
-limit 1";
+    protected virtual string TableNameQuery => GetTableName.Sql;
 
     /// <summary>
     /// Retrieves a table from the database, if available.
@@ -265,9 +247,9 @@ limit 1";
 
     private async Task<Option<IDatabaseKey>> LoadPrimaryKeyAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var primaryKeyColumns = await DbConnection.QueryAsync<GetTablePrimaryQueryResult>(
+        var primaryKeyColumns = await DbConnection.QueryAsync<GetTablePrimaryKey.Result>(
             PrimaryKeyQuery,
-            new GetTablePrimaryKeyQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+            new GetTablePrimaryKey.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -299,20 +281,7 @@ limit 1";
     /// A SQL query that retrieves information on any primary key defined for a given table.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string PrimaryKeyQuery => PrimaryKeyQuerySql;
-
-    private const string PrimaryKeyQuerySql = @$"
-select
-    kc.constraint_name as ""{ nameof(GetTablePrimaryQueryResult.ConstraintName) }"",
-    kc.column_name as ""{ nameof(GetTablePrimaryQueryResult.ColumnName) }"",
-    kc.ordinal_position as ""{ nameof(GetTablePrimaryQueryResult.OrdinalPosition) }""
-from information_schema.table_constraints tc
-inner join information_schema.key_column_usage kc
-    on tc.constraint_catalog = kc.constraint_catalog
-    and tc.constraint_schema = kc.constraint_schema
-    and tc.constraint_name = kc.constraint_name
-where tc.table_schema = @{ nameof(GetTablePrimaryKeyQuery.SchemaName) } and tc.table_name = @{ nameof(GetTablePrimaryKeyQuery.TableName) }
-    and tc.constraint_type = 'PRIMARY KEY'";
+    protected virtual string PrimaryKeyQuery => GetTablePrimaryKey.Sql;
 
     /// <summary>
     /// Retrieves indexes that relate to the given table.
@@ -334,9 +303,9 @@ where tc.table_schema = @{ nameof(GetTablePrimaryKeyQuery.SchemaName) } and tc.t
 
     private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var queryResult = await DbConnection.QueryAsync<GetTableIndexesQueryResult>(
+        var queryResult = await DbConnection.QueryAsync<GetTableIndexes.Result>(
             IndexesQuery,
-            new GetTableIndexesQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+            new GetTableIndexes.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -390,33 +359,7 @@ where tc.table_schema = @{ nameof(GetTablePrimaryKeyQuery.SchemaName) } and tc.t
     /// A SQL query that retrieves information on indexes for a given table.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string IndexesQuery => IndexesQuerySql;
-
-    private const string IndexesQuerySql = @$"
-select
-    i.relname as ""{ nameof(GetTableIndexesQueryResult.IndexName) }"",
-    idx.indisunique as ""{ nameof(GetTableIndexesQueryResult.IsUnique) }"",
-    idx.indisprimary as ""{ nameof(GetTableIndexesQueryResult.IsPrimary) }"",
-    pg_catalog.generate_subscripts(idx.indkey, 1) as ""{ nameof(GetTableIndexesQueryResult.IndexColumnId) }"",
-    pg_catalog.unnest(array(
-        select pg_catalog.pg_get_indexdef(idx.indexrelid, k + 1, true)
-        from pg_catalog.generate_subscripts(idx.indkey, 1) k
-        order by k
-    )) as ""{ nameof(GetTableIndexesQueryResult.IndexColumnExpression) }"",
-    pg_catalog.unnest(array(
-        select pg_catalog.pg_index_column_has_property(idx.indexrelid, k + 1, 'desc')
-        from pg_catalog.generate_subscripts(idx.indkey, 1) k
-        order by k
-    )) as ""{ nameof(GetTableIndexesQueryResult.IsDescending) }"",
-    (idx.indexprs is not null) or (idx.indkey::int[] @> array[0]) as ""{ nameof(GetTableIndexesQueryResult.IsFunctional) }""
-from pg_catalog.pg_index idx
-    inner join pg_catalog.pg_class t on idx.indrelid = t.oid
-    inner join pg_catalog.pg_namespace ns on ns.oid = t.relnamespace
-    inner join pg_catalog.pg_class i on i.oid = idx.indexrelid
-where
-    t.relkind = 'r'
-    and t.relname = @{ nameof(GetTableIndexesQuery.TableName) }
-    and ns.nspname = @{ nameof(GetTableIndexesQuery.SchemaName) }";
+    protected virtual string IndexesQuery => GetTableIndexes.Sql;
 
     /// <summary>
     /// Retrieves unique keys that relate to the given table.
@@ -438,9 +381,9 @@ where
 
     private async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var uniqueKeyColumns = await DbConnection.QueryAsync<GetTableUniqueKeysQueryResult>(
+        var uniqueKeyColumns = await DbConnection.QueryAsync<GetTableUniqueKeys.Result>(
             UniqueKeysQuery,
-            new GetTableUniqueKeysQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+            new GetTableUniqueKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -478,20 +421,7 @@ where
     /// A SQL query that returns unique key information for a particular table.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string UniqueKeysQuery => UniqueKeysQuerySql;
-
-    private const string UniqueKeysQuerySql = @$"
-select
-    kc.constraint_name as ""{ nameof(GetTableUniqueKeysQueryResult.ConstraintName) }"",
-    kc.column_name as ""{ nameof(GetTableUniqueKeysQueryResult.ColumnName) }"",
-    kc.ordinal_position as ""{ nameof(GetTableUniqueKeysQueryResult.OrdinalPosition) }""
-from information_schema.table_constraints tc
-inner join information_schema.key_column_usage kc
-    on tc.constraint_catalog = kc.constraint_catalog
-    and tc.constraint_schema = kc.constraint_schema
-    and tc.constraint_name = kc.constraint_name
-where tc.table_schema = @{ nameof(GetTableUniqueKeysQuery.SchemaName) } and tc.table_name = @{ nameof(GetTableUniqueKeysQuery.TableName) }
-    and tc.constraint_type = 'UNIQUE'";
+    protected virtual string UniqueKeysQuery => GetTableUniqueKeys.Sql;
 
     /// <summary>
     /// Retrieves child keys that relate to the given table.
@@ -513,9 +443,9 @@ where tc.table_schema = @{ nameof(GetTableUniqueKeysQuery.SchemaName) } and tc.t
 
     private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var queryResult = await DbConnection.QueryAsync<GetTableChildKeysQueryResult>(
+        var queryResult = await DbConnection.QueryAsync<GetTableChildKeys.Result>(
             ChildKeysQuery,
-            new GetTableChildKeysQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+            new GetTableChildKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -583,37 +513,7 @@ where tc.table_schema = @{ nameof(GetTableUniqueKeysQuery.SchemaName) } and tc.t
     /// A SQL query that retrieves information on child keys for a given table.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ChildKeysQuery => ChildKeysQuerySql;
-
-    private const string ChildKeysQuerySql = @$"
-select
-    ns.nspname as ""{ nameof(GetTableChildKeysQueryResult.ChildTableSchema) }"",
-    t.relname as ""{ nameof(GetTableChildKeysQueryResult.ChildTableName) }"",
-    c.conname as ""{ nameof(GetTableChildKeysQueryResult.ChildKeyName) }"",
-    pkc.contype as ""{ nameof(GetTableChildKeysQueryResult.ParentKeyType) }"",
-    pkc.conname as ""{ nameof(GetTableChildKeysQueryResult.ParentKeyName) }"",
-    c.confupdtype as ""{ nameof(GetTableChildKeysQueryResult.UpdateAction) }"",
-    c.confdeltype as ""{ nameof(GetTableChildKeysQueryResult.DeleteAction) }""
-from pg_catalog.pg_namespace ns
-inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
-inner join pg_catalog.pg_constraint c on c.conrelid = t.oid and c.contype = 'f'
-inner join pg_catalog.pg_class pt on pt.oid = c.confrelid
-inner join pg_catalog.pg_namespace pns on pns.oid = pt.relnamespace
-left join pg_catalog.pg_depend d1  -- find constraint's dependency on an index
-    on d1.objid = c.oid
-    and d1.classid = 'pg_constraint'::regclass
-    and d1.refclassid = 'pg_class'::regclass
-    and d1.refobjsubid = 0
-left join pg_catalog.pg_depend d2  -- find pkey/unique constraint for that index
-    on d2.refclassid = 'pg_constraint'::regclass
-    and d2.classid = 'pg_class'::regclass
-    and d2.objid = d1.refobjid
-    and d2.objsubid = 0
-    and d2.deptype = 'i'
-left join pg_catalog.pg_constraint pkc on pkc.oid = d2.refobjid
-    and pkc.contype in ('p', 'u')
-    and pkc.conrelid = c.confrelid
-where pt.relname = @{ nameof(GetTableChildKeysQuery.TableName) } and pns.nspname = @{ nameof(GetTableChildKeysQuery.SchemaName) }";
+    protected virtual string ChildKeysQuery => GetTableChildKeys.Sql;
 
     /// <summary>
     /// Retrieves check constraints defined on a given table.
@@ -623,9 +523,9 @@ where pt.relname = @{ nameof(GetTableChildKeysQuery.TableName) } and pns.nspname
     /// <returns>A collection of check constraints.</returns>
     protected virtual async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, CancellationToken cancellationToken)
     {
-        var checks = await DbConnection.QueryAsync<GetTableChecksQueryResult>(
+        var checks = await DbConnection.QueryAsync<GetTableChecks.Result>(
             ChecksQuery,
-            new GetTableChecksQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+            new GetTableChecks.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -653,19 +553,7 @@ where pt.relname = @{ nameof(GetTableChildKeysQuery.TableName) } and pns.nspname
     /// A SQL query that retrieves check constraint information for a table.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ChecksQuery => ChecksQuerySql;
-
-    private const string ChecksQuerySql = @$"
-select
-    c.conname as ""{ nameof(GetTableChecksQueryResult.ConstraintName) }"",
-    c.consrc as ""{ nameof(GetTableChecksQueryResult.Definition) }""
-from pg_catalog.pg_namespace ns
-inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
-inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
-where
-    c.contype = 'c'
-    and t.relname = @{ nameof(GetTableChecksQuery.TableName) }
-    and ns.nspname = @{ nameof(GetTableChecksQuery.SchemaName) }";
+    protected virtual string ChecksQuery => GetTableChecks.Sql;
 
     /// <summary>
     /// Retrieves foreign keys that relate to the given table.
@@ -687,9 +575,9 @@ where
 
     private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var queryResult = await DbConnection.QueryAsync<GetTableParentKeysQueryResult>(
+        var queryResult = await DbConnection.QueryAsync<GetTableParentKeys.Result>(
             ParentKeysQuery,
-            new GetTableParentKeysQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+            new GetTableParentKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -766,41 +654,7 @@ where
     /// A SQL query that retrieves information about foreign keys.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ParentKeysQuery => ParentKeysQuerySql;
-
-    private const string ParentKeysQuerySql = @$"
-select
-    c.conname as ""{ nameof(GetTableParentKeysQueryResult.ChildKeyName) }"",
-    tc.attname as ""{ nameof(GetTableParentKeysQueryResult.ColumnName) }"",
-    child_cols.con_index as ""{ nameof(GetTableParentKeysQueryResult.ConstraintColumnId) }"",
-    pns.nspname as ""{ nameof(GetTableParentKeysQueryResult.ParentSchemaName) }"",
-    pt.relname as ""{ nameof(GetTableParentKeysQueryResult.ParentTableName) }"",
-    pkc.contype as ""{ nameof(GetTableParentKeysQueryResult.ParentKeyType) }"",
-    pkc.conname as ""{ nameof(GetTableParentKeysQueryResult.ParentKeyName) }"",
-    c.confupdtype as ""{ nameof(GetTableParentKeysQueryResult.UpdateAction) }"",
-    c.confdeltype as ""{ nameof(GetTableParentKeysQueryResult.DeleteAction) }""
-from pg_catalog.pg_namespace ns
-inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
-inner join pg_catalog.pg_constraint c on c.conrelid = t.oid and c.contype = 'f'
-inner join pg_catalog.pg_attribute tc on tc.attrelid = t.oid and tc.attnum = any(c.conkey)
-inner join pg_catalog.unnest(c.conkey) with ordinality as child_cols(col_index, con_index) on child_cols.col_index = tc.attnum
-inner join pg_catalog.pg_class pt on pt.oid = c.confrelid
-inner join pg_catalog.pg_namespace pns on pns.oid = pt.relnamespace
-left join pg_catalog.pg_depend d1  -- find constraint's dependency on an index
-    on d1.objid = c.oid
-    and d1.classid = 'pg_constraint'::regclass
-    and d1.refclassid = 'pg_class'::regclass
-    and d1.refobjsubid = 0
-left join pg_catalog.pg_depend d2  -- find pkey/unique constraint for that index
-    on d2.refclassid = 'pg_constraint'::regclass
-    and d2.classid = 'pg_class'::regclass
-    and d2.objid = d1.refobjid
-    and d2.objsubid = 0
-    and d2.deptype = 'i'
-left join pg_catalog.pg_constraint pkc on pkc.oid = d2.refobjid
-    and pkc.contype in ('p', 'u')
-    and pkc.conrelid = c.confrelid
-where t.relname = @{ nameof(GetTableParentKeysQuery.TableName) } and ns.nspname = @{ nameof(GetTableParentKeysQuery.SchemaName) }";
+    protected virtual string ParentKeysQuery => GetTableParentKeys.Sql;
 
     /// <summary>
     /// Retrieves the columns for a given table.
@@ -819,9 +673,9 @@ where t.relname = @{ nameof(GetTableParentKeysQuery.TableName) } and ns.nspname 
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
-        var query = await DbConnection.QueryAsync<GetTableColumnsQueryResult>(
+        var query = await DbConnection.QueryAsync<GetTableColumns.Result>(
             ColumnsQuery,
-            new GetTableColumnsQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+            new GetTableColumns.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -873,47 +727,7 @@ where t.relname = @{ nameof(GetTableParentKeysQuery.TableName) } and ns.nspname 
     /// A SQL query that retrieves column definitions.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ColumnsQuery => ColumnsQuerySql;
-
-    // a little bit convoluted due to the quote_ident() being required.
-    // when missing, case folding will occur (we should have guaranteed that this is already done)
-    // additionally the default behaviour misses the schema which may be necessary
-    private const string ColumnsQuerySql = @$"
-select
-    column_name as ""{ nameof(GetTableColumnsQueryResult.ColumnName) }"",
-    ordinal_position as ""{ nameof(GetTableColumnsQueryResult.OrdinalPosition) }"",
-    column_default as ""{ nameof(GetTableColumnsQueryResult.ColumnDefault) }"",
-    is_nullable as ""{ nameof(GetTableColumnsQueryResult.IsNullable) }"",
-    data_type as ""{ nameof(GetTableColumnsQueryResult.DataType) }"",
-    character_maximum_length as ""{ nameof(GetTableColumnsQueryResult.CharacterMaximumLength) }"",
-    character_octet_length as ""{ nameof(GetTableColumnsQueryResult.CharacterOctetLength) }"",
-    numeric_precision as ""{ nameof(GetTableColumnsQueryResult.NumericPrecision) }"",
-    numeric_precision_radix as ""{ nameof(GetTableColumnsQueryResult.NumericPrecisionRadix) }"",
-    numeric_scale as ""{ nameof(GetTableColumnsQueryResult.NumericScale) }"",
-    datetime_precision as ""{ nameof(GetTableColumnsQueryResult.DatetimePrecision) }"",
-    interval_type as ""{ nameof(GetTableColumnsQueryResult.IntervalType) }"",
-    collation_catalog as ""{ nameof(GetTableColumnsQueryResult.CollationCatalog) }"",
-    collation_schema as ""{ nameof(GetTableColumnsQueryResult.CollationSchema) }"",
-    collation_name as ""{ nameof(GetTableColumnsQueryResult.CollationName) }"",
-    domain_catalog as ""{ nameof(GetTableColumnsQueryResult.DomainCatalog) }"",
-    domain_schema as ""{ nameof(GetTableColumnsQueryResult.DomainSchema) }"",
-    domain_name as ""{ nameof(GetTableColumnsQueryResult.DomainName) }"",
-    udt_catalog as ""{ nameof(GetTableColumnsQueryResult.UdtCatalog) }"",
-    udt_schema as ""{ nameof(GetTableColumnsQueryResult.UdtSchema) }"",
-    udt_name as ""{ nameof(GetTableColumnsQueryResult.UdtName) }"",
-    dtd_identifier as ""{ nameof(GetTableColumnsQueryResult.DtdIdentifier) }"",
-    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[1] as ""{ nameof(GetTableColumnsQueryResult.SerialSequenceSchemaName) }"",
-    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[2] as ""{ nameof(GetTableColumnsQueryResult.SerialSequenceLocalName) }"",
-    is_identity as ""{ nameof(GetTableColumnsQueryResult.IsIdentity) }"",
-    identity_generation as ""{ nameof(GetTableColumnsQueryResult.IdentityGeneration) }"",
-    identity_start as ""{ nameof(GetTableColumnsQueryResult.IdentityStart) }"",
-    identity_increment as ""{ nameof(GetTableColumnsQueryResult.IdentityIncrement) }"",
-    identity_maximum as ""{ nameof(GetTableColumnsQueryResult.IdentityMaximum) }"",
-    identity_minimum as ""{ nameof(GetTableColumnsQueryResult.IdentityMinimum) }"",
-    identity_cycle as ""{ nameof(GetTableColumnsQueryResult.IdentityCycle) }""
-from information_schema.columns
-where table_schema = @{ nameof(GetTableColumnsQuery.SchemaName) }  and table_name = @{ nameof(GetTableColumnsQuery.TableName) }
-order by ordinal_position";
+    protected virtual string ColumnsQuery => GetTableColumns.Sql;
 
     /// <summary>
     /// Retrieves all triggers defined on a table.
@@ -932,9 +746,9 @@ order by ordinal_position";
 
     private async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
-        var queryResult = await DbConnection.QueryAsync<GetTableTriggersQueryResult>(
+        var queryResult = await DbConnection.QueryAsync<GetTableTriggers.Result>(
             TriggersQuery,
-            new GetTableTriggersQuery { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+            new GetTableTriggers.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -983,22 +797,7 @@ order by ordinal_position";
     /// A SQL query that retrieves information about any triggers on the table.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string TriggersQuery => TriggersQuerySql;
-
-    private const string TriggersQuerySql = @$"
-select
-    tr.tgname as ""{ nameof(GetTableTriggersQueryResult.TriggerName) }"",
-    tgenabled as ""{ nameof(GetTableTriggersQueryResult.EnabledFlag) }"",
-    itr.action_statement as ""{ nameof(GetTableTriggersQueryResult.Definition) }"",
-    itr.action_timing as ""{ nameof(GetTableTriggersQueryResult.Timing) }"",
-    itr.event_manipulation as ""{ nameof(GetTableTriggersQueryResult.TriggerEvent) }""
-from pg_catalog.pg_class t
-inner join pg_catalog.pg_namespace ns on ns.oid = t.relnamespace
-inner join pg_catalog.pg_trigger tr on t.oid = tr.tgrelid
-inner join information_schema.triggers itr on ns.nspname = itr.event_object_schema and itr.event_object_table = t.relname and itr.trigger_name = tr.tgname
-where t.relkind = 'r'
-    and t.relname = @{ nameof(GetTableTriggersQuery.TableName) }
-    and ns.nspname = @{ nameof(GetTableTriggersQuery.SchemaName) }";
+    protected virtual string TriggersQuery => GetTableTriggers.Sql;
 
     /// <summary>
     /// Creates a column lookup, keyed by the column's name.

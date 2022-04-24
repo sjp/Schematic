@@ -8,8 +8,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.PostgreSql.Query;
-using SJP.Schematic.PostgreSql.QueryResult;
+using SJP.Schematic.PostgreSql.Queries;
 
 namespace SJP.Schematic.PostgreSql.Comments;
 
@@ -58,7 +57,7 @@ public class PostgreSqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
     /// <returns>A collection of database routine comments, where available.</returns>
     public async IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResult = await Connection.QueryAsync<GetAllRoutineNamesQueryResult>(RoutinesQuery, cancellationToken).ConfigureAwait(false);
+        var queryResult = await Connection.QueryAsync<GetAllRoutineNames.Result>(RoutinesQuery, cancellationToken).ConfigureAwait(false);
         var routineNames = queryResult
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName);
@@ -101,9 +100,9 @@ public class PostgreSqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
             throw new ArgumentNullException(nameof(routineName));
 
         var candidateRoutineName = QualifyRoutineName(routineName);
-        var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineNameQueryResult>(
+        var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineName.Result>(
             RoutineNameQuery,
-            new GetRoutineNameQuery { SchemaName = candidateRoutineName.Schema!, RoutineName = candidateRoutineName.LocalName },
+            new GetRoutineName.Query { SchemaName = candidateRoutineName.Schema!, RoutineName = candidateRoutineName.LocalName },
             cancellationToken
         );
 
@@ -114,16 +113,7 @@ public class PostgreSqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
     /// Gets a query that retrieves a resolved routine name.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string RoutineNameQuery => RoutineNameQuerySql;
-
-    private const string RoutineNameQuerySql = @$"
-select
-    ROUTINE_SCHEMA as ""{ nameof(GetRoutineNameQueryResult.SchemaName) }"",
-    ROUTINE_NAME as ""{ nameof(GetRoutineNameQueryResult.RoutineName) }""
-from information_schema.routines
-where ROUTINE_SCHEMA = @{ nameof(GetRoutineNameQuery.SchemaName) } and ROUTINE_NAME = @{ nameof(GetRoutineNameQuery.RoutineName) }
-    and ROUTINE_SCHEMA not in ('pg_catalog', 'information_schema')
-limit 1";
+    protected virtual string RoutineNameQuery => GetRoutineName.Sql;
 
     /// <summary>
     /// Retrieves comments for a database routine, if available.
@@ -160,9 +150,9 @@ limit 1";
 
     private async Task<IDatabaseRoutineComments> LoadRoutineCommentsAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
-        var commentOption = Connection.QueryFirstOrNone<GetRoutineCommentsQueryResult>(
+        var commentOption = Connection.QueryFirstOrNone<GetRoutineComments.Result>(
             RoutineCommentsQuery,
-            new GetRoutineCommentsQuery { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
+            new GetRoutineComments.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken
         ).Bind(c =>
             !c.Comment.IsNullOrWhiteSpace()
@@ -177,31 +167,13 @@ limit 1";
     /// A SQL query that retrieves all database routine names.
     /// </summary>
     /// <value>A SQL query definition.</value>
-    protected virtual string RoutinesQuery => RoutinesQuerySql;
-
-    private const string RoutinesQuerySql = @$"
-select
-    ROUTINE_SCHEMA as ""{ nameof(GetAllRoutineNamesQueryResult.SchemaName) }"",
-    ROUTINE_NAME as ""{ nameof(GetAllRoutineNamesQueryResult.RoutineName) }""
-from information_schema.routines
-where ROUTINE_SCHEMA not in ('pg_catalog', 'information_schema')
-order by ROUTINE_SCHEMA, ROUTINE_NAME";
+    protected virtual string RoutinesQuery => GetAllRoutineNames.Sql;
 
     /// <summary>
     /// Gets a query that retrieves comments for a single routine.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string RoutineCommentsQuery => RoutineCommentsQuerySql;
-
-    private const string RoutineCommentsQuerySql = @$"
-select
-    d.description as ""{ nameof(GetRoutineCommentsQueryResult.Comment) }""
-from pg_catalog.pg_proc p
-inner join pg_namespace n on n.oid = p.pronamespace
-left join pg_catalog.pg_description d on p.oid = d.objoid
-where n.nspname = @{ nameof(GetRoutineCommentsQuery.SchemaName) } and p.proname = @{ nameof(GetRoutineCommentsQuery.RoutineName) }
-    and n.nspname not in ('pg_catalog', 'information_schema')
-";
+    protected virtual string RoutineCommentsQuery => Queries.GetRoutineComments.Sql;
 
     /// <summary>
     /// Qualifies the name of a routine, using known identifier defaults.

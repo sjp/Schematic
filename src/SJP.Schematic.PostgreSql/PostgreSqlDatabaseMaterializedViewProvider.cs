@@ -8,8 +8,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
-using SJP.Schematic.PostgreSql.Query;
-using SJP.Schematic.PostgreSql.QueryResult;
+using SJP.Schematic.PostgreSql.Queries;
 
 namespace SJP.Schematic.PostgreSql;
 
@@ -70,7 +69,7 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
     /// <returns>A collection of materialized views.</returns>
     public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResult = await DbConnection.QueryAsync<GetAllMaterializedViewNamesQueryResult>(ViewsQuery, cancellationToken).ConfigureAwait(false);
+        var queryResult = await DbConnection.QueryAsync<GetAllMaterializedViewNames.Result>(ViewsQuery, cancellationToken).ConfigureAwait(false);
         var viewNames = queryResult
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName);
@@ -83,14 +82,7 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
     /// A SQL query that retrieves the names of materialized views available in the database.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ViewsQuery => ViewsQuerySql;
-
-    private const string ViewsQuerySql = @$"
-select schemaname as ""{ nameof(GetAllMaterializedViewNamesQueryResult.SchemaName) }"", matviewname as ""{ nameof(GetAllMaterializedViewNamesQueryResult.ViewName) }""
-from pg_catalog.pg_matviews
-where schemaname not in ('pg_catalog', 'information_schema')
-order by schemaname, matviewname
-";
+    protected virtual string ViewsQuery => GetAllMaterializedViewNames.Sql;
 
     /// <summary>
     /// Gets a materialized view.
@@ -142,9 +134,9 @@ order by schemaname, matviewname
             throw new ArgumentNullException(nameof(viewName));
 
         var candidateViewName = QualifyViewName(viewName);
-        var qualifiedViewName = DbConnection.QueryFirstOrNone<GetMaterializedViewNameQueryResult>(
+        var qualifiedViewName = DbConnection.QueryFirstOrNone<GetMaterializedViewName.Result>(
             ViewNameQuery,
-            new GetMaterializedViewNameQuery { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
+            new GetMaterializedViewName.Query { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
             cancellationToken
         );
 
@@ -155,14 +147,7 @@ order by schemaname, matviewname
     /// A SQL query that retrieves the resolved name of a materialized view in the database.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ViewNameQuery => ViewNameQuerySql;
-
-    private const string ViewNameQuerySql = @$"
-select schemaname as ""{ nameof(GetMaterializedViewNameQueryResult.SchemaName) }"", matviewname as ""{ nameof(GetMaterializedViewNameQueryResult.ViewName) }""
-from pg_catalog.pg_matviews
-where schemaname = @{ nameof(GetMaterializedViewNameQuery.SchemaName) } and matviewname = @{ nameof(GetMaterializedViewNameQuery.ViewName) }
-    and schemaname not in ('pg_catalog', 'information_schema')
-limit 1";
+    protected virtual string ViewNameQuery => GetMaterializedViewName.Sql;
 
     /// <summary>
     /// Retrieves a database view, if available.
@@ -205,7 +190,7 @@ limit 1";
 
         return DbConnection.ExecuteScalarAsync<string>(
             DefinitionQuery,
-            new GetMaterializedViewDefinitionQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            new GetMaterializedViewDefinition.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         );
     }
@@ -214,12 +199,7 @@ limit 1";
     /// A SQL query that retrieves the definition of a materialized view.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string DefinitionQuery => DefinitionQuerySql;
-
-    private const string DefinitionQuerySql = @$"
-select definition
-from pg_catalog.pg_matviews
-where schemaname = @{ nameof(GetMaterializedViewDefinitionQuery.SchemaName) } and matviewname = @{ nameof(GetMaterializedViewDefinitionQuery.ViewName) }";
+    protected virtual string DefinitionQuery => GetMaterializedViewDefinition.Sql;
 
     /// <summary>
     /// Retrieves the columns for a given materialized view.
@@ -238,9 +218,9 @@ where schemaname = @{ nameof(GetMaterializedViewDefinitionQuery.SchemaName) } an
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var query = await DbConnection.QueryAsync<GetMaterializedViewColumnsQueryResult>(
+        var query = await DbConnection.QueryAsync<GetMaterializedViewColumns.Result>(
             ColumnsQuery,
-            new GetMaterializedViewColumnsQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            new GetMaterializedViewColumns.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -278,84 +258,7 @@ where schemaname = @{ nameof(GetMaterializedViewDefinitionQuery.SchemaName) } an
     /// A SQL query that retrieves column definitions.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ColumnsQuery => ColumnsQuerySql;
-
-    // taken largely from information_schema.sql for postgres (but modified to work with matviews)
-    private const string ColumnsQuerySql = @$"
-SELECT
-    a.attname AS ""{ nameof(GetMaterializedViewColumnsQueryResult.ColumnName) }"",
-    a.attnum AS ""{ nameof(GetMaterializedViewColumnsQueryResult.OrdinalPosition) }"",
-    pg_catalog.pg_get_expr(ad.adbin, ad.adrelid) AS ""{ nameof(GetMaterializedViewColumnsQueryResult.ColumnDefault) }"",
-    CASE WHEN a.attnotnull OR (t.typtype = 'd' AND t.typnotnull) THEN 'NO' ELSE 'YES' END
-        AS ""{ nameof(GetMaterializedViewColumnsQueryResult.IsNullable) }"",
-
-    CASE WHEN t.typtype = 'd' THEN
-    CASE WHEN bt.typelem <> 0 AND bt.typlen = -1 THEN 'ARRAY'
-        WHEN nbt.nspname = 'pg_catalog' THEN format_type(t.typbasetype, null)
-        ELSE 'USER-DEFINED' END
-    ELSE
-    CASE WHEN t.typelem <> 0 AND t.typlen = -1 THEN 'ARRAY'
-        WHEN nt.nspname = 'pg_catalog' THEN format_type(a.atttypid, null)
-        ELSE 'USER-DEFINED' END
-    END
-    AS ""{ nameof(GetMaterializedViewColumnsQueryResult.DataType) }"",
-
-    " + PgCharMaxLength + @$"
-    AS ""{ nameof(GetMaterializedViewColumnsQueryResult.CharacterMaximumLength) }"",
-
-    " + PgCharOctetLength + @$"
-    AS ""{ nameof(GetMaterializedViewColumnsQueryResult.CharacterOctetLength) }"",
-
-    " + PgNumericPrecision + @$"
-    AS ""{ nameof(GetMaterializedViewColumnsQueryResult.NumericPrecision) }"",
-
-    " + PgNumericPrecisionRadix + @$"
-    AS ""{ nameof(GetMaterializedViewColumnsQueryResult.NumericPrecisionRadix) }"",
-
-    " + PgNumericScale + @$"
-    AS ""{ nameof(GetMaterializedViewColumnsQueryResult.NumericScale) }"",
-
-    " + PgDatetimePrecision + @$"
-    AS ""{ nameof(GetMaterializedViewColumnsQueryResult.DatetimePrecision) }"",
-
-    " + PgIntervalType + @$"
-    AS ""{ nameof(GetMaterializedViewColumnsQueryResult.IntervalType) }"",
-
-    CASE WHEN nco.nspname IS NOT NULL THEN current_database() END AS ""{ nameof(GetMaterializedViewColumnsQueryResult.CollationCatalog) }"",
-    nco.nspname AS ""{ nameof(GetMaterializedViewColumnsQueryResult.CollationSchema) }"",
-    co.collname AS ""{ nameof(GetMaterializedViewColumnsQueryResult.CollationName) }"",
-
-    CASE WHEN t.typtype = 'd' THEN current_database() ELSE null END
-        AS ""{ nameof(GetMaterializedViewColumnsQueryResult.DomainCatalog) }"",
-    CASE WHEN t.typtype = 'd' THEN nt.nspname ELSE null END
-        AS ""{ nameof(GetMaterializedViewColumnsQueryResult.DomainSchema) }"",
-    CASE WHEN t.typtype = 'd' THEN t.typname ELSE null END
-        AS ""{ nameof(GetMaterializedViewColumnsQueryResult.DomainName) }"",
-
-    current_database() AS ""{ nameof(GetMaterializedViewColumnsQueryResult.UdtCatalog) }"",
-    coalesce(nbt.nspname, nt.nspname) AS ""{ nameof(GetMaterializedViewColumnsQueryResult.UdtSchema) }"",
-    coalesce(bt.typname, t.typname) AS ""{ nameof(GetMaterializedViewColumnsQueryResult.UdtName) }"",
-
-    a.attnum AS ""{ nameof(GetMaterializedViewColumnsQueryResult.DtdIdentifier) }""
-
-FROM (pg_catalog.pg_attribute a LEFT JOIN pg_catalog.pg_attrdef ad ON attrelid = adrelid AND attnum = adnum)
-    JOIN (pg_catalog.pg_class c JOIN pg_catalog.pg_namespace nc ON (c.relnamespace = nc.oid)) ON a.attrelid = c.oid
-    JOIN (pg_catalog.pg_type t JOIN pg_catalog.pg_namespace nt ON (t.typnamespace = nt.oid)) ON a.atttypid = t.oid
-    LEFT JOIN (pg_catalog.pg_type bt JOIN pg_catalog.pg_namespace nbt ON (bt.typnamespace = nbt.oid))
-    ON (t.typtype = 'd' AND t.typbasetype = bt.oid)
-    LEFT JOIN (pg_catalog.pg_collation co JOIN pg_catalog.pg_namespace nco ON (co.collnamespace = nco.oid))
-    ON a.attcollation = co.oid AND (nco.nspname, co.collname) <> ('pg_catalog', 'default')
-
-WHERE (NOT pg_catalog.pg_is_other_temp_schema(nc.oid))
-
-        AND a.attnum > 0 AND NOT a.attisdropped
-        AND c.relkind = 'm' -- m = matview
-
-        AND (pg_catalog.pg_has_role(c.relowner, 'USAGE')
-            OR has_column_privilege(c.oid, a.attnum,
-                                    'SELECT, INSERT, UPDATE, REFERENCES'))
-        AND nc.nspname = @{ nameof(GetMaterializedViewColumnsQuery.SchemaName) } and c.relname = @{ nameof(GetMaterializedViewColumnsQuery.ViewName) }
-ORDER BY a.attnum -- ordinal_position";
+    protected virtual string ColumnsQuery => GetMaterializedViewColumns.Sql;
 
     /// <summary>
     /// Qualifies the name of the view.
@@ -371,75 +274,6 @@ ORDER BY a.attnum -- ordinal_position";
         var schema = viewName.Schema ?? IdentifierDefaults.Schema;
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, viewName.LocalName);
     }
-
-    // In order to cleanly build up an equivalent of information_schema.columns view
-    // we also need to have some functions available. However, because we do not want
-    // to modify any existing schema, we will build up this query via string replacement.
-    // Normally this is unsafe, but we will have *no user input* for the query, and any
-    // parameters are already parameterised
-
-    private const string PgTrueTypId = "CASE WHEN t.typtype = 'd' THEN t.typbasetype ELSE a.atttypid END";
-    private const string PgTrueTypMod = "CASE WHEN t.typtype = 'd' THEN t.typtypmod ELSE a.atttypmod END";
-
-    private const string PgCharMaxLength = "CASE WHEN " + PgTrueTypMod + @" = -1 /* default typmod */
-       THEN null
-       WHEN " + PgTrueTypId + @" IN (1042, 1043) /* char, varchar */
-       THEN " + PgTrueTypMod + @" - 4
-       WHEN " + PgTrueTypId + @" IN (1560, 1562) /* bit, varbit */
-       THEN " + PgTrueTypMod + @"
-       ELSE null
-  END";
-
-    private const string PgCharOctetLength = "CASE WHEN " + PgTrueTypId + @" IN (25, 1042, 1043) /* text, char, varchar */
-       THEN CASE WHEN " + PgTrueTypMod + @" = -1 /* default typmod */
-                 THEN CAST(2^30 AS integer)
-                 ELSE " + PgCharMaxLength + @" *
-                      pg_catalog.pg_encoding_max_length((SELECT encoding FROM pg_catalog.pg_database WHERE datname = pg_catalog.current_database()))
-            END
-       ELSE null
-  END";
-
-    private const string PgNumericPrecision = "CASE " + PgTrueTypId + @"
-         WHEN 21 /*int2*/ THEN 16
-         WHEN 23 /*int4*/ THEN 32
-         WHEN 20 /*int8*/ THEN 64
-         WHEN 1700 /*numeric*/ THEN
-              CASE WHEN " + PgTrueTypMod + @" = -1
-                   THEN null
-                   ELSE ((" + PgTrueTypMod + @" - 4) >> 16) & 65535
-                   END
-         WHEN 700 /*float4*/ THEN 24 /*FLT_MANT_DIG*/
-         WHEN 701 /*float8*/ THEN 53 /*DBL_MANT_DIG*/
-         ELSE null
-  END";
-
-    private const string PgNumericPrecisionRadix = "CASE WHEN " + PgTrueTypId + @" IN (21, 23, 20, 700, 701) THEN 2
-       WHEN " + PgTrueTypId + @" IN (1700) THEN 10
-       ELSE null
-  END";
-
-    private const string PgNumericScale = "CASE WHEN " + PgTrueTypId + @" IN (21, 23, 20) THEN 0
-       WHEN " + PgTrueTypId + @" IN (1700) THEN
-            CASE WHEN " + PgTrueTypMod + @" = -1
-                 THEN null
-                 ELSE (" + PgTrueTypMod + @" - 4) & 65535
-                 END
-       ELSE null
-  END";
-
-    private const string PgDatetimePrecision = "CASE WHEN " + PgTrueTypId + @" IN (1082) /* date */
-           THEN 0
-       WHEN " + PgTrueTypId + @" IN (1083, 1114, 1184, 1266) /* time, timestamp, same + tz */
-           THEN CASE WHEN " + PgTrueTypMod + " < 0 THEN 6 ELSE " + PgTrueTypMod + @" END
-       WHEN " + PgTrueTypId + @" IN (1186) /* interval */
-           THEN CASE WHEN " + PgTrueTypMod + " < 0 OR " + PgTrueTypMod + " & 65535 = 65535 THEN 6 ELSE " + PgTrueTypMod + @" & 65535 END
-       ELSE null
-  END";
-
-    private const string PgIntervalType = "CASE WHEN " + PgTrueTypId + @" IN (1186) /* interval */
-           THEN pg_catalog.upper(substring(pg_catalog.format_type(" + PgTrueTypId + ", " + PgTrueTypMod + @") from 'interval[()0-9]* #"" %#""' for '#'))
-       ELSE null
-  END";
 
     private static class Constants
     {

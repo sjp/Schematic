@@ -8,8 +8,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.PostgreSql.Query;
-using SJP.Schematic.PostgreSql.QueryResult;
+using SJP.Schematic.PostgreSql.Queries;
 
 namespace SJP.Schematic.PostgreSql.Comments;
 
@@ -58,7 +57,7 @@ public class PostgreSqlMaterializedViewCommentProvider : IDatabaseViewCommentPro
     /// <returns>A collection of materialized view comments.</returns>
     public async IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResult = await Connection.QueryAsync<GetAllMaterializedViewNamesQueryResult>(ViewsQuery, cancellationToken).ConfigureAwait(false);
+        var queryResult = await Connection.QueryAsync<GetAllMaterializedViewNames.Result>(ViewsQuery, cancellationToken).ConfigureAwait(false);
         var viewNames = queryResult
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName);
@@ -101,9 +100,9 @@ public class PostgreSqlMaterializedViewCommentProvider : IDatabaseViewCommentPro
             throw new ArgumentNullException(nameof(viewName));
 
         var candidateViewName = QualifyViewName(viewName);
-        var qualifiedViewName = Connection.QueryFirstOrNone<GetMaterializedViewNameQueryResult>(
+        var qualifiedViewName = Connection.QueryFirstOrNone<GetMaterializedViewName.Result>(
             ViewNameQuery,
-            new GetMaterializedViewNameQuery { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
+            new GetMaterializedViewName.Query { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
             cancellationToken
         );
 
@@ -114,14 +113,7 @@ public class PostgreSqlMaterializedViewCommentProvider : IDatabaseViewCommentPro
     /// A SQL query that retrieves the resolved name of a materialized view in the database.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ViewNameQuery => ViewNameQuerySql;
-
-    private const string ViewNameQuerySql = @$"
-select schemaname as ""{ nameof(GetMaterializedViewNameQueryResult.SchemaName) }"", matviewname as ""{ nameof(GetMaterializedViewNameQueryResult.ViewName) }""
-from pg_catalog.pg_matviews
-where schemaname = @{ nameof(GetMaterializedViewNameQuery.SchemaName) } and matviewname = @{ nameof(GetMaterializedViewNameQuery.ViewName) }
-    and schemaname not in ('pg_catalog', 'information_schema')
-limit 1";
+    protected virtual string ViewNameQuery => GetMaterializedViewName.Sql;
 
     /// <summary>
     /// Retrieves comments for a particular materialized view.
@@ -158,9 +150,9 @@ limit 1";
 
     private async Task<IDatabaseViewComments> LoadViewCommentsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var result = await Connection.QueryAsync<GetMaterializedViewCommentsQueryResult>(
+        var result = await Connection.QueryAsync<GetMaterializedViewComments.Result>(
             ViewCommentsQuery,
-            new GetMaterializedViewCommentsQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            new GetMaterializedViewComments.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -181,48 +173,13 @@ limit 1";
     /// Gets a query that retrieves all materialized view names.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ViewsQuery => ViewsQuerySql;
-
-    private const string ViewsQuerySql = @$"
-select schemaname as ""{ nameof(GetAllMaterializedViewNamesQueryResult.SchemaName) }"", matviewname as ""{ nameof(GetAllMaterializedViewNamesQueryResult.ViewName) }""
-from pg_catalog.pg_matviews
-where schemaname not in ('pg_catalog', 'information_schema')
-order by schemaname, matviewname
-";
+    protected virtual string ViewsQuery => GetAllMaterializedViewNames.Sql;
 
     /// <summary>
     /// Gets a query that retrieves comments for a single materialized view.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ViewCommentsQuery => ViewCommentsQuerySql;
-
-    private const string ViewCommentsQuerySql = @$"
--- view
-select
-    'VIEW' as ""{ nameof(GetMaterializedViewCommentsQueryResult.ObjectType) }"",
-    c.relname as ""{ nameof(GetMaterializedViewCommentsQueryResult.ObjectName) }"",
-    d.description as ""{ nameof(GetMaterializedViewCommentsQueryResult.Comment) }""
-from pg_catalog.pg_class c
-inner join pg_catalog.pg_namespace n on c.relnamespace = n.oid
-left join pg_catalog.pg_description d on c.oid = d.objoid and d.objsubid = 0
-where n.nspname = @{ nameof(GetMaterializedViewCommentsQuery.SchemaName) } and c.relname = @{ nameof(GetMaterializedViewCommentsQuery.ViewName) }
-    and c.relkind = 'm' and n.nspname not in ('pg_catalog', 'information_schema')
-
-union
-
--- columns
-select
-    'COLUMN' as ""{ nameof(GetMaterializedViewCommentsQueryResult.ObjectType) }"",
-    a.attname as ""{ nameof(GetMaterializedViewCommentsQueryResult.ObjectName) }"",
-    d.description as ""{ nameof(GetMaterializedViewCommentsQueryResult.Comment) }""
-from pg_catalog.pg_class c
-inner join pg_catalog.pg_namespace n on c.relnamespace = n.oid
-inner join pg_catalog.pg_attribute a on a.attrelid = c.oid
-left join pg_description d on c.oid = d.objoid and a.attnum = d.objsubid
-where n.nspname = @{ nameof(GetMaterializedViewCommentsQuery.SchemaName) } and c.relname = @{ nameof(GetMaterializedViewCommentsQuery.ViewName) }
-    and c.relkind = 'm' and n.nspname not in ('pg_catalog', 'information_schema')
-    and a.attnum > 0 and not a.attisdropped
-";
+    protected virtual string ViewCommentsQuery => GetMaterializedViewComments.Sql;
 
     private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
     {
