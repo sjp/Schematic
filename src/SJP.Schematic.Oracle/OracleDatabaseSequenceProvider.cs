@@ -6,8 +6,7 @@ using System.Threading;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Oracle.Query;
-using SJP.Schematic.Oracle.QueryResult;
+using SJP.Schematic.Oracle.Queries;
 
 namespace SJP.Schematic.Oracle;
 
@@ -56,7 +55,7 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// <returns>A collection of database sequences.</returns>
     public async IAsyncEnumerable<IDatabaseSequence> GetAllSequences([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResult = await Connection.QueryAsync<GetAllSequencesQueryResult>(SequencesQuery, cancellationToken).ConfigureAwait(false);
+        var queryResult = await Connection.QueryAsync<GetAllSequences.Result>(SequencesQuery, cancellationToken).ConfigureAwait(false);
 
         foreach (var row in queryResult)
         {
@@ -83,21 +82,7 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// Gets a query that retrieves information on all sequences in the database.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string SequencesQuery => SequencesQuerySql;
-
-    private const string SequencesQuerySql = @$"
-select
-    s.SEQUENCE_OWNER as ""{ nameof(GetAllSequencesQueryResult.SchemaName) }"",
-    s.SEQUENCE_NAME as ""{ nameof(GetAllSequencesQueryResult.SequenceName) }"",
-    INCREMENT_BY as ""{ nameof(GetAllSequencesQueryResult.Increment) }"",
-    MIN_VALUE as ""{ nameof(GetAllSequencesQueryResult.MinValue) }"",
-    MAX_VALUE as ""{ nameof(GetAllSequencesQueryResult.MaxValue) }"",
-    CYCLE_FLAG as ""{ nameof(GetAllSequencesQueryResult.Cycle) }"",
-    CACHE_SIZE as ""{ nameof(GetAllSequencesQueryResult.CacheSize) }""
-from SYS.ALL_SEQUENCES s
-inner join SYS.ALL_OBJECTS o on s.SEQUENCE_OWNER = o.OWNER and s.SEQUENCE_NAME = o.OBJECT_NAME
-where o.ORACLE_MAINTAINED <> 'Y'
-order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
+    protected virtual string SequencesQuery => Queries.GetAllSequences.Sql;
 
     /// <summary>
     /// Gets a database sequence.
@@ -149,9 +134,9 @@ order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
             throw new ArgumentNullException(nameof(sequenceName));
 
         var candidateSequenceName = QualifySequenceName(sequenceName);
-        var qualifiedSequenceName = Connection.QueryFirstOrNone<GetSequenceNameQueryResult>(
+        var qualifiedSequenceName = Connection.QueryFirstOrNone<GetSequenceName.Result>(
             SequenceNameQuery,
-            new GetSequenceNameQuery { SchemaName = candidateSequenceName.Schema!, SequenceName = candidateSequenceName.LocalName },
+            new GetSequenceName.Query { SchemaName = candidateSequenceName.Schema!, SequenceName = candidateSequenceName.LocalName },
             cancellationToken
         );
 
@@ -162,29 +147,7 @@ order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME";
     /// Gets a query that resolves the name of a sequence.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string SequenceNameQuery => SequenceNameQuerySql;
-
-    private const string SequenceNameQuerySql = @$"
-select s.SEQUENCE_OWNER as ""{ nameof(GetSequenceNameQueryResult.SchemaName) }"", s.SEQUENCE_NAME as ""{ nameof(GetSequenceNameQueryResult.SequenceName) }""
-from SYS.ALL_SEQUENCES s
-inner join SYS.ALL_OBJECTS o on s.SEQUENCE_OWNER = o.OWNER and s.SEQUENCE_NAME = o.OBJECT_NAME
-where s.SEQUENCE_OWNER = :{ nameof(GetSequenceNameQuery.SchemaName) } and s.SEQUENCE_NAME = :{ nameof(GetSequenceNameQuery.SequenceName) } and o.ORACLE_MAINTAINED <> 'Y'";
-
-    /// <summary>
-    /// Gets a query that retrieves all relevant information on a sequence.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string SequenceQuery => SequenceQuerySql;
-
-    private const string SequenceQuerySql = @$"
-select
-    INCREMENT_BY as ""{ nameof(GetSequenceDefinitionQueryResult.Increment) }"",
-    MIN_VALUE as ""{ nameof(GetSequenceDefinitionQueryResult.MinValue) }"",
-    MAX_VALUE as ""{ nameof(GetSequenceDefinitionQueryResult.MaxValue) }"",
-    CYCLE_FLAG as ""{ nameof(GetSequenceDefinitionQueryResult.Cycle) }"",
-    CACHE_SIZE as ""{ nameof(GetSequenceDefinitionQueryResult.CacheSize) }""
-from SYS.ALL_SEQUENCES
-where SEQUENCE_OWNER = :{ nameof(GetSequenceDefinitionQuery.SchemaName) } and SEQUENCE_NAME = :{ nameof(GetSequenceDefinitionQuery.SequenceName) }";
+    protected virtual string SequenceNameQuery => GetSequenceName.Sql;
 
     /// <summary>
     /// Retrieves database sequence information.
@@ -208,9 +171,9 @@ where SEQUENCE_OWNER = :{ nameof(GetSequenceDefinitionQuery.SchemaName) } and SE
         if (sequenceName == null)
             throw new ArgumentNullException(nameof(sequenceName));
 
-        return Connection.QueryFirstOrNone<GetSequenceDefinitionQueryResult>(
+        return Connection.QueryFirstOrNone<GetSequenceDefinition.Result>(
             SequenceQuery,
-            new GetSequenceDefinitionQuery { SchemaName = sequenceName.Schema!, SequenceName = sequenceName.LocalName },
+            new GetSequenceDefinition.Query { SchemaName = sequenceName.Schema!, SequenceName = sequenceName.LocalName },
             cancellationToken
         ).Map<IDatabaseSequence>(row =>
         {
@@ -230,6 +193,12 @@ where SEQUENCE_OWNER = :{ nameof(GetSequenceDefinitionQuery.SchemaName) } and SE
             );
         });
     }
+
+    /// <summary>
+    /// Gets a query that retrieves all relevant information on a sequence.
+    /// </summary>
+    /// <value>A SQL query.</value>
+    protected virtual string SequenceQuery => GetSequenceDefinition.Sql;
 
     /// <summary>
     /// Qualifies the name of the sequence.

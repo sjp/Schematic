@@ -9,8 +9,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
-using SJP.Schematic.Oracle.Query;
-using SJP.Schematic.Oracle.QueryResult;
+using SJP.Schematic.Oracle.Queries;
 
 namespace SJP.Schematic.Oracle;
 
@@ -71,7 +70,7 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
     /// <returns>A collection of materialized views.</returns>
     public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResult = await DbConnection.QueryAsync<GetAllMaterializedViewNamesQueryResult>(ViewsQuery, cancellationToken).ConfigureAwait(false);
+        var queryResult = await DbConnection.QueryAsync<GetAllMaterializedViewNames.Result>(ViewsQuery, cancellationToken).ConfigureAwait(false);
         var viewNames = queryResult
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName);
@@ -84,16 +83,7 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
     /// A SQL query that retrieves the names of materialized views available in the database.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ViewsQuery => ViewsQuerySql;
-
-    private const string ViewsQuerySql = @$"
-select
-    mv.OWNER as ""{ nameof(GetAllMaterializedViewNamesQueryResult.SchemaName) }"",
-    mv.MVIEW_NAME as ""{ nameof(GetAllMaterializedViewNamesQueryResult.ViewName) }""
-from SYS.ALL_MVIEWS mv
-inner join SYS.ALL_OBJECTS o on mv.OWNER = o.OWNER and mv.MVIEW_NAME = o.OBJECT_NAME
-where o.ORACLE_MAINTAINED <> 'Y' and o.OBJECT_TYPE <> 'TABLE'
-order by mv.OWNER, mv.MVIEW_NAME";
+    protected virtual string ViewsQuery => GetAllMaterializedViewNames.Sql;
 
     /// <summary>
     /// Gets a materialized view.
@@ -145,9 +135,9 @@ order by mv.OWNER, mv.MVIEW_NAME";
             throw new ArgumentNullException(nameof(viewName));
 
         var candidateViewName = QualifyViewName(viewName);
-        var qualifiedViewName = DbConnection.QueryFirstOrNone<GetMaterializedViewNameQueryResult>(
+        var qualifiedViewName = DbConnection.QueryFirstOrNone<GetMaterializedViewName.Result>(
             ViewNameQuery,
-            new GetMaterializedViewNameQuery { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
+            new GetMaterializedViewName.Query { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
             cancellationToken
         );
 
@@ -158,14 +148,7 @@ order by mv.OWNER, mv.MVIEW_NAME";
     /// A SQL query that retrieves the resolved name of a view in the database.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ViewNameQuery => ViewNameQuerySql;
-
-    private const string ViewNameQuerySql = @$"
-select mv.OWNER as ""{ nameof(GetMaterializedViewNameQueryResult.SchemaName) }"", mv.MVIEW_NAME as ""{ nameof(GetMaterializedViewNameQueryResult.ViewName) }""
-from SYS.ALL_MVIEWS mv
-inner join SYS.ALL_OBJECTS o on mv.OWNER = o.OWNER and mv.MVIEW_NAME = o.OBJECT_NAME
-where mv.OWNER = :{ nameof(GetMaterializedViewNameQuery.SchemaName) } and mv.MVIEW_NAME = :{ nameof(GetMaterializedViewNameQuery.ViewName) }
-    and o.ORACLE_MAINTAINED <> 'Y' and o.OBJECT_TYPE <> 'TABLE'";
+    protected virtual string ViewNameQuery => GetMaterializedViewName.Sql;
 
     /// <summary>
     /// Retrieves a database view, if available.
@@ -207,7 +190,7 @@ where mv.OWNER = :{ nameof(GetMaterializedViewNameQuery.SchemaName) } and mv.MVI
 
         return DbConnection.ExecuteScalarAsync<string>(
             DefinitionQuery,
-            new GetViewDefinitionQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            new GetViewDefinition.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         );
     }
@@ -216,12 +199,7 @@ where mv.OWNER = :{ nameof(GetMaterializedViewNameQuery.SchemaName) } and mv.MVI
     /// A SQL query that retrieves the definition of a materialized view.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string DefinitionQuery => DefinitionQuerySql;
-
-    private const string DefinitionQuerySql = @$"
-select QUERY
-from SYS.ALL_MVIEWS
-where OWNER = :{ nameof(GetViewDefinitionQuery.SchemaName) } and MVIEW_NAME = :{ nameof(GetViewDefinitionQuery.ViewName) }";
+    protected virtual string DefinitionQuery => GetMaterializedViewDefinition.Sql;
 
     /// <summary>
     /// Retrieves the columns for a given materialized view.
@@ -240,9 +218,9 @@ where OWNER = :{ nameof(GetViewDefinitionQuery.SchemaName) } and MVIEW_NAME = :{
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var query = await DbConnection.QueryAsync<GetMaterializedViewColumnsQueryResult>(
+        var query = await DbConnection.QueryAsync<GetMaterializedViewColumns.Result>(
             ColumnsQuery,
-            new GetMaterializedViewColumnsQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            new GetMaterializedViewColumns.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -286,23 +264,7 @@ where OWNER = :{ nameof(GetViewDefinitionQuery.SchemaName) } and MVIEW_NAME = :{
     /// A SQL query that retrieves column definitions.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ColumnsQuery => ColumnsQuerySql;
-
-    private const string ColumnsQuerySql = @$"
-select
-    atc.COLUMN_NAME as ""{ nameof(GetMaterializedViewColumnsQueryResult.ColumnName) }"",
-    atc.DATA_TYPE_OWNER as ""{ nameof(GetMaterializedViewColumnsQueryResult.ColumnTypeSchema) }"",
-    atc.DATA_TYPE as ""{ nameof(GetMaterializedViewColumnsQueryResult.ColumnTypeName) }"",
-    atc.DATA_LENGTH as ""{ nameof(GetMaterializedViewColumnsQueryResult.DataLength) }"",
-    atc.DATA_PRECISION as ""{ nameof(GetMaterializedViewColumnsQueryResult.Precision) }"",
-    atc.DATA_SCALE as ""{ nameof(GetMaterializedViewColumnsQueryResult.Scale) }"",
-    atc.DATA_DEFAULT as ""{ nameof(GetMaterializedViewColumnsQueryResult.DefaultValue) }"",
-    atc.CHAR_LENGTH as ""{ nameof(GetMaterializedViewColumnsQueryResult.CharacterLength) }"",
-    atc.CHARACTER_SET_NAME as ""{ nameof(GetMaterializedViewColumnsQueryResult.Collation) }"",
-    atc.VIRTUAL_COLUMN as ""{ nameof(GetMaterializedViewColumnsQueryResult.IsComputed) }""
-from SYS.ALL_TAB_COLS atc
-where OWNER = :{ nameof(GetMaterializedViewColumnsQuery.SchemaName) } and TABLE_NAME = :{ nameof(GetMaterializedViewColumnsQuery.ViewName) }
-order by atc.COLUMN_ID";
+    protected virtual string ColumnsQuery => GetMaterializedViewColumns.Sql;
 
     /// <summary>
     /// Retrieves the names all of the not-null constrained columns in a given materialized view.
@@ -324,9 +286,9 @@ order by atc.COLUMN_ID";
 
     private async Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsyncCore(Identifier viewName, IEnumerable<string> columnNames, CancellationToken cancellationToken)
     {
-        var checks = await DbConnection.QueryAsync<GetMaterializedViewChecksQueryResult>(
+        var checks = await DbConnection.QueryAsync<GetMaterializedViewChecks.Result>(
             ChecksQuery,
-            new GetMaterializedViewChecksQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            new GetMaterializedViewChecks.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -347,15 +309,7 @@ order by atc.COLUMN_ID";
     /// A SQL query that retrieves check constraint information for a view.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ChecksQuery => ChecksQuerySql;
-
-    private const string ChecksQuerySql = @$"
-select
-    CONSTRAINT_NAME as ""{ nameof(GetMaterializedViewChecksQueryResult.ConstraintName) }"",
-    SEARCH_CONDITION as ""{ nameof(GetMaterializedViewChecksQueryResult.Definition) }"",
-    STATUS as ""{ nameof(GetMaterializedViewChecksQueryResult.EnabledStatus) }""
-from SYS.ALL_CONSTRAINTS
-where OWNER = :{ nameof(GetMaterializedViewChecksQuery.SchemaName) } and TABLE_NAME = :{ nameof(GetMaterializedViewChecksQuery.ViewName) } and CONSTRAINT_TYPE = 'C'";
+    protected virtual string ChecksQuery => GetMaterializedViewChecks.Sql;
 
     /// <summary>
     /// Creates a not null constraint definition, used to determine whether a constraint is a <c>NOT NULL</c> constraint.

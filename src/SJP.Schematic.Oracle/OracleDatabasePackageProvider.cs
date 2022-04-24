@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Oracle.Query;
-using SJP.Schematic.Oracle.QueryResult;
+using SJP.Schematic.Oracle.Queries;
 
 namespace SJP.Schematic.Oracle;
 
@@ -57,7 +56,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     /// <returns>A collection of database packages.</returns>
     public async IAsyncEnumerable<IOracleDatabasePackage> GetAllPackages([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResults = await Connection.QueryAsync<GetAllPackageNamesQueryResult>(
+        var queryResults = await Connection.QueryAsync<GetAllPackageNames.Result>(
             PackagesQuery,
             cancellationToken
         ).ConfigureAwait(false);
@@ -74,15 +73,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     /// Gets a query that retrieves all package names.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string PackagesQuery => PackagesQuerySql;
-
-    private const string PackagesQuerySql = @$"
-SELECT
-    OWNER as ""{ nameof(GetAllPackageNamesQueryResult.SchemaName) }"",
-    OBJECT_NAME as ""{ nameof(GetAllPackageNamesQueryResult.PackageName) }""
-FROM SYS.ALL_OBJECTS
-WHERE ORACLE_MAINTAINED <> 'Y' AND OBJECT_TYPE = 'PACKAGE'
-ORDER BY OWNER, OBJECT_NAME";
+    protected virtual string PackagesQuery => GetAllPackageNames.Sql;
 
     /// <summary>
     /// Retrieves a database package, if available.
@@ -134,9 +125,9 @@ ORDER BY OWNER, OBJECT_NAME";
             throw new ArgumentNullException(nameof(packageName));
 
         var candidatePackageName = QualifyPackageName(packageName);
-        var qualifiedPackageName = Connection.QueryFirstOrNone<GetPackageNameQueryResult>(
+        var qualifiedPackageName = Connection.QueryFirstOrNone<GetPackageName.Result>(
             PackageNameQuery,
-            new GetPackageNameQuery { SchemaName = candidatePackageName.Schema!, PackageName = candidatePackageName.LocalName },
+            new GetPackageName.Query { SchemaName = candidatePackageName.Schema!, PackageName = candidatePackageName.LocalName },
             cancellationToken
         );
 
@@ -147,15 +138,7 @@ ORDER BY OWNER, OBJECT_NAME";
     /// Gets a query that retrieves the resolved name of a package.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string PackageNameQuery => PackageNameQuerySql;
-
-    private const string PackageNameQuerySql = @$"
-select
-    OWNER as ""{ nameof(GetPackageNameQueryResult.SchemaName) }"",
-    OBJECT_NAME as ""{ nameof(GetPackageNameQueryResult.PackageName) }""
-from SYS.ALL_OBJECTS
-where OWNER = :{ nameof(GetPackageNameQuery.SchemaName) } and OBJECT_NAME = :{ nameof(GetPackageNameQuery.PackageName) }
-    and ORACLE_MAINTAINED <> 'Y' and OBJECT_TYPE = 'PACKAGE'";
+    protected virtual string PackageNameQuery => GetPackageName.Sql;
 
     /// <summary>
     /// Retrieves a package from the database, if available.
@@ -179,9 +162,9 @@ where OWNER = :{ nameof(GetPackageNameQuery.SchemaName) } and OBJECT_NAME = :{ n
         if (string.Equals(packageName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal)) // fast path
             return await LoadUserPackageAsyncCore(packageName, cancellationToken).ConfigureAwait(false);
 
-        var lines = await Connection.QueryAsync<GetPackageDefinitionQueryResult>(
+        var lines = await Connection.QueryAsync<GetPackageDefinition.Result>(
             PackageDefinitionQuery,
-            new GetPackageDefinitionQuery { SchemaName = packageName.Schema!, PackageName = packageName.LocalName },
+            new GetPackageDefinition.Query { SchemaName = packageName.Schema!, PackageName = packageName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -207,9 +190,9 @@ where OWNER = :{ nameof(GetPackageNameQuery.SchemaName) } and OBJECT_NAME = :{ n
 
     private async Task<IOracleDatabasePackage> LoadUserPackageAsyncCore(Identifier packageName, CancellationToken cancellationToken)
     {
-        var lines = await Connection.QueryAsync<GetUserPackageDefinitionQueryResult>(
+        var lines = await Connection.QueryAsync<GetUserPackageDefinition.Result>(
             UserPackageDefinitionQuery,
-            new GetUserPackageDefinitionQuery { PackageName = packageName.LocalName },
+            new GetUserPackageDefinition.Query { PackageName = packageName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -237,31 +220,13 @@ where OWNER = :{ nameof(GetPackageNameQuery.SchemaName) } and OBJECT_NAME = :{ n
     /// Gets a query that retrieves the package definition for a package in any visible schema.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string PackageDefinitionQuery => PackageDefinitionQuerySql;
-
-    private const string PackageDefinitionQuerySql = @$"
-select
-    TYPE as ""{ nameof(GetPackageDefinitionQueryResult.RoutineType) }"",
-    LINE as ""{ nameof(GetPackageDefinitionQueryResult.LineNumber) }"",
-    TEXT as ""{ nameof(GetPackageDefinitionQueryResult.Text) }""
-from SYS.ALL_SOURCE
-where OWNER = :{ nameof(GetPackageDefinitionQuery.SchemaName) } and NAME = :{ nameof(GetPackageDefinitionQuery.PackageName) } and TYPE in ('PACKAGE', 'PACKAGE BODY')
-order by LINE";
+    protected virtual string PackageDefinitionQuery => GetPackageDefinition.Sql;
 
     /// <summary>
     /// Gets a query that retrieves the package definition for a package in the user's schema.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string UserPackageDefinitionQuery => UserPackageDefinitionQuerySql;
-
-    private const string UserPackageDefinitionQuerySql = @$"
-select
-    TYPE as ""{ nameof(GetUserPackageDefinitionQueryResult.RoutineType) }"",
-    LINE as ""{ nameof(GetUserPackageDefinitionQueryResult.LineNumber) }"",
-    TEXT as ""{ nameof(GetUserPackageDefinitionQueryResult.Text) }""
-from SYS.USER_SOURCE
-where NAME = :{ nameof(GetUserPackageDefinitionQuery.PackageName) } and TYPE in ('PACKAGE', 'PACKAGE BODY')
-order by LINE";
+    protected virtual string UserPackageDefinitionQuery => GetUserPackageDefinition.Sql;
 
     /// <summary>
     /// Qualifies the name of the package, using known identifier defaults.

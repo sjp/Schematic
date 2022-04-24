@@ -8,7 +8,7 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Oracle.Comments;
-using SJP.Schematic.Oracle.QueryResult;
+using SJP.Schematic.Oracle.Queries;
 
 namespace SJP.Schematic.Oracle;
 
@@ -80,11 +80,11 @@ public class OracleDialect : DatabaseDialect
 
     private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        var hostInfoOption = connection.DbConnection.QueryFirstOrNone<GetIdentifierDefaultsQueryResult>(IdentifierDefaultsQuerySql, cancellationToken);
+        var hostInfoOption = connection.DbConnection.QueryFirstOrNone<GetIdentifierDefaults.Result>(GetIdentifierDefaults.Sql, cancellationToken);
         var qualifiedServerName = await hostInfoOption
             .Bind(static dbHost => dbHost.ServerHost != null && dbHost.ServerSid != null
-                ? OptionAsync<GetIdentifierDefaultsQueryResult>.Some(dbHost)
-                : OptionAsync<GetIdentifierDefaultsQueryResult>.None
+                ? OptionAsync<GetIdentifierDefaults.Result>.Some(dbHost)
+                : OptionAsync<GetIdentifierDefaults.Result>.None
             )
             .MatchUnsafe(
                 static dbHost => dbHost.ServerHost + "/" + dbHost.ServerSid,
@@ -95,14 +95,6 @@ public class OracleDialect : DatabaseDialect
 
         return new IdentifierDefaults(qualifiedServerName, dbName, defaultSchema);
     }
-
-    private const string IdentifierDefaultsQuerySql = @$"
-select
-    SYS_CONTEXT('USERENV', 'SERVER_HOST') as ""{ nameof(GetIdentifierDefaultsQueryResult.ServerHost) }"",
-    SYS_CONTEXT('USERENV', 'INSTANCE_NAME') as ""{ nameof(GetIdentifierDefaultsQueryResult.ServerSid) }"",
-    SYS_CONTEXT('USERENV', 'DB_NAME') as ""{ nameof(GetIdentifierDefaultsQueryResult.DatabaseName) }"",
-    SYS_CONTEXT('USERENV', 'CURRENT_USER') as ""{ nameof(GetIdentifierDefaultsQueryResult.DefaultSchema) }""
-from DUAL";
 
     /// <summary>
     /// Gets the database display version. Usually a more user-friendly form of the database version.
@@ -116,7 +108,7 @@ from DUAL";
         if (connection == null)
             throw new ArgumentNullException(nameof(connection));
 
-        var versionInfoOption = connection.DbConnection.QueryFirstOrNone<GetDatabaseVersionQueryResult>(DatabaseVersionQuerySql, cancellationToken);
+        var versionInfoOption = connection.DbConnection.QueryFirstOrNone<GetDatabaseVersion.Result>(GetDatabaseVersion.Sql, cancellationToken);
         return versionInfoOption.MatchUnsafe(
             static vInfo => vInfo.ProductName + vInfo.VersionNumber,
             static () => string.Empty
@@ -135,7 +127,7 @@ from DUAL";
         if (connection == null)
             throw new ArgumentNullException(nameof(connection));
 
-        var versionInfoOption = connection.DbConnection.QueryFirstOrNone<GetDatabaseVersionQueryResult>(DatabaseVersionQuerySql, cancellationToken);
+        var versionInfoOption = connection.DbConnection.QueryFirstOrNone<GetDatabaseVersion.Result>(GetDatabaseVersion.Sql, cancellationToken);
         return versionInfoOption
             .Bind(static dbv => TryParseLongVersionString(dbv.VersionNumber).ToAsync())
             .MatchUnsafeAsync(
@@ -166,13 +158,6 @@ from DUAL";
                 ? Option<Version>.Some(v)
                 : Option<Version>.None;
     }
-
-    private const string DatabaseVersionQuerySql = @$"
-select
-    PRODUCT as ""{ nameof(GetDatabaseVersionQueryResult.ProductName) }"",
-    VERSION as ""{ nameof(GetDatabaseVersionQueryResult.VersionNumber) }""
-from PRODUCT_COMPONENT_VERSION
-where PRODUCT like 'Oracle Database%'";
 
     /// <summary>
     /// Retrieves a relational database for the given dialect.

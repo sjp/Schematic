@@ -8,8 +8,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Oracle.Query;
-using SJP.Schematic.Oracle.QueryResult;
+using SJP.Schematic.Oracle.Queries;
 
 namespace SJP.Schematic.Oracle.Comments;
 
@@ -58,7 +57,7 @@ public class OracleMaterializedViewCommentProvider : IDatabaseViewCommentProvide
     /// <returns>A collection of materialized view comments.</returns>
     public async IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResult = await Connection.QueryAsync<GetAllMaterializedViewNamesQueryResult>(ViewsQuery, cancellationToken).ConfigureAwait(false);
+        var queryResult = await Connection.QueryAsync<GetAllMaterializedViewNames.Result>(ViewsQuery, cancellationToken).ConfigureAwait(false);
         var viewNames = queryResult
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName);
@@ -101,9 +100,9 @@ public class OracleMaterializedViewCommentProvider : IDatabaseViewCommentProvide
             throw new ArgumentNullException(nameof(viewName));
 
         var candidateViewName = QualifyViewName(viewName);
-        var qualifiedViewName = Connection.QueryFirstOrNone<GetMaterializedViewNameQueryResult>(
+        var qualifiedViewName = Connection.QueryFirstOrNone<GetMaterializedViewName.Result>(
             ViewNameQuery,
-            new GetMaterializedViewNameQuery { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
+            new GetMaterializedViewName.Query { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
             cancellationToken
         );
 
@@ -114,14 +113,7 @@ public class OracleMaterializedViewCommentProvider : IDatabaseViewCommentProvide
     /// A SQL query that retrieves the resolved name of a materialized view in the database.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ViewNameQuery => ViewNameQuerySql;
-
-    private const string ViewNameQuerySql = @$"
-select mv.OWNER as ""{ nameof(GetMaterializedViewNameQueryResult.SchemaName) }"", mv.MVIEW_NAME as ""{ nameof(GetMaterializedViewNameQueryResult.ViewName) }""
-from SYS.ALL_MVIEWS mv
-inner join SYS.ALL_OBJECTS o on mv.OWNER = o.OWNER and mv.MVIEW_NAME = o.OBJECT_NAME
-where mv.OWNER = :{ nameof(GetMaterializedViewNameQuery.SchemaName) } and mv.MVIEW_NAME = :{ nameof(GetMaterializedViewNameQuery.ViewName) }
-    and o.ORACLE_MAINTAINED <> 'Y' and o.OBJECT_TYPE <> 'TABLE'";
+    protected virtual string ViewNameQuery => GetMaterializedViewName.Sql;
 
     /// <summary>
     /// Retrieves comments for a particular materialized view.
@@ -161,9 +153,9 @@ where mv.OWNER = :{ nameof(GetMaterializedViewNameQuery.SchemaName) } and mv.MVI
         if (string.Equals(viewName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal)) // fast path
             return await LoadUserViewCommentsAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
 
-        var result = await Connection.QueryAsync<GetMaterializedViewCommentsQueryResult>(
+        var result = await Connection.QueryAsync<GetMaterializedViewComments.Result>(
             ViewCommentsQuery,
-            new GetMaterializedViewCommentsQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            new GetMaterializedViewComments.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -182,9 +174,9 @@ where mv.OWNER = :{ nameof(GetMaterializedViewNameQuery.SchemaName) } and mv.MVI
 
     private async Task<IDatabaseViewComments> LoadUserViewCommentsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var result = await Connection.QueryAsync<GetUserMaterializedViewCommentsQueryResult>(
+        var result = await Connection.QueryAsync<GetUserMaterializedViewComments.Result>(
             UserViewCommentsQuery,
-            new GetUserMaterializedViewCommentsQuery { ViewName = viewName.LocalName },
+            new GetUserMaterializedViewComments.Query { ViewName = viewName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -205,76 +197,19 @@ where mv.OWNER = :{ nameof(GetMaterializedViewNameQuery.SchemaName) } and mv.MVI
     /// A SQL query that retrieves the names of materialized views available in the database.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ViewsQuery => ViewsQuerySql;
-
-    private const string ViewsQuerySql = @$"
-select
-    mv.OWNER as ""{ nameof(GetAllMaterializedViewNamesQueryResult.SchemaName) }"",
-    mv.MVIEW_NAME as ""{ nameof(GetAllMaterializedViewNamesQueryResult.ViewName) }""
-from SYS.ALL_MVIEWS mv
-inner join SYS.ALL_OBJECTS o on mv.OWNER = o.OWNER and mv.MVIEW_NAME = o.OBJECT_NAME
-where o.ORACLE_MAINTAINED <> 'Y' and o.OBJECT_TYPE <> 'TABLE'
-order by mv.OWNER, mv.MVIEW_NAME";
+    protected virtual string ViewsQuery => GetAllMaterializedViewNames.Sql;
 
     /// <summary>
     /// Gets a query that retrieves comments for a single materialized view.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ViewCommentsQuery => ViewCommentsQuerySql;
-
-    private const string ViewCommentsQuerySql = @$"
--- view
-select
-    'VIEW' as ""{ nameof(GetMaterializedViewCommentsQueryResult.ObjectType) }"",
-    NULL as ""{ nameof(GetMaterializedViewCommentsQueryResult.ColumnName) }"",
-    c.COMMENTS as ""{ nameof(GetMaterializedViewCommentsQueryResult.Comment) }""
-from SYS.ALL_MVIEWS v
-inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.MVIEW_NAME = o.OBJECT_NAME
-left join SYS.ALL_MVIEW_COMMENTS c on v.OWNER = c.OWNER and v.MVIEW_NAME = c.MVIEW_NAME
-where v.OWNER = :{ nameof(GetMaterializedViewCommentsQuery.SchemaName) } and v.MVIEW_NAME = :{ nameof(GetMaterializedViewCommentsQuery.ViewName) } and o.ORACLE_MAINTAINED <> 'Y'
-
-union
-
--- columns
-select
-    'COLUMN' as ""{ nameof(GetMaterializedViewCommentsQueryResult.ObjectType) }"",
-    vc.COLUMN_NAME as ""{ nameof(GetMaterializedViewCommentsQueryResult.ColumnName) }"",
-    c.COMMENTS as ""{ nameof(GetMaterializedViewCommentsQueryResult.Comment) }""
-from SYS.ALL_MVIEWS v
-inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.MVIEW_NAME = o.OBJECT_NAME
-inner join SYS.ALL_TAB_COLS vc on vc.OWNER = v.OWNER and vc.TABLE_NAME = v.MVIEW_NAME
-left join SYS.ALL_COL_COMMENTS c on c.OWNER = vc.OWNER and c.TABLE_NAME = vc.TABLE_NAME and c.COLUMN_NAME = vc.COLUMN_NAME
-where v.OWNER = :{ nameof(GetMaterializedViewCommentsQuery.SchemaName) } and v.MVIEW_NAME = :{ nameof(GetMaterializedViewCommentsQuery.ViewName) } and o.ORACLE_MAINTAINED <> 'Y'
-";
+    protected virtual string ViewCommentsQuery => GetMaterializedViewComments.Sql;
 
     /// <summary>
     /// Gets a query that retrieves comments for a single materialized view in the user's schema.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string UserViewCommentsQuery => UserViewCommentsQuerySql;
-
-    private const string UserViewCommentsQuerySql = @$"
--- view
-select
-    'VIEW' as ""{ nameof(GetUserMaterializedViewCommentsQueryResult.ObjectType) }"",
-    NULL as ""{ nameof(GetUserMaterializedViewCommentsQueryResult.ColumnName) }"",
-    c.COMMENTS as ""{ nameof(GetUserMaterializedViewCommentsQueryResult.Comment) }""
-from SYS.USER_MVIEWS v
-left join SYS.USER_MVIEW_COMMENTS c on v.MVIEW_NAME = c.MVIEW_NAME
-where v.MVIEW_NAME = :{ nameof(GetUserMaterializedViewCommentsQuery.ViewName) }
-
-union
-
--- columns
-select
-    'COLUMN' as ""{ nameof(GetUserMaterializedViewCommentsQueryResult.ObjectType) }"",
-    vc.COLUMN_NAME as ""{ nameof(GetUserMaterializedViewCommentsQueryResult.ColumnName) }"",
-    c.COMMENTS as ""{ nameof(GetUserMaterializedViewCommentsQueryResult.Comment) }""
-from SYS.USER_MVIEWS v
-inner join SYS.USER_TAB_COLS vc on vc.TABLE_NAME = v.MVIEW_NAME
-left join SYS.USER_COL_COMMENTS c on c.TABLE_NAME = vc.TABLE_NAME and c.COLUMN_NAME = vc.COLUMN_NAME
-where v.MVIEW_NAME = :{ nameof(GetUserMaterializedViewCommentsQuery.ViewName) }
-";
+    protected virtual string UserViewCommentsQuery => GetUserMaterializedViewComments.Sql;
 
     private static Option<string> GetViewComment(IEnumerable<CommentData> commentsData)
     {

@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Oracle.Query;
-using SJP.Schematic.Oracle.QueryResult;
+using SJP.Schematic.Oracle.Queries;
 
 namespace SJP.Schematic.Oracle;
 
@@ -57,7 +56,7 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
     /// <returns>A collection of database routines.</returns>
     public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResults = await Connection.QueryAsync<GetAllRoutineNamesQueryResult>(
+        var queryResults = await Connection.QueryAsync<GetAllRoutineNames.Result>(
             RoutinesQuery,
             cancellationToken
         ).ConfigureAwait(false);
@@ -74,15 +73,7 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
     /// Gets a query that retrieves routine names for all routines.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string RoutinesQuery => RoutinesQuerySql;
-
-    private const string RoutinesQuerySql = @$"
-SELECT
-    OWNER as ""{ nameof(GetAllRoutineNamesQueryResult.SchemaName) }"",
-    OBJECT_NAME as ""{ nameof(GetAllRoutineNamesQueryResult.RoutineName) }""
-FROM SYS.ALL_OBJECTS
-WHERE ORACLE_MAINTAINED <> 'Y' AND OBJECT_TYPE in ('FUNCTION', 'PROCEDURE')
-ORDER BY OWNER, OBJECT_NAME";
+    protected virtual string RoutinesQuery => GetAllRoutineNames.Sql;
 
     /// <summary>
     /// Retrieves a database routine, if available.
@@ -134,9 +125,9 @@ ORDER BY OWNER, OBJECT_NAME";
             throw new ArgumentNullException(nameof(routineName));
 
         var candidateRoutineName = QualifyRoutineName(routineName);
-        var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineNameQueryResult>(
+        var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineName.Result>(
             RoutineNameQuery,
-            new GetRoutineNameQuery { SchemaName = candidateRoutineName.Schema!, RoutineName = candidateRoutineName.LocalName },
+            new GetRoutineName.Query { SchemaName = candidateRoutineName.Schema!, RoutineName = candidateRoutineName.LocalName },
             cancellationToken
         );
 
@@ -147,15 +138,7 @@ ORDER BY OWNER, OBJECT_NAME";
     /// A SQL query that retrieves the resolved routine name.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string RoutineNameQuery => RoutineNameQuerySql;
-
-    private const string RoutineNameQuerySql = @$"
-select
-    OWNER as ""{ nameof(GetRoutineNameQueryResult.SchemaName) }"",
-    OBJECT_NAME as ""{ nameof(GetRoutineNameQueryResult.RoutineName) }""
-from SYS.ALL_OBJECTS
-where OWNER = :{ nameof(GetRoutineNameQuery.SchemaName) } and OBJECT_NAME = :{ nameof(GetRoutineNameQuery.RoutineName) }
-    and ORACLE_MAINTAINED <> 'Y' and OBJECT_TYPE in ('FUNCTION', 'PROCEDURE')";
+    protected virtual string RoutineNameQuery => GetRoutineName.Sql;
 
     /// <summary>
     /// Retrieves a routine from the database, if available.
@@ -203,7 +186,7 @@ where OWNER = :{ nameof(GetRoutineNameQuery.SchemaName) } and OBJECT_NAME = :{ n
 
         var lines = await Connection.QueryAsync<string>(
             DefinitionQuery,
-            new GetRoutineDefinitionQuery { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
+            new GetRoutineDefinition.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -218,7 +201,7 @@ where OWNER = :{ nameof(GetRoutineNameQuery.SchemaName) } and OBJECT_NAME = :{ n
     {
         var userLines = await Connection.QueryAsync<string>(
             UserDefinitionQuery,
-            new GetUserRoutineDefinitionQuery { RoutineName = routineName.LocalName },
+            new GetUserRoutineDefinition.Query { RoutineName = routineName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -233,26 +216,13 @@ where OWNER = :{ nameof(GetRoutineNameQuery.SchemaName) } and OBJECT_NAME = :{ n
     /// Gets a query that retrieves the routine definition for a given routine name.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string DefinitionQuery => DefinitionQuerySql;
-
-    private const string DefinitionQuerySql = @$"
-select TEXT
-from SYS.ALL_SOURCE
-where OWNER = :{ nameof(GetRoutineDefinitionQuery.SchemaName) } and NAME = :{ nameof(GetRoutineDefinitionQuery.RoutineName) }
-    AND TYPE IN ('FUNCTION', 'PROCEDURE')
-order by LINE";
+    protected virtual string DefinitionQuery => GetRoutineDefinition.Sql;
 
     /// <summary>
     /// Gets a query that retrieves the routine definition for a given routine name in the user's schema.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string UserDefinitionQuery => UserDefinitionQuerySql;
-
-    private const string UserDefinitionQuerySql = @$"
-select TEXT
-from SYS.USER_SOURCE
-where NAME = :{ nameof(GetUserRoutineDefinitionQuery.RoutineName) } AND TYPE IN ('FUNCTION', 'PROCEDURE')
-order by LINE";
+    protected virtual string UserDefinitionQuery => GetUserRoutineDefinition.Sql;
 
     /// <summary>
     /// Qualifies the name of a routine, using known identifier defaults.
