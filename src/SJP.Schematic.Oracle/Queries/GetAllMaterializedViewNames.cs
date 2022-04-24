@@ -9,7 +9,7 @@ internal static class GetAllMaterializedViewNames
         public string ViewName { get; init; } = default!;
     }
 
-    public const string Sql = @$"
+    internal const string Sql = @$"
 select
     mv.OWNER as ""{ nameof(Result.SchemaName) }"",
     mv.MVIEW_NAME as ""{ nameof(Result.ViewName) }""

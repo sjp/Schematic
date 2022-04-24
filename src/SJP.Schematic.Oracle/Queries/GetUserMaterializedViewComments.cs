@@ -16,7 +16,7 @@ internal static class GetUserMaterializedViewComments
         public string? Comment { get; init; }
     }
 
-    public const string Sql = @$"
+    internal const string Sql = @$"
 -- view
 select
     'VIEW' as ""{ nameof(Result.ObjectType) }"",

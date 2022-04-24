@@ -16,7 +16,7 @@ internal static class GetViewName
         public string ViewName { get; init; } = default!;
     }
 
-    public const string Sql = @$"
+    internal const string Sql = @$"
 select
     table_schema as `{ nameof(Result.SchemaName) }`,
     table_name as `{ nameof(Result.ViewName) }`
