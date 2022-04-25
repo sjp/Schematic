@@ -46,7 +46,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : V11.PostgreSqlRelationa
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
         var query = await DbConnection.QueryAsync<GetV12TableColumns.Result>(
-            ColumnsQuery,
+            GetV12TableColumns.Sql,
             new GetV12TableColumns.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -103,12 +103,6 @@ public class PostgreSqlRelationalDatabaseTableProvider : V11.PostgreSqlRelationa
     }
 
     /// <summary>
-    /// A SQL query that retrieves column definitions.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected override string ColumnsQuery => GetV12TableColumns.Sql;
-
-    /// <summary>
     /// Retrieves check constraints defined on a given table.
     /// </summary>
     /// <param name="tableName">A table name.</param>
@@ -117,7 +111,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : V11.PostgreSqlRelationa
     protected override async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, CancellationToken cancellationToken)
     {
         var checks = await DbConnection.QueryAsync<GetV12TableChecks.Result>(
-            ChecksQuery,
+            GetV12TableChecks.Sql,
             new GetV12TableChecks.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -148,10 +142,4 @@ public class PostgreSqlRelationalDatabaseTableProvider : V11.PostgreSqlRelationa
 
         return result;
     }
-
-    /// <summary>
-    /// A SQL query that retrieves check constraint information for a table.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected override string ChecksQuery => GetV12TableChecks.Sql;
 }

@@ -57,7 +57,7 @@ public class PostgreSqlMaterializedViewCommentProvider : IDatabaseViewCommentPro
     /// <returns>A collection of materialized view comments.</returns>
     public async IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResult = await Connection.QueryAsync<GetAllMaterializedViewNames.Result>(ViewsQuery, cancellationToken).ConfigureAwait(false);
+        var queryResult = await Connection.QueryAsync<GetAllMaterializedViewNames.Result>(GetAllMaterializedViewNames.Sql, cancellationToken).ConfigureAwait(false);
         var viewNames = queryResult
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName);
@@ -101,19 +101,13 @@ public class PostgreSqlMaterializedViewCommentProvider : IDatabaseViewCommentPro
 
         var candidateViewName = QualifyViewName(viewName);
         var qualifiedViewName = Connection.QueryFirstOrNone<GetMaterializedViewName.Result>(
-            ViewNameQuery,
+            GetMaterializedViewName.Sql,
             new GetMaterializedViewName.Query { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
             cancellationToken
         );
 
         return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ViewName));
     }
-
-    /// <summary>
-    /// A SQL query that retrieves the resolved name of a materialized view in the database.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string ViewNameQuery => GetMaterializedViewName.Sql;
 
     /// <summary>
     /// Retrieves comments for a particular materialized view.
@@ -151,7 +145,7 @@ public class PostgreSqlMaterializedViewCommentProvider : IDatabaseViewCommentPro
     private async Task<IDatabaseViewComments> LoadViewCommentsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
         var result = await Connection.QueryAsync<GetMaterializedViewComments.Result>(
-            ViewCommentsQuery,
+            GetMaterializedViewComments.Sql,
             new GetMaterializedViewComments.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -168,18 +162,6 @@ public class PostgreSqlMaterializedViewCommentProvider : IDatabaseViewCommentPro
 
         return new DatabaseViewComments(viewName, viewComment, columnComments);
     }
-
-    /// <summary>
-    /// Gets a query that retrieves all materialized view names.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string ViewsQuery => GetAllMaterializedViewNames.Sql;
-
-    /// <summary>
-    /// Gets a query that retrieves comments for a single materialized view.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string ViewCommentsQuery => GetMaterializedViewComments.Sql;
 
     private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
     {

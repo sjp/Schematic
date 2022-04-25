@@ -69,7 +69,7 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
     /// <returns>A collection of materialized views.</returns>
     public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResult = await DbConnection.QueryAsync<GetAllMaterializedViewNames.Result>(ViewsQuery, cancellationToken).ConfigureAwait(false);
+        var queryResult = await DbConnection.QueryAsync<GetAllMaterializedViewNames.Result>(GetAllMaterializedViewNames.Sql, cancellationToken).ConfigureAwait(false);
         var viewNames = queryResult
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName);
@@ -77,12 +77,6 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
         foreach (var viewName in viewNames)
             yield return await LoadViewAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
     }
-
-    /// <summary>
-    /// A SQL query that retrieves the names of materialized views available in the database.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string ViewsQuery => GetAllMaterializedViewNames.Sql;
 
     /// <summary>
     /// Gets a materialized view.
@@ -135,19 +129,13 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
 
         var candidateViewName = QualifyViewName(viewName);
         var qualifiedViewName = DbConnection.QueryFirstOrNone<GetMaterializedViewName.Result>(
-            ViewNameQuery,
+            GetMaterializedViewName.Sql,
             new GetMaterializedViewName.Query { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
             cancellationToken
         );
 
         return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ViewName));
     }
-
-    /// <summary>
-    /// A SQL query that retrieves the resolved name of a materialized view in the database.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string ViewNameQuery => GetMaterializedViewName.Sql;
 
     /// <summary>
     /// Retrieves a database view, if available.
@@ -189,17 +177,11 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
             throw new ArgumentNullException(nameof(viewName));
 
         return DbConnection.ExecuteScalarAsync<string>(
-            DefinitionQuery,
+            GetMaterializedViewDefinition.Sql,
             new GetMaterializedViewDefinition.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         );
     }
-
-    /// <summary>
-    /// A SQL query that retrieves the definition of a materialized view.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string DefinitionQuery => GetMaterializedViewDefinition.Sql;
 
     /// <summary>
     /// Retrieves the columns for a given materialized view.
@@ -219,7 +201,7 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
         var query = await DbConnection.QueryAsync<GetMaterializedViewColumns.Result>(
-            ColumnsQuery,
+            GetMaterializedViewColumns.Sql,
             new GetMaterializedViewColumns.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -253,12 +235,6 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
 
         return result;
     }
-
-    /// <summary>
-    /// A SQL query that retrieves column definitions.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string ColumnsQuery => GetMaterializedViewColumns.Sql;
 
     /// <summary>
     /// Qualifies the name of the view.

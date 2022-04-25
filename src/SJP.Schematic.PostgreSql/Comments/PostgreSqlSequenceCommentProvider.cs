@@ -56,7 +56,7 @@ public class PostgreSqlSequenceCommentProvider : IDatabaseSequenceCommentProvide
     /// <returns>A collection of database sequence comments.</returns>
     public async IAsyncEnumerable<IDatabaseSequenceComments> GetAllSequenceComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var allCommentsData = await Connection.QueryAsync<GetAllSequenceComments.Result>(AllSequenceCommentsQuery, cancellationToken).ConfigureAwait(false);
+        var allCommentsData = await Connection.QueryAsync<GetAllSequenceComments.Result>(Queries.GetAllSequenceComments.Sql, cancellationToken).ConfigureAwait(false);
 
         foreach (var commentData in allCommentsData)
         {
@@ -106,19 +106,13 @@ public class PostgreSqlSequenceCommentProvider : IDatabaseSequenceCommentProvide
 
         var candidateSequenceName = QualifySequenceName(sequenceName);
         var qualifiedSequenceName = Connection.QueryFirstOrNone<GetSequenceName.Result>(
-            SequenceNameQuery,
+            GetSequenceName.Sql,
             new GetSequenceName.Query { SchemaName = candidateSequenceName.Schema!, SequenceName = candidateSequenceName.LocalName },
             cancellationToken
         );
 
         return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSequenceName.Server, candidateSequenceName.Database, name.SchemaName, name.SequenceName));
     }
-
-    /// <summary>
-    /// Gets a query that resolves the name of a sequence.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string SequenceNameQuery => GetSequenceName.Sql;
 
     /// <summary>
     /// Retrieves comments for a particular database sequence.
@@ -153,7 +147,7 @@ public class PostgreSqlSequenceCommentProvider : IDatabaseSequenceCommentProvide
             .Bind(name =>
             {
                 return Connection.QueryFirstOrNone<GetSequenceComments.Result>(
-                    SequenceCommentsQuery,
+                    Queries.GetSequenceComments.Sql,
                     new GetSequenceComments.Query { SchemaName = name.Schema!, SequenceName = name.LocalName },
                     cancellationToken
                 ).Map<IDatabaseSequenceComments>(c =>
@@ -165,18 +159,6 @@ public class PostgreSqlSequenceCommentProvider : IDatabaseSequenceCommentProvide
                 });
             });
     }
-
-    /// <summary>
-    /// Gets a query that retrieves comment information on all sequences.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string AllSequenceCommentsQuery => Queries.GetAllSequenceComments.Sql;
-
-    /// <summary>
-    /// Gets a query that retrieves comment information on a single comment.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string SequenceCommentsQuery => Queries.GetSequenceComments.Sql;
 
     /// <summary>
     /// Qualifies the name of the sequence.

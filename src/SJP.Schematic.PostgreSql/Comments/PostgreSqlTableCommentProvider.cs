@@ -57,7 +57,7 @@ public class PostgreSqlTableCommentProvider : IRelationalDatabaseTableCommentPro
     /// <returns>A collection of database table comments, where available.</returns>
     public async IAsyncEnumerable<IRelationalDatabaseTableComments> GetAllTableComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResult = await Connection.QueryAsync<GetAllTableNames.Result>(TablesQuery, cancellationToken).ConfigureAwait(false);
+        var queryResult = await Connection.QueryAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken).ConfigureAwait(false);
         var tableNames = queryResult
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
             .Select(QualifyTableName);
@@ -101,19 +101,13 @@ public class PostgreSqlTableCommentProvider : IRelationalDatabaseTableCommentPro
 
         var candidateTableName = QualifyTableName(tableName);
         var qualifiedTableName = Connection.QueryFirstOrNone<GetTableName.Result>(
-            TableNameQuery,
+            GetTableName.Sql,
             new GetTableName.Query { SchemaName = candidateTableName.Schema!, TableName = candidateTableName.LocalName },
             cancellationToken
         );
 
         return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(candidateTableName.Server, candidateTableName.Database, name.SchemaName, name.TableName));
     }
-
-    /// <summary>
-    /// A SQL query definition that resolves a table name for the database.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string TableNameQuery => GetTableName.Sql;
 
     /// <summary>
     /// Retrieves comments for a database table, if available.
@@ -151,7 +145,7 @@ public class PostgreSqlTableCommentProvider : IRelationalDatabaseTableCommentPro
     private async Task<IRelationalDatabaseTableComments> LoadTableCommentsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
         var result = await Connection.QueryAsync<GetTableComments.Result>(
-            TableCommentsQuery,
+            Queries.GetTableComments.Sql,
             new GetTableComments.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -187,18 +181,6 @@ public class PostgreSqlTableCommentProvider : IRelationalDatabaseTableCommentPro
             triggerComments
         );
     }
-
-    /// <summary>
-    /// A SQL query that retrieves the names of all tables in the database.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string TablesQuery => GetAllTableNames.Sql;
-
-    /// <summary>
-    /// A SQL query definition which retrieves all comment information for a particular table.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string TableCommentsQuery => Queries.GetTableComments.Sql;
 
     private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
     {

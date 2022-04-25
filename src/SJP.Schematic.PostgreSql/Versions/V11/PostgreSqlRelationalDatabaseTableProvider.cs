@@ -47,7 +47,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : PostgreSqlRelationalDat
     private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         var queryResult = await DbConnection.QueryAsync<GetV11TableIndexes.Result>(
-            IndexesQuery,
+            GetV11TableIndexes.Sql,
             new GetV11TableIndexes.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -104,10 +104,4 @@ public class PostgreSqlRelationalDatabaseTableProvider : PostgreSqlRelationalDat
 
         return result;
     }
-
-    /// <summary>
-    /// A SQL query that retrieves information on indexes for a given table.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected override string IndexesQuery => GetV11TableIndexes.Sql;
 }

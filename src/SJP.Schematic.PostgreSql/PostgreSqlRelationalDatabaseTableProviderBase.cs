@@ -89,7 +89,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     /// <returns>A collection of database tables.</returns>
     public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResults = await DbConnection.QueryAsync<GetAllTableNames.Result>(TablesQuery, cancellationToken).ConfigureAwait(false);
+        var queryResults = await DbConnection.QueryAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken).ConfigureAwait(false);
         var tableNames = queryResults
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
             .Select(QualifyTableName);
@@ -98,12 +98,6 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         foreach (var tableName in tableNames)
             yield return await LoadTableAsyncCore(tableName, queryCache, cancellationToken).ConfigureAwait(false);
     }
-
-    /// <summary>
-    /// A SQL query that retrieves the names of all tables in the database.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string TablesQuery => GetAllTableNames.Sql;
 
     /// <summary>
     /// Gets a database table.
@@ -158,19 +152,13 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
 
         var candidateTableName = QualifyTableName(tableName);
         var qualifiedTableName = DbConnection.QueryFirstOrNone<GetTableName.Result>(
-            TableNameQuery,
+            GetTableName.Sql,
             new GetTableName.Query { SchemaName = candidateTableName.Schema!, TableName = candidateTableName.LocalName },
             cancellationToken
         );
 
         return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(candidateTableName.Server, candidateTableName.Database, name.SchemaName, name.TableName));
     }
-
-    /// <summary>
-    /// A SQL query definition that resolves a table name for the database.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string TableNameQuery => GetTableName.Sql;
 
     /// <summary>
     /// Retrieves a table from the database, if available.
@@ -248,7 +236,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     private async Task<Option<IDatabaseKey>> LoadPrimaryKeyAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         var primaryKeyColumns = await DbConnection.QueryAsync<GetTablePrimaryKey.Result>(
-            PrimaryKeyQuery,
+            GetTablePrimaryKey.Sql,
             new GetTablePrimaryKey.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -278,12 +266,6 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     }
 
     /// <summary>
-    /// A SQL query that retrieves information on any primary key defined for a given table.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string PrimaryKeyQuery => GetTablePrimaryKey.Sql;
-
-    /// <summary>
     /// Retrieves indexes that relate to the given table.
     /// </summary>
     /// <param name="tableName">A table name.</param>
@@ -304,7 +286,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         var queryResult = await DbConnection.QueryAsync<GetTableIndexes.Result>(
-            IndexesQuery,
+            GetTableIndexes.Sql,
             new GetTableIndexes.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -356,12 +338,6 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     }
 
     /// <summary>
-    /// A SQL query that retrieves information on indexes for a given table.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string IndexesQuery => GetTableIndexes.Sql;
-
-    /// <summary>
     /// Retrieves unique keys that relate to the given table.
     /// </summary>
     /// <param name="tableName">A table name.</param>
@@ -382,7 +358,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     private async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         var uniqueKeyColumns = await DbConnection.QueryAsync<GetTableUniqueKeys.Result>(
-            UniqueKeysQuery,
+            GetTableUniqueKeys.Sql,
             new GetTableUniqueKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -418,12 +394,6 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     }
 
     /// <summary>
-    /// A SQL query that returns unique key information for a particular table.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string UniqueKeysQuery => GetTableUniqueKeys.Sql;
-
-    /// <summary>
     /// Retrieves child keys that relate to the given table.
     /// </summary>
     /// <param name="tableName">A table name.</param>
@@ -444,7 +414,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         var queryResult = await DbConnection.QueryAsync<GetTableChildKeys.Result>(
-            ChildKeysQuery,
+            GetTableChildKeys.Sql,
             new GetTableChildKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -510,12 +480,6 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     }
 
     /// <summary>
-    /// A SQL query that retrieves information on child keys for a given table.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string ChildKeysQuery => GetTableChildKeys.Sql;
-
-    /// <summary>
     /// Retrieves check constraints defined on a given table.
     /// </summary>
     /// <param name="tableName">A table name.</param>
@@ -524,7 +488,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     protected virtual async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, CancellationToken cancellationToken)
     {
         var checks = await DbConnection.QueryAsync<GetTableChecks.Result>(
-            ChecksQuery,
+            GetTableChecks.Sql,
             new GetTableChecks.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -550,12 +514,6 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     }
 
     /// <summary>
-    /// A SQL query that retrieves check constraint information for a table.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string ChecksQuery => GetTableChecks.Sql;
-
-    /// <summary>
     /// Retrieves foreign keys that relate to the given table.
     /// </summary>
     /// <param name="tableName">A table name.</param>
@@ -576,7 +534,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         var queryResult = await DbConnection.QueryAsync<GetTableParentKeys.Result>(
-            ParentKeysQuery,
+            GetTableParentKeys.Sql,
             new GetTableParentKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -651,12 +609,6 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     }
 
     /// <summary>
-    /// A SQL query that retrieves information about foreign keys.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string ParentKeysQuery => GetTableParentKeys.Sql;
-
-    /// <summary>
     /// Retrieves the columns for a given table.
     /// </summary>
     /// <param name="tableName">A table name.</param>
@@ -674,7 +626,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
         var query = await DbConnection.QueryAsync<GetTableColumns.Result>(
-            ColumnsQuery,
+            GetTableColumns.Sql,
             new GetTableColumns.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -724,12 +676,6 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     }
 
     /// <summary>
-    /// A SQL query that retrieves column definitions.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string ColumnsQuery => GetTableColumns.Sql;
-
-    /// <summary>
     /// Retrieves all triggers defined on a table.
     /// </summary>
     /// <param name="tableName">A table name.</param>
@@ -747,7 +693,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     private async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
         var queryResult = await DbConnection.QueryAsync<GetTableTriggers.Result>(
-            TriggersQuery,
+            GetTableTriggers.Sql,
             new GetTableTriggers.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -792,12 +738,6 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
 
         return result;
     }
-
-    /// <summary>
-    /// A SQL query that retrieves information about any triggers on the table.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string TriggersQuery => GetTableTriggers.Sql;
 
     /// <summary>
     /// Creates a column lookup, keyed by the column's name.

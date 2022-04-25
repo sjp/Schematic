@@ -57,7 +57,7 @@ public class PostgreSqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
     /// <returns>A collection of database routine comments, where available.</returns>
     public async IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResult = await Connection.QueryAsync<GetAllRoutineNames.Result>(RoutinesQuery, cancellationToken).ConfigureAwait(false);
+        var queryResult = await Connection.QueryAsync<GetAllRoutineNames.Result>(GetAllRoutineNames.Sql, cancellationToken).ConfigureAwait(false);
         var routineNames = queryResult
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName);
@@ -101,19 +101,13 @@ public class PostgreSqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
 
         var candidateRoutineName = QualifyRoutineName(routineName);
         var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineName.Result>(
-            RoutineNameQuery,
+            GetRoutineName.Sql,
             new GetRoutineName.Query { SchemaName = candidateRoutineName.Schema!, RoutineName = candidateRoutineName.LocalName },
             cancellationToken
         );
 
         return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(candidateRoutineName.Server, candidateRoutineName.Database, name.SchemaName, name.RoutineName));
     }
-
-    /// <summary>
-    /// Gets a query that retrieves a resolved routine name.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string RoutineNameQuery => GetRoutineName.Sql;
 
     /// <summary>
     /// Retrieves comments for a database routine, if available.
@@ -151,7 +145,7 @@ public class PostgreSqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
     private async Task<IDatabaseRoutineComments> LoadRoutineCommentsAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
         var commentOption = Connection.QueryFirstOrNone<GetRoutineComments.Result>(
-            RoutineCommentsQuery,
+            Queries.GetRoutineComments.Sql,
             new GetRoutineComments.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken
         ).Bind(c =>
@@ -162,18 +156,6 @@ public class PostgreSqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
         var comment = await commentOption.ToOption().ConfigureAwait(false);
         return new DatabaseRoutineComments(routineName, comment);
     }
-
-    /// <summary>
-    /// A SQL query that retrieves all database routine names.
-    /// </summary>
-    /// <value>A SQL query definition.</value>
-    protected virtual string RoutinesQuery => GetAllRoutineNames.Sql;
-
-    /// <summary>
-    /// Gets a query that retrieves comments for a single routine.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string RoutineCommentsQuery => Queries.GetRoutineComments.Sql;
 
     /// <summary>
     /// Qualifies the name of a routine, using known identifier defaults.
