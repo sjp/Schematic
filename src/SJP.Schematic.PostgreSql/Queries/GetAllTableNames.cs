@@ -15,4 +15,5 @@ select
     tablename as ""{ nameof(Result.TableName) }""
 from pg_catalog.pg_tables
 where schemaname not in ('pg_catalog', 'information_schema')
-order by schemaname, tablename";}
+order by schemaname, tablename";
+}
