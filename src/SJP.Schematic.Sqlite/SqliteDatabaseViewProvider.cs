@@ -81,11 +81,11 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
 
         foreach (var dbName in dbNames)
         {
-            var sql = ViewsQuery(dbName);
-            var queryResult = await DbConnection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
+            var sql = GetAllViewNames.Sql(Dialect, dbName);
+            var queryResult = await DbConnection.QueryAsync<GetAllViewNames.Result>(sql, cancellationToken).ConfigureAwait(false);
             var viewNames = queryResult
-                .Where(name => !IsReservedTableName(name))
-                .Select(name => Identifier.CreateQualifiedIdentifier(dbName, name));
+                .Where(static result => !IsReservedViewName(result.ViewName))
+                .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.ViewName));
 
             qualifiedViewNames.AddRange(viewNames);
         }
@@ -96,20 +96,6 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
 
         foreach (var viewName in orderedViewNames)
             yield return await LoadViewAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
-    }
-
-    /// <summary>
-    /// Creates a query that retrieves the names of all views.
-    /// </summary>
-    /// <param name="schemaName">A schema name.</param>
-    /// <returns>A SQL query.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="schemaName"/> is <c>null</c>, empty or whitespace.</exception>
-    protected virtual string ViewsQuery(string schemaName)
-    {
-        if (schemaName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(schemaName));
-
-        return $"select name from { Dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'view' order by name";
     }
 
     /// <summary>
@@ -375,7 +361,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A view name.</param>
     /// <returns><c>true</c> if the given view name is reserved; otherwise, <c>false</c>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
-    protected static bool IsReservedTableName(Identifier viewName)
+    protected static bool IsReservedViewName(Identifier viewName)
     {
         if (viewName == null)
             throw new ArgumentNullException(nameof(viewName));
