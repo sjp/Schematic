@@ -277,7 +277,9 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
             .ToReadOnlyDictionary();
 
         return checks
-            .Where(c => c.Definition != null && columnNotNullConstraints.ContainsKey(c.Definition) && string.Equals(c.EnabledStatus, EnabledValue, StringComparison.Ordinal))
+            .Where(c => c.Definition != null
+                && string.Equals(c.EnabledStatus, EnabledValue, StringComparison.Ordinal)
+                && columnNotNullConstraints.ContainsKey(c.Definition))
             .Select(c => columnNotNullConstraints[c.Definition!])
             .ToList();
     }
@@ -288,12 +290,12 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
     /// <param name="columnName">A column name.</param>
     /// <returns>A <c>NOT NULL</c> constraint definition for the given column.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
-    protected string GenerateNotNullDefinition(string columnName)
+    protected static string GenerateNotNullDefinition(string columnName)
     {
         if (columnName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(columnName));
 
-        return _notNullDefinitions.GetOrAdd(columnName, static colName => "\"" + colName + "\" IS NOT NULL");
+        return "\"" + columnName + "\" IS NOT NULL";
     }
 
     /// <summary>
@@ -310,8 +312,6 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
         var schema = viewName.Schema ?? IdentifierDefaults.Schema;
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, viewName.LocalName);
     }
-
-    private readonly ConcurrentDictionary<string, string> _notNullDefinitions = new();
 
     private const string EnabledValue = "ENABLED";
 }

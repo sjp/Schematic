@@ -770,7 +770,9 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             .ToReadOnlyDictionary();
 
         return checks
-            .Where(c => c.Definition != null && columnNotNullConstraints.ContainsKey(c.Definition) && string.Equals(c.EnabledStatus, Constants.Enabled, StringComparison.Ordinal))
+            .Where(c => c.Definition != null
+                && string.Equals(c.EnabledStatus, Constants.Enabled, StringComparison.Ordinal)
+                && columnNotNullConstraints.ContainsKey(c.Definition))
             .Select(c => columnNotNullConstraints[c.Definition!])
             .ToList();
     }
@@ -781,12 +783,12 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="columnName">A column name.</param>
     /// <returns>A <c>NOT NULL</c> constraint definition for the given column.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
-    protected string GenerateNotNullDefinition(string columnName)
+    protected static string GenerateNotNullDefinition(string columnName)
     {
         if (columnName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(columnName));
 
-        return _notNullDefinitions.GetOrAdd(columnName, static colName => "\"" + colName + "\" IS NOT NULL");
+        return "\"" + columnName + "\" IS NOT NULL";
     }
 
     /// <summary>
@@ -859,8 +861,6 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         return result;
     }
-
-    private readonly ConcurrentDictionary<string, string> _notNullDefinitions = new(StringComparer.Ordinal);
 
     private static class Constants
     {
