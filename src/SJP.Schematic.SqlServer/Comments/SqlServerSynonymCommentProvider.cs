@@ -55,7 +55,7 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
     /// <returns>A collection of database synonyms comments.</returns>
     public async IAsyncEnumerable<IDatabaseSynonymComments> GetAllSynonymComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResults = await Connection.QueryAsync<GetAllSynonymNames.Result>(SynonymsQuery, cancellationToken).ConfigureAwait(false);
+        var queryResults = await Connection.QueryAsync<GetAllSynonymNames.Result>(GetAllSynonymNames.Sql, cancellationToken).ConfigureAwait(false);
         var synonymNames = queryResults
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.SynonymName))
             .Select(QualifySynonymName);
@@ -78,19 +78,13 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
 
         synonymName = QualifySynonymName(synonymName);
         var qualifiedSynonymName = Connection.QueryFirstOrNone<GetSynonymName.Result>(
-            SynonymNameQuery,
+            GetSynonymName.Sql,
             new GetSynonymName.Query { SchemaName = synonymName.Schema!, SynonymName = synonymName.LocalName },
             cancellationToken
         );
 
         return qualifiedSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(synonymName.Server, synonymName.Database, name.SchemaName, name.SynonymName));
     }
-
-    /// <summary>
-    /// Gets a query that retrieves a synonym's name, used for name resolution.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string SynonymNameQuery => GetSynonymName.Sql;
 
     /// <summary>
     /// Retrieves comments for a database synonym.
@@ -128,7 +122,7 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
     private async Task<IDatabaseSynonymComments> LoadSynonymCommentsAsyncCore(Identifier synonymName, CancellationToken cancellationToken)
     {
         var queryResult = await Connection.QueryAsync<GetSynonymComments.Result>(
-            SynonymCommentsQuery,
+            Queries.GetSynonymComments.Sql,
             new GetSynonymComments.Query
             {
                 SchemaName = synonymName.Schema!,
@@ -149,18 +143,6 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
 
         return new DatabaseSynonymComments(synonymName, synonymComment);
     }
-
-    /// <summary>
-    /// A SQL query that retrieves the names of all synonyms in the database.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string SynonymsQuery => GetAllSynonymNames.Sql;
-
-    /// <summary>
-    /// Gets a query that retrieves comment information on a single synonym.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string SynonymCommentsQuery => Queries.GetSynonymComments.Sql;
 
     private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
     {

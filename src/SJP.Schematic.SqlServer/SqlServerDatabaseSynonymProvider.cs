@@ -46,7 +46,7 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// <returns>A collection of database synonyms.</returns>
     public async IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResult = await Connection.QueryAsync<GetAllSynonymDefinitions.Result>(SynonymsQuery, cancellationToken).ConfigureAwait(false);
+        var queryResult = await Connection.QueryAsync<GetAllSynonymDefinitions.Result>(GetAllSynonymDefinitions.Sql, cancellationToken).ConfigureAwait(false);
 
         foreach (var row in queryResult)
         {
@@ -63,12 +63,6 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
             yield return new DatabaseSynonym(synonymName, qualifiedTargetName);
         }
     }
-
-    /// <summary>
-    /// A SQL query that retrieves the definitions of all synonyms in the database.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string SynonymsQuery => GetAllSynonymDefinitions.Sql;
 
     /// <summary>
     /// Gets a database synonym.
@@ -100,19 +94,13 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
 
         var candidateSynonymName = QualifySynonymName(synonymName);
         var qualifiedSynonymName = Connection.QueryFirstOrNone<GetSynonymName.Result>(
-            SynonymNameQuery,
+            GetSynonymName.Sql,
             new GetSynonymName.Query { SchemaName = candidateSynonymName.Schema!, SynonymName = candidateSynonymName.LocalName },
             cancellationToken
         );
 
         return qualifiedSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSynonymName.Server, candidateSynonymName.Database, name.SchemaName, name.SynonymName));
     }
-
-    /// <summary>
-    /// Gets a query that retrieves a synonym's name, used for name resolution.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string SynonymNameQuery => GetSynonymName.Sql;
 
     /// <summary>
     /// Retrieves a database synonym, if available.
@@ -131,7 +119,7 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
             .Bind(name =>
             {
                 return Connection.QueryFirstOrNone<GetSynonymDefinition.Result>(
-                    LoadSynonymQuery,
+                    GetSynonymDefinition.Sql,
                     new GetSynonymDefinition.Query { SchemaName = synonymName.Schema!, SynonymName = synonymName.LocalName },
                     cancellationToken
                 ).Map<IDatabaseSynonym>(synonymData =>
@@ -148,12 +136,6 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
                 });
             });
     }
-
-    /// <summary>
-    /// A SQL query that retrieves a synonym's definition.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string LoadSynonymQuery => GetSynonymDefinition.Sql;
 
     /// <summary>
     /// Qualifies the name of a synonym, using known identifier defaults.

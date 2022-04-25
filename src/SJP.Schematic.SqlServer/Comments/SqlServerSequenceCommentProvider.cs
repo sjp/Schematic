@@ -55,7 +55,7 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
     /// <returns>A collection of database sequence comments.</returns>
     public async IAsyncEnumerable<IDatabaseSequenceComments> GetAllSequenceComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResults = await Connection.QueryAsync<GetAllSequenceNames.Result>(SequencesQuery, cancellationToken).ConfigureAwait(false);
+        var queryResults = await Connection.QueryAsync<GetAllSequenceNames.Result>(GetAllSequenceNames.Sql, cancellationToken).ConfigureAwait(false);
         var sequenceNames = queryResults
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.SequenceName))
             .Select(QualifySequenceName);
@@ -78,19 +78,13 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
 
         sequenceName = QualifySequenceName(sequenceName);
         var qualifiedSequenceName = Connection.QueryFirstOrNone<GetSequenceName.Result>(
-            SequenceNameQuery,
+            GetSequenceName.Sql,
             new GetSequenceName.Query { SchemaName = sequenceName.Schema!, SequenceName = sequenceName.LocalName },
             cancellationToken
         );
 
         return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(sequenceName.Server, sequenceName.Database, name.SchemaName, name.SequenceName));
     }
-
-    /// <summary>
-    /// Gets a query that resolves the name of a sequence.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string SequenceNameQuery => GetSequenceName.Sql;
 
     /// <summary>
     /// Retrieves comments for a particular database sequence.
@@ -128,7 +122,7 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
     private async Task<IDatabaseSequenceComments> LoadSequenceCommentsAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
     {
         var queryResult = await Connection.QueryAsync<GetSequenceComments.Result>(
-            SequenceCommentsQuery,
+            Queries.GetSequenceComments.Sql,
             new GetSequenceComments.Query
             {
                 SchemaName = sequenceName.Schema!,
@@ -149,18 +143,6 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
 
         return new DatabaseSequenceComments(sequenceName, sequenceComment);
     }
-
-    /// <summary>
-    /// Gets a query that retrieves names of all sequences in the database.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string SequencesQuery => GetAllSequenceNames.Sql;
-
-    /// <summary>
-    /// Gets a query that retrieves comment information on a single sequence.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string SequenceCommentsQuery => Queries.GetSequenceComments.Sql;
 
     private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
     {

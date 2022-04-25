@@ -47,7 +47,7 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// <returns>A collection of database sequences.</returns>
     public async IAsyncEnumerable<IDatabaseSequence> GetAllSequences([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResult = await Connection.QueryAsync<GetAllSequenceDefinitions.Result>(SequencesQuery, cancellationToken).ConfigureAwait(false);
+        var queryResult = await Connection.QueryAsync<GetAllSequenceDefinitions.Result>(GetAllSequenceDefinitions.Sql, cancellationToken).ConfigureAwait(false);
         var sequences = queryResult
             .Select(row =>
             {
@@ -66,12 +66,6 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
         foreach (var sequence in sequences)
             yield return sequence;
     }
-
-    /// <summary>
-    /// Gets a query that retrieves information on all sequences in the database.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string SequencesQuery => GetAllSequenceDefinitions.Sql;
 
     /// <summary>
     /// Gets a database sequence.
@@ -103,25 +97,13 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
 
         var candidateSequenceName = QualifySequenceName(sequenceName);
         var qualifiedSequenceName = Connection.QueryFirstOrNone<GetSequenceName.Result>(
-            SequenceNameQuery,
+            GetSequenceName.Sql,
             new GetSequenceName.Query { SchemaName = candidateSequenceName.Schema!, SequenceName = candidateSequenceName.LocalName },
             cancellationToken
         );
 
         return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSequenceName.Server, candidateSequenceName.Database, name.SchemaName, name.SequenceName));
     }
-
-    /// <summary>
-    /// Gets a query that resolves the name of a sequence.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string SequenceNameQuery => GetSequenceName.Sql;
-
-    /// <summary>
-    /// Gets a query that retrieves all relevant information on a sequence.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string SequenceQuery => GetSequenceDefinition.Sql;
 
     /// <summary>
     /// Retrieves database sequence information.
@@ -146,7 +128,7 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
             throw new ArgumentNullException(nameof(sequenceName));
 
         return Connection.QueryFirstOrNone<GetSequenceDefinition.Result>(
-            SequenceQuery,
+            GetSequenceDefinition.Sql,
             new GetSequenceDefinition.Query { SchemaName = sequenceName.Schema!, SequenceName = sequenceName.LocalName },
             cancellationToken
         ).Map<IDatabaseSequence>(dto => new DatabaseSequence(

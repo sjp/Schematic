@@ -55,7 +55,7 @@ public class SqlServerRoutineCommentProvider : IDatabaseRoutineCommentProvider
     /// <returns>A collection of database routine comments, where available.</returns>
     public async IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResults = await Connection.QueryAsync<GetAllRoutineNames.Result>(RoutinesQuery, cancellationToken).ConfigureAwait(false);
+        var queryResults = await Connection.QueryAsync<GetAllRoutineNames.Result>(GetAllRoutineNames.Sql, cancellationToken).ConfigureAwait(false);
         var routineNames = queryResults
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName);
@@ -78,19 +78,13 @@ public class SqlServerRoutineCommentProvider : IDatabaseRoutineCommentProvider
 
         routineName = QualifyRoutineName(routineName);
         var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineName.Result>(
-            RoutineNameQuery,
+            GetRoutineName.Sql,
             new GetRoutineName.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken
         );
 
         return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(routineName.Server, routineName.Database, name.SchemaName, name.RoutineName));
     }
-
-    /// <summary>
-    /// A SQL query that retrieves the resolved routine name.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string RoutineNameQuery => GetRoutineName.Sql;
 
     /// <summary>
     /// Retrieves comments for a database routine, if available.
@@ -128,7 +122,7 @@ public class SqlServerRoutineCommentProvider : IDatabaseRoutineCommentProvider
     private async Task<IDatabaseRoutineComments> LoadRoutineCommentsAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
         var queryResult = await Connection.QueryAsync<GetRoutineComments.Result>(
-            RoutineCommentsQuery,
+            Queries.GetRoutineComments.Sql,
             new GetRoutineComments.Query
             {
                 SchemaName = routineName.Schema!,
@@ -149,18 +143,6 @@ public class SqlServerRoutineCommentProvider : IDatabaseRoutineCommentProvider
 
         return new DatabaseRoutineComments(routineName, routineComment);
     }
-
-    /// <summary>
-    /// A SQL query that retrieves all database routine names.
-    /// </summary>
-    /// <value>A SQL query definition.</value>
-    protected virtual string RoutinesQuery => GetAllRoutineNames.Sql;
-
-    /// <summary>
-    /// Gets a query that retrieves comments for a single routine.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string RoutineCommentsQuery => Queries.GetRoutineComments.Sql;
 
     private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
     {
