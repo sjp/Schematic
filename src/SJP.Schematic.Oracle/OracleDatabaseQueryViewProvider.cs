@@ -70,7 +70,7 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
     /// <returns>A collection of database views.</returns>
     public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResult = await DbConnection.QueryAsync<GetAllViewNames.Result>(ViewsQuery, cancellationToken).ConfigureAwait(false);
+        var queryResult = await DbConnection.QueryAsync<GetAllViewNames.Result>(GetAllViewNames.Sql, cancellationToken).ConfigureAwait(false);
         var viewNames = queryResult
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName);
@@ -78,12 +78,6 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
         foreach (var viewName in viewNames)
             yield return await LoadViewAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
     }
-
-    /// <summary>
-    /// A SQL query that retrieves the names of views available in the database.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string ViewsQuery => GetAllViewNames.Sql;
 
     /// <summary>
     /// Gets a database view.
@@ -136,19 +130,13 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
 
         var candidateViewName = QualifyViewName(viewName);
         var qualifiedViewName = DbConnection.QueryFirstOrNone<GetViewName.Result>(
-            ViewNameQuery,
+            GetViewName.Sql,
             new GetViewName.Query { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
             cancellationToken
         );
 
         return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ViewName));
     }
-
-    /// <summary>
-    /// A SQL query that retrieves the resolved name of a view in the database.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string ViewNameQuery => GetViewName.Sql;
 
     /// <summary>
     /// Retrieves a database view, if available.
@@ -190,17 +178,11 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
             throw new ArgumentNullException(nameof(viewName));
 
         return DbConnection.ExecuteScalarAsync<string>(
-            DefinitionQuery,
+            GetViewDefinition.Sql,
             new GetViewDefinition.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         );
     }
-
-    /// <summary>
-    /// A SQL query that retrieves the definition of a view.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string DefinitionQuery => GetViewDefinition.Sql;
 
     /// <summary>
     /// Retrieves the columns for a given view.
@@ -220,7 +202,7 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
         var query = await DbConnection.QueryAsync<GetViewColumns.Result>(
-            ColumnsQuery,
+            GetViewColumns.Sql,
             new GetViewColumns.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -262,12 +244,6 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
     }
 
     /// <summary>
-    /// A SQL query that retrieves column definitions.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string ColumnsQuery => GetViewColumns.Sql;
-
-    /// <summary>
     /// Retrieves the names all of the not-null constrained columns in a given view.
     /// </summary>
     /// <param name="viewName">A view name.</param>
@@ -288,7 +264,7 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
     private async Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsyncCore(Identifier viewName, IEnumerable<string> columnNames, CancellationToken cancellationToken)
     {
         var checks = await DbConnection.QueryAsync<GetViewChecks.Result>(
-            ChecksQuery,
+            GetViewChecks.Sql,
             new GetViewChecks.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -305,12 +281,6 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
             .Select(c => columnNotNullConstraints[c.Definition!])
             .ToList();
     }
-
-    /// <summary>
-    /// A SQL query that retrieves check constraint information for a view.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string ChecksQuery => GetViewChecks.Sql;
 
     /// <summary>
     /// Creates a not null constraint definition, used to determine whether a constraint is a <c>NOT NULL</c> constraint.

@@ -57,7 +57,7 @@ public class OracleQueryViewCommentProvider : IDatabaseViewCommentProvider
     /// <returns>A collection of view comments.</returns>
     public async IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResult = await Connection.QueryAsync<GetAllViewNames.Result>(ViewsQuery, cancellationToken).ConfigureAwait(false);
+        var queryResult = await Connection.QueryAsync<GetAllViewNames.Result>(GetAllViewNames.Sql, cancellationToken).ConfigureAwait(false);
         var viewNames = queryResult
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName);
@@ -101,19 +101,13 @@ public class OracleQueryViewCommentProvider : IDatabaseViewCommentProvider
 
         var candidateViewName = QualifyViewName(viewName);
         var qualifiedViewName = Connection.QueryFirstOrNone<GetViewName.Result>(
-            ViewNameQuery,
+            GetViewName.Sql,
             new GetViewName.Query { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
             cancellationToken
         );
 
         return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ViewName));
     }
-
-    /// <summary>
-    /// A SQL query that retrieves the resolved name of a view in the database.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string ViewNameQuery => Queries.GetViewName.Sql;
 
     /// <summary>
     /// Retrieves comments for a particular database view.
@@ -154,7 +148,7 @@ public class OracleQueryViewCommentProvider : IDatabaseViewCommentProvider
             return await LoadUserViewCommentsAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
 
         var result = await Connection.QueryAsync<GetViewComments.Result>(
-            ViewCommentsQuery,
+            Queries.GetViewComments.Sql,
             new GetViewComments.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -175,7 +169,7 @@ public class OracleQueryViewCommentProvider : IDatabaseViewCommentProvider
     private async Task<IDatabaseViewComments> LoadUserViewCommentsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
         var result = await Connection.QueryAsync<GetUserViewComments.Result>(
-            UserViewCommentsQuery,
+            GetUserViewComments.Sql,
             new GetUserViewComments.Query { ViewName = viewName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -192,24 +186,6 @@ public class OracleQueryViewCommentProvider : IDatabaseViewCommentProvider
 
         return new DatabaseViewComments(viewName, viewComment, columnComments);
     }
-
-    /// <summary>
-    /// A SQL query that retrieves the names of views available in the database.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string ViewsQuery => GetAllViewNames.Sql;
-
-    /// <summary>
-    /// Gets a query that retrieves view comments for a single view.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string ViewCommentsQuery => Queries.GetViewComments.Sql;
-
-    /// <summary>
-    /// Gets a query that retrieves view comments for a single view in the user's schema.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string UserViewCommentsQuery => GetUserViewComments.Sql;
 
     private static Option<string> GetViewComment(IEnumerable<CommentData> commentsData)
     {

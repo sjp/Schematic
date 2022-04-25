@@ -55,7 +55,7 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// <returns>A collection of database sequences.</returns>
     public async IAsyncEnumerable<IDatabaseSequence> GetAllSequences([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResult = await Connection.QueryAsync<GetAllSequences.Result>(SequencesQuery, cancellationToken).ConfigureAwait(false);
+        var queryResult = await Connection.QueryAsync<GetAllSequences.Result>(Queries.GetAllSequences.Sql, cancellationToken).ConfigureAwait(false);
 
         foreach (var row in queryResult)
         {
@@ -77,12 +77,6 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
             );
         }
     }
-
-    /// <summary>
-    /// Gets a query that retrieves information on all sequences in the database.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string SequencesQuery => Queries.GetAllSequences.Sql;
 
     /// <summary>
     /// Gets a database sequence.
@@ -135,19 +129,13 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
 
         var candidateSequenceName = QualifySequenceName(sequenceName);
         var qualifiedSequenceName = Connection.QueryFirstOrNone<GetSequenceName.Result>(
-            SequenceNameQuery,
+            GetSequenceName.Sql,
             new GetSequenceName.Query { SchemaName = candidateSequenceName.Schema!, SequenceName = candidateSequenceName.LocalName },
             cancellationToken
         );
 
         return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSequenceName.Server, candidateSequenceName.Database, name.SchemaName, name.SequenceName));
     }
-
-    /// <summary>
-    /// Gets a query that resolves the name of a sequence.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string SequenceNameQuery => GetSequenceName.Sql;
 
     /// <summary>
     /// Retrieves database sequence information.
@@ -172,7 +160,7 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
             throw new ArgumentNullException(nameof(sequenceName));
 
         return Connection.QueryFirstOrNone<GetSequenceDefinition.Result>(
-            SequenceQuery,
+            GetSequenceDefinition.Sql,
             new GetSequenceDefinition.Query { SchemaName = sequenceName.Schema!, SequenceName = sequenceName.LocalName },
             cancellationToken
         ).Map<IDatabaseSequence>(row =>
@@ -193,12 +181,6 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
             );
         });
     }
-
-    /// <summary>
-    /// Gets a query that retrieves all relevant information on a sequence.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string SequenceQuery => GetSequenceDefinition.Sql;
 
     /// <summary>
     /// Qualifies the name of the sequence.

@@ -59,7 +59,7 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
         // the main reason is to avoid queries where possible, especially when
         // the SYS.ALL_SYNONYMS data dictionary view is very slow
 
-        var queryResult = await Connection.QueryAsync<GetAllSynonyms.Result>(SynonymsQuery, cancellationToken).ConfigureAwait(false);
+        var queryResult = await Connection.QueryAsync<GetAllSynonyms.Result>(Queries.GetAllSynonyms.Sql, cancellationToken).ConfigureAwait(false);
 
         foreach (var synonymRow in queryResult)
         {
@@ -79,12 +79,6 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
             yield return new DatabaseSynonym(qualifiedSynonymName, qualifiedTargetName);
         }
     }
-
-    /// <summary>
-    /// A SQL query that retrieves the definitions of all synonyms in the database.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string SynonymsQuery => Queries.GetAllSynonyms.Sql;
 
     /// <summary>
     /// Gets a database synonym.
@@ -143,7 +137,7 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
         if (isUserSynonym)
         {
             var userSynonymName = Connection.QueryFirstOrNone<string>(
-                UserSynonymNameQuery,
+                GetUserSynonymName.Sql,
                 new GetUserSynonymName.Query { SynonymName = candidateSynonymName.LocalName },
                 cancellationToken
             );
@@ -152,25 +146,13 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
         }
 
         var qualifiedSynonymName = Connection.QueryFirstOrNone<GetSynonymName.Result>(
-            SynonymNameQuery,
+            GetSynonymName.Sql,
             new GetSynonymName.Query { SchemaName = candidateSynonymName.Schema!, SynonymName = candidateSynonymName.LocalName },
             cancellationToken
         );
 
         return qualifiedSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSynonymName.Server, candidateSynonymName.Database, name.SchemaName, name.SynonymName));
     }
-
-    /// <summary>
-    /// Gets a query that retrieves a synonym's name from all visible schemas.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string SynonymNameQuery => GetSynonymName.Sql;
-
-    /// <summary>
-    /// Gets a query that retrieves a synonym's name from the user's schema.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string UserSynonymNameQuery => GetUserSynonymName.Sql;
 
     /// <summary>
     /// Retrieves a database synonym, if available.
@@ -199,25 +181,13 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
             : LoadSynonymData(synonymName, cancellationToken);
     }
 
-    /// <summary>
-    /// A SQL query that retrieves a synonym's definition.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string LoadSynonymQuery => GetSynonymDefinition.Sql;
-
-    /// <summary>
-    /// A SQL query that retrieves a synonym's definition for the default/user schema.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string LoadUserSynonymQuery => GetUserSynonymDefinition.Sql;
-
     private OptionAsync<IDatabaseSynonym> LoadSynonymData(Identifier synonymName, CancellationToken cancellationToken)
     {
         if (synonymName == null)
             throw new ArgumentNullException(nameof(synonymName));
 
         return Connection.QueryFirstOrNone<GetSynonymDefinition.Result>(
-            LoadSynonymQuery,
+            GetSynonymDefinition.Sql,
             new GetSynonymDefinition.Query { SchemaName = synonymName.Schema!, SynonymName = synonymName.LocalName },
             cancellationToken
         ).Map<IDatabaseSynonym>(row =>
@@ -240,7 +210,7 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
             throw new ArgumentNullException(nameof(synonymName));
 
         return Connection.QueryFirstOrNone<GetUserSynonymDefinition.Result>(
-            LoadUserSynonymQuery,
+            GetUserSynonymDefinition.Sql,
             new GetUserSynonymDefinition.Query { SynonymName = synonymName },
             cancellationToken
         ).Map<IDatabaseSynonym>(row =>

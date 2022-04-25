@@ -57,7 +57,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     public async IAsyncEnumerable<IOracleDatabasePackage> GetAllPackages([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var queryResults = await Connection.QueryAsync<GetAllPackageNames.Result>(
-            PackagesQuery,
+            GetAllPackageNames.Sql,
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -68,12 +68,6 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
         foreach (var packageName in routineNames)
             yield return await LoadPackageAsyncCore(packageName, cancellationToken).ConfigureAwait(false);
     }
-
-    /// <summary>
-    /// Gets a query that retrieves all package names.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string PackagesQuery => GetAllPackageNames.Sql;
 
     /// <summary>
     /// Retrieves a database package, if available.
@@ -126,19 +120,13 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
 
         var candidatePackageName = QualifyPackageName(packageName);
         var qualifiedPackageName = Connection.QueryFirstOrNone<GetPackageName.Result>(
-            PackageNameQuery,
+            GetPackageName.Sql,
             new GetPackageName.Query { SchemaName = candidatePackageName.Schema!, PackageName = candidatePackageName.LocalName },
             cancellationToken
         );
 
         return qualifiedPackageName.Map(name => Identifier.CreateQualifiedIdentifier(candidatePackageName.Server, candidatePackageName.Database, name.SchemaName, name.PackageName));
     }
-
-    /// <summary>
-    /// Gets a query that retrieves the resolved name of a package.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string PackageNameQuery => GetPackageName.Sql;
 
     /// <summary>
     /// Retrieves a package from the database, if available.
@@ -163,7 +151,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
             return await LoadUserPackageAsyncCore(packageName, cancellationToken).ConfigureAwait(false);
 
         var lines = await Connection.QueryAsync<GetPackageDefinition.Result>(
-            PackageDefinitionQuery,
+            GetPackageDefinition.Sql,
             new GetPackageDefinition.Query { SchemaName = packageName.Schema!, PackageName = packageName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -191,7 +179,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     private async Task<IOracleDatabasePackage> LoadUserPackageAsyncCore(Identifier packageName, CancellationToken cancellationToken)
     {
         var lines = await Connection.QueryAsync<GetUserPackageDefinition.Result>(
-            UserPackageDefinitionQuery,
+            GetUserPackageDefinition.Sql,
             new GetUserPackageDefinition.Query { PackageName = packageName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -215,18 +203,6 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
 
         return new OracleDatabasePackage(packageName, specification, packageBody);
     }
-
-    /// <summary>
-    /// Gets a query that retrieves the package definition for a package in any visible schema.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string PackageDefinitionQuery => GetPackageDefinition.Sql;
-
-    /// <summary>
-    /// Gets a query that retrieves the package definition for a package in the user's schema.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string UserPackageDefinitionQuery => GetUserPackageDefinition.Sql;
 
     /// <summary>
     /// Qualifies the name of the package, using known identifier defaults.

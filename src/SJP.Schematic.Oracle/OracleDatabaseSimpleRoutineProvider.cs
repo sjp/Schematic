@@ -57,7 +57,7 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
     public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var queryResults = await Connection.QueryAsync<GetAllRoutineNames.Result>(
-            RoutinesQuery,
+            GetAllRoutineNames.Sql,
             cancellationToken
         ).ConfigureAwait(false);
 
@@ -68,12 +68,6 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
         foreach (var routineName in routineNames)
             yield return await LoadRoutineAsyncCore(routineName, cancellationToken).ConfigureAwait(false);
     }
-
-    /// <summary>
-    /// Gets a query that retrieves routine names for all routines.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string RoutinesQuery => GetAllRoutineNames.Sql;
 
     /// <summary>
     /// Retrieves a database routine, if available.
@@ -126,19 +120,13 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
 
         var candidateRoutineName = QualifyRoutineName(routineName);
         var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineName.Result>(
-            RoutineNameQuery,
+            GetRoutineName.Sql,
             new GetRoutineName.Query { SchemaName = candidateRoutineName.Schema!, RoutineName = candidateRoutineName.LocalName },
             cancellationToken
         );
 
         return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(candidateRoutineName.Server, candidateRoutineName.Database, name.SchemaName, name.RoutineName));
     }
-
-    /// <summary>
-    /// A SQL query that retrieves the resolved routine name.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string RoutineNameQuery => GetRoutineName.Sql;
 
     /// <summary>
     /// Retrieves a routine from the database, if available.
@@ -185,7 +173,7 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
             return await LoadUserDefinitionAsyncCore(routineName, cancellationToken).ConfigureAwait(false);
 
         var lines = await Connection.QueryAsync<string>(
-            DefinitionQuery,
+            GetRoutineDefinition.Sql,
             new GetRoutineDefinition.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -200,7 +188,7 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
     private async Task<string> LoadUserDefinitionAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
         var userLines = await Connection.QueryAsync<string>(
-            UserDefinitionQuery,
+            GetUserRoutineDefinition.Sql,
             new GetUserRoutineDefinition.Query { RoutineName = routineName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -211,18 +199,6 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
         var userDefinition = userLines.Join(string.Empty);
         return OracleUnwrapper.Unwrap(userDefinition);
     }
-
-    /// <summary>
-    /// Gets a query that retrieves the routine definition for a given routine name.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string DefinitionQuery => GetRoutineDefinition.Sql;
-
-    /// <summary>
-    /// Gets a query that retrieves the routine definition for a given routine name in the user's schema.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string UserDefinitionQuery => GetUserRoutineDefinition.Sql;
 
     /// <summary>
     /// Qualifies the name of a routine, using known identifier defaults.
