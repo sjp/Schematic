@@ -8,8 +8,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.SqlServer.Query;
-using SJP.Schematic.SqlServer.QueryResult;
+using SJP.Schematic.SqlServer.Queries;
 
 namespace SJP.Schematic.SqlServer.Comments;
 
@@ -56,7 +55,7 @@ public class SqlServerViewCommentProvider : IDatabaseViewCommentProvider
     /// <returns>A collection of view comments.</returns>
     public async IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResult = await Connection.QueryAsync<GetAllViewNamesQueryResult>(ViewsQuery, cancellationToken).ConfigureAwait(false);
+        var queryResult = await Connection.QueryAsync<GetAllViewNames.Result>(ViewsQuery, cancellationToken).ConfigureAwait(false);
         var viewNames = queryResult
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName);
@@ -78,9 +77,9 @@ public class SqlServerViewCommentProvider : IDatabaseViewCommentProvider
             throw new ArgumentNullException(nameof(viewName));
 
         viewName = QualifyViewName(viewName);
-        var qualifiedViewName = Connection.QueryFirstOrNone<GetViewNameQueryResult>(
+        var qualifiedViewName = Connection.QueryFirstOrNone<GetViewName.Result>(
             ViewNameQuery,
-            new GetViewNameQuery { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            new GetViewName.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         );
 
@@ -91,13 +90,7 @@ public class SqlServerViewCommentProvider : IDatabaseViewCommentProvider
     /// A SQL query that retrieves the resolved name of a view in the database.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ViewNameQuery => ViewNameQuerySql;
-
-    private const string ViewNameQuerySql = @$"
-select top 1 schema_name(schema_id) as [{ nameof(GetViewNameQueryResult.SchemaName) }], name as [{ nameof(GetViewNameQueryResult.ViewName) }]
-from sys.views
-where schema_id = schema_id(@{ nameof(GetViewNameQuery.SchemaName) }) and name = @{ nameof(GetViewNameQuery.ViewName) }
-    and is_ms_shipped = 0";
+    protected virtual string ViewNameQuery => GetViewName.Sql;
 
     /// <summary>
     /// Retrieves comments for a particular database view.
@@ -134,9 +127,9 @@ where schema_id = schema_id(@{ nameof(GetViewNameQuery.SchemaName) }) and name =
 
     private async Task<IDatabaseViewComments> LoadViewCommentsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var queryResult = await Connection.QueryAsync<GetViewCommentsQueryResult>(
+        var queryResult = await Connection.QueryAsync<GetViewComments.Result>(
             ViewCommentsQuery,
-            new GetViewCommentsQuery
+            new GetViewComments.Query
             {
                 SchemaName = viewName.Schema!,
                 ViewName = viewName.LocalName,
@@ -162,42 +155,13 @@ where schema_id = schema_id(@{ nameof(GetViewNameQuery.SchemaName) }) and name =
     /// A SQL query that retrieves the names of views available in the database.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ViewsQuery => ViewsQuerySql;
-
-    private const string ViewsQuerySql = @$"
-select schema_name(schema_id) as [{ nameof(GetAllViewNamesQueryResult.SchemaName) }], name as [{ nameof(GetAllViewNamesQueryResult.ViewName) }]
-from sys.views
-where is_ms_shipped = 0
-order by schema_name(schema_id), name";
+    protected virtual string ViewsQuery => GetAllViewNames.Sql;
 
     /// <summary>
     /// Gets a query that retrieves view comments for a single view.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ViewCommentsQuery => ViewCommentsQuerySql;
-
-    private const string ViewCommentsQuerySql = @$"
--- view
-select
-    'VIEW' as [{ nameof(GetViewCommentsQueryResult.ObjectType) }],
-    v.name as [{ nameof(GetViewCommentsQueryResult.ObjectName) }],
-    ep.value as [{ nameof(GetViewCommentsQueryResult.Comment) }]
-from sys.views v
-left join sys.extended_properties ep on v.object_id = ep.major_id and ep.name = @{ nameof(GetViewCommentsQuery.CommentProperty) } and ep.minor_id = 0
-where v.schema_id = SCHEMA_ID(@{ nameof(GetViewCommentsQuery.SchemaName) }) and v.name = @{ nameof(GetViewCommentsQuery.ViewName) } and v.is_ms_shipped = 0
-
-union
-
--- columns
-select
-    'COLUMN' as [{ nameof(GetViewCommentsQueryResult.ObjectType) }],
-    c.name as [{ nameof(GetViewCommentsQueryResult.ObjectName) }],
-    ep.value as [{ nameof(GetViewCommentsQueryResult.Comment) }]
-from sys.views v
-inner join sys.columns c on v.object_id = c.object_id
-left join sys.extended_properties ep on v.object_id = ep.major_id and c.column_id = ep.minor_id and ep.name = @{ nameof(GetViewCommentsQuery.CommentProperty) }
-where v.schema_id = SCHEMA_ID(@{ nameof(GetViewCommentsQuery.SchemaName) }) and v.name = @{ nameof(GetViewCommentsQuery.ViewName) } and v.is_ms_shipped = 0
-";
+    protected virtual string ViewCommentsQuery => Queries.GetViewComments.Sql;
 
     private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
     {

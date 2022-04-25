@@ -6,8 +6,7 @@ using System.Threading;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.SqlServer.Query;
-using SJP.Schematic.SqlServer.QueryResult;
+using SJP.Schematic.SqlServer.Queries;
 
 namespace SJP.Schematic.SqlServer;
 
@@ -48,7 +47,7 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// <returns>A collection of database sequences.</returns>
     public async IAsyncEnumerable<IDatabaseSequence> GetAllSequences([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResult = await Connection.QueryAsync<GetAllSequenceDefinitionsQueryResult>(SequencesQuery, cancellationToken).ConfigureAwait(false);
+        var queryResult = await Connection.QueryAsync<GetAllSequenceDefinitions.Result>(SequencesQuery, cancellationToken).ConfigureAwait(false);
         var sequences = queryResult
             .Select(row =>
             {
@@ -72,22 +71,7 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// Gets a query that retrieves information on all sequences in the database.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string SequencesQuery => SequencesQuerySql;
-
-    private const string SequencesQuerySql = @$"
-select
-    schema_name(schema_id) as [{ nameof(GetAllSequenceDefinitionsQueryResult.SchemaName) }],
-    name as [{ nameof(GetAllSequenceDefinitionsQueryResult.SequenceName) }],
-    start_value as [{ nameof(GetAllSequenceDefinitionsQueryResult.StartValue) }],
-    increment as [{ nameof(GetAllSequenceDefinitionsQueryResult.Increment) }],
-    minimum_value as [{ nameof(GetAllSequenceDefinitionsQueryResult.MinValue) }],
-    maximum_value as [{ nameof(GetAllSequenceDefinitionsQueryResult.MaxValue) }],
-    is_cycling as [{ nameof(GetAllSequenceDefinitionsQueryResult.Cycle) }],
-    is_cached as [{ nameof(GetAllSequenceDefinitionsQueryResult.IsCached) }],
-    cache_size as [{ nameof(GetAllSequenceDefinitionsQueryResult.CacheSize) }]
-from sys.sequences
-where is_ms_shipped = 0
-order by schema_name(schema_id), name";
+    protected virtual string SequencesQuery => GetAllSequenceDefinitions.Sql;
 
     /// <summary>
     /// Gets a database sequence.
@@ -118,9 +102,9 @@ order by schema_name(schema_id), name";
             throw new ArgumentNullException(nameof(sequenceName));
 
         var candidateSequenceName = QualifySequenceName(sequenceName);
-        var qualifiedSequenceName = Connection.QueryFirstOrNone<GetSequenceNameQueryResult>(
+        var qualifiedSequenceName = Connection.QueryFirstOrNone<GetSequenceName.Result>(
             SequenceNameQuery,
-            new GetSequenceNameQuery { SchemaName = candidateSequenceName.Schema!, SequenceName = candidateSequenceName.LocalName },
+            new GetSequenceName.Query { SchemaName = candidateSequenceName.Schema!, SequenceName = candidateSequenceName.LocalName },
             cancellationToken
         );
 
@@ -131,30 +115,13 @@ order by schema_name(schema_id), name";
     /// Gets a query that resolves the name of a sequence.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string SequenceNameQuery => SequenceNameQuerySql;
-
-    private const string SequenceNameQuerySql = @$"
-select top 1 schema_name(schema_id) as [{ nameof(GetSequenceNameQueryResult.SchemaName) }], name as [{ nameof(GetSequenceNameQueryResult.SequenceName) }]
-from sys.sequences
-where schema_id = schema_id(@{ nameof(GetSequenceNameQuery.SchemaName) }) and name = @{ nameof(GetSequenceNameQuery.SequenceName) } and is_ms_shipped = 0";
+    protected virtual string SequenceNameQuery => GetSequenceName.Sql;
 
     /// <summary>
     /// Gets a query that retrieves all relevant information on a sequence.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string SequenceQuery => SequenceQuerySql;
-
-    private const string SequenceQuerySql = @$"
-select
-    start_value as [{ nameof(GetSequenceDefinitionQueryResult.StartValue) }],
-    increment as [{ nameof(GetSequenceDefinitionQueryResult.Increment) }],
-    minimum_value as [{ nameof(GetSequenceDefinitionQueryResult.MinValue) }],
-    maximum_value as [{ nameof(GetSequenceDefinitionQueryResult.MaxValue) }],
-    is_cycling as [{ nameof(GetSequenceDefinitionQueryResult.Cycle) }],
-    is_cached as [{ nameof(GetSequenceDefinitionQueryResult.IsCached) }],
-    cache_size as [{ nameof(GetSequenceDefinitionQueryResult.CacheSize) }]
-from sys.sequences
-where schema_name(schema_id) = @{ nameof(GetSequenceDefinitionQuery.SchemaName) }  and name = @{ nameof(GetSequenceDefinitionQuery.SequenceName) } and is_ms_shipped = 0";
+    protected virtual string SequenceQuery => GetSequenceDefinition.Sql;
 
     /// <summary>
     /// Retrieves database sequence information.
@@ -178,9 +145,9 @@ where schema_name(schema_id) = @{ nameof(GetSequenceDefinitionQuery.SchemaName) 
         if (sequenceName == null)
             throw new ArgumentNullException(nameof(sequenceName));
 
-        return Connection.QueryFirstOrNone<GetSequenceDefinitionQueryResult>(
+        return Connection.QueryFirstOrNone<GetSequenceDefinition.Result>(
             SequenceQuery,
-            new GetSequenceDefinitionQuery { SchemaName = sequenceName.Schema!, SequenceName = sequenceName.LocalName },
+            new GetSequenceDefinition.Query { SchemaName = sequenceName.Schema!, SequenceName = sequenceName.LocalName },
             cancellationToken
         ).Map<IDatabaseSequence>(dto => new DatabaseSequence(
             sequenceName,

@@ -5,8 +5,7 @@ using System.Threading;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.SqlServer.Query;
-using SJP.Schematic.SqlServer.QueryResult;
+using SJP.Schematic.SqlServer.Queries;
 
 namespace SJP.Schematic.SqlServer;
 
@@ -47,7 +46,7 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// <returns>A collection of database synonyms.</returns>
     public async IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResult = await Connection.QueryAsync<GetAllSynonymDefinitionsQueryResult>(SynonymsQuery, cancellationToken).ConfigureAwait(false);
+        var queryResult = await Connection.QueryAsync<GetAllSynonymDefinitions.Result>(SynonymsQuery, cancellationToken).ConfigureAwait(false);
 
         foreach (var row in queryResult)
         {
@@ -69,19 +68,7 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// A SQL query that retrieves the definitions of all synonyms in the database.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string SynonymsQuery => SynonymsQuerySql;
-
-    private const string SynonymsQuerySql = @$"
-select
-    schema_name(schema_id) as [{ nameof(GetAllSynonymDefinitionsQueryResult.SchemaName) }],
-    name as [{ nameof(GetAllSynonymDefinitionsQueryResult.SynonymName) }],
-    PARSENAME(base_object_name, 4) as [{ nameof(GetAllSynonymDefinitionsQueryResult.TargetServerName) }],
-    PARSENAME(base_object_name, 3) as [{ nameof(GetAllSynonymDefinitionsQueryResult.TargetDatabaseName) }],
-    PARSENAME(base_object_name, 2) as [{ nameof(GetAllSynonymDefinitionsQueryResult.TargetSchemaName) }],
-    PARSENAME(base_object_name, 1) as [{ nameof(GetAllSynonymDefinitionsQueryResult.TargetObjectName) }]
-from sys.synonyms
-where is_ms_shipped = 0
-order by schema_name(schema_id), name";
+    protected virtual string SynonymsQuery => GetAllSynonymDefinitions.Sql;
 
     /// <summary>
     /// Gets a database synonym.
@@ -112,9 +99,9 @@ order by schema_name(schema_id), name";
             throw new ArgumentNullException(nameof(synonymName));
 
         var candidateSynonymName = QualifySynonymName(synonymName);
-        var qualifiedSynonymName = Connection.QueryFirstOrNone<GetSynonymNameQueryResult>(
+        var qualifiedSynonymName = Connection.QueryFirstOrNone<GetSynonymName.Result>(
             SynonymNameQuery,
-            new GetSynonymNameQuery { SchemaName = candidateSynonymName.Schema!, SynonymName = candidateSynonymName.LocalName },
+            new GetSynonymName.Query { SchemaName = candidateSynonymName.Schema!, SynonymName = candidateSynonymName.LocalName },
             cancellationToken
         );
 
@@ -125,12 +112,7 @@ order by schema_name(schema_id), name";
     /// Gets a query that retrieves a synonym's name, used for name resolution.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string SynonymNameQuery => SynonymNameQuerySql;
-
-    private const string SynonymNameQuerySql = @$"
-select top 1 schema_name(schema_id) as [{ nameof(GetSynonymNameQueryResult.SchemaName) }], name as [{ nameof(GetSynonymNameQueryResult.SynonymName) }]
-from sys.synonyms
-where schema_id = schema_id(@{ nameof(GetSynonymNameQuery.SchemaName) }) and name = @{ nameof(GetSynonymNameQuery.SynonymName) } and is_ms_shipped = 0";
+    protected virtual string SynonymNameQuery => GetSynonymName.Sql;
 
     /// <summary>
     /// Retrieves a database synonym, if available.
@@ -148,9 +130,9 @@ where schema_id = schema_id(@{ nameof(GetSynonymNameQuery.SchemaName) }) and nam
         return GetResolvedSynonymName(candidateSynonymName, cancellationToken)
             .Bind(name =>
             {
-                return Connection.QueryFirstOrNone<GetSynonymDefinitionQueryResult>(
+                return Connection.QueryFirstOrNone<GetSynonymDefinition.Result>(
                     LoadSynonymQuery,
-                    new GetSynonymDefinitionQuery { SchemaName = synonymName.Schema!, SynonymName = synonymName.LocalName },
+                    new GetSynonymDefinition.Query { SchemaName = synonymName.Schema!, SynonymName = synonymName.LocalName },
                     cancellationToken
                 ).Map<IDatabaseSynonym>(synonymData =>
                 {
@@ -171,16 +153,7 @@ where schema_id = schema_id(@{ nameof(GetSynonymNameQuery.SchemaName) }) and nam
     /// A SQL query that retrieves a synonym's definition.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string LoadSynonymQuery => LoadSynonymQuerySql;
-
-    private const string LoadSynonymQuerySql = @$"
-select
-    PARSENAME(base_object_name, 4) as [{ nameof(GetSynonymDefinitionQueryResult.TargetServerName) }],
-    PARSENAME(base_object_name, 3) as [{ nameof(GetSynonymDefinitionQueryResult.TargetDatabaseName) }],
-    PARSENAME(base_object_name, 2) as [{ nameof(GetSynonymDefinitionQueryResult.TargetSchemaName) }],
-    PARSENAME(base_object_name, 1) as [{ nameof(GetSynonymDefinitionQueryResult.TargetObjectName) }]
-from sys.synonyms
-where schema_id = schema_id(@{ nameof(GetSynonymDefinitionQuery.SchemaName) }) and name = @{ nameof(GetSynonymDefinitionQuery.SynonymName) } and is_ms_shipped = 0";
+    protected virtual string LoadSynonymQuery => GetSynonymDefinition.Sql;
 
     /// <summary>
     /// Qualifies the name of a synonym, using known identifier defaults.

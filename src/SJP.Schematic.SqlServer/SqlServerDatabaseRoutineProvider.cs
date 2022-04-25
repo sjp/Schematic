@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.SqlServer.Query;
-using SJP.Schematic.SqlServer.QueryResult;
+using SJP.Schematic.SqlServer.Queries;
 
 namespace SJP.Schematic.SqlServer;
 
@@ -49,7 +48,7 @@ public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <returns>A collection of database routines.</returns>
     public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResults = await Connection.QueryAsync<GetAllRoutineNamesQueryResult>(
+        var queryResults = await Connection.QueryAsync<GetAllRoutineNames.Result>(
             RoutinesQuery,
             cancellationToken
         ).ConfigureAwait(false);
@@ -66,15 +65,7 @@ public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// A SQL query that retrieves all database routine names.
     /// </summary>
     /// <value>A SQL query definition.</value>
-    protected virtual string RoutinesQuery => RoutinesQuerySql;
-
-    private const string RoutinesQuerySql = @$"
-select
-    schema_name(schema_id) as [{ nameof(GetAllRoutineNamesQueryResult.SchemaName) }],
-    name as [{ nameof(GetAllRoutineNamesQueryResult.RoutineName) }]
-from sys.objects
-where type in ('P', 'FN', 'IF', 'TF') and is_ms_shipped = 0
-order by schema_name(schema_id), name";
+    protected virtual string RoutinesQuery => GetAllRoutineNames.Sql;
 
     /// <summary>
     /// Retrieves a database routine, if available.
@@ -105,9 +96,9 @@ order by schema_name(schema_id), name";
             throw new ArgumentNullException(nameof(routineName));
 
         var candidateRoutineName = QualifyRoutineName(routineName);
-        var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineNameQueryResult>(
+        var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineName.Result>(
             RoutineNameQuery,
-            new GetRoutineNameQuery { SchemaName = candidateRoutineName.Schema!, RoutineName = candidateRoutineName.LocalName },
+            new GetRoutineName.Query { SchemaName = candidateRoutineName.Schema!, RoutineName = candidateRoutineName.LocalName },
             cancellationToken
         );
 
@@ -118,13 +109,7 @@ order by schema_name(schema_id), name";
     /// A SQL query that retrieves the resolved routine name.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string RoutineNameQuery => RoutineNameQuerySql;
-
-    private const string RoutineNameQuerySql = @$"
-select top 1 schema_name(schema_id) as [{ nameof(GetRoutineNameQueryResult.SchemaName) }], name as [{ nameof(GetRoutineNameQueryResult.RoutineName) }]
-from sys.objects
-where schema_id = schema_id(@{ nameof(GetRoutineNameQuery.SchemaName) }) and name = @{ nameof(GetRoutineNameQuery.RoutineName) }
-    and type in ('P', 'FN', 'IF', 'TF') and is_ms_shipped = 0";
+    protected virtual string RoutineNameQuery => GetRoutineName.Sql;
 
     /// <summary>
     /// Retrieves a routine from the database, if available.
@@ -153,13 +138,7 @@ where schema_id = schema_id(@{ nameof(GetRoutineNameQuery.SchemaName) }) and nam
     /// A SQL query that retrieves the definition of a routine.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string DefinitionQuery => DefinitionQuerySql;
-
-    private const string DefinitionQuerySql = @$"
-select m.definition
-from sys.sql_modules m
-inner join sys.objects o on o.object_id = m.object_id
-where schema_name(o.schema_id) = @{ nameof(GetRoutineDefinitionQuery.SchemaName) } and o.name = @{ nameof(GetRoutineDefinitionQuery.RoutineName) } and o.is_ms_shipped = 0";
+    protected virtual string DefinitionQuery => GetRoutineDefinition.Sql;
 
     /// <summary>
     /// Retrieves the definition of a routine.
@@ -175,7 +154,7 @@ where schema_name(o.schema_id) = @{ nameof(GetRoutineDefinitionQuery.SchemaName)
 
         return Connection.ExecuteScalarAsync<string>(
             DefinitionQuery,
-            new GetRoutineDefinitionQuery { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
+            new GetRoutineDefinition.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken
         );
     }

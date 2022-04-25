@@ -7,7 +7,7 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.SqlServer.Comments;
-using SJP.Schematic.SqlServer.QueryResult;
+using SJP.Schematic.SqlServer.Queries;
 
 namespace SJP.Schematic.SqlServer;
 
@@ -34,14 +34,8 @@ public class SqlServerDialect : DatabaseDialect
 
     private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        return await connection.DbConnection.QuerySingleAsync<SqlIdentifierDefaultsQueryResult>(IdentifierDefaultsQuerySql, cancellationToken).ConfigureAwait(false);
+        return await connection.DbConnection.QuerySingleAsync<GetIdentifierDefaults.Result>(GetIdentifierDefaults.Sql, cancellationToken).ConfigureAwait(false);
     }
-
-    private const string IdentifierDefaultsQuerySql = @$"
-select
-    @@SERVERNAME as [{ nameof(SqlIdentifierDefaultsQueryResult.Server) }],
-    db_name() as [{ nameof(SqlIdentifierDefaultsQueryResult.Database) }],
-    schema_name() as [{ nameof(SqlIdentifierDefaultsQueryResult.Schema) }]";
 
     /// <summary>
     /// Gets the database display version. Usually a more user-friendly form of the database version.
@@ -77,11 +71,9 @@ select
 
     private static async Task<Version> GetDatabaseVersionAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
+        var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(GetDatabaseVersion.Sql, cancellationToken).ConfigureAwait(false);
         return Version.Parse(versionStr);
     }
-
-    private const string DatabaseVersionQuerySql = "select SERVERPROPERTY('ProductVersion') as DatabaseVersion";
 
     /// <summary>
     /// Retrieves a relational database for the given dialect.

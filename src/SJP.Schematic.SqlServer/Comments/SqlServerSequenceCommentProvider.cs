@@ -8,8 +8,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.SqlServer.Query;
-using SJP.Schematic.SqlServer.QueryResult;
+using SJP.Schematic.SqlServer.Queries;
 
 namespace SJP.Schematic.SqlServer.Comments;
 
@@ -56,7 +55,7 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
     /// <returns>A collection of database sequence comments.</returns>
     public async IAsyncEnumerable<IDatabaseSequenceComments> GetAllSequenceComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResults = await Connection.QueryAsync<GetAllSequenceNamesQueryResult>(SequencesQuery, cancellationToken).ConfigureAwait(false);
+        var queryResults = await Connection.QueryAsync<GetAllSequenceNames.Result>(SequencesQuery, cancellationToken).ConfigureAwait(false);
         var sequenceNames = queryResults
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.SequenceName))
             .Select(QualifySequenceName);
@@ -78,9 +77,9 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
             throw new ArgumentNullException(nameof(sequenceName));
 
         sequenceName = QualifySequenceName(sequenceName);
-        var qualifiedSequenceName = Connection.QueryFirstOrNone<GetSequenceNameQueryResult>(
+        var qualifiedSequenceName = Connection.QueryFirstOrNone<GetSequenceName.Result>(
             SequenceNameQuery,
-            new GetSequenceNameQuery { SchemaName = sequenceName.Schema!, SequenceName = sequenceName.LocalName },
+            new GetSequenceName.Query { SchemaName = sequenceName.Schema!, SequenceName = sequenceName.LocalName },
             cancellationToken
         );
 
@@ -91,12 +90,7 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
     /// Gets a query that resolves the name of a sequence.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string SequenceNameQuery => SequenceNameQuerySql;
-
-    private const string SequenceNameQuerySql = @$"
-select top 1 schema_name(schema_id) as [{ nameof(GetSequenceNameQueryResult.SchemaName) }], name as [{ nameof(GetSequenceNameQueryResult.SequenceName) }]
-from sys.sequences
-where schema_id = schema_id(@{ nameof(GetSequenceNameQuery.SchemaName) }) and name = @{ nameof(GetSequenceNameQuery.SequenceName) } and is_ms_shipped = 0";
+    protected virtual string SequenceNameQuery => GetSequenceName.Sql;
 
     /// <summary>
     /// Retrieves comments for a particular database sequence.
@@ -133,9 +127,9 @@ where schema_id = schema_id(@{ nameof(GetSequenceNameQuery.SchemaName) }) and na
 
     private async Task<IDatabaseSequenceComments> LoadSequenceCommentsAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
     {
-        var queryResult = await Connection.QueryAsync<GetSequenceCommentsQueryResult>(
+        var queryResult = await Connection.QueryAsync<GetSequenceComments.Result>(
             SequenceCommentsQuery,
-            new GetSequenceCommentsQuery
+            new GetSequenceComments.Query
             {
                 SchemaName = sequenceName.Schema!,
                 SequenceName = sequenceName.LocalName,
@@ -160,31 +154,13 @@ where schema_id = schema_id(@{ nameof(GetSequenceNameQuery.SchemaName) }) and na
     /// Gets a query that retrieves names of all sequences in the database.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string SequencesQuery => SequencesQuerySql;
-
-    private const string SequencesQuerySql = @$"
-select
-    schema_name(schema_id) as [{ nameof(GetAllSequenceNamesQueryResult.SchemaName) }],
-    name as [{ nameof(GetAllSequenceNamesQueryResult.SequenceName) }]
-from sys.sequences
-where is_ms_shipped = 0
-order by schema_name(schema_id), name";
+    protected virtual string SequencesQuery => GetAllSequenceNames.Sql;
 
     /// <summary>
-    /// Gets a query that retrieves comment information on a single comment.
+    /// Gets a query that retrieves comment information on a single sequence.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string SequenceCommentsQuery => SequenceCommentsQuerySql;
-
-    private const string SequenceCommentsQuerySql = @$"
-select
-    'SEQUENCE' as [{ nameof(GetSequenceCommentsQueryResult.ObjectType) }],
-    s.name as [{ nameof(GetSequenceCommentsQueryResult.ObjectName) }],
-    ep.value as [{ nameof(GetSequenceCommentsQueryResult.Comment) }]
-from sys.sequences s
-left join sys.extended_properties ep on s.object_id = ep.major_id and ep.name = @{ nameof(GetSequenceCommentsQuery.CommentProperty) } and ep.minor_id = 0
-where s.schema_id = SCHEMA_ID(@{ nameof(GetSequenceCommentsQuery.SchemaName) }) and s.name = @{ nameof(GetSequenceCommentsQuery.SequenceName) } and s.is_ms_shipped = 0
-";
+    protected virtual string SequenceCommentsQuery => Queries.GetSequenceComments.Sql;
 
     private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
     {

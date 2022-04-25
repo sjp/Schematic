@@ -8,8 +8,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.SqlServer.Query;
-using SJP.Schematic.SqlServer.QueryResult;
+using SJP.Schematic.SqlServer.Queries;
 
 namespace SJP.Schematic.SqlServer.Comments;
 
@@ -56,7 +55,7 @@ public class SqlServerRoutineCommentProvider : IDatabaseRoutineCommentProvider
     /// <returns>A collection of database routine comments, where available.</returns>
     public async IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResults = await Connection.QueryAsync<GetAllRoutineNamesQueryResult>(RoutinesQuery, cancellationToken).ConfigureAwait(false);
+        var queryResults = await Connection.QueryAsync<GetAllRoutineNames.Result>(RoutinesQuery, cancellationToken).ConfigureAwait(false);
         var routineNames = queryResults
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName);
@@ -78,9 +77,9 @@ public class SqlServerRoutineCommentProvider : IDatabaseRoutineCommentProvider
             throw new ArgumentNullException(nameof(routineName));
 
         routineName = QualifyRoutineName(routineName);
-        var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineNameQueryResult>(
+        var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineName.Result>(
             RoutineNameQuery,
-            new GetRoutineNameQuery { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
+            new GetRoutineName.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken
         );
 
@@ -91,13 +90,7 @@ public class SqlServerRoutineCommentProvider : IDatabaseRoutineCommentProvider
     /// A SQL query that retrieves the resolved routine name.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string RoutineNameQuery => RoutineNameQuerySql;
-
-    private const string RoutineNameQuerySql = @$"
-select top 1 schema_name(schema_id) as [{ nameof(GetRoutineNameQueryResult.SchemaName) }], name as [{ nameof(GetRoutineNameQueryResult.RoutineName) }]
-from sys.objects
-where schema_id = schema_id(@{ nameof(GetRoutineNameQuery.SchemaName) }) and name = @{ nameof(GetRoutineNameQuery.RoutineName) }
-    and type in ('P', 'FN', 'IF', 'TF') and is_ms_shipped = 0";
+    protected virtual string RoutineNameQuery => GetRoutineName.Sql;
 
     /// <summary>
     /// Retrieves comments for a database routine, if available.
@@ -134,9 +127,9 @@ where schema_id = schema_id(@{ nameof(GetRoutineNameQuery.SchemaName) }) and nam
 
     private async Task<IDatabaseRoutineComments> LoadRoutineCommentsAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
-        var queryResult = await Connection.QueryAsync<GetRoutineCommentsQueryResult>(
+        var queryResult = await Connection.QueryAsync<GetRoutineComments.Result>(
             RoutineCommentsQuery,
-            new GetRoutineCommentsQuery
+            new GetRoutineComments.Query
             {
                 SchemaName = routineName.Schema!,
                 RoutineName = routineName.LocalName,
@@ -161,32 +154,13 @@ where schema_id = schema_id(@{ nameof(GetRoutineNameQuery.SchemaName) }) and nam
     /// A SQL query that retrieves all database routine names.
     /// </summary>
     /// <value>A SQL query definition.</value>
-    protected virtual string RoutinesQuery => RoutinesQuerySql;
-
-    private const string RoutinesQuerySql = @$"
-select
-    schema_name(schema_id) as [{ nameof(GetAllRoutineNamesQueryResult.SchemaName) }],
-    name as [{ nameof(GetAllRoutineNamesQueryResult.RoutineName) }]
-from sys.objects
-where type in ('P', 'FN', 'IF', 'TF') and is_ms_shipped = 0
-order by schema_name(schema_id), name";
+    protected virtual string RoutinesQuery => GetAllRoutineNames.Sql;
 
     /// <summary>
     /// Gets a query that retrieves comments for a single routine.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string RoutineCommentsQuery => RoutineCommentsQuerySql;
-
-    private const string RoutineCommentsQuerySql = @$"
-select
-    'ROUTINE' as [{ nameof(GetRoutineCommentsQueryResult.ObjectType) }],
-    r.name as [{ nameof(GetRoutineCommentsQueryResult.ObjectName) }],
-    ep.value as [{ nameof(GetRoutineCommentsQueryResult.Comment) }]
-from sys.objects r
-left join sys.extended_properties ep on r.object_id = ep.major_id and ep.name = @{ nameof(GetRoutineCommentsQuery.CommentProperty) } and ep.minor_id = 0
-where r.schema_id = SCHEMA_ID(@{ nameof(GetRoutineCommentsQuery.SchemaName) }) and r.name = @{ nameof(GetRoutineCommentsQuery.RoutineName) } and r.is_ms_shipped = 0
-    and r.type in ('P', 'FN', 'IF', 'TF')
-";
+    protected virtual string RoutineCommentsQuery => Queries.GetRoutineComments.Sql;
 
     private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
     {
