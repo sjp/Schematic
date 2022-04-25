@@ -50,7 +50,7 @@ public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
     public async IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var queryResults = await Connection.QueryAsync<GetAllRoutineNames.Result>(
-            RoutinesQuery,
+            GetAllRoutineNames.Sql,
             new GetAllRoutineNames.Query { SchemaName = IdentifierDefaults.Schema! },
             cancellationToken
         ).ConfigureAwait(false);
@@ -77,19 +77,13 @@ public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
 
         routineName = QualifyRoutineName(routineName);
         var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineName.Result>(
-            RoutineNameQuery,
+            GetRoutineName.Sql,
             new GetRoutineName.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken
         );
 
         return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(routineName.Server, routineName.Database, name.SchemaName, name.RoutineName));
     }
-
-    /// <summary>
-    /// A SQL query that retrieves the resolved routine name.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string RoutineNameQuery => GetRoutineName.Sql;
 
     /// <summary>
     /// Retrieves comments for a database routine, if available.
@@ -127,7 +121,7 @@ public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
     private async Task<IDatabaseRoutineComments> LoadRoutineCommentsAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
         var comment = await Connection.ExecuteScalarAsync<string>(
-            RoutineCommentQuery,
+            Queries.GetRoutineComments.Sql,
             new GetRoutineComments.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -138,18 +132,6 @@ public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
 
         return new DatabaseRoutineComments(routineName, routineComment);
     }
-
-    /// <summary>
-    /// A SQL query definition that retrieves all routine names in a given database.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string RoutinesQuery => GetAllRoutineNames.Sql;
-
-    /// <summary>
-    /// A SQL query that retrieves the definition of a routine.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string RoutineCommentQuery => Queries.GetRoutineComments.Sql;
 
     /// <summary>
     /// Qualifies the name of a routine, using known identifier defaults.

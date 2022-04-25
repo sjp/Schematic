@@ -55,7 +55,7 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var queryResults = await DbConnection.QueryAsync<GetAllRoutineNames.Result>(
-            RoutinesQuery,
+            GetAllRoutineNames.Sql,
             new GetAllRoutineNames.Query { SchemaName = IdentifierDefaults.Schema! },
             cancellationToken
         ).ConfigureAwait(false);
@@ -67,12 +67,6 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
         foreach (var routineName in routineNames)
             yield return await LoadRoutineAsyncCore(routineName, cancellationToken).ConfigureAwait(false);
     }
-
-    /// <summary>
-    /// A SQL query that retrieves all database routine names.
-    /// </summary>
-    /// <value>A SQL query definition.</value>
-    protected virtual string RoutinesQuery => GetAllRoutineNames.Sql;
 
     /// <summary>
     /// Retrieves a database routine, if available.
@@ -104,19 +98,13 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
 
         var candidateRoutineName = QualifyRoutineName(routineName);
         var qualifiedRoutineName = DbConnection.QueryFirstOrNone<GetRoutineName.Result>(
-            RoutineNameQuery,
+            GetRoutineName.Sql,
             new GetRoutineName.Query { SchemaName = candidateRoutineName.Schema!, RoutineName = candidateRoutineName.LocalName },
             cancellationToken
         );
 
         return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(candidateRoutineName.Server, candidateRoutineName.Database, name.SchemaName, name.RoutineName));
     }
-
-    /// <summary>
-    /// A SQL query that retrieves the resolved routine name.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string RoutineNameQuery => GetRoutineName.Sql;
 
     /// <summary>
     /// Retrieves a routine from the database, if available.
@@ -159,17 +147,11 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     private Task<string> LoadDefinitionAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
         return DbConnection.ExecuteScalarAsync<string>(
-            DefinitionQuery,
+            GetRoutineDefinition.Sql,
             new GetRoutineDefinition.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken
         );
     }
-
-    /// <summary>
-    /// A SQL query that retrieves the definition of a routine.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string DefinitionQuery => GetRoutineDefinition.Sql;
 
     /// <summary>
     /// Qualifies the name of a routine, using known identifier defaults.

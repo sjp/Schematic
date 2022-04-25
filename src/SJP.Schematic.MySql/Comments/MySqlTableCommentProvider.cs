@@ -51,7 +51,7 @@ public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
     public async IAsyncEnumerable<IRelationalDatabaseTableComments> GetAllTableComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var queryResults = await Connection.QueryAsync<GetAllTableNames.Result>(
-            TablesQuery,
+            GetAllTableNames.Sql,
             new GetAllTableNames.Query { SchemaName = IdentifierDefaults.Schema! },
             cancellationToken
         ).ConfigureAwait(false);
@@ -78,19 +78,13 @@ public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
 
         tableName = QualifyTableName(tableName);
         var qualifiedTableName = Connection.QueryFirstOrNone<GetTableName.Result>(
-            TableNameQuery,
+            GetTableName.Sql,
             new GetTableName.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         );
 
         return qualifiedTableName.Map(name => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, name.SchemaName, name.TableName));
     }
-
-    /// <summary>
-    /// A SQL query definition that resolves a table name for the database.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string TableNameQuery => GetTableName.Sql;
 
     /// <summary>
     /// Retrieves comments for a database table, if available.
@@ -128,7 +122,7 @@ public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
     private async Task<IRelationalDatabaseTableComments> LoadTableCommentsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
         var commentsData = await Connection.QueryAsync<GetTableComments.Result>(
-            TableCommentsQuery,
+            Queries.GetTableComments.Sql,
             new GetTableComments.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -155,18 +149,6 @@ public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
             triggerComments
         );
     }
-
-    /// <summary>
-    /// A SQL query definition which retrieves table names all tables.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string TablesQuery => GetAllTableNames.Sql;
-
-    /// <summary>
-    /// A SQL query definition which retrieves all comment information for a particular table.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string TableCommentsQuery => Queries.GetTableComments.Sql;
 
     private static Option<string> GetFirstCommentByType(IEnumerable<GetTableComments.Result> commentsData, string objectType)
     {

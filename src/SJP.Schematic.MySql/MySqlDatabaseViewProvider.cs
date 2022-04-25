@@ -62,7 +62,7 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
     public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var queryResult = await DbConnection.QueryAsync<GetAllViewNames.Result>(
-            ViewsQuery,
+            GetAllViewNames.Sql,
             new GetAllViewNames.Query { SchemaName = IdentifierDefaults.Schema! },
             cancellationToken
         ).ConfigureAwait(false);
@@ -74,12 +74,6 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
         foreach (var viewName in viewNames)
             yield return await LoadViewAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
     }
-
-    /// <summary>
-    /// A SQL query that retrieves the names of views in the database.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string ViewsQuery => GetAllViewNames.Sql;
 
     /// <summary>
     /// Gets a database view.
@@ -111,19 +105,13 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
 
         var candidateViewName = QualifyViewName(viewName);
         var qualifiedViewName = DbConnection.QueryFirstOrNone<GetViewName.Result>(
-            ViewNameQuery,
+            GetViewName.Sql,
             new GetViewName.Query { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
             cancellationToken
         );
 
         return qualifiedViewName.Map(name => Identifier.CreateQualifiedIdentifier(candidateViewName.Server, candidateViewName.Database, name.SchemaName, name.ViewName));
     }
-
-    /// <summary>
-    /// A SQL query that retrieves the resolved name of a view.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string ViewNameQuery => GetViewName.Sql;
 
     /// <summary>) }
     /// Retrieves a database view, if available.
@@ -165,17 +153,11 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
             throw new ArgumentNullException(nameof(viewName));
 
         return DbConnection.ExecuteScalarAsync<string>(
-            DefinitionQuery,
+            GetViewDefinition.Sql,
             new GetViewDefinition.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         );
     }
-
-    /// <summary>
-    /// A SQL query that retrieves the definition of a view.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string DefinitionQuery => GetViewDefinition.Sql;
 
     /// <summary>
     /// Retrieves the columns for a given view.
@@ -195,7 +177,7 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
         var query = await DbConnection.QueryAsync<GetViewColumns.Result>(
-            ColumnsQuery,
+            GetViewColumns.Sql,
             new GetViewColumns.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         ).ConfigureAwait(false);
@@ -235,12 +217,6 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
 
         return result;
     }
-
-    /// <summary>
-    /// A SQL query that retrieves column definitions.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string ColumnsQuery => GetViewColumns.Sql;
 
     /// <summary>
     /// Qualifies the name of the view.
