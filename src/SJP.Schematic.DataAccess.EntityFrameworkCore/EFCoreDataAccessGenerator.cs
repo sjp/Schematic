@@ -153,7 +153,7 @@ public class EFCoreDataAccessGenerator : IDataAccessGenerator
         }
 
         var dbContextText = dbContextGenerator.Generate(tables, views, sequences);
-        var dbContextPath = Path.Combine(projectFileInfo.Directory.FullName, "AppContext.cs");
+        var dbContextPath = FileSystem.Path.Combine(projectFileInfo.Directory.FullName, "AppContext.cs");
 
         await FileSystem.File.WriteAllTextAsync(dbContextPath, dbContextText, cancellationToken).ConfigureAwait(false);
     }

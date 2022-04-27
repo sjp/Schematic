@@ -34,9 +34,9 @@ internal sealed class EfCoreSakilaDataAccessGeneratorTests : SakilaTest
         var mockFs = new MockFileSystem(new Dictionary<string, MockFileData>(StringComparer.Ordinal)
         {
             [tempDir.DirectoryPath + Path.PathSeparator] = new MockDirectoryData(),
-            [expectedAppContextPath] = MockFileData.NullObject,
-            [expectedTablePath] = MockFileData.NullObject,
-            [expectedViewPath] = MockFileData.NullObject
+            [expectedAppContextPath] = new MockFileData(Array.Empty<byte>()),
+            [expectedTablePath] = new MockFileData(Array.Empty<byte>()),
+            [expectedViewPath] = new MockFileData(Array.Empty<byte>())
         });
 
         var nameTranslator = new PascalCaseNameTranslator();

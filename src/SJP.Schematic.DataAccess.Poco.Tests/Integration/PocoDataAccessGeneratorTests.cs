@@ -64,9 +64,9 @@ select
         var mockFs = new MockFileSystem(new Dictionary<string, MockFileData>(StringComparer.Ordinal)
         {
             [tempDir.DirectoryPath + Path.PathSeparator] = new MockDirectoryData(),
-            [expectedTable1Path] = MockFileData.NullObject,
-            [expectedView1Path] = MockFileData.NullObject,
-            [expectedView2Path] = MockFileData.NullObject
+            [expectedTable1Path] = new MockFileData(Array.Empty<byte>()),
+            [expectedView1Path] = new MockFileData(Array.Empty<byte>()),
+            [expectedView2Path] = new MockFileData(Array.Empty<byte>())
         });
 
         var nameTranslator = new PascalCaseNameTranslator();

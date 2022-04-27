@@ -54,9 +54,9 @@ internal sealed class EFCoreDataAccessGeneratorTests : SqliteTest
         var mockFs = new MockFileSystem(new Dictionary<string, MockFileData>(StringComparer.Ordinal)
         {
             [tempDir.DirectoryPath + Path.PathSeparator] = new MockDirectoryData(),
-            [expectedAppContextPath] = MockFileData.NullObject,
-            [expectedTable1Path] = MockFileData.NullObject,
-            [expectedView1Path] = MockFileData.NullObject
+            [expectedAppContextPath] = new MockFileData(Array.Empty<byte>()),
+            [expectedTable1Path] = new MockFileData(Array.Empty<byte>()),
+            [expectedView1Path] = new MockFileData(Array.Empty<byte>())
         });
 
         var nameTranslator = new PascalCaseNameTranslator();

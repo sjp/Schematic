@@ -72,8 +72,7 @@ public abstract class DatabaseTableGenerator : IDatabaseTableGenerator
         var tableName = NameTranslator.TableToClassName(objectName);
         paths.Add(tableName + ".cs");
 
-        var tablePath = Path.Combine(paths.ToArray());
-        var fileInfo = new FileInfo(tablePath);
-        return new FileInfoWrapper(FileSystem, fileInfo);
+        var tablePath = FileSystem.Path.Combine(paths.ToArray());
+        return FileSystem.FileInfo.FromFileName(tablePath);
     }
 }
