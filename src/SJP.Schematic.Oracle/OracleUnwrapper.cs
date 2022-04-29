@@ -226,9 +226,10 @@ public static class OracleUnwrapper
         // need to skip zlib header bytes and trim trailing zlib checksum bytes to enable decompression
         var trimmedBuffer = ZlibToDeflate(dataBuffer);
 
-        using var reader = new MemoryStream(trimmedBuffer.ToArray());
+        using var reader = new MemoryStream();
         using var unzipper = new DeflateStream(reader, CompressionMode.Decompress);
         using var writer = new MemoryStream(trimmedBuffer.Length);
+        reader.Write(trimmedBuffer);
         unzipper.CopyTo(writer);
 
         var decompressed = writer.ToArray();
@@ -269,9 +270,10 @@ public static class OracleUnwrapper
         // need to skip zlib header bytes and trim trailing zlib checksum bytes to enable decompression
         var trimmedBuffer = ZlibToDeflate(dataBuffer);
 
-        using var reader = new MemoryStream(trimmedBuffer.ToArray());
+        using var reader = new MemoryStream();
         using var unzipper = new DeflateStream(reader, CompressionMode.Decompress);
         using var writer = new MemoryStream(trimmedBuffer.Length);
+        reader.Write(trimmedBuffer);
         unzipper.CopyTo(writer);
 
         var decompressed = writer.ToArray();
