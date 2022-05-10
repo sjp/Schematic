@@ -8,7 +8,7 @@ using NUnit.Framework.Internal;
 namespace SJP.Schematic.Tests.Utilities;
 
 /// <summary>
-/// When applied to a test, ensures it is only run on a Windows environment.
+/// When applied to a test, ensures it is only run when Graphviz is available.
 /// </summary>
 /// <seealso cref="NUnitAttribute" />
 /// <seealso cref="IApplyToTest" />
@@ -26,7 +26,7 @@ public sealed class GraphvizAvailableAttribute : NUnitAttribute, IApplyToTest
 
         test.RunState = RunState.Ignored;
 
-        const string reason = "This test is ignored because the test environment does not have a graphviz installed.";
+        const string reason = "This test is ignored because the test environment does not have graphviz available.";
         test.Properties.Set(PropertyNames.SkipReason, reason);
     }
 
