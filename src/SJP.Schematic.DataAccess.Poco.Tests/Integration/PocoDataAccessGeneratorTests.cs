@@ -85,7 +85,7 @@ select
         });
     }
 
-    [Test]
+    [Test, Ignore("Skipping to improve unit test perf")]
     public async Task GenerateAsync_GivenDatabaseWithoutTables_BuildsProjectSuccessfully()
     {
         using var tempDir = new TemporaryDirectory();
@@ -103,7 +103,7 @@ select
         Assert.That(buildsSuccessfully, Is.True);
     }
 
-    [Test]
+    [Test, Ignore("Skipping to improve unit test perf")]
     public async Task GenerateAsync_GivenDatabaseWithTables_BuildsProjectSuccessfully()
     {
         using var tempDir = new TemporaryDirectory();

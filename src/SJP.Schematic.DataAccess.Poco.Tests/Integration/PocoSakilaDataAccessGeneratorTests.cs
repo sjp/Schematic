@@ -17,7 +17,7 @@ internal sealed class PocoSakilaDataAccessGeneratorTests : SakilaTest
 {
     private IRelationalDatabase Database => new SqliteRelationalDatabase(Connection, IdentifierDefaults, Pragma);
 
-    [Test]
+    [Test, Ignore("Skipping to improve unit test perf")]
     public async Task Generate_GivenDatabaseWithoutTablesOrViews_BuildsProjectSuccessfully()
     {
         using var tempDir = new TemporaryDirectory();
@@ -35,7 +35,7 @@ internal sealed class PocoSakilaDataAccessGeneratorTests : SakilaTest
         Assert.That(buildsSuccessfully, Is.True);
     }
 
-    [Test]
+    [Test, Ignore("Skipping to improve unit test perf")]
     public async Task Generate_GivenDatabaseWithTablesAndViews_BuildsProjectSuccessfully()
     {
         using var tempDir = new TemporaryDirectory();

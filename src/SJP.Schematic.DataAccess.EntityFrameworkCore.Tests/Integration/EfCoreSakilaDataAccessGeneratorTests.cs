@@ -54,7 +54,7 @@ internal sealed class EfCoreSakilaDataAccessGeneratorTests : SakilaTest
         });
     }
 
-    [Test]
+    [Test, Ignore("Skipping to improve unit test perf")]
     public async Task GenerateAsync_GivenDatabaseWithTablesAndViews_BuildsProjectSuccessfully()
     {
         using var tempDir = new TemporaryDirectory();

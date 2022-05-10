@@ -74,7 +74,7 @@ internal sealed class EFCoreDataAccessGeneratorTests : SqliteTest
         });
     }
 
-    [Test]
+    [Test, Ignore("Skipping to improve unit test perf")]
     public async Task GenerateAsync_GivenDatabaseWithoutTablesOrViews_BuildsProjectSuccessfully()
     {
         using var tempDir = new TemporaryDirectory();
@@ -92,7 +92,7 @@ internal sealed class EFCoreDataAccessGeneratorTests : SqliteTest
         Assert.That(buildsSuccessfully, Is.True);
     }
 
-    [Test]
+    [Test, Ignore("Skipping to improve unit test perf")]
     public async Task GenerateAsync_GivenDatabaseWithTablesAndViews_BuildsProjectSuccessfully()
     {
         using var tempDir = new TemporaryDirectory();
