@@ -21,7 +21,7 @@ public static class OptionExtensions
         if (input.IsNone)
             throw new ArgumentException("The given optional object does not have a value.", nameof(input));
 
-        return input.IfNoneUnsafe(default(T)!);
+        return (T)input;
     }
 
     /// <summary>

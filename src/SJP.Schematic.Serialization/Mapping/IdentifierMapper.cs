@@ -19,7 +19,7 @@ public class IdentifierMapper
 
     public Dto.Identifier Map(Option<Identifier> source)
     {
-        return source.MatchUnsafe(
+        var result = source.MatchUnsafe(
             static ident => new Dto.Identifier
             {
                 Server = ident.Server,
@@ -29,6 +29,8 @@ public class IdentifierMapper
             },
             static () => default!
         );
+
+        return result!;
     }
 
     public Dto.Identifier Map(Identifier source)
