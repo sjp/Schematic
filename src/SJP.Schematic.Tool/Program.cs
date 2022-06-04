@@ -52,7 +52,6 @@ The helpful database schema querying tool.
         });
         builder.UseVersionOption();
         builder.UseParseErrorReporting();
-        builder.ParseResponseFileAs(ResponseFileHandling.ParseArgsAsSpaceSeparated);
         builder.CancelOnProcessTermination();
         builder.UseExceptionHandler(HandleException);
 
