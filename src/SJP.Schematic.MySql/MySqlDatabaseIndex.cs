@@ -22,9 +22,8 @@ public class MySqlDatabaseIndex : IDatabaseIndex
     /// <param name="name">An index name.</param>
     /// <param name="isUnique">Determines whether the index is unique, if <see langword="true"/>, the index is unique.</param>
     /// <param name="columns">The columns.</param>
-    /// <param name="filterDefinition">The definition, if present, for the subset of rows the index applies to</param>
     /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>. Alternatively if <paramref name="columns"/> is <c>null</c>, empty or has a <c>null</c> value.</exception>
-    public MySqlDatabaseIndex(Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns, Option<string> filterDefinition)
+    public MySqlDatabaseIndex(Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns)
     {
         if (name == null)
             throw new ArgumentNullException(nameof(name));
@@ -34,7 +33,6 @@ public class MySqlDatabaseIndex : IDatabaseIndex
         Name = name.LocalName;
         IsUnique = isUnique;
         Columns = columns;
-        FilterDefinition = filterDefinition;
     }
 
     /// <summary>
@@ -70,7 +68,8 @@ public class MySqlDatabaseIndex : IDatabaseIndex
     /// <summary>
     /// If the index is filtered to a subset of rows, contains the expression for the subset of rows included in the filtered index.
     /// </summary>
-    public Option<string> FilterDefinition { get; }
+    /// <value>Always 'none', i.e. missing.</value>
+    public Option<string> FilterDefinition { get; } = Option<string>.None;
 
     /// <summary>
     /// Returns a string that provides a basic string representation of this object.
