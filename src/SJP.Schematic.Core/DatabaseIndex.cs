@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using LanguageExt;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 
@@ -22,8 +23,9 @@ public class DatabaseIndex : IDatabaseIndex
     /// <param name="columns">The index columns.</param>
     /// <param name="includedColumns">Columns included when <paramref name="columns"/> have been searched.</param>
     /// <param name="isEnabled">Whether the index is enabled.</param>
+    /// <param name="filterDefinition">The definition, if present, for the subset of rows the index applies to</param>
     /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>. Alternatively if <paramref name="columns"/> or <paramref name="includedColumns"/> are <c>null</c> or contain <c>null</c> values.</exception>
-    public DatabaseIndex(Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns, IReadOnlyCollection<IDatabaseColumn> includedColumns, bool isEnabled)
+    public DatabaseIndex(Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns, IReadOnlyCollection<IDatabaseColumn> includedColumns, bool isEnabled, Option<string> filterDefinition)
     {
         if (name == null)
             throw new ArgumentNullException(nameof(name));
@@ -37,6 +39,7 @@ public class DatabaseIndex : IDatabaseIndex
         Columns = columns;
         IncludedColumns = includedColumns;
         IsEnabled = isEnabled;
+        FilterDefinition = filterDefinition;
     }
 
     /// <summary>
@@ -68,6 +71,11 @@ public class DatabaseIndex : IDatabaseIndex
     /// </summary>
     /// <value><c>true</c> if this index is enabled; otherwise, <c>false</c>.</value>
     public bool IsEnabled { get; }
+
+    /// <summary>
+    /// If the index is filtered to a subset of rows, contains the expression for the subset of rows included in the filtered index.
+    /// </summary>
+    public Option<string> FilterDefinition { get; }
 
     /// <summary>
     /// Returns a string that provides a basic string representation of this object.

@@ -75,7 +75,8 @@ internal static class ForeignKeyIndexRuleTests
                     false,
                     new[] { GetIndexColumn("b"), GetIndexColumn("c") },
                     Array.Empty<IDatabaseColumn>(),
-                    true
+                    true,
+                    Option<string>.None
                 )
             },
             Array.Empty<IDatabaseCheckConstraint>(),
@@ -122,7 +123,8 @@ internal static class ForeignKeyIndexRuleTests
                     false,
                     new[] { GetIndexColumn("c"), GetIndexColumn("b") },
                     Array.Empty<IDatabaseColumn>(),
-                    true
+                    true,
+                    Option<string>.None
                 )
             },
             Array.Empty<IDatabaseCheckConstraint>(),
@@ -169,7 +171,8 @@ internal static class ForeignKeyIndexRuleTests
                     false,
                     new[] { GetIndexColumn("b") },
                     new[] { GetColumn("c") },
-                    true
+                    true,
+                    Option<string>.None
                 )
             },
             Array.Empty<IDatabaseCheckConstraint>(),
@@ -216,7 +219,8 @@ internal static class ForeignKeyIndexRuleTests
                     false,
                     new[] { GetIndexColumn("b") },
                     new[] { GetColumn("a") },
-                    true
+                    true,
+                    Option<string>.None
                 )
             },
             Array.Empty<IDatabaseCheckConstraint>(),
@@ -263,7 +267,8 @@ internal static class ForeignKeyIndexRuleTests
                     false,
                     new[] { GetIndexColumn("b") },
                     new[] { GetColumn("a"), GetColumn("c") },
-                    true
+                    true,
+                    Option<string>.None
                 )
             },
             Array.Empty<IDatabaseCheckConstraint>(),
@@ -310,7 +315,8 @@ internal static class ForeignKeyIndexRuleTests
                     false,
                     new[] { GetIndexColumn("b"), GetIndexColumn("a") },
                     new[] { GetColumn("c") },
-                    true
+                    true,
+                    Option<string>.None
                 )
             },
             Array.Empty<IDatabaseCheckConstraint>(),

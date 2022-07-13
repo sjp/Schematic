@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
@@ -23,8 +24,9 @@ public class SqliteDatabaseIndex : IDatabaseIndex
     /// <param name="isUnique">If set to <c>true</c>, the index is unique.</param>
     /// <param name="columns">The index key columns.</param>
     /// <param name="includedColumns">The index's included columns, available once the key columns are searched.</param>
+    /// <param name="filterDefinition">The definition, if present, for the subset of rows the index applies to</param>
     /// <exception cref="ArgumentNullException"><paramref name="columns"/>, <paramref name="includedColumns"/> or <paramref name="name"/> is <c>null</c>.</exception>
-    public SqliteDatabaseIndex(Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseColumn> includedColumns)
+    public SqliteDatabaseIndex(Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseColumn> includedColumns, Option<string> filterDefinition)
     {
         if (name == null)
             throw new ArgumentNullException(nameof(name));
@@ -40,6 +42,7 @@ public class SqliteDatabaseIndex : IDatabaseIndex
         IsUnique = isUnique;
         Columns = columns.ToList();
         IncludedColumns = includedColumns.ToList();
+        FilterDefinition = filterDefinition;
     }
 
     /// <summary>
@@ -71,6 +74,11 @@ public class SqliteDatabaseIndex : IDatabaseIndex
     /// </summary>
     /// <value>Always <c>true</c>.</value>
     public bool IsEnabled { get; } = true;
+
+    /// <summary>
+    /// If the index is filtered to a subset of rows, contains the expression for the subset of rows included in the filtered index.
+    /// </summary>
+    public Option<string> FilterDefinition { get; }
 
     /// <summary>
     /// Returns a string that provides a basic string representation of this object.

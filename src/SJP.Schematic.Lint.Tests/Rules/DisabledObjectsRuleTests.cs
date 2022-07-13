@@ -192,7 +192,8 @@ internal static class DisabledObjectsRuleTests
             true,
             new[] { new DatabaseIndexColumn("test_column", testColumn, IndexColumnOrder.Ascending) },
             Array.Empty<IDatabaseColumn>(),
-            false
+            false,
+            Option<string>.None
         );
 
         var table = new RelationalDatabaseTable(

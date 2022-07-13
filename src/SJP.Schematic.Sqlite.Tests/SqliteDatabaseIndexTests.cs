@@ -1,7 +1,9 @@
 ﻿using System;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Sqlite.Tests;
 
@@ -17,7 +19,7 @@ internal static class SqliteDatabaseIndexTests
         var includedColumn = Mock.Of<IDatabaseColumn>();
         var includedColumns = new[] { includedColumn };
 
-        Assert.That(() => new SqliteDatabaseIndex(null, isUnique, columns, includedColumns), Throws.ArgumentNullException);
+        Assert.That(() => new SqliteDatabaseIndex(null, isUnique, columns, includedColumns, Option<string>.None), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -28,7 +30,7 @@ internal static class SqliteDatabaseIndexTests
         var includedColumn = Mock.Of<IDatabaseColumn>();
         var includedColumns = new[] { includedColumn };
 
-        Assert.That(() => new SqliteDatabaseIndex(indexName, isUnique, null, includedColumns), Throws.ArgumentNullException);
+        Assert.That(() => new SqliteDatabaseIndex(indexName, isUnique, null, includedColumns, Option<string>.None), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -40,7 +42,7 @@ internal static class SqliteDatabaseIndexTests
         var includedColumn = Mock.Of<IDatabaseColumn>();
         var includedColumns = new[] { includedColumn };
 
-        Assert.That(() => new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns), Throws.ArgumentNullException);
+        Assert.That(() => new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns, Option<string>.None), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -52,7 +54,7 @@ internal static class SqliteDatabaseIndexTests
         var includedColumn = Mock.Of<IDatabaseColumn>();
         var includedColumns = new[] { includedColumn };
 
-        Assert.That(() => new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns), Throws.ArgumentNullException);
+        Assert.That(() => new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns, Option<string>.None), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -64,7 +66,7 @@ internal static class SqliteDatabaseIndexTests
         var columns = new[] { column };
         var includedColumns = new IDatabaseColumn[] { null };
 
-        Assert.That(() => new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns), Throws.ArgumentNullException);
+        Assert.That(() => new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns, Option<string>.None), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -77,7 +79,7 @@ internal static class SqliteDatabaseIndexTests
         var includedColumn = Mock.Of<IDatabaseColumn>();
         var includedColumns = new[] { includedColumn };
 
-        var index = new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns);
+        var index = new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns, Option<string>.None);
 
         Assert.That(index.Name, Is.EqualTo(indexName));
     }
@@ -92,7 +94,7 @@ internal static class SqliteDatabaseIndexTests
         var includedColumn = Mock.Of<IDatabaseColumn>();
         var includedColumns = new[] { includedColumn };
 
-        var index = new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns);
+        var index = new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns, Option<string>.None);
 
         Assert.That(index.IsUnique, Is.True);
     }
@@ -107,7 +109,7 @@ internal static class SqliteDatabaseIndexTests
         var includedColumn = Mock.Of<IDatabaseColumn>();
         var includedColumns = new[] { includedColumn };
 
-        var index = new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns);
+        var index = new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns, Option<string>.None);
 
         Assert.That(index.IsUnique, Is.False);
     }
@@ -122,7 +124,7 @@ internal static class SqliteDatabaseIndexTests
         var includedColumn = Mock.Of<IDatabaseColumn>();
         var includedColumns = new[] { includedColumn };
 
-        var index = new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns);
+        var index = new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns, Option<string>.None);
 
         Assert.That(index.Columns, Is.EqualTo(columns));
     }
@@ -137,7 +139,7 @@ internal static class SqliteDatabaseIndexTests
         var includedColumn = Mock.Of<IDatabaseColumn>();
         var includedColumns = new[] { includedColumn };
 
-        var index = new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns);
+        var index = new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns, Option<string>.None);
 
         Assert.That(index.IncludedColumns, Is.EqualTo(includedColumns));
     }
@@ -152,8 +154,51 @@ internal static class SqliteDatabaseIndexTests
         var includedColumn = Mock.Of<IDatabaseColumn>();
         var includedColumns = new[] { includedColumn };
 
-        var index = new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns);
+        var index = new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns, Option<string>.None);
 
         Assert.That(index.IsEnabled, Is.True);
+    }
+
+    [Test]
+    public static void FilterDefinition_GivenNoneCtorArgPropertyGet_ReturnsNone()
+    {
+        Identifier indexName = "test_index";
+        var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
+        var includedColumns = Array.Empty<IDatabaseColumn>();
+
+        var index = new SqliteDatabaseIndex(indexName, false, columns, includedColumns, Option<string>.None);
+
+        Assert.That(index.FilterDefinition, OptionIs.None);
+    }
+
+    [Test]
+    public static void FilterDefinition_GivenValueForCtorArgPropertyGet_ReturnsValue()
+    {
+        Identifier indexName = "test_index";
+        var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
+        var includedColumns = Array.Empty<IDatabaseColumn>();
+        const string filterDefinition = "WHERE a = 1";
+
+        var index = new SqliteDatabaseIndex(indexName, false, columns, includedColumns, Option<string>.Some(filterDefinition));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(index.FilterDefinition, OptionIs.Some);
+            Assert.That(index.FilterDefinition.UnwrapSome(), Is.EqualTo(filterDefinition));
+        });
+    }
+
+    [TestCase("test_index", "Index: test_index")]
+    [TestCase("test_index_other", "Index: test_index_other")]
+    public static void ToString_WhenInvoked_ReturnsExpectedValues(string name, string expectedResult)
+    {
+        var indexName = Identifier.CreateQualifiedIdentifier(name);
+        var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
+        var includedColumns = Array.Empty<IDatabaseColumn>();
+
+        var index = new SqliteDatabaseIndex(indexName, false, columns, includedColumns, Option<string>.None);
+        var result = index.ToString();
+
+        Assert.That(result, Is.EqualTo(expectedResult));
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.PostgreSql.Queries;
@@ -98,7 +99,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : PostgreSqlRelationalDat
                 .Select(row => columnLookup[row.IndexColumnExpression!])
                 .ToList();
 
-            var index = new PostgreSqlDatabaseIndex(indexName, isUnique, indexCols, includedCols);
+            var index = new PostgreSqlDatabaseIndex(indexName, isUnique, indexCols, includedCols, Option<string>.None);
             result.Add(index);
         }
 

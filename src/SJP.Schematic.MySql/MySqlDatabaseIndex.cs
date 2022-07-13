@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
@@ -21,8 +22,9 @@ public class MySqlDatabaseIndex : IDatabaseIndex
     /// <param name="name">An index name.</param>
     /// <param name="isUnique">Determines whether the index is unique, if <see langword="true"/>, the index is unique.</param>
     /// <param name="columns">The columns.</param>
+    /// <param name="filterDefinition">The definition, if present, for the subset of rows the index applies to</param>
     /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>. Alternatively if <paramref name="columns"/> is <c>null</c>, empty or has a <c>null</c> value.</exception>
-    public MySqlDatabaseIndex(Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns)
+    public MySqlDatabaseIndex(Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns, Option<string> filterDefinition)
     {
         if (name == null)
             throw new ArgumentNullException(nameof(name));
@@ -32,6 +34,7 @@ public class MySqlDatabaseIndex : IDatabaseIndex
         Name = name.LocalName;
         IsUnique = isUnique;
         Columns = columns;
+        FilterDefinition = filterDefinition;
     }
 
     /// <summary>
@@ -63,6 +66,11 @@ public class MySqlDatabaseIndex : IDatabaseIndex
     /// </summary>
     /// <value>Always <c>true</c>.</value>
     public bool IsEnabled { get; } = true;
+
+    /// <summary>
+    /// If the index is filtered to a subset of rows, contains the expression for the subset of rows included in the filtered index.
+    /// </summary>
+    public Option<string> FilterDefinition { get; }
 
     /// <summary>
     /// Returns a string that provides a basic string representation of this object.

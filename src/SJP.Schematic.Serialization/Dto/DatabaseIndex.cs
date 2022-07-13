@@ -14,4 +14,6 @@ public class DatabaseIndex
     public bool IsUnique { get; set; }
 
     public bool IsEnabled { get; set; }
+
+    public string? FilterDefinition { get; set; }
 }

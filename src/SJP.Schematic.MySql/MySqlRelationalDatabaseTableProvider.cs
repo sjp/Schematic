@@ -285,7 +285,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
                 })
                 .ToList();
 
-            var index = new MySqlDatabaseIndex(indexName, isUnique, indexCols);
+            var index = new MySqlDatabaseIndex(indexName, isUnique, indexCols, Option<string>.None);
             result.Add(index);
         }
 

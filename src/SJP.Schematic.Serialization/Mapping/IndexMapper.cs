@@ -1,4 +1,5 @@
 ﻿using Boxed.Mapping;
+using LanguageExt;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
@@ -12,17 +13,20 @@ public class IndexMapper
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier?, Identifier>();
         var indexColumnMapper = MapperRegistry.GetMapper<Dto.DatabaseIndexColumn, IDatabaseIndexColumn>();
         var columnMapper = MapperRegistry.GetMapper<Dto.DatabaseColumn, IDatabaseColumn>();
+        var optionMapper = MapperRegistry.GetMapper<string?, Option<string>>();
 
         var indexName = identifierMapper.Map(source.IndexName);
         var indexColumns = indexColumnMapper.MapList(source.Columns);
         var includedColumns = columnMapper.MapList(source.IncludedColumns);
+        var filterDefinition = optionMapper.Map(source.FilterDefinition);
 
         return new DatabaseIndex(
             indexName,
             source.IsUnique,
             indexColumns,
             includedColumns,
-            source.IsEnabled
+            source.IsEnabled,
+            filterDefinition
         );
     }
 

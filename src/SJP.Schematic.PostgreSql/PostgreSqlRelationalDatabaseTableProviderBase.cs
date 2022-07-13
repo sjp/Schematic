@@ -330,7 +330,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                 })
                 .ToList();
 
-            var index = new PostgreSqlDatabaseIndex(indexName, isUnique, indexCols);
+            var index = new PostgreSqlDatabaseIndex(indexName, isUnique, indexCols, Option<string>.None);
             result.Add(index);
         }
 

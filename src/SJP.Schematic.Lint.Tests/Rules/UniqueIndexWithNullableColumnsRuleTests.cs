@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -67,7 +68,8 @@ internal static class UniqueIndexWithNullableColumnsRuleTests
             false,
             new[] { new DatabaseIndexColumn("test_column_1", testColumn, IndexColumnOrder.Ascending) },
             Array.Empty<IDatabaseColumn>(),
-            true
+            true,
+            Option<string>.None
         );
 
         var table = new RelationalDatabaseTable(
@@ -106,7 +108,8 @@ internal static class UniqueIndexWithNullableColumnsRuleTests
             true,
             new[] { new DatabaseIndexColumn("test_column_1", testColumn, IndexColumnOrder.Ascending) },
             Array.Empty<IDatabaseColumn>(),
-            true
+            true,
+            Option<string>.None
         );
 
         var table = new RelationalDatabaseTable(
@@ -145,7 +148,8 @@ internal static class UniqueIndexWithNullableColumnsRuleTests
             true,
             new[] { new DatabaseIndexColumn("test_column_1", testColumn, IndexColumnOrder.Ascending) },
             Array.Empty<IDatabaseColumn>(),
-            true
+            true,
+            Option<string>.None
         );
 
         var table = new RelationalDatabaseTable(

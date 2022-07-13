@@ -294,7 +294,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
                 .Select(row => columnLookup[row.ColumnName])
                 .ToList();
 
-            var index = new DatabaseIndex(indexName, isUnique, indexCols, includedCols, isEnabled);
+            var index = new DatabaseIndex(indexName, isUnique, indexCols, includedCols, isEnabled, Option<string>.None);
             result.Add(index);
         }
 

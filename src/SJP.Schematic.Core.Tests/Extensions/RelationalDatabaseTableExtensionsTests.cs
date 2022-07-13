@@ -37,8 +37,8 @@ internal static class RelationalDatabaseTableExtensionsTests
         var indexColumns = columns.Select(c => new DatabaseIndexColumn("test", c, IndexColumnOrder.Ascending)).ToList();
         var indexes = new[]
         {
-            new DatabaseIndex("test_index_1", true, indexColumns, Array.Empty<IDatabaseColumn>(), false),
-            new DatabaseIndex("test_index_2", true, indexColumns, Array.Empty<IDatabaseColumn>(), false)
+            new DatabaseIndex("test_index_1", true, indexColumns, Array.Empty<IDatabaseColumn>(), false, Option<string>.None),
+            new DatabaseIndex("test_index_2", true, indexColumns, Array.Empty<IDatabaseColumn>(), false, Option<string>.None)
         };
 
         var childKeys = new[]

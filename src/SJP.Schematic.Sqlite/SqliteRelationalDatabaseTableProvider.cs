@@ -400,7 +400,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 .Select(i => columnLookup[i.name!])
                 .ToList();
 
-            var index = new SqliteDatabaseIndex(indexList.name, indexList.unique, indexColumns, includedColumns);
+            var index = new SqliteDatabaseIndex(indexList.name, indexList.unique, indexColumns, includedColumns, Option<string>.None);
             result.Add(index);
         }
 

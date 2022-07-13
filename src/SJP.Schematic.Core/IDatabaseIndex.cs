@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using LanguageExt;
 
 namespace SJP.Schematic.Core;
 
@@ -31,4 +32,9 @@ public interface IDatabaseIndex : IDatabaseOptional
     /// </summary>
     /// <value><c>true</c> if the index column set must have unique values; otherwise, <c>false</c>.</value>
     bool IsUnique { get; }
+
+    /// <summary>
+    /// If the index is filtered to a subset of rows, contains the expression for the subset of rows included in the filtered index.
+    /// </summary>
+    Option<string> FilterDefinition { get; }
 }

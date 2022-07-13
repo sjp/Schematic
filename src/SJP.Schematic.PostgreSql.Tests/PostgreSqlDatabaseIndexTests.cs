@@ -1,7 +1,9 @@
 ﻿using System;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.PostgreSql.Tests;
 
@@ -15,7 +17,7 @@ internal static class PostgreSqlDatabaseIndexTests
         var column = Mock.Of<IDatabaseIndexColumn>();
         var columns = new[] { column };
 
-        Assert.That(() => new PostgreSqlDatabaseIndex(null, isUnique, columns), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlDatabaseIndex(null, isUnique, columns, Option<string>.None), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -24,7 +26,7 @@ internal static class PostgreSqlDatabaseIndexTests
         Identifier indexName = "test_index";
         const bool isUnique = true;
 
-        Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, null), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, null, Option<string>.None), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -34,7 +36,7 @@ internal static class PostgreSqlDatabaseIndexTests
         const bool isUnique = true;
         var columns = Array.Empty<IDatabaseIndexColumn>();
 
-        Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns, Option<string>.None), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -44,7 +46,7 @@ internal static class PostgreSqlDatabaseIndexTests
         const bool isUnique = true;
         var columns = new IDatabaseIndexColumn[] { null };
 
-        Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns, Option<string>.None), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -55,7 +57,7 @@ internal static class PostgreSqlDatabaseIndexTests
         var column = Mock.Of<IDatabaseIndexColumn>();
         var columns = new[] { column };
 
-        Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns, null), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns, null, Option<string>.None), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -67,7 +69,7 @@ internal static class PostgreSqlDatabaseIndexTests
         var columns = new[] { column };
         var includedColumns = new IDatabaseColumn[] { null };
 
-        Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns, includedColumns), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns, includedColumns, Option<string>.None), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -78,7 +80,7 @@ internal static class PostgreSqlDatabaseIndexTests
         var column = Mock.Of<IDatabaseIndexColumn>();
         var columns = new[] { column };
 
-        var index = new PostgreSqlDatabaseIndex(indexName, isUnique, columns);
+        var index = new PostgreSqlDatabaseIndex(indexName, isUnique, columns, Option<string>.None);
 
         Assert.That(index.Name, Is.EqualTo(indexName));
     }
@@ -91,7 +93,7 @@ internal static class PostgreSqlDatabaseIndexTests
         var column = Mock.Of<IDatabaseIndexColumn>();
         var columns = new[] { column };
 
-        var index = new PostgreSqlDatabaseIndex(indexName, isUnique, columns);
+        var index = new PostgreSqlDatabaseIndex(indexName, isUnique, columns, Option<string>.None);
 
         Assert.That(index.IsUnique, Is.True);
     }
@@ -104,7 +106,7 @@ internal static class PostgreSqlDatabaseIndexTests
         var column = Mock.Of<IDatabaseIndexColumn>();
         var columns = new[] { column };
 
-        var index = new PostgreSqlDatabaseIndex(indexName, isUnique, columns);
+        var index = new PostgreSqlDatabaseIndex(indexName, isUnique, columns, Option<string>.None);
 
         Assert.That(index.IsUnique, Is.False);
     }
@@ -117,7 +119,7 @@ internal static class PostgreSqlDatabaseIndexTests
         var column = Mock.Of<IDatabaseIndexColumn>();
         var columns = new[] { column };
 
-        var index = new PostgreSqlDatabaseIndex(indexName, isUnique, columns);
+        var index = new PostgreSqlDatabaseIndex(indexName, isUnique, columns, Option<string>.None);
 
         Assert.That(index.Columns, Is.EqualTo(columns));
     }
@@ -130,7 +132,7 @@ internal static class PostgreSqlDatabaseIndexTests
         var column = Mock.Of<IDatabaseIndexColumn>();
         var columns = new[] { column };
 
-        var index = new PostgreSqlDatabaseIndex(indexName, isUnique, columns);
+        var index = new PostgreSqlDatabaseIndex(indexName, isUnique, columns, Option<string>.None);
 
         Assert.That(index.IncludedColumns, Is.Empty);
     }
@@ -145,7 +147,7 @@ internal static class PostgreSqlDatabaseIndexTests
         var includedColumn = Mock.Of<IDatabaseColumn>();
         var includedColumns = new[] { includedColumn };
 
-        var index = new PostgreSqlDatabaseIndex(indexName, isUnique, columns, includedColumns);
+        var index = new PostgreSqlDatabaseIndex(indexName, isUnique, columns, includedColumns, Option<string>.None);
 
         Assert.That(index.IncludedColumns, Is.EqualTo(includedColumns));
     }
@@ -158,9 +160,38 @@ internal static class PostgreSqlDatabaseIndexTests
         var column = Mock.Of<IDatabaseIndexColumn>();
         var columns = new[] { column };
 
-        var index = new PostgreSqlDatabaseIndex(indexName, isUnique, columns);
+        var index = new PostgreSqlDatabaseIndex(indexName, isUnique, columns, Option<string>.None);
 
         Assert.That(index.IsEnabled, Is.True);
+    }
+
+    [Test]
+    public static void FilterDefinition_GivenNoneCtorArgPropertyGet_ReturnsNone()
+    {
+        Identifier indexName = "test_index";
+        var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
+        var includedColumns = Array.Empty<IDatabaseColumn>();
+
+        var index = new PostgreSqlDatabaseIndex(indexName, false, columns, includedColumns, Option<string>.None);
+
+        Assert.That(index.FilterDefinition, OptionIs.None);
+    }
+
+    [Test]
+    public static void FilterDefinition_GivenValueForCtorArgPropertyGet_ReturnsValue()
+    {
+        Identifier indexName = "test_index";
+        var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
+        var includedColumns = Array.Empty<IDatabaseColumn>();
+        const string filterDefinition = "WHERE a = 1";
+
+        var index = new PostgreSqlDatabaseIndex(indexName, false, columns, includedColumns, Option<string>.Some(filterDefinition));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(index.FilterDefinition, OptionIs.Some);
+            Assert.That(index.FilterDefinition.UnwrapSome(), Is.EqualTo(filterDefinition));
+        });
     }
 
     [TestCase("test_index", "Index: test_index")]
@@ -170,7 +201,7 @@ internal static class PostgreSqlDatabaseIndexTests
         var indexName = Identifier.CreateQualifiedIdentifier(name);
         var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
 
-        var index = new PostgreSqlDatabaseIndex(indexName, false, columns);
+        var index = new PostgreSqlDatabaseIndex(indexName, false, columns, Option<string>.None);
         var result = index.ToString();
 
         Assert.That(result, Is.EqualTo(expectedResult));

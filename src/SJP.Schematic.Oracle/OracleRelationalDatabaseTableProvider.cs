@@ -323,7 +323,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 })
                 .ToList();
 
-            var index = new OracleDatabaseIndex(indexName, isUnique, indexCols);
+            var index = new OracleDatabaseIndex(indexName, isUnique, indexCols, Option<string>.None);
             result.Add(index);
         }
 
