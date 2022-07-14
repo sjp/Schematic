@@ -17,7 +17,7 @@ internal static class OracleDatabaseIndexTests
         var column = Mock.Of<IDatabaseIndexColumn>();
         var columns = new[] { column };
 
-        Assert.That(() => new OracleDatabaseIndex(null, isUnique, columns, Option<string>.None), Throws.ArgumentNullException);
+        Assert.That(() => new OracleDatabaseIndex(null, isUnique, columns), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -26,7 +26,7 @@ internal static class OracleDatabaseIndexTests
         Identifier indexName = "test_index";
         const bool isUnique = true;
 
-        Assert.That(() => new OracleDatabaseIndex(indexName, isUnique, null, Option<string>.None), Throws.ArgumentNullException);
+        Assert.That(() => new OracleDatabaseIndex(indexName, isUnique, null), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -36,7 +36,7 @@ internal static class OracleDatabaseIndexTests
         const bool isUnique = true;
         var columns = Array.Empty<IDatabaseIndexColumn>();
 
-        Assert.That(() => new OracleDatabaseIndex(indexName, isUnique, columns, Option<string>.None), Throws.ArgumentNullException);
+        Assert.That(() => new OracleDatabaseIndex(indexName, isUnique, columns), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -46,7 +46,7 @@ internal static class OracleDatabaseIndexTests
         const bool isUnique = true;
         var columns = new IDatabaseIndexColumn[] { null };
 
-        Assert.That(() => new OracleDatabaseIndex(indexName, isUnique, columns, Option<string>.None), Throws.ArgumentNullException);
+        Assert.That(() => new OracleDatabaseIndex(indexName, isUnique, columns), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -57,7 +57,7 @@ internal static class OracleDatabaseIndexTests
         var column = Mock.Of<IDatabaseIndexColumn>();
         var columns = new[] { column };
 
-        var index = new OracleDatabaseIndex(indexName, isUnique, columns, Option<string>.None);
+        var index = new OracleDatabaseIndex(indexName, isUnique, columns);
 
         Assert.That(index.Name, Is.EqualTo(indexName));
     }
@@ -70,7 +70,7 @@ internal static class OracleDatabaseIndexTests
         var column = Mock.Of<IDatabaseIndexColumn>();
         var columns = new[] { column };
 
-        var index = new OracleDatabaseIndex(indexName, isUnique, columns, Option<string>.None);
+        var index = new OracleDatabaseIndex(indexName, isUnique, columns);
 
         Assert.That(index.IsUnique, Is.EqualTo(isUnique));
     }
@@ -83,7 +83,7 @@ internal static class OracleDatabaseIndexTests
         var column = Mock.Of<IDatabaseIndexColumn>();
         var columns = new[] { column };
 
-        var index = new OracleDatabaseIndex(indexName, isUnique, columns, Option<string>.None);
+        var index = new OracleDatabaseIndex(indexName, isUnique, columns);
 
         Assert.That(index.IsUnique, Is.EqualTo(isUnique));
     }
@@ -96,7 +96,7 @@ internal static class OracleDatabaseIndexTests
         var column = Mock.Of<IDatabaseIndexColumn>();
         var columns = new[] { column };
 
-        var index = new OracleDatabaseIndex(indexName, isUnique, columns, Option<string>.None);
+        var index = new OracleDatabaseIndex(indexName, isUnique, columns);
 
         Assert.That(index.Columns, Is.EqualTo(columns));
     }
@@ -109,36 +109,20 @@ internal static class OracleDatabaseIndexTests
         var column = Mock.Of<IDatabaseIndexColumn>();
         var columns = new[] { column };
 
-        var index = new OracleDatabaseIndex(indexName, isUnique, columns, Option<string>.None);
+        var index = new OracleDatabaseIndex(indexName, isUnique, columns);
 
         Assert.That(index.IsEnabled, Is.True);
     }
 
     [Test]
-    public static void FilterDefinition_GivenNoneCtorArgPropertyGet_ReturnsNone()
+    public static void FilterDefinition_PropertyGet_ReturnsNone()
     {
         Identifier indexName = "test_index";
         var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
 
-        var index = new OracleDatabaseIndex(indexName, false, columns, Option<string>.None);
+        var index = new OracleDatabaseIndex(indexName, false, columns);
 
         Assert.That(index.FilterDefinition, OptionIs.None);
-    }
-
-    [Test]
-    public static void FilterDefinition_GivenValueForCtorArgPropertyGet_ReturnsValue()
-    {
-        Identifier indexName = "test_index";
-        var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
-        const string filterDefinition = "WHERE a = 1";
-
-        var index = new OracleDatabaseIndex(indexName, false, columns, Option<string>.Some(filterDefinition));
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(index.FilterDefinition, OptionIs.Some);
-            Assert.That(index.FilterDefinition.UnwrapSome(), Is.EqualTo(filterDefinition));
-        });
     }
 
     [TestCase("test_index", "Index: test_index")]
@@ -148,7 +132,7 @@ internal static class OracleDatabaseIndexTests
         var indexName = Identifier.CreateQualifiedIdentifier(name);
         var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
 
-        var index = new OracleDatabaseIndex(indexName, false, columns, Option<string>.None);
+        var index = new OracleDatabaseIndex(indexName, false, columns);
         var result = index.ToString();
 
         Assert.That(result, Is.EqualTo(expectedResult));
