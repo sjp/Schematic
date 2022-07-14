@@ -56,7 +56,16 @@ public class PostgreSqlRelationalDatabaseTableProvider : PostgreSqlRelationalDat
         if (queryResult.Empty())
             return Array.Empty<IDatabaseIndex>();
 
-        var indexColumns = queryResult.GroupAsDictionary(static row => new { row.IndexName, row.IsUnique, row.IsPrimary, row.KeyColumnCount }).ToList();
+        var indexColumns = queryResult
+            .GroupAsDictionary(static row => new
+            {
+                row.IndexName,
+                row.IsUnique,
+                row.IsPrimary,
+                row.FilterDefinition,
+                row.KeyColumnCount
+            })
+            .ToList();
         if (indexColumns.Empty())
             return Array.Empty<IDatabaseIndex>();
 
@@ -68,6 +77,10 @@ public class PostgreSqlRelationalDatabaseTableProvider : PostgreSqlRelationalDat
         {
             var isUnique = indexInfo.Key.IsUnique;
             var indexName = Identifier.CreateQualifiedIdentifier(indexInfo.Key.IndexName);
+
+            var filterDefinition = !indexInfo.Key.FilterDefinition.IsNullOrWhiteSpace()
+                ? Option<string>.Some(indexInfo.Key.FilterDefinition)
+                : Option<string>.None;
 
             var indexCols = indexInfo.Value
                 .Where(static row => row.IndexColumnExpression != null)
@@ -99,7 +112,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : PostgreSqlRelationalDat
                 .Select(row => columnLookup[row.IndexColumnExpression!])
                 .ToList();
 
-            var index = new PostgreSqlDatabaseIndex(indexName, isUnique, indexCols, includedCols, Option<string>.None);
+            var index = new PostgreSqlDatabaseIndex(indexName, isUnique, indexCols, includedCols, filterDefinition);
             result.Add(index);
         }
 

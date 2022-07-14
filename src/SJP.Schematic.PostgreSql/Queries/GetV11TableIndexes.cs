@@ -17,6 +17,8 @@ internal static class GetV11TableIndexes
 
         public bool IsPrimary { get; init; }
 
+        public string? FilterDefinition { get; init; }
+
         public int KeyColumnCount { get; init; }
 
         public int IndexColumnId { get; init; }
@@ -33,6 +35,7 @@ select
     i.relname as ""{ nameof(Result.IndexName) }"",
     idx.indisunique as ""{ nameof(Result.IsUnique) }"",
     idx.indisprimary as ""{ nameof(Result.IsPrimary) }"",
+    idx.indpred as ""{nameof(Result.FilterDefinition)}"",
     idx.indnkeyatts as ""{ nameof(Result.KeyColumnCount) }"",
     pg_catalog.generate_subscripts(idx.indkey, 1) as ""{ nameof(Result.IndexColumnId) }"",
     pg_catalog.unnest(array(

@@ -294,7 +294,15 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         if (queryResult.Empty())
             return Array.Empty<IDatabaseIndex>();
 
-        var indexColumns = queryResult.GroupAsDictionary(static row => new { row.IndexName, row.IsUnique, row.IsPrimary }).ToList();
+        var indexColumns = queryResult
+            .GroupAsDictionary(static row => new
+            {
+                row.IndexName,
+                row.IsUnique,
+                row.IsPrimary,
+                row.FilterDefinition
+            })
+            .ToList();
         if (indexColumns.Empty())
             return Array.Empty<IDatabaseIndex>();
 
@@ -306,6 +314,10 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         {
             var isUnique = indexInfo.Key.IsUnique;
             var indexName = Identifier.CreateQualifiedIdentifier(indexInfo.Key.IndexName);
+
+            var filterDefinition = !indexInfo.Key.FilterDefinition.IsNullOrWhiteSpace()
+                ? Option<string>.Some(indexInfo.Key.FilterDefinition)
+                : Option<string>.None;
 
             var indexCols = indexInfo.Value
                 .Where(static row => row.IndexColumnExpression != null)
@@ -330,7 +342,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                 })
                 .ToList();
 
-            var index = new PostgreSqlDatabaseIndex(indexName, isUnique, indexCols, Option<string>.None);
+            var index = new PostgreSqlDatabaseIndex(indexName, isUnique, indexCols, filterDefinition);
             result.Add(index);
         }
 

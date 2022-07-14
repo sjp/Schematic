@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration;
 
@@ -171,5 +172,23 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
             Assert.That(includedColumns, Has.Exactly(2).Items);
             Assert.That(includedColumns, Is.EqualTo(expectedIncludedColumnNames));
         });
+    }
+
+    [Test]
+    public async Task Indexes_WhenGivenTableWithoutFilteredIndex_ReturnsIndexWithNonFilterDefinition()
+    {
+        var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
+        var index = table.Indexes.Single();
+
+        Assert.That(index.FilterDefinition, OptionIs.None);
+    }
+
+    [Test]
+    public async Task Indexes_WhenGivenTableWithFilteredIndex_ReturnsIndexWithExpectedFilterDefinition()
+    {
+        var table = await GetTableAsync("table_test_table_38").ConfigureAwait(false);
+        var index = table.Indexes.Single();
+
+        Assert.That(index.FilterDefinition.UnwrapSome(), Is.EqualTo("this is invalid"));
     }
 }

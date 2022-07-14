@@ -233,6 +233,9 @@ create table table_test_table_37 (
     test_column_2 int generated always as (test_column_1 * 2) stored
 )", CancellationToken.None).ConfigureAwait(false);
         }
+        await DbConnection.ExecuteAsync("create table table_test_table_38 ( test_column int not null )", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create index ix_test_table_38 on table_test_table_38 (test_column) where test_column > 100", CancellationToken.None).ConfigureAwait(false);
+
         await DbConnection.ExecuteAsync("create table trigger_test_table_1 (table_id int primary key not null)", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync("create table trigger_test_table_2 (table_id int primary key not null)", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync(@"create function test_trigger_fn()
@@ -319,6 +322,7 @@ execute procedure test_trigger_fn()", CancellationToken.None).ConfigureAwait(fal
         await DbConnection.ExecuteAsync("drop table table_test_table_36", CancellationToken.None).ConfigureAwait(false);
         if (dbVersion >= new Version(12, 0))
             await DbConnection.ExecuteAsync("drop table table_test_table_37", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table table_test_table_38", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_1", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_2", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync("drop function test_trigger_fn()", CancellationToken.None).ConfigureAwait(false);
