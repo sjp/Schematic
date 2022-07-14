@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -160,6 +161,13 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Columns_WhenGivenTableWithGeneratedColumns_ReturnsExpectedComputedColumnCount()
     {
+        var dbVersion = await Dialect.GetDatabaseVersionAsync(Connection).ConfigureAwait(false);
+        if (dbVersion < new Version(12, 0))
+        {
+            Assert.Pass();
+            return;
+        }
+
         const string tableName = "table_test_table_37";
         var table = await GetTableAsync(tableName).ConfigureAwait(false);
         var computedColumns = table.Columns.Where(c => c.IsComputed).ToList();
@@ -170,6 +178,13 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Columns_WhenGivenTableWithGeneratedColumns_ReturnsExpectedComputedColumnNames()
     {
+        var dbVersion = await Dialect.GetDatabaseVersionAsync(Connection).ConfigureAwait(false);
+        if (dbVersion < new Version(12, 0))
+        {
+            Assert.Pass();
+            return;
+        }
+
         const string tableName = "table_test_table_37";
         const string expectedColumnName = "test_column_2";
         var table = await GetTableAsync(tableName).ConfigureAwait(false);
@@ -181,6 +196,13 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Columns_WhenGivenTableWithGeneratedColumns_ReturnsExpectedComputedColumnDefinition()
     {
+        var dbVersion = await Dialect.GetDatabaseVersionAsync(Connection).ConfigureAwait(false);
+        if (dbVersion < new Version(12, 0))
+        {
+            Assert.Pass();
+            return;
+        }
+
         const string tableName = "table_test_table_37";
         const string expectedDefinition = "(test_column_1 * 2)";
         var table = await GetTableAsync(tableName).ConfigureAwait(false);

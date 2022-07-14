@@ -18,6 +18,8 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [OneTimeSetUp]
     public async Task Init()
     {
+        var dbVersion = await Dialect.GetDatabaseVersionAsync(Connection, CancellationToken.None).ConfigureAwait(false);
+
         await DbConnection.ExecuteAsync("create table db_test_table_1 ( title varchar(200) )", CancellationToken.None).ConfigureAwait(false);
 
         await DbConnection.ExecuteAsync("create table table_test_table_1 ( test_column int )", CancellationToken.None).ConfigureAwait(false);
@@ -99,7 +101,8 @@ create table table_test_table_15 (
     constraint pk_test_table_15 primary key (first_name_parent),
     constraint uk_test_table_15 unique (last_name_parent, middle_name_parent)
 )", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create index ix_test_table_15 on table_test_table_15 (last_name_parent) include (first_name_parent)", CancellationToken.None).ConfigureAwait(false);
+        if (dbVersion >= new Version(11, 0))
+            await DbConnection.ExecuteAsync("create index ix_test_table_15 on table_test_table_15 (last_name_parent) include (first_name_parent)", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_16 (
     first_name_child varchar(50),
@@ -107,7 +110,8 @@ create table table_test_table_16 (
     last_name varchar(50),
     constraint fk_test_table_16 foreign key (first_name_child) references table_test_table_15 (first_name_parent)
 )", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create index ix_test_table_16 on table_test_table_16 (last_name) include (middle_name, first_name_child)", CancellationToken.None).ConfigureAwait(false);
+        if (dbVersion >= new Version(11, 0))
+            await DbConnection.ExecuteAsync("create index ix_test_table_16 on table_test_table_16 (last_name) include (middle_name, first_name_child)", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_17 (
     first_name varchar(50),
@@ -221,11 +225,14 @@ create table table_test_table_32 (
         await DbConnection.ExecuteAsync("create table table_test_table_33 ( test_column int not null default 1 )", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync("create table table_test_table_35 ( test_column serial primary key )", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync("create table table_test_table_36 ( test_column int generated always as identity (start with 123 increment by 456) )", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync(@"
+        if (dbVersion >= new Version(12, 0))
+        {
+            await DbConnection.ExecuteAsync(@"
 create table table_test_table_37 (
     test_column_1 int,
     test_column_2 int generated always as (test_column_1 * 2) stored
 )", CancellationToken.None).ConfigureAwait(false);
+        }
         await DbConnection.ExecuteAsync("create table trigger_test_table_1 (table_id int primary key not null)", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync("create table trigger_test_table_2 (table_id int primary key not null)", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync(@"create function test_trigger_fn()
@@ -271,6 +278,8 @@ execute procedure test_trigger_fn()", CancellationToken.None).ConfigureAwait(fal
     [OneTimeTearDown]
     public async Task CleanUp()
     {
+        var dbVersion = await Dialect.GetDatabaseVersionAsync(Connection, CancellationToken.None).ConfigureAwait(false);
+
         await DbConnection.ExecuteAsync("drop table db_test_table_1", CancellationToken.None).ConfigureAwait(false);
 
         await DbConnection.ExecuteAsync("drop table table_test_table_1", CancellationToken.None).ConfigureAwait(false);
@@ -308,7 +317,8 @@ execute procedure test_trigger_fn()", CancellationToken.None).ConfigureAwait(fal
         await DbConnection.ExecuteAsync("drop table table_test_table_33", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync("drop table table_test_table_35", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync("drop table table_test_table_36", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table table_test_table_37", CancellationToken.None).ConfigureAwait(false);
+        if (dbVersion >= new Version(12, 0))
+            await DbConnection.ExecuteAsync("drop table table_test_table_37", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_1", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_2", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync("drop function test_trigger_fn()", CancellationToken.None).ConfigureAwait(false);

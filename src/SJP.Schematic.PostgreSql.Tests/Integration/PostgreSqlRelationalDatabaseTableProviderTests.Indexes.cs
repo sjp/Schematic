@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
@@ -109,6 +110,13 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Indexes_WhenGivenTableWithIncludedColumnIndex_ReturnsIndexWithIncludedColumn()
     {
+        var dbVersion = await Dialect.GetDatabaseVersionAsync(Connection).ConfigureAwait(false);
+        if (dbVersion < new Version(11, 0))
+        {
+            Assert.Pass();
+            return;
+        }
+
         var expectedColumnNames = new[] { "last_name_parent" };
         var expectedIncludedColumnNames = new[] { "first_name_parent" };
 
@@ -135,6 +143,13 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Indexes_WhenGivenTableWithMultipleIncludedColumnIndex_ReturnsIndexWithIncludedColumnsInCorrectOrder()
     {
+        var dbVersion = await Dialect.GetDatabaseVersionAsync(Connection).ConfigureAwait(false);
+        if (dbVersion < new Version(11, 0))
+        {
+            Assert.Pass();
+            return;
+        }
+
         var expectedColumnNames = new[] { "last_name" };
         var expectedIncludedColumnNames = new[] { "middle_name", "first_name_child" };
 
