@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration;
 
@@ -95,5 +96,19 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
         var index = table.Indexes.Single();
 
         Assert.That(index.IsUnique, Is.True);
+    }
+
+    [Test]
+    public async Task Indexes_WhenGivenTableWithFilteredIndexes_ReturnsIndexWithFilteredDefinition()
+    {
+        var table = await GetTableAsync("table_test_table_38").ConfigureAwait(false);
+        var index1 = table.Indexes.Single(i => i.Name.LocalName == "ix_test_table_38_1");
+        var index2 = table.Indexes.Single(i => i.Name.LocalName == "ix_test_table_38_2");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(index1.FilterDefinition, OptionIs.None);
+            Assert.That(index2.FilterDefinition.UnwrapSome(), Is.EqualTo("where test_column_2 < 100 and test_column_2 > 3"));
+        });
     }
 }

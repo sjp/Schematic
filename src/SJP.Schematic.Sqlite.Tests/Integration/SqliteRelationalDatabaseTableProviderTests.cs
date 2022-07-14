@@ -230,6 +230,14 @@ create table table_test_table_37 (
     test_column_4 int constraint computed_col_constraint as (test_column_1 * test_column_1 * test_column_1 * test_column_1) virtual
 )", CancellationToken.None).ConfigureAwait(false);
 
+        await DbConnection.ExecuteAsync(@"
+create table table_test_table_38 (
+    test_column_1 int not null,
+    test_column_2 int not null
+)", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create index ix_test_table_38_1 on table_test_table_38 (test_column_1)", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create index ix_test_table_38_2 on table_test_table_38 (test_column_2) where test_column_2 < 100 and test_column_2 > 3", CancellationToken.None).ConfigureAwait(false);
+
         await DbConnection.ExecuteAsync("create table trigger_test_table_1 (table_id integer primary key not null)", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync("create table trigger_test_table_2 (table_id integer primary key not null)", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync(@"create trigger trigger_test_table_1_trigger_1
@@ -309,6 +317,7 @@ end", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync("drop table table_test_table_36", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync("drop table table_test_table_35", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync("drop table table_test_table_37", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table table_test_table_38", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_1", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_2", CancellationToken.None).ConfigureAwait(false);
     }

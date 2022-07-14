@@ -400,7 +400,31 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 .Select(i => columnLookup[i.name!])
                 .ToList();
 
-            var index = new SqliteDatabaseIndex(indexList.name, indexList.unique, indexColumns, includedColumns, Option<string>.None);
+            var indexSchema = await DbConnection.ExecuteScalarAsync<string>(
+                GetIndexDefinition.Sql(Dialect, tableName.Schema!),
+                new GetIndexDefinition.Query { TableName = tableName.LocalName, IndexName = indexList.name },
+                cancellationToken
+            ).ConfigureAwait(false);
+
+            var filterDefinition = Option<string>.None;
+            if (indexSchema != null)
+            {
+                var tokens = Tokenizer.TryTokenize(indexSchema);
+                if (tokens.HasValue)
+                {
+                    var whereToken = tokens.Value.FirstOrDefault(t => t.Kind == SqliteToken.Where);
+                    if (whereToken.Kind == SqliteToken.Where)
+                    {
+                        var location = whereToken.Position.Absolute;
+                        var definition = indexSchema[location..];
+                        filterDefinition = !definition.IsNullOrWhiteSpace()
+                            ? Option<string>.Some(definition)
+                            : Option<string>.None;
+                    }
+                }
+            }
+
+            var index = new SqliteDatabaseIndex(indexList.name, indexList.unique, indexColumns, includedColumns, filterDefinition);
             result.Add(index);
         }
 
