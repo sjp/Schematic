@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -37,10 +38,16 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Triggers_GivenTableWithTrigger_ReturnsCorrectDefinition()
     {
+        var dbVersion = await Dialect.GetDatabaseVersionAsync(Connection).ConfigureAwait(false);
+
         var table = await GetTableAsync("trigger_test_table_1").ConfigureAwait(false);
         var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_1");
 
-        const string expectedDefinition = "EXECUTE FUNCTION test_trigger_fn()";
+        const string expectedOldDefinition = "EXECUTE PROCEDURE test_trigger_fn()";
+        const string expectedNewDefinition = "EXECUTE FUNCTION test_trigger_fn()";
+        var expectedDefinition = dbVersion < new Version(12, 0)
+            ? expectedOldDefinition
+            : expectedNewDefinition;
 
         Assert.That(trigger.Definition, Is.EqualTo(expectedDefinition));
     }
