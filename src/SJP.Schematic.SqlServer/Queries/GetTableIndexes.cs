@@ -26,18 +26,24 @@ internal static class GetTableIndexes
         public string ColumnName { get; init; } = default!;
 
         public bool IsDisabled { get; init; }
+
+        public bool IsFiltered { get; init; }
+
+        public string FilterDefinition { get; init; } = default!;
     }
 
     internal const string Sql = @$"
 select
     i.name as [{ nameof(Result.IndexName) }],
     i.is_unique as [{ nameof(Result.IsUnique) }],
+    i.is_disabled as [{nameof(Result.IsDisabled)}],
+    i.has_filter as [{nameof(Result.IsFiltered)}],
+    i.filter_definition as [{nameof(Result.FilterDefinition)}],
     ic.key_ordinal as [{ nameof(Result.KeyOrdinal) }],
     ic.index_column_id as [{ nameof(Result.IndexColumnId) }],
     ic.is_included_column as [{ nameof(Result.IsIncludedColumn) }],
     ic.is_descending_key as [{ nameof(Result.IsDescending) }],
-    c.name as [{ nameof(Result.ColumnName) }],
-    i.is_disabled as [{ nameof(Result.IsDisabled) }]
+    c.name as [{ nameof(Result.ColumnName) }]
 from sys.tables t
 inner join sys.indexes i on t.object_id = i.object_id
 inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id

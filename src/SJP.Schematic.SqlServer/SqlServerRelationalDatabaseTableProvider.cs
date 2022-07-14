@@ -259,7 +259,16 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         if (queryResult.Empty())
             return Array.Empty<IDatabaseIndex>();
 
-        var indexColumns = queryResult.GroupAsDictionary(static row => new { row.IndexName, row.IsUnique, row.IsDisabled }).ToList();
+        var indexColumns = queryResult
+            .GroupAsDictionary(static row => new
+            {
+                row.IndexName,
+                row.IsUnique,
+                row.IsDisabled,
+                row.IsFiltered,
+                row.FilterDefinition
+            })
+            .ToList();
         if (indexColumns.Empty())
             return Array.Empty<IDatabaseIndex>();
 
@@ -294,7 +303,11 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
                 .Select(row => columnLookup[row.ColumnName])
                 .ToList();
 
-            var index = new DatabaseIndex(indexName, isUnique, indexCols, includedCols, isEnabled, Option<string>.None);
+            var filterDefinition = indexInfo.Key.IsFiltered && !indexInfo.Key.FilterDefinition.IsNullOrWhiteSpace()
+                ? Option<string>.Some(indexInfo.Key.FilterDefinition)
+                : Option<string>.None;
+
+            var index = new DatabaseIndex(indexName, isUnique, indexCols, includedCols, isEnabled, filterDefinition);
             result.Add(index);
         }
 

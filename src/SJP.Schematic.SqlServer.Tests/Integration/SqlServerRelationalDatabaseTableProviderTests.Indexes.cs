@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration;
 
@@ -163,5 +164,23 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         var index = table.Indexes.Single();
 
         Assert.That(index.IsUnique, Is.True);
+    }
+
+    [Test]
+    public async Task Indexes_WhenGivenTableWithUnfilteredIndex_ReturnsIndexWithFilterDefinitionOfNone()
+    {
+        var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
+        var index = table.Indexes.Single();
+
+        Assert.That(index.FilterDefinition, OptionIs.None);
+    }
+
+    [Test]
+    public async Task Indexes_WhenGivenTableWithFilteredIndex_ReturnsIndexWithFilterDefinition()
+    {
+        var table = await GetTableAsync("table_test_table_36").ConfigureAwait(false);
+        var index = table.Indexes.Single();
+
+        Assert.That(index.FilterDefinition.UnwrapSome(), Is.EqualTo("([test_column]>(100))"));
     }
 }
