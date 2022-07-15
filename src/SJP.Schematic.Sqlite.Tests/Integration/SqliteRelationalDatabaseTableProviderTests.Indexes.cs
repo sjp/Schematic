@@ -108,7 +108,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
         Assert.Multiple(() =>
         {
             Assert.That(index1.FilterDefinition, OptionIs.None);
-            Assert.That(index2.FilterDefinition.UnwrapSome(), Is.EqualTo("where test_column_2 < 100 and test_column_2 > 3"));
+            Assert.That(index2.FilterDefinition.UnwrapSome(), Is.EqualTo("test_column_2 < 100 and test_column_2 > 3"));
         });
     }
 }

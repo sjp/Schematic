@@ -413,9 +413,12 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 if (tokens.HasValue)
                 {
                     var whereToken = tokens.Value.FirstOrDefault(t => t.Kind == SqliteToken.Where);
-                    if (whereToken.Kind == SqliteToken.Where)
+                    var postWhereToken = whereToken.HasValue
+                        ? tokens.Value.FirstOrDefault(t => t.Position.Absolute > whereToken.Position.Absolute)
+                        : default;
+                    if (postWhereToken.Kind != SqliteToken.None)
                     {
-                        var location = whereToken.Position.Absolute;
+                        var location = postWhereToken.Position.Absolute;
                         var definition = indexSchema[location..];
                         filterDefinition = !definition.IsNullOrWhiteSpace()
                             ? Option<string>.Some(definition)
