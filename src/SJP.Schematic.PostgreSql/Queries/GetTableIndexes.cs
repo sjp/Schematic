@@ -35,7 +35,7 @@ select
     i.relname as ""{ nameof(Result.IndexName) }"",
     idx.indisunique as ""{ nameof(Result.IsUnique) }"",
     idx.indisprimary as ""{ nameof(Result.IsPrimary) }"",
-    idx.indpred as ""{nameof(Result.FilterDefinition)}"",
+    pg_catalog.pg_get_expr(idx.indpred, idx.indrelid) as ""{nameof(Result.FilterDefinition)}"",
     pg_catalog.generate_subscripts(idx.indkey, 1) as ""{ nameof(Result.IndexColumnId) }"",
     pg_catalog.unnest(array(
         select pg_catalog.pg_get_indexdef(idx.indexrelid, k + 1, true)
