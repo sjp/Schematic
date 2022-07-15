@@ -189,6 +189,6 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         var table = await GetTableAsync("table_test_table_38").ConfigureAwait(false);
         var index = table.Indexes.Single();
 
-        Assert.That(index.FilterDefinition.UnwrapSome(), Is.EqualTo("this is invalid"));
+        Assert.That(index.FilterDefinition.UnwrapSome(), Is.EqualTo("(test_column > 100)"));
     }
 }
