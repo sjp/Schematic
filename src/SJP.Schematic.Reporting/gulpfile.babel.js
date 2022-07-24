@@ -8,7 +8,7 @@ import concat from 'gulp-concat';
 import cssnano from 'cssnano';
 import postcss from 'gulp-postcss';
 import postcssPresetEnv from 'postcss-preset-env';
-import del from 'del';
+import { deleteSync } from 'del';
 
 const cssNanoPreset = {
     preset: ['default', {
@@ -19,7 +19,7 @@ const cssNanoPreset = {
 };
 
 export const clean = () =>
-    del([
+    deleteSync([
         'assets/**/*.*'
     ]);
 
