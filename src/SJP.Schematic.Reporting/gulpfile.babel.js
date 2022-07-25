@@ -1,6 +1,5 @@
-'use strict';
-
-import { src, dest, parallel } from 'gulp';
+import gulp from 'gulp';
+const { src, dest, parallel } = gulp;
 import gzip from 'gulp-gzip';
 import newer from 'gulp-newer';
 import terser from 'gulp-terser';
