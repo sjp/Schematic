@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Oracle.Parsing;
 
 namespace SJP.Schematic.Oracle;
@@ -111,18 +112,19 @@ public static class OracleUnwrapper
 
         var textToTokenize = input[..(lastIndex + wrappedKeyword.Length)];
         var tokens = Tokenizer.TryTokenize(textToTokenize);
+        if (!tokens.HasValue || tokens.Value.Empty())
+            return false;
 
         // Note that currently we are not validating the object type.
         // Valid object types are: FUNCTION, PROCEDURE, PACKAGE, PACKAGE BODY, TYPE, TYPE BODY
         // Additionally, it can contain comments which need to be removed
-        var hasWrappedToken = tokens.HasValue
-            && tokens.Value.Last().Kind == OracleToken.Identifier
-            && tokens.Value.Last().Span.ToStringValue().Equals(wrappedKeyword, StringComparison.OrdinalIgnoreCase);
-
+        var lastTokenValue = tokens.Value.Last();
+        var hasWrappedToken = lastTokenValue.Kind == OracleToken.Identifier
+                && lastTokenValue.Span.ToStringValue().Equals(wrappedKeyword, StringComparison.OrdinalIgnoreCase);
         if (!hasWrappedToken)
             return false;
 
-        var currentIndex = tokens.Value.Last().Span.Position.Absolute + tokens.Value.Last().Span.Length;
+        var currentIndex = lastTokenValue.Span.Position.Absolute + lastTokenValue.Span.Length;
         const string magicPrefix = "a000000";
 
         var magicPrefixIndex = input.IndexOf(magicPrefix, currentIndex, StringComparison.Ordinal);
@@ -178,13 +180,32 @@ public static class OracleUnwrapper
             if (base64Remainder.IsNullOrWhiteSpace())
                 return false;
 
-            base64Remainder = base64Remainder
-                .Split(CarriageReturn, StringSplitOptions.RemoveEmptyEntries)
-                .Join(string.Empty)
-                .TrimStart();
+            // basically this block is just:
+            // * trim whitespace from start
+            // * remove all carriage returns
+            //
+            // we're doing it in a very imperative manner for perf
+            var remainderBuilder = StringBuilderCache.Acquire(base64Remainder.Length);
+            var hasTrimmedStart = false;
+            for (var i = 0; i < base64Remainder.Length; i++)
+            {
+                var c = base64Remainder[i];
+                if (!hasTrimmedStart)
+                {
+                    if (c.IsWhiteSpace())
+                        continue;
 
-            var result = IsValidBase64String(base64Remainder);
-            if (result)
+                    hasTrimmedStart = true;
+                }
+
+                if (c == CarriageReturn)
+                    continue;
+
+                remainderBuilder.Append(c);
+            }
+
+            var isRemainderValid = IsValidBase64String(remainderBuilder.GetStringAndRelease());
+            if (isRemainderValid)
             {
                 payload = base64Remainder!;
                 return true;
@@ -202,7 +223,7 @@ public static class OracleUnwrapper
 
         var bytes = Convert.FromBase64String(base64Input);
 
-        var mappedCharBuffer = new Span<byte>(new byte[bytes.Length]);
+        var mappedCharBuffer = new byte[bytes.Length].AsSpan();
         for (var i = 0; i < bytes.Length; i++)
         {
             mappedCharBuffer[i] = CharMap[bytes[i]];
@@ -214,7 +235,7 @@ public static class OracleUnwrapper
 
         using (var sha1 = SHA1.Create())
         {
-            var computedHashBuffer = new Span<byte>(new byte[hashSize]);
+            var computedHashBuffer = new byte[hashSize].AsSpan();
 
             var areEqual = sha1.TryComputeHash(dataBuffer, computedHashBuffer, out _)
                 && computedHashBuffer.SequenceEqual(hashBuffer);
@@ -243,10 +264,13 @@ public static class OracleUnwrapper
         if (base64Input == null)
             return false;
 
-        var bytes = Convert.FromBase64String(base64Input);
+        var buffer = new byte[base64Input.Length].AsSpan();
+        if (!Convert.TryFromBase64String(base64Input, buffer, out var bytesWritten))
+            return false;
 
-        var mappedCharBuffer = new Span<byte>(new byte[bytes.Length]);
-        for (var i = 0; i < bytes.Length; i++)
+        var bytes = buffer[..bytesWritten];
+        var mappedCharBuffer = new byte[bytesWritten];
+        for (var i = 0; i < bytesWritten; i++)
         {
             mappedCharBuffer[i] = CharMap[bytes[i]];
         }
@@ -257,7 +281,7 @@ public static class OracleUnwrapper
 
         using (var sha1 = SHA1.Create())
         {
-            var computedHashBuffer = new Span<byte>(new byte[hashSize]);
+            var computedHashBuffer = new byte[hashSize].AsSpan();
 
             var areEqual = sha1.TryComputeHash(dataBuffer, computedHashBuffer, out _)
                 && computedHashBuffer.SequenceEqual(hashBuffer);
@@ -286,7 +310,7 @@ public static class OracleUnwrapper
         if (input.IsNullOrWhiteSpace())
             return false;
 
-        var buffer = new Span<byte>(new byte[input.Length]);
+        var buffer = new byte[input.Length].AsSpan();
         return Convert.TryFromBase64String(input, buffer, out _);
     }
 
@@ -319,8 +343,8 @@ public static class OracleUnwrapper
         0x8D, 0x92, 0x4A, 0x11, 0x89, 0x74, 0x6B, 0x91, 0xFB, 0xFE, 0xC9, 0x01, 0xEA, 0x1B, 0xF7, 0xCE
     };
 
+    private const char CarriageReturn = '\r';
     private static readonly char[] SpaceChar = new[] { ' ' };
-    private static readonly char[] CarriageReturn = new[] { '\r' };
     private static readonly char[] NewlineChars = new[] { '\r', '\n' };
     private static readonly OracleTokenizer Tokenizer = new();
 }
