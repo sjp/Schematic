@@ -34,8 +34,7 @@ public sealed class SqliteDependencyProvider : IDependencyProvider
     /// <remarks>This will also return unqualified identifiers, which may cause ambiguity between object names and column names. Additionally it may return other identifiers, such as aliases or type names.</remarks>
     public IReadOnlyCollection<Identifier> GetDependencies(Identifier objectName, string expression)
     {
-        if (objectName == null)
-            throw new ArgumentNullException(nameof(objectName));
+        ArgumentNullException.ThrowIfNull(objectName);
         if (expression.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(expression));
 

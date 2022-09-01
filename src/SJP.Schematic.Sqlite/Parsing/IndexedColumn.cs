@@ -15,8 +15,7 @@ public class IndexedColumn
 {
     internal IndexedColumn(SqlIdentifier identifier)
     {
-        if (identifier == null)
-            throw new ArgumentNullException(nameof(identifier));
+        ArgumentNullException.ThrowIfNull(identifier);
 
         Name = identifier.Value.LocalName;
         Expression = Array.Empty<Token<SqliteToken>>();
@@ -33,8 +32,7 @@ public class IndexedColumn
 
     internal IndexedColumn(SqlExpression expression)
     {
-        if (expression == null)
-            throw new ArgumentNullException(nameof(expression));
+        ArgumentNullException.ThrowIfNull(expression);
 
         Expression = expression.Tokens.ToList();
     }
@@ -73,8 +71,7 @@ public class IndexedColumn
 
     internal IndexedColumn WithCollation(ColumnConstraint constraint)
     {
-        if (constraint == null)
-            throw new ArgumentNullException(nameof(constraint));
+        ArgumentNullException.ThrowIfNull(constraint);
         if (constraint.ConstraintType != ColumnConstraint.ColumnConstraintType.Collation)
             throw new ArgumentException("The given column constraint is not collation constraint. Instead given: " + constraint.ConstraintType.ToString(), nameof(constraint));
         if (constraint is not ColumnConstraint.Collation collationConstraint)

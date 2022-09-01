@@ -8,10 +8,8 @@ internal static class GetTypeofColumn
 {
     internal static string Sql(IDatabaseDialect dialect, Identifier tableName, string columnName)
     {
-        if (dialect == null)
-            throw new ArgumentNullException(nameof(dialect));
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(dialect);
+        ArgumentNullException.ThrowIfNull(tableName);
         if (columnName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(columnName));
 

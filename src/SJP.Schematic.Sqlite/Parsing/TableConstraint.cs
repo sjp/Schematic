@@ -33,8 +33,7 @@ internal abstract class TableConstraint
 
     internal TableConstraint WithName(SqlIdentifier constraintName)
     {
-        if (constraintName == null)
-            throw new ArgumentNullException(nameof(constraintName));
+        ArgumentNullException.ThrowIfNull(constraintName);
 
         Name = Option<string>.Some(constraintName.Value.LocalName);
         return this;

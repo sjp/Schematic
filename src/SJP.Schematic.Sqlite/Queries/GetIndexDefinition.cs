@@ -15,8 +15,7 @@ internal static class GetIndexDefinition
 
     internal static string Sql(IDatabaseDialect dialect, string schemaName)
     {
-        if (dialect == null)
-            throw new ArgumentNullException(nameof(dialect));
+        ArgumentNullException.ThrowIfNull(dialect);
         if (schemaName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(schemaName));
 

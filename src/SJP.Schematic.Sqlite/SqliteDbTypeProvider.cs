@@ -19,8 +19,7 @@ public class SqliteDbTypeProvider : IDbTypeProvider
     /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <c>null</c>.</exception>
     public IDbType CreateColumnType(ColumnTypeMetadata typeMetadata)
     {
-        if (typeMetadata == null)
-            throw new ArgumentNullException(nameof(typeMetadata));
+        ArgumentNullException.ThrowIfNull(typeMetadata);
 
         var typeName = GetDefaultTypeName(typeMetadata.DataType);
         var affinity = GetAffinity(typeName);
@@ -42,8 +41,7 @@ public class SqliteDbTypeProvider : IDbTypeProvider
     /// <exception cref="ArgumentNullException"><paramref name="otherType"/> is <c>null</c>.</exception>
     public IDbType GetComparableColumnType(IDbType otherType)
     {
-        if (otherType == null)
-            throw new ArgumentNullException(nameof(otherType));
+        ArgumentNullException.ThrowIfNull(otherType);
 
         // only interested in these two bits of information
         var typeMetadata = new ColumnTypeMetadata

@@ -27,8 +27,7 @@ public class MySqlDatabaseKey : IDatabaseKey
     /// <exception cref="ArgumentException"><paramref name="keyType"/> is not a valid enum.</exception>
     public MySqlDatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns)
     {
-        if (name == null)
-            throw new ArgumentNullException(nameof(name));
+        ArgumentNullException.ThrowIfNull(name);
         if (columns.NullOrEmpty() || columns.AnyNull())
             throw new ArgumentNullException(nameof(columns));
         if (!keyType.IsValid())

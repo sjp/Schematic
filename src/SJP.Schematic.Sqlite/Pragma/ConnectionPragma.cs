@@ -681,8 +681,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     public Task<IEnumerable<pragma_table_list>> TableListAsync(Identifier tableName, CancellationToken cancellationToken = default)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         return DbConnection.QueryAsync<pragma_table_list>(TableListTableQuery(tableName), cancellationToken);
     }
@@ -695,8 +694,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     protected virtual string TableListTableQuery(Identifier tableName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         // default to 'main'
         var identifier = Identifier.CreateQualifiedIdentifier(tableName.Schema ?? "main", tableName.LocalName);

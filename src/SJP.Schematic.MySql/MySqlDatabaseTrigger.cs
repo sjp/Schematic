@@ -26,8 +26,7 @@ public class MySqlDatabaseTrigger : IDatabaseTrigger
     /// <exception cref="ArgumentException"><paramref name="queryTiming"/> or <paramref name="events"/> is an invalid enum or has invalid values.</exception>
     public MySqlDatabaseTrigger(Identifier name, string definition, TriggerQueryTiming queryTiming, TriggerEvent events)
     {
-        if (name == null)
-            throw new ArgumentNullException(nameof(name));
+        ArgumentNullException.ThrowIfNull(name);
         if (definition.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(definition));
         if (!queryTiming.IsValid())

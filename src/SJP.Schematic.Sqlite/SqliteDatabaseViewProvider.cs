@@ -107,8 +107,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         return GetViewAsyncCore(viewName, cancellationToken).ToAsync();
     }
@@ -146,8 +145,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     protected OptionAsync<Identifier> GetResolvedViewName(Identifier viewName, CancellationToken cancellationToken)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         return GetResolvedViewNameAsyncCore(viewName, cancellationToken).ToAsync();
     }
@@ -207,8 +205,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     protected virtual OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         var candidateViewName = QualifyViewName(viewName);
         return GetResolvedViewName(candidateViewName, cancellationToken)
@@ -234,8 +231,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     protected virtual Task<string> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         var sql = GetViewDefinition.Sql(Dialect, viewName.Schema!);
         return DbConnection.ExecuteScalarAsync<string>(
@@ -255,10 +251,8 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(ISqliteDatabasePragma pragma, Identifier viewName, CancellationToken cancellationToken)
     {
-        if (pragma == null)
-            throw new ArgumentNullException(nameof(pragma));
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(pragma);
+        ArgumentNullException.ThrowIfNull(viewName);
 
         return LoadColumnsAsyncCore(pragma, viewName, cancellationToken);
     }
@@ -316,10 +310,8 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> or <paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
     protected virtual Task<string> GetTypeofColumnAsync(Identifier viewName, Identifier columnName, CancellationToken cancellationToken)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
-        if (columnName == null)
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentNullException.ThrowIfNull(viewName);
+        ArgumentNullException.ThrowIfNull(columnName);
 
         var sql = GetTypeofColumn.Sql(Dialect, viewName, columnName.LocalName);
         return DbConnection.ExecuteScalarAsync<string>(sql, cancellationToken);
@@ -333,8 +325,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     protected Identifier QualifyViewName(Identifier viewName)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         var schema = viewName.Schema ?? IdentifierDefaults.Schema;
         return Identifier.CreateQualifiedIdentifier(schema, viewName.LocalName);
@@ -363,8 +354,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     protected static bool IsReservedViewName(Identifier viewName)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         return viewName.LocalName.StartsWith("sqlite_", StringComparison.OrdinalIgnoreCase);
     }

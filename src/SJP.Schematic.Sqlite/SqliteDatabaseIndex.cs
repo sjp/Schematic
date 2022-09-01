@@ -28,8 +28,7 @@ public class SqliteDatabaseIndex : IDatabaseIndex
     /// <exception cref="ArgumentNullException"><paramref name="columns"/>, <paramref name="includedColumns"/> or <paramref name="name"/> is <c>null</c>.</exception>
     public SqliteDatabaseIndex(Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseColumn> includedColumns, Option<string> filterDefinition)
     {
-        if (name == null)
-            throw new ArgumentNullException(nameof(name));
+        ArgumentNullException.ThrowIfNull(name);
         if (columns.NullOrEmpty() || columns.AnyNull())
             throw new ArgumentNullException(nameof(columns));
         if (includedColumns?.AnyNull() == true)

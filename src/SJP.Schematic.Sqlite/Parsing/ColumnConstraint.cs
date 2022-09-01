@@ -37,8 +37,7 @@ internal abstract class ColumnConstraint
 
     public ColumnConstraint WithName(SqlIdentifier identifier)
     {
-        if (identifier == null)
-            throw new ArgumentNullException(nameof(identifier));
+        ArgumentNullException.ThrowIfNull(identifier);
 
         Name = Option<string>.Some(identifier.Value.LocalName);
         return this;
@@ -114,8 +113,7 @@ internal abstract class ColumnConstraint
         public ForeignKey(SqlIdentifier parentTableName, IReadOnlyCollection<SqlIdentifier> parentColumnNames)
             : base(ColumnConstraintType.ForeignKey)
         {
-            if (parentTableName == null)
-                throw new ArgumentNullException(nameof(parentTableName));
+            ArgumentNullException.ThrowIfNull(parentTableName);
             if (parentColumnNames.NullOrEmpty())
                 throw new ArgumentNullException(nameof(parentColumnNames));
 

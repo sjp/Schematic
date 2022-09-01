@@ -84,8 +84,7 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         var candidateViewName = QualifyViewName(viewName);
         return LoadView(candidateViewName, cancellationToken);
@@ -100,8 +99,7 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     protected OptionAsync<Identifier> GetResolvedViewName(Identifier viewName, CancellationToken cancellationToken)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         var candidateViewName = QualifyViewName(viewName);
         var qualifiedViewName = DbConnection.QueryFirstOrNone<GetViewName.Result>(
@@ -122,8 +120,7 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     protected virtual OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         var candidateViewName = QualifyViewName(viewName);
         return GetResolvedViewName(candidateViewName, cancellationToken)
@@ -149,8 +146,7 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     protected virtual Task<string> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         return DbConnection.ExecuteScalarAsync<string>(
             GetViewDefinition.Sql,
@@ -168,8 +164,7 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier viewName, CancellationToken cancellationToken)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         return LoadColumnsAsyncCore(viewName, cancellationToken);
     }
@@ -226,8 +221,7 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     protected Identifier QualifyViewName(Identifier viewName)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         var schema = viewName.Schema ?? IdentifierDefaults.Schema;
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, viewName.LocalName);

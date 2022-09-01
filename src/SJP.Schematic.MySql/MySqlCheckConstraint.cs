@@ -24,8 +24,7 @@ public class MySqlCheckConstraint : IDatabaseCheckConstraint
     /// <exception cref="ArgumentNullException"><paramref name="checkName"/> is <c>null</c>. Alternatively if <paramref name="definition"/> is <c>null</c>, empty or whitespace.</exception>
     public MySqlCheckConstraint(Identifier checkName, string definition, bool isEnabled)
     {
-        if (checkName == null)
-            throw new ArgumentNullException(nameof(checkName));
+        ArgumentNullException.ThrowIfNull(checkName);
         if (definition.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(definition));
 

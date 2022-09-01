@@ -23,8 +23,7 @@ public class MySqlDatabaseIndexColumn : IDatabaseIndexColumn
     /// <exception cref="ArgumentNullException"><paramref name="column"/> is <c>null</c>. Alternatively if <paramref name="expression"/> is <c>null</c>, empty or whitespace.</exception>
     public MySqlDatabaseIndexColumn(string expression, IDatabaseColumn column)
     {
-        if (column == null)
-            throw new ArgumentNullException(nameof(column));
+        ArgumentNullException.ThrowIfNull(column);
         if (expression.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(expression));
 

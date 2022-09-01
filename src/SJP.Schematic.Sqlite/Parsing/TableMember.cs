@@ -7,8 +7,7 @@ internal sealed class TableMember
 {
     public TableMember(ColumnDefinition column)
     {
-        if (column == null)
-            throw new ArgumentNullException(nameof(column));
+        ArgumentNullException.ThrowIfNull(column);
 
         Columns = column.ToEnumerable();
         Constraints = Array.Empty<TableConstraint>();
@@ -16,8 +15,7 @@ internal sealed class TableMember
 
     public TableMember(TableConstraint constraint)
     {
-        if (constraint == null)
-            throw new ArgumentNullException(nameof(constraint));
+        ArgumentNullException.ThrowIfNull(constraint);
 
         Columns = Array.Empty<ColumnDefinition>();
         Constraints = constraint.ToEnumerable();

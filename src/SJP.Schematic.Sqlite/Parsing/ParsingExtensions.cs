@@ -11,8 +11,7 @@ internal static class ParsingExtensions
 {
     public static IEnumerable<T> ToEnumerable<T>(this T input)
     {
-        if (input == null)
-            throw new ArgumentNullException(nameof(input));
+        ArgumentNullException.ThrowIfNull(input);
 
         return new[] { input };
     }
@@ -20,8 +19,7 @@ internal static class ParsingExtensions
     // useful for turning array objects to enumerables
     public static IEnumerable<T> AsEnumerable<T>(this IEnumerable<T> input)
     {
-        if (input == null)
-            throw new ArgumentNullException(nameof(input));
+        ArgumentNullException.ThrowIfNull(input);
 
         return input;
     }

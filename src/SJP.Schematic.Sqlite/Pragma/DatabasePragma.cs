@@ -267,8 +267,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
     public Task<IEnumerable<pragma_foreign_key_check>> ForeignKeyCheckTableAsync(Identifier tableName, CancellationToken cancellationToken = default)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
 
@@ -284,8 +283,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
     protected virtual string ForeignKeyCheckTableQuery(Identifier tableName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
 
@@ -302,8 +300,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
     public Task<IEnumerable<pragma_foreign_key_list>> ForeignKeyListAsync(Identifier tableName, CancellationToken cancellationToken = default)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
 
@@ -319,8 +316,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
     protected virtual string ForeignKeyListQuery(Identifier tableName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
 
@@ -392,8 +388,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
     public Task<IEnumerable<pragma_index_list>> IndexListAsync(Identifier tableName, CancellationToken cancellationToken = default)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
 
@@ -409,8 +404,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
     protected virtual string IndexListQuery(Identifier tableName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(nameof(tableName));
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
 
@@ -504,8 +498,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <returns>A collection of informative error messages describing integrity failures.</returns>
     public Task<IEnumerable<string>> IntegrityCheckAsync(Identifier tableName, CancellationToken cancellationToken = default)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(nameof(tableName));
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
 
@@ -530,8 +523,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <returns>A SQL query.</returns>
     protected virtual string IntegrityCheckTableQuery(Identifier tableName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(nameof(tableName));
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
 
@@ -945,8 +937,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
     public Task<IEnumerable<pragma_table_info>> TableInfoAsync(Identifier tableName, CancellationToken cancellationToken = default)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(nameof(tableName));
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
 
@@ -962,8 +953,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <exception cref="ArgumentException">Thrown when the given table name's does not match the current schema.</exception>
     protected virtual string TableInfoQuery(Identifier tableName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(nameof(tableName));
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
 
@@ -992,8 +982,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     public Task<IEnumerable<pragma_table_list>> TableListAsync(Identifier tableName, CancellationToken cancellationToken = default)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(nameof(tableName));
 
         return DbConnection.QueryAsync<pragma_table_list>(TableListTableQuery(tableName), cancellationToken);
     }
@@ -1006,8 +995,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     protected virtual string TableListTableQuery(Identifier tableName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(nameof(tableName));
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
 
@@ -1024,8 +1012,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
     public Task<IEnumerable<pragma_table_xinfo>> TableXInfoAsync(Identifier tableName, CancellationToken cancellationToken = default)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(nameof(tableName));
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
 
@@ -1041,8 +1028,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <exception cref="ArgumentException">Thrown when the given table name's does not match the current schema.</exception>
     protected virtual string TableXInfoQuery(Identifier tableName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(nameof(tableName));
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
 
