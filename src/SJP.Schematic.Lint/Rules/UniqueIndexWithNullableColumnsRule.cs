@@ -33,8 +33,7 @@ public class UniqueIndexWithNullableColumnsRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
+        ArgumentNullException.ThrowIfNull(tables);
 
         return tables.SelectMany(AnalyseTable).ToAsyncEnumerable();
     }
@@ -47,8 +46,7 @@ public class UniqueIndexWithNullableColumnsRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
     protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         var uniqueIndexes = table.Indexes.Where(i => i.IsUnique).ToList();
         if (uniqueIndexes.Empty())
@@ -84,8 +82,7 @@ public class UniqueIndexWithNullableColumnsRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>. Also thrown when <paramref name="columnNames"/> is <c>null</c> or empty.</exception>
     protected virtual IRuleMessage BuildMessage(Identifier tableName, string? indexName, IEnumerable<string> columnNames)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
         if (columnNames.NullOrEmpty())
             throw new ArgumentNullException(nameof(columnNames));
 

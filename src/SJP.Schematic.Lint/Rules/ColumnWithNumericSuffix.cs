@@ -33,8 +33,7 @@ public class ColumnWithNumericSuffix : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
+        ArgumentNullException.ThrowIfNull(tables);
 
         return tables.SelectMany(AnalyseTable).ToAsyncEnumerable();
     }
@@ -47,8 +46,7 @@ public class ColumnWithNumericSuffix : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
     protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         var columnsWithNumericSuffix = table.Columns
             .Select(c => c.Name.LocalName)
@@ -71,8 +69,7 @@ public class ColumnWithNumericSuffix : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c> or <paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
     protected virtual IRuleMessage BuildMessage(Identifier tableName, string columnName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
         if (columnName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(columnName));
 

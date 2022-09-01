@@ -39,8 +39,7 @@ public sealed class RuleProviderBuilder : IRuleProviderBuilder
     /// <exception cref="ArgumentNullException"><paramref name="ruleProvider"/> is <c>null</c>.</exception>
     public IRuleProviderBuilder AddRuleProvider(IRuleProvider ruleProvider)
     {
-        if (ruleProvider == null)
-            throw new ArgumentNullException(nameof(ruleProvider));
+        ArgumentNullException.ThrowIfNull(ruleProvider);
 
         var ruleProviders = _ruleProviders.Append(ruleProvider).ToList();
         return new RuleProviderBuilder(ruleProviders);

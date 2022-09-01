@@ -33,8 +33,7 @@ public class DisabledObjectsRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
+        ArgumentNullException.ThrowIfNull(tables);
 
         return tables.SelectMany(AnalyseTable).ToAsyncEnumerable();
     }
@@ -47,8 +46,7 @@ public class DisabledObjectsRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
     protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         var result = new List<IRuleMessage>();
 
@@ -107,8 +105,7 @@ public class DisabledObjectsRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     protected virtual IRuleMessage BuildDisabledForeignKeyMessage(Identifier tableName, Option<Identifier> foreignKeyName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var messageKeyName = foreignKeyName.Match(
             name => " '" + name.LocalName + "'",
@@ -128,8 +125,7 @@ public class DisabledObjectsRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     protected virtual IRuleMessage BuildDisabledPrimaryKeyMessage(Identifier tableName, Option<Identifier> primaryKeyName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var messageKeyName = primaryKeyName.Match(
             name => " '" + name.LocalName + "'",
@@ -149,8 +145,7 @@ public class DisabledObjectsRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     protected virtual IRuleMessage BuildDisabledUniqueKeyMessage(Identifier tableName, Option<Identifier> uniqueKeyName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var messageKeyName = uniqueKeyName.Match(
             name => " '" + name.LocalName + "'",
@@ -170,8 +165,7 @@ public class DisabledObjectsRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     protected virtual IRuleMessage BuildDisabledCheckConstraintMessage(Identifier tableName, Option<Identifier> checkName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var messageCheckName = checkName.Match(
             name => " '" + name.LocalName + "'",
@@ -191,8 +185,7 @@ public class DisabledObjectsRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     protected virtual IRuleMessage BuildDisabledIndexMessage(Identifier tableName, string? indexName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var messageIndexName = !indexName.IsNullOrWhiteSpace()
             ? " '" + indexName + "'"
@@ -211,8 +204,7 @@ public class DisabledObjectsRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     protected virtual IRuleMessage BuildDisabledTriggerMessage(Identifier tableName, string? triggerName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var messageTriggerName = !triggerName.IsNullOrWhiteSpace()
             ? " '" + triggerName + "'"

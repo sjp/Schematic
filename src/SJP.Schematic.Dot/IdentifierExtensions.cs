@@ -15,8 +15,7 @@ internal static class IdentifierExtensions
 {
     public static string ToVisibleName(this Identifier identifier)
     {
-        if (identifier == null)
-            throw new ArgumentNullException(nameof(identifier));
+        ArgumentNullException.ThrowIfNull(identifier);
 
         var builder = StringBuilderCache.Acquire();
 
@@ -33,8 +32,7 @@ internal static class IdentifierExtensions
 
     public static string ToSafeKey(this Identifier identifier)
     {
-        if (identifier == null)
-            throw new ArgumentNullException(nameof(identifier));
+        ArgumentNullException.ThrowIfNull(identifier);
 
         var safeName = ToSlug(identifier.LocalName);
         var hashKey = GenerateHashKey(identifier);
@@ -97,8 +95,7 @@ internal static class IdentifierExtensions
 
     private static string GenerateHashKey(Identifier identifier)
     {
-        if (identifier == null)
-            throw new ArgumentNullException(nameof(identifier));
+        ArgumentNullException.ThrowIfNull(identifier);
 
         var builder = StringBuilderCache.Acquire();
 

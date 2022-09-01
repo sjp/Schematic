@@ -45,8 +45,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
+        ArgumentNullException.ThrowIfNull(tables);
 
         return tables.SelectMany(AnalyseTable).ToAsyncEnumerable();
     }
@@ -60,8 +59,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     /// <exception cref="ArgumentNullException"><paramref name="views"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default)
     {
-        if (views == null)
-            throw new ArgumentNullException(nameof(views));
+        ArgumentNullException.ThrowIfNull(views);
 
         return views.SelectMany(AnalyseView).ToAsyncEnumerable();
     }
@@ -75,8 +73,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     /// <exception cref="ArgumentNullException"><paramref name="sequences"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseSequences(IEnumerable<IDatabaseSequence> sequences, CancellationToken cancellationToken = default)
     {
-        if (sequences == null)
-            throw new ArgumentNullException(nameof(sequences));
+        ArgumentNullException.ThrowIfNull(sequences);
 
         return sequences.SelectMany(AnalyseSequence).ToAsyncEnumerable();
     }
@@ -90,8 +87,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     /// <exception cref="ArgumentNullException"><paramref name="synonyms"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseSynonyms(IEnumerable<IDatabaseSynonym> synonyms, CancellationToken cancellationToken = default)
     {
-        if (synonyms == null)
-            throw new ArgumentNullException(nameof(synonyms));
+        ArgumentNullException.ThrowIfNull(synonyms);
 
         return synonyms.SelectMany(AnalyseSynonym).ToAsyncEnumerable();
     }
@@ -105,8 +101,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     /// <exception cref="ArgumentNullException"><paramref name="routines"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseRoutines(IEnumerable<IDatabaseRoutine> routines, CancellationToken cancellationToken = default)
     {
-        if (routines == null)
-            throw new ArgumentNullException(nameof(routines));
+        ArgumentNullException.ThrowIfNull(routines);
 
         return routines.SelectMany(AnalyseRoutine).ToAsyncEnumerable();
     }
@@ -119,8 +114,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
     protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         var result = new List<IRuleMessage>();
 
@@ -152,8 +146,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     /// <exception cref="ArgumentNullException"><paramref name="view"/> is <c>null</c>.</exception>
     protected IEnumerable<IRuleMessage> AnalyseView(IDatabaseView view)
     {
-        if (view == null)
-            throw new ArgumentNullException(nameof(view));
+        ArgumentNullException.ThrowIfNull(view);
 
         var result = new List<IRuleMessage>();
 
@@ -185,8 +178,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     /// <exception cref="ArgumentNullException"><paramref name="sequence"/> is <c>null</c>.</exception>
     protected IEnumerable<IRuleMessage> AnalyseSequence(IDatabaseSequence sequence)
     {
-        if (sequence == null)
-            throw new ArgumentNullException(nameof(sequence));
+        ArgumentNullException.ThrowIfNull(sequence);
 
         var result = new List<IRuleMessage>();
 
@@ -208,8 +200,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     /// <exception cref="ArgumentNullException"><paramref name="synonym"/> is <c>null</c>.</exception>
     protected IEnumerable<IRuleMessage> AnalyseSynonym(IDatabaseSynonym synonym)
     {
-        if (synonym == null)
-            throw new ArgumentNullException(nameof(synonym));
+        ArgumentNullException.ThrowIfNull(synonym);
 
         var result = new List<IRuleMessage>();
 
@@ -231,8 +222,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     /// <exception cref="ArgumentNullException"><paramref name="routine"/> is <c>null</c>.</exception>
     protected IEnumerable<IRuleMessage> AnalyseRoutine(IDatabaseRoutine routine)
     {
-        if (routine == null)
-            throw new ArgumentNullException(nameof(routine));
+        ArgumentNullException.ThrowIfNull(routine);
 
         var result = new List<IRuleMessage>();
 
@@ -254,8 +244,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     protected virtual IRuleMessage BuildTableMessage(Identifier tableName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var messageText = $"The table '{ tableName }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
@@ -270,8 +259,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>, or <paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
     protected virtual IRuleMessage BuildTableColumnMessage(Identifier tableName, string columnName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
         if (columnName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(columnName));
 
@@ -287,8 +275,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     protected virtual IRuleMessage BuildViewMessage(Identifier viewName)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         var messageText = $"The view '{ viewName }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
@@ -303,8 +290,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>, or <paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
     protected virtual IRuleMessage BuildViewColumnMessage(Identifier viewName, string columnName)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
         if (columnName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(columnName));
 
@@ -320,8 +306,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
     protected virtual IRuleMessage BuildSequenceMessage(Identifier sequenceName)
     {
-        if (sequenceName == null)
-            throw new ArgumentNullException(nameof(sequenceName));
+        ArgumentNullException.ThrowIfNull(sequenceName);
 
         var messageText = $"The sequence '{ sequenceName }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
@@ -335,8 +320,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
     protected virtual IRuleMessage BuildSynonymMessage(Identifier synonymName)
     {
-        if (synonymName == null)
-            throw new ArgumentNullException(nameof(synonymName));
+        ArgumentNullException.ThrowIfNull(synonymName);
 
         var messageText = $"The synonym '{ synonymName }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
@@ -350,8 +334,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
     protected virtual IRuleMessage BuildRoutineMessage(Identifier routineName)
     {
-        if (routineName == null)
-            throw new ArgumentNullException(nameof(routineName));
+        ArgumentNullException.ThrowIfNull(routineName);
 
         var messageText = $"The routine '{ routineName }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);

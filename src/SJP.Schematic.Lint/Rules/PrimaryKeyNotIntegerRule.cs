@@ -31,8 +31,7 @@ public class PrimaryKeyNotIntegerRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
+        ArgumentNullException.ThrowIfNull(tables);
 
         return tables.SelectMany(AnalyseTable).ToAsyncEnumerable();
     }
@@ -45,8 +44,7 @@ public class PrimaryKeyNotIntegerRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
     protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         return table.PrimaryKey
             .Where(pk => pk.Columns.Count != 1 || !ColumnIsInteger(pk.Columns.First()))
@@ -61,8 +59,7 @@ public class PrimaryKeyNotIntegerRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="column"/> is <c>null</c>.</exception>
     protected static bool ColumnIsInteger(IDatabaseColumn column)
     {
-        if (column == null)
-            throw new ArgumentNullException(nameof(column));
+        ArgumentNullException.ThrowIfNull(column);
 
         var integerTypes = new[] { DataType.BigInteger, DataType.Integer, DataType.SmallInteger };
         return integerTypes.Contains(column.Type.DataType);
@@ -76,8 +73,7 @@ public class PrimaryKeyNotIntegerRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     protected virtual IRuleMessage BuildMessage(Identifier tableName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var messageText = $"The table { tableName } has a primary key which is not a single-column whose type is an integer.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);

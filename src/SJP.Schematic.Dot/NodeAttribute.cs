@@ -47,8 +47,7 @@ internal sealed class NodeAttribute : IEquatable<NodeAttribute>
 
     public static NodeAttribute URL(Uri uri)
     {
-        if (uri == null)
-            throw new ArgumentNullException(nameof(uri));
+        ArgumentNullException.ThrowIfNull(uri);
 
         var uriStr = uri.ToString();
         var encodedUri = SecurityElement.Escape(uriStr);

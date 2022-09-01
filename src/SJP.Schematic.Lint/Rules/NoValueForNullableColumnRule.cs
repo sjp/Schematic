@@ -58,8 +58,7 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
+        ArgumentNullException.ThrowIfNull(tables);
 
         return AnalyseTablesCore(tables, cancellationToken);
     }
@@ -83,8 +82,7 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
     protected Task<IEnumerable<IRuleMessage>> AnalyseTableAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         return AnalyseTableAsyncCore(table, cancellationToken);
     }
@@ -123,8 +121,7 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
     protected Task<bool> TableHasRowsAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         return TableHasRowsAsyncCore(table, cancellationToken);
     }
@@ -146,10 +143,8 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     protected Task<bool> NullableColumnHasValueAsync(IRelationalDatabaseTable table, IDatabaseColumn column,
         CancellationToken cancellationToken)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (column == null)
-            throw new ArgumentNullException(nameof(column));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(column);
 
         return NullableColumnHasValueAsyncCore(table, column, cancellationToken);
     }
@@ -169,8 +164,7 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>. Also thrown when <paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
     protected virtual IRuleMessage BuildMessage(Identifier tableName, string columnName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
         if (columnName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(columnName));
 
@@ -180,8 +174,7 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
 
     private Task<string> GetTableHasRowsQueryAsync(Identifier tableName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         return GetTableHasRowsQueryAsyncCore(tableName);
     }
@@ -200,10 +193,8 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
 
     private Task<string> GetNullableColumnHasValueQueryAsync(Identifier tableName, Identifier columnName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
-        if (columnName == null)
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(columnName);
 
         return GetNullableColumnHasValueQueryCore(tableName, columnName);
     }

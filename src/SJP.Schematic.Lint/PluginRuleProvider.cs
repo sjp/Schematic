@@ -25,8 +25,7 @@ public class PluginRuleProvider : IRuleProvider
     /// <exception cref="ArgumentException"><paramref name="level"/> is not a valid enum value.</exception>
     public IEnumerable<IRule> GetRules(ISchematicConnection connection, RuleLevel level)
     {
-        if (connection == null)
-            throw new ArgumentNullException(nameof(connection));
+        ArgumentNullException.ThrowIfNull(connection);
         if (!level.IsValid())
             throw new ArgumentException($"The { nameof(RuleLevel) } provided must be a valid enum.", nameof(level));
 
@@ -75,10 +74,8 @@ public class PluginRuleProvider : IRuleProvider
 
     private IEnumerable<Type> LoadRequiredTypes(Assembly assembly, Type dialectType)
     {
-        if (assembly == null)
-            throw new ArgumentNullException(nameof(assembly));
-        if (dialectType == null)
-            throw new ArgumentNullException(nameof(dialectType));
+        ArgumentNullException.ThrowIfNull(assembly);
+        ArgumentNullException.ThrowIfNull(dialectType);
 
         try
         {
@@ -95,8 +92,7 @@ public class PluginRuleProvider : IRuleProvider
 
     private static bool IsRuleProviderImplementation(Type type)
     {
-        if (type == null)
-            throw new ArgumentNullException(nameof(type));
+        ArgumentNullException.ThrowIfNull(type);
 
         return (type.IsValueType || type.IsClass)
             && !type.IsAbstract
@@ -105,10 +101,8 @@ public class PluginRuleProvider : IRuleProvider
 
     private static bool IsDialectRuleProviderImplementation(Type type, Type dialectType)
     {
-        if (type == null)
-            throw new ArgumentNullException(nameof(type));
-        if (dialectType == null)
-            throw new ArgumentNullException(nameof(dialectType));
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(dialectType);
 
         return (type.IsValueType || type.IsClass)
             && !type.IsAbstract
@@ -117,10 +111,8 @@ public class PluginRuleProvider : IRuleProvider
 
     private static bool IsImplementedDialectRuleProviderInterface(Type interfaceType, Type dialectType)
     {
-        if (interfaceType == null)
-            throw new ArgumentNullException(nameof(interfaceType));
-        if (dialectType == null)
-            throw new ArgumentNullException(nameof(dialectType));
+        ArgumentNullException.ThrowIfNull(interfaceType);
+        ArgumentNullException.ThrowIfNull(dialectType);
 
         return interfaceType.IsGenericType
             && interfaceType.GetGenericTypeDefinition() == DialectRuleProviderGeneric

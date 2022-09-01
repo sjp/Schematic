@@ -55,8 +55,7 @@ internal sealed class GraphAttribute : IEquatable<GraphAttribute>
 
     public static GraphAttribute BackgroundColor(RgbColor color)
     {
-        if (color == null)
-            throw new ArgumentNullException(nameof(color));
+        ArgumentNullException.ThrowIfNull(color);
 
         return new GraphAttribute("bgcolor", "\"" + color + "\"");
     }

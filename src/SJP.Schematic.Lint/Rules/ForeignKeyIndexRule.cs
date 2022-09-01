@@ -34,8 +34,7 @@ public class ForeignKeyIndexRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
+        ArgumentNullException.ThrowIfNull(tables);
 
         return tables.SelectMany(AnalyseTable).ToAsyncEnumerable();
     }
@@ -48,8 +47,7 @@ public class ForeignKeyIndexRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
     protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         var result = new List<IRuleMessage>();
 
@@ -82,10 +80,8 @@ public class ForeignKeyIndexRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="columns"/> or <paramref name="indexColumns"/> is <c>null</c>.</exception>
     protected static bool ColumnsHaveIndex(IEnumerable<IDatabaseColumn> columns, IEnumerable<IDatabaseIndexColumn> indexColumns)
     {
-        if (columns == null)
-            throw new ArgumentNullException(nameof(columns));
-        if (indexColumns == null)
-            throw new ArgumentNullException(nameof(indexColumns));
+        ArgumentNullException.ThrowIfNull(columns);
+        ArgumentNullException.ThrowIfNull(indexColumns);
 
         var columnList = columns.ToList();
         var indexColumnList = indexColumns.ToList();
@@ -111,12 +107,9 @@ public class ForeignKeyIndexRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="columns"/> or <paramref name="indexColumns"/> or <paramref name="indexIncludedColumns"/> is <c>null</c>.</exception>
     protected static bool ColumnsHaveIndexWithIncludedColumns(IEnumerable<IDatabaseColumn> columns, IEnumerable<IDatabaseIndexColumn> indexColumns, IEnumerable<IDatabaseColumn> indexIncludedColumns)
     {
-        if (columns == null)
-            throw new ArgumentNullException(nameof(columns));
-        if (indexColumns == null)
-            throw new ArgumentNullException(nameof(indexColumns));
-        if (indexIncludedColumns == null)
-            throw new ArgumentNullException(nameof(indexIncludedColumns));
+        ArgumentNullException.ThrowIfNull(columns);
+        ArgumentNullException.ThrowIfNull(indexColumns);
+        ArgumentNullException.ThrowIfNull(indexIncludedColumns);
 
         if (indexIncludedColumns.Empty())
             return false;
@@ -152,10 +145,8 @@ public class ForeignKeyIndexRule : Rule, ITableRule
     /// <exception cref="ArgumentException"><paramref name="prefixSet"/> or <paramref name="otherSet"/> is empty.</exception>
     protected static bool IsPrefixOf<T>(IEnumerable<T> prefixSet, IEnumerable<T> otherSet)
     {
-        if (prefixSet == null)
-            throw new ArgumentNullException(nameof(prefixSet));
-        if (otherSet == null)
-            throw new ArgumentNullException(nameof(otherSet));
+        ArgumentNullException.ThrowIfNull(prefixSet);
+        ArgumentNullException.ThrowIfNull(otherSet);
 
         var prefixSetList = prefixSet.ToList();
         if (prefixSetList.Empty())
@@ -185,8 +176,7 @@ public class ForeignKeyIndexRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="columnNames"/> is <c>null</c>. Also when <paramref name="columnNames"/> is empty.</exception>
     protected virtual IRuleMessage BuildMessage(Option<Identifier> foreignKeyName, Identifier tableName, IEnumerable<string> columnNames)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
         if (columnNames.NullOrEmpty())
             throw new ArgumentNullException(nameof(columnNames));
 

@@ -33,8 +33,7 @@ public class ForeignKeyRelationshipCycleRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
+        ArgumentNullException.ThrowIfNull(tables);
 
         var cycleDetector = new CycleDetector();
         var cycles = cycleDetector.GetCyclePaths(tables.ToList());
@@ -50,8 +49,7 @@ public class ForeignKeyRelationshipCycleRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="cyclePath"/> is <c>null</c>.</exception>
     protected virtual IRuleMessage BuildMessage(IReadOnlyCollection<Identifier> cyclePath)
     {
-        if (cyclePath == null)
-            throw new ArgumentNullException(nameof(cyclePath));
+        ArgumentNullException.ThrowIfNull(cyclePath);
 
         var tableNames = cyclePath
             .Select(name => Identifier.CreateQualifiedIdentifier(name.Schema, name.LocalName).ToString())

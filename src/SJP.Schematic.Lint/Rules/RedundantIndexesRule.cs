@@ -33,8 +33,7 @@ public class RedundantIndexesRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
+        ArgumentNullException.ThrowIfNull(tables);
 
         return tables.SelectMany(AnalyseTable).ToAsyncEnumerable();
     }
@@ -47,8 +46,7 @@ public class RedundantIndexesRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
     protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         var result = new List<IRuleMessage>();
 
@@ -96,10 +94,8 @@ public class RedundantIndexesRule : Rule, ITableRule
     /// <exception cref="ArgumentException"><paramref name="prefixSet"/> or <paramref name="superSet"/> is empty.</exception>
     protected static bool IsPrefixOf<T>(IEnumerable<T> prefixSet, IEnumerable<T> superSet)
     {
-        if (prefixSet == null)
-            throw new ArgumentNullException(nameof(prefixSet));
-        if (superSet == null)
-            throw new ArgumentNullException(nameof(superSet));
+        ArgumentNullException.ThrowIfNull(prefixSet);
+        ArgumentNullException.ThrowIfNull(superSet);
 
         var prefixSetList = prefixSet.ToList();
         if (prefixSetList.Empty())
@@ -130,8 +126,7 @@ public class RedundantIndexesRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>; or <paramref name="indexName"/> is <c>null</c>, empty or whitespace; or <paramref name="redundantIndexColumnNames"/> is <c>null</c> or empty; or <paramref name="otherIndexName"/> is <c>null</c>, empty or whitespace; or <paramref name="otherIndexColumnNames"/> is <c>null</c> or empty.</exception>
     protected virtual IRuleMessage BuildMessage(Identifier tableName, string indexName, IEnumerable<string> redundantIndexColumnNames, string otherIndexName, IEnumerable<string> otherIndexColumnNames)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
         if (indexName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(indexName));
         if (redundantIndexColumnNames.NullOrEmpty())

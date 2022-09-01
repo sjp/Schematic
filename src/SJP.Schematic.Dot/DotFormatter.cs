@@ -37,8 +37,7 @@ public class DotFormatter : IDotFormatter
     /// <exception cref="ArgumentNullException"><paramref name="tables"/></exception>
     public string RenderTables(IEnumerable<IRelationalDatabaseTable> tables)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
+        ArgumentNullException.ThrowIfNull(tables);
 
         return RenderTables(tables, DotRenderOptions.Default);
     }
@@ -52,10 +51,8 @@ public class DotFormatter : IDotFormatter
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> or <paramref name="options"/></exception>
     public string RenderTables(IEnumerable<IRelationalDatabaseTable> tables, DotRenderOptions options)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
-        if (options == null)
-            throw new ArgumentNullException(nameof(options));
+        ArgumentNullException.ThrowIfNull(tables);
+        ArgumentNullException.ThrowIfNull(options);
 
         options.ShowRowCounts = false;
         return RenderTables(tables, EmptyRowCounts, options);
@@ -70,10 +67,8 @@ public class DotFormatter : IDotFormatter
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> or <paramref name="rowCounts"/></exception>
     public string RenderTables(IEnumerable<IRelationalDatabaseTable> tables, IReadOnlyDictionary<Identifier, ulong> rowCounts)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
-        if (rowCounts == null)
-            throw new ArgumentNullException(nameof(rowCounts));
+        ArgumentNullException.ThrowIfNull(tables);
+        ArgumentNullException.ThrowIfNull(rowCounts);
 
         return RenderTables(tables, rowCounts, DotRenderOptions.Default);
     }
@@ -88,12 +83,9 @@ public class DotFormatter : IDotFormatter
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> or <paramref name="rowCounts"/> or <paramref name="options"/></exception>
     public string RenderTables(IEnumerable<IRelationalDatabaseTable> tables, IReadOnlyDictionary<Identifier, ulong> rowCounts, DotRenderOptions options)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
-        if (rowCounts == null)
-            throw new ArgumentNullException(nameof(rowCounts));
-        if (options == null)
-            throw new ArgumentNullException(nameof(options));
+        ArgumentNullException.ThrowIfNull(tables);
+        ArgumentNullException.ThrowIfNull(rowCounts);
+        ArgumentNullException.ThrowIfNull(options);
 
         var tableNames = tables.Select(static t => t.Name).ToList();
 

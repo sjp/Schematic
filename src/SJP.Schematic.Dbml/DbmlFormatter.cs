@@ -22,8 +22,7 @@ public class DbmlFormatter : IDbmlFormatter
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
     public string RenderTables(IEnumerable<IRelationalDatabaseTable> tables)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
+        ArgumentNullException.ThrowIfNull(tables);
 
         if (!tables.Any())
             return string.Empty;
@@ -54,10 +53,8 @@ public class DbmlFormatter : IDbmlFormatter
 
     private void RenderTable(StringBuilder builder, IRelationalDatabaseTable table)
     {
-        if (builder == null)
-            throw new ArgumentNullException(nameof(builder));
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(builder);
+        ArgumentNullException.ThrowIfNull(table);
 
         var tableName = table.Name.ToVisibleName();
         builder.Append("Table ")
@@ -88,10 +85,8 @@ public class DbmlFormatter : IDbmlFormatter
 
     private static string RenderColumnLine(IRelationalDatabaseTable table, IDatabaseColumn column)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (column == null)
-            throw new ArgumentNullException(nameof(column));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(column);
 
         var columnName = column.Name.ToVisibleName();
 
@@ -116,10 +111,8 @@ public class DbmlFormatter : IDbmlFormatter
 
     private static string RenderIndexLine(IRelationalDatabaseTable table, IDatabaseIndex index)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (index == null)
-            throw new ArgumentNullException(nameof(index));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(index);
 
         var columns = index.Columns.Count > 1
             ? "(" + index.Columns.Select(static ic => ic.Expression).Join(", ").RemoveQuotingCharacters() + ")"
@@ -135,10 +128,8 @@ public class DbmlFormatter : IDbmlFormatter
 
     private static void RenderForeignKeys(StringBuilder builder, IRelationalDatabaseTable table)
     {
-        if (builder == null)
-            throw new ArgumentNullException(nameof(builder));
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(builder);
+        ArgumentNullException.ThrowIfNull(table);
 
         if (table.ParentKeys.Count == 0)
             return;
@@ -174,10 +165,8 @@ public class DbmlFormatter : IDbmlFormatter
 
     private static bool ColumnIsPrimaryKey(IRelationalDatabaseTable table, IDatabaseColumn column)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (column == null)
-            throw new ArgumentNullException(nameof(column));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(column);
 
         return table.PrimaryKey
             .Match(
@@ -189,10 +178,8 @@ public class DbmlFormatter : IDbmlFormatter
 
     private static bool ColumnIsUniqueKey(IRelationalDatabaseTable table, IDatabaseColumn column)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (column == null)
-            throw new ArgumentNullException(nameof(column));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(column);
 
         return table.UniqueKeys
             .Any(
@@ -202,10 +189,8 @@ public class DbmlFormatter : IDbmlFormatter
 
     private static bool IsChildKeyUnique(IRelationalDatabaseTable table, IDatabaseKey key)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (key == null)
-            throw new ArgumentNullException(nameof(key));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(key);
 
         var keyColumnNames = key.Columns.Select(static c => c.Name.LocalName).ToList();
         var matchesPkColumns = table.PrimaryKey.Match(pk =>

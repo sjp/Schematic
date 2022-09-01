@@ -7,10 +7,8 @@ internal static class DatabaseKeyExtensions
 {
     public static int GetKeyHash(this IDatabaseKey key, Identifier tableName)
     {
-        if (key == null)
-            throw new ArgumentNullException(nameof(key));
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(key);
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var builder = new HashCode();
         builder.Add(tableName.GetHashCode());

@@ -31,8 +31,7 @@ public class NoIndexesPresentOnTableRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
+        ArgumentNullException.ThrowIfNull(tables);
 
         return tables.SelectMany(AnalyseTable).ToAsyncEnumerable();
     }
@@ -45,8 +44,7 @@ public class NoIndexesPresentOnTableRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
     protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         var noIndexesPresent = table.PrimaryKey.IsNone
             && table.UniqueKeys.Count == 0
@@ -65,8 +63,7 @@ public class NoIndexesPresentOnTableRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     protected virtual IRuleMessage BuildMessage(Identifier tableName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var messageText = $"The table { tableName } does not have any indexes present, requiring table scans to access records. Consider introducing an index or a primary key or a unique key constraint.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);

@@ -33,8 +33,7 @@ public class ForeignKeyMissingRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
+        ArgumentNullException.ThrowIfNull(tables);
 
         var tableNames = tables.Select(t => t.Name).ToList();
         return tables.SelectMany(t => AnalyseTable(t, tableNames)).ToAsyncEnumerable();
@@ -49,10 +48,8 @@ public class ForeignKeyMissingRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="tableNames"/> is <c>null</c>.</exception>
     protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table, IEnumerable<Identifier> tableNames)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (tableNames == null)
-            throw new ArgumentNullException(nameof(tableNames));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(tableNames);
 
         var result = new List<IRuleMessage>();
 
@@ -118,10 +115,8 @@ public class ForeignKeyMissingRule : Rule, ITableRule
     {
         if (columnName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(columnName));
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
-        if (targetTableName == null)
-            throw new ArgumentNullException(nameof(targetTableName));
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(targetTableName);
 
         var builder = StringBuilderCache.Acquire();
 

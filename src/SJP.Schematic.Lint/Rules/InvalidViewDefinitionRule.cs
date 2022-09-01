@@ -42,8 +42,7 @@ public class InvalidViewDefinitionRule : Rule, IViewRule
     /// <exception cref="ArgumentNullException"><paramref name="views"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default)
     {
-        if (views == null)
-            throw new ArgumentNullException(nameof(views));
+        ArgumentNullException.ThrowIfNull(views);
 
         return AnalyseViewsCore(views, cancellationToken);
     }
@@ -67,8 +66,7 @@ public class InvalidViewDefinitionRule : Rule, IViewRule
     /// <exception cref="ArgumentNullException"><paramref name="view"/> is <c>null</c>.</exception>
     protected Task<IEnumerable<IRuleMessage>> AnalyseViewAsync(IDatabaseView view, CancellationToken cancellationToken)
     {
-        if (view == null)
-            throw new ArgumentNullException(nameof(view));
+        ArgumentNullException.ThrowIfNull(view);
 
         return AnalyseViewAsyncCore(view, cancellationToken);
     }
@@ -99,8 +97,7 @@ public class InvalidViewDefinitionRule : Rule, IViewRule
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     protected virtual IRuleMessage BuildMessage(Identifier viewName)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         var messageText = $"The view { viewName } was unable to be queried. This may indicate an incorrect view definition.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);

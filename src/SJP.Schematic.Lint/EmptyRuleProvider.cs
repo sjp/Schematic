@@ -21,8 +21,7 @@ public sealed class EmptyRuleProvider : IRuleProvider
     /// <exception cref="ArgumentException"><paramref name="level"/> does not have a valid enum value.</exception>
     public IEnumerable<IRule> GetRules(ISchematicConnection connection, RuleLevel level)
     {
-        if (connection == null)
-            throw new ArgumentNullException(nameof(connection));
+        ArgumentNullException.ThrowIfNull(connection);
         if (!level.IsValid())
             throw new ArgumentException($"The { nameof(RuleLevel) } provided must be a valid enum.", nameof(level));
 

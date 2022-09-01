@@ -45,8 +45,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
     /// <exception cref="ArgumentNullException"><paramref name="database"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseDatabase(IRelationalDatabase database, CancellationToken cancellationToken = default)
     {
-        if (database == null)
-            throw new ArgumentNullException(nameof(database));
+        ArgumentNullException.ThrowIfNull(database);
 
         return AnalyseDatabaseCore(database, cancellationToken);
     }
@@ -98,8 +97,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
+        ArgumentNullException.ThrowIfNull(tables);
 
         return AnalyseTablesCore(tables, cancellationToken);
     }
@@ -122,8 +120,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
     /// <exception cref="ArgumentNullException"><paramref name="views"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default)
     {
-        if (views == null)
-            throw new ArgumentNullException(nameof(views));
+        ArgumentNullException.ThrowIfNull(views);
 
         return AnalyseViewsCore(views, cancellationToken);
     }
@@ -146,8 +143,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
     /// <exception cref="ArgumentNullException"><paramref name="sequences"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseSequences(IEnumerable<IDatabaseSequence> sequences, CancellationToken cancellationToken = default)
     {
-        if (sequences == null)
-            throw new ArgumentNullException(nameof(sequences));
+        ArgumentNullException.ThrowIfNull(sequences);
 
         return AnalyseSequencesCore(sequences, cancellationToken);
     }
@@ -170,8 +166,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
     /// <exception cref="ArgumentNullException"><paramref name="synonyms"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseSynonyms(IEnumerable<IDatabaseSynonym> synonyms, CancellationToken cancellationToken = default)
     {
-        if (synonyms == null)
-            throw new ArgumentNullException(nameof(synonyms));
+        ArgumentNullException.ThrowIfNull(synonyms);
 
         return AnalyseSynonymsCore(synonyms, cancellationToken);
     }
@@ -194,8 +189,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
     /// <exception cref="ArgumentNullException"><paramref name="routines"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseRoutines(IEnumerable<IDatabaseRoutine> routines, CancellationToken cancellationToken = default)
     {
-        if (routines == null)
-            throw new ArgumentNullException(nameof(routines));
+        ArgumentNullException.ThrowIfNull(routines);
 
         return AnalyseRoutinesCore(routines, cancellationToken);
     }

@@ -7,8 +7,7 @@ internal static class CollectionExtensions
 {
     public static uint UCount<T>(this IReadOnlyCollection<T> collection)
     {
-        if (collection == null)
-            throw new ArgumentNullException(nameof(collection));
+        ArgumentNullException.ThrowIfNull(collection);
 
         var count = collection.Count;
         if (count < 0)

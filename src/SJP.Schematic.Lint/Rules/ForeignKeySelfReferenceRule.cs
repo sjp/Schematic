@@ -58,8 +58,7 @@ public class ForeignKeySelfReferenceRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
+        ArgumentNullException.ThrowIfNull(tables);
 
         return AnalyseTablesCore(tables, cancellationToken);
     }
@@ -83,8 +82,7 @@ public class ForeignKeySelfReferenceRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
     protected Task<IEnumerable<IRuleMessage>> AnalyseTableAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         return table.PrimaryKey.Match(
             pk => AnalyseTableWithPrimaryKeyAsync(table, pk, cancellationToken),
@@ -119,12 +117,9 @@ public class ForeignKeySelfReferenceRule : Rule, ITableRule
 
     private Task<bool> TableHasSelfReferencingForeignKeyRowsAsync(IRelationalDatabaseTable table, IDatabaseKey primaryKey, IDatabaseKey foreignKey, CancellationToken cancellationToken)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (primaryKey == null)
-            throw new ArgumentNullException(nameof(primaryKey));
-        if (foreignKey == null)
-            throw new ArgumentNullException(nameof(foreignKey));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(primaryKey);
+        ArgumentNullException.ThrowIfNull(foreignKey);
 
         return TableHasSelfReferencingForeignKeyRowsCore(table, primaryKey, foreignKey, cancellationToken);
     }
@@ -183,12 +178,9 @@ where { whereFilterClauses }
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/>, <paramref name="primaryKey"/> or <paramref name="foreignKey"/> is <c>null</c>.</exception>
     protected virtual IRuleMessage BuildMessage(Identifier tableName, IDatabaseKey primaryKey, IDatabaseKey foreignKey)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
-        if (primaryKey == null)
-            throw new ArgumentNullException(nameof(primaryKey));
-        if (foreignKey == null)
-            throw new ArgumentNullException(nameof(foreignKey));
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(primaryKey);
+        ArgumentNullException.ThrowIfNull(foreignKey);
 
         var primaryKeyColumnNames = primaryKey.Columns.Select(c => Dialect.QuoteIdentifier(c.Name.LocalName));
         var pkNameSuffix = primaryKey.Name.Match(

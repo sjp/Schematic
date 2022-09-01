@@ -25,8 +25,7 @@ public sealed class GraphvizExecutableFactory
     /// <exception cref="ArgumentNullException"><paramref name="configuration"/> is <c>null</c>.</exception>
     public GraphvizExecutableFactory(IConfiguration configuration)
     {
-        if (configuration == null)
-            throw new ArgumentNullException(nameof(configuration));
+        ArgumentNullException.ThrowIfNull(configuration);
 
         _configuredPath = configuration["Graphviz:Dot"];
     }

@@ -33,8 +33,7 @@ public class ForeignKeyIsPrimaryKeyRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
+        ArgumentNullException.ThrowIfNull(tables);
 
         return tables.SelectMany(AnalyseTable).ToAsyncEnumerable();
     }
@@ -47,8 +46,7 @@ public class ForeignKeyIsPrimaryKeyRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
     protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         var result = new List<IRuleMessage>();
 
@@ -86,8 +84,7 @@ public class ForeignKeyIsPrimaryKeyRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="childTableName"/> is <c>null</c>.</exception>
     protected virtual IRuleMessage BuildMessage(Option<Identifier> foreignKeyName, Identifier childTableName)
     {
-        if (childTableName == null)
-            throw new ArgumentNullException(nameof(childTableName));
+        ArgumentNullException.ThrowIfNull(childTableName);
 
         var builder = StringBuilderCache.Acquire();
         builder.Append("A foreign key");
