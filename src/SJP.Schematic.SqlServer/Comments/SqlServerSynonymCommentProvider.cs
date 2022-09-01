@@ -73,8 +73,7 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
     /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
     protected OptionAsync<Identifier> GetResolvedSynonymName(Identifier synonymName, CancellationToken cancellationToken)
     {
-        if (synonymName == null)
-            throw new ArgumentNullException(nameof(synonymName));
+        ArgumentNullException.ThrowIfNull(synonymName);
 
         synonymName = QualifySynonymName(synonymName);
         var qualifiedSynonymName = Connection.QueryFirstOrNone<GetSynonymName.Result>(
@@ -95,8 +94,7 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
     /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseSynonymComments> GetSynonymComments(Identifier synonymName, CancellationToken cancellationToken = default)
     {
-        if (synonymName == null)
-            throw new ArgumentNullException(nameof(synonymName));
+        ArgumentNullException.ThrowIfNull(synonymName);
 
         var candidateSynonymName = QualifySynonymName(synonymName);
         return LoadSynonymComments(candidateSynonymName, cancellationToken);
@@ -111,8 +109,7 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
     /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
     protected virtual OptionAsync<IDatabaseSynonymComments> LoadSynonymComments(Identifier synonymName, CancellationToken cancellationToken)
     {
-        if (synonymName == null)
-            throw new ArgumentNullException(nameof(synonymName));
+        ArgumentNullException.ThrowIfNull(synonymName);
 
         var candidateSynonymName = QualifySynonymName(synonymName);
         return GetResolvedSynonymName(candidateSynonymName, cancellationToken)
@@ -146,8 +143,7 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
 
     private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
     {
-        if (commentsData == null)
-            throw new ArgumentNullException(nameof(commentsData));
+        ArgumentNullException.ThrowIfNull(commentsData);
         if (objectType.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(objectType));
 
@@ -165,8 +161,7 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
     /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
     protected Identifier QualifySynonymName(Identifier synonymName)
     {
-        if (synonymName == null)
-            throw new ArgumentNullException(nameof(synonymName));
+        ArgumentNullException.ThrowIfNull(synonymName);
 
         var schema = synonymName.Schema ?? IdentifierDefaults.Schema;
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, synonymName.LocalName);

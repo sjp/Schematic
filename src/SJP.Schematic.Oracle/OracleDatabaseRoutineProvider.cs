@@ -24,12 +24,9 @@ public class OracleDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
     public OracleDatabaseRoutineProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
     {
-        if (connection == null)
-            throw new ArgumentNullException(nameof(connection));
-        if (identifierDefaults == null)
-            throw new ArgumentNullException(nameof(identifierDefaults));
-        if (identifierResolver == null)
-            throw new ArgumentNullException(nameof(identifierResolver));
+        ArgumentNullException.ThrowIfNull(connection);
+        ArgumentNullException.ThrowIfNull(identifierDefaults);
+        ArgumentNullException.ThrowIfNull(identifierResolver);
 
         SimpleRoutineProvider = new OracleDatabaseSimpleRoutineProvider(connection, identifierDefaults, identifierResolver);
         PackageProvider = new OracleDatabasePackageProvider(connection, identifierDefaults, identifierResolver);
@@ -77,8 +74,7 @@ public class OracleDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
     {
-        if (routineName == null)
-            throw new ArgumentNullException(nameof(routineName));
+        ArgumentNullException.ThrowIfNull(routineName);
 
         return SimpleRoutineProvider.GetRoutine(routineName, cancellationToken)
              | PackageProvider.GetPackage(routineName, cancellationToken).Map<IDatabaseRoutine>(static p => p);

@@ -64,8 +64,7 @@ public static class OracleUnwrapper
     /// <exception cref="InvalidDataException">Thrown when the data is not able to be unwrapped successfully. This is likely because the data is not wrapped or because it is not valid.</exception>
     public static string UnwrapUnsafe(string input)
     {
-        if (input == null)
-            throw new ArgumentNullException(nameof(input));
+        ArgumentNullException.ThrowIfNull(input);
 
         if (!TryGetPayload(input, out var payload))
             throw new InvalidDataException("The given input is not a wrapped definition");
@@ -93,16 +92,14 @@ public static class OracleUnwrapper
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="input"/> is <c>null</c>.</exception>
     public static bool IsWrappedDefinition(string input)
     {
-        if (input == null)
-            throw new ArgumentNullException(nameof(input));
+        ArgumentNullException.ThrowIfNull(input);
 
         return TryGetPayload(input, out _);
     }
 
     private static bool TryGetPayload(string input, [NotNullWhen(true)] out string? payload)
     {
-        if (input == null)
-            throw new ArgumentNullException(nameof(input));
+        ArgumentNullException.ThrowIfNull(input);
 
         payload = null;
         const string wrappedKeyword = "wrapped";
@@ -218,8 +215,7 @@ public static class OracleUnwrapper
 
     private static string DecodeBase64PackageUnsafe(string base64Input)
     {
-        if (base64Input == null)
-            throw new ArgumentNullException(nameof(base64Input));
+        ArgumentNullException.ThrowIfNull(base64Input);
 
         var bytes = Convert.FromBase64String(base64Input);
 

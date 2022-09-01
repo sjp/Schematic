@@ -97,8 +97,7 @@ public sealed class SqlServerExpressionComparer : IEqualityComparer<string>
 
     private static IReadOnlyList<Token<SqlServerToken>> StripWrappingParens(IReadOnlyList<Token<SqlServerToken>> tokens)
     {
-        if (tokens == null)
-            throw new ArgumentNullException(nameof(tokens));
+        ArgumentNullException.ThrowIfNull(tokens);
 
         // copy to mutable result set
         if (tokens.Empty())

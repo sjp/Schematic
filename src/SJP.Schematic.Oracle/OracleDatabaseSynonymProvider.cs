@@ -89,8 +89,7 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default)
     {
-        if (synonymName == null)
-            throw new ArgumentNullException(nameof(synonymName));
+        ArgumentNullException.ThrowIfNull(synonymName);
 
         var candidateSynonymName = QualifySynonymName(synonymName);
         return LoadSynonym(candidateSynonymName, cancellationToken);
@@ -105,8 +104,7 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
     public OptionAsync<Identifier> GetResolvedSynonymName(Identifier synonymName, CancellationToken cancellationToken = default)
     {
-        if (synonymName == null)
-            throw new ArgumentNullException(nameof(synonymName));
+        ArgumentNullException.ThrowIfNull(synonymName);
 
         var resolvedNames = IdentifierResolver
             .GetResolutionOrder(synonymName)
@@ -126,8 +124,7 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
     protected OptionAsync<Identifier> GetResolvedSynonymNameStrict(Identifier synonymName, CancellationToken cancellationToken)
     {
-        if (synonymName == null)
-            throw new ArgumentNullException(nameof(synonymName));
+        ArgumentNullException.ThrowIfNull(synonymName);
 
         var candidateSynonymName = QualifySynonymName(synonymName);
 
@@ -163,8 +160,7 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
     protected virtual OptionAsync<IDatabaseSynonym> LoadSynonym(Identifier synonymName, CancellationToken cancellationToken)
     {
-        if (synonymName == null)
-            throw new ArgumentNullException(nameof(synonymName));
+        ArgumentNullException.ThrowIfNull(synonymName);
 
         var candidateSynonymName = QualifySynonymName(synonymName);
         return GetResolvedSynonymName(candidateSynonymName, cancellationToken)
@@ -183,8 +179,7 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
 
     private OptionAsync<IDatabaseSynonym> LoadSynonymData(Identifier synonymName, CancellationToken cancellationToken)
     {
-        if (synonymName == null)
-            throw new ArgumentNullException(nameof(synonymName));
+        ArgumentNullException.ThrowIfNull(synonymName);
 
         return Connection.QueryFirstOrNone<GetSynonymDefinition.Result>(
             GetSynonymDefinition.Sql,
@@ -235,8 +230,7 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
     protected Identifier QualifySynonymName(Identifier synonymName)
     {
-        if (synonymName == null)
-            throw new ArgumentNullException(nameof(synonymName));
+        ArgumentNullException.ThrowIfNull(synonymName);
 
         var schema = synonymName.Schema ?? IdentifierDefaults.Schema;
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, synonymName.LocalName);
@@ -250,8 +244,7 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// <exception cref="ArgumentNullException"><paramref name="targetName"/> is <c>null</c>.</exception>
     private Identifier QualifySynonymTargetName(Identifier targetName)
     {
-        if (targetName == null)
-            throw new ArgumentNullException(nameof(targetName));
+        ArgumentNullException.ThrowIfNull(targetName);
 
         var database = targetName.Database ?? IdentifierDefaults.Database;
         var schema = targetName.Schema ?? IdentifierDefaults.Schema;

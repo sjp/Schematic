@@ -28,8 +28,7 @@ public class SqlServerDatabaseKey : IDatabaseKey
     /// <exception cref="ArgumentException"><paramref name="keyType"/> is an invalid enum value.</exception>
     public SqlServerDatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, bool isEnabled)
     {
-        if (name == null)
-            throw new ArgumentNullException(nameof(name));
+        ArgumentNullException.ThrowIfNull(name);
         if (columns.NullOrEmpty() || columns.AnyNull())
             throw new ArgumentNullException(nameof(columns));
         if (!keyType.IsValid())

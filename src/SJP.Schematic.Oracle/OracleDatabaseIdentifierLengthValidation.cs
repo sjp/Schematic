@@ -37,8 +37,7 @@ public class OracleDatabaseIdentifierLengthValidation : IOracleDatabaseIdentifie
     /// <exception cref="ArgumentNullException">identifier</exception>
     public bool IsValidIdentifier(Identifier identifier)
     {
-        if (identifier == null)
-            throw new ArgumentNullException(nameof(identifier));
+        ArgumentNullException.ThrowIfNull(identifier);
 
         var components = new[] { identifier.Server, identifier.Database, identifier.Schema, identifier.LocalName };
         return components.All(IsIdentifierComponentValid);
@@ -59,8 +58,7 @@ public class OracleDatabaseIdentifierLengthValidation : IOracleDatabaseIdentifie
 
     private static int GetAsciiByteCount(string component)
     {
-        if (component == null)
-            throw new ArgumentNullException(nameof(component));
+        ArgumentNullException.ThrowIfNull(component);
 
         return component.Count(static c => c < 128);
     }

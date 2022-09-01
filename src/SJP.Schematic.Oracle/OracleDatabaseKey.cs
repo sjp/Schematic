@@ -28,8 +28,7 @@ public class OracleDatabaseKey : IDatabaseKey
     /// <exception cref="ArgumentException"><paramref name="keyType"/> is not a valid enum.</exception>
     public OracleDatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, bool isEnabled)
     {
-        if (name == null)
-            throw new ArgumentNullException(nameof(name));
+        ArgumentNullException.ThrowIfNull(name);
         if (columns.NullOrEmpty() || columns.AnyNull())
             throw new ArgumentNullException(nameof(columns));
         if (!keyType.IsValid())

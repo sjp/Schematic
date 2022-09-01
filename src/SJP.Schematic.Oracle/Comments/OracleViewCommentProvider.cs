@@ -25,12 +25,9 @@ public class OracleViewCommentProvider : IDatabaseViewCommentProvider
     /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
     public OracleViewCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
     {
-        if (connection == null)
-            throw new ArgumentNullException(nameof(connection));
-        if (identifierDefaults == null)
-            throw new ArgumentNullException(nameof(identifierDefaults));
-        if (identifierResolver == null)
-            throw new ArgumentNullException(nameof(identifierResolver));
+        ArgumentNullException.ThrowIfNull(connection);
+        ArgumentNullException.ThrowIfNull(identifierDefaults);
+        ArgumentNullException.ThrowIfNull(identifierResolver);
 
         QueryViewCommentProvider = new OracleQueryViewCommentProvider(connection, identifierDefaults, identifierResolver);
         MaterializedViewCommentProvider = new OracleMaterializedViewCommentProvider(connection, identifierDefaults, identifierResolver);
@@ -78,8 +75,7 @@ public class OracleViewCommentProvider : IDatabaseViewCommentProvider
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         return QueryViewCommentProvider.GetViewComments(viewName, cancellationToken)
              | MaterializedViewCommentProvider.GetViewComments(viewName, cancellationToken);

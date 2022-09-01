@@ -76,8 +76,7 @@ public class OracleTableCommentProvider : IRelationalDatabaseTableCommentProvide
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     protected OptionAsync<Identifier> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken = default)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var resolvedNames = IdentifierResolver
             .GetResolutionOrder(tableName)
@@ -97,8 +96,7 @@ public class OracleTableCommentProvider : IRelationalDatabaseTableCommentProvide
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     protected OptionAsync<Identifier> GetResolvedTableNameStrict(Identifier tableName, CancellationToken cancellationToken)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var candidateTableName = QualifyTableName(tableName);
         var qualifiedTableName = Connection.QueryFirstOrNone<GetTableName.Result>(
@@ -119,8 +117,7 @@ public class OracleTableCommentProvider : IRelationalDatabaseTableCommentProvide
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     public OptionAsync<IRelationalDatabaseTableComments> GetTableComments(Identifier tableName, CancellationToken cancellationToken = default)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var candidateTableName = QualifyTableName(tableName);
         return LoadTableComments(candidateTableName, cancellationToken);
@@ -135,8 +132,7 @@ public class OracleTableCommentProvider : IRelationalDatabaseTableCommentProvide
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     protected virtual OptionAsync<IRelationalDatabaseTableComments> LoadTableComments(Identifier tableName, CancellationToken cancellationToken)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var candidateTableName = QualifyTableName(tableName);
         return GetResolvedTableName(candidateTableName, cancellationToken)
@@ -224,8 +220,7 @@ public class OracleTableCommentProvider : IRelationalDatabaseTableCommentProvide
 
     private static Option<string> GetTableComment(IEnumerable<CommentData> commentsData)
     {
-        if (commentsData == null)
-            throw new ArgumentNullException(nameof(commentsData));
+        ArgumentNullException.ThrowIfNull(commentsData);
 
         return commentsData
             .Where(static c => string.Equals(c.ObjectType, Constants.Table, StringComparison.Ordinal))
@@ -235,8 +230,7 @@ public class OracleTableCommentProvider : IRelationalDatabaseTableCommentProvide
 
     private static IReadOnlyDictionary<Identifier, Option<string>> GetColumnComments(IEnumerable<CommentData> commentsData)
     {
-        if (commentsData == null)
-            throw new ArgumentNullException(nameof(commentsData));
+        ArgumentNullException.ThrowIfNull(commentsData);
 
         return commentsData
             .Where(static c => string.Equals(c.ObjectType, Constants.Column, StringComparison.Ordinal))
@@ -255,8 +249,7 @@ public class OracleTableCommentProvider : IRelationalDatabaseTableCommentProvide
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     protected Identifier QualifyTableName(Identifier tableName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var schema = tableName.Schema ?? IdentifierDefaults.Schema;
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, tableName.LocalName);

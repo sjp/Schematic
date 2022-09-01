@@ -24,12 +24,9 @@ public class OracleDatabaseViewProvider : IDatabaseViewProvider
     /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
     public OracleDatabaseViewProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
     {
-        if (connection == null)
-            throw new ArgumentNullException(nameof(connection));
-        if (identifierDefaults == null)
-            throw new ArgumentNullException(nameof(identifierDefaults));
-        if (identifierResolver == null)
-            throw new ArgumentNullException(nameof(identifierResolver));
+        ArgumentNullException.ThrowIfNull(connection);
+        ArgumentNullException.ThrowIfNull(identifierDefaults);
+        ArgumentNullException.ThrowIfNull(identifierResolver);
 
         QueryViewProvider = new OracleDatabaseQueryViewProvider(connection, identifierDefaults, identifierResolver);
         MaterializedViewProvider = new OracleDatabaseMaterializedViewProvider(connection, identifierDefaults, identifierResolver);
@@ -77,8 +74,7 @@ public class OracleDatabaseViewProvider : IDatabaseViewProvider
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         return QueryViewProvider.GetView(viewName, cancellationToken)
              | MaterializedViewProvider.GetView(viewName, cancellationToken);

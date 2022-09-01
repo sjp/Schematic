@@ -22,8 +22,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
     /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <c>null</c>.</exception>
     public IDbType CreateColumnType(ColumnTypeMetadata typeMetadata)
     {
-        if (typeMetadata == null)
-            throw new ArgumentNullException(nameof(typeMetadata));
+        ArgumentNullException.ThrowIfNull(typeMetadata);
 
         if (typeMetadata.TypeName == null)
             typeMetadata.TypeName = GetDefaultTypeName(typeMetadata);
@@ -72,8 +71,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
     /// <exception cref="ArgumentNullException"><paramref name="otherType"/> is <c>null</c>.</exception>
     public IDbType GetComparableColumnType(IDbType otherType)
     {
-        if (otherType == null)
-            throw new ArgumentNullException(nameof(otherType));
+        ArgumentNullException.ThrowIfNull(otherType);
 
         var typeMetadata = new ColumnTypeMetadata
         {
@@ -97,8 +95,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
     /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <c>null</c>, empty or whitespace.</exception>
     protected static bool GetIsFixedLength(Identifier typeName)
     {
-        if (typeName == null)
-            throw new ArgumentNullException(nameof(typeName));
+        ArgumentNullException.ThrowIfNull(typeName);
 
         return FixedLengthTypes.Contains(typeName.LocalName, StringComparer.OrdinalIgnoreCase);
     }
@@ -112,8 +109,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
     /// <exception cref="ArgumentOutOfRangeException">Thrown when a type is unknown or failed to be parsed.</exception>
     protected static Identifier GetDefaultTypeName(ColumnTypeMetadata typeMetadata)
     {
-        if (typeMetadata == null)
-            throw new ArgumentNullException(nameof(typeMetadata));
+        ArgumentNullException.ThrowIfNull(typeMetadata);
 
         return typeMetadata.DataType switch
         {
@@ -149,8 +145,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
     /// <exception cref="ArgumentException">Thrown when a type name is missing.</exception>
     protected static string GetFormattedTypeName(ColumnTypeMetadata typeMetadata)
     {
-        if (typeMetadata == null)
-            throw new ArgumentNullException(nameof(typeMetadata));
+        ArgumentNullException.ThrowIfNull(typeMetadata);
         if (typeMetadata.TypeName == null)
             throw new ArgumentException("The type name is missing. A formatted type name cannot be generated.", nameof(typeMetadata));
 
@@ -198,8 +193,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
     /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <c>null</c>, empty or whitespace.</exception>
     protected static DataType GetDataType(Identifier typeName)
     {
-        if (typeName == null)
-            throw new ArgumentNullException(nameof(typeName));
+        ArgumentNullException.ThrowIfNull(typeName);
 
         return StringToDataTypeMap.ContainsKey(typeName.LocalName)
             ? StringToDataTypeMap[typeName.LocalName]
@@ -214,8 +208,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
     /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <c>null</c>, empty or whitespace.</exception>
     protected static Type GetClrType(Identifier typeName)
     {
-        if (typeName == null)
-            throw new ArgumentNullException(nameof(typeName));
+        ArgumentNullException.ThrowIfNull(typeName);
 
         return StringToClrTypeMap.ContainsKey(typeName.LocalName)
             ? StringToClrTypeMap[typeName.LocalName]
@@ -244,8 +237,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
     /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>.</exception>
     protected static string QuoteName(Identifier name)
     {
-        if (name == null)
-            throw new ArgumentNullException(nameof(name));
+        ArgumentNullException.ThrowIfNull(name);
 
         var builder = StringBuilderCache.Acquire();
 

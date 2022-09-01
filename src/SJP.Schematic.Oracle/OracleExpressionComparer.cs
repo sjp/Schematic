@@ -97,8 +97,7 @@ public sealed class OracleExpressionComparer : IEqualityComparer<string>
 
     private static IReadOnlyList<Token<OracleToken>> StripWrappingParens(IReadOnlyList<Token<OracleToken>> tokens)
     {
-        if (tokens == null)
-            throw new ArgumentNullException(nameof(tokens));
+        ArgumentNullException.ThrowIfNull(tokens);
 
         // copy to mutable result set
         if (tokens.Empty())

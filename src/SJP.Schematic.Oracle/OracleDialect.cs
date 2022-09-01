@@ -46,8 +46,7 @@ public class OracleDialect : DatabaseDialect
     /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>.</exception>
     public override string QuoteName(Identifier name)
     {
-        if (name == null)
-            throw new ArgumentNullException(nameof(name));
+        ArgumentNullException.ThrowIfNull(name);
 
         var pieces = new List<string>();
 
@@ -72,8 +71,7 @@ public class OracleDialect : DatabaseDialect
     /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
     public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
     {
-        if (connection == null)
-            throw new ArgumentNullException(nameof(connection));
+        ArgumentNullException.ThrowIfNull(connection);
 
         return GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
     }
@@ -105,8 +103,7 @@ public class OracleDialect : DatabaseDialect
     /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
     public override Task<string> GetDatabaseDisplayVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
     {
-        if (connection == null)
-            throw new ArgumentNullException(nameof(connection));
+        ArgumentNullException.ThrowIfNull(connection);
 
         var versionInfoOption = connection.DbConnection.QueryFirstOrNone<GetDatabaseVersion.Result>(GetDatabaseVersion.Sql, cancellationToken);
         return versionInfoOption.MatchUnsafe(
@@ -124,8 +121,7 @@ public class OracleDialect : DatabaseDialect
     /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
     public override Task<Version> GetDatabaseVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
     {
-        if (connection == null)
-            throw new ArgumentNullException(nameof(connection));
+        ArgumentNullException.ThrowIfNull(connection);
 
         var versionInfoOption = connection.DbConnection.QueryFirstOrNone<GetDatabaseVersion.Result>(GetDatabaseVersion.Sql, cancellationToken);
         return versionInfoOption
@@ -168,8 +164,7 @@ public class OracleDialect : DatabaseDialect
     /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
     public override Task<IRelationalDatabase> GetRelationalDatabaseAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
     {
-        if (connection == null)
-            throw new ArgumentNullException(nameof(connection));
+        ArgumentNullException.ThrowIfNull(connection);
 
         return GetRelationalDatabaseAsyncCore(connection, cancellationToken);
     }
@@ -190,8 +185,7 @@ public class OracleDialect : DatabaseDialect
     /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
     public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
     {
-        if (connection == null)
-            throw new ArgumentNullException(nameof(connection));
+        ArgumentNullException.ThrowIfNull(connection);
 
         return GetRelationalDatabaseCommentProviderAsyncCore(connection, cancellationToken);
     }

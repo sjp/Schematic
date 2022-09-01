@@ -24,8 +24,7 @@ public class OracleDatabaseColumn : IDatabaseColumn
     /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <c>null</c>.</exception>
     public OracleDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, Option<string> defaultValue)
     {
-        if (columnName == null)
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentNullException.ThrowIfNull(columnName);
 
         Name = columnName.LocalName;
         Type = type ?? throw new ArgumentNullException(nameof(type));

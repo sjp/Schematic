@@ -78,8 +78,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     /// <exception cref="ArgumentNullException"><paramref name="packageName"/> is <c>null</c>.</exception>
     public OptionAsync<IOracleDatabasePackage> GetPackage(Identifier packageName, CancellationToken cancellationToken = default)
     {
-        if (packageName == null)
-            throw new ArgumentNullException(nameof(packageName));
+        ArgumentNullException.ThrowIfNull(packageName);
 
         var candidatePackageName = QualifyPackageName(packageName);
         return LoadPackage(candidatePackageName, cancellationToken);
@@ -94,8 +93,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     /// <exception cref="ArgumentNullException"><paramref name="packageName"/> is <c>null</c>.</exception>
     protected OptionAsync<Identifier> GetResolvedPackageName(Identifier packageName, CancellationToken cancellationToken = default)
     {
-        if (packageName == null)
-            throw new ArgumentNullException(nameof(packageName));
+        ArgumentNullException.ThrowIfNull(packageName);
 
         var resolvedNames = IdentifierResolver
             .GetResolutionOrder(packageName)
@@ -115,8 +113,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     /// <exception cref="ArgumentNullException"><paramref name="packageName"/> is <c>null</c>.</exception>
     protected OptionAsync<Identifier> GetResolvedPackageNameStrict(Identifier packageName, CancellationToken cancellationToken)
     {
-        if (packageName == null)
-            throw new ArgumentNullException(nameof(packageName));
+        ArgumentNullException.ThrowIfNull(packageName);
 
         var candidatePackageName = QualifyPackageName(packageName);
         var qualifiedPackageName = Connection.QueryFirstOrNone<GetPackageName.Result>(
@@ -137,8 +134,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     /// <exception cref="ArgumentNullException"><paramref name="packageName"/> is <c>null</c>.</exception>
     protected virtual OptionAsync<IOracleDatabasePackage> LoadPackage(Identifier packageName, CancellationToken cancellationToken)
     {
-        if (packageName == null)
-            throw new ArgumentNullException(nameof(packageName));
+        ArgumentNullException.ThrowIfNull(packageName);
 
         var candidatePackageName = QualifyPackageName(packageName);
         return GetResolvedPackageName(candidatePackageName, cancellationToken)
@@ -214,8 +210,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     /// <exception cref="ArgumentNullException"><paramref name="packageName"/> is <c>null</c>.</exception>
     protected Identifier QualifyPackageName(Identifier packageName)
     {
-        if (packageName == null)
-            throw new ArgumentNullException(nameof(packageName));
+        ArgumentNullException.ThrowIfNull(packageName);
 
         var schema = packageName.Schema ?? IdentifierDefaults.Schema;
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, packageName.LocalName);

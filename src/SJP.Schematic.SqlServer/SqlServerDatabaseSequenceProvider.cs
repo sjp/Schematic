@@ -76,8 +76,7 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default)
     {
-        if (sequenceName == null)
-            throw new ArgumentNullException(nameof(sequenceName));
+        ArgumentNullException.ThrowIfNull(sequenceName);
 
         var candidateSequenceName = QualifySequenceName(sequenceName);
         return LoadSequence(candidateSequenceName, cancellationToken);
@@ -92,8 +91,7 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
     protected OptionAsync<Identifier> GetResolvedSequenceName(Identifier sequenceName, CancellationToken cancellationToken)
     {
-        if (sequenceName == null)
-            throw new ArgumentNullException(nameof(sequenceName));
+        ArgumentNullException.ThrowIfNull(sequenceName);
 
         var candidateSequenceName = QualifySequenceName(sequenceName);
         var qualifiedSequenceName = Connection.QueryFirstOrNone<GetSequenceName.Result>(
@@ -114,8 +112,7 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
     protected virtual OptionAsync<IDatabaseSequence> LoadSequence(Identifier sequenceName, CancellationToken cancellationToken)
     {
-        if (sequenceName == null)
-            throw new ArgumentNullException(nameof(sequenceName));
+        ArgumentNullException.ThrowIfNull(sequenceName);
 
         var candidateSequenceName = QualifySequenceName(sequenceName);
         return GetResolvedSequenceName(candidateSequenceName, cancellationToken)
@@ -124,8 +121,7 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
 
     private OptionAsync<IDatabaseSequence> LoadSequenceData(Identifier sequenceName, CancellationToken cancellationToken)
     {
-        if (sequenceName == null)
-            throw new ArgumentNullException(nameof(sequenceName));
+        ArgumentNullException.ThrowIfNull(sequenceName);
 
         return Connection.QueryFirstOrNone<GetSequenceDefinition.Result>(
             GetSequenceDefinition.Sql,
@@ -150,8 +146,7 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
     protected Identifier QualifySequenceName(Identifier sequenceName)
     {
-        if (sequenceName == null)
-            throw new ArgumentNullException(nameof(sequenceName));
+        ArgumentNullException.ThrowIfNull(sequenceName);
 
         var schema = sequenceName.Schema ?? IdentifierDefaults.Schema;
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, sequenceName.LocalName);

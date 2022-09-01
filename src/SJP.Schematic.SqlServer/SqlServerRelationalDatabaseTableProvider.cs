@@ -93,8 +93,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var candidateTableName = QualifyTableName(tableName);
         return LoadTable(candidateTableName, CreateQueryCache(), cancellationToken);
@@ -109,8 +108,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     protected Task<Option<Identifier>> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         tableName = QualifyTableName(tableName);
         var qualifiedTableName = DbConnection.QueryFirstOrNone<GetTableName.Result>(
@@ -134,10 +132,8 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> is <c>null</c>.</exception>
     protected virtual OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
-        if (queryCache == null)
-            throw new ArgumentNullException(nameof(queryCache));
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(queryCache);
 
         var candidateTableName = QualifyTableName(tableName);
         return GetResolvedTableName(candidateTableName, cancellationToken)
@@ -189,10 +185,8 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
     protected virtual Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
-        if (queryCache == null)
-            throw new ArgumentNullException(nameof(queryCache));
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(queryCache);
 
         return LoadPrimaryKeyAsyncCore(tableName, queryCache, cancellationToken);
     }
@@ -240,10 +234,8 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
     protected virtual Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
-        if (queryCache == null)
-            throw new ArgumentNullException(nameof(queryCache));
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(queryCache);
 
         return LoadIndexesAsyncCore(tableName, queryCache, cancellationToken);
     }
@@ -324,10 +316,8 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
     protected virtual Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
-        if (queryCache == null)
-            throw new ArgumentNullException(nameof(queryCache));
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(queryCache);
 
         return LoadUniqueKeysAsyncCore(tableName, queryCache, cancellationToken);
     }
@@ -380,10 +370,8 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
     protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
-        if (queryCache == null)
-            throw new ArgumentNullException(nameof(queryCache));
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(queryCache);
 
         return LoadChildKeysAsyncCore(tableName, queryCache, cancellationToken);
     }
@@ -502,10 +490,8 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
     protected virtual Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
-        if (queryCache == null)
-            throw new ArgumentNullException(nameof(queryCache));
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(queryCache);
 
         return LoadParentKeysAsyncCore(tableName, queryCache, cancellationToken);
     }
@@ -596,8 +582,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         return LoadColumnsAsyncCore(tableName, cancellationToken);
     }
@@ -657,8 +642,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     protected virtual Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(Identifier tableName, CancellationToken cancellationToken)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         return LoadTriggersAsyncCore(tableName, cancellationToken);
     }
@@ -720,8 +704,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     protected Identifier QualifyTableName(Identifier tableName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var schema = tableName.Schema ?? IdentifierDefaults.Schema;
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, tableName.LocalName);
@@ -741,8 +724,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
 
     private static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(IReadOnlyCollection<IDatabaseColumn> columns)
     {
-        if (columns == null)
-            throw new ArgumentNullException(nameof(columns));
+        ArgumentNullException.ThrowIfNull(columns);
 
         var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
 
@@ -757,8 +739,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
 
     private static IReadOnlyDictionary<Identifier, IDatabaseKey> GetDatabaseKeyLookup(IReadOnlyCollection<IDatabaseKey> keys)
     {
-        if (keys == null)
-            throw new ArgumentNullException(nameof(keys));
+        ArgumentNullException.ThrowIfNull(keys);
 
         var result = new Dictionary<Identifier, IDatabaseKey>(keys.Count);
 
@@ -823,8 +804,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         public Task<Option<Identifier>> GetTableNameAsync(Identifier tableName, CancellationToken cancellationToken)
         {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
+            ArgumentNullException.ThrowIfNull(tableName);
 
             return _tableNames.GetByKeyAsync(tableName, this, cancellationToken);
         }
@@ -838,8 +818,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         public Task<IReadOnlyList<IDatabaseColumn>> GetColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
         {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
+            ArgumentNullException.ThrowIfNull(tableName);
 
             return _columns.GetByKeyAsync(tableName, this, cancellationToken);
         }
@@ -853,8 +832,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         public Task<Option<IDatabaseKey>> GetPrimaryKeyAsync(Identifier tableName, CancellationToken cancellationToken)
         {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
+            ArgumentNullException.ThrowIfNull(tableName);
 
             return _primaryKeys.GetByKeyAsync(tableName, this, cancellationToken);
         }
@@ -868,8 +846,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         public Task<IReadOnlyCollection<IDatabaseKey>> GetUniqueKeysAsync(Identifier tableName, CancellationToken cancellationToken)
         {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
+            ArgumentNullException.ThrowIfNull(tableName);
 
             return _uniqueKeys.GetByKeyAsync(tableName, this, cancellationToken);
         }
@@ -883,8 +860,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
         public Task<IReadOnlyCollection<IDatabaseRelationalKey>> GetForeignKeysAsync(Identifier tableName, CancellationToken cancellationToken)
         {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
+            ArgumentNullException.ThrowIfNull(tableName);
 
             return _foreignKeys.GetByKeyAsync(tableName, this, cancellationToken);
         }

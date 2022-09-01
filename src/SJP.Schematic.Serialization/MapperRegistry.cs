@@ -111,8 +111,7 @@ internal static class MapperRegistry
 
     private static void RegisterMapper<TSource, TDestination>(Func<IImmutableMapper<TSource, TDestination>> factory)
     {
-        if (factory == null)
-            throw new ArgumentNullException(nameof(factory));
+        ArgumentNullException.ThrowIfNull(factory);
 
         var typePair = new TypePair(typeof(TSource), typeof(TDestination));
         _cache[typePair] = factory.Invoke();
