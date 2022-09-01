@@ -86,8 +86,7 @@ public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabase
     /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseRoutineComments> GetRoutineComments(Identifier routineName, CancellationToken cancellationToken = default)
     {
-        if (routineName == null)
-            throw new ArgumentNullException(nameof(routineName));
+        ArgumentNullException.ThrowIfNull(routineName);
 
         return _routineCommentProvider.GetRoutineComments(routineName, cancellationToken);
     }
@@ -101,8 +100,7 @@ public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabase
     /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseSequenceComments> GetSequenceComments(Identifier sequenceName, CancellationToken cancellationToken = default)
     {
-        if (sequenceName == null)
-            throw new ArgumentNullException(nameof(sequenceName));
+        ArgumentNullException.ThrowIfNull(sequenceName);
 
         return _sequenceCommentProvider.GetSequenceComments(sequenceName, cancellationToken);
     }
@@ -116,8 +114,7 @@ public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabase
     /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseSynonymComments> GetSynonymComments(Identifier synonymName, CancellationToken cancellationToken = default)
     {
-        if (synonymName == null)
-            throw new ArgumentNullException(nameof(synonymName));
+        ArgumentNullException.ThrowIfNull(synonymName);
 
         return _synonymCommentProvider.GetSynonymComments(synonymName, cancellationToken);
     }
@@ -131,8 +128,7 @@ public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabase
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     public OptionAsync<IRelationalDatabaseTableComments> GetTableComments(Identifier tableName, CancellationToken cancellationToken = default)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         return _tableCommentProvider.GetTableComments(tableName, cancellationToken);
     }
@@ -146,8 +142,7 @@ public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabase
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         return _viewCommentProvider.GetViewComments(viewName, cancellationToken);
     }

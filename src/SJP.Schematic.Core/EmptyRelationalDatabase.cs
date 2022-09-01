@@ -41,8 +41,7 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         return TableProvider.GetTable(tableName, cancellationToken);
     }
@@ -64,8 +63,7 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         return ViewProvider.GetView(viewName, cancellationToken);
     }
@@ -87,8 +85,7 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
     /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default)
     {
-        if (sequenceName == null)
-            throw new ArgumentNullException(nameof(sequenceName));
+        ArgumentNullException.ThrowIfNull(sequenceName);
 
         return SequenceProvider.GetSequence(sequenceName, cancellationToken);
     }
@@ -110,8 +107,7 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
     /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default)
     {
-        if (synonymName == null)
-            throw new ArgumentNullException(nameof(synonymName));
+        ArgumentNullException.ThrowIfNull(synonymName);
 
         return SynonymProvider.GetSynonym(synonymName, cancellationToken);
     }
@@ -133,8 +129,7 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
     /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
     {
-        if (routineName == null)
-            throw new ArgumentNullException(nameof(routineName));
+        ArgumentNullException.ThrowIfNull(routineName);
 
         return RoutineProvider.GetRoutine(routineName, cancellationToken);
     }

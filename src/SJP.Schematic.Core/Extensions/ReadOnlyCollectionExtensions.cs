@@ -17,8 +17,7 @@ public static class ReadOnlyCollectionExtensions
     /// <exception cref="ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
     public static bool Empty<T>(this IReadOnlyCollection<T> source)
     {
-        if (source == null)
-            throw new ArgumentNullException(nameof(source));
+        ArgumentNullException.ThrowIfNull(source);
 
         return source.Count == 0;
     }

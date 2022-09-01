@@ -18,8 +18,7 @@ public sealed class EmptyDependencyProvider : IDependencyProvider
     /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <c>null</c>.</exception>
     public IReadOnlyCollection<Identifier> GetDependencies(Identifier objectName, string expression)
     {
-        if (objectName == null)
-            throw new ArgumentNullException(nameof(objectName));
+        ArgumentNullException.ThrowIfNull(objectName);
 
         return Array.Empty<Identifier>();
     }

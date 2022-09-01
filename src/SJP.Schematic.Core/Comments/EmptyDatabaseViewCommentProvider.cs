@@ -28,8 +28,7 @@ public sealed class EmptyDatabaseViewCommentProvider : IDatabaseViewCommentProvi
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         return OptionAsync<IDatabaseViewComments>.None;
     }

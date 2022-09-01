@@ -18,8 +18,7 @@ public class TableRelationshipOrderer
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
     public IReadOnlyCollection<Identifier> GetDeletionOrder(IEnumerable<IRelationalDatabaseTable> tables)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
+        ArgumentNullException.ThrowIfNull(tables);
 
         var graph = new AdjacencyGraph<Identifier, SEquatableEdge<Identifier>>();
         var tableNames = tables.Select(static t => t.Name).Distinct().ToList();
@@ -46,8 +45,7 @@ public class TableRelationshipOrderer
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
     public IReadOnlyCollection<Identifier> GetInsertionOrder(IEnumerable<IRelationalDatabaseTable> tables)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
+        ArgumentNullException.ThrowIfNull(tables);
 
         return GetDeletionOrder(tables).Reverse().ToList();
     }

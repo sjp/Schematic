@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using LanguageExt;
 
 namespace SJP.Schematic.Core.Utilities;
 
@@ -20,10 +21,8 @@ public static class TaskUtilities
     /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/> is <c>null</c>.</exception>
     public static Task<(T1, T2)> WhenAll<T1, T2>(Task<T1> task1, Task<T2> task2)
     {
-        if (task1 == null)
-            throw new ArgumentNullException(nameof(task1));
-        if (task2 == null)
-            throw new ArgumentNullException(nameof(task2));
+        ArgumentNullException.ThrowIfNull(task1);
+        ArgumentNullException.ThrowIfNull(task2);
 
         return WhenAllCore(
             task1,
@@ -57,12 +56,9 @@ public static class TaskUtilities
     /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/> is <c>null</c>.</exception>
     public static Task<(T1, T2, T3)> WhenAll<T1, T2, T3>(Task<T1> task1, Task<T2> task2, Task<T3> task3)
     {
-        if (task1 == null)
-            throw new ArgumentNullException(nameof(task1));
-        if (task2 == null)
-            throw new ArgumentNullException(nameof(task2));
-        if (task3 == null)
-            throw new ArgumentNullException(nameof(task3));
+        ArgumentNullException.ThrowIfNull(task1);
+        ArgumentNullException.ThrowIfNull(task2);
+        ArgumentNullException.ThrowIfNull(task3);
 
         return WhenAllCore(
             task1,
@@ -100,14 +96,10 @@ public static class TaskUtilities
     /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/> is <c>null</c>.</exception>
     public static Task<(T1, T2, T3, T4)> WhenAll<T1, T2, T3, T4>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4)
     {
-        if (task1 == null)
-            throw new ArgumentNullException(nameof(task1));
-        if (task2 == null)
-            throw new ArgumentNullException(nameof(task2));
-        if (task3 == null)
-            throw new ArgumentNullException(nameof(task3));
-        if (task4 == null)
-            throw new ArgumentNullException(nameof(task4));
+        ArgumentNullException.ThrowIfNull(task1);
+        ArgumentNullException.ThrowIfNull(task2);
+        ArgumentNullException.ThrowIfNull(task3);
+        ArgumentNullException.ThrowIfNull(task4);
 
         return WhenAllCore(
             task1,
@@ -149,16 +141,11 @@ public static class TaskUtilities
     /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/> is <c>null</c>.</exception>
     public static Task<(T1, T2, T3, T4, T5)> WhenAll<T1, T2, T3, T4, T5>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5)
     {
-        if (task1 == null)
-            throw new ArgumentNullException(nameof(task1));
-        if (task2 == null)
-            throw new ArgumentNullException(nameof(task2));
-        if (task3 == null)
-            throw new ArgumentNullException(nameof(task3));
-        if (task4 == null)
-            throw new ArgumentNullException(nameof(task4));
-        if (task5 == null)
-            throw new ArgumentNullException(nameof(task5));
+        ArgumentNullException.ThrowIfNull(task1);
+        ArgumentNullException.ThrowIfNull(task2);
+        ArgumentNullException.ThrowIfNull(task3);
+        ArgumentNullException.ThrowIfNull(task4);
+        ArgumentNullException.ThrowIfNull(task5);
 
         return WhenAllCore(
             task1,
@@ -204,18 +191,12 @@ public static class TaskUtilities
     /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/> is <c>null</c>.</exception>
     public static Task<(T1, T2, T3, T4, T5, T6)> WhenAll<T1, T2, T3, T4, T5, T6>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6)
     {
-        if (task1 == null)
-            throw new ArgumentNullException(nameof(task1));
-        if (task2 == null)
-            throw new ArgumentNullException(nameof(task2));
-        if (task3 == null)
-            throw new ArgumentNullException(nameof(task3));
-        if (task4 == null)
-            throw new ArgumentNullException(nameof(task4));
-        if (task5 == null)
-            throw new ArgumentNullException(nameof(task5));
-        if (task6 == null)
-            throw new ArgumentNullException(nameof(task6));
+        ArgumentNullException.ThrowIfNull(task1);
+        ArgumentNullException.ThrowIfNull(task2);
+        ArgumentNullException.ThrowIfNull(task3);
+        ArgumentNullException.ThrowIfNull(task4);
+        ArgumentNullException.ThrowIfNull(task5);
+        ArgumentNullException.ThrowIfNull(task6);
 
         return WhenAllCore(
             task1,
@@ -265,20 +246,13 @@ public static class TaskUtilities
     /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/> is <c>null</c>.</exception>
     public static Task<(T1, T2, T3, T4, T5, T6, T7)> WhenAll<T1, T2, T3, T4, T5, T6, T7>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7)
     {
-        if (task1 == null)
-            throw new ArgumentNullException(nameof(task1));
-        if (task2 == null)
-            throw new ArgumentNullException(nameof(task2));
-        if (task3 == null)
-            throw new ArgumentNullException(nameof(task3));
-        if (task4 == null)
-            throw new ArgumentNullException(nameof(task4));
-        if (task5 == null)
-            throw new ArgumentNullException(nameof(task5));
-        if (task6 == null)
-            throw new ArgumentNullException(nameof(task6));
-        if (task7 == null)
-            throw new ArgumentNullException(nameof(task7));
+        ArgumentNullException.ThrowIfNull(task1);
+        ArgumentNullException.ThrowIfNull(task2);
+        ArgumentNullException.ThrowIfNull(task3);
+        ArgumentNullException.ThrowIfNull(task4);
+        ArgumentNullException.ThrowIfNull(task5);
+        ArgumentNullException.ThrowIfNull(task6);
+        ArgumentNullException.ThrowIfNull(task7);
 
         return WhenAllCore(
             task1,
@@ -332,22 +306,14 @@ public static class TaskUtilities
     /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/> is <c>null</c>.</exception>
     public static Task<(T1, T2, T3, T4, T5, T6, T7, T8)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8)
     {
-        if (task1 == null)
-            throw new ArgumentNullException(nameof(task1));
-        if (task2 == null)
-            throw new ArgumentNullException(nameof(task2));
-        if (task3 == null)
-            throw new ArgumentNullException(nameof(task3));
-        if (task4 == null)
-            throw new ArgumentNullException(nameof(task4));
-        if (task5 == null)
-            throw new ArgumentNullException(nameof(task5));
-        if (task6 == null)
-            throw new ArgumentNullException(nameof(task6));
-        if (task7 == null)
-            throw new ArgumentNullException(nameof(task7));
-        if (task8 == null)
-            throw new ArgumentNullException(nameof(task8));
+        ArgumentNullException.ThrowIfNull(task1);
+        ArgumentNullException.ThrowIfNull(task2);
+        ArgumentNullException.ThrowIfNull(task3);
+        ArgumentNullException.ThrowIfNull(task4);
+        ArgumentNullException.ThrowIfNull(task5);
+        ArgumentNullException.ThrowIfNull(task6);
+        ArgumentNullException.ThrowIfNull(task7);
+        ArgumentNullException.ThrowIfNull(task8);
 
         return WhenAllCore(
             task1,
@@ -405,24 +371,15 @@ public static class TaskUtilities
     /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/> is <c>null</c>.</exception>
     public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9)
     {
-        if (task1 == null)
-            throw new ArgumentNullException(nameof(task1));
-        if (task2 == null)
-            throw new ArgumentNullException(nameof(task2));
-        if (task3 == null)
-            throw new ArgumentNullException(nameof(task3));
-        if (task4 == null)
-            throw new ArgumentNullException(nameof(task4));
-        if (task5 == null)
-            throw new ArgumentNullException(nameof(task5));
-        if (task6 == null)
-            throw new ArgumentNullException(nameof(task6));
-        if (task7 == null)
-            throw new ArgumentNullException(nameof(task7));
-        if (task8 == null)
-            throw new ArgumentNullException(nameof(task8));
-        if (task9 == null)
-            throw new ArgumentNullException(nameof(task9));
+        ArgumentNullException.ThrowIfNull(task1);
+        ArgumentNullException.ThrowIfNull(task2);
+        ArgumentNullException.ThrowIfNull(task3);
+        ArgumentNullException.ThrowIfNull(task4);
+        ArgumentNullException.ThrowIfNull(task5);
+        ArgumentNullException.ThrowIfNull(task6);
+        ArgumentNullException.ThrowIfNull(task7);
+        ArgumentNullException.ThrowIfNull(task8);
+        ArgumentNullException.ThrowIfNull(task9);
 
         return WhenAllCore(
             task1,
@@ -484,26 +441,16 @@ public static class TaskUtilities
     /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/> is <c>null</c>.</exception>
     public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10)
     {
-        if (task1 == null)
-            throw new ArgumentNullException(nameof(task1));
-        if (task2 == null)
-            throw new ArgumentNullException(nameof(task2));
-        if (task3 == null)
-            throw new ArgumentNullException(nameof(task3));
-        if (task4 == null)
-            throw new ArgumentNullException(nameof(task4));
-        if (task5 == null)
-            throw new ArgumentNullException(nameof(task5));
-        if (task6 == null)
-            throw new ArgumentNullException(nameof(task6));
-        if (task7 == null)
-            throw new ArgumentNullException(nameof(task7));
-        if (task8 == null)
-            throw new ArgumentNullException(nameof(task8));
-        if (task9 == null)
-            throw new ArgumentNullException(nameof(task9));
-        if (task10 == null)
-            throw new ArgumentNullException(nameof(task10));
+        ArgumentNullException.ThrowIfNull(task1);
+        ArgumentNullException.ThrowIfNull(task2);
+        ArgumentNullException.ThrowIfNull(task3);
+        ArgumentNullException.ThrowIfNull(task4);
+        ArgumentNullException.ThrowIfNull(task5);
+        ArgumentNullException.ThrowIfNull(task6);
+        ArgumentNullException.ThrowIfNull(task7);
+        ArgumentNullException.ThrowIfNull(task8);
+        ArgumentNullException.ThrowIfNull(task9);
+        ArgumentNullException.ThrowIfNull(task10);
 
         return WhenAllCore(
             task1,
@@ -569,28 +516,17 @@ public static class TaskUtilities
     /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/> is <c>null</c>.</exception>
     public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11)
     {
-        if (task1 == null)
-            throw new ArgumentNullException(nameof(task1));
-        if (task2 == null)
-            throw new ArgumentNullException(nameof(task2));
-        if (task3 == null)
-            throw new ArgumentNullException(nameof(task3));
-        if (task4 == null)
-            throw new ArgumentNullException(nameof(task4));
-        if (task5 == null)
-            throw new ArgumentNullException(nameof(task5));
-        if (task6 == null)
-            throw new ArgumentNullException(nameof(task6));
-        if (task7 == null)
-            throw new ArgumentNullException(nameof(task7));
-        if (task8 == null)
-            throw new ArgumentNullException(nameof(task8));
-        if (task9 == null)
-            throw new ArgumentNullException(nameof(task9));
-        if (task10 == null)
-            throw new ArgumentNullException(nameof(task10));
-        if (task11 == null)
-            throw new ArgumentNullException(nameof(task11));
+        ArgumentNullException.ThrowIfNull(task1);
+        ArgumentNullException.ThrowIfNull(task2);
+        ArgumentNullException.ThrowIfNull(task3);
+        ArgumentNullException.ThrowIfNull(task4);
+        ArgumentNullException.ThrowIfNull(task5);
+        ArgumentNullException.ThrowIfNull(task6);
+        ArgumentNullException.ThrowIfNull(task7);
+        ArgumentNullException.ThrowIfNull(task8);
+        ArgumentNullException.ThrowIfNull(task9);
+        ArgumentNullException.ThrowIfNull(task10);
+        ArgumentNullException.ThrowIfNull(task11);
 
         return WhenAllCore(
             task1,
@@ -660,30 +596,18 @@ public static class TaskUtilities
     /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/>, <paramref name="task12"/> is <c>null</c>.</exception>
     public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12)
     {
-        if (task1 == null)
-            throw new ArgumentNullException(nameof(task1));
-        if (task2 == null)
-            throw new ArgumentNullException(nameof(task2));
-        if (task3 == null)
-            throw new ArgumentNullException(nameof(task3));
-        if (task4 == null)
-            throw new ArgumentNullException(nameof(task4));
-        if (task5 == null)
-            throw new ArgumentNullException(nameof(task5));
-        if (task6 == null)
-            throw new ArgumentNullException(nameof(task6));
-        if (task7 == null)
-            throw new ArgumentNullException(nameof(task7));
-        if (task8 == null)
-            throw new ArgumentNullException(nameof(task8));
-        if (task9 == null)
-            throw new ArgumentNullException(nameof(task9));
-        if (task10 == null)
-            throw new ArgumentNullException(nameof(task10));
-        if (task11 == null)
-            throw new ArgumentNullException(nameof(task11));
-        if (task12 == null)
-            throw new ArgumentNullException(nameof(task12));
+        ArgumentNullException.ThrowIfNull(task1);
+        ArgumentNullException.ThrowIfNull(task2);
+        ArgumentNullException.ThrowIfNull(task3);
+        ArgumentNullException.ThrowIfNull(task4);
+        ArgumentNullException.ThrowIfNull(task5);
+        ArgumentNullException.ThrowIfNull(task6);
+        ArgumentNullException.ThrowIfNull(task7);
+        ArgumentNullException.ThrowIfNull(task8);
+        ArgumentNullException.ThrowIfNull(task9);
+        ArgumentNullException.ThrowIfNull(task10);
+        ArgumentNullException.ThrowIfNull(task11);
+        ArgumentNullException.ThrowIfNull(task12);
 
         return WhenAllCore(
             task1,
@@ -757,32 +681,19 @@ public static class TaskUtilities
     /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/>, <paramref name="task12"/>, <paramref name="task13"/> is <c>null</c>.</exception>
     public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12, Task<T13> task13)
     {
-        if (task1 == null)
-            throw new ArgumentNullException(nameof(task1));
-        if (task2 == null)
-            throw new ArgumentNullException(nameof(task2));
-        if (task3 == null)
-            throw new ArgumentNullException(nameof(task3));
-        if (task4 == null)
-            throw new ArgumentNullException(nameof(task4));
-        if (task5 == null)
-            throw new ArgumentNullException(nameof(task5));
-        if (task6 == null)
-            throw new ArgumentNullException(nameof(task6));
-        if (task7 == null)
-            throw new ArgumentNullException(nameof(task7));
-        if (task8 == null)
-            throw new ArgumentNullException(nameof(task8));
-        if (task9 == null)
-            throw new ArgumentNullException(nameof(task9));
-        if (task10 == null)
-            throw new ArgumentNullException(nameof(task10));
-        if (task11 == null)
-            throw new ArgumentNullException(nameof(task11));
-        if (task12 == null)
-            throw new ArgumentNullException(nameof(task12));
-        if (task13 == null)
-            throw new ArgumentNullException(nameof(task13));
+        ArgumentNullException.ThrowIfNull(task1);
+        ArgumentNullException.ThrowIfNull(task2);
+        ArgumentNullException.ThrowIfNull(task3);
+        ArgumentNullException.ThrowIfNull(task4);
+        ArgumentNullException.ThrowIfNull(task5);
+        ArgumentNullException.ThrowIfNull(task6);
+        ArgumentNullException.ThrowIfNull(task7);
+        ArgumentNullException.ThrowIfNull(task8);
+        ArgumentNullException.ThrowIfNull(task9);
+        ArgumentNullException.ThrowIfNull(task10);
+        ArgumentNullException.ThrowIfNull(task11);
+        ArgumentNullException.ThrowIfNull(task12);
+        ArgumentNullException.ThrowIfNull(task13);
 
         return WhenAllCore(
             task1,
@@ -860,34 +771,20 @@ public static class TaskUtilities
     /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/>, <paramref name="task12"/>, <paramref name="task13"/>, <paramref name="task14"/> is <c>null</c>.</exception>
     public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12, Task<T13> task13, Task<T14> task14)
     {
-        if (task1 == null)
-            throw new ArgumentNullException(nameof(task1));
-        if (task2 == null)
-            throw new ArgumentNullException(nameof(task2));
-        if (task3 == null)
-            throw new ArgumentNullException(nameof(task3));
-        if (task4 == null)
-            throw new ArgumentNullException(nameof(task4));
-        if (task5 == null)
-            throw new ArgumentNullException(nameof(task5));
-        if (task6 == null)
-            throw new ArgumentNullException(nameof(task6));
-        if (task7 == null)
-            throw new ArgumentNullException(nameof(task7));
-        if (task8 == null)
-            throw new ArgumentNullException(nameof(task8));
-        if (task9 == null)
-            throw new ArgumentNullException(nameof(task9));
-        if (task10 == null)
-            throw new ArgumentNullException(nameof(task10));
-        if (task11 == null)
-            throw new ArgumentNullException(nameof(task11));
-        if (task12 == null)
-            throw new ArgumentNullException(nameof(task12));
-        if (task13 == null)
-            throw new ArgumentNullException(nameof(task13));
-        if (task14 == null)
-            throw new ArgumentNullException(nameof(task14));
+        ArgumentNullException.ThrowIfNull(task1);
+        ArgumentNullException.ThrowIfNull(task2);
+        ArgumentNullException.ThrowIfNull(task3);
+        ArgumentNullException.ThrowIfNull(task4);
+        ArgumentNullException.ThrowIfNull(task5);
+        ArgumentNullException.ThrowIfNull(task6);
+        ArgumentNullException.ThrowIfNull(task7);
+        ArgumentNullException.ThrowIfNull(task8);
+        ArgumentNullException.ThrowIfNull(task9);
+        ArgumentNullException.ThrowIfNull(task10);
+        ArgumentNullException.ThrowIfNull(task11);
+        ArgumentNullException.ThrowIfNull(task12);
+        ArgumentNullException.ThrowIfNull(task13);
+        ArgumentNullException.ThrowIfNull(task14);
 
         return WhenAllCore(
             task1,
@@ -969,36 +866,21 @@ public static class TaskUtilities
     /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/>, <paramref name="task12"/>, <paramref name="task13"/>, <paramref name="task14"/>, <paramref name="task15"/> is <c>null</c>.</exception>
     public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12, Task<T13> task13, Task<T14> task14, Task<T15> task15)
     {
-        if (task1 == null)
-            throw new ArgumentNullException(nameof(task1));
-        if (task2 == null)
-            throw new ArgumentNullException(nameof(task2));
-        if (task3 == null)
-            throw new ArgumentNullException(nameof(task3));
-        if (task4 == null)
-            throw new ArgumentNullException(nameof(task4));
-        if (task5 == null)
-            throw new ArgumentNullException(nameof(task5));
-        if (task6 == null)
-            throw new ArgumentNullException(nameof(task6));
-        if (task7 == null)
-            throw new ArgumentNullException(nameof(task7));
-        if (task8 == null)
-            throw new ArgumentNullException(nameof(task8));
-        if (task9 == null)
-            throw new ArgumentNullException(nameof(task9));
-        if (task10 == null)
-            throw new ArgumentNullException(nameof(task10));
-        if (task11 == null)
-            throw new ArgumentNullException(nameof(task11));
-        if (task12 == null)
-            throw new ArgumentNullException(nameof(task12));
-        if (task13 == null)
-            throw new ArgumentNullException(nameof(task13));
-        if (task14 == null)
-            throw new ArgumentNullException(nameof(task14));
-        if (task15 == null)
-            throw new ArgumentNullException(nameof(task15));
+        ArgumentNullException.ThrowIfNull(task1);
+        ArgumentNullException.ThrowIfNull(task2);
+        ArgumentNullException.ThrowIfNull(task3);
+        ArgumentNullException.ThrowIfNull(task4);
+        ArgumentNullException.ThrowIfNull(task5);
+        ArgumentNullException.ThrowIfNull(task6);
+        ArgumentNullException.ThrowIfNull(task7);
+        ArgumentNullException.ThrowIfNull(task8);
+        ArgumentNullException.ThrowIfNull(task9);
+        ArgumentNullException.ThrowIfNull(task10);
+        ArgumentNullException.ThrowIfNull(task11);
+        ArgumentNullException.ThrowIfNull(task12);
+        ArgumentNullException.ThrowIfNull(task13);
+        ArgumentNullException.ThrowIfNull(task14);
+        ArgumentNullException.ThrowIfNull(task15);
 
         return WhenAllCore(
             task1,
@@ -1084,38 +966,22 @@ public static class TaskUtilities
     /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/>, <paramref name="task12"/>, <paramref name="task13"/>, <paramref name="task14"/>, <paramref name="task15"/>, <paramref name="task16"/> is <c>null</c>.</exception>
     public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12, Task<T13> task13, Task<T14> task14, Task<T15> task15, Task<T16> task16)
     {
-        if (task1 == null)
-            throw new ArgumentNullException(nameof(task1));
-        if (task2 == null)
-            throw new ArgumentNullException(nameof(task2));
-        if (task3 == null)
-            throw new ArgumentNullException(nameof(task3));
-        if (task4 == null)
-            throw new ArgumentNullException(nameof(task4));
-        if (task5 == null)
-            throw new ArgumentNullException(nameof(task5));
-        if (task6 == null)
-            throw new ArgumentNullException(nameof(task6));
-        if (task7 == null)
-            throw new ArgumentNullException(nameof(task7));
-        if (task8 == null)
-            throw new ArgumentNullException(nameof(task8));
-        if (task9 == null)
-            throw new ArgumentNullException(nameof(task9));
-        if (task10 == null)
-            throw new ArgumentNullException(nameof(task10));
-        if (task11 == null)
-            throw new ArgumentNullException(nameof(task11));
-        if (task12 == null)
-            throw new ArgumentNullException(nameof(task12));
-        if (task13 == null)
-            throw new ArgumentNullException(nameof(task13));
-        if (task14 == null)
-            throw new ArgumentNullException(nameof(task14));
-        if (task15 == null)
-            throw new ArgumentNullException(nameof(task15));
-        if (task16 == null)
-            throw new ArgumentNullException(nameof(task16));
+        ArgumentNullException.ThrowIfNull(task1);
+        ArgumentNullException.ThrowIfNull(task2);
+        ArgumentNullException.ThrowIfNull(task3);
+        ArgumentNullException.ThrowIfNull(task4);
+        ArgumentNullException.ThrowIfNull(task5);
+        ArgumentNullException.ThrowIfNull(task6);
+        ArgumentNullException.ThrowIfNull(task7);
+        ArgumentNullException.ThrowIfNull(task8);
+        ArgumentNullException.ThrowIfNull(task9);
+        ArgumentNullException.ThrowIfNull(task10);
+        ArgumentNullException.ThrowIfNull(task11);
+        ArgumentNullException.ThrowIfNull(task12);
+        ArgumentNullException.ThrowIfNull(task13);
+        ArgumentNullException.ThrowIfNull(task14);
+        ArgumentNullException.ThrowIfNull(task15);
+        ArgumentNullException.ThrowIfNull(task16);
 
         return WhenAllCore(
             task1,

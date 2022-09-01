@@ -15,8 +15,7 @@ public static class DbConnectionFactoryExtensions
     /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>.</exception>
     public static IDbConnectionFactory AsCachingFactory(this IDbConnectionFactory connectionFactory)
     {
-        if (connectionFactory == null)
-            throw new ArgumentNullException(nameof(connectionFactory));
+        ArgumentNullException.ThrowIfNull(connectionFactory);
 
         return new CachingConnectionFactory(connectionFactory);
     }

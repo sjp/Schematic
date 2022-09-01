@@ -26,8 +26,7 @@ public sealed class EmptyDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
     {
-        if (routineName == null)
-            throw new ArgumentNullException(nameof(routineName));
+        ArgumentNullException.ThrowIfNull(routineName);
 
         return OptionAsync<IDatabaseRoutine>.None;
     }

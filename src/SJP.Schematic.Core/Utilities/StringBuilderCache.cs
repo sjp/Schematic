@@ -48,8 +48,7 @@ public static class StringBuilderCache
     /// <exception cref="ArgumentNullException"><paramref name="builder"/> is <c>null</c>.</exception>
     public static string GetStringAndRelease(this StringBuilder builder)
     {
-        if (builder == null)
-            throw new ArgumentNullException(nameof(builder));
+        ArgumentNullException.ThrowIfNull(builder);
 
         var result = builder.ToString();
         Release(builder);

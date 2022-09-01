@@ -20,8 +20,7 @@ public static class DictionaryExtensions
     public static IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source)
         where TKey : notnull
     {
-        if (source == null)
-            throw new ArgumentNullException(nameof(source));
+        ArgumentNullException.ThrowIfNull(source);
 
         return source.ToDictionary(EqualityComparer<TKey>.Default);
     }
@@ -38,10 +37,8 @@ public static class DictionaryExtensions
     public static IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source, IEqualityComparer<TKey> comparer)
         where TKey : notnull
     {
-        if (source == null)
-            throw new ArgumentNullException(nameof(source));
-        if (comparer == null)
-            throw new ArgumentNullException(nameof(comparer));
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(comparer);
 
         return source.ToDictionary(static kv => kv.Key, static kv => kv.Value, comparer);
     }
@@ -57,8 +54,7 @@ public static class DictionaryExtensions
     public static IReadOnlyDictionary<TKey, TValue> ToReadOnlyDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source)
         where TKey : notnull
     {
-        if (source == null)
-            throw new ArgumentNullException(nameof(source));
+        ArgumentNullException.ThrowIfNull(source);
 
         return source.ToReadOnlyDictionary(EqualityComparer<TKey>.Default);
     }
@@ -75,10 +71,8 @@ public static class DictionaryExtensions
     public static IReadOnlyDictionary<TKey, TValue> ToReadOnlyDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source, IEqualityComparer<TKey> comparer)
         where TKey : notnull
     {
-        if (source == null)
-            throw new ArgumentNullException(nameof(source));
-        if (comparer == null)
-            throw new ArgumentNullException(nameof(comparer));
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(comparer);
 
         return source.ToDictionary(static kv => kv.Key, static kv => kv.Value, comparer);
     }

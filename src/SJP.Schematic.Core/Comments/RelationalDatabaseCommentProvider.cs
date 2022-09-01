@@ -125,8 +125,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseRoutineComments> GetRoutineComments(Identifier routineName, CancellationToken cancellationToken = default)
     {
-        if (routineName == null)
-            throw new ArgumentNullException(nameof(routineName));
+        ArgumentNullException.ThrowIfNull(routineName);
 
         var routineNames = IdentifierResolver
             .GetResolutionOrder(routineName)
@@ -153,8 +152,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseSequenceComments> GetSequenceComments(Identifier sequenceName, CancellationToken cancellationToken = default)
     {
-        if (sequenceName == null)
-            throw new ArgumentNullException(nameof(sequenceName));
+        ArgumentNullException.ThrowIfNull(sequenceName);
 
         var sequenceNames = IdentifierResolver
             .GetResolutionOrder(sequenceName)
@@ -181,8 +179,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseSynonymComments> GetSynonymComments(Identifier synonymName, CancellationToken cancellationToken = default)
     {
-        if (synonymName == null)
-            throw new ArgumentNullException(nameof(synonymName));
+        ArgumentNullException.ThrowIfNull(synonymName);
 
         var synonymNames = IdentifierResolver
             .GetResolutionOrder(synonymName)
@@ -209,8 +206,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     public OptionAsync<IRelationalDatabaseTableComments> GetTableComments(Identifier tableName, CancellationToken cancellationToken = default)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var tableNames = IdentifierResolver
             .GetResolutionOrder(tableName)
@@ -237,8 +233,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         var viewNames = IdentifierResolver
             .GetResolutionOrder(viewName)
@@ -264,8 +259,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <c>null</c>.</exception>
     protected Identifier QualifyObjectName(Identifier objectName)
     {
-        if (objectName == null)
-            throw new ArgumentNullException(nameof(objectName));
+        ArgumentNullException.ThrowIfNull(objectName);
 
         var schema = objectName.Schema ?? IdentifierDefaults.Schema;
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, objectName.LocalName);
@@ -282,12 +276,9 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// <exception cref="ArgumentNullException"><paramref name="databaseComments"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
     public static Task<IRelationalDatabaseCommentProvider> SnapshotAsync(IRelationalDatabaseCommentProvider databaseComments, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken = default)
     {
-        if (databaseComments == null)
-            throw new ArgumentNullException(nameof(databaseComments));
-        if (identifierDefaults == null)
-            throw new ArgumentNullException(nameof(identifierDefaults));
-        if (identifierResolver == null)
-            throw new ArgumentNullException(nameof(identifierResolver));
+        ArgumentNullException.ThrowIfNull(databaseComments);
+        ArgumentNullException.ThrowIfNull(identifierDefaults);
+        ArgumentNullException.ThrowIfNull(identifierResolver);
 
         return SnapshotAsyncCore(databaseComments, identifierDefaults, identifierResolver, cancellationToken);
     }

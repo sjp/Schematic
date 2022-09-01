@@ -26,8 +26,7 @@ public static class EnumerableExtensions
     /// <exception cref="ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
     public static bool Empty<T>(this IEnumerable<T> source)
     {
-        if (source == null)
-            throw new ArgumentNullException(nameof(source));
+        ArgumentNullException.ThrowIfNull(source);
 
         return !source.Any();
     }
@@ -51,8 +50,7 @@ public static class EnumerableExtensions
     /// <exception cref="ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
     public static bool AnyNull<T>(this IEnumerable<T> source) where T : notnull
     {
-        if (source == null)
-            throw new ArgumentNullException(nameof(source));
+        ArgumentNullException.ThrowIfNull(source);
 
         return source.Any(static x => x == null);
     }
@@ -70,10 +68,8 @@ public static class EnumerableExtensions
         where TKey : notnull
         where TValue : notnull
     {
-        if (source == null)
-            throw new ArgumentNullException(nameof(source));
-        if (keySelector == null)
-            throw new ArgumentNullException(nameof(keySelector));
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(keySelector);
 
         var dictionary = new Dictionary<TKey, List<TValue>>();
         foreach (var item in source)
@@ -103,10 +99,8 @@ public static class EnumerableExtensions
         where TKey : notnull
         where TValue : notnull
     {
-        if (source == null)
-            throw new ArgumentNullException(nameof(source));
-        if (keySelector == null)
-            throw new ArgumentNullException(nameof(keySelector));
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(keySelector);
 
         comparer ??= EqualityComparer<TKey>.Default;
 

@@ -28,8 +28,7 @@ public sealed class EmptyDatabaseSequenceCommentProvider : IDatabaseSequenceComm
     /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseSequenceComments> GetSequenceComments(Identifier sequenceName, CancellationToken cancellationToken = default)
     {
-        if (sequenceName == null)
-            throw new ArgumentNullException(nameof(sequenceName));
+        ArgumentNullException.ThrowIfNull(sequenceName);
 
         return OptionAsync<IDatabaseSequenceComments>.None;
     }

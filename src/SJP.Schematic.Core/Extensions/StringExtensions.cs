@@ -32,10 +32,8 @@ public static class StringExtensions
     /// <exception cref="ArgumentNullException"><paramref name="values"/> or <paramref name="separator"/> is <c>null</c></exception>
     public static string Join(this IEnumerable<string> values, string separator)
     {
-        if (values == null)
-            throw new ArgumentNullException(nameof(values));
-        if (separator == null)
-            throw new ArgumentNullException(nameof(separator));
+        ArgumentNullException.ThrowIfNull(values);
+        ArgumentNullException.ThrowIfNull(separator);
 
         return string.Join(separator, values);
     }

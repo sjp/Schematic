@@ -17,8 +17,7 @@ public static class RelationalDatabaseTableExtensions
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> GetCheckLookup(this IRelationalDatabaseTable table)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         var checks = table.Checks;
         var result = new Dictionary<Identifier, IDatabaseCheckConstraint>(checks.Count);
@@ -40,10 +39,8 @@ public static class RelationalDatabaseTableExtensions
     /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> GetCheckLookup(this IRelationalDatabaseTable table, IIdentifierResolutionStrategy identifierResolver)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (identifierResolver == null)
-            throw new ArgumentNullException(nameof(identifierResolver));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(identifierResolver);
 
         var lookup = GetCheckLookup(table);
         return new IdentifierResolvingDictionary<IDatabaseCheckConstraint>(lookup, identifierResolver);
@@ -57,8 +54,7 @@ public static class RelationalDatabaseTableExtensions
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(this IRelationalDatabaseTable table)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         var columns = table.Columns;
         var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
@@ -81,10 +77,8 @@ public static class RelationalDatabaseTableExtensions
     /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(this IRelationalDatabaseTable table, IIdentifierResolutionStrategy identifierResolver)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (identifierResolver == null)
-            throw new ArgumentNullException(nameof(identifierResolver));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(identifierResolver);
 
         var lookup = GetColumnLookup(table);
         return new IdentifierResolvingDictionary<IDatabaseColumn>(lookup, identifierResolver);
@@ -98,8 +92,7 @@ public static class RelationalDatabaseTableExtensions
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseIndex> GetIndexLookup(this IRelationalDatabaseTable table)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         var indexes = table.Indexes;
         var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count);
@@ -122,10 +115,8 @@ public static class RelationalDatabaseTableExtensions
     /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseIndex> GetIndexLookup(this IRelationalDatabaseTable table, IIdentifierResolutionStrategy identifierResolver)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (identifierResolver == null)
-            throw new ArgumentNullException(nameof(identifierResolver));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(identifierResolver);
 
         var lookup = GetIndexLookup(table);
         return new IdentifierResolvingDictionary<IDatabaseIndex>(lookup, identifierResolver);
@@ -139,8 +130,7 @@ public static class RelationalDatabaseTableExtensions
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> GetParentKeyLookup(this IRelationalDatabaseTable table)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         var parentKeys = table.ParentKeys;
         var result = new Dictionary<Identifier, IDatabaseRelationalKey>(parentKeys.Count);
@@ -162,10 +152,8 @@ public static class RelationalDatabaseTableExtensions
     /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> GetParentKeyLookup(this IRelationalDatabaseTable table, IIdentifierResolutionStrategy identifierResolver)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (identifierResolver == null)
-            throw new ArgumentNullException(nameof(identifierResolver));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(identifierResolver);
 
         var lookup = GetParentKeyLookup(table);
         return new IdentifierResolvingDictionary<IDatabaseRelationalKey>(lookup, identifierResolver);
@@ -179,8 +167,7 @@ public static class RelationalDatabaseTableExtensions
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseTrigger> GetTriggerLookup(this IRelationalDatabaseTable table)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         var triggers = table.Triggers;
         var result = new Dictionary<Identifier, IDatabaseTrigger>(triggers.Count);
@@ -203,10 +190,8 @@ public static class RelationalDatabaseTableExtensions
     /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseTrigger> GetTriggerLookup(this IRelationalDatabaseTable table, IIdentifierResolutionStrategy identifierResolver)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (identifierResolver == null)
-            throw new ArgumentNullException(nameof(identifierResolver));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(identifierResolver);
 
         var lookup = GetTriggerLookup(table);
         return new IdentifierResolvingDictionary<IDatabaseTrigger>(lookup, identifierResolver);
@@ -220,8 +205,7 @@ public static class RelationalDatabaseTableExtensions
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseKey> GetUniqueKeyLookup(this IRelationalDatabaseTable table)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         var uniqueKeys = table.UniqueKeys;
         var result = new Dictionary<Identifier, IDatabaseKey>(uniqueKeys.Count);
@@ -243,10 +227,8 @@ public static class RelationalDatabaseTableExtensions
     /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseKey> GetUniqueKeyLookup(this IRelationalDatabaseTable table, IIdentifierResolutionStrategy identifierResolver)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (identifierResolver == null)
-            throw new ArgumentNullException(nameof(identifierResolver));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(identifierResolver);
 
         var lookup = GetUniqueKeyLookup(table);
         return new IdentifierResolvingDictionary<IDatabaseKey>(lookup, identifierResolver);

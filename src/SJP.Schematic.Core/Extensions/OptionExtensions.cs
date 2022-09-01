@@ -20,8 +20,7 @@ public static class OptionExtensions
     /// <exception cref="ArgumentNullException"><paramref name="input"/> is <c>null</c>.</exception>
     public static Option<T> FirstSome<T>(this IEnumerable<Option<T>> input)
     {
-        if (input == null)
-            throw new ArgumentNullException(nameof(input));
+        ArgumentNullException.ThrowIfNull(input);
 
         return input.FirstOrDefault(static x => x.IsSome);
     }
@@ -35,8 +34,7 @@ public static class OptionExtensions
     /// <exception cref="ArgumentNullException"><paramref name="input"/> is <c>null</c>.</exception>
     public static OptionAsync<T> FirstSome<T>(this IEnumerable<OptionAsync<T>> input, CancellationToken cancellationToken = default)
     {
-        if (input == null)
-            throw new ArgumentNullException(nameof(input));
+        ArgumentNullException.ThrowIfNull(input);
 
         return FirstSomeAsyncCore(input, cancellationToken).ToAsync();
     }

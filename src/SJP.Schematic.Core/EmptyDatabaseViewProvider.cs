@@ -26,8 +26,7 @@ public sealed class EmptyDatabaseViewProvider : IDatabaseViewProvider
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         return OptionAsync<IDatabaseView>.None;
     }

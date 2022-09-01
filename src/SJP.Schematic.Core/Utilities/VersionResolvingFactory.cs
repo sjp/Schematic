@@ -21,8 +21,7 @@ public class VersionResolvingFactory<T> : IVersionedLookup<T>
     /// <exception cref="ArgumentException"><paramref name="lookup"/> is empty.</exception>
     public VersionResolvingFactory(IReadOnlyDictionary<Version, Func<T>> lookup)
     {
-        if (lookup == null)
-            throw new ArgumentNullException(nameof(lookup));
+        ArgumentNullException.ThrowIfNull(lookup);
         if (lookup.Empty())
             throw new ArgumentException("At least one value must be present in the given lookup.", nameof(lookup));
 
@@ -37,8 +36,7 @@ public class VersionResolvingFactory<T> : IVersionedLookup<T>
     /// <exception cref="ArgumentNullException"><paramref name="version"/> is <c>null</c>.</exception>
     public T GetValue(Version version)
     {
-        if (version == null)
-            throw new ArgumentNullException(nameof(version));
+        ArgumentNullException.ThrowIfNull(version);
 
         var versionKeys = _lookup.Keys.OrderBy(x => x).ToList();
         var firstVersion = versionKeys[0];

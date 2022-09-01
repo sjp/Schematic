@@ -30,8 +30,7 @@ public class DatabaseColumn : IDatabaseColumn
         Option<IAutoIncrement> autoIncrement
     )
     {
-        if (columnName == null)
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentNullException.ThrowIfNull(columnName);
 
         Name = columnName.LocalName;
         Type = type ?? throw new ArgumentNullException(nameof(type));

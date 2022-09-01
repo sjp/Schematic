@@ -26,8 +26,7 @@ public sealed class EmptyDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default)
     {
-        if (synonymName == null)
-            throw new ArgumentNullException(nameof(synonymName));
+        ArgumentNullException.ThrowIfNull(synonymName);
 
         return OptionAsync<IDatabaseSynonym>.None;
     }

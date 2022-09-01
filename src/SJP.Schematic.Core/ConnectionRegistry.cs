@@ -20,8 +20,7 @@ public static class ConnectionRegistry
     /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>.</exception>
     public static void RegisterConnection(Guid connectionId, IDbConnectionFactory connectionFactory)
     {
-        if (connectionFactory == null)
-            throw new ArgumentNullException(nameof(connectionFactory));
+        ArgumentNullException.ThrowIfNull(connectionFactory);
 
         ConnectionFactoryLookup.AddOrUpdate(
             connectionId,
@@ -43,8 +42,7 @@ public static class ConnectionRegistry
     /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>.</exception>
     public static bool TryGetConnectionId(IDbConnectionFactory connectionFactory, out Guid connectionId)
     {
-        if (connectionFactory == null)
-            throw new ArgumentNullException(nameof(connectionFactory));
+        ArgumentNullException.ThrowIfNull(connectionFactory);
 
         if (ConnectionIdLookup.TryGetValue(connectionFactory, out var guidStr)
             && Guid.TryParse(guidStr, out var lookupId))

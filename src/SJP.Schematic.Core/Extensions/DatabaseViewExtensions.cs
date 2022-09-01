@@ -17,8 +17,7 @@ public static class DatabaseViewExtensions
     /// <exception cref="ArgumentNullException"><paramref name="view"/> is <c>null</c>.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(this IDatabaseView view)
     {
-        if (view == null)
-            throw new ArgumentNullException(nameof(view));
+        ArgumentNullException.ThrowIfNull(view);
 
         var columns = view.Columns;
         var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
@@ -41,10 +40,8 @@ public static class DatabaseViewExtensions
     /// <exception cref="ArgumentNullException"><paramref name="view"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(this IDatabaseView view, IIdentifierResolutionStrategy identifierResolver)
     {
-        if (view == null)
-            throw new ArgumentNullException(nameof(view));
-        if (identifierResolver == null)
-            throw new ArgumentNullException(nameof(identifierResolver));
+        ArgumentNullException.ThrowIfNull(view);
+        ArgumentNullException.ThrowIfNull(identifierResolver);
 
         var lookup = GetColumnLookup(view);
         return new IdentifierResolvingDictionary<IDatabaseColumn>(lookup, identifierResolver);

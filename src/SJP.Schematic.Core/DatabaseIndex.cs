@@ -27,8 +27,7 @@ public class DatabaseIndex : IDatabaseIndex
     /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>. Alternatively if <paramref name="columns"/> or <paramref name="includedColumns"/> are <c>null</c> or contain <c>null</c> values.</exception>
     public DatabaseIndex(Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns, IReadOnlyCollection<IDatabaseColumn> includedColumns, bool isEnabled, Option<string> filterDefinition)
     {
-        if (name == null)
-            throw new ArgumentNullException(nameof(name));
+        ArgumentNullException.ThrowIfNull(name);
         if (columns.NullOrEmpty() || columns.AnyNull())
             throw new ArgumentNullException(nameof(columns));
         if (includedColumns.NullOrAnyNull())

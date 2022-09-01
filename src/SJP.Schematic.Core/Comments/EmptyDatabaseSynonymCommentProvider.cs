@@ -28,8 +28,7 @@ public sealed class EmptyDatabaseSynonymCommentProvider : IDatabaseSynonymCommen
     /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseSynonymComments> GetSynonymComments(Identifier synonymName, CancellationToken cancellationToken = default)
     {
-        if (synonymName == null)
-            throw new ArgumentNullException(nameof(synonymName));
+        ArgumentNullException.ThrowIfNull(synonymName);
 
         return OptionAsync<IDatabaseSynonymComments>.None;
     }

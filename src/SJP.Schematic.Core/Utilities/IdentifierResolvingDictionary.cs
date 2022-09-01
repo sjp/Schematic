@@ -52,8 +52,7 @@ public class IdentifierResolvingDictionary<TValue> : IReadOnlyDictionary<Identif
     {
         get
         {
-            if (key == null)
-                throw new ArgumentNullException(nameof(key));
+            ArgumentNullException.ThrowIfNull(key);
 
             if (TryGetValue(key, out var value))
                 return value;
@@ -70,8 +69,7 @@ public class IdentifierResolvingDictionary<TValue> : IReadOnlyDictionary<Identif
     /// <exception cref="ArgumentNullException">key</exception>
     public bool ContainsKey(Identifier key)
     {
-        if (key == null)
-            throw new ArgumentNullException(nameof(key));
+        ArgumentNullException.ThrowIfNull(key);
 
         var names = _identifierResolver.GetResolutionOrder(key);
         return names.Any(_dictionary.ContainsKey);
@@ -86,8 +84,7 @@ public class IdentifierResolvingDictionary<TValue> : IReadOnlyDictionary<Identif
     /// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
     public bool TryGetValue(Identifier key, [MaybeNullWhen(false)] out TValue value)
     {
-        if (key == null)
-            throw new ArgumentNullException(nameof(key));
+        ArgumentNullException.ThrowIfNull(key);
 
         var names = _identifierResolver.GetResolutionOrder(key);
         foreach (var name in names)

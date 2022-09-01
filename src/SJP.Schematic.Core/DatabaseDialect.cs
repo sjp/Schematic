@@ -21,8 +21,7 @@ public abstract class DatabaseDialect : IDatabaseDialect
     /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>.</exception>
     public virtual string QuoteName(Identifier name)
     {
-        if (name == null)
-            throw new ArgumentNullException(nameof(name));
+        ArgumentNullException.ThrowIfNull(name);
 
         var pieces = new List<string>();
 

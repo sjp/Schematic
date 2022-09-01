@@ -26,8 +26,7 @@ public class DatabaseTrigger : IDatabaseTrigger
     /// <exception cref="ArgumentException">If invalid enum values are provided for <paramref name="queryTiming"/> or <paramref name="events"/>. Additionally this will be thrown when provided a <paramref name="events"/> value of <see cref="TriggerEvent.None"/>.</exception>
     public DatabaseTrigger(Identifier name, string definition, TriggerQueryTiming queryTiming, TriggerEvent events, bool isEnabled)
     {
-        if (name == null)
-            throw new ArgumentNullException(nameof(name));
+        ArgumentNullException.ThrowIfNull(name);
         if (definition.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(definition));
         if (!queryTiming.IsValid())

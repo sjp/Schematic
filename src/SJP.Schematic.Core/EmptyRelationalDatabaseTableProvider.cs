@@ -26,8 +26,7 @@ public sealed class EmptyRelationalDatabaseTableProvider : IRelationalDatabaseTa
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         return OptionAsync<IRelationalDatabaseTable>.None;
     }

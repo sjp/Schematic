@@ -19,8 +19,7 @@ public class CycleDetector
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
     public IReadOnlyCollection<IReadOnlyCollection<Identifier>> GetCyclePaths(IEnumerable<IRelationalDatabaseTable> tables)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
+        ArgumentNullException.ThrowIfNull(tables);
         if (!tables.Any())
             return Array.Empty<IReadOnlyCollection<Identifier>>();
 
@@ -40,8 +39,7 @@ public class CycleDetector
 
     private IReadOnlyCollection<IReadOnlyCollection<Identifier>> GetCyclePaths(IVertexListGraph<Identifier, SEquatableEdge<Identifier>> graph)
     {
-        if (graph == null)
-            throw new ArgumentNullException(nameof(graph));
+        ArgumentNullException.ThrowIfNull(graph);
 
         var examinedEdges = new List<IEdge<Identifier>>();
         var cycles = new List<IReadOnlyCollection<Identifier>>();
@@ -94,20 +92,16 @@ public class CycleDetector
 
     private static bool ContainsCycle(IEnumerable<IReadOnlyCollection<Identifier>> existingCycles, IReadOnlyCollection<Identifier> newCycle)
     {
-        if (existingCycles == null)
-            throw new ArgumentNullException(nameof(existingCycles));
-        if (newCycle == null)
-            throw new ArgumentNullException(nameof(newCycle));
+        ArgumentNullException.ThrowIfNull(existingCycles);
+        ArgumentNullException.ThrowIfNull(newCycle);
 
         return existingCycles.Any(ec => CyclesEqual(ec, newCycle));
     }
 
     private static bool CyclesEqual(IReadOnlyCollection<Identifier> existingCycle, IReadOnlyCollection<Identifier> newCycle)
     {
-        if (existingCycle == null)
-            throw new ArgumentNullException(nameof(existingCycle));
-        if (newCycle == null)
-            throw new ArgumentNullException(nameof(newCycle));
+        ArgumentNullException.ThrowIfNull(existingCycle);
+        ArgumentNullException.ThrowIfNull(newCycle);
 
         var orderedExisting = existingCycle.OrderBy(static name => name).Distinct().ToList();
         var orderedNewCycle = newCycle.OrderBy(static name => name).Distinct().ToList();

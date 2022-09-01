@@ -36,10 +36,8 @@ public class AsyncCache<TKey, TValue, TCache>
     /// <remarks>This method guarantees that the factory method is only called once.</remarks>
     public Task<TValue> GetByKeyAsync(TKey key, TCache cache, CancellationToken cancellationToken = default)
     {
-        if (key == null)
-            throw new ArgumentNullException(nameof(key));
-        if (cache == null)
-            throw new ArgumentNullException(nameof(cache));
+        ArgumentNullException.ThrowIfNull(key);
+        ArgumentNullException.ThrowIfNull(cache);
 
         return _cache.GetOrAdd(
             key,

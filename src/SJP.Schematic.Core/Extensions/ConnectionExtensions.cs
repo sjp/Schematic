@@ -28,8 +28,7 @@ public static class ConnectionExtensions
     public static Task<IEnumerable<T>> QueryAsync<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
         where T : notnull
     {
-        if (connectionFactory == null)
-            throw new ArgumentNullException(nameof(connectionFactory));
+        ArgumentNullException.ThrowIfNull(connectionFactory);
         if (sql.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(sql));
 
@@ -60,12 +59,10 @@ public static class ConnectionExtensions
     public static Task<IEnumerable<T>> QueryAsync<T>(this IDbConnectionFactory connectionFactory, string sql, object parameters, CancellationToken cancellationToken)
         where T : notnull
     {
-        if (connectionFactory == null)
-            throw new ArgumentNullException(nameof(connectionFactory));
+        ArgumentNullException.ThrowIfNull(connectionFactory);
         if (sql.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(sql));
-        if (parameters == null)
-            throw new ArgumentNullException(nameof(parameters));
+        ArgumentNullException.ThrowIfNull(parameters);
 
         return QueryAsyncCore<T>(connectionFactory, sql, parameters, cancellationToken);
     }
@@ -93,8 +90,7 @@ public static class ConnectionExtensions
     /// <remarks>If the results contain more than one column or row, the value of the first column of the first row is taken.</remarks>
     public static Task<T> ExecuteScalarAsync<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
     {
-        if (connectionFactory == null)
-            throw new ArgumentNullException(nameof(connectionFactory));
+        ArgumentNullException.ThrowIfNull(connectionFactory);
         if (sql.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(sql));
 
@@ -125,12 +121,10 @@ public static class ConnectionExtensions
     /// <remarks>If the results contain more than one column or row, the value of the first column of the first row is taken.</remarks>
     public static Task<T> ExecuteScalarAsync<T>(this IDbConnectionFactory connectionFactory, string sql, object parameters, CancellationToken cancellationToken)
     {
-        if (connectionFactory == null)
-            throw new ArgumentNullException(nameof(connectionFactory));
+        ArgumentNullException.ThrowIfNull(connectionFactory);
         if (sql.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(sql));
-        if (parameters == null)
-            throw new ArgumentNullException(nameof(parameters));
+        ArgumentNullException.ThrowIfNull(parameters);
 
         return ExecuteScalarAsyncCore<T>(connectionFactory, sql, parameters, cancellationToken);
     }
@@ -156,8 +150,7 @@ public static class ConnectionExtensions
     /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>, or <paramref name="sql"/> is <c>null</c>, empty, or whitespace.</exception>
     public static Task<int> ExecuteAsync(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
     {
-        if (connectionFactory == null)
-            throw new ArgumentNullException(nameof(connectionFactory));
+        ArgumentNullException.ThrowIfNull(connectionFactory);
         if (sql.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(sql));
 
@@ -186,12 +179,10 @@ public static class ConnectionExtensions
     /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>, <paramref name="parameters"/> is <c>null</c>, or <paramref name="sql"/> is <c>null</c>, empty, or whitespace.</exception>
     public static Task<int> ExecuteAsync(this IDbConnectionFactory connectionFactory, string sql, object parameters, CancellationToken cancellationToken)
     {
-        if (connectionFactory == null)
-            throw new ArgumentNullException(nameof(connectionFactory));
+        ArgumentNullException.ThrowIfNull(connectionFactory);
         if (sql.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(sql));
-        if (parameters == null)
-            throw new ArgumentNullException(nameof(parameters));
+        ArgumentNullException.ThrowIfNull(parameters);
 
         return ExecuteAsyncCore(connectionFactory, sql, parameters, cancellationToken);
     }
@@ -220,8 +211,7 @@ public static class ConnectionExtensions
     public static OptionAsync<T> QueryFirstOrNone<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
         where T : notnull
     {
-        if (connectionFactory == null)
-            throw new ArgumentNullException(nameof(connectionFactory));
+        ArgumentNullException.ThrowIfNull(connectionFactory);
         if (sql.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(sql));
 
@@ -258,12 +248,10 @@ public static class ConnectionExtensions
     public static OptionAsync<T> QueryFirstOrNone<T>(this IDbConnectionFactory connectionFactory, string sql, object parameters, CancellationToken cancellationToken)
         where T : notnull
     {
-        if (connectionFactory == null)
-            throw new ArgumentNullException(nameof(connectionFactory));
+        ArgumentNullException.ThrowIfNull(connectionFactory);
         if (sql.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(sql));
-        if (parameters == null)
-            throw new ArgumentNullException(nameof(parameters));
+        ArgumentNullException.ThrowIfNull(parameters);
 
         return QueryFirstOrNoneAsyncCore<T>(connectionFactory, sql, parameters, cancellationToken).ToAsync();
     }
@@ -296,8 +284,7 @@ public static class ConnectionExtensions
     public static Task<T> QuerySingleAsync<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
         where T : notnull
     {
-        if (connectionFactory == null)
-            throw new ArgumentNullException(nameof(connectionFactory));
+        ArgumentNullException.ThrowIfNull(connectionFactory);
         if (sql.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(sql));
 
@@ -329,12 +316,10 @@ public static class ConnectionExtensions
     public static Task<T> QuerySingleAsync<T>(this IDbConnectionFactory connectionFactory, string sql, object parameters, CancellationToken cancellationToken)
         where T : notnull
     {
-        if (connectionFactory == null)
-            throw new ArgumentNullException(nameof(connectionFactory));
+        ArgumentNullException.ThrowIfNull(connectionFactory);
         if (sql.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(sql));
-        if (parameters == null)
-            throw new ArgumentNullException(nameof(parameters));
+        ArgumentNullException.ThrowIfNull(parameters);
 
         return QuerySingleAsyncCore<T>(connectionFactory, sql, parameters, cancellationToken);
     }
@@ -363,8 +348,7 @@ public static class ConnectionExtensions
     public static OptionAsync<T> QuerySingleOrNone<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
         where T : notnull
     {
-        if (connectionFactory == null)
-            throw new ArgumentNullException(nameof(connectionFactory));
+        ArgumentNullException.ThrowIfNull(connectionFactory);
         if (sql.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(sql));
 
@@ -407,12 +391,10 @@ public static class ConnectionExtensions
     public static OptionAsync<T> QuerySingleOrNone<T>(this IDbConnectionFactory connectionFactory, string sql, object parameters, CancellationToken cancellationToken)
         where T : notnull
     {
-        if (connectionFactory == null)
-            throw new ArgumentNullException(nameof(connectionFactory));
+        ArgumentNullException.ThrowIfNull(connectionFactory);
         if (sql.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(sql));
-        if (parameters == null)
-            throw new ArgumentNullException(nameof(parameters));
+        ArgumentNullException.ThrowIfNull(parameters);
 
         return QuerySingleOrNoneAsyncCore<T>(connectionFactory, sql, parameters, cancellationToken).ToAsync();
     }
@@ -455,8 +437,7 @@ public static class ConnectionExtensions
     {
         public ConnectionDisposer(IDbConnection connection, IDbConnectionFactory factory)
         {
-            if (factory == null)
-                throw new ArgumentNullException(nameof(factory));
+            ArgumentNullException.ThrowIfNull(factory);
 
             _connection = connection ?? throw new ArgumentNullException(nameof(connection));
             _shouldDispose = factory.DisposeConnection;
