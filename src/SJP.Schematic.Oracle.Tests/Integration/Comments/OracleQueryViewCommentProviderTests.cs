@@ -39,8 +39,7 @@ internal sealed class OracleQueryViewCommentProviderTests : OracleTest
 
     private Task<IDatabaseViewComments> GetViewCommentsAsync(Identifier viewName)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         return GetViewCommentsAsyncCore(viewName);
     }

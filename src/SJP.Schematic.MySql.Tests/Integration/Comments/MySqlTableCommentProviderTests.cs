@@ -41,8 +41,7 @@ CREATE TABLE table_comment_table_2
 
     private Task<IRelationalDatabaseTableComments> GetTableCommentsAsync(Identifier tableName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         return GetTableCommentsAsyncCore(tableName);
     }

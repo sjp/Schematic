@@ -27,8 +27,7 @@ internal sealed class FakeDatabaseDialect : IDatabaseDialect
 
     public string QuoteName(Identifier name)
     {
-        if (name == null)
-            throw new ArgumentNullException(nameof(name));
+        ArgumentNullException.ThrowIfNull(name);
 
         var pieces = new List<string>();
 

@@ -17,8 +17,7 @@ public static class EnumerableStringExtensions
     /// <exception cref="ArgumentNullException"><paramref name="namespaces"/> is <c>null</c>.</exception>
     public static IEnumerable<string> OrderNamespaces(this IEnumerable<string> namespaces)
     {
-        if (namespaces == null)
-            throw new ArgumentNullException(nameof(namespaces));
+        ArgumentNullException.ThrowIfNull(namespaces);
 
         var system = new List<string>();
         var nonSystem = new List<string>();

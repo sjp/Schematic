@@ -44,8 +44,7 @@ END;", CancellationToken.None).ConfigureAwait(false);
 
     private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)
     {
-        if (routineName == null)
-            throw new ArgumentNullException(nameof(routineName));
+        ArgumentNullException.ThrowIfNull(routineName);
 
         return GetRoutineAsyncCore(routineName);
     }

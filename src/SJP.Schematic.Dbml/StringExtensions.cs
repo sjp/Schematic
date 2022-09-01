@@ -8,18 +8,15 @@ internal static class StringExtensions
 {
     public static string RemoveQuotingCharacters(this string input)
     {
-        if (input == null)
-            throw new ArgumentNullException(nameof(input));
+        ArgumentNullException.ThrowIfNull(input);
 
         return RemoveCharacters(input, QuoteChars);
     }
 
     private static string RemoveCharacters(string input, IEnumerable<char> chars)
     {
-        if (input == null)
-            throw new ArgumentNullException(nameof(input));
-        if (chars == null)
-            throw new ArgumentNullException(nameof(chars));
+        ArgumentNullException.ThrowIfNull(input);
+        ArgumentNullException.ThrowIfNull(chars);
 
         var builder = StringBuilderCache.Acquire();
         builder.Append(input);

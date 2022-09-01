@@ -52,8 +52,7 @@ public class PocoViewGenerator : DatabaseViewGenerator
     /// <exception cref="ArgumentNullException"><paramref name="view"/> is <c>null</c>.</exception>
     public override string Generate(IDatabaseView view, Option<IDatabaseViewComments> comment)
     {
-        if (view == null)
-            throw new ArgumentNullException(nameof(view));
+        ArgumentNullException.ThrowIfNull(view);
 
         var schemaNamespace = NameTranslator.SchemaToNamespace(view.Name);
         var viewNamespace = !schemaNamespace.IsNullOrWhiteSpace()
@@ -89,8 +88,7 @@ public class PocoViewGenerator : DatabaseViewGenerator
 
     private RecordDeclarationSyntax BuildClass(IDatabaseView view, Option<IDatabaseViewComments> comment)
     {
-        if (view == null)
-            throw new ArgumentNullException(nameof(view));
+        ArgumentNullException.ThrowIfNull(view);
 
         var className = NameTranslator.ViewToClassName(view.Name);
         var properties = view.Columns
@@ -107,8 +105,7 @@ public class PocoViewGenerator : DatabaseViewGenerator
 
     private PropertyDeclarationSyntax BuildColumn(IDatabaseColumn column, Option<IDatabaseViewComments> comment, string className)
     {
-        if (column == null)
-            throw new ArgumentNullException(nameof(column));
+        ArgumentNullException.ThrowIfNull(column);
         if (className.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(className));
 
@@ -146,8 +143,7 @@ public class PocoViewGenerator : DatabaseViewGenerator
 
     private static SyntaxTriviaList BuildViewComment(Identifier viewName, Option<IDatabaseViewComments> comment)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         return comment
             .Bind(static c => c.Comment)
@@ -164,8 +160,7 @@ public class PocoViewGenerator : DatabaseViewGenerator
 
     private static SyntaxTriviaList BuildColumnComment(Identifier columnName, Option<IDatabaseViewComments> comment)
     {
-        if (columnName == null)
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentNullException.ThrowIfNull(columnName);
 
         return comment
             .Bind(c => c.ColumnComments.TryGetValue(columnName, out var cc) ? cc : Option<string>.None)

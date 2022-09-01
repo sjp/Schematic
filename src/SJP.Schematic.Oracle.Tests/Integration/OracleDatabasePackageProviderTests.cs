@@ -45,8 +45,7 @@ END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
 
     private Task<IOracleDatabasePackage> GetPackageAsync(Identifier packageName)
     {
-        if (packageName == null)
-            throw new ArgumentNullException(nameof(packageName));
+        ArgumentNullException.ThrowIfNull(packageName);
 
         return GetPackageAsyncCore(packageName);
     }

@@ -115,8 +115,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
     private Task<IRelationalDatabaseTableComments> GetTableCommentsAsync(Identifier tableName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         return GetTableCommentsAsyncCore(tableName);
     }

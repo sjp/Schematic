@@ -54,10 +54,8 @@ public class PocoTableGenerator : DatabaseTableGenerator
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> or <paramref name="table"/> is <c>null</c>.</exception>
     public override string Generate(IReadOnlyCollection<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(tables);
+        ArgumentNullException.ThrowIfNull(table);
 
         var schemaNamespace = NameTranslator.SchemaToNamespace(table.Name);
         var tableNamespace = !schemaNamespace.IsNullOrWhiteSpace()
@@ -93,8 +91,7 @@ public class PocoTableGenerator : DatabaseTableGenerator
 
     private RecordDeclarationSyntax BuildClass(IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         var className = NameTranslator.TableToClassName(table.Name);
         var properties = table.Columns
@@ -111,8 +108,7 @@ public class PocoTableGenerator : DatabaseTableGenerator
 
     private PropertyDeclarationSyntax BuildColumn(IDatabaseColumn column, Option<IRelationalDatabaseTableComments> comment, string className)
     {
-        if (column == null)
-            throw new ArgumentNullException(nameof(column));
+        ArgumentNullException.ThrowIfNull(column);
         if (className.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(className));
 
@@ -150,8 +146,7 @@ public class PocoTableGenerator : DatabaseTableGenerator
 
     private static SyntaxTriviaList BuildTableComment(Identifier tableName, Option<IRelationalDatabaseTableComments> comment)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         return comment
             .Bind(static c => c.Comment)
@@ -168,8 +163,7 @@ public class PocoTableGenerator : DatabaseTableGenerator
 
     private static SyntaxTriviaList BuildColumnComment(Identifier columnName, Option<IRelationalDatabaseTableComments> comment)
     {
-        if (columnName == null)
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentNullException.ThrowIfNull(columnName);
 
         return comment
             .Bind(c => c.ColumnComments.TryGetValue(columnName, out var cc) ? cc : Option<string>.None)

@@ -39,8 +39,7 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
 
     private Task<IDatabaseView> GetViewAsync(Identifier viewName)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         lock (_lock)
         {

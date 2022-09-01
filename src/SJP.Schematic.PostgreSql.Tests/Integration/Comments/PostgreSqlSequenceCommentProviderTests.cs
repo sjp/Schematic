@@ -35,8 +35,7 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
 
     private Task<IDatabaseSequenceComments> GetSequenceCommentsAsync(Identifier sequenceName)
     {
-        if (sequenceName == null)
-            throw new ArgumentNullException(nameof(sequenceName));
+        ArgumentNullException.ThrowIfNull(sequenceName);
 
         return GetSequenceCommentsAsyncCore(sequenceName);
     }

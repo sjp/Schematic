@@ -8,8 +8,7 @@ internal static class IdentifierExtensions
 {
     public static string ToVisibleName(this Identifier identifier)
     {
-        if (identifier == null)
-            throw new ArgumentNullException(nameof(identifier));
+        ArgumentNullException.ThrowIfNull(identifier);
 
         var builder = StringBuilderCache.Acquire();
 

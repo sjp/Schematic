@@ -92,8 +92,7 @@ public sealed class LineEndingInvariantStringComparer : IEqualityComparer<string
     /// <exception cref="ArgumentNullException">obj</exception>
     public int GetHashCode([DisallowNull] string obj)
     {
-        if (obj == null)
-            throw new ArgumentNullException(nameof(obj));
+        ArgumentNullException.ThrowIfNull(obj);
 
         return _comparer.GetHashCode(NormalizeNewlines(obj));
     }

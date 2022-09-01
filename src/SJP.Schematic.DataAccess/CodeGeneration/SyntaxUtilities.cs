@@ -62,8 +62,7 @@ public static class SyntaxUtilities
     /// <exception cref="ArgumentNullException"><paramref name="comment"/> is <c>null</c>.</exception>
     public static SyntaxTriviaList BuildCommentTrivia(string comment)
     {
-        if (comment == null)
-            throw new ArgumentNullException(nameof(comment));
+        ArgumentNullException.ThrowIfNull(comment);
 
         var commentLines = GetLines(comment);
         var commentNodes = commentLines.Count > 1
@@ -88,8 +87,7 @@ public static class SyntaxUtilities
     /// <exception cref="ArgumentNullException"><paramref name="commentNodes"/> is <c>null</c>.</exception>
     public static SyntaxTriviaList BuildCommentTrivia(IEnumerable<XmlNodeSyntax> commentNodes)
     {
-        if (commentNodes == null)
-            throw new ArgumentNullException(nameof(commentNodes));
+        ArgumentNullException.ThrowIfNull(commentNodes);
 
         var commentsWithNewlines = new XmlNodeSyntax[] { XmlText(XmlNewline) }
             .Concat(commentNodes)
@@ -113,10 +111,8 @@ public static class SyntaxUtilities
     /// <exception cref="ArgumentNullException"><paramref name="commentNodes"/> or <paramref name="paramNodes"/> are <c>null</c>.</exception>
     public static SyntaxTriviaList BuildCommentTriviaWithParams(IEnumerable<XmlNodeSyntax> commentNodes, IReadOnlyDictionary<string, IEnumerable<XmlNodeSyntax>> paramNodes)
     {
-        if (commentNodes == null)
-            throw new ArgumentNullException(nameof(commentNodes));
-        if (paramNodes == null)
-            throw new ArgumentNullException(nameof(paramNodes));
+        ArgumentNullException.ThrowIfNull(commentNodes);
+        ArgumentNullException.ThrowIfNull(paramNodes);
 
         var commentsWithNewlines = new XmlNodeSyntax[] { XmlText(XmlNewline) }
             .Concat(commentNodes)
@@ -176,8 +172,7 @@ public static class SyntaxUtilities
 
     private static IReadOnlyCollection<string> GetLines(string comment)
     {
-        if (comment == null)
-            throw new ArgumentNullException(nameof(comment));
+        ArgumentNullException.ThrowIfNull(comment);
 
         return comment.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
     }

@@ -65,8 +65,7 @@ END
 
     private Task<IDatabaseRoutineComments> GetRoutineCommentsAsync(Identifier routineName)
     {
-        if (routineName == null)
-            throw new ArgumentNullException(nameof(routineName));
+        ArgumentNullException.ThrowIfNull(routineName);
 
         return GetRoutineCommentsAsyncCore(routineName);
     }

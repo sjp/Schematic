@@ -49,8 +49,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
     private Task<IDatabaseSynonymComments> GetSynonymCommentsAsync(Identifier synonymName)
     {
-        if (synonymName == null)
-            throw new ArgumentNullException(nameof(synonymName));
+        ArgumentNullException.ThrowIfNull(synonymName);
 
         return GetSynonymCommentsAsyncCore(synonymName);
     }

@@ -55,10 +55,8 @@ public abstract class DatabaseViewGenerator : IDatabaseViewGenerator
     /// <exception cref="ArgumentNullException"><paramref name="baseDirectory"/> or <paramref name="objectName"/> is <c>null</c>.</exception>
     public virtual IFileInfo GetFilePath(IDirectoryInfo baseDirectory, Identifier objectName)
     {
-        if (baseDirectory == null)
-            throw new ArgumentNullException(nameof(baseDirectory));
-        if (objectName == null)
-            throw new ArgumentNullException(nameof(objectName));
+        ArgumentNullException.ThrowIfNull(baseDirectory);
+        ArgumentNullException.ThrowIfNull(objectName);
 
         var paths = new List<string> { baseDirectory.FullName, "Views" };
         if (objectName.Schema != null)

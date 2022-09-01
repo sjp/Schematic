@@ -55,10 +55,8 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> or <paramref name="table"/> is <c>null</c>.</exception>
     public override string Generate(IReadOnlyCollection<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(tables);
+        ArgumentNullException.ThrowIfNull(table);
 
         var schemaNamespace = NameTranslator.SchemaToNamespace(table.Name);
         var tableNamespace = !schemaNamespace.IsNullOrWhiteSpace()
@@ -95,10 +93,8 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
 
     private RecordDeclarationSyntax BuildClass(IEnumerable<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(tables);
+        ArgumentNullException.ThrowIfNull(table);
 
         var className = NameTranslator.TableToClassName(table.Name);
         var properties = table.Columns
@@ -116,10 +112,8 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
 
     private PropertyDeclarationSyntax BuildColumn(IRelationalDatabaseTable table, IDatabaseColumn column, Option<IRelationalDatabaseTableComments> comment, string className)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (column == null)
-            throw new ArgumentNullException(nameof(column));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(column);
         if (className.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(className));
 
@@ -158,8 +152,7 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
 
     private static SyntaxTriviaList BuildTableComment(Identifier tableName, Option<IRelationalDatabaseTableComments> comment)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         return comment
             .Bind(c => c.Comment)
@@ -176,8 +169,7 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
 
     private static SyntaxTriviaList BuildColumnComment(Identifier columnName, Option<IRelationalDatabaseTableComments> comment)
     {
-        if (columnName == null)
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentNullException.ThrowIfNull(columnName);
 
         return comment
             .Bind(c => c.ColumnComments.TryGetValue(columnName, out var cc) ? cc : Option<string>.None)
@@ -194,8 +186,7 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
 
     private IEnumerable<AttributeListSyntax> BuildClassAttributes(IRelationalDatabaseTable table, string className)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
         if (className.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(className));
 
@@ -309,8 +300,7 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
 
     private IEnumerable<AttributeListSyntax> BuildColumnAttributes(IRelationalDatabaseTable table, IDatabaseColumn column, string propertyName)
     {
-        if (column == null)
-            throw new ArgumentNullException(nameof(column));
+        ArgumentNullException.ThrowIfNull(column);
         if (propertyName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(propertyName));
 
@@ -506,10 +496,8 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c> or <paramref name="column"/> is <c>null</c>.</exception>
     protected static bool ColumnIsPrimaryKey(IRelationalDatabaseTable table, IDatabaseColumn column)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (column == null)
-            throw new ArgumentNullException(nameof(column));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(column);
 
         return table.PrimaryKey
             .Where(pk => pk.Columns.Count == 1
@@ -526,10 +514,8 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c> or <paramref name="column"/> is <c>null</c>.</exception>
     protected static bool ColumnIsForeignKey(IRelationalDatabaseTable table, IDatabaseColumn column)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (column == null)
-            throw new ArgumentNullException(nameof(column));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(column);
 
         var foreignKeys = table.ParentKeys;
         if (foreignKeys.Empty())
@@ -561,10 +547,8 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
     /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="column"/> are <c>null</c>.</exception>
     protected static IDatabaseRelationalKey? ColumnRelationalKey(IRelationalDatabaseTable table, IDatabaseColumn column)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (column == null)
-            throw new ArgumentNullException(nameof(column));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(column);
 
         var foreignKeys = table.ParentKeys;
         if (foreignKeys.Empty())
@@ -596,8 +580,7 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c> or <paramref name="column"/> is <c>null</c>.</exception>
     protected static bool ColumnIsNonUniqueIndex(IRelationalDatabaseTable table, IDatabaseColumn column)
     {
-        if (column == null)
-            throw new ArgumentNullException(nameof(column));
+        ArgumentNullException.ThrowIfNull(column);
 
         var indexes = table.Indexes.Where(static i => !i.IsUnique).ToList();
         if (indexes.Empty())
@@ -631,10 +614,8 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c> or <paramref name="column"/> is <c>null</c>.</exception>
     protected static bool ColumnIsUniqueIndex(IRelationalDatabaseTable table, IDatabaseColumn column)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (column == null)
-            throw new ArgumentNullException(nameof(column));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(column);
 
         var indexes = table.Indexes.Where(static i => i.IsUnique).ToList();
         if (indexes.Empty())
@@ -668,10 +649,8 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c> or <paramref name="column"/> is <c>null</c>.</exception>
     protected static bool ColumnIsUniqueKey(IRelationalDatabaseTable table, IDatabaseColumn column)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (column == null)
-            throw new ArgumentNullException(nameof(column));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(column);
 
         var uniqueKeys = table.UniqueKeys;
         if (uniqueKeys.Empty())

@@ -17,8 +17,7 @@ public class PascalCaseNameTranslator : NameTranslator
     /// <returns><c>null</c> if <paramref name="objectName"/> does not contain a schema name or should not be used.</returns>
     public override string? SchemaToNamespace(Identifier objectName)
     {
-        if (objectName == null)
-            throw new ArgumentNullException(nameof(objectName));
+        ArgumentNullException.ThrowIfNull(objectName);
         if (objectName.Schema == null)
             return null;
 
@@ -33,8 +32,7 @@ public class PascalCaseNameTranslator : NameTranslator
     /// <returns>A class name.</returns>
     public override string TableToClassName(Identifier tableName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var tableIdentifier = CreateValidIdentifier(tableName.LocalName);
         return tableIdentifier.Pascalize();
@@ -47,8 +45,7 @@ public class PascalCaseNameTranslator : NameTranslator
     /// <returns>A class name.</returns>
     public override string ViewToClassName(Identifier viewName)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         var viewIdentifier = CreateValidIdentifier(viewName.LocalName);
         return viewIdentifier.Pascalize();

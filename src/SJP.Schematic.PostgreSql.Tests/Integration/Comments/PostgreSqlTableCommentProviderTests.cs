@@ -80,8 +80,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
 
     private Task<IRelationalDatabaseTableComments> GetTableCommentsAsync(Identifier tableName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         return GetTableCommentsAsyncCore(tableName);
     }

@@ -58,12 +58,9 @@ public class EFCoreDbContextBuilder
     /// <exception cref="ArgumentNullException"><paramref name="tables"/>, <paramref name="views"/>, or <paramref name="sequences"/> is <c>null</c>.</exception>
     public string Generate(IEnumerable<IRelationalDatabaseTable> tables, IEnumerable<IDatabaseView> views, IEnumerable<IDatabaseSequence> sequences)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
-        if (views == null)
-            throw new ArgumentNullException(nameof(views));
-        if (sequences == null)
-            throw new ArgumentNullException(nameof(sequences));
+        ArgumentNullException.ThrowIfNull(tables);
+        ArgumentNullException.ThrowIfNull(views);
+        ArgumentNullException.ThrowIfNull(sequences);
 
         var namespaceDeclaration = NamespaceDeclaration(ParseName(Namespace));
         var classDeclaration = BuildDbContext(tables, views, sequences);
@@ -107,12 +104,9 @@ public class EFCoreDbContextBuilder
 
     private ClassDeclarationSyntax BuildDbContext(IEnumerable<IRelationalDatabaseTable> tables, IEnumerable<IDatabaseView> views, IEnumerable<IDatabaseSequence> sequences)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
-        if (views == null)
-            throw new ArgumentNullException(nameof(views));
-        if (sequences == null)
-            throw new ArgumentNullException(nameof(sequences));
+        ArgumentNullException.ThrowIfNull(tables);
+        ArgumentNullException.ThrowIfNull(views);
+        ArgumentNullException.ThrowIfNull(sequences);
 
         const string className = "AppContext";
         var baseClass = BaseList(
@@ -136,8 +130,7 @@ public class EFCoreDbContextBuilder
 
     private PropertyDeclarationSyntax BuildTableDbSet(IRelationalDatabaseTable table)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         var schemaNamespace = NameTranslator.SchemaToNamespace(table.Name);
         var className = NameTranslator.TableToClassName(table.Name);
@@ -154,8 +147,7 @@ public class EFCoreDbContextBuilder
 
     private PropertyDeclarationSyntax BuildViewDbSet(IDatabaseView view)
     {
-        if (view == null)
-            throw new ArgumentNullException(nameof(view));
+        ArgumentNullException.ThrowIfNull(view);
 
         var schemaNamespace = NameTranslator.SchemaToNamespace(view.Name);
         var className = NameTranslator.ViewToClassName(view.Name);
@@ -212,12 +204,9 @@ public class EFCoreDbContextBuilder
 
     private MethodDeclarationSyntax BuildOnModelCreatingMethod(IEnumerable<IRelationalDatabaseTable> tables, IEnumerable<IDatabaseView> views, IEnumerable<IDatabaseSequence> sequences)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
-        if (views == null)
-            throw new ArgumentNullException(nameof(views));
-        if (sequences == null)
-            throw new ArgumentNullException(nameof(sequences));
+        ArgumentNullException.ThrowIfNull(tables);
+        ArgumentNullException.ThrowIfNull(views);
+        ArgumentNullException.ThrowIfNull(sequences);
 
         var tableConfigs = tables.SelectMany(BuildTableConfiguration);
         var viewConfigs = views.Select(BuildViewConfiguration);
@@ -244,8 +233,7 @@ public class EFCoreDbContextBuilder
 
     private IEnumerable<InvocationExpressionSyntax> BuildTableConfiguration(IRelationalDatabaseTable table)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         var columnExprs = table.Columns
             .Where(static c => c.IsComputed || c.DefaultValue.IsSome)
@@ -269,10 +257,8 @@ public class EFCoreDbContextBuilder
 
     private InvocationExpressionSyntax BuildTableColumnPropertyForBuilder(IRelationalDatabaseTable table, IDatabaseColumn column)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (column == null)
-            throw new ArgumentNullException(nameof(column));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(column);
 
         var schemaNamespace = NameTranslator.SchemaToNamespace(table.Name);
         var className = NameTranslator.TableToClassName(table.Name);
@@ -339,10 +325,8 @@ public class EFCoreDbContextBuilder
 
     private InvocationExpressionSyntax BuildTablePrimaryKeyForBuilder(IRelationalDatabaseTable table, IDatabaseKey primaryKey)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (primaryKey == null)
-            throw new ArgumentNullException(nameof(primaryKey));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(primaryKey);
 
         var schemaNamespace = NameTranslator.SchemaToNamespace(table.Name);
         var className = NameTranslator.TableToClassName(table.Name);
@@ -383,10 +367,8 @@ public class EFCoreDbContextBuilder
 
     private InvocationExpressionSyntax BuildTableIndexForBuilder(IRelationalDatabaseTable table, IDatabaseIndex index)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (index == null)
-            throw new ArgumentNullException(nameof(index));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(index);
 
         var columns = index.Columns.SelectMany(static c => c.DependentColumns).ToList();
         var schemaNamespace = NameTranslator.SchemaToNamespace(table.Name);
@@ -437,10 +419,8 @@ public class EFCoreDbContextBuilder
 
     private InvocationExpressionSyntax BuildTableUniqueKeyForBuilder(IRelationalDatabaseTable table, IDatabaseKey uniqueKey)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (uniqueKey == null)
-            throw new ArgumentNullException(nameof(uniqueKey));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(uniqueKey);
 
         var schemaNamespace = NameTranslator.SchemaToNamespace(table.Name);
         var className = NameTranslator.TableToClassName(table.Name);
@@ -481,10 +461,8 @@ public class EFCoreDbContextBuilder
 
     private InvocationExpressionSyntax BuildTableChildKeyForBuilder(IRelationalDatabaseTable table, IDatabaseRelationalKey relationalKey)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
-        if (relationalKey == null)
-            throw new ArgumentNullException(nameof(relationalKey));
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(relationalKey);
 
         var schemaNamespace = NameTranslator.SchemaToNamespace(table.Name);
         var className = NameTranslator.TableToClassName(table.Name);
@@ -576,8 +554,7 @@ public class EFCoreDbContextBuilder
 
     private SimpleLambdaExpressionSyntax GenerateColumnSet(string className, IEnumerable<IDatabaseColumn> columns, bool suppressNullable)
     {
-        if (columns == null)
-            throw new ArgumentNullException(nameof(columns));
+        ArgumentNullException.ThrowIfNull(columns);
 
         var columnsList = columns.ToList();
         if (columnsList.Count == 1)
@@ -637,8 +614,7 @@ public class EFCoreDbContextBuilder
 
     private string GetQualifiedClassName(Identifier objectName)
     {
-        if (objectName == null)
-            throw new ArgumentNullException(nameof(objectName));
+        ArgumentNullException.ThrowIfNull(objectName);
 
         var schemaNamespace = NameTranslator.SchemaToNamespace(objectName);
         var className = NameTranslator.ViewToClassName(objectName);
@@ -649,8 +625,7 @@ public class EFCoreDbContextBuilder
 
     private InvocationExpressionSyntax BuildViewConfiguration(IDatabaseView view)
     {
-        if (view == null)
-            throw new ArgumentNullException(nameof(view));
+        ArgumentNullException.ThrowIfNull(view);
 
         var qualifiedClassName = GetQualifiedClassName(view.Name);
         var entity = GetEntityBuilder(qualifiedClassName);
@@ -689,8 +664,7 @@ public class EFCoreDbContextBuilder
 
     private static InvocationExpressionSyntax BuildSequenceConfiguration(IDatabaseSequence sequence)
     {
-        if (sequence == null)
-            throw new ArgumentNullException(nameof(sequence));
+        ArgumentNullException.ThrowIfNull(sequence);
 
         var hasSequenceArgs = new List<ArgumentSyntax>
         {

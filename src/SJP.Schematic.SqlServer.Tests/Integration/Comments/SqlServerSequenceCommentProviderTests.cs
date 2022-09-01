@@ -47,8 +47,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
     private Task<IDatabaseSequenceComments> GetSequenceCommentsAsync(Identifier sequenceName)
     {
-        if (sequenceName == null)
-            throw new ArgumentNullException(nameof(sequenceName));
+        ArgumentNullException.ThrowIfNull(sequenceName);
 
         return GetSequenceCommentsAsyncCore(sequenceName);
     }

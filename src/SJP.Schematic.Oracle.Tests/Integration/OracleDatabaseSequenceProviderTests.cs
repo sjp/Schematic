@@ -49,8 +49,7 @@ internal sealed class OracleDatabaseSequenceProviderTests : OracleTest
 
     private Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)
     {
-        if (sequenceName == null)
-            throw new ArgumentNullException(nameof(sequenceName));
+        ArgumentNullException.ThrowIfNull(sequenceName);
 
         return GetSequenceAsyncCore(sequenceName);
     }

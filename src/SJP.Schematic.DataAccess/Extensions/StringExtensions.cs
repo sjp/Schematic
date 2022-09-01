@@ -20,8 +20,7 @@ public static class StringExtensions
     /// </summary>
     public static string Camelize(this string input)
     {
-        if (input == null)
-            throw new ArgumentNullException(nameof(input));
+        ArgumentNullException.ThrowIfNull(input);
 
         var word = input.Pascalize();
         return word.Length > 0 ? word[..1].ToLower(CultureInfo.InvariantCulture) + word[1..] : word;
@@ -32,8 +31,7 @@ public static class StringExtensions
     /// </summary>
     public static string Pascalize(this string input)
     {
-        if (input == null)
-            throw new ArgumentNullException(nameof(input));
+        ArgumentNullException.ThrowIfNull(input);
 
         return _pascalizeRegex.Replace(input, static match => match.Groups[1].Value.ToUpper(CultureInfo.InvariantCulture));
     }
@@ -44,8 +42,7 @@ public static class StringExtensions
     /// <param name="input">The string to be underscored</param>
     public static string Underscore(this string input)
     {
-        if (input == null)
-            throw new ArgumentNullException(nameof(input));
+        ArgumentNullException.ThrowIfNull(input);
 
         return _underscore3Regex.Replace(
             _underscore2Regex.Replace(_underscore1Regex.Replace(input, "$1_$2"), "$1_$2"),
@@ -59,8 +56,7 @@ public static class StringExtensions
     /// <param name="input">Word to be pluralized</param>
     public static string Pluralize(this string input)
     {
-        if (input == null)
-            throw new ArgumentNullException(nameof(input));
+        ArgumentNullException.ThrowIfNull(input);
 
         return input + "s"; // naive, but ok for our purposes
     }

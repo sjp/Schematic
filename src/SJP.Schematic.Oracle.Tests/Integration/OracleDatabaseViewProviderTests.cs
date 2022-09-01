@@ -37,8 +37,7 @@ internal sealed class OracleDatabaseViewProviderTests : OracleTest
 
     private Task<IDatabaseView> GetViewAsync(Identifier viewName)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         return GetViewAsyncCore(viewName);
     }

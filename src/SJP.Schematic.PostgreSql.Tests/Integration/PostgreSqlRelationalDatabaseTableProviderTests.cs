@@ -330,8 +330,7 @@ execute procedure test_trigger_fn()", CancellationToken.None).ConfigureAwait(fal
 
     private Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         return GetTableAsyncCore(tableName);
     }

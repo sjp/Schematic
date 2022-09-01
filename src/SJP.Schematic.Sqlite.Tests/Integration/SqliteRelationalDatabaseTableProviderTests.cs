@@ -324,8 +324,7 @@ end", CancellationToken.None).ConfigureAwait(false);
 
     private Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         return GetTableAsyncCore(tableName);
     }
