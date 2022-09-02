@@ -16,10 +16,8 @@ internal sealed class ForeignKeyColumnTypeMismatchRule : Schematic.Lint.Rules.Fo
 
     protected override IRuleMessage BuildMessage(Option<Identifier> foreignKeyName, Identifier childTableName, Identifier parentTableName)
     {
-        if (childTableName == null)
-            throw new ArgumentNullException(nameof(childTableName));
-        if (parentTableName == null)
-            throw new ArgumentNullException(nameof(parentTableName));
+        ArgumentNullException.ThrowIfNull(childTableName);
+        ArgumentNullException.ThrowIfNull(parentTableName);
 
         var builder = StringBuilderCache.Acquire();
         builder.Append("A foreign key");

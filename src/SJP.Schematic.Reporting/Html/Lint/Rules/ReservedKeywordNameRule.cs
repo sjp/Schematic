@@ -15,8 +15,7 @@ internal sealed class ReservedKeywordNameRule : Schematic.Lint.Rules.ReservedKey
 
     protected override IRuleMessage BuildTableMessage(Identifier tableName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var tableUrl = UrlRouter.GetTableUrl(tableName);
         var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
@@ -26,8 +25,7 @@ internal sealed class ReservedKeywordNameRule : Schematic.Lint.Rules.ReservedKey
 
     protected override IRuleMessage BuildTableColumnMessage(Identifier tableName, string columnName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
         if (columnName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(columnName));
 
@@ -39,8 +37,7 @@ internal sealed class ReservedKeywordNameRule : Schematic.Lint.Rules.ReservedKey
 
     protected override IRuleMessage BuildViewMessage(Identifier viewName)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         var viewUrl = UrlRouter.GetViewUrl(viewName);
         var viewLink = $"<a href=\"{ viewUrl }\">{ HttpUtility.HtmlEncode(viewName.ToVisibleName()) }</a>";
@@ -50,8 +47,7 @@ internal sealed class ReservedKeywordNameRule : Schematic.Lint.Rules.ReservedKey
 
     protected override IRuleMessage BuildViewColumnMessage(Identifier viewName, string columnName)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
         if (columnName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(columnName));
 
@@ -63,8 +59,7 @@ internal sealed class ReservedKeywordNameRule : Schematic.Lint.Rules.ReservedKey
 
     protected override IRuleMessage BuildSequenceMessage(Identifier sequenceName)
     {
-        if (sequenceName == null)
-            throw new ArgumentNullException(nameof(sequenceName));
+        ArgumentNullException.ThrowIfNull(sequenceName);
 
         var sequenceUrl = UrlRouter.GetSequenceUrl(sequenceName);
         var sequenceLink = $"<a href=\"{ sequenceUrl }\">{ HttpUtility.HtmlEncode(sequenceName.ToVisibleName()) }</a>";
@@ -74,8 +69,7 @@ internal sealed class ReservedKeywordNameRule : Schematic.Lint.Rules.ReservedKey
 
     protected override IRuleMessage BuildSynonymMessage(Identifier synonymName)
     {
-        if (synonymName == null)
-            throw new ArgumentNullException(nameof(synonymName));
+        ArgumentNullException.ThrowIfNull(synonymName);
 
         var synonymUrl = UrlRouter.GetSynonymUrl(synonymName);
         var synonymLink = $"<a href=\"{ synonymUrl }\">{ HttpUtility.HtmlEncode(synonymName.ToVisibleName()) }</a>";
@@ -85,8 +79,7 @@ internal sealed class ReservedKeywordNameRule : Schematic.Lint.Rules.ReservedKey
 
     protected override IRuleMessage BuildRoutineMessage(Identifier routineName)
     {
-        if (routineName == null)
-            throw new ArgumentNullException(nameof(routineName));
+        ArgumentNullException.ThrowIfNull(routineName);
 
         var routineUrl = UrlRouter.GetRoutineUrl(routineName);
         var routineLink = $"<a href=\"{ routineUrl }\">{ HttpUtility.HtmlEncode(routineName.ToVisibleName()) }</a>";

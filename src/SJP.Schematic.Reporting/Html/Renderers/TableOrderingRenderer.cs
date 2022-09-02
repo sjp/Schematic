@@ -85,8 +85,7 @@ internal sealed class TableOrderingRenderer : ITemplateRenderer
 
     private string BuildOrderDocument(IEnumerable<Identifier> tableNames)
     {
-        if (tableNames == null)
-            throw new ArgumentNullException(nameof(tableNames));
+        ArgumentNullException.ThrowIfNull(tableNames);
 
         var builder = StringBuilderCache.Acquire();
 

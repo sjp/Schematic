@@ -37,10 +37,8 @@ public class PostgreSqlRelationalDatabaseTableProvider : PostgreSqlRelationalDat
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
     protected override Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
-        if (queryCache == null)
-            throw new ArgumentNullException(nameof(queryCache));
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(queryCache);
 
         return LoadIndexesAsyncCore(tableName, queryCache, cancellationToken);
     }

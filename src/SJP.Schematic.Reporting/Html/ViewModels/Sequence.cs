@@ -21,8 +21,7 @@ public sealed class Sequence : ITemplateParameter
         string rootPath
     )
     {
-        if (sequenceName == null)
-            throw new ArgumentNullException(nameof(sequenceName));
+        ArgumentNullException.ThrowIfNull(sequenceName);
 
         Name = sequenceName.ToVisibleName();
         RootPath = rootPath ?? throw new ArgumentNullException(nameof(rootPath));

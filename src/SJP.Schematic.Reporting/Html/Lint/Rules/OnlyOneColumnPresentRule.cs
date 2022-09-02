@@ -14,8 +14,7 @@ internal sealed class OnlyOneColumnPresentRule : Schematic.Lint.Rules.OnlyOneCol
 
     protected override IRuleMessage BuildMessage(Identifier tableName, int columnCount)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var tableUrl = UrlRouter.GetTableUrl(tableName);
         var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";

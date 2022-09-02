@@ -14,8 +14,7 @@ internal sealed class InvalidViewDefinitionRule : Schematic.Lint.Rules.InvalidVi
 
     protected override IRuleMessage BuildMessage(Identifier viewName)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         var viewUrl = UrlRouter.GetViewUrl(viewName);
         var viewLink = $"<a href=\"{ viewUrl }\">{ HttpUtility.HtmlEncode(viewName.ToVisibleName()) }</a>";

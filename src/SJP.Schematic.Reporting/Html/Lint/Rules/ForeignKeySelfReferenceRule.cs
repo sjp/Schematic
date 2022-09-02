@@ -16,12 +16,9 @@ internal sealed class ForeignKeySelfReferenceRule : Schematic.Lint.Rules.Foreign
 
     protected override IRuleMessage BuildMessage(Identifier tableName, IDatabaseKey primaryKey, IDatabaseKey foreignKey)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
-        if (primaryKey == null)
-            throw new ArgumentNullException(nameof(primaryKey));
-        if (foreignKey == null)
-            throw new ArgumentNullException(nameof(foreignKey));
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(primaryKey);
+        ArgumentNullException.ThrowIfNull(foreignKey);
 
         var tableUrl = UrlRouter.GetTableUrl(tableName);
         var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";

@@ -18,8 +18,7 @@ internal sealed class RedundantIndexesRule : Schematic.Lint.Rules.RedundantIndex
 
     protected override IRuleMessage BuildMessage(Identifier tableName, string indexName, IEnumerable<string> redundantIndexColumnNames, string otherIndexName, IEnumerable<string> otherIndexColumnNames)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
         if (indexName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(indexName));
         if (redundantIndexColumnNames.NullOrEmpty())

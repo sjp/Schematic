@@ -14,8 +14,7 @@ internal sealed class PrimaryKeyNotIntegerRule : Schematic.Lint.Rules.PrimaryKey
 
     protected override IRuleMessage BuildMessage(Identifier tableName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var tableUrl = UrlRouter.GetTableUrl(tableName);
         var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";

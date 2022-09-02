@@ -17,8 +17,7 @@ internal sealed class ForeignKeyRelationshipCycleRule : Schematic.Lint.Rules.For
 
     protected override IRuleMessage BuildMessage(IReadOnlyCollection<Identifier> cyclePath)
     {
-        if (cyclePath == null)
-            throw new ArgumentNullException(nameof(cyclePath));
+        ArgumentNullException.ThrowIfNull(cyclePath);
 
         var tableNames = cyclePath
             .Select(static tableName =>

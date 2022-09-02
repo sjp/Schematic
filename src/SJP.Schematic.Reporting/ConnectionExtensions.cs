@@ -10,12 +10,9 @@ internal static class ConnectionExtensions
 {
     public static Task<ulong> GetRowCountAsync(this IDbConnectionFactory connection, IDatabaseDialect dialect, Identifier tableName, CancellationToken cancellationToken)
     {
-        if (connection == null)
-            throw new ArgumentNullException(nameof(connection));
-        if (dialect == null)
-            throw new ArgumentNullException(nameof(dialect));
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(connection);
+        ArgumentNullException.ThrowIfNull(dialect);
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var name = Identifier.CreateQualifiedIdentifier(tableName.Schema, tableName.LocalName);
         var quotedName = dialect.QuoteName(name);

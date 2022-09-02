@@ -69,8 +69,7 @@ public sealed class Constraints : ITemplateParameter
     {
         protected TableConstraint(Identifier tableName, string constraintName)
         {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
+            ArgumentNullException.ThrowIfNull(tableName);
 
             TableName = tableName.ToVisibleName();
             TableUrl = UrlRouter.GetTableUrl(tableName);
@@ -135,8 +134,7 @@ public sealed class Constraints : ITemplateParameter
         )
             : base(childTableName, childConstraintName)
         {
-            if (parentTableName == null)
-                throw new ArgumentNullException(nameof(parentTableName));
+            ArgumentNullException.ThrowIfNull(parentTableName);
             if (childColumnNames.NullOrEmpty())
                 throw new ArgumentNullException(nameof(childColumnNames));
             if (parentColumnNames.NullOrEmpty())

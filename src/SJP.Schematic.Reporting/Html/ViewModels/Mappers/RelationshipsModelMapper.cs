@@ -16,10 +16,8 @@ internal sealed class RelationshipsModelMapper
 
     public Relationships Map(IEnumerable<IRelationalDatabaseTable> tables, IReadOnlyDictionary<Identifier, ulong> rowCounts)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
-        if (rowCounts == null)
-            throw new ArgumentNullException(nameof(rowCounts));
+        ArgumentNullException.ThrowIfNull(tables);
+        ArgumentNullException.ThrowIfNull(rowCounts);
 
         var dotFormatter = new DotFormatter(IdentifierDefaults);
 

@@ -7,10 +7,8 @@ internal sealed class TriggerModelMapper
 {
     public Trigger Map(Identifier tableName, IDatabaseTrigger trigger)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
-        if (trigger == null)
-            throw new ArgumentNullException(nameof(trigger));
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(trigger);
 
         return new Trigger(
             tableName,

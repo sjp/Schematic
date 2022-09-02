@@ -78,8 +78,7 @@ public class PostgreSqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
     {
-        if (routineName == null)
-            throw new ArgumentNullException(nameof(routineName));
+        ArgumentNullException.ThrowIfNull(routineName);
 
         var candidateRoutineName = QualifyRoutineName(routineName);
         return LoadRoutine(candidateRoutineName, cancellationToken);
@@ -94,8 +93,7 @@ public class PostgreSqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
     protected OptionAsync<Identifier> GetResolvedRoutineName(Identifier routineName, CancellationToken cancellationToken = default)
     {
-        if (routineName == null)
-            throw new ArgumentNullException(nameof(routineName));
+        ArgumentNullException.ThrowIfNull(routineName);
 
         var resolvedNames = IdentifierResolver
             .GetResolutionOrder(routineName)
@@ -115,8 +113,7 @@ public class PostgreSqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
     protected OptionAsync<Identifier> GetResolvedRoutineNameStrict(Identifier routineName, CancellationToken cancellationToken)
     {
-        if (routineName == null)
-            throw new ArgumentNullException(nameof(routineName));
+        ArgumentNullException.ThrowIfNull(routineName);
 
         var candidateRoutineName = QualifyRoutineName(routineName);
         var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineName.Result>(
@@ -137,8 +134,7 @@ public class PostgreSqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
     protected virtual OptionAsync<IDatabaseRoutine> LoadRoutine(Identifier routineName, CancellationToken cancellationToken)
     {
-        if (routineName == null)
-            throw new ArgumentNullException(nameof(routineName));
+        ArgumentNullException.ThrowIfNull(routineName);
 
         var candidateRoutineName = QualifyRoutineName(routineName);
         return GetResolvedRoutineName(candidateRoutineName, cancellationToken)
@@ -160,8 +156,7 @@ public class PostgreSqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
     protected virtual Task<string> LoadDefinitionAsync(Identifier routineName, CancellationToken cancellationToken)
     {
-        if (routineName == null)
-            throw new ArgumentNullException(nameof(routineName));
+        ArgumentNullException.ThrowIfNull(routineName);
 
         return Connection.ExecuteScalarAsync<string>(
             GetRoutineDefinition.Sql,
@@ -178,8 +173,7 @@ public class PostgreSqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
     protected Identifier QualifyRoutineName(Identifier routineName)
     {
-        if (routineName == null)
-            throw new ArgumentNullException(nameof(routineName));
+        ArgumentNullException.ThrowIfNull(routineName);
 
         var schema = routineName.Schema ?? IdentifierDefaults.Schema;
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, routineName.LocalName);

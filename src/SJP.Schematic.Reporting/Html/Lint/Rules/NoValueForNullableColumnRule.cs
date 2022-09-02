@@ -15,8 +15,7 @@ internal sealed class NoValueForNullableColumnRule : Schematic.Lint.Rules.NoValu
 
     protected override IRuleMessage BuildMessage(Identifier tableName, string columnName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
         if (columnName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(columnName));
 

@@ -27,8 +27,7 @@ public class PostgreSqlDatabaseTrigger : IDatabaseTrigger
     /// <exception cref="ArgumentException"><paramref name="queryTiming"/> or <paramref name="events"/> is an invalid enum or has invalid values.</exception>
     public PostgreSqlDatabaseTrigger(Identifier name, string definition, TriggerQueryTiming queryTiming, TriggerEvent events, bool isEnabled)
     {
-        if (name == null)
-            throw new ArgumentNullException(nameof(name));
+        ArgumentNullException.ThrowIfNull(name);
         if (definition.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(definition));
         if (!queryTiming.IsValid())

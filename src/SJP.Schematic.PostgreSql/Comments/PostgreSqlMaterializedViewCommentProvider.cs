@@ -75,8 +75,7 @@ public class PostgreSqlMaterializedViewCommentProvider : IDatabaseViewCommentPro
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     protected OptionAsync<Identifier> GetResolvedViewName(Identifier viewName, CancellationToken cancellationToken)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         var resolvedNames = IdentifierResolver
             .GetResolutionOrder(viewName)
@@ -96,8 +95,7 @@ public class PostgreSqlMaterializedViewCommentProvider : IDatabaseViewCommentPro
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     protected OptionAsync<Identifier> GetResolvedViewNameStrict(Identifier viewName, CancellationToken cancellationToken)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         var candidateViewName = QualifyViewName(viewName);
         var qualifiedViewName = Connection.QueryFirstOrNone<GetMaterializedViewName.Result>(
@@ -118,8 +116,7 @@ public class PostgreSqlMaterializedViewCommentProvider : IDatabaseViewCommentPro
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         var candidateViewName = QualifyViewName(viewName);
         return LoadViewComments(candidateViewName, cancellationToken);
@@ -134,8 +131,7 @@ public class PostgreSqlMaterializedViewCommentProvider : IDatabaseViewCommentPro
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     protected virtual OptionAsync<IDatabaseViewComments> LoadViewComments(Identifier viewName, CancellationToken cancellationToken)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         var candidateViewName = QualifyViewName(viewName);
         return GetResolvedViewName(candidateViewName, cancellationToken)
@@ -165,8 +161,7 @@ public class PostgreSqlMaterializedViewCommentProvider : IDatabaseViewCommentPro
 
     private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
     {
-        if (commentsData == null)
-            throw new ArgumentNullException(nameof(commentsData));
+        ArgumentNullException.ThrowIfNull(commentsData);
         if (objectType.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(objectType));
 
@@ -178,8 +173,7 @@ public class PostgreSqlMaterializedViewCommentProvider : IDatabaseViewCommentPro
 
     private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IEnumerable<CommentData> commentsData, string objectType)
     {
-        if (commentsData == null)
-            throw new ArgumentNullException(nameof(commentsData));
+        ArgumentNullException.ThrowIfNull(commentsData);
         if (objectType.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(objectType));
 
@@ -200,8 +194,7 @@ public class PostgreSqlMaterializedViewCommentProvider : IDatabaseViewCommentPro
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
     protected Identifier QualifyViewName(Identifier viewName)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         var schema = viewName.Schema ?? IdentifierDefaults.Schema;
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, viewName.LocalName);

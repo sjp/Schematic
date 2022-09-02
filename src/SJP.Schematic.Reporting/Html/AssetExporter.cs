@@ -24,8 +24,7 @@ internal sealed class AssetExporter
 
     public Task SaveAssetsAsync(DirectoryInfo directory, bool overwrite = true, CancellationToken cancellationToken = default)
     {
-        if (directory == null)
-            throw new ArgumentNullException(nameof(directory));
+        ArgumentNullException.ThrowIfNull(directory);
 
         return SaveAssetsAsyncCore(directory, overwrite, cancellationToken);
     }

@@ -23,8 +23,7 @@ public class PostgreSqlCheckConstraint : IDatabaseCheckConstraint
     /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <c>null</c>, empty or whitespace.</exception>
     public PostgreSqlCheckConstraint(Identifier checkName, string definition)
     {
-        if (checkName == null)
-            throw new ArgumentNullException(nameof(checkName));
+        ArgumentNullException.ThrowIfNull(checkName);
         if (definition.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(definition));
 

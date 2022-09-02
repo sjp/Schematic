@@ -14,8 +14,7 @@ public sealed class Routine : ITemplateParameter
         string definition
     )
     {
-        if (routine == null)
-            throw new ArgumentNullException(nameof(routine));
+        ArgumentNullException.ThrowIfNull(routine);
 
         Name = routine.ToVisibleName();
         RoutineUrl = routine.ToSafeKey();

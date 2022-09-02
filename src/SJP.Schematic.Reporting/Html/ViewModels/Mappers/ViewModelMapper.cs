@@ -8,10 +8,8 @@ internal sealed class ViewModelMapper
 {
     public View Map(IDatabaseView view, ReferencedObjectTargets referencedObjectTargets)
     {
-        if (view == null)
-            throw new ArgumentNullException(nameof(view));
-        if (referencedObjectTargets == null)
-            throw new ArgumentNullException(nameof(referencedObjectTargets));
+        ArgumentNullException.ThrowIfNull(view);
+        ArgumentNullException.ThrowIfNull(referencedObjectTargets);
 
         const string rootPath = "../";
         var links = referencedObjectTargets.GetReferencedObjectLinks(rootPath, view.Name, view.Definition);

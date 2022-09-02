@@ -55,8 +55,7 @@ internal sealed class DisabledObjectsRule : Schematic.Lint.Rules.DisabledObjects
 
     protected override IRuleMessage BuildDisabledCheckConstraintMessage(Identifier tableName, Option<Identifier> checkName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var messageCheckName = checkName.Match(
             static name => " <code>" + HttpUtility.HtmlEncode(name.LocalName) + "</code>",
@@ -71,8 +70,7 @@ internal sealed class DisabledObjectsRule : Schematic.Lint.Rules.DisabledObjects
 
     protected override IRuleMessage BuildDisabledIndexMessage(Identifier tableName, string? indexName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var messageIndexName = !indexName.IsNullOrWhiteSpace()
             ? " <code>" + HttpUtility.HtmlEncode(indexName) + "</code>"
@@ -86,8 +84,7 @@ internal sealed class DisabledObjectsRule : Schematic.Lint.Rules.DisabledObjects
 
     protected override IRuleMessage BuildDisabledTriggerMessage(Identifier tableName, string? triggerName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         var messageTriggerName = !triggerName.IsNullOrWhiteSpace()
             ? " <code>" + HttpUtility.HtmlEncode(triggerName) + "</code>"

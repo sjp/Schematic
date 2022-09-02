@@ -31,8 +31,7 @@ public sealed class Orphans : ITemplateParameter
     {
         public Table(Identifier tableName, uint columnCount, ulong rowCount)
         {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
+            ArgumentNullException.ThrowIfNull(tableName);
 
             Name = tableName.ToVisibleName();
             TableUrl = UrlRouter.GetTableUrl(tableName);

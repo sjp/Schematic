@@ -20,10 +20,8 @@ public sealed class View : ITemplateParameter
         IEnumerable<HtmlString> referencedObjects
     )
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
-        if (referencedObjects == null)
-            throw new ArgumentNullException(nameof(referencedObjects));
+        ArgumentNullException.ThrowIfNull(viewName);
+        ArgumentNullException.ThrowIfNull(referencedObjects);
 
         Name = viewName.ToVisibleName();
         ViewUrl = viewName.ToSafeKey();

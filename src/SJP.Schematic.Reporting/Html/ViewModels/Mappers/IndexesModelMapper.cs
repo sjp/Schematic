@@ -8,10 +8,8 @@ internal sealed class IndexesModelMapper
 {
     public Indexes.Index Map(Identifier parent, IDatabaseIndex index)
     {
-        if (parent == null)
-            throw new ArgumentNullException(nameof(parent));
-        if (index == null)
-            throw new ArgumentNullException(nameof(index));
+        ArgumentNullException.ThrowIfNull(parent);
+        ArgumentNullException.ThrowIfNull(index);
 
         return new Indexes.Index(
             index.Name?.LocalName,

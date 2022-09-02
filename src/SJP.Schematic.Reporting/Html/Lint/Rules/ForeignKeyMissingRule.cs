@@ -18,10 +18,8 @@ internal sealed class ForeignKeyMissingRule : Schematic.Lint.Rules.ForeignKeyMis
     {
         if (columnName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(columnName));
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
-        if (targetTableName == null)
-            throw new ArgumentNullException(nameof(targetTableName));
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(targetTableName);
 
         var builder = StringBuilderCache.Acquire();
 

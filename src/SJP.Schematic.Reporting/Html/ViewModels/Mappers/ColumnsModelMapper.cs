@@ -9,8 +9,7 @@ internal sealed class ColumnsModelMapper
 {
     public IEnumerable<Columns.TableColumn> Map(IRelationalDatabaseTable table)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         var primaryKey = table.PrimaryKey;
         var uniqueKeys = table.UniqueKeys.ToList();
@@ -40,8 +39,7 @@ internal sealed class ColumnsModelMapper
 
     public IEnumerable<Columns.ViewColumn> Map(IDatabaseView view)
     {
-        if (view == null)
-            throw new ArgumentNullException(nameof(view));
+        ArgumentNullException.ThrowIfNull(view);
 
         var columns = view.Columns.ToList();
 

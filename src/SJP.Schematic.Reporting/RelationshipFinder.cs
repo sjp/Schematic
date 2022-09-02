@@ -9,8 +9,7 @@ internal sealed class RelationshipFinder
 {
     public RelationshipFinder(IEnumerable<IRelationalDatabaseTable> tables)
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
+        ArgumentNullException.ThrowIfNull(tables);
 
         var tableLookup = new Dictionary<Identifier, IRelationalDatabaseTable>();
         foreach (var table in tables)
@@ -23,8 +22,7 @@ internal sealed class RelationshipFinder
 
     public IEnumerable<IRelationalDatabaseTable> GetTablesByDegrees(IRelationalDatabaseTable table, uint degrees)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         var result = new Dictionary<Identifier, IRelationalDatabaseTable> { [table.Name] = table };
         AddRelatedTables(result, new[] { table }, degrees);

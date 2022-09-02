@@ -8,10 +8,8 @@ internal sealed class ConstraintsModelMapper
 {
     public Constraints.PrimaryKeyConstraint MapPrimaryKey(Identifier tableName, IDatabaseKey primaryKey)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
-        if (primaryKey == null)
-            throw new ArgumentNullException(nameof(primaryKey));
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(primaryKey);
 
         var pkConstraintName = primaryKey.Name.Match(static pkName => pkName.LocalName, static () => string.Empty);
         var columnNames = primaryKey.Columns.Select(static c => c.Name.LocalName).ToList();
@@ -25,10 +23,8 @@ internal sealed class ConstraintsModelMapper
 
     public Constraints.UniqueKey MapUniqueKey(Identifier tableName, IDatabaseKey uniqueKey)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
-        if (uniqueKey == null)
-            throw new ArgumentNullException(nameof(uniqueKey));
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(uniqueKey);
 
         var ukConstraintName = uniqueKey.Name.Match(static ukName => ukName.LocalName, static () => string.Empty);
         var columnNames = uniqueKey.Columns.Select(static c => c.Name.LocalName).ToList();
@@ -42,8 +38,7 @@ internal sealed class ConstraintsModelMapper
 
     public Constraints.ForeignKey MapForeignKey(IDatabaseRelationalKey foreignKey)
     {
-        if (foreignKey == null)
-            throw new ArgumentNullException(nameof(foreignKey));
+        ArgumentNullException.ThrowIfNull(foreignKey);
 
         var childKeyName = foreignKey.ChildKey.Name.Match(static fkName => fkName.LocalName, static () => string.Empty);
         var childColumnNames = foreignKey.ChildKey.Columns.Select(static c => c.Name.LocalName).ToList();
@@ -64,10 +59,8 @@ internal sealed class ConstraintsModelMapper
 
     public Constraints.CheckConstraint MapCheckConstraint(Identifier tableName, IDatabaseCheckConstraint check)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
-        if (check == null)
-            throw new ArgumentNullException(nameof(check));
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(check);
 
         var constraintName = check.Name.Match(static name => name.LocalName, static () => string.Empty);
 

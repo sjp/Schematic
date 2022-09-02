@@ -19,8 +19,7 @@ public class DefaultPostgreSqlIdentifierResolutionStrategy : IIdentifierResoluti
     /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <c>null</c>.</exception>
     public IEnumerable<Identifier> GetResolutionOrder(Identifier identifier)
     {
-        if (identifier == null)
-            throw new ArgumentNullException(nameof(identifier));
+        ArgumentNullException.ThrowIfNull(identifier);
 
         var localNames = GetResolutionOrder(identifier.LocalName);
 

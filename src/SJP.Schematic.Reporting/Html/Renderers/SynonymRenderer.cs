@@ -21,8 +21,7 @@ internal sealed class SynonymRenderer : ITemplateRenderer
         DirectoryInfo exportDirectory
     )
     {
-        if (exportDirectory == null)
-            throw new ArgumentNullException(nameof(exportDirectory));
+        ArgumentNullException.ThrowIfNull(exportDirectory);
 
         Synonyms = synonyms ?? throw new ArgumentNullException(nameof(synonyms));
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));

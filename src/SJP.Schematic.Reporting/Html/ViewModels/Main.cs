@@ -118,8 +118,7 @@ public sealed class Main : ITemplateParameter
             ulong rowCount
         )
         {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
+            ArgumentNullException.ThrowIfNull(tableName);
 
             Name = tableName.ToVisibleName();
             TableUrl = UrlRouter.GetTableUrl(tableName);
@@ -150,8 +149,7 @@ public sealed class Main : ITemplateParameter
     {
         public View(Identifier viewName, uint columnCount, bool isMaterialized)
         {
-            if (viewName == null)
-                throw new ArgumentNullException(nameof(viewName));
+            ArgumentNullException.ThrowIfNull(viewName);
 
             Name = viewName.ToVisibleName();
             ViewUrl = UrlRouter.GetViewUrl(viewName);
@@ -183,8 +181,7 @@ public sealed class Main : ITemplateParameter
             bool cycle
         )
         {
-            if (sequenceName == null)
-                throw new ArgumentNullException(nameof(sequenceName));
+            ArgumentNullException.ThrowIfNull(sequenceName);
 
             Name = sequenceName.ToVisibleName();
             SequenceUrl = UrlRouter.GetSequenceUrl(sequenceName);
@@ -221,10 +218,8 @@ public sealed class Main : ITemplateParameter
     {
         public Synonym(Identifier synonymName, Identifier target, Option<Uri> targetUrl)
         {
-            if (synonymName == null)
-                throw new ArgumentNullException(nameof(synonymName));
-            if (target == null)
-                throw new ArgumentNullException(nameof(target));
+            ArgumentNullException.ThrowIfNull(synonymName);
+            ArgumentNullException.ThrowIfNull(target);
 
             Name = synonymName.ToVisibleName();
             SynonymUrl = UrlRouter.GetSynonymUrl(synonymName);
@@ -250,8 +245,7 @@ public sealed class Main : ITemplateParameter
     {
         public Routine(Identifier routineName)
         {
-            if (routineName == null)
-                throw new ArgumentNullException(nameof(routineName));
+            ArgumentNullException.ThrowIfNull(routineName);
 
             Name = routineName.ToVisibleName();
             RoutineUrl = UrlRouter.GetRoutineUrl(routineName);

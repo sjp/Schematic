@@ -7,50 +7,43 @@ internal static class UrlRouter
 {
     public static string GetTableUrl(Identifier tableName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         return "tables/" + tableName.ToSafeKey() + ".html";
     }
 
     public static string GetViewUrl(Identifier viewName)
     {
-        if (viewName == null)
-            throw new ArgumentNullException(nameof(viewName));
+        ArgumentNullException.ThrowIfNull(viewName);
 
         return "views/" + viewName.ToSafeKey() + ".html";
     }
 
     public static string GetSequenceUrl(Identifier sequenceName)
     {
-        if (sequenceName == null)
-            throw new ArgumentNullException(nameof(sequenceName));
+        ArgumentNullException.ThrowIfNull(sequenceName);
 
         return "sequences/" + sequenceName.ToSafeKey() + ".html";
     }
 
     public static string GetSynonymUrl(Identifier synonymName)
     {
-        if (synonymName == null)
-            throw new ArgumentNullException(nameof(synonymName));
+        ArgumentNullException.ThrowIfNull(synonymName);
 
         return "synonyms/" + synonymName.ToSafeKey() + ".html";
     }
 
     public static string GetRoutineUrl(Identifier routineName)
     {
-        if (routineName == null)
-            throw new ArgumentNullException(nameof(routineName));
+        ArgumentNullException.ThrowIfNull(routineName);
 
         return "routines/" + routineName.ToSafeKey() + ".html";
     }
 
     public static string GetTriggerUrl(Identifier tableName, Identifier triggerName)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
-        if (triggerName == null)
-            throw new ArgumentNullException(nameof(triggerName));
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(triggerName);
 
         return "tables/"
             + tableName.ToSafeKey()

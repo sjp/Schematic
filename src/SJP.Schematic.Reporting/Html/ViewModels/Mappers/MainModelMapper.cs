@@ -9,8 +9,7 @@ internal sealed class MainModelMapper
 {
     public Main.Table Map(IRelationalDatabaseTable table, ulong rowCount)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         var parentKeyCount = table.ParentKeys.UCount();
         var childKeyCount = table.ChildKeys.UCount();
@@ -27,8 +26,7 @@ internal sealed class MainModelMapper
 
     public Main.View Map(IDatabaseView view)
     {
-        if (view == null)
-            throw new ArgumentNullException(nameof(view));
+        ArgumentNullException.ThrowIfNull(view);
 
         var columnCount = view.Columns.UCount();
         return new Main.View(view.Name, columnCount, view.IsMaterialized);
@@ -36,8 +34,7 @@ internal sealed class MainModelMapper
 
     public Main.Sequence Map(IDatabaseSequence sequence)
     {
-        if (sequence == null)
-            throw new ArgumentNullException(nameof(sequence));
+        ArgumentNullException.ThrowIfNull(sequence);
 
         return new Main.Sequence(
             sequence.Name,
@@ -52,10 +49,8 @@ internal sealed class MainModelMapper
 
     public Main.Synonym Map(IDatabaseSynonym synonym, SynonymTargets targets)
     {
-        if (synonym == null)
-            throw new ArgumentNullException(nameof(synonym));
-        if (targets == null)
-            throw new ArgumentNullException(nameof(targets));
+        ArgumentNullException.ThrowIfNull(synonym);
+        ArgumentNullException.ThrowIfNull(targets);
 
         var targetUrl = GetSynonymTargetUrl(synonym.Target, targets);
         return new Main.Synonym(synonym.Name, synonym.Target, targetUrl);
@@ -83,8 +78,7 @@ internal sealed class MainModelMapper
 
     public Main.Routine Map(IDatabaseRoutine routine)
     {
-        if (routine == null)
-            throw new ArgumentNullException(nameof(routine));
+        ArgumentNullException.ThrowIfNull(routine);
 
         return new Main.Routine(routine.Name);
     }

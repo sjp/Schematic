@@ -28,8 +28,7 @@ internal sealed class TableRenderer : ITemplateRenderer
         Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
         RowCounts = rowCounts ?? throw new ArgumentNullException(nameof(rowCounts));
 
-        if (exportDirectory == null)
-            throw new ArgumentNullException(nameof(exportDirectory));
+        ArgumentNullException.ThrowIfNull(exportDirectory);
 
         ExportDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "tables"));
     }

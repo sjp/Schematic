@@ -9,10 +9,8 @@ internal sealed class SynonymModelMapper
 {
     public Synonym Map(IDatabaseSynonym synonym, SynonymTargets targets)
     {
-        if (synonym == null)
-            throw new ArgumentNullException(nameof(synonym));
-        if (targets == null)
-            throw new ArgumentNullException(nameof(targets));
+        ArgumentNullException.ThrowIfNull(synonym);
+        ArgumentNullException.ThrowIfNull(targets);
 
         var targetUrl = GetSynonymTargetUrl(synonym.Target, targets);
         return new Synonym(synonym.Name, synonym.Target, targetUrl, "../");

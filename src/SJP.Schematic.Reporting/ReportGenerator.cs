@@ -92,18 +92,12 @@ public class ReportGenerator
         string databaseVersion
     )
     {
-        if (tables == null)
-            throw new ArgumentNullException(nameof(tables));
-        if (views == null)
-            throw new ArgumentNullException(nameof(views));
-        if (sequences == null)
-            throw new ArgumentNullException(nameof(sequences));
-        if (synonyms == null)
-            throw new ArgumentNullException(nameof(synonyms));
-        if (routines == null)
-            throw new ArgumentNullException(nameof(routines));
-        if (rowCounts == null)
-            throw new ArgumentNullException(nameof(rowCounts));
+        ArgumentNullException.ThrowIfNull(tables);
+        ArgumentNullException.ThrowIfNull(views);
+        ArgumentNullException.ThrowIfNull(sequences);
+        ArgumentNullException.ThrowIfNull(synonyms);
+        ArgumentNullException.ThrowIfNull(routines);
+        ArgumentNullException.ThrowIfNull(rowCounts);
 
         var ruleProvider = new ReportingRuleProvider();
         var rules = ruleProvider.GetRules(Connection, RuleLevel.Warning);

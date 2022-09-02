@@ -7,8 +7,7 @@ internal sealed class SequenceModelMapper
 {
     public Sequence Map(IDatabaseSequence sequence)
     {
-        if (sequence == null)
-            throw new ArgumentNullException(nameof(sequence));
+        ArgumentNullException.ThrowIfNull(sequence);
 
         return new Sequence(
             sequence.Name,

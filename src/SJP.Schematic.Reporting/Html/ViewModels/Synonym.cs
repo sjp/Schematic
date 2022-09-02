@@ -17,10 +17,8 @@ public sealed class Synonym : ITemplateParameter
         string rootPath
     )
     {
-        if (synonymName == null)
-            throw new ArgumentNullException(nameof(synonymName));
-        if (targetName == null)
-            throw new ArgumentNullException(nameof(targetName));
+        ArgumentNullException.ThrowIfNull(synonymName);
+        ArgumentNullException.ThrowIfNull(targetName);
 
         RootPath = rootPath ?? throw new ArgumentNullException(nameof(rootPath));
 

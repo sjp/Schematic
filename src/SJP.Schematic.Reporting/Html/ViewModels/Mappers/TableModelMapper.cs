@@ -29,8 +29,7 @@ internal sealed class TableModelMapper
 
     public Table Map(IRelationalDatabaseTable table)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         var tableColumns = table.Columns.Select(static (c, i) => new { Column = c, Ordinal = i + 1 }).ToList();
         var primaryKey = table.PrimaryKey;

@@ -26,8 +26,7 @@ internal sealed class ViewRenderer : ITemplateRenderer
         Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
         ReferencedObjectTargets = referencedObjectTargets ?? throw new ArgumentNullException(nameof(referencedObjectTargets));
 
-        if (exportDirectory == null)
-            throw new ArgumentNullException(nameof(exportDirectory));
+        ArgumentNullException.ThrowIfNull(exportDirectory);
 
         ExportDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "views"));
     }

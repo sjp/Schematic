@@ -16,8 +16,7 @@ internal sealed class ForeignKeyIsPrimaryKeyRule : Schematic.Lint.Rules.ForeignK
 
     protected override IRuleMessage BuildMessage(Option<Identifier> foreignKeyName, Identifier childTableName)
     {
-        if (childTableName == null)
-            throw new ArgumentNullException(nameof(childTableName));
+        ArgumentNullException.ThrowIfNull(childTableName);
 
         var builder = StringBuilderCache.Acquire();
         builder.Append("A foreign key");

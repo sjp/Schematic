@@ -8,8 +8,7 @@ internal static class XDocumentExtensions
 {
     public static void ReplaceTitlesWithTableNames(this XDocument document)
     {
-        if (document == null)
-            throw new ArgumentNullException(nameof(document));
+        ArgumentNullException.ThrowIfNull(document);
 
         var tableNodes = document.Descendants(GroupElement)
             .Where(g => string.Equals(g.Attribute(ClassAttribute)?.Value, NodeClass, StringComparison.Ordinal))

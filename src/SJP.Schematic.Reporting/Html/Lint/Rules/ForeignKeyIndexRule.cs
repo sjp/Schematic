@@ -19,8 +19,7 @@ internal sealed class ForeignKeyIndexRule : Schematic.Lint.Rules.ForeignKeyIndex
 
     protected override IRuleMessage BuildMessage(Option<Identifier> foreignKeyName, Identifier tableName, IEnumerable<string> columnNames)
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
         if (columnNames.NullOrEmpty())
             throw new ArgumentNullException(nameof(columnNames));
 

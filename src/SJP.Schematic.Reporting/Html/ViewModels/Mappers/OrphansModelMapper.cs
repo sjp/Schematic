@@ -7,8 +7,7 @@ internal sealed class OrphansModelMapper
 {
     public Orphans.Table Map(IRelationalDatabaseTable table, ulong rowCount)
     {
-        if (table == null)
-            throw new ArgumentNullException(nameof(table));
+        ArgumentNullException.ThrowIfNull(table);
 
         var columns = table.Columns;
         return new Orphans.Table(table.Name, columns.UCount(), rowCount);

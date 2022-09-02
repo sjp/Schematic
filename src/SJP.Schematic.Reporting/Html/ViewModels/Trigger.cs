@@ -21,10 +21,8 @@ public sealed class Trigger : ITemplateParameter
         TriggerEvent triggerEvent
     )
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
-        if (triggerName == null)
-            throw new ArgumentNullException(nameof(triggerName));
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(triggerName);
 
         Name = triggerName.ToVisibleName();
         TableName = tableName.ToVisibleName();

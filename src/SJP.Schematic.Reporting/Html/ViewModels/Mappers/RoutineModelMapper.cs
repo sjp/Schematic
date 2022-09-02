@@ -7,8 +7,7 @@ internal sealed class RoutineModelMapper
 {
     public Routine Map(IDatabaseRoutine routine)
     {
-        if (routine == null)
-            throw new ArgumentNullException(nameof(routine));
+        ArgumentNullException.ThrowIfNull(routine);
 
         return new Routine(routine.Name, "../", routine.Definition);
     }

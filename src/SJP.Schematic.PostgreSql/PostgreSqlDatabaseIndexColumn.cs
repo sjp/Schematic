@@ -49,8 +49,7 @@ public class PostgreSqlDatabaseIndexColumn : IDatabaseIndexColumn
     {
         if (expression.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(expression));
-        if (column == null)
-            throw new ArgumentNullException(nameof(column));
+        ArgumentNullException.ThrowIfNull(column);
         if (!order.IsValid())
             throw new ArgumentException($"The { nameof(IndexColumnOrder) } provided must be a valid enum.", nameof(order));
 

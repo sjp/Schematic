@@ -40,14 +40,12 @@ public sealed class Indexes : ITemplateParameter
             IEnumerable<string> includedColumnNames
         )
         {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
+            ArgumentNullException.ThrowIfNull(tableName);
             if (columnNames.NullOrEmpty())
                 throw new ArgumentNullException(nameof(columnNames));
             if (columnSorts.NullOrEmpty())
                 throw new ArgumentNullException(nameof(columnSorts));
-            if (includedColumnNames == null)
-                throw new ArgumentNullException(nameof(includedColumnNames));
+            ArgumentNullException.ThrowIfNull(includedColumnNames);
 
             Name = indexName ?? string.Empty;
             TableName = tableName.ToVisibleName();

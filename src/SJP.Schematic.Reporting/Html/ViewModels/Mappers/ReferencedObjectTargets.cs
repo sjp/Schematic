@@ -40,10 +40,8 @@ internal sealed class ReferencedObjectTargets
 
     public IReadOnlyCollection<HtmlString> GetReferencedObjectLinks(string rootPath, Identifier objectName, string expression)
     {
-        if (rootPath == null)
-            throw new ArgumentNullException(nameof(rootPath));
-        if (objectName == null)
-            throw new ArgumentNullException(nameof(objectName));
+        ArgumentNullException.ThrowIfNull(rootPath);
+        ArgumentNullException.ThrowIfNull(objectName);
         if (expression.IsNullOrWhiteSpace())
             return Array.Empty<HtmlString>();
 
@@ -74,12 +72,9 @@ internal sealed class ReferencedObjectTargets
 
     private IReadOnlyCollection<Link> GetReferenceTargetLinks(string rootPath, Identifier objectName, Identifier referenceName)
     {
-        if (rootPath == null)
-            throw new ArgumentNullException(nameof(rootPath));
-        if (objectName == null)
-            throw new ArgumentNullException(nameof(objectName));
-        if (referenceName == null)
-            throw new ArgumentNullException(nameof(referenceName));
+        ArgumentNullException.ThrowIfNull(rootPath);
+        ArgumentNullException.ThrowIfNull(objectName);
+        ArgumentNullException.ThrowIfNull(referenceName);
 
         var qualifiedReference = QualifyReferenceName(objectName, referenceName);
         var isSelfReference = string.Equals(objectName.Schema, qualifiedReference.Schema, StringComparison.OrdinalIgnoreCase)
@@ -123,10 +118,8 @@ internal sealed class ReferencedObjectTargets
 
     private static Identifier QualifyReferenceName(Identifier objectName, Identifier referenceName)
     {
-        if (objectName == null)
-            throw new ArgumentNullException(nameof(objectName));
-        if (referenceName == null)
-            throw new ArgumentNullException(nameof(referenceName));
+        ArgumentNullException.ThrowIfNull(objectName);
+        ArgumentNullException.ThrowIfNull(referenceName);
 
         return Identifier.CreateQualifiedIdentifier(
             referenceName.Server ?? objectName.Server,

@@ -89,8 +89,7 @@ public class PostgreSqlDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
     public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default)
     {
-        if (sequenceName == null)
-            throw new ArgumentNullException(nameof(sequenceName));
+        ArgumentNullException.ThrowIfNull(sequenceName);
 
         return _sequenceProvider.Task
             .ToAsync()

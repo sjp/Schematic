@@ -39,8 +39,7 @@ internal sealed class TemplateProvider : ITemplateProvider
 
     private static string GetResourceAsString(IFileInfo fileInfo)
     {
-        if (fileInfo == null)
-            throw new ArgumentNullException(nameof(fileInfo));
+        ArgumentNullException.ThrowIfNull(fileInfo);
 
         Stream? stream = null;
         try

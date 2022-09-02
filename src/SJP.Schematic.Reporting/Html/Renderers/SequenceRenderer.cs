@@ -24,8 +24,7 @@ internal sealed class SequenceRenderer : ITemplateRenderer
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
 
-        if (exportDirectory == null)
-            throw new ArgumentNullException(nameof(exportDirectory));
+        ArgumentNullException.ThrowIfNull(exportDirectory);
 
         ExportDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "sequences"));
     }

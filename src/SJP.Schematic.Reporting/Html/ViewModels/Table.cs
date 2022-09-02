@@ -27,8 +27,7 @@ public sealed class Table : ITemplateParameter
         ulong rowCount
     )
     {
-        if (tableName == null)
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentNullException.ThrowIfNull(tableName);
 
         Name = tableName.ToVisibleName();
         TableUrl = tableName.ToSafeKey();
@@ -294,16 +293,14 @@ public sealed class Table : ITemplateParameter
         {
             if (columnNames.NullOrEmpty())
                 throw new ArgumentNullException(nameof(columnNames));
-            if (parentTableName == null)
-                throw new ArgumentNullException(nameof(parentTableName));
+            ArgumentNullException.ThrowIfNull(parentTableName);
             if (parentColumnNames.NullOrEmpty())
                 throw new ArgumentNullException(nameof(parentColumnNames));
             if (!deleteAction.IsValid())
                 throw new ArgumentException($"The { nameof(ReferentialAction) } provided must be a valid enum.", nameof(deleteAction));
             if (!updateAction.IsValid())
                 throw new ArgumentException($"The { nameof(ReferentialAction) } provided must be a valid enum.", nameof(updateAction));
-            if (rootPath == null)
-                throw new ArgumentNullException(nameof(rootPath));
+            ArgumentNullException.ThrowIfNull(rootPath);
 
             ChildColumnNames = columnNames.Join(", ");
             ParentConstraintName = parentConstraintName;
@@ -408,10 +405,8 @@ public sealed class Table : ITemplateParameter
             TriggerEvent triggerEvent
         )
         {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
-            if (triggerName == null)
-                throw new ArgumentNullException(nameof(triggerName));
+            ArgumentNullException.ThrowIfNull(tableName);
+            ArgumentNullException.ThrowIfNull(triggerName);
             if (definition.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(definition));
 
@@ -465,14 +460,12 @@ public sealed class Table : ITemplateParameter
     {
         public ParentKey(string constraintName, Identifier parentTableName, string parentColumnName, string qualifiedChildColumnName, string rootPath)
         {
-            if (parentTableName == null)
-                throw new ArgumentNullException(nameof(parentTableName));
+            ArgumentNullException.ThrowIfNull(parentTableName);
             if (parentColumnName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(parentColumnName));
             if (qualifiedChildColumnName.IsNullOrWhiteSpace())
                 throw new ArgumentOutOfRangeException(nameof(qualifiedChildColumnName));
-            if (rootPath == null)
-                throw new ArgumentNullException(nameof(rootPath));
+            ArgumentNullException.ThrowIfNull(rootPath);
 
             ParentTableName = parentTableName.ToVisibleName();
             ParentTableUrl = rootPath + UrlRouter.GetTableUrl(parentTableName);
@@ -501,14 +494,12 @@ public sealed class Table : ITemplateParameter
     {
         public ChildKey(string constraintName, Identifier childTableName, string childColumnName, string qualifiedParentColumnName, string rootPath)
         {
-            if (childTableName == null)
-                throw new ArgumentNullException(nameof(childTableName));
+            ArgumentNullException.ThrowIfNull(childTableName);
             if (childColumnName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(childColumnName));
             if (qualifiedParentColumnName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(qualifiedParentColumnName));
-            if (rootPath == null)
-                throw new ArgumentNullException(nameof(rootPath));
+            ArgumentNullException.ThrowIfNull(rootPath);
 
             ChildTableName = childTableName.ToVisibleName();
             ChildTableUrl = rootPath + UrlRouter.GetTableUrl(childTableName);
@@ -537,8 +528,7 @@ public sealed class Table : ITemplateParameter
     {
         public Diagram(Identifier tableName, string diagramName, string dotDefinition, bool isActive)
         {
-            if (tableName == null)
-                throw new ArgumentNullException(nameof(tableName));
+            ArgumentNullException.ThrowIfNull(tableName);
 
             if (diagramName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(diagramName));

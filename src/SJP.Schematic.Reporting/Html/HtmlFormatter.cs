@@ -10,8 +10,7 @@ internal sealed class HtmlFormatter : IHtmlFormatter
 {
     public HtmlFormatter(ITemplateProvider templateProvider)
     {
-        if (templateProvider == null)
-            throw new ArgumentNullException(nameof(templateProvider));
+        ArgumentNullException.ThrowIfNull(templateProvider);
 
         var project = new ReportingRazorProject(templateProvider);
         _engine = new RazorLightEngineBuilder()
@@ -23,8 +22,7 @@ internal sealed class HtmlFormatter : IHtmlFormatter
 
     public Task<string> RenderTemplateAsync<T>(T templateParameter, CancellationToken cancellationToken = default) where T : ITemplateParameter
     {
-        if (templateParameter == null)
-            throw new ArgumentNullException(nameof(templateParameter));
+        ArgumentNullException.ThrowIfNull(templateParameter);
 
         var template = templateParameter.Template;
         if (!template.IsValid())
