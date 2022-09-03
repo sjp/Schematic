@@ -1,4 +1,4 @@
-name: Pack
+name: pack
 
 on:
   push:
@@ -21,6 +21,6 @@ jobs:
       run: dotnet restore
       working-directory: src
 
-    - name: Build
+    - name: Pack
       run: dotnet pack --configuration Release --no-restore
       working-directory: src
