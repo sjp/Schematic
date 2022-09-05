@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Microsoft.SqlServer.TransactSql.ScriptDom;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.SqlServer.Parsing;
-using Superpower.Model;
 
 namespace SJP.Schematic.SqlServer;
 
@@ -13,6 +13,8 @@ namespace SJP.Schematic.SqlServer;
 /// <seealso cref="IEqualityComparer{T}" />
 public sealed class SqlServerExpressionComparer : IEqualityComparer<string>
 {
+    private static readonly TSql150Parser _parser = new(true, SqlEngineType.All);
+
     /// <summary>
     /// Initializes a new instance of the <see cref="SqlServerExpressionComparer"/> class.
     /// </summary>
@@ -42,21 +44,27 @@ public sealed class SqlServerExpressionComparer : IEqualityComparer<string>
         if (x is null || y is null)
             return false;
 
-        var tokenizer = new SqlServerTokenizer();
+        using var xReader = new StringReader(x);
+        var xTokens = _parser.GetTokenStream(xReader, out var xErrors);
+        if (xErrors.Count > 0)
+        {
+            var parserErrorMessages = xErrors.Select(e => e.Message ?? string.Empty).Join(", ");
+            throw new ArgumentException($"Could not parse the given expression as a SQL expression. Given: {x}. Error: {parserErrorMessages}", nameof(x));
+        }
 
-        var xParseResult = tokenizer.TryTokenize(x);
-        if (!xParseResult.HasValue)
-            throw new ArgumentException($"Could not parse the '{ nameof(x) }' string as a SQL expression. Given: { x }", nameof(x));
+        using var yReader = new StringReader(y);
+        var yTokens = _parser.GetTokenStream(yReader, out var yErrors);
+        if (yErrors.Count > 0)
+        {
+            var parserErrorMessages = yErrors.Select(e => e.Message ?? string.Empty).Join(", ");
+            throw new ArgumentException($"Could not parse the given expression as a SQL expression. Given: {y}. Error: {parserErrorMessages}", nameof(y));
+        }
 
-        var yParseResult = tokenizer.TryTokenize(y);
-        if (!yParseResult.HasValue)
-            throw new ArgumentException($"Could not parse the '{ nameof(y) }' string as a SQL expression. Given: { y }", nameof(y));
+        var xWhitespaceRemoved = xTokens.Where(t => !IsWhitespace(t)).ToList();
+        var yWhitespaceRemoved = yTokens.Where(t => !IsWhitespace(t)).ToList();
 
-        var xTokens = xParseResult.Value.ToList();
-        var yTokens = yParseResult.Value.ToList();
-
-        var xCleanedTokens = StripWrappingParens(xTokens);
-        var yCleanedTokens = StripWrappingParens(yTokens);
+        var xCleanedTokens = StripWrappingParens(xWhitespaceRemoved);
+        var yCleanedTokens = StripWrappingParens(yWhitespaceRemoved);
 
         if (xCleanedTokens.Count != yCleanedTokens.Count)
             return false;
@@ -80,34 +88,40 @@ public sealed class SqlServerExpressionComparer : IEqualityComparer<string>
     /// <returns>A hash code for a SQL expression, suitable for use in hashing algorithms and data structures like a hash table.</returns>
     public int GetHashCode(string obj) => Comparer.GetHashCode(obj);
 
-    private bool TokensEqual(Token<SqlServerToken> x, Token<SqlServerToken> y)
+    private bool TokensEqual(TSqlParserToken x, TSqlParserToken y)
     {
-        if (x.Kind != y.Kind)
+        if (x.TokenType != y.TokenType)
             return false;
 
-        var comparer = x.Kind == SqlServerToken.String
+        var comparer = x.TokenType == TSqlTokenType.AsciiStringLiteral || x.TokenType == TSqlTokenType.UnicodeStringLiteral
             ? SqlStringComparer
             : Comparer;
 
-        var xString = x.ToStringValue();
-        var yString = y.ToStringValue();
+        var xString = x.Text;
+        var yString = y.Text;
 
         return comparer.Equals(xString, yString);
     }
 
-    private static IReadOnlyList<Token<SqlServerToken>> StripWrappingParens(IReadOnlyList<Token<SqlServerToken>> tokens)
+    private static bool IsWhitespace(TSqlParserToken token) => token.TokenType == TSqlTokenType.WhiteSpace || token.TokenType == TSqlTokenType.EndOfFile;
+
+    private static bool IsNumeric(TSqlParserToken token) => token.TokenType == TSqlTokenType.Integer
+        || token.TokenType == TSqlTokenType.Numeric
+        || token.TokenType == TSqlTokenType.Double;
+
+    private static IReadOnlyList<TSqlParserToken> StripWrappingParens(IReadOnlyList<TSqlParserToken> tokens)
     {
         ArgumentNullException.ThrowIfNull(tokens);
 
         // copy to mutable result set
         if (tokens.Empty())
-            return Array.Empty<Token<SqlServerToken>>();
+            return Array.Empty<TSqlParserToken>();
 
-        var result = new List<Token<SqlServerToken>>();
+        var result = new List<TSqlParserToken>();
         result.AddRange(tokens);
 
         var lastIndex = tokens.Count - 1;
-        if (result[0].Kind == SqlServerToken.LParen && result[lastIndex].Kind == SqlServerToken.RParen)
+        if (result[0].TokenType == TSqlTokenType.LeftParenthesis && result[lastIndex].TokenType == TSqlTokenType.RightParenthesis)
         {
             result.RemoveAt(lastIndex);
             result.RemoveAt(0);
@@ -116,7 +130,7 @@ public sealed class SqlServerExpressionComparer : IEqualityComparer<string>
         for (var i = 0; i < result.Count; i++)
         {
             var token = result[i];
-            if (token.Kind != SqlServerToken.Number)
+            if (!IsNumeric(token))
                 continue;
 
             // can't unwrap first char, no prefix to strip
@@ -126,8 +140,8 @@ public sealed class SqlServerExpressionComparer : IEqualityComparer<string>
 
             var prevToken = result[i - 1];
             var nextToken = result[i + 1];
-            if (prevToken.Kind == SqlServerToken.LParen
-                && nextToken.Kind == SqlServerToken.RParen)
+            if (prevToken.TokenType == TSqlTokenType.LeftParenthesis
+                && nextToken.TokenType == TSqlTokenType.RightParenthesis)
             {
                 // remove next first
                 result.RemoveAt(i + 1);
