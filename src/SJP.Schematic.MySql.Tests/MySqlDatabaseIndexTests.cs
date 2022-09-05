@@ -1,5 +1,4 @@
 ﻿using System;
-using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;

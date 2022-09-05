@@ -1,6 +1,4 @@
-﻿using SJP.Schematic.Core;
-
-namespace SJP.Schematic.SqlServer.Queries;
+﻿namespace SJP.Schematic.SqlServer.Queries;
 
 internal static class GetDatabaseVersion
 {
