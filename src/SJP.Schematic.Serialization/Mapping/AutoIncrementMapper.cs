@@ -18,7 +18,7 @@ public class AutoIncrementMapper
 
     public Dto.AutoIncrement? Map(Option<IAutoIncrement> source)
     {
-        ArgumentNullException.ThrowIfNull(source, nameof(source));
+        ArgumentNullException.ThrowIfNull(source);
 
         return source.MatchUnsafe(
             static incr => new Dto.AutoIncrement

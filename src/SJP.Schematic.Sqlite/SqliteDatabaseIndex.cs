@@ -34,8 +34,7 @@ public class SqliteDatabaseIndex : IDatabaseIndex
         if (includedColumns?.AnyNull() == true)
             throw new ArgumentNullException(nameof(includedColumns));
 
-        if (includedColumns == null)
-            includedColumns = Array.Empty<IDatabaseColumn>();
+        includedColumns ??= Array.Empty<IDatabaseColumn>();
 
         Name = name.LocalName;
         IsUnique = isUnique;

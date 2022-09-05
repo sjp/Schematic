@@ -11,11 +11,6 @@ internal static class GetTableDefinition
         public string TableName { get; set; } = default!;
     }
 
-    internal sealed record Result
-    {
-        public string Definition { get; set; } = default!;
-    }
-
     internal static string Sql(IDatabaseDialect dialect, string schemaName)
     {
         ArgumentNullException.ThrowIfNull(dialect);
