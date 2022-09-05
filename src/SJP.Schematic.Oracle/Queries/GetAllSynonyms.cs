@@ -17,11 +17,11 @@ internal static class GetAllSynonyms
 
     internal const string Sql = @$"
 select distinct
-    s.OWNER as ""{ nameof(Result.SchemaName) }"",
-    s.SYNONYM_NAME as ""{ nameof(Result.SynonymName) }"",
-    s.DB_LINK as ""{ nameof(Result.TargetDatabaseName) }"",
-    s.TABLE_OWNER as ""{ nameof(Result.TargetSchemaName) }"",
-    s.TABLE_NAME as ""{ nameof(Result.TargetObjectName) }""
+    s.OWNER as ""{nameof(Result.SchemaName)}"",
+    s.SYNONYM_NAME as ""{nameof(Result.SynonymName)}"",
+    s.DB_LINK as ""{nameof(Result.TargetDatabaseName)}"",
+    s.TABLE_OWNER as ""{nameof(Result.TargetSchemaName)}"",
+    s.TABLE_NAME as ""{nameof(Result.TargetObjectName)}""
 from SYS.ALL_SYNONYMS s
 inner join SYS.ALL_OBJECTS o on s.OWNER = o.OWNER and s.SYNONYM_NAME = o.OBJECT_NAME
 where o.ORACLE_MAINTAINED <> 'Y'

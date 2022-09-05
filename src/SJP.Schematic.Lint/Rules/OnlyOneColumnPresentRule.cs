@@ -66,8 +66,8 @@ public class OnlyOneColumnPresentRule : Rule, ITableRule
         ArgumentNullException.ThrowIfNull(tableName);
 
         var messageText = columnCount == 0
-            ? $"The table { tableName } has too few columns. It has no columns, consider adding more."
-            : $"The table { tableName } has too few columns. It has one column, consider adding more.";
+            ? $"The table {tableName} has too few columns. It has no columns, consider adding more."
+            : $"The table {tableName} has too few columns. It has one column, consider adding more.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 

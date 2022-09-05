@@ -36,18 +36,18 @@ internal static class GetTableColumns
 
     internal const string Sql = @$"
 select
-    column_name as `{ nameof(Result.ColumnName) }`,
-    data_type as `{ nameof(Result.DataTypeName) }`,
-    character_maximum_length as `{ nameof(Result.CharacterMaxLength) }`,
-    numeric_precision as `{ nameof(Result.Precision) }`,
-    numeric_scale as `{ nameof(Result.Scale) }`,
-    datetime_precision as `{ nameof(Result.DateTimePrecision) }`,
-    collation_name as `{ nameof(Result.Collation) }`,
-    is_nullable as `{ nameof(Result.IsNullable) }`,
-    column_default as `{ nameof(Result.DefaultValue) }`,
-    generation_expression as `{ nameof(Result.ComputedColumnDefinition) }`,
-    extra as `{ nameof(Result.ExtraInformation) }`
+    column_name as `{nameof(Result.ColumnName)}`,
+    data_type as `{nameof(Result.DataTypeName)}`,
+    character_maximum_length as `{nameof(Result.CharacterMaxLength)}`,
+    numeric_precision as `{nameof(Result.Precision)}`,
+    numeric_scale as `{nameof(Result.Scale)}`,
+    datetime_precision as `{nameof(Result.DateTimePrecision)}`,
+    collation_name as `{nameof(Result.Collation)}`,
+    is_nullable as `{nameof(Result.IsNullable)}`,
+    column_default as `{nameof(Result.DefaultValue)}`,
+    generation_expression as `{nameof(Result.ComputedColumnDefinition)}`,
+    extra as `{nameof(Result.ExtraInformation)}`
 from information_schema.columns
-where table_schema = @{ nameof(Query.SchemaName) } and table_name = @{ nameof(Query.TableName) }
+where table_schema = @{nameof(Query.SchemaName)} and table_name = @{nameof(Query.TableName)}
 order by ordinal_position";
 }

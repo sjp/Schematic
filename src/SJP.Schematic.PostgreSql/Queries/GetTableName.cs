@@ -17,9 +17,9 @@ internal static class GetTableName
     }
 
     internal const string Sql = @$"
-select schemaname as ""{ nameof(Result.SchemaName) }"", tablename as ""{ nameof(Result.TableName) }""
+select schemaname as ""{nameof(Result.SchemaName)}"", tablename as ""{nameof(Result.TableName)}""
 from pg_catalog.pg_tables
-where schemaname = @{ nameof(Query.SchemaName) } and tablename = @{ nameof(Query.TableName) }
+where schemaname = @{nameof(Query.SchemaName)} and tablename = @{nameof(Query.TableName)}
     and schemaname not in ('pg_catalog', 'information_schema')
 limit 1";
 }

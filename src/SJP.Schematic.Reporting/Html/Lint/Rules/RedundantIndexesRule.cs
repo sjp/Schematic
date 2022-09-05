@@ -29,7 +29,7 @@ internal sealed class RedundantIndexesRule : Schematic.Lint.Rules.RedundantIndex
             throw new ArgumentNullException(nameof(otherIndexColumnNames));
 
         var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
+        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
 
         var columnNames = redundantIndexColumnNames
             .Select(static columnName => "<code>" + HttpUtility.HtmlEncode(columnName) + "</code>");

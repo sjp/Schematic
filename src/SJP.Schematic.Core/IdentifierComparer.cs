@@ -21,7 +21,7 @@ public sealed class IdentifierComparer : IEqualityComparer<Identifier>, ICompare
     public IdentifierComparer(StringComparison comparison = StringComparison.OrdinalIgnoreCase, string? defaultServer = null, string? defaultDatabase = null, string? defaultSchema = null)
     {
         if (!comparison.IsValid())
-            throw new ArgumentException($"The { nameof(StringComparison) } provided must be a valid enum.", nameof(comparison));
+            throw new ArgumentException($"The {nameof(StringComparison)} provided must be a valid enum.", nameof(comparison));
 
         _comparer = StringComparerLookup[comparison];
 

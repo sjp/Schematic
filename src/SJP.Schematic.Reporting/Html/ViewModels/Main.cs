@@ -226,7 +226,7 @@ public sealed class Main : ITemplateParameter
 
             var targetName = target.ToVisibleName();
             TargetText = targetUrl.Match(
-                uri => $"<a href=\"{ uri }\">{ HttpUtility.HtmlEncode(targetName) }</a>",
+                uri => $"<a href=\"{uri}\">{HttpUtility.HtmlEncode(targetName)}</a>",
                 () => HttpUtility.HtmlEncode(targetName)
             );
         }

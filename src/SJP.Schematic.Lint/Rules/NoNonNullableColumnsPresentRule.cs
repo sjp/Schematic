@@ -64,7 +64,7 @@ public class NoNonNullableColumnsPresentRule : Rule, ITableRule
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
-        var messageText = $"The table '{ tableName }' has no not-nullable columns present. Consider adding one to ensure that each record contains data.";
+        var messageText = $"The table '{tableName}' has no not-nullable columns present. Consider adding one to ensure that each record contains data.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 

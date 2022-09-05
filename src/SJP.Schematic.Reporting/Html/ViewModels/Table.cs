@@ -297,9 +297,9 @@ public sealed class Table : ITemplateParameter
             if (parentColumnNames.NullOrEmpty())
                 throw new ArgumentNullException(nameof(parentColumnNames));
             if (!deleteAction.IsValid())
-                throw new ArgumentException($"The { nameof(ReferentialAction) } provided must be a valid enum.", nameof(deleteAction));
+                throw new ArgumentException($"The {nameof(ReferentialAction)} provided must be a valid enum.", nameof(deleteAction));
             if (!updateAction.IsValid())
-                throw new ArgumentException($"The { nameof(ReferentialAction) } provided must be a valid enum.", nameof(updateAction));
+                throw new ArgumentException($"The {nameof(ReferentialAction)} provided must be a valid enum.", nameof(updateAction));
             ArgumentNullException.ThrowIfNull(rootPath);
 
             ChildColumnNames = columnNames.Join(", ");

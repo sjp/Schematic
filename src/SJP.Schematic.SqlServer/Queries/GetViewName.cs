@@ -17,8 +17,8 @@ internal static class GetViewName
     }
 
     internal const string Sql = @$"
-select top 1 schema_name(schema_id) as [{ nameof(Result.SchemaName) }], name as [{ nameof(Result.ViewName) }]
+select top 1 schema_name(schema_id) as [{nameof(Result.SchemaName)}], name as [{nameof(Result.ViewName)}]
 from sys.views
-where schema_id = schema_id(@{ nameof(Query.SchemaName) }) and name = @{ nameof(Query.ViewName) }
+where schema_id = schema_id(@{nameof(Query.SchemaName)}) and name = @{nameof(Query.ViewName)}
     and is_ms_shipped = 0";
 }

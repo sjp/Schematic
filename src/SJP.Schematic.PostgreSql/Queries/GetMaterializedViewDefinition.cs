@@ -12,5 +12,5 @@ internal static class GetMaterializedViewDefinition
     internal const string Sql = @$"
 select definition
 from pg_catalog.pg_matviews
-where schemaname = @{ nameof(Query.SchemaName) } and matviewname = @{ nameof(Query.ViewName) }";
+where schemaname = @{nameof(Query.SchemaName)} and matviewname = @{nameof(Query.ViewName)}";
 }

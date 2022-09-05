@@ -17,7 +17,7 @@ internal static class GetSynonymName
     }
 
     internal const string Sql = @$"
-select top 1 schema_name(schema_id) as [{ nameof(Result.SchemaName) }], name as [{ nameof(Result.SynonymName) }]
+select top 1 schema_name(schema_id) as [{nameof(Result.SchemaName)}], name as [{nameof(Result.SynonymName)}]
 from sys.synonyms
-where schema_id = schema_id(@{ nameof(Query.SchemaName) }) and name = @{ nameof(Query.SynonymName) } and is_ms_shipped = 0";
+where schema_id = schema_id(@{nameof(Query.SchemaName)}) and name = @{nameof(Query.SynonymName)} and is_ms_shipped = 0";
 }

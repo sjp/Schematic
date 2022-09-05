@@ -65,7 +65,7 @@ public class NoIndexesPresentOnTableRule : Rule, ITableRule
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
-        var messageText = $"The table { tableName } does not have any indexes present, requiring table scans to access records. Consider introducing an index or a primary key or a unique key constraint.";
+        var messageText = $"The table {tableName} does not have any indexes present, requiring table scans to access records. Consider introducing an index or a primary key or a unique key constraint.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 

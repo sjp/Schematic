@@ -21,7 +21,7 @@ public class SqliteColumnType : IDbType
     public SqliteColumnType(SqliteTypeAffinity typeAffinity)
     {
         if (!typeAffinity.IsValid())
-            throw new ArgumentException($"The { nameof(SqliteTypeAffinity) } provided must be a valid enum.", nameof(typeAffinity));
+            throw new ArgumentException($"The {nameof(SqliteTypeAffinity)} provided must be a valid enum.", nameof(typeAffinity));
 
         var typeName = typeAffinity.ToString().ToUpperInvariant();
         TypeName = typeName;
@@ -41,9 +41,9 @@ public class SqliteColumnType : IDbType
         : this(typeAffinity)
     {
         if (!typeAffinity.IsValid())
-            throw new ArgumentException($"The { nameof(SqliteTypeAffinity) } provided must be a valid enum.", nameof(typeAffinity));
+            throw new ArgumentException($"The {nameof(SqliteTypeAffinity)} provided must be a valid enum.", nameof(typeAffinity));
         if (!collation.IsValid())
-            throw new ArgumentException($"The { nameof(SqliteCollation) } provided must be a valid enum.", nameof(collation));
+            throw new ArgumentException($"The {nameof(SqliteCollation)} provided must be a valid enum.", nameof(collation));
         if (typeAffinity != SqliteTypeAffinity.Text)
             throw new ArgumentException("The type affinity must be a text type when a collation has been provided.", nameof(typeAffinity));
 

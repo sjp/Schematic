@@ -26,7 +26,7 @@ internal sealed class HtmlFormatter : IHtmlFormatter
 
         var template = templateParameter.Template;
         if (!template.IsValid())
-            throw new ArgumentException($"The { nameof(ReportTemplate) } provided in the template parameter must be a valid enum.", nameof(templateParameter));
+            throw new ArgumentException($"The {nameof(ReportTemplate)} provided in the template parameter must be a valid enum.", nameof(templateParameter));
 
         var templatePath = template.ToString();
         return _engine.CompileRenderAsync(templatePath, templateParameter);

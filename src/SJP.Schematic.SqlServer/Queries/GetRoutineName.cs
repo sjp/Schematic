@@ -17,8 +17,8 @@ internal static class GetRoutineName
     }
 
     internal const string Sql = @$"
-select top 1 schema_name(schema_id) as [{ nameof(Result.SchemaName) }], name as [{ nameof(Result.RoutineName) }]
+select top 1 schema_name(schema_id) as [{nameof(Result.SchemaName)}], name as [{nameof(Result.RoutineName)}]
 from sys.objects
-where schema_id = schema_id(@{ nameof(Query.SchemaName) }) and name = @{ nameof(Query.RoutineName) }
+where schema_id = schema_id(@{nameof(Query.SchemaName)}) and name = @{nameof(Query.RoutineName)}
     and type in ('P', 'FN', 'IF', 'TF') and is_ms_shipped = 0";
 }

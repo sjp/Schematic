@@ -11,8 +11,8 @@ internal static class GetAllSequenceNames
 
     internal const string Sql = @$"
 select
-    schema_name(schema_id) as [{ nameof(Result.SchemaName) }],
-    name as [{ nameof(Result.SequenceName) }]
+    schema_name(schema_id) as [{nameof(Result.SchemaName)}],
+    name as [{nameof(Result.SequenceName)}]
 from sys.sequences
 where is_ms_shipped = 0
 order by schema_name(schema_id), name";

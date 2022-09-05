@@ -22,10 +22,10 @@ internal static class GetTableIndexes
 
     internal const string Sql = @$"
 select
-    index_name as `{ nameof(Result.IndexName) }`,
-    non_unique as `{ nameof(Result.IsNonUnique) }`,
-    seq_in_index as `{ nameof(Result.ColumnOrdinal) }`,
-    column_name as `{ nameof(Result.ColumnName) }`
+    index_name as `{nameof(Result.IndexName)}`,
+    non_unique as `{nameof(Result.IsNonUnique)}`,
+    seq_in_index as `{nameof(Result.ColumnOrdinal)}`,
+    column_name as `{nameof(Result.ColumnName)}`
 from information_schema.statistics
-where table_schema = @{ nameof(Query.SchemaName) } and table_name = @{ nameof(Query.TableName) }";
+where table_schema = @{nameof(Query.SchemaName)} and table_name = @{nameof(Query.TableName)}";
 }

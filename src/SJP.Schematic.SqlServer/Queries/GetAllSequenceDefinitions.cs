@@ -25,15 +25,15 @@ internal static class GetAllSequenceDefinitions
 
     internal const string Sql = @$"
 select
-    schema_name(schema_id) as [{ nameof(Result.SchemaName) }],
-    name as [{ nameof(Result.SequenceName) }],
-    start_value as [{ nameof(Result.StartValue) }],
-    increment as [{ nameof(Result.Increment) }],
-    minimum_value as [{ nameof(Result.MinValue) }],
-    maximum_value as [{ nameof(Result.MaxValue) }],
-    is_cycling as [{ nameof(Result.Cycle) }],
-    is_cached as [{ nameof(Result.IsCached) }],
-    cache_size as [{ nameof(Result.CacheSize) }]
+    schema_name(schema_id) as [{nameof(Result.SchemaName)}],
+    name as [{nameof(Result.SequenceName)}],
+    start_value as [{nameof(Result.StartValue)}],
+    increment as [{nameof(Result.Increment)}],
+    minimum_value as [{nameof(Result.MinValue)}],
+    maximum_value as [{nameof(Result.MaxValue)}],
+    is_cycling as [{nameof(Result.Cycle)}],
+    is_cached as [{nameof(Result.IsCached)}],
+    cache_size as [{nameof(Result.CacheSize)}]
 from sys.sequences
 where is_ms_shipped = 0
 order by schema_name(schema_id), name";

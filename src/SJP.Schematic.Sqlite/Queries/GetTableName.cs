@@ -17,6 +17,6 @@ internal static class GetTableName
         if (schemaName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(schemaName));
 
-        return $"select name from { dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'table' and lower(name) = lower(@{ nameof(Query.TableName) })";
+        return $"select name from {dialect.QuoteIdentifier(schemaName)}.sqlite_master where type = 'table' and lower(name) = lower(@{nameof(Query.TableName)})";
     }
 }

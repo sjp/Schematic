@@ -157,10 +157,10 @@ public class ForeignKeySelfReferenceRule : Rule, ITableRule
 
         var filterSql = $@"
 select 1
-from { quotedTableName }
-where { whereFilterClauses }
+from {quotedTableName}
+where {whereFilterClauses}
 ";
-        var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy";
+        var sql = $"select case when exists ({filterSql}) then 1 else 0 end as dummy";
 
         var suffix = await _fromQuerySuffixAsync.ConfigureAwait(false);
         return suffix.IsNullOrWhiteSpace()
@@ -187,16 +187,16 @@ where { whereFilterClauses }
             pkName => Dialect.QuoteName(pkName) + " ",
             () => string.Empty
         );
-        var primaryKeyMessage = $"primary key { pkNameSuffix }({ primaryKeyColumnNames.Join(", ") })";
+        var primaryKeyMessage = $"primary key {pkNameSuffix}({primaryKeyColumnNames.Join(", ")})";
 
         var foreignKeyColumnNames = foreignKey.Columns.Select(c => Dialect.QuoteIdentifier(c.Name.LocalName));
         var fkNameSuffix = foreignKey.Name.Match(
             fkName => Dialect.QuoteName(fkName) + " ",
             () => string.Empty
         );
-        var foreignKeyMessage = $"foreign key { fkNameSuffix }({ foreignKeyColumnNames.Join(", ") })";
+        var foreignKeyMessage = $"foreign key {fkNameSuffix}({foreignKeyColumnNames.Join(", ")})";
 
-        var messageText = $"The table '{ tableName }' contains a row where the { foreignKeyMessage } self-references the { primaryKeyMessage }. Consider removing the row by removing the foreign key first, then reintroducing after row removal.";
+        var messageText = $"The table '{tableName}' contains a row where the {foreignKeyMessage} self-references the {primaryKeyMessage}. Consider removing the row by removing the foreign key first, then reintroducing after row removal.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 

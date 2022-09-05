@@ -135,11 +135,11 @@ internal static class GetMaterializedViewColumns
     // taken largely from information_schema.sql for postgres (but modified to work with matviews)
     internal const string Sql = @$"
 SELECT
-    a.attname AS ""{ nameof(Result.ColumnName) }"",
-    a.attnum AS ""{ nameof(Result.OrdinalPosition) }"",
-    pg_catalog.pg_get_expr(ad.adbin, ad.adrelid) AS ""{ nameof(Result.ColumnDefault) }"",
+    a.attname AS ""{nameof(Result.ColumnName)}"",
+    a.attnum AS ""{nameof(Result.OrdinalPosition)}"",
+    pg_catalog.pg_get_expr(ad.adbin, ad.adrelid) AS ""{nameof(Result.ColumnDefault)}"",
     CASE WHEN a.attnotnull OR (t.typtype = 'd' AND t.typnotnull) THEN 'NO' ELSE 'YES' END
-        AS ""{ nameof(Result.IsNullable) }"",
+        AS ""{nameof(Result.IsNullable)}"",
 
     CASE WHEN t.typtype = 'd' THEN
     CASE WHEN bt.typelem <> 0 AND bt.typlen = -1 THEN 'ARRAY'
@@ -150,45 +150,45 @@ SELECT
         WHEN nt.nspname = 'pg_catalog' THEN format_type(a.atttypid, null)
         ELSE 'USER-DEFINED' END
     END
-    AS ""{ nameof(Result.DataType) }"",
+    AS ""{nameof(Result.DataType)}"",
 
     " + PgCharMaxLength + @$"
-    AS ""{ nameof(Result.CharacterMaximumLength) }"",
+    AS ""{nameof(Result.CharacterMaximumLength)}"",
 
     " + PgCharOctetLength + @$"
-    AS ""{ nameof(Result.CharacterOctetLength) }"",
+    AS ""{nameof(Result.CharacterOctetLength)}"",
 
     " + PgNumericPrecision + @$"
-    AS ""{ nameof(Result.NumericPrecision) }"",
+    AS ""{nameof(Result.NumericPrecision)}"",
 
     " + PgNumericPrecisionRadix + @$"
-    AS ""{ nameof(Result.NumericPrecisionRadix) }"",
+    AS ""{nameof(Result.NumericPrecisionRadix)}"",
 
     " + PgNumericScale + @$"
-    AS ""{ nameof(Result.NumericScale) }"",
+    AS ""{nameof(Result.NumericScale)}"",
 
     " + PgDatetimePrecision + @$"
-    AS ""{ nameof(Result.DatetimePrecision) }"",
+    AS ""{nameof(Result.DatetimePrecision)}"",
 
     " + PgIntervalType + @$"
-    AS ""{ nameof(Result.IntervalType) }"",
+    AS ""{nameof(Result.IntervalType)}"",
 
-    CASE WHEN nco.nspname IS NOT NULL THEN current_database() END AS ""{ nameof(Result.CollationCatalog) }"",
-    nco.nspname AS ""{ nameof(Result.CollationSchema) }"",
-    co.collname AS ""{ nameof(Result.CollationName) }"",
+    CASE WHEN nco.nspname IS NOT NULL THEN current_database() END AS ""{nameof(Result.CollationCatalog)}"",
+    nco.nspname AS ""{nameof(Result.CollationSchema)}"",
+    co.collname AS ""{nameof(Result.CollationName)}"",
 
     CASE WHEN t.typtype = 'd' THEN current_database() ELSE null END
-        AS ""{ nameof(Result.DomainCatalog) }"",
+        AS ""{nameof(Result.DomainCatalog)}"",
     CASE WHEN t.typtype = 'd' THEN nt.nspname ELSE null END
-        AS ""{ nameof(Result.DomainSchema) }"",
+        AS ""{nameof(Result.DomainSchema)}"",
     CASE WHEN t.typtype = 'd' THEN t.typname ELSE null END
-        AS ""{ nameof(Result.DomainName) }"",
+        AS ""{nameof(Result.DomainName)}"",
 
-    current_database() AS ""{ nameof(Result.UdtCatalog) }"",
-    coalesce(nbt.nspname, nt.nspname) AS ""{ nameof(Result.UdtSchema) }"",
-    coalesce(bt.typname, t.typname) AS ""{ nameof(Result.UdtName) }"",
+    current_database() AS ""{nameof(Result.UdtCatalog)}"",
+    coalesce(nbt.nspname, nt.nspname) AS ""{nameof(Result.UdtSchema)}"",
+    coalesce(bt.typname, t.typname) AS ""{nameof(Result.UdtName)}"",
 
-    a.attnum AS ""{ nameof(Result.DtdIdentifier) }""
+    a.attnum AS ""{nameof(Result.DtdIdentifier)}""
 
 FROM (pg_catalog.pg_attribute a LEFT JOIN pg_catalog.pg_attrdef ad ON attrelid = adrelid AND attnum = adnum)
     JOIN (pg_catalog.pg_class c JOIN pg_catalog.pg_namespace nc ON (c.relnamespace = nc.oid)) ON a.attrelid = c.oid
@@ -206,7 +206,7 @@ WHERE (NOT pg_catalog.pg_is_other_temp_schema(nc.oid))
         AND (pg_catalog.pg_has_role(c.relowner, 'USAGE')
             OR has_column_privilege(c.oid, a.attnum,
                                     'SELECT, INSERT, UPDATE, REFERENCES'))
-        AND nc.nspname = @{ nameof(Query.SchemaName) } and c.relname = @{ nameof(Query.ViewName) }
+        AND nc.nspname = @{nameof(Query.SchemaName)} and c.relname = @{nameof(Query.ViewName)}
 ORDER BY a.attnum -- ordinal_position";
 
     // In order to cleanly build up an equivalent of information_schema.columns view

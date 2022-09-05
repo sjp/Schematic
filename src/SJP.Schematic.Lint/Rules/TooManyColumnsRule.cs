@@ -78,7 +78,7 @@ public class TooManyColumnsRule : Rule, ITableRule
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
-        var messageText = $"The table { tableName } has too many columns. It has { columnCount.ToString(CultureInfo.InvariantCulture) } columns.";
+        var messageText = $"The table {tableName} has too many columns. It has {columnCount.ToString(CultureInfo.InvariantCulture)} columns.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 

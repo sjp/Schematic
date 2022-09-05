@@ -11,8 +11,8 @@ internal static class GetAllViewNames
 
     internal const string Sql = @$"
 select
-    v.OWNER as ""{ nameof(Result.SchemaName) }"",
-    v.VIEW_NAME as ""{ nameof(Result.ViewName) }""
+    v.OWNER as ""{nameof(Result.SchemaName)}"",
+    v.VIEW_NAME as ""{nameof(Result.ViewName)}""
 from SYS.ALL_VIEWS v
 inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.VIEW_NAME = o.OBJECT_NAME
 where o.ORACLE_MAINTAINED <> 'Y'

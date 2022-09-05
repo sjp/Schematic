@@ -42,7 +42,7 @@ public sealed class SqliteDependencyProvider : IDependencyProvider
 
         var tokenizeResult = tokenizer.TryTokenize(expression);
         if (!tokenizeResult.HasValue)
-            throw new ArgumentException($"Could not parse the given expression as a SQL expression. Given: { expression }", nameof(expression));
+            throw new ArgumentException($"Could not parse the given expression as a SQL expression. Given: {expression}", nameof(expression));
 
         var result = new HashSet<Identifier>(Comparer);
 

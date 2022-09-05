@@ -20,8 +20,8 @@ internal sealed class ColumnWithNullDefaultValueRule : Schematic.Lint.Rules.Colu
             throw new ArgumentNullException(nameof(columnName));
 
         var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
-        var messageText = $"The table { tableLink } has a column <code>{ HttpUtility.HtmlEncode(columnName) }</code> whose default value is <code>NULL</code>. Consider removing the default value on the column.";
+        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
+        var messageText = $"The table {tableLink} has a column <code>{HttpUtility.HtmlEncode(columnName)}</code> whose default value is <code>NULL</code>. Consider removing the default value on the column.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 }

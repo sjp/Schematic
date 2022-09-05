@@ -17,9 +17,9 @@ internal static class GetMaterializedViewName
     }
 
     internal const string Sql = @$"
-select schemaname as ""{ nameof(Result.SchemaName) }"", matviewname as ""{ nameof(Result.ViewName) }""
+select schemaname as ""{nameof(Result.SchemaName)}"", matviewname as ""{nameof(Result.ViewName)}""
 from pg_catalog.pg_matviews
-where schemaname = @{ nameof(Result.SchemaName) } and matviewname = @{ nameof(Result.ViewName) }
+where schemaname = @{nameof(Result.SchemaName)} and matviewname = @{nameof(Result.ViewName)}
     and schemaname not in ('pg_catalog', 'information_schema')
 limit 1";
 }

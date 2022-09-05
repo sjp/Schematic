@@ -17,6 +17,6 @@ internal static class GetViewDefinition
         if (schemaName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(schemaName));
 
-        return $"select sql from { dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'view' and tbl_name = @{ nameof(Query.ViewName) }";
+        return $"select sql from {dialect.QuoteIdentifier(schemaName)}.sqlite_master where type = 'view' and tbl_name = @{nameof(Query.ViewName)}";
     }
 }

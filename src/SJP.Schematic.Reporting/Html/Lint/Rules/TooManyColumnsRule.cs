@@ -18,8 +18,8 @@ internal sealed class TooManyColumnsRule : Schematic.Lint.Rules.TooManyColumnsRu
         ArgumentNullException.ThrowIfNull(tableName);
 
         var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
-        var messageText = $"The table { tableLink } has too many columns. It has { columnCount.ToString(CultureInfo.InvariantCulture) } columns.";
+        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
+        var messageText = $"The table {tableLink} has too many columns. It has {columnCount.ToString(CultureInfo.InvariantCulture)} columns.";
 
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }

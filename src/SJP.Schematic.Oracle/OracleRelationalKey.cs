@@ -32,7 +32,7 @@ public class OracleRelationalKey : IDatabaseRelationalKey
     public OracleRelationalKey(Identifier childTableName, IDatabaseKey childKey, Identifier parentTableName, IDatabaseKey parentKey, ReferentialAction deleteAction)
     {
         if (!deleteAction.IsValid())
-            throw new ArgumentException($"The { nameof(ReferentialAction) } provided must be a valid enum.", nameof(deleteAction));
+            throw new ArgumentException($"The {nameof(ReferentialAction)} provided must be a valid enum.", nameof(deleteAction));
 
         ChildTable = childTableName ?? throw new ArgumentNullException(nameof(childTableName));
         ChildKey = childKey ?? throw new ArgumentNullException(nameof(childKey));
@@ -40,9 +40,9 @@ public class OracleRelationalKey : IDatabaseRelationalKey
         ParentKey = parentKey ?? throw new ArgumentNullException(nameof(parentKey));
 
         if (ChildKey.KeyType != DatabaseKeyType.Foreign)
-            throw new ArgumentException($"The child key must be a foreign key, instead given a key of type '{ childKey.KeyType }'.", nameof(childKey));
+            throw new ArgumentException($"The child key must be a foreign key, instead given a key of type '{childKey.KeyType}'.", nameof(childKey));
         if (ParentKey.KeyType != DatabaseKeyType.Primary && ParentKey.KeyType != DatabaseKeyType.Unique)
-            throw new ArgumentException($"The parent key must be a primary or unique key, instead given a key of type '{ parentKey.KeyType }'.", nameof(parentKey));
+            throw new ArgumentException($"The parent key must be a primary or unique key, instead given a key of type '{parentKey.KeyType}'.", nameof(parentKey));
 
         DeleteAction = deleteAction;
     }

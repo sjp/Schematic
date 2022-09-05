@@ -62,7 +62,7 @@ internal sealed class ReferencedObjectTargets
             var targetLinks = GetReferenceTargetLinks(rootPath, objectName, qualifiedName);
             var linkTexts = targetLinks
                 .Where(link => referencedUris.Add(link.TargetUri.ToString()))
-                .Select(static link => new HtmlString($"<a href=\"{ link.TargetUri }\">{ HttpUtility.HtmlEncode(link.ObjectName.ToVisibleName()) }</a>"))
+                .Select(static link => new HtmlString($"<a href=\"{link.TargetUri}\">{HttpUtility.HtmlEncode(link.ObjectName.ToVisibleName())}</a>"))
                 .ToList();
             result.AddRange(linkTexts);
         }

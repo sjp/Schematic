@@ -99,7 +99,7 @@ public class InvalidViewDefinitionRule : Rule, IViewRule
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
-        var messageText = $"The view { viewName } was unable to be queried. This may indicate an incorrect view definition.";
+        var messageText = $"The view {viewName} was unable to be queried. This may indicate an incorrect view definition.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 

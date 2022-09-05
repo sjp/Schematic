@@ -340,7 +340,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     protected virtual string EncodingSetQuery(Encoding encoding)
     {
         if (!encoding.IsValid())
-            throw new ArgumentException($"The { nameof(Encoding) } provided must be a valid enum.", nameof(encoding));
+            throw new ArgumentException($"The {nameof(Encoding)} provided must be a valid enum.", nameof(encoding));
 
         var value = EncodingNameMapping[encoding];
         return PragmaPrefix + "encoding = '" + value + "'";
@@ -487,7 +487,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     protected virtual string OptimizeSetQuery(OptimizeFeatures features)
     {
         if (!features.IsValid())
-            throw new ArgumentException($"The { nameof(OptimizeFeatures) } provided must be a valid enum.", nameof(features));
+            throw new ArgumentException($"The {nameof(OptimizeFeatures)} provided must be a valid enum.", nameof(features));
 
         var value = (int)features;
         return PragmaPrefix + "optimize = " + value.ToString(CultureInfo.InvariantCulture);
@@ -711,7 +711,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     {
         var location = await DbConnection.ExecuteScalarAsync<int>(TemporaryStoreReadQuery, cancellationToken).ConfigureAwait(false);
         if (!Enums.TryToObject(location, out TemporaryStoreLocation tempLocation))
-            throw new InvalidOperationException($"Unable to map the value '{ location.ToString(CultureInfo.InvariantCulture) }' to a member of { nameof(TemporaryStoreLocation) }.");
+            throw new InvalidOperationException($"Unable to map the value '{location.ToString(CultureInfo.InvariantCulture)}' to a member of {nameof(TemporaryStoreLocation)}.");
 
         return tempLocation;
     }
@@ -739,7 +739,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     protected virtual string TemporaryStoreSetQuery(TemporaryStoreLocation tempLocation)
     {
         if (!tempLocation.IsValid())
-            throw new ArgumentException($"The { nameof(TemporaryStoreLocation) } provided must be a valid enum.", nameof(tempLocation));
+            throw new ArgumentException($"The {nameof(TemporaryStoreLocation)} provided must be a valid enum.", nameof(tempLocation));
 
         var value = tempLocation.ToString().ToUpperInvariant();
         return PragmaPrefix + "temp_store = " + value;

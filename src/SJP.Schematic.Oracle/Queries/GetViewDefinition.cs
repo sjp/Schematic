@@ -12,5 +12,5 @@ internal static class GetViewDefinition
     internal const string Sql = @$"
 select TEXT
 from SYS.ALL_VIEWS
-where OWNER = :{ nameof(Query.SchemaName) } and VIEW_NAME = :{ nameof(Query.ViewName) }";
+where OWNER = :{nameof(Query.SchemaName)} and VIEW_NAME = :{nameof(Query.ViewName)}";
 }

@@ -19,7 +19,7 @@ public static class EncodingExtensions
     public static SysTextEncoding AsTextEncoding(this Encoding encoding)
     {
         if (!encoding.IsValid())
-            throw new ArgumentException($"The { nameof(Encoding) } provided must be a valid enum.", nameof(encoding));
+            throw new ArgumentException($"The {nameof(Encoding)} provided must be a valid enum.", nameof(encoding));
 
         return encoding switch
         {

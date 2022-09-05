@@ -19,7 +19,7 @@ public sealed class GraphvizTemporaryExecutable : IGraphvizExecutable
         zipResource.ExtractToDirectory(_tempDir.DirectoryPath);
         DotPath = Path.Combine(_tempDir.DirectoryPath, "dot.exe");
         if (!File.Exists(DotPath))
-            throw new FileNotFoundException($"Expected to find a file at: '{ DotPath }', but was not found.", DotPath);
+            throw new FileNotFoundException($"Expected to find a file at: '{DotPath}', but was not found.", DotPath);
     }
 
     /// <summary>

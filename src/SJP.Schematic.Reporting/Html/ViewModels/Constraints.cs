@@ -140,9 +140,9 @@ public sealed class Constraints : ITemplateParameter
             if (parentColumnNames.NullOrEmpty())
                 throw new ArgumentNullException(nameof(parentColumnNames));
             if (!deleteAction.IsValid())
-                throw new ArgumentException($"The { nameof(ReferentialAction) } provided must be a valid enum.", nameof(deleteAction));
+                throw new ArgumentException($"The {nameof(ReferentialAction)} provided must be a valid enum.", nameof(deleteAction));
             if (!updateAction.IsValid())
-                throw new ArgumentException($"The { nameof(ReferentialAction) } provided must be a valid enum.", nameof(updateAction));
+                throw new ArgumentException($"The {nameof(ReferentialAction)} provided must be a valid enum.", nameof(updateAction));
 
             ParentTableName = parentTableName.ToVisibleName();
             ParentTableUrl = UrlRouter.GetTableUrl(parentTableName);

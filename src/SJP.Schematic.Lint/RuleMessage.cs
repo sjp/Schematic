@@ -26,7 +26,7 @@ public class RuleMessage : IRuleMessage
         if (title.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(title));
         if (!level.IsValid())
-            throw new ArgumentException($"The { nameof(RuleLevel) } provided must be a valid enum.", nameof(level));
+            throw new ArgumentException($"The {nameof(RuleLevel)} provided must be a valid enum.", nameof(level));
         if (message.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(message));
 

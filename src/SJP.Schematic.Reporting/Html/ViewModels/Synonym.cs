@@ -25,7 +25,7 @@ public sealed class Synonym : ITemplateParameter
         Name = synonymName.ToVisibleName();
         var targetNameText = targetName.ToVisibleName();
         TargetText = targetUrl.Match(
-            uri => $"<a href=\"{ new Uri(rootPath + uri.ToString(), UriKind.Relative) }\">{ HttpUtility.HtmlEncode(targetNameText) }</a>",
+            uri => $"<a href=\"{new Uri(rootPath + uri.ToString(), UriKind.Relative)}\">{HttpUtility.HtmlEncode(targetNameText)}</a>",
             () => HttpUtility.HtmlEncode(targetNameText)
         );
     }

@@ -23,7 +23,7 @@ internal sealed class UniqueIndexWithNullableColumnsRule : Schematic.Lint.Rules.
             throw new ArgumentNullException(nameof(columnNames));
 
         var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
+        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
 
         var builder = StringBuilderCache.Acquire();
         builder.Append("The table ")

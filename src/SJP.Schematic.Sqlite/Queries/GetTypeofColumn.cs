@@ -13,6 +13,6 @@ internal static class GetTypeofColumn
         if (columnName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(columnName));
 
-        return $"select typeof({ dialect.QuoteName(columnName) }) from { dialect.QuoteName(tableName) } limit 1";
+        return $"select typeof({dialect.QuoteName(columnName)}) from {dialect.QuoteName(tableName)} limit 1";
     }
 }

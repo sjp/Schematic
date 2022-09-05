@@ -121,10 +121,10 @@ internal static class MapperRegistry
     {
         var key = new TypePair(typeof(TSource), typeof(TDestination));
         if (!_cache.TryGetValue(key, out var mapper))
-            throw new KeyNotFoundException($"Cannot map { typeof(TSource).FullName } to { typeof(TDestination).FullName }. A mapper has not been registered for this projection.");
+            throw new KeyNotFoundException($"Cannot map {typeof(TSource).FullName} to {typeof(TDestination).FullName}. A mapper has not been registered for this projection.");
 
         if (mapper is not IImmutableMapper<TSource, TDestination> resultMapper)
-            throw new InvalidOperationException($"The mapper registered for the projection { typeof(TSource).FullName } to { typeof(TDestination).FullName } is not an { typeof(IImmutableMapper<,>).FullName } instance.");
+            throw new InvalidOperationException($"The mapper registered for the projection {typeof(TSource).FullName} to {typeof(TDestination).FullName} is not an {typeof(IImmutableMapper<,>).FullName} instance.");
 
         return resultMapper;
     }

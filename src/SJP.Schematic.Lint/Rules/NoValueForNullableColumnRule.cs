@@ -168,7 +168,7 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
         if (columnName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(columnName));
 
-        var messageText = $"The table '{ tableName }' has a nullable column '{ columnName }' whose values are always null. Consider removing the column.";
+        var messageText = $"The table '{tableName}' has a nullable column '{columnName}' whose values are always null. Consider removing the column.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
@@ -183,7 +183,7 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     {
         var quotedTableName = Dialect.QuoteName(Identifier.CreateQualifiedIdentifier(tableName.Schema, tableName.LocalName));
         var filterSql = "select 1 as dummy_col from " + quotedTableName;
-        var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy";
+        var sql = $"select case when exists ({filterSql}) then 1 else 0 end as dummy";
 
         var suffix = await _fromQuerySuffixAsync.ConfigureAwait(false);
         return suffix.IsNullOrWhiteSpace()
@@ -203,8 +203,8 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     {
         var quotedTableName = Dialect.QuoteName(Identifier.CreateQualifiedIdentifier(tableName.Schema, tableName.LocalName));
         var quotedColumnName = Dialect.QuoteIdentifier(columnName.LocalName);
-        var filterSql = $"select 1 as exists_val from { quotedTableName } where { quotedColumnName } is not null";
-        var sql = $"select case when exists ({ filterSql }) then 1 else 0 end as dummy";
+        var filterSql = $"select 1 as exists_val from {quotedTableName} where {quotedColumnName} is not null";
+        var sql = $"select case when exists ({filterSql}) then 1 else 0 end as dummy";
 
         var suffix = await _fromQuerySuffixAsync.ConfigureAwait(false);
         return suffix.IsNullOrWhiteSpace()

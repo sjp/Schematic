@@ -25,7 +25,7 @@ public abstract class Rule : IRule
         if (title.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(title));
         if (!level.IsValid())
-            throw new ArgumentException($"The { nameof(RuleLevel) } provided must be a valid enum.", nameof(level));
+            throw new ArgumentException($"The {nameof(RuleLevel)} provided must be a valid enum.", nameof(level));
 
         Id = id;
         Level = level;

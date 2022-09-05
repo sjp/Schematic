@@ -210,7 +210,7 @@ public class SqliteRelationalDatabase : ISqliteDatabase
         var quotedSchemaName = Dialect.QuoteIdentifier(schemaName);
         var escapedFileName = fileName.Replace("'", "''", StringComparison.Ordinal);
 
-        return $"ATTACH DATABASE '{ escapedFileName }' AS { quotedSchemaName }";
+        return $"ATTACH DATABASE '{escapedFileName}' AS {quotedSchemaName}";
     }
 
     /// <summary>

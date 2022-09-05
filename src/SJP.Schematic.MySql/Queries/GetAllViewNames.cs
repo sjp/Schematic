@@ -16,8 +16,8 @@ internal sealed record GetAllViewNames
 
     internal const string Sql = @$"
 select
-    TABLE_SCHEMA as `{ nameof(Result.SchemaName) }`,
-    TABLE_NAME as `{ nameof(Result.ViewName) }`
+    TABLE_SCHEMA as `{nameof(Result.SchemaName)}`,
+    TABLE_NAME as `{nameof(Result.ViewName)}`
 from information_schema.views
-where TABLE_SCHEMA = @{ nameof(Query.SchemaName) } order by TABLE_NAME";
+where TABLE_SCHEMA = @{nameof(Query.SchemaName)} order by TABLE_NAME";
 }

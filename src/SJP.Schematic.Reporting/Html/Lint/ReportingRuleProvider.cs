@@ -25,7 +25,7 @@ public sealed class ReportingRuleProvider : IRuleProvider
     {
         ArgumentNullException.ThrowIfNull(connection);
         if (!level.IsValid())
-            throw new ArgumentException($"The { nameof(RuleLevel) } provided must be a valid enum.", nameof(level));
+            throw new ArgumentException($"The {nameof(RuleLevel)} provided must be a valid enum.", nameof(level));
 
         var ruleProvider = new RuleProviderBuilder()
             .AddRuleProvider<DefaultHtmlRuleProvider>()

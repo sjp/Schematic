@@ -11,8 +11,8 @@ internal static class GetAllTableNames
 
     internal const string Sql = @$"
 select
-    t.OWNER as ""{ nameof(Result.SchemaName) }"",
-    t.TABLE_NAME as ""{ nameof(Result.TableName) }""
+    t.OWNER as ""{nameof(Result.SchemaName)}"",
+    t.TABLE_NAME as ""{nameof(Result.TableName)}""
 from SYS.ALL_TABLES t
 inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
 left join SYS.ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME

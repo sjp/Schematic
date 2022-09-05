@@ -17,9 +17,9 @@ internal static class GetMaterializedViewName
     }
 
     internal const string Sql = @$"
-select mv.OWNER as ""{ nameof(Result.SchemaName) }"", mv.MVIEW_NAME as ""{ nameof(Result.ViewName) }""
+select mv.OWNER as ""{nameof(Result.SchemaName)}"", mv.MVIEW_NAME as ""{nameof(Result.ViewName)}""
 from SYS.ALL_MVIEWS mv
 inner join SYS.ALL_OBJECTS o on mv.OWNER = o.OWNER and mv.MVIEW_NAME = o.OBJECT_NAME
-where mv.OWNER = :{ nameof(Query.SchemaName) } and mv.MVIEW_NAME = :{ nameof(Query.ViewName) }
+where mv.OWNER = :{nameof(Query.SchemaName)} and mv.MVIEW_NAME = :{nameof(Query.ViewName)}
     and o.ORACLE_MAINTAINED <> 'Y' and o.OBJECT_TYPE <> 'TABLE'";
 }

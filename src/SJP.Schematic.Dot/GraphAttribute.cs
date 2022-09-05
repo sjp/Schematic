@@ -47,7 +47,7 @@ internal sealed class GraphAttribute : IEquatable<GraphAttribute>
     public static GraphAttribute RankDirection(RankDirection rankDir)
     {
         if (!rankDir.IsValid())
-            throw new ArgumentException($"The { nameof(RankDirection) } provided must be a valid enum.", nameof(rankDir));
+            throw new ArgumentException($"The {nameof(RankDirection)} provided must be a valid enum.", nameof(rankDir));
 
         var rankDirStr = rankDir.AsString();
         return new GraphAttribute("rankdir", rankDirStr);
@@ -63,7 +63,7 @@ internal sealed class GraphAttribute : IEquatable<GraphAttribute>
     public static GraphAttribute Ratio(GraphRatio ratio)
     {
         if (!ratio.IsValid())
-            throw new ArgumentException($"The { nameof(GraphRatio) } provided must be a valid enum.", nameof(ratio));
+            throw new ArgumentException($"The {nameof(GraphRatio)} provided must be a valid enum.", nameof(ratio));
 
         var ratioStr = ratio.AsString().ToLowerInvariant();
         return new GraphAttribute("ratio", ratioStr);

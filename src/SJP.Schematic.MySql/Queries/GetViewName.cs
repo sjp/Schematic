@@ -18,9 +18,9 @@ internal static class GetViewName
 
     internal const string Sql = @$"
 select
-    table_schema as `{ nameof(Result.SchemaName) }`,
-    table_name as `{ nameof(Result.ViewName) }`
+    table_schema as `{nameof(Result.SchemaName)}`,
+    table_name as `{nameof(Result.ViewName)}`
 from information_schema.views
-where table_schema = @{ nameof(Query.SchemaName) } and table_name = @{ nameof(Query.ViewName) }
+where table_schema = @{nameof(Query.SchemaName)} and table_name = @{nameof(Query.ViewName)}
 limit 1";
 }

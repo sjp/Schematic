@@ -11,7 +11,7 @@ internal struct OracleKeyword
         if (keyword.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(keyword));
         if (!token.IsValid())
-            throw new ArgumentException($"The { nameof(OracleToken) } provided must be a valid enum.", nameof(token));
+            throw new ArgumentException($"The {nameof(OracleToken)} provided must be a valid enum.", nameof(token));
 
         Text = keyword;
         Token = token;

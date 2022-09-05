@@ -44,7 +44,7 @@ public class DatabaseIndexColumn : IDatabaseIndexColumn
         if (dependentColumns.NullOrAnyNull())
             throw new ArgumentNullException(nameof(dependentColumns));
         if (!order.IsValid())
-            throw new ArgumentException($"The { nameof(IndexColumnOrder) } provided must be a valid enum.", nameof(order));
+            throw new ArgumentException($"The {nameof(IndexColumnOrder)} provided must be a valid enum.", nameof(order));
 
         Expression = expression;
         DependentColumns = dependentColumns.ToList();

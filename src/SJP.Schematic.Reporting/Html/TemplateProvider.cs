@@ -13,7 +13,7 @@ internal sealed class TemplateProvider : ITemplateProvider
     public string GetTemplate(ReportTemplate template)
     {
         if (!template.IsValid())
-            throw new ArgumentException($"The { nameof(ReportTemplate) } provided must be a valid enum.", nameof(template));
+            throw new ArgumentException($"The {nameof(ReportTemplate)} provided must be a valid enum.", nameof(template));
         if (Cache.TryGetValue(template, out var cachedTemplate))
             return cachedTemplate;
 
@@ -32,7 +32,7 @@ internal sealed class TemplateProvider : ITemplateProvider
         var resourceFiles = _fileProvider.GetDirectoryContents("/");
         var templateResource = resourceFiles.FirstOrDefault(r => r.Name.EndsWith(templateFileName, StringComparison.Ordinal));
         if (templateResource == null)
-            throw new NotSupportedException($"The given template: { templateKey } is not a supported template.");
+            throw new NotSupportedException($"The given template: {templateKey} is not a supported template.");
 
         return templateResource;
     }

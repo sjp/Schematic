@@ -91,7 +91,7 @@ public class IndexedColumn
     internal IndexedColumn WithColumnOrder(IndexColumnOrder columnOrder)
     {
         if (!columnOrder.IsValid())
-            throw new ArgumentException($"The { nameof(IndexColumnOrder) } provided must be a valid enum.", nameof(columnOrder));
+            throw new ArgumentException($"The {nameof(IndexColumnOrder)} provided must be a valid enum.", nameof(columnOrder));
 
         var newColumn = Name != null
             ? new IndexedColumn(Name)

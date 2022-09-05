@@ -40,7 +40,7 @@ public class ForeignKey
         if (parentColumnNames.NullOrEmpty() || parentColumnNames.Any(static c => c.IsNullOrWhiteSpace()))
             throw new ArgumentNullException(nameof(parentColumnNames));
         if (columnNames.Count != parentColumnNames.Count)
-            throw new ArgumentException($"The number of source columns ({ columnNames.Count }) does not match the number of target columns ({ parentColumnNames.Count }).", nameof(parentColumnNames));
+            throw new ArgumentException($"The number of source columns ({columnNames.Count}) does not match the number of target columns ({parentColumnNames.Count}).", nameof(parentColumnNames));
 
         ParentTable = parentTable ?? throw new ArgumentNullException(nameof(parentTable));
         Name = constraintName;

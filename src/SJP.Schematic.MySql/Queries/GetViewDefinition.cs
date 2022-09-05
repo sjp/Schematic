@@ -12,6 +12,6 @@ internal static class GetViewDefinition
     internal const string Sql = @$"
 select view_definition
 from information_schema.views
-where table_schema = @{ nameof(Query.SchemaName) } and table_name = @{ nameof(Query.ViewName) }
+where table_schema = @{nameof(Query.SchemaName)} and table_name = @{nameof(Query.ViewName)}
 ";
 }

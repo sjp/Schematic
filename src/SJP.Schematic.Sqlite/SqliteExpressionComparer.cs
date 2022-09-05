@@ -45,11 +45,11 @@ public sealed class SqliteExpressionComparer : IEqualityComparer<string>
 
         var xParseResult = tokenizer.TryTokenize(x);
         if (!xParseResult.HasValue)
-            throw new ArgumentException($"Could not parse the '{ nameof(x) }' string as a SQL expression. Given: { x }", nameof(x));
+            throw new ArgumentException($"Could not parse the '{nameof(x)}' string as a SQL expression. Given: {x}", nameof(x));
 
         var yParseResult = tokenizer.TryTokenize(y);
         if (!yParseResult.HasValue)
-            throw new ArgumentException($"Could not parse the '{ nameof(y) }' string as a SQL expression. Given: { y }", nameof(y));
+            throw new ArgumentException($"Could not parse the '{nameof(y)}' string as a SQL expression. Given: {y}", nameof(y));
 
         var xTokens = xParseResult.Value.ToList();
         var yTokens = yParseResult.Value.ToList();

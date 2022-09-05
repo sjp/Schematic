@@ -63,7 +63,7 @@ public class CandidateKeyMissingRule : Rule, ITableRule
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
-        var messageText = $"The table { tableName } has no candidate (primary or unique) keys. Consider adding one to ensure records are unique.";
+        var messageText = $"The table {tableName} has no candidate (primary or unique) keys. Consider adding one to ensure records are unique.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 

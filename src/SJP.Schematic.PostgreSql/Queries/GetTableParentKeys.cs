@@ -32,15 +32,15 @@ internal static class GetTableParentKeys
 
     internal const string Sql = @$"
 select
-    c.conname as ""{ nameof(Result.ChildKeyName) }"",
-    tc.attname as ""{ nameof(Result.ColumnName) }"",
-    child_cols.con_index as ""{ nameof(Result.ConstraintColumnId) }"",
-    pns.nspname as ""{ nameof(Result.ParentSchemaName) }"",
-    pt.relname as ""{ nameof(Result.ParentTableName) }"",
-    pkc.contype as ""{ nameof(Result.ParentKeyType) }"",
-    pkc.conname as ""{ nameof(Result.ParentKeyName) }"",
-    c.confupdtype as ""{ nameof(Result.UpdateAction) }"",
-    c.confdeltype as ""{ nameof(Result.DeleteAction) }""
+    c.conname as ""{nameof(Result.ChildKeyName)}"",
+    tc.attname as ""{nameof(Result.ColumnName)}"",
+    child_cols.con_index as ""{nameof(Result.ConstraintColumnId)}"",
+    pns.nspname as ""{nameof(Result.ParentSchemaName)}"",
+    pt.relname as ""{nameof(Result.ParentTableName)}"",
+    pkc.contype as ""{nameof(Result.ParentKeyType)}"",
+    pkc.conname as ""{nameof(Result.ParentKeyName)}"",
+    c.confupdtype as ""{nameof(Result.UpdateAction)}"",
+    c.confdeltype as ""{nameof(Result.DeleteAction)}""
 from pg_catalog.pg_namespace ns
 inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid and c.contype = 'f'
@@ -62,5 +62,5 @@ left join pg_catalog.pg_depend d2  -- find pkey/unique constraint for that index
 left join pg_catalog.pg_constraint pkc on pkc.oid = d2.refobjid
     and pkc.contype in ('p', 'u')
     and pkc.conrelid = c.confrelid
-where t.relname = @{ nameof(Query.TableName) } and ns.nspname = @{ nameof(Query.SchemaName) }";
+where t.relname = @{nameof(Query.TableName)} and ns.nspname = @{nameof(Query.SchemaName)}";
 }

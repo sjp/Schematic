@@ -17,8 +17,8 @@ internal sealed class InvalidViewDefinitionRule : Schematic.Lint.Rules.InvalidVi
         ArgumentNullException.ThrowIfNull(viewName);
 
         var viewUrl = UrlRouter.GetViewUrl(viewName);
-        var viewLink = $"<a href=\"{ viewUrl }\">{ HttpUtility.HtmlEncode(viewName.ToVisibleName()) }</a>";
-        var messageText = $"The view { viewLink } was unable to be queried. This may indicate an incorrect view definition.";
+        var viewLink = $"<a href=\"{viewUrl}\">{HttpUtility.HtmlEncode(viewName.ToVisibleName())}</a>";
+        var messageText = $"The view {viewLink} was unable to be queried. This may indicate an incorrect view definition.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 }

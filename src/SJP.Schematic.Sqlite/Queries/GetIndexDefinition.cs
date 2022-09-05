@@ -19,6 +19,6 @@ internal static class GetIndexDefinition
         if (schemaName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(schemaName));
 
-        return $"select sql from { dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'index' and tbl_name = @{ nameof(Query.TableName) } and name = @{ nameof(Query.IndexName) }";
+        return $"select sql from {dialect.QuoteIdentifier(schemaName)}.sqlite_master where type = 'index' and tbl_name = @{nameof(Query.TableName)} and name = @{nameof(Query.IndexName)}";
     }
 }

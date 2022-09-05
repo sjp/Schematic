@@ -10,6 +10,6 @@ internal static class GetUserRoutineDefinition
     internal const string Sql = @$"
 select TEXT
 from SYS.USER_SOURCE
-where NAME = :{ nameof(Query.RoutineName) } AND TYPE IN ('FUNCTION', 'PROCEDURE')
+where NAME = :{nameof(Query.RoutineName)} AND TYPE IN ('FUNCTION', 'PROCEDURE')
 order by LINE";
 }

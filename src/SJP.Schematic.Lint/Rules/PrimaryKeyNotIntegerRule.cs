@@ -75,7 +75,7 @@ public class PrimaryKeyNotIntegerRule : Rule, ITableRule
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
-        var messageText = $"The table { tableName } has a primary key which is not a single-column whose type is an integer.";
+        var messageText = $"The table {tableName} has a primary key which is not a single-column whose type is an integer.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 

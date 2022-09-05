@@ -122,7 +122,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     protected virtual string AutoVacuumSetQuery(AutoVacuumMode autoVacuumMode)
     {
         if (!autoVacuumMode.IsValid())
-            throw new ArgumentException($"The { nameof(AutoVacuumMode) } provided must be a valid enum.", nameof(autoVacuumMode));
+            throw new ArgumentException($"The {nameof(AutoVacuumMode)} provided must be a valid enum.", nameof(autoVacuumMode));
 
         var value = autoVacuumMode.ToString().ToLowerInvariant();
         return PragmaPrefix + "auto_vacuum = " + value;
@@ -269,7 +269,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     {
         ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
-            throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
+            throw new ArgumentException($"The given table name's does not match the current schema. Given '{tableName.Schema}', expected '{SchemaName}'", nameof(tableName));
 
         return DbConnection.QueryAsync<pragma_foreign_key_check>(ForeignKeyCheckTableQuery(tableName), cancellationToken);
     }
@@ -285,7 +285,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     {
         ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
-            throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
+            throw new ArgumentException($"The given table name's does not match the current schema. Given '{tableName.Schema}', expected '{SchemaName}'", nameof(tableName));
 
         return PragmaPrefix + "foreign_key_check(" + Dialect.QuoteIdentifier(tableName.LocalName) + ")";
     }
@@ -302,7 +302,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     {
         ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
-            throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
+            throw new ArgumentException($"The given table name's does not match the current schema. Given '{tableName.Schema}', expected '{SchemaName}'", nameof(tableName));
 
         return DbConnection.QueryAsync<pragma_foreign_key_list>(ForeignKeyListQuery(tableName), cancellationToken);
     }
@@ -318,7 +318,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     {
         ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
-            throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
+            throw new ArgumentException($"The given table name's does not match the current schema. Given '{tableName.Schema}', expected '{SchemaName}'", nameof(tableName));
 
         return PragmaPrefix + "foreign_key_list(" + Dialect.QuoteIdentifier(tableName.LocalName) + ")";
     }
@@ -390,7 +390,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     {
         ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
-            throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
+            throw new ArgumentException($"The given table name's does not match the current schema. Given '{tableName.Schema}', expected '{SchemaName}'", nameof(tableName));
 
         return DbConnection.QueryAsync<pragma_index_list>(IndexListQuery(tableName), cancellationToken);
     }
@@ -406,7 +406,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     {
         ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
-            throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
+            throw new ArgumentException($"The given table name's does not match the current schema. Given '{tableName.Schema}', expected '{SchemaName}'", nameof(tableName));
 
         return PragmaPrefix + "index_list(" + Dialect.QuoteIdentifier(tableName.LocalName) + ")";
     }
@@ -500,7 +500,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     {
         ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
-            throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
+            throw new ArgumentException($"The given table name's does not match the current schema. Given '{tableName.Schema}', expected '{SchemaName}'", nameof(tableName));
 
         return IntegrityCheckAsyncCore(tableName, cancellationToken);
     }
@@ -525,7 +525,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     {
         ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
-            throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
+            throw new ArgumentException($"The given table name's does not match the current schema. Given '{tableName.Schema}', expected '{SchemaName}'", nameof(tableName));
 
         return PragmaPrefix + "integrity_check(" + Dialect.QuoteIdentifier(tableName.LocalName) + ")";
     }
@@ -568,7 +568,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     protected virtual string JournalModeSetQuery(JournalMode journalMode)
     {
         if (!journalMode.IsValid())
-            throw new ArgumentException($"The { nameof(JournalMode) } provided must be a valid enum.", nameof(journalMode));
+            throw new ArgumentException($"The {nameof(JournalMode)} provided must be a valid enum.", nameof(journalMode));
 
         var value = journalMode.ToString().ToUpperInvariant();
         return PragmaPrefix + "journal_mode = " + value;
@@ -640,7 +640,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     protected virtual string LockingModeSetQuery(LockingMode lockingMode)
     {
         if (!lockingMode.IsValid())
-            throw new ArgumentException($"The { nameof(LockingMode) } provided must be a valid enum.", nameof(lockingMode));
+            throw new ArgumentException($"The {nameof(LockingMode)} provided must be a valid enum.", nameof(lockingMode));
 
         var value = lockingMode.ToString().ToUpperInvariant();
         return PragmaPrefix + "locking_mode = " + value;
@@ -719,7 +719,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     protected virtual string OptimizeSetQuery(OptimizeFeatures features)
     {
         if (!features.IsValid())
-            throw new ArgumentException($"The { nameof(OptimizeFeatures) } provided must be a valid enum.", nameof(features));
+            throw new ArgumentException($"The {nameof(OptimizeFeatures)} provided must be a valid enum.", nameof(features));
 
         var value = (int)features;
         return PragmaPrefix + "optimize = " + value.ToString(CultureInfo.InvariantCulture);
@@ -849,7 +849,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     {
         var secureDeleteValue = await DbConnection.ExecuteScalarAsync<int>(SecureDeleteReadQuery, cancellationToken).ConfigureAwait(false);
         if (!Enums.TryToObject(secureDeleteValue, out SecureDeleteMode deleteMode))
-            throw new InvalidOperationException($"Unable to map the value '{ secureDeleteValue.ToString(CultureInfo.InvariantCulture) }' to a member of { nameof(SecureDeleteMode) }.");
+            throw new InvalidOperationException($"Unable to map the value '{secureDeleteValue.ToString(CultureInfo.InvariantCulture)}' to a member of {nameof(SecureDeleteMode)}.");
 
         return deleteMode;
     }
@@ -877,7 +877,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     protected virtual string SecureDeleteSetQuery(SecureDeleteMode deleteMode)
     {
         if (!deleteMode.IsValid())
-            throw new ArgumentException($"The { nameof(SecureDeleteMode) } provided must be a valid enum.", nameof(deleteMode));
+            throw new ArgumentException($"The {nameof(SecureDeleteMode)} provided must be a valid enum.", nameof(deleteMode));
 
         var value = deleteMode.ToString().ToUpperInvariant();
         return PragmaPrefix + "secure_delete = " + value;
@@ -893,7 +893,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     {
         var level = await DbConnection.ExecuteScalarAsync<int>(SynchronousReadQuery, cancellationToken).ConfigureAwait(false);
         if (!Enums.TryToObject(level, out SynchronousLevel syncLevel))
-            throw new InvalidOperationException($"Unable to map the value '{ level.ToString(CultureInfo.InvariantCulture) }' to a member of { nameof(SynchronousLevel) }.");
+            throw new InvalidOperationException($"Unable to map the value '{level.ToString(CultureInfo.InvariantCulture)}' to a member of {nameof(SynchronousLevel)}.");
 
         return syncLevel;
     }
@@ -921,7 +921,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     protected virtual string SynchronousSetQuery(SynchronousLevel synchronousLevel)
     {
         if (!synchronousLevel.IsValid())
-            throw new ArgumentException($"The { nameof(SynchronousLevel) } provided must be a valid enum.", nameof(synchronousLevel));
+            throw new ArgumentException($"The {nameof(SynchronousLevel)} provided must be a valid enum.", nameof(synchronousLevel));
 
         var value = synchronousLevel.ToString().ToUpperInvariant();
         return PragmaPrefix + "synchronous = " + value;
@@ -939,7 +939,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     {
         ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
-            throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
+            throw new ArgumentException($"The given table name's does not match the current schema. Given '{tableName.Schema}', expected '{SchemaName}'", nameof(tableName));
 
         return DbConnection.QueryAsync<pragma_table_info>(TableInfoQuery(tableName), cancellationToken);
     }
@@ -955,7 +955,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     {
         ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
-            throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
+            throw new ArgumentException($"The given table name's does not match the current schema. Given '{tableName.Schema}', expected '{SchemaName}'", nameof(tableName));
 
         return PragmaPrefix + "table_info(" + Dialect.QuoteIdentifier(tableName.LocalName) + ")";
     }
@@ -997,7 +997,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     {
         ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
-            throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
+            throw new ArgumentException($"The given table name's does not match the current schema. Given '{tableName.Schema}', expected '{SchemaName}'", nameof(tableName));
 
         return PragmaPrefix + "table_list(" + Dialect.QuoteIdentifier(tableName.LocalName) + ")";
     }
@@ -1014,7 +1014,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     {
         ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
-            throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
+            throw new ArgumentException($"The given table name's does not match the current schema. Given '{tableName.Schema}', expected '{SchemaName}'", nameof(tableName));
 
         return DbConnection.QueryAsync<pragma_table_xinfo>(TableXInfoQuery(tableName), cancellationToken);
     }
@@ -1030,7 +1030,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     {
         ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
-            throw new ArgumentException($"The given table name's does not match the current schema. Given '{ tableName.Schema }', expected '{ SchemaName }'", nameof(tableName));
+            throw new ArgumentException($"The given table name's does not match the current schema. Given '{tableName.Schema}', expected '{SchemaName}'", nameof(tableName));
 
         return PragmaPrefix + "table_xinfo(" + Dialect.QuoteIdentifier(tableName.LocalName) + ")";
     }
@@ -1073,7 +1073,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     public Task<pragma_wal_checkpoint> WalCheckpointAsync(WalCheckpointMode checkpointMode = WalCheckpointMode.Passive, CancellationToken cancellationToken = default)
     {
         if (!checkpointMode.IsValid())
-            throw new ArgumentException($"The { nameof(TemporaryStoreLocation) } provided must be a valid enum.", nameof(checkpointMode));
+            throw new ArgumentException($"The {nameof(TemporaryStoreLocation)} provided must be a valid enum.", nameof(checkpointMode));
 
         return WalCheckpointAsyncCore(checkpointMode, cancellationToken);
     }
@@ -1093,7 +1093,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     protected virtual string WalCheckpointQuery(WalCheckpointMode checkpointMode)
     {
         if (!checkpointMode.IsValid())
-            throw new ArgumentException($"The { nameof(TemporaryStoreLocation) } provided must be a valid enum.", nameof(checkpointMode));
+            throw new ArgumentException($"The {nameof(TemporaryStoreLocation)} provided must be a valid enum.", nameof(checkpointMode));
 
         var checkpointModeStr = checkpointMode.ToString().ToUpperInvariant();
         return PragmaPrefix + "wal_checkpoint(" + checkpointModeStr + ")";

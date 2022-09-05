@@ -23,7 +23,7 @@ internal sealed class TableConstraint
         Identifier = identifier;
 
         if (!keyType.IsValid())
-            throw new ArgumentException($"The { nameof(DatabaseKeyType) } provided must be a valid enum.", nameof(keyType));
+            throw new ArgumentException($"The {nameof(DatabaseKeyType)} provided must be a valid enum.", nameof(keyType));
 
         KeyTitle = _keyTypeTitles[keyType];
         KeyType = keyType;

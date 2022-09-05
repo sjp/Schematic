@@ -32,12 +32,12 @@ internal static class GetTriggerDefinition
 
         return $@"
 select
-    type AS ""{ nameof(Result.Type) }"",
-    name AS ""{ nameof(Result.Name) }"",
-    tbl_name AS ""{ nameof(Result.TableName) }"",
-    rootpage AS ""{ nameof(Result.RootPage) }"",
-    sql AS ""{ nameof(Result.Sql) }""
-from { dialect.QuoteIdentifier(schemaName) }.sqlite_master
-where type = 'trigger' and tbl_name = @{ nameof(Query.TableName) }";
+    type AS ""{nameof(Result.Type)}"",
+    name AS ""{nameof(Result.Name)}"",
+    tbl_name AS ""{nameof(Result.TableName)}"",
+    rootpage AS ""{nameof(Result.RootPage)}"",
+    sql AS ""{nameof(Result.Sql)}""
+from {dialect.QuoteIdentifier(schemaName)}.sqlite_master
+where type = 'trigger' and tbl_name = @{nameof(Query.TableName)}";
     }
 }

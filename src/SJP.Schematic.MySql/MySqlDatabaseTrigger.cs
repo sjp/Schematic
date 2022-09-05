@@ -30,9 +30,9 @@ public class MySqlDatabaseTrigger : IDatabaseTrigger
         if (definition.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(definition));
         if (!queryTiming.IsValid())
-            throw new ArgumentException($"The { nameof(TriggerQueryTiming) } provided must be a valid enum.", nameof(queryTiming));
+            throw new ArgumentException($"The {nameof(TriggerQueryTiming)} provided must be a valid enum.", nameof(queryTiming));
         if (!events.IsValid())
-            throw new ArgumentException($"The { nameof(TriggerEvent) } provided must be a valid enum.", nameof(events));
+            throw new ArgumentException($"The {nameof(TriggerEvent)} provided must be a valid enum.", nameof(events));
         if (events == TriggerEvent.None)
             throw new ArgumentException("Invalid trigger event flags given. Must include at least one event, e.g. INSERT, DELETE, UPDATE.", nameof(events));
 

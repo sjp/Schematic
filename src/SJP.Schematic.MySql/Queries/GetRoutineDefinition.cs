@@ -14,6 +14,6 @@ select
     ROUTINE_DEFINITION
 from information_schema.routines
 where
-    ROUTINE_SCHEMA = @{ nameof(Query.SchemaName) }
-    and ROUTINE_NAME = @{ nameof(Query.RoutineName) }";
+    ROUTINE_SCHEMA = @{nameof(Query.SchemaName)}
+    and ROUTINE_NAME = @{nameof(Query.RoutineName)}";
 }

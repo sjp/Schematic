@@ -20,8 +20,8 @@ internal sealed class NoValueForNullableColumnRule : Schematic.Lint.Rules.NoValu
             throw new ArgumentNullException(nameof(columnName));
 
         var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
-        var messageText = $"The table { tableLink } has a nullable column <code>{ HttpUtility.HtmlEncode(columnName) }</code> whose values are always <code>NULL</code>. Consider removing the column.";
+        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
+        var messageText = $"The table {tableLink} has a nullable column <code>{HttpUtility.HtmlEncode(columnName)}</code> whose values are always <code>NULL</code>. Consider removing the column.";
 
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }

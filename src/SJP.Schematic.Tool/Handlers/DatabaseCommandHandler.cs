@@ -13,7 +13,7 @@ internal abstract class DatabaseCommandHandler
     protected DatabaseCommandHandler(FileInfo filePath)
     {
         if (!filePath.Exists)
-            throw new FileNotFoundException($"Expected a configuration file at '{ filePath }', but could not find one.");
+            throw new FileNotFoundException($"Expected a configuration file at '{filePath}', but could not find one.");
 
         Configuration = GetConfig(filePath.FullName);
     }

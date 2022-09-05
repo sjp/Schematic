@@ -246,7 +246,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
-        var messageText = $"The table '{ tableName }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
+        var messageText = $"The table '{tableName}' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
@@ -263,7 +263,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
         if (columnName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(columnName));
 
-        var messageText = $"The table '{ tableName }' contains a column '{ columnName }' which is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
+        var messageText = $"The table '{tableName}' contains a column '{columnName}' which is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
@@ -277,7 +277,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
-        var messageText = $"The view '{ viewName }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
+        var messageText = $"The view '{viewName}' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
@@ -294,7 +294,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
         if (columnName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(columnName));
 
-        var messageText = $"The view '{ viewName }' contains a column '{ columnName }' which is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
+        var messageText = $"The view '{viewName}' contains a column '{columnName}' which is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
@@ -308,7 +308,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
 
-        var messageText = $"The sequence '{ sequenceName }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
+        var messageText = $"The sequence '{sequenceName}' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
@@ -322,7 +322,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     {
         ArgumentNullException.ThrowIfNull(synonymName);
 
-        var messageText = $"The synonym '{ synonymName }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
+        var messageText = $"The synonym '{synonymName}' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
@@ -336,7 +336,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     {
         ArgumentNullException.ThrowIfNull(routineName);
 
-        var messageText = $"The routine '{ routineName }' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
+        var messageText = $"The routine '{routineName}' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 

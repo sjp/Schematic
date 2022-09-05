@@ -10,7 +10,7 @@ internal static class GetAllViewNames
     }
 
     internal const string Sql = @$"
-select schemaname as ""{ nameof(Result.SchemaName) }"", viewname as ""{ nameof(Result.ViewName) }""
+select schemaname as ""{nameof(Result.SchemaName)}"", viewname as ""{nameof(Result.ViewName)}""
 from pg_catalog.pg_views
 where schemaname not in ('pg_catalog', 'information_schema')
 order by schemaname, viewname";

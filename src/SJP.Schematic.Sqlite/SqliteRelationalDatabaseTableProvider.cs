@@ -930,7 +930,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
                 .MatchUnsafe(static name => name, static () => (Identifier?)null).ConfigureAwait(false);
             if (resolvedName == null)
-                return ParsedTableData.Empty($"Table '{ tableName.LocalName }' does not exist.");
+                return ParsedTableData.Empty($"Table '{tableName.LocalName}' does not exist.");
             tableName = resolvedName;
         }
 

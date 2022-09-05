@@ -32,7 +32,7 @@ public class OracleDatabaseKey : IDatabaseKey
         if (columns.NullOrEmpty() || columns.AnyNull())
             throw new ArgumentNullException(nameof(columns));
         if (!keyType.IsValid())
-            throw new ArgumentException($"The { nameof(DatabaseKeyType) } provided must be a valid enum.", nameof(keyType));
+            throw new ArgumentException($"The {nameof(DatabaseKeyType)} provided must be a valid enum.", nameof(keyType));
 
         Name = Option<Identifier>.Some(name.LocalName);
         KeyType = keyType;

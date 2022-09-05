@@ -12,5 +12,5 @@ internal static class GetMaterializedViewDefinition
     internal const string Sql = @$"
 select QUERY
 from SYS.ALL_MVIEWS
-where OWNER = :{ nameof(Query.SchemaName) } and MVIEW_NAME = :{ nameof(Query.ViewName) }";
+where OWNER = :{nameof(Query.SchemaName)} and MVIEW_NAME = :{nameof(Query.ViewName)}";
 }

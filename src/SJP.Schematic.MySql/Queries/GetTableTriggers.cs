@@ -22,10 +22,10 @@ internal static class GetTableTriggers
 
     internal const string Sql = @$"
 select
-    tr.trigger_name as `{ nameof(Result.TriggerName) }`,
-    tr.action_statement as `{ nameof(Result.Definition) }`,
-    tr.action_timing as `{ nameof(Result.Timing) }`,
-    tr.event_manipulation as `{ nameof(Result.TriggerEvent) }`
+    tr.trigger_name as `{nameof(Result.TriggerName)}`,
+    tr.action_statement as `{nameof(Result.Definition)}`,
+    tr.action_timing as `{nameof(Result.Timing)}`,
+    tr.event_manipulation as `{nameof(Result.TriggerEvent)}`
 from information_schema.triggers tr
-where tr.event_object_schema = @{ nameof(Query.SchemaName) } and tr.event_object_table = @{ nameof(Query.TableName) }";
+where tr.event_object_schema = @{nameof(Query.SchemaName)} and tr.event_object_table = @{nameof(Query.TableName)}";
 }

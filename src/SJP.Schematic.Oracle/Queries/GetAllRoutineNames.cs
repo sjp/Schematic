@@ -11,8 +11,8 @@ internal static class GetAllRoutineNames
 
     internal const string Sql = @$"
 SELECT
-    OWNER as ""{ nameof(Result.SchemaName) }"",
-    OBJECT_NAME as ""{ nameof(Result.RoutineName) }""
+    OWNER as ""{nameof(Result.SchemaName)}"",
+    OBJECT_NAME as ""{nameof(Result.RoutineName)}""
 FROM SYS.ALL_OBJECTS
 WHERE ORACLE_MAINTAINED <> 'Y' AND OBJECT_TYPE in ('FUNCTION', 'PROCEDURE')
 ORDER BY OWNER, OBJECT_NAME";

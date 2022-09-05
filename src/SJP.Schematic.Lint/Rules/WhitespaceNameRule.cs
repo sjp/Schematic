@@ -250,7 +250,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
-        var messageText = $"The table '{ tableName }' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
+        var messageText = $"The table '{tableName}' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
@@ -267,7 +267,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
         if (columnName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(columnName));
 
-        var messageText = $"The table '{ tableName }' contains a column '{ columnName }' which contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
+        var messageText = $"The table '{tableName}' contains a column '{columnName}' which contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
@@ -281,7 +281,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
-        var messageText = $"The view '{ viewName }' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
+        var messageText = $"The view '{viewName}' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
@@ -298,7 +298,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
         if (columnName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(columnName));
 
-        var messageText = $"The view '{ viewName }' contains a column '{ columnName }' which contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
+        var messageText = $"The view '{viewName}' contains a column '{columnName}' which contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
@@ -312,7 +312,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
 
-        var messageText = $"The sequence '{ sequenceName }' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
+        var messageText = $"The sequence '{sequenceName}' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
@@ -326,7 +326,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     {
         ArgumentNullException.ThrowIfNull(synonymName);
 
-        var messageText = $"The synonym '{ synonymName }' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
+        var messageText = $"The synonym '{synonymName}' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
@@ -340,7 +340,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     {
         ArgumentNullException.ThrowIfNull(routineName);
 
-        var messageText = $"The routine '{ routineName }' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
+        var messageText = $"The routine '{routineName}' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 

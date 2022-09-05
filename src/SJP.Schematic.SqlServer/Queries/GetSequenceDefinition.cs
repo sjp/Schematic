@@ -28,13 +28,13 @@ internal static class GetSequenceDefinition
 
     internal const string Sql = @$"
 select
-    start_value as [{ nameof(Result.StartValue) }],
-    increment as [{ nameof(Result.Increment) }],
-    minimum_value as [{ nameof(Result.MinValue) }],
-    maximum_value as [{ nameof(Result.MaxValue) }],
-    is_cycling as [{ nameof(Result.Cycle) }],
-    is_cached as [{ nameof(Result.IsCached) }],
-    cache_size as [{ nameof(Result.CacheSize) }]
+    start_value as [{nameof(Result.StartValue)}],
+    increment as [{nameof(Result.Increment)}],
+    minimum_value as [{nameof(Result.MinValue)}],
+    maximum_value as [{nameof(Result.MaxValue)}],
+    is_cycling as [{nameof(Result.Cycle)}],
+    is_cached as [{nameof(Result.IsCached)}],
+    cache_size as [{nameof(Result.CacheSize)}]
 from sys.sequences
-where schema_name(schema_id) = @{ nameof(Query.SchemaName) }  and name = @{ nameof(Query.SequenceName) } and is_ms_shipped = 0";
+where schema_name(schema_id) = @{nameof(Query.SchemaName)}  and name = @{nameof(Query.SequenceName)} and is_ms_shipped = 0";
 }

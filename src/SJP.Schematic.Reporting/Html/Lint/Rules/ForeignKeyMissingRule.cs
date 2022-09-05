@@ -24,9 +24,9 @@ internal sealed class ForeignKeyMissingRule : Schematic.Lint.Rules.ForeignKeyMis
         var builder = StringBuilderCache.Acquire();
 
         var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
+        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
         var targetTableUrl = UrlRouter.GetTableUrl(targetTableName);
-        var targetTableLink = $"<a href=\"{ targetTableUrl }\">{ HttpUtility.HtmlEncode(targetTableName.ToVisibleName()) }</a>";
+        var targetTableLink = $"<a href=\"{targetTableUrl}\">{HttpUtility.HtmlEncode(targetTableName.ToVisibleName())}</a>";
 
         builder.Append("The table ")
             .Append(tableLink)

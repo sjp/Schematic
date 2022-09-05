@@ -67,7 +67,7 @@ internal sealed class NodeAttribute : IEquatable<NodeAttribute>
     public static NodeAttribute FontFace(FontFace fontFace)
     {
         if (!fontFace.IsValid())
-            throw new ArgumentException($"The { nameof(FontFace) } provided must be a valid enum.", nameof(fontFace));
+            throw new ArgumentException($"The {nameof(FontFace)} provided must be a valid enum.", nameof(fontFace));
 
         var fontFaceStr = "\"" + fontFace.AsString() + "\"";
         return new NodeAttribute("fontname", fontFaceStr);

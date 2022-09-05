@@ -91,7 +91,7 @@ public class ColumnWithNullDefaultValueRule : Rule, ITableRule
         if (columnName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(columnName));
 
-        var messageText = $"The table '{ tableName }' has a column '{ columnName }' whose default value is null. Consider removing the default value on the column.";
+        var messageText = $"The table '{tableName}' has a column '{columnName}' whose default value is null. Consider removing the default value on the column.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 

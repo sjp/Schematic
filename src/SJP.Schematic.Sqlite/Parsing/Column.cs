@@ -39,9 +39,9 @@ public class Column
         if (columnName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(columnName));
         if (!collation.IsValid())
-            throw new ArgumentException($"The { nameof(SqliteCollation) } provided must be a valid enum.", nameof(collation));
+            throw new ArgumentException($"The {nameof(SqliteCollation)} provided must be a valid enum.", nameof(collation));
         if (!computedColumnType.IsValid())
-            throw new ArgumentException($"The { nameof(SqliteGeneratedColumnType) } provided must be a valid enum.", nameof(computedColumnType));
+            throw new ArgumentException($"The {nameof(SqliteGeneratedColumnType)} provided must be a valid enum.", nameof(computedColumnType));
 
         Name = columnName;
         TypeDefinition = typeDefinition?.ToList() ?? Enumerable.Empty<Token<SqliteToken>>();

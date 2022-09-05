@@ -957,7 +957,7 @@ public class PostgreSqlDialect : DatabaseDialect
         if (identifier.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(identifier));
 
-        return $"\"{ identifier.Replace("\"", "\"\"", StringComparison.Ordinal) }\"";
+        return $"\"{identifier.Replace("\"", "\"\"", StringComparison.Ordinal)}\"";
     }
 
     /// <summary>

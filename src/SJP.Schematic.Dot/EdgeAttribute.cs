@@ -47,7 +47,7 @@ internal sealed class EdgeAttribute : IEquatable<EdgeAttribute>
     public static EdgeAttribute ArrowHead(ArrowStyleName arrowStyle)
     {
         if (!arrowStyle.IsValid())
-            throw new ArgumentException($"The { nameof(ArrowStyleName) } provided must be a valid enum.", nameof(arrowStyle));
+            throw new ArgumentException($"The {nameof(ArrowStyleName)} provided must be a valid enum.", nameof(arrowStyle));
 
         var arrowStyleStr = arrowStyle.AsString().ToLowerInvariant();
         return new EdgeAttribute("arrowhead", arrowStyleStr);
@@ -56,7 +56,7 @@ internal sealed class EdgeAttribute : IEquatable<EdgeAttribute>
     public static EdgeAttribute ArrowTail(ArrowStyleName arrowStyle)
     {
         if (!arrowStyle.IsValid())
-            throw new ArgumentException($"The { nameof(ArrowStyleName) } provided must be a valid enum.", nameof(arrowStyle));
+            throw new ArgumentException($"The {nameof(ArrowStyleName)} provided must be a valid enum.", nameof(arrowStyle));
 
         var arrowStyleStr = arrowStyle.AsString().ToLowerInvariant();
         return new EdgeAttribute("arrowtail", arrowStyleStr);
@@ -65,7 +65,7 @@ internal sealed class EdgeAttribute : IEquatable<EdgeAttribute>
     public static EdgeAttribute Direction(EdgeDirection direction)
     {
         if (!direction.IsValid())
-            throw new ArgumentException($"The { nameof(EdgeDirection) } provided must be a valid enum.", nameof(direction));
+            throw new ArgumentException($"The {nameof(EdgeDirection)} provided must be a valid enum.", nameof(direction));
 
         var directionStr = direction.AsString().ToLowerInvariant();
         return new EdgeAttribute("dir", directionStr);

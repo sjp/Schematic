@@ -22,7 +22,7 @@ internal abstract class TableConstraint
     protected TableConstraint(TableConstraintType constraintType)
     {
         if (!constraintType.IsValid())
-            throw new ArgumentException($"The { nameof(TableConstraintType) } provided must be a valid enum.", nameof(constraintType));
+            throw new ArgumentException($"The {nameof(TableConstraintType)} provided must be a valid enum.", nameof(constraintType));
 
         ConstraintType = constraintType;
     }

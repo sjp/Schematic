@@ -28,7 +28,7 @@ public class DatabaseKey : IDatabaseKey
         if (columns.NullOrEmpty() || columns.AnyNull())
             throw new ArgumentNullException(nameof(columns));
         if (!keyType.IsValid())
-            throw new ArgumentException($"The { nameof(DatabaseKeyType) } provided must be a valid enum.", nameof(keyType));
+            throw new ArgumentException($"The {nameof(DatabaseKeyType)} provided must be a valid enum.", nameof(keyType));
 
         Name = name.Map(static n => Identifier.CreateQualifiedIdentifier(n.LocalName)); // strip to localname only
         KeyType = keyType;

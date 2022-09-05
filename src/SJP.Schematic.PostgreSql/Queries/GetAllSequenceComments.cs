@@ -13,9 +13,9 @@ internal static class GetAllSequenceComments
 
     internal const string Sql = @$"
 select
-    nc.nspname as ""{ nameof(Result.SchemaName) }"",
-    c.relname as ""{ nameof(Result.SequenceName) }"",
-    d.description as ""{ nameof(Result.Comment) }""
+    nc.nspname as ""{nameof(Result.SchemaName)}"",
+    c.relname as ""{nameof(Result.SequenceName)}"",
+    d.description as ""{nameof(Result.Comment)}""
 from pg_catalog.pg_namespace nc
 inner join pg_catalog.pg_class c on c.relnamespace = nc.oid
 left join pg_catalog.pg_description d on d.objoid = c.oid

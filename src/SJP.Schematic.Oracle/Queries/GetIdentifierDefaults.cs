@@ -15,9 +15,9 @@ internal static class GetIdentifierDefaults
 
     internal const string Sql = @$"
 select
-    SYS_CONTEXT('USERENV', 'SERVER_HOST') as ""{ nameof(Result.ServerHost) }"",
-    SYS_CONTEXT('USERENV', 'INSTANCE_NAME') as ""{ nameof(Result.ServerSid) }"",
-    SYS_CONTEXT('USERENV', 'DB_NAME') as ""{ nameof(Result.DatabaseName) }"",
-    SYS_CONTEXT('USERENV', 'CURRENT_USER') as ""{ nameof(Result.DefaultSchema) }""
+    SYS_CONTEXT('USERENV', 'SERVER_HOST') as ""{nameof(Result.ServerHost)}"",
+    SYS_CONTEXT('USERENV', 'INSTANCE_NAME') as ""{nameof(Result.ServerSid)}"",
+    SYS_CONTEXT('USERENV', 'DB_NAME') as ""{nameof(Result.DatabaseName)}"",
+    SYS_CONTEXT('USERENV', 'CURRENT_USER') as ""{nameof(Result.DefaultSchema)}""
 from DUAL";
 }

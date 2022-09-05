@@ -28,7 +28,7 @@ internal sealed class TableNodeOptions
     public RgbColor GetKeyHeaderBackgroundColor(DatabaseKeyType keyType)
     {
         if (!keyType.IsValid())
-            throw new ArgumentException($"The { nameof(DatabaseKeyType) } provided must be a valid enum.", nameof(keyType));
+            throw new ArgumentException($"The {nameof(DatabaseKeyType)} provided must be a valid enum.", nameof(keyType));
 
         return keyType switch
         {
@@ -42,7 +42,7 @@ internal sealed class TableNodeOptions
     public RgbColor GetHighlightedKeyHeaderBackgroundColor(DatabaseKeyType keyType)
     {
         if (!keyType.IsValid())
-            throw new ArgumentException($"The { nameof(DatabaseKeyType) } provided must be a valid enum.", nameof(keyType));
+            throw new ArgumentException($"The {nameof(DatabaseKeyType)} provided must be a valid enum.", nameof(keyType));
 
         return keyType switch
         {

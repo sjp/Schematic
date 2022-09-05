@@ -18,13 +18,13 @@ internal static class GetTableChecks
 
     internal const string Sql = @$"
 select
-    c.conname as ""{ nameof(Result.ConstraintName) }"",
-    c.consrc as ""{ nameof(Result.Definition) }""
+    c.conname as ""{nameof(Result.ConstraintName)}"",
+    c.consrc as ""{nameof(Result.Definition)}""
 from pg_catalog.pg_namespace ns
 inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
 where
     c.contype = 'c'
-    and t.relname = @{ nameof(Query.TableName) }
-    and ns.nspname = @{ nameof(Query.SchemaName) }";
+    and t.relname = @{nameof(Query.TableName)}
+    and ns.nspname = @{nameof(Query.SchemaName)}";
 }

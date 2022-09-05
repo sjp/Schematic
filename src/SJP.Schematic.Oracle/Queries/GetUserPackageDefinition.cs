@@ -18,10 +18,10 @@ internal static class GetUserPackageDefinition
 
     internal const string Sql = @$"
 select
-    TYPE as ""{ nameof(Result.RoutineType) }"",
-    LINE as ""{ nameof(Result.LineNumber) }"",
-    TEXT as ""{ nameof(Result.Text) }""
+    TYPE as ""{nameof(Result.RoutineType)}"",
+    LINE as ""{nameof(Result.LineNumber)}"",
+    TEXT as ""{nameof(Result.Text)}""
 from SYS.USER_SOURCE
-where NAME = :{ nameof(Query.PackageName) } and TYPE in ('PACKAGE', 'PACKAGE BODY')
+where NAME = :{nameof(Query.PackageName)} and TYPE in ('PACKAGE', 'PACKAGE BODY')
 order by LINE";
 }

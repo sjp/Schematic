@@ -16,9 +16,9 @@ internal static class GetAllRoutineNames
 
     internal const string Sql = @$"
 select
-    ROUTINE_SCHEMA as `{ nameof(Result.SchemaName) }`,
-    ROUTINE_NAME as `{ nameof(Result.RoutineName) }`
+    ROUTINE_SCHEMA as `{nameof(Result.SchemaName)}`,
+    ROUTINE_NAME as `{nameof(Result.RoutineName)}`
 from information_schema.routines
-where ROUTINE_SCHEMA = @{ nameof(Query.SchemaName) }
+where ROUTINE_SCHEMA = @{nameof(Query.SchemaName)}
 order by ROUTINE_SCHEMA, ROUTINE_NAME";
 }

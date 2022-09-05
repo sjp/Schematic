@@ -30,7 +30,7 @@ public class PostgreSqlDatabaseIndexColumn : IDatabaseIndexColumn
         if (expression.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(expression));
         if (!order.IsValid())
-            throw new ArgumentException($"The { nameof(IndexColumnOrder) } provided must be a valid enum.", nameof(order));
+            throw new ArgumentException($"The {nameof(IndexColumnOrder)} provided must be a valid enum.", nameof(order));
 
         Expression = expression;
         Order = order;
@@ -51,7 +51,7 @@ public class PostgreSqlDatabaseIndexColumn : IDatabaseIndexColumn
             throw new ArgumentNullException(nameof(expression));
         ArgumentNullException.ThrowIfNull(column);
         if (!order.IsValid())
-            throw new ArgumentException($"The { nameof(IndexColumnOrder) } provided must be a valid enum.", nameof(order));
+            throw new ArgumentException($"The {nameof(IndexColumnOrder)} provided must be a valid enum.", nameof(order));
 
         Expression = expression;
         DependentColumns = new[] { column };

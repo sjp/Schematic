@@ -29,7 +29,7 @@ internal sealed class ForeignKeyIsPrimaryKeyRule : Schematic.Lint.Rules.ForeignK
         });
 
         var childTableUrl = UrlRouter.GetTableUrl(childTableName);
-        var childTableLink = $"<a href=\"{ childTableUrl }\">{ HttpUtility.HtmlEncode(childTableName.ToVisibleName()) }</a>";
+        var childTableLink = $"<a href=\"{childTableUrl}\">{HttpUtility.HtmlEncode(childTableName.ToVisibleName())}</a>";
         builder.Append(" on ")
             .Append(childTableLink)
             .Append(" contains the same column set as the target key.");

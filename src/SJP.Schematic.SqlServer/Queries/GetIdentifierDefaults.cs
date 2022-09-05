@@ -15,7 +15,7 @@ internal static class GetIdentifierDefaults
 
     internal const string Sql = @$"
 select
-    @@SERVERNAME as [{ nameof(Result.Server) }],
-    db_name() as [{ nameof(Result.Database) }],
-    schema_name() as [{ nameof(Result.Schema) }]";
+    @@SERVERNAME as [{nameof(Result.Server)}],
+    db_name() as [{nameof(Result.Database)}],
+    schema_name() as [{nameof(Result.Schema)}]";
 }

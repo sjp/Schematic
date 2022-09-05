@@ -65,7 +65,7 @@ public class OrphanedTableRule : Rule, ITableRule
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
-        var messageText = $"The table { tableName } is not related to any other table. Consider adding relations or removing the table.";
+        var messageText = $"The table {tableName} is not related to any other table. Consider adding relations or removing the table.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 

@@ -17,7 +17,7 @@ internal static class GetTableName
     }
 
     internal const string Sql = @$"
-select top 1 schema_name(schema_id) as [{ nameof(Result.SchemaName) }], name as [{ nameof(Result.TableName) }]
+select top 1 schema_name(schema_id) as [{nameof(Result.SchemaName)}], name as [{nameof(Result.TableName)}]
 from sys.tables
-where schema_id = schema_id(@{ nameof(Query.SchemaName) }) and name = @{ nameof(Query.TableName) } and is_ms_shipped = 0";
+where schema_id = schema_id(@{nameof(Query.SchemaName)}) and name = @{nameof(Query.TableName)} and is_ms_shipped = 0";
 }

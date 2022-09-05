@@ -112,7 +112,7 @@ public class DisabledObjectsRule : Rule, ITableRule
             () => string.Empty
         );
 
-        var messageText = $"The table '{ tableName }' contains a disabled foreign key{ messageKeyName }. Consider enabling or removing the foreign key.";
+        var messageText = $"The table '{tableName}' contains a disabled foreign key{messageKeyName}. Consider enabling or removing the foreign key.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
@@ -132,7 +132,7 @@ public class DisabledObjectsRule : Rule, ITableRule
             () => string.Empty
         );
 
-        var messageText = $"The table '{ tableName }' contains a disabled primary key{ messageKeyName }. Consider enabling or removing the primary key.";
+        var messageText = $"The table '{tableName}' contains a disabled primary key{messageKeyName}. Consider enabling or removing the primary key.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
@@ -152,7 +152,7 @@ public class DisabledObjectsRule : Rule, ITableRule
             () => string.Empty
         );
 
-        var messageText = $"The table '{ tableName }' contains a disabled unique key{ messageKeyName }. Consider enabling or removing the unique key.";
+        var messageText = $"The table '{tableName}' contains a disabled unique key{messageKeyName}. Consider enabling or removing the unique key.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
@@ -172,7 +172,7 @@ public class DisabledObjectsRule : Rule, ITableRule
             () => string.Empty
         );
 
-        var messageText = $"The table '{ tableName }' contains a disabled check constraint{ messageCheckName }. Consider enabling or removing the check constraint.";
+        var messageText = $"The table '{tableName}' contains a disabled check constraint{messageCheckName}. Consider enabling or removing the check constraint.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
@@ -191,7 +191,7 @@ public class DisabledObjectsRule : Rule, ITableRule
             ? " '" + indexName + "'"
             : string.Empty;
 
-        var messageText = $"The table '{ tableName }' contains a disabled index{ messageIndexName }. Consider enabling or removing the index.";
+        var messageText = $"The table '{tableName}' contains a disabled index{messageIndexName}. Consider enabling or removing the index.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
@@ -210,7 +210,7 @@ public class DisabledObjectsRule : Rule, ITableRule
             ? " '" + triggerName + "'"
             : string.Empty;
 
-        var messageText = $"The table '{ tableName }' contains a disabled trigger{ messageTriggerName }. Consider enabling or removing the trigger.";
+        var messageText = $"The table '{tableName}' contains a disabled trigger{messageTriggerName}. Consider enabling or removing the trigger.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 

@@ -87,7 +87,7 @@ public class PrimaryKeyColumnNotFirstColumnRule : Rule, ITableRule
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
-        var messageText = $"The table { tableName } has a primary key whose column is not the first column in the table.";
+        var messageText = $"The table {tableName} has a primary key whose column is not the first column in the table.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 

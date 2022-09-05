@@ -30,9 +30,9 @@ internal sealed class ForeignKeyColumnTypeMismatchRule : Schematic.Lint.Rules.Fo
         });
 
         var childTableUrl = UrlRouter.GetTableUrl(childTableName);
-        var childTableLink = $"<a href=\"{ childTableUrl }\">{ HttpUtility.HtmlEncode(childTableName.ToVisibleName()) }</a>";
+        var childTableLink = $"<a href=\"{childTableUrl}\">{HttpUtility.HtmlEncode(childTableName.ToVisibleName())}</a>";
         var parentTableUrl = UrlRouter.GetTableUrl(parentTableName);
-        var parentTableLink = $"<a href=\"{ parentTableUrl }\">{ HttpUtility.HtmlEncode(parentTableName.ToVisibleName()) }</a>";
+        var parentTableLink = $"<a href=\"{parentTableUrl}\">{HttpUtility.HtmlEncode(parentTableName.ToVisibleName())}</a>";
 
         builder.Append(" from ")
             .Append(childTableLink)

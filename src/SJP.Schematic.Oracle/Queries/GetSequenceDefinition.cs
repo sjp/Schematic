@@ -24,11 +24,11 @@ internal static class GetSequenceDefinition
 
     internal const string Sql = @$"
 select
-    INCREMENT_BY as ""{ nameof(Result.Increment) }"",
-    MIN_VALUE as ""{ nameof(Result.MinValue) }"",
-    MAX_VALUE as ""{ nameof(Result.MaxValue) }"",
-    CYCLE_FLAG as ""{ nameof(Result.Cycle) }"",
-    CACHE_SIZE as ""{ nameof(Result.CacheSize) }""
+    INCREMENT_BY as ""{nameof(Result.Increment)}"",
+    MIN_VALUE as ""{nameof(Result.MinValue)}"",
+    MAX_VALUE as ""{nameof(Result.MaxValue)}"",
+    CYCLE_FLAG as ""{nameof(Result.Cycle)}"",
+    CACHE_SIZE as ""{nameof(Result.CacheSize)}""
 from SYS.ALL_SEQUENCES
-where SEQUENCE_OWNER = :{ nameof(Query.SchemaName) } and SEQUENCE_NAME = :{ nameof(Query.SequenceName) }";
+where SEQUENCE_OWNER = :{nameof(Query.SchemaName)} and SEQUENCE_NAME = :{nameof(Query.SequenceName)}";
 }

@@ -36,7 +36,7 @@ public class ColumnDataType : IDbType
     )
     {
         if (!dataType.IsValid())
-            throw new ArgumentException($"The { nameof(DataType) } provided must be a valid enum.", nameof(dataType));
+            throw new ArgumentException($"The {nameof(DataType)} provided must be a valid enum.", nameof(dataType));
         if (definition.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(definition));
 

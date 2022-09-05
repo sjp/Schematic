@@ -26,7 +26,7 @@ internal abstract class ColumnConstraint
     protected ColumnConstraint(ColumnConstraintType constraintType)
     {
         if (!constraintType.IsValid())
-            throw new ArgumentException($"The { nameof(ColumnConstraintType) } provided must be a valid enum.", nameof(constraintType));
+            throw new ArgumentException($"The {nameof(ColumnConstraintType)} provided must be a valid enum.", nameof(constraintType));
 
         ConstraintType = constraintType;
     }
@@ -89,7 +89,7 @@ internal abstract class ColumnConstraint
             : base(ColumnConstraintType.PrimaryKey)
         {
             if (!columnOrder.IsValid())
-                throw new ArgumentException($"The { nameof(IndexColumnOrder) } provided must be a valid enum.", nameof(columnOrder));
+                throw new ArgumentException($"The {nameof(IndexColumnOrder)} provided must be a valid enum.", nameof(columnOrder));
 
             ColumnOrder = columnOrder;
             AutoIncrement = autoIncrement;

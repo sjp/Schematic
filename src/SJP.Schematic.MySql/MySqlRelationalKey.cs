@@ -29,9 +29,9 @@ public class MySqlRelationalKey : IDatabaseRelationalKey
     public MySqlRelationalKey(Identifier childTableName, IDatabaseKey childKey, Identifier parentTableName, IDatabaseKey parentKey, ReferentialAction deleteAction, ReferentialAction updateAction)
     {
         if (!deleteAction.IsValid())
-            throw new ArgumentException($"The { nameof(ReferentialAction) } provided must be a valid enum.", nameof(deleteAction));
+            throw new ArgumentException($"The {nameof(ReferentialAction)} provided must be a valid enum.", nameof(deleteAction));
         if (!updateAction.IsValid())
-            throw new ArgumentException($"The { nameof(ReferentialAction) } provided must be a valid enum.", nameof(updateAction));
+            throw new ArgumentException($"The {nameof(ReferentialAction)} provided must be a valid enum.", nameof(updateAction));
         if (deleteAction == ReferentialAction.SetDefault)
             throw new ArgumentException("MySQL does not support a delete action of 'SET DEFAULT'.", nameof(deleteAction));
         if (updateAction == ReferentialAction.SetDefault)
@@ -43,9 +43,9 @@ public class MySqlRelationalKey : IDatabaseRelationalKey
         ParentKey = parentKey ?? throw new ArgumentNullException(nameof(parentKey));
 
         if (ChildKey.KeyType != DatabaseKeyType.Foreign)
-            throw new ArgumentException($"The child key must be a foreign key, instead given a key of type '{ childKey.KeyType }'.", nameof(childKey));
+            throw new ArgumentException($"The child key must be a foreign key, instead given a key of type '{childKey.KeyType}'.", nameof(childKey));
         if (ParentKey.KeyType != DatabaseKeyType.Primary && ParentKey.KeyType != DatabaseKeyType.Unique)
-            throw new ArgumentException($"The parent key must be a primary or unique key, instead given a key of type '{ parentKey.KeyType }'.", nameof(parentKey));
+            throw new ArgumentException($"The parent key must be a primary or unique key, instead given a key of type '{parentKey.KeyType}'.", nameof(parentKey));
 
         DeleteAction = deleteAction;
         UpdateAction = updateAction;

@@ -73,7 +73,7 @@ public class ColumnWithNumericSuffix : Rule, ITableRule
         if (columnName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(columnName));
 
-        var messageText = $"The table '{ tableName }' has a column '{ columnName }' with a numeric suffix, indicating denormalization.";
+        var messageText = $"The table '{tableName}' has a column '{columnName}' with a numeric suffix, indicating denormalization.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 

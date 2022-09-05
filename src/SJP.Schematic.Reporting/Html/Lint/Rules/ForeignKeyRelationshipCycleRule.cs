@@ -23,7 +23,7 @@ internal sealed class ForeignKeyRelationshipCycleRule : Schematic.Lint.Rules.For
             .Select(static tableName =>
             {
                 var tableUrl = UrlRouter.GetTableUrl(tableName);
-                return $"<a href=\"{ tableUrl }\">{ HttpUtility.HtmlEncode(tableName.ToVisibleName()) }</a>";
+                return $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
             })
             .Join(" &rarr; ");
         var message = "Cycle found for the following path: " + tableNames;

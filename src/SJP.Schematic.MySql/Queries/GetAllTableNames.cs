@@ -16,8 +16,8 @@ internal static class GetAllTableNames
 
     internal const string Sql = @$"
 select
-    table_schema as `{ nameof(Result.SchemaName) }`,
-    table_name as `{ nameof(Result.TableName) }`
+    table_schema as `{nameof(Result.SchemaName)}`,
+    table_name as `{nameof(Result.TableName)}`
 from information_schema.tables
-where table_schema = @{ nameof(Query.SchemaName) }";
+where table_schema = @{nameof(Query.SchemaName)}";
 }

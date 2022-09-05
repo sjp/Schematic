@@ -17,6 +17,6 @@ internal static class GetViewName
         if (schemaName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(schemaName));
 
-        return $"select name from { dialect.QuoteIdentifier(schemaName) }.sqlite_master where type = 'view' and lower(name) = lower(@{ nameof(Query.ViewName) })";
+        return $"select name from {dialect.QuoteIdentifier(schemaName)}.sqlite_master where type = 'view' and lower(name) = lower(@{nameof(Query.ViewName)})";
     }
 }

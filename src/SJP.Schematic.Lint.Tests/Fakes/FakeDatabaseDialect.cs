@@ -48,7 +48,7 @@ internal sealed class FakeDatabaseDialect : IDatabaseDialect
         if (identifier.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(identifier));
 
-        return $"\"{ identifier.Replace("\"", "\"\"", StringComparison.Ordinal) }\"";
+        return $"\"{identifier.Replace("\"", "\"\"", StringComparison.Ordinal)}\"";
     }
 
     public Task<IRelationalDatabase> GetRelationalDatabaseAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)

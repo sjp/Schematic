@@ -79,7 +79,7 @@ public class NoSurrogatePrimaryKeyRule : Rule, ITableRule
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
-        var messageText = $"The table { tableName } has a multi-column primary key. Consider introducing a surrogate primary key.";
+        var messageText = $"The table {tableName} has a multi-column primary key. Consider introducing a surrogate primary key.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
