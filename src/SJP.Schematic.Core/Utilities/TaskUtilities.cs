@@ -33,7 +33,7 @@ public static class TaskUtilities
     {
         var tasks = new Task[] { task1, task2 };
 
-        await Task.WhenAll(tasks);
+        await Task.WhenAll(tasks).ConfigureAwait(false);
 
         return (
             await task1.ConfigureAwait(false),
@@ -70,7 +70,7 @@ public static class TaskUtilities
     {
         var tasks = new Task[] { task1, task2 };
 
-        await Task.WhenAll(tasks);
+        await Task.WhenAll(tasks).ConfigureAwait(false);
 
         return (
             await task1.ConfigureAwait(false),
@@ -112,7 +112,7 @@ public static class TaskUtilities
     {
         var tasks = new Task[] { task1, task2 };
 
-        await Task.WhenAll(tasks);
+        await Task.WhenAll(tasks).ConfigureAwait(false);
 
         return (
             await task1.ConfigureAwait(false),
@@ -159,7 +159,7 @@ public static class TaskUtilities
     {
         var tasks = new Task[] { task1, task2 };
 
-        await Task.WhenAll(tasks);
+        await Task.WhenAll(tasks).ConfigureAwait(false);
 
         return (
             await task1.ConfigureAwait(false),
@@ -211,7 +211,7 @@ public static class TaskUtilities
     {
         var tasks = new Task[] { task1, task2 };
 
-        await Task.WhenAll(tasks);
+        await Task.WhenAll(tasks).ConfigureAwait(false);
 
         return (
             await task1.ConfigureAwait(false),
@@ -268,7 +268,7 @@ public static class TaskUtilities
     {
         var tasks = new Task[] { task1, task2 };
 
-        await Task.WhenAll(tasks);
+        await Task.WhenAll(tasks).ConfigureAwait(false);
 
         return (
             await task1.ConfigureAwait(false),
@@ -330,7 +330,7 @@ public static class TaskUtilities
     {
         var tasks = new Task[] { task1, task2 };
 
-        await Task.WhenAll(tasks);
+        await Task.WhenAll(tasks).ConfigureAwait(false);
 
         return (
             await task1.ConfigureAwait(false),
@@ -397,7 +397,7 @@ public static class TaskUtilities
     {
         var tasks = new Task[] { task1, task2 };
 
-        await Task.WhenAll(tasks);
+        await Task.WhenAll(tasks).ConfigureAwait(false);
 
         return (
             await task1.ConfigureAwait(false),
@@ -469,7 +469,7 @@ public static class TaskUtilities
     {
         var tasks = new Task[] { task1, task2 };
 
-        await Task.WhenAll(tasks);
+        await Task.WhenAll(tasks).ConfigureAwait(false);
 
         return (
             await task1.ConfigureAwait(false),
@@ -546,7 +546,7 @@ public static class TaskUtilities
     {
         var tasks = new Task[] { task1, task2 };
 
-        await Task.WhenAll(tasks);
+        await Task.WhenAll(tasks).ConfigureAwait(false);
 
         return (
             await task1.ConfigureAwait(false),
@@ -628,7 +628,7 @@ public static class TaskUtilities
     {
         var tasks = new Task[] { task1, task2 };
 
-        await Task.WhenAll(tasks);
+        await Task.WhenAll(tasks).ConfigureAwait(false);
 
         return (
             await task1.ConfigureAwait(false),
@@ -715,7 +715,7 @@ public static class TaskUtilities
     {
         var tasks = new Task[] { task1, task2 };
 
-        await Task.WhenAll(tasks);
+        await Task.WhenAll(tasks).ConfigureAwait(false);
 
         return (
             await task1.ConfigureAwait(false),
@@ -807,7 +807,7 @@ public static class TaskUtilities
     {
         var tasks = new Task[] { task1, task2 };
 
-        await Task.WhenAll(tasks);
+        await Task.WhenAll(tasks).ConfigureAwait(false);
 
         return (
             await task1.ConfigureAwait(false),
@@ -904,7 +904,7 @@ public static class TaskUtilities
     {
         var tasks = new Task[] { task1, task2 };
 
-        await Task.WhenAll(tasks);
+        await Task.WhenAll(tasks).ConfigureAwait(false);
 
         return (
             await task1.ConfigureAwait(false),
@@ -1006,7 +1006,7 @@ public static class TaskUtilities
     {
         var tasks = new Task[] { task1, task2 };
 
-        await Task.WhenAll(tasks);
+        await Task.WhenAll(tasks).ConfigureAwait(false);
 
         return (
             await task1.ConfigureAwait(false),
