@@ -19,7 +19,7 @@
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="6.0.10">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
-    <PackageReference Include="RazorLight" Version="2.1.0" />
+    <PackageReference Include="RazorLight" Version="2.3.0" />
     <PackageReference Include="System.Text.Encodings.Web" Version="6.0.0">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
