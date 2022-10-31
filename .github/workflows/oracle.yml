@@ -29,10 +29,10 @@ jobs:
         ports:
           - 1521:1521
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
 
@@ -51,4 +51,4 @@ jobs:
         ConnectionStrings__Oracle_TestDb: Data Source=localhost/XEPDB1; User Id=schematic; Password=schematic
 
     - name: Coverage
-      uses: codecov/codecov-action@v2.1.0
+      uses: codecov/codecov-action@v3

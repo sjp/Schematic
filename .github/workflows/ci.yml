@@ -12,10 +12,10 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
 
@@ -32,4 +32,4 @@ jobs:
       working-directory: src
 
     - name: Coverage
-      uses: codecov/codecov-action@v2.1.0
+      uses: codecov/codecov-action@v3
