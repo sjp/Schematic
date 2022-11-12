@@ -5,21 +5,21 @@ namespace SJP.Schematic.Serialization.Dto;
 
 public class RelationalDatabaseTable
 {
-    public Identifier? TableName { get; set; }
+    public required Identifier? TableName { get; init; }
 
-    public DatabaseKey? PrimaryKey { get; set; }
+    public required DatabaseKey? PrimaryKey { get; init; }
 
-    public IEnumerable<DatabaseColumn> Columns { get; set; } = Array.Empty<DatabaseColumn>();
+    public required IEnumerable<DatabaseColumn> Columns { get; init; }
 
-    public IEnumerable<DatabaseCheckConstraint> Checks { get; set; } = Array.Empty<DatabaseCheckConstraint>();
+    public required IEnumerable<DatabaseCheckConstraint> Checks { get; init; }
 
-    public IEnumerable<DatabaseIndex> Indexes { get; set; } = Array.Empty<DatabaseIndex>();
+    public required IEnumerable<DatabaseIndex> Indexes { get; init; }
 
-    public IEnumerable<DatabaseKey> UniqueKeys { get; set; } = Array.Empty<DatabaseKey>();
+    public required IEnumerable<DatabaseKey> UniqueKeys { get; init; }
 
-    public IEnumerable<DatabaseRelationalKey> ParentKeys { get; set; } = Array.Empty<DatabaseRelationalKey>();
+    public required IEnumerable<DatabaseRelationalKey> ParentKeys { get; init; }
 
-    public IEnumerable<DatabaseRelationalKey> ChildKeys { get; set; } = Array.Empty<DatabaseRelationalKey>();
+    public required IEnumerable<DatabaseRelationalKey> ChildKeys { get; init; }
 
-    public IEnumerable<DatabaseTrigger> Triggers { get; set; } = Array.Empty<DatabaseTrigger>();
+    public required IEnumerable<DatabaseTrigger> Triggers { get; init; }
 }

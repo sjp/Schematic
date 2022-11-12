@@ -5,11 +5,11 @@ namespace SJP.Schematic.Serialization.Dto;
 
 public class DatabaseView
 {
-    public Identifier ViewName { get; set; } = default!;
+    public required Identifier ViewName { get; init; }
 
-    public string Definition { get; set; } = default!;
+    public required string Definition { get; init; }
 
-    public IEnumerable<DatabaseColumn> Columns { get; set; } = Array.Empty<DatabaseColumn>();
+    public required IEnumerable<DatabaseColumn> Columns { get; init; }
 
-    public bool IsMaterialized { get; set; }
+    public required bool IsMaterialized { get; init; }
 }

@@ -4,14 +4,14 @@ internal sealed record GetAllViewNames
 {
     internal sealed record Query
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
     }
 
     internal sealed record Result
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string ViewName { get; init; } = default!;
+        public required string ViewName { get; init; }
     }
 
     internal const string Sql = @$"

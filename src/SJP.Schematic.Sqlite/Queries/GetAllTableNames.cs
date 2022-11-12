@@ -8,7 +8,7 @@ internal static class GetAllTableNames
 {
     internal sealed record Result
     {
-        public string TableName { get; set; } = default!;
+        public required string TableName { get; init; }
     }
 
     internal static string Sql(IDatabaseDialect dialect, string schemaName)

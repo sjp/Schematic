@@ -4,16 +4,16 @@ internal static class GetUserSynonymDefinition
 {
     internal sealed record Query
     {
-        public string SynonymName { get; init; } = default!;
+        public required string SynonymName { get; init; }
     }
 
     internal sealed record Result
     {
-        public string? TargetDatabaseName { get; init; }
+        public required string? TargetDatabaseName { get; init; }
 
-        public string? TargetSchemaName { get; init; }
+        public required string? TargetSchemaName { get; init; }
 
-        public string? TargetObjectName { get; init; }
+        public required string? TargetObjectName { get; init; }
     }
 
     internal const string Sql = @$"

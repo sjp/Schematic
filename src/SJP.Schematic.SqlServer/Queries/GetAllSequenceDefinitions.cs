@@ -4,23 +4,23 @@ internal static class GetAllSequenceDefinitions
 {
     internal sealed record Result
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string SequenceName { get; init; } = default!;
+        public required string SequenceName { get; init; }
 
-        public bool IsCached { get; init; }
+        public required bool IsCached { get; init; }
 
-        public int? CacheSize { get; init; }
+        public required int? CacheSize { get; init; }
 
-        public bool Cycle { get; init; }
+        public required bool Cycle { get; init; }
 
-        public decimal Increment { get; init; }
+        public required decimal Increment { get; init; }
 
-        public decimal MinValue { get; init; }
+        public required decimal MinValue { get; init; }
 
-        public decimal MaxValue { get; init; }
+        public required decimal MaxValue { get; init; }
 
-        public decimal StartValue { get; init; }
+        public required decimal StartValue { get; init; }
     }
 
     internal const string Sql = @$"

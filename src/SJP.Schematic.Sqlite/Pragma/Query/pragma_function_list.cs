@@ -9,31 +9,31 @@ public sealed record pragma_function_list
     /// <summary>
     /// The name of the function.
     /// </summary>
-    public string name { get; init; } = default!;
+    public required string name { get; init; }
 
     /// <summary>
     /// Whether the function is built-in, i.e. distributed with SQLite.
     /// </summary>
-    public bool builtin { get; init; }
+    public required bool builtin { get; init; }
 
     /// <summary>
     /// The type of function. One of scalar, aggregate or window. i.e. s/w/a
     /// </summary>
-    public string type { get; init; } = default!;
+    public required string type { get; init; }
 
     /// <summary>
     /// The encoding of the function.
     /// </summary>
-    public Encoding enc { get; init; }
+    public required Encoding enc { get; init; }
 
     /// <summary>
     /// The number of arguments to the function. -1 indicates no arguments.
     /// </summary>
-    public int narg { get; init; }
+    public required int narg { get; init; }
 
     /// <summary>
     /// Flags that determine some of the behaviour of the function.
     /// </summary>
-    public FunctionOptions flags { get; init; }
+    public required FunctionOptions flags { get; init; }
 }
 #pragma warning restore IDE1006, S101 // Naming Styles

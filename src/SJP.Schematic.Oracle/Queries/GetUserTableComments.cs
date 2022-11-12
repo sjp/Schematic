@@ -4,16 +4,16 @@ internal static class GetUserTableComments
 {
     internal sealed record Query
     {
-        public string TableName { get; init; } = default!;
+        public required string TableName { get; init; }
     }
 
     internal sealed record Result
     {
-        public string ColumnName { get; init; } = default!;
+        public required string ColumnName { get; init; }
 
-        public string ObjectType { get; init; } = default!;
+        public required string ObjectType { get; init; }
 
-        public string? Comment { get; init; }
+        public required string? Comment { get; init; }
     }
 
     internal const string Sql = @$"

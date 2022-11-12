@@ -4,16 +4,16 @@ internal static class GetSequenceName
 {
     internal sealed record Query
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string SequenceName { get; init; } = default!;
+        public required string SequenceName { get; init; }
     }
 
     internal sealed record Result
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string SequenceName { get; init; } = default!;
+        public required string SequenceName { get; init; }
     }
 
     internal const string Sql = @$"

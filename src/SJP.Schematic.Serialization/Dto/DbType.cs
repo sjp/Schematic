@@ -2,19 +2,19 @@
 
 public class DbType
 {
-    public Identifier? TypeName { get; set; }
+    public Identifier? TypeName { get; init; }
 
-    public Core.DataType DataType { get; set; }
+    public required Core.DataType DataType { get; init; }
 
-    public string? Definition { get; set; }
+    public string? Definition { get; init; }
 
-    public bool IsFixedLength { get; set; }
+    public required bool IsFixedLength { get; init; }
 
-    public int MaxLength { get; set; }
+    public required int MaxLength { get; init; }
 
-    public string? ClrTypeName { get; set; }
+    public string? ClrTypeName { get; init; }
 
-    public NumericPrecision? NumericPrecision { get; set; }
+    public NumericPrecision? NumericPrecision { get; init; }
 
-    public Identifier? Collation { get; set; }
+    public Identifier? Collation { get; init; }
 }

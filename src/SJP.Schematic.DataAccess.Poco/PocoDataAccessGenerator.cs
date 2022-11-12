@@ -113,8 +113,8 @@ public class PocoDataAccessGenerator : IDataAccessGenerator
 
         foreach (var table in tables)
         {
-            var tableComment = tableCommentsLookup.ContainsKey(table.Name)
-                ? Option<IRelationalDatabaseTableComments>.Some(tableCommentsLookup[table.Name])
+            var tableComment = tableCommentsLookup.TryGetValue(table.Name, out var c)
+                ? Option<IRelationalDatabaseTableComments>.Some(c)
                 : Option<IRelationalDatabaseTableComments>.None;
 
             var tableClass = tableGenerator.Generate(tables, table, tableComment);
@@ -131,8 +131,8 @@ public class PocoDataAccessGenerator : IDataAccessGenerator
 
         foreach (var view in views)
         {
-            var viewComment = viewCommentsLookup.ContainsKey(view.Name)
-                ? Option<IDatabaseViewComments>.Some(viewCommentsLookup[view.Name])
+            var viewComment = viewCommentsLookup.TryGetValue(view.Name, out var c)
+                ? Option<IDatabaseViewComments>.Some(c)
                 : Option<IDatabaseViewComments>.None;
 
             var viewClass = viewGenerator.Generate(view, viewComment);
@@ -154,7 +154,7 @@ public class PocoDataAccessGenerator : IDataAccessGenerator
             new XAttribute("Sdk", "Microsoft.NET.Sdk"),
             new XElement(
                 "PropertyGroup",
-                new XElement("TargetFramework", "net6.0"),
+                new XElement("TargetFramework", "net7.0"),
                 new XElement("CheckForOverflowUnderflow", true),
                 new XElement("TreatWarningsAsErrors", true),
                 new XElement("Nullable", "enable"),

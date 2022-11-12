@@ -2,7 +2,7 @@
 
 public class DatabaseSynonymComments
 {
-    public Identifier SynonymName { get; set; } = default!;
+    public required Identifier SynonymName { get; init; }
 
-    public string? Comment { get; set; }
+    public string? Comment { get; init; }
 }

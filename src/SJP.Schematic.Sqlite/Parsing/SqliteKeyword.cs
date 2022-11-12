@@ -4,7 +4,7 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Sqlite.Parsing;
 
-internal struct SqliteKeyword
+internal readonly struct SqliteKeyword
 {
     public SqliteKeyword(string keyword, SqliteToken token)
     {

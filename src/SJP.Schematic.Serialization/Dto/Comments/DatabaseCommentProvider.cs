@@ -10,13 +10,13 @@ public class DatabaseCommentProvider
 
     public IIdentifierResolutionStrategy? IdentifierResolver { get; set; }
 
-    public IEnumerable<DatabaseTableComments> TableComments { get; set; } = Array.Empty<DatabaseTableComments>();
+    public required IEnumerable<DatabaseTableComments> TableComments { get; init; }
 
-    public IEnumerable<DatabaseViewComments> ViewComments { get; set; } = Array.Empty<DatabaseViewComments>();
+    public required IEnumerable<DatabaseViewComments> ViewComments { get; init; }
 
-    public IEnumerable<DatabaseSequenceComments> SequenceComments { get; set; } = Array.Empty<DatabaseSequenceComments>();
+    public required IEnumerable<DatabaseSequenceComments> SequenceComments { get; init; }
 
-    public IEnumerable<DatabaseSynonymComments> SynonymComments { get; set; } = Array.Empty<DatabaseSynonymComments>();
+    public required IEnumerable<DatabaseSynonymComments> SynonymComments { get; init; }
 
-    public IEnumerable<DatabaseRoutineComments> RoutineComments { get; set; } = Array.Empty<DatabaseRoutineComments>();
+    public required IEnumerable<DatabaseRoutineComments> RoutineComments { get; init; }
 }

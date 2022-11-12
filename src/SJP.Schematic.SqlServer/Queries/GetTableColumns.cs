@@ -4,40 +4,40 @@ internal static class GetTableColumns
 {
     internal sealed record Query
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string TableName { get; init; } = default!;
+        public required string TableName { get; init; }
     }
 
     internal sealed record Result
     {
-        public string ColumnName { get; init; } = default!;
+        public required string ColumnName { get; init; }
 
-        public string? ColumnTypeSchema { get; init; }
+        public required string? ColumnTypeSchema { get; init; }
 
-        public string ColumnTypeName { get; init; } = default!;
+        public required string ColumnTypeName { get; init; }
 
-        public int MaxLength { get; init; }
+        public required int MaxLength { get; init; }
 
-        public int Precision { get; init; }
+        public required int Precision { get; init; }
 
-        public int Scale { get; init; }
+        public required int Scale { get; init; }
 
-        public string? Collation { get; init; }
+        public required string? Collation { get; init; }
 
-        public bool IsComputed { get; init; }
+        public required bool IsComputed { get; init; }
 
-        public bool IsNullable { get; init; }
+        public required bool IsNullable { get; init; }
 
-        public bool HasDefaultValue { get; init; }
+        public required bool HasDefaultValue { get; init; }
 
-        public string? DefaultValue { get; init; }
+        public required string? DefaultValue { get; init; }
 
-        public string? ComputedColumnDefinition { get; init; }
+        public required string? ComputedColumnDefinition { get; init; }
 
-        public long? IdentitySeed { get; init; }
+        public required long? IdentitySeed { get; init; }
 
-        public long? IdentityIncrement { get; init; }
+        public required long? IdentityIncrement { get; init; }
     }
 
     internal const string Sql = @$"

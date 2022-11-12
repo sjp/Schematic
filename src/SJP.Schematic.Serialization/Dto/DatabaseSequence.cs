@@ -2,17 +2,17 @@
 
 public class DatabaseSequence
 {
-    public Identifier? SequenceName { get; set; }
+    public Identifier? SequenceName { get; init; }
 
-    public int Cache { get; set; }
+    public required int Cache { get; init; }
 
-    public bool Cycle { get; set; }
+    public required bool Cycle { get; init; }
 
-    public decimal Increment { get; set; }
+    public required decimal Increment { get; init; }
 
-    public decimal? MaxValue { get; set; }
+    public decimal? MaxValue { get; init; }
 
-    public decimal? MinValue { get; set; }
+    public decimal? MinValue { get; init; }
 
-    public decimal Start { get; set; }
+    public required decimal Start { get; init; }
 }

@@ -4,19 +4,19 @@ internal static class GetAllSequences
 {
     internal sealed record Result
     {
-        public string? SchemaName { get; init; }
+        public required string? SchemaName { get; init; }
 
-        public string? SequenceName { get; init; }
+        public required string? SequenceName { get; init; }
 
-        public int CacheSize { get; init; }
+        public required int CacheSize { get; init; }
 
-        public string? Cycle { get; init; }
+        public required string? Cycle { get; init; }
 
-        public decimal Increment { get; init; }
+        public required decimal Increment { get; init; }
 
-        public decimal MinValue { get; init; }
+        public required decimal MinValue { get; init; }
 
-        public decimal MaxValue { get; init; }
+        public required decimal MaxValue { get; init; }
     }
 
     internal const string Sql = @$"

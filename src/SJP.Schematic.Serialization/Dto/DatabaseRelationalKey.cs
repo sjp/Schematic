@@ -4,15 +4,15 @@ namespace SJP.Schematic.Serialization.Dto;
 
 public class DatabaseRelationalKey
 {
-    public Identifier? ChildTable { get; set; }
+    public Identifier? ChildTable { get; init; }
 
-    public DatabaseKey? ChildKey { get; set; }
+    public DatabaseKey? ChildKey { get; init; }
 
-    public Identifier? ParentTable { get; set; }
+    public Identifier? ParentTable { get; init; }
 
-    public DatabaseKey? ParentKey { get; set; }
+    public DatabaseKey? ParentKey { get; init; }
 
-    public ReferentialAction DeleteAction { get; set; }
+    public required ReferentialAction DeleteAction { get; init; }
 
-    public ReferentialAction UpdateAction { get; set; }
+    public required ReferentialAction UpdateAction { get; init; }
 }

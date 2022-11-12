@@ -4,18 +4,18 @@ internal static class GetTableComments
 {
     internal sealed record Query
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string TableName { get; init; } = default!;
+        public required string TableName { get; init; }
     }
 
     internal sealed record Result
     {
-        public string ObjectType { get; init; } = default!;
+        public required string ObjectType { get; init; }
 
-        public string ObjectName { get; init; } = default!;
+        public required string ObjectName { get; init; }
 
-        public string? Comment { get; init; }
+        public required string? Comment { get; init; }
     }
 
     internal const string Sql = @$"

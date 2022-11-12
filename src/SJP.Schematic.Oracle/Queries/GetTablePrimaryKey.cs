@@ -4,20 +4,20 @@ internal static class GetTablePrimaryKey
 {
     internal sealed record Query
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string TableName { get; init; } = default!;
+        public required string TableName { get; init; }
     }
 
     internal sealed record Result
     {
-        public string? ConstraintName { get; init; }
+        public required string? ConstraintName { get; init; }
 
-        public string? EnabledStatus { get; init; }
+        public required string? EnabledStatus { get; init; }
 
-        public string? ColumnName { get; init; }
+        public required string? ColumnName { get; init; }
 
-        public int ColumnPosition { get; init; }
+        public required int ColumnPosition { get; init; }
     }
 
     internal const string Sql = @$"

@@ -4,9 +4,9 @@ internal static class GetDatabaseVersion
 {
     internal sealed record Result
     {
-        public string? ProductName { get; init; }
+        public required string? ProductName { get; init; }
 
-        public string? VersionNumber { get; init; }
+        public required string? VersionNumber { get; init; }
     }
 
     internal const string Sql = @$"

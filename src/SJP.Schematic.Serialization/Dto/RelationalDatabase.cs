@@ -6,17 +6,17 @@ namespace SJP.Schematic.Serialization.Dto;
 
 public class RelationalDatabase
 {
-    public IdentifierDefaults IdentifierDefaults { get; set; } = default!;
-
     public IIdentifierResolutionStrategy? IdentifierResolver { get; set; }
 
-    public IEnumerable<RelationalDatabaseTable> Tables { get; set; } = Array.Empty<RelationalDatabaseTable>();
+    public required IdentifierDefaults IdentifierDefaults { get; init; }
 
-    public IEnumerable<DatabaseView> Views { get; set; } = Array.Empty<DatabaseView>();
+    public required IEnumerable<RelationalDatabaseTable> Tables { get; init; }
 
-    public IEnumerable<DatabaseSequence> Sequences { get; set; } = Array.Empty<DatabaseSequence>();
+    public required IEnumerable<DatabaseView> Views { get; init; }
 
-    public IEnumerable<DatabaseSynonym> Synonyms { get; set; } = Array.Empty<DatabaseSynonym>();
+    public required IEnumerable<DatabaseSequence> Sequences { get; init; }
 
-    public IEnumerable<DatabaseRoutine> Routines { get; set; } = Array.Empty<DatabaseRoutine>();
+    public required IEnumerable<DatabaseSynonym> Synonyms { get; init; }
+
+    public required IEnumerable<DatabaseRoutine> Routines { get; init; }
 }

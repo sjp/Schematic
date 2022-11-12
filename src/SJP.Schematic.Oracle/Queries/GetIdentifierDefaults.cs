@@ -4,13 +4,13 @@ internal static class GetIdentifierDefaults
 {
     internal sealed record Result
     {
-        public string? ServerHost { get; init; }
+        public required string? ServerHost { get; init; }
 
-        public string? ServerSid { get; init; }
+        public required string? ServerSid { get; init; }
 
-        public string? DatabaseName { get; init; }
+        public required string? DatabaseName { get; init; }
 
-        public string? DefaultSchema { get; init; }
+        public required string? DefaultSchema { get; init; }
     }
 
     internal const string Sql = @$"

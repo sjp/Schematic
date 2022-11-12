@@ -5,15 +5,15 @@ namespace SJP.Schematic.Serialization.Dto;
 
 public class DatabaseIndex
 {
-    public Identifier? IndexName { get; set; }
+    public Identifier? IndexName { get; init; }
 
-    public IEnumerable<DatabaseIndexColumn> Columns { get; set; } = Array.Empty<DatabaseIndexColumn>();
+    public required IEnumerable<DatabaseIndexColumn> Columns { get; init; }
 
-    public IEnumerable<DatabaseColumn> IncludedColumns { get; set; } = Array.Empty<DatabaseColumn>();
+    public required IEnumerable<DatabaseColumn> IncludedColumns { get; init; }
 
-    public bool IsUnique { get; set; }
+    public required bool IsUnique { get; init; }
 
-    public bool IsEnabled { get; set; }
+    public required bool IsEnabled { get; init; }
 
-    public string? FilterDefinition { get; set; }
+    public string? FilterDefinition { get; init; }
 }

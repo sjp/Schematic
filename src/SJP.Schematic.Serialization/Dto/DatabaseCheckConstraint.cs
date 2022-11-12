@@ -2,9 +2,9 @@
 
 public class DatabaseCheckConstraint
 {
-    public Identifier? CheckName { get; set; }
+    public Identifier? CheckName { get; init; }
 
-    public string? Definition { get; set; }
+    public string? Definition { get; init; }
 
-    public bool IsEnabled { get; set; }
+    public required bool IsEnabled { get; init; }
 }

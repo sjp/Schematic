@@ -4,20 +4,20 @@ internal static class GetRoutineComments
 {
     internal sealed record Query
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string RoutineName { get; init; } = default!;
+        public required string RoutineName { get; init; }
 
-        public string CommentProperty { get; init; } = default!;
+        public required string CommentProperty { get; init; }
     }
 
     internal sealed record Result
     {
-        public string ObjectType { get; init; } = default!;
+        public required string ObjectType { get; init; }
 
-        public string ObjectName { get; init; } = default!;
+        public required string ObjectName { get; init; }
 
-        public string? Comment { get; init; }
+        public required string? Comment { get; init; }
     }
 
     internal const string Sql = @$"

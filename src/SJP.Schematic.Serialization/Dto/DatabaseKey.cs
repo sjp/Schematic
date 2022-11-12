@@ -5,11 +5,11 @@ namespace SJP.Schematic.Serialization.Dto;
 
 public class DatabaseKey
 {
-    public Identifier? Name { get; set; }
+    public Identifier? Name { get; init; }
 
-    public Core.DatabaseKeyType KeyType { get; set; }
+    public required Core.DatabaseKeyType KeyType { get; init; }
 
-    public IEnumerable<DatabaseColumn> Columns { get; set; } = Array.Empty<DatabaseColumn>();
+    public required IEnumerable<DatabaseColumn> Columns { get; init; }
 
-    public bool IsEnabled { get; set; }
+    public required bool IsEnabled { get; init; }
 }

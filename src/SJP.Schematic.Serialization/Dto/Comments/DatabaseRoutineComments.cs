@@ -2,7 +2,7 @@
 
 public class DatabaseRoutineComments
 {
-    public Identifier RoutineName { get; set; } = default!;
+    public required Identifier RoutineName { get; init; }
 
-    public string? Comment { get; set; }
+    public string? Comment { get; init; }
 }

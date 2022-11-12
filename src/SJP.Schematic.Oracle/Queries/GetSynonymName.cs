@@ -4,16 +4,16 @@ internal static class GetSynonymName
 {
     internal sealed record Query
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string SynonymName { get; init; } = default!;
+        public required string SynonymName { get; init; }
     }
 
     internal sealed record Result
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string SynonymName { get; init; } = default!;
+        public required string SynonymName { get; init; }
     }
 
     internal const string Sql = @$"

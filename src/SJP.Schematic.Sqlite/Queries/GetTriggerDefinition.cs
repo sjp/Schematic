@@ -8,20 +8,20 @@ internal static class GetTriggerDefinition
 {
     internal sealed record Query
     {
-        public string TableName { get; set; } = default!;
+        public required string TableName { get; init; }
     }
 
     internal sealed record Result
     {
-        public string Type { get; init; } = default!;
+        public required string Type { get; init; }
 
-        public string Name { get; init; } = default!;
+        public required string Name { get; init; }
 
-        public string TableName { get; init; } = default!;
+        public required string TableName { get; init; }
 
-        public long RootPage { get; init; }
+        public required long RootPage { get; init; }
 
-        public string Sql { get; init; } = default!;
+        public required string Sql { get; init; }
     }
 
     internal static string Sql(IDatabaseDialect dialect, string schemaName)

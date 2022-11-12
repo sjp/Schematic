@@ -4,30 +4,30 @@ internal static class GetTableParentKeys
 {
     internal sealed record Query
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string TableName { get; init; } = default!;
+        public required string TableName { get; init; }
     }
 
     internal sealed record Result
     {
-        public string ConstraintName { get; init; } = default!;
+        public required string ConstraintName { get; init; }
 
-        public string EnabledStatus { get; init; } = default!;
+        public required string EnabledStatus { get; init; }
 
-        public string DeleteAction { get; init; } = default!;
+        public required string DeleteAction { get; init; }
 
-        public string? ParentTableSchema { get; init; }
+        public required string? ParentTableSchema { get; init; }
 
-        public string? ParentTableName { get; init; }
+        public required string? ParentTableName { get; init; }
 
-        public string? ParentConstraintName { get; init; }
+        public required string? ParentConstraintName { get; init; }
 
-        public string ParentKeyType { get; init; } = default!;
+        public required string ParentKeyType { get; init; }
 
-        public string ColumnName { get; init; } = default!;
+        public required string ColumnName { get; init; }
 
-        public int ColumnPosition { get; init; }
+        public required int ColumnPosition { get; init; }
     }
 
     internal const string Sql = @$"

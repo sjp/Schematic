@@ -4,9 +4,9 @@ internal static class GetAllPackageNames
 {
     internal sealed record Result
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string PackageName { get; init; } = default!;
+        public required string PackageName { get; init; }
     }
 
     internal const string Sql = @$"

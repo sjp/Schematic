@@ -4,24 +4,24 @@ internal static class GetTableIndexes
 {
     internal sealed record Query
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string TableName { get; init; } = default!;
+        public required string TableName { get; init; }
     }
 
     internal sealed record Result
     {
-        public string? IndexOwner { get; init; }
+        public required string? IndexOwner { get; init; }
 
-        public string? IndexName { get; init; }
+        public required string? IndexName { get; init; }
 
-        public string? Uniqueness { get; init; }
+        public required string? Uniqueness { get; init; }
 
-        public string? IsDescending { get; init; }
+        public required string? IsDescending { get; init; }
 
-        public string? ColumnName { get; init; }
+        public required string? ColumnName { get; init; }
 
-        public int ColumnPosition { get; init; }
+        public required int ColumnPosition { get; init; }
     }
 
     internal const string Sql = @$"

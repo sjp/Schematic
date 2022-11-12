@@ -4,16 +4,16 @@ internal static class GetV12TableChecks
 {
     internal sealed record Query
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string TableName { get; init; } = default!;
+        public required string TableName { get; init; }
     }
 
     internal sealed record Result
     {
-        public string? ConstraintName { get; init; }
+        public required string? ConstraintName { get; init; }
 
-        public string? Definition { get; init; }
+        public required string? Definition { get; init; }
     }
 
     internal const string Sql = @$"

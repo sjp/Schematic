@@ -4,22 +4,22 @@ internal static class GetTableTriggers
 {
     internal sealed record Query
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string TableName { get; init; } = default!;
+        public required string TableName { get; init; }
     }
 
     internal sealed record Result
     {
-        public string TriggerName { get; init; } = default!;
+        public required string TriggerName { get; init; }
 
-        public string Definition { get; init; } = default!;
+        public required string Definition { get; init; }
 
-        public string Timing { get; init; } = default!;
+        public required string Timing { get; init; }
 
-        public string TriggerEvent { get; init; } = default!;
+        public required string TriggerEvent { get; init; }
 
-        public string EnabledFlag { get; init; } = default!;
+        public required string EnabledFlag { get; init; }
     }
 
     internal const string Sql = @$"

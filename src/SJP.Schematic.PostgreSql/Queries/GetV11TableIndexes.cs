@@ -4,30 +4,30 @@ internal static class GetV11TableIndexes
 {
     internal sealed record Query
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string TableName { get; init; } = default!;
+        public required string TableName { get; init; }
     }
 
     internal sealed record Result
     {
-        public string? IndexName { get; init; }
+        public required string? IndexName { get; init; }
 
-        public bool IsUnique { get; init; }
+        public required bool IsUnique { get; init; }
 
-        public bool IsPrimary { get; init; }
+        public required bool IsPrimary { get; init; }
 
-        public string? FilterDefinition { get; init; }
+        public required string? FilterDefinition { get; init; }
 
-        public int KeyColumnCount { get; init; }
+        public required int KeyColumnCount { get; init; }
 
-        public int IndexColumnId { get; init; }
+        public required int IndexColumnId { get; init; }
 
-        public string? IndexColumnExpression { get; init; }
+        public required string? IndexColumnExpression { get; init; }
 
-        public bool IsDescending { get; init; }
+        public required bool IsDescending { get; init; }
 
-        public bool IsFunctional { get; init; }
+        public required bool IsFunctional { get; init; }
     }
 
     internal const string Sql = @$"

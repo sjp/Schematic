@@ -4,7 +4,7 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Oracle.Parsing;
 
-internal struct OracleKeyword
+internal readonly struct OracleKeyword
 {
     public OracleKeyword(string keyword, OracleToken token)
     {

@@ -4,18 +4,18 @@ internal static class GetMaterializedViewChecks
 {
     internal sealed record Query
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string ViewName { get; init; } = default!;
+        public required string ViewName { get; init; }
     }
 
     internal sealed record Result
     {
-        public string ConstraintName { get; init; } = default!;
+        public required string ConstraintName { get; init; }
 
-        public string? Definition { get; init; }
+        public required string? Definition { get; init; }
 
-        public string EnabledStatus { get; init; } = default!;
+        public required string EnabledStatus { get; init; }
     }
 
     internal const string Sql = @$"

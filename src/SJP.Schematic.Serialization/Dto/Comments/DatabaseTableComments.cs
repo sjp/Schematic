@@ -4,21 +4,21 @@ namespace SJP.Schematic.Serialization.Dto.Comments;
 
 public class DatabaseTableComments
 {
-    public Identifier TableName { get; set; } = default!;
+    public required Identifier TableName { get; init; }
 
-    public string? Comment { get; set; }
+    public string? Comment { get; init; }
 
-    public string? PrimaryKeyComment { get; set; }
+    public string? PrimaryKeyComment { get; init; }
 
-    public IReadOnlyDictionary<string, string?> ColumnComments { get; set; } = new Dictionary<string, string?>();
+    public required IReadOnlyDictionary<string, string?> ColumnComments { get; init; }
 
-    public IReadOnlyDictionary<string, string?> CheckComments { get; set; } = new Dictionary<string, string?>();
+    public required IReadOnlyDictionary<string, string?> CheckComments { get; init; }
 
-    public IReadOnlyDictionary<string, string?> UniqueKeyComments { get; set; } = new Dictionary<string, string?>();
+    public required IReadOnlyDictionary<string, string?> UniqueKeyComments { get; init; }
 
-    public IReadOnlyDictionary<string, string?> ForeignKeyComments { get; set; } = new Dictionary<string, string?>();
+    public required IReadOnlyDictionary<string, string?> ForeignKeyComments { get; init; }
 
-    public IReadOnlyDictionary<string, string?> IndexComments { get; set; } = new Dictionary<string, string?>();
+    public required IReadOnlyDictionary<string, string?> IndexComments { get; init; }
 
-    public IReadOnlyDictionary<string, string?> TriggerComments { get; set; } = new Dictionary<string, string?>();
+    public required IReadOnlyDictionary<string, string?> TriggerComments { get; init; }
 }

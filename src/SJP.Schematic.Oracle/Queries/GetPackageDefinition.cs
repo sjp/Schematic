@@ -4,18 +4,18 @@ internal static class GetPackageDefinition
 {
     internal sealed record Query
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string PackageName { get; init; } = default!;
+        public required string PackageName { get; init; }
     }
 
     internal sealed record Result
     {
-        public string RoutineType { get; init; } = default!;
+        public required string RoutineType { get; init; }
 
-        public int LineNumber { get; init; }
+        public required int LineNumber { get; init; }
 
-        public string? Text { get; init; }
+        public required string? Text { get; init; }
     }
 
     internal const string Sql = @$"

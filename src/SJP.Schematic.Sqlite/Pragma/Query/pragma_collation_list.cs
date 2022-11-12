@@ -9,11 +9,11 @@ public sealed record pragma_collation_list
     /// <summary>
     /// A sequence number assigned to each index for internal tracking purposes.
     /// </summary>
-    public int seq { get; init; }
+    public required int seq { get; init; }
 
     /// <summary>
     /// The name of the collating function. Built-in collating functions are <c>BINARY</c>, <c>NOCASE</c>, and <c>RTRIM</c>.
     /// </summary>
-    public string name { get; init; } = default!;
+    public required string name { get; init; }
 }
 #pragma warning restore IDE1006, S101 // Naming Styles

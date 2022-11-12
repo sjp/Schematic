@@ -4,18 +4,18 @@ internal static class GetTableCheckConstraints
 {
     internal sealed record Query
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string TableName { get; init; } = default!;
+        public required string TableName { get; init; }
     }
 
     internal sealed record Result
     {
-        public string ConstraintName { get; init; } = default!;
+        public required string ConstraintName { get; init; }
 
-        public string Definition { get; init; } = default!;
+        public required string Definition { get; init; }
 
-        public string Enforced { get; init; } = default!;
+        public required string Enforced { get; init; }
     }
 
     internal const string Sql = @$"

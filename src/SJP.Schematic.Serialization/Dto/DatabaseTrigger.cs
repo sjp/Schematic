@@ -2,13 +2,13 @@
 
 public class DatabaseTrigger
 {
-    public Identifier? TriggerName { get; set; }
+    public Identifier? TriggerName { get; init; }
 
-    public string? Definition { get; set; }
+    public string? Definition { get; init; }
 
-    public Core.TriggerQueryTiming QueryTiming { get; set; }
+    public required Core.TriggerQueryTiming QueryTiming { get; init; }
 
-    public Core.TriggerEvent TriggerEvent { get; set; }
+    public required Core.TriggerEvent TriggerEvent { get; init; }
 
-    public bool IsEnabled { get; set; }
+    public required bool IsEnabled { get; init; }
 }

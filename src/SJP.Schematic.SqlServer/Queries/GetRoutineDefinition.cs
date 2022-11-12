@@ -4,9 +4,9 @@ internal static class GetRoutineDefinition
 {
     internal sealed record Query
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string RoutineName { get; init; } = default!;
+        public required string RoutineName { get; init; }
     }
 
     internal const string Sql = @$"

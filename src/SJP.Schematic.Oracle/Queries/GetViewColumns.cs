@@ -4,32 +4,32 @@ internal static class GetViewColumns
 {
     internal sealed record Query
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string ViewName { get; init; } = default!;
+        public required string ViewName { get; init; }
     }
 
     internal sealed record Result
     {
-        public string? ColumnName { get; init; }
+        public required string? ColumnName { get; init; }
 
-        public string? ColumnTypeSchema { get; init; }
+        public required string? ColumnTypeSchema { get; init; }
 
-        public string? ColumnTypeName { get; init; }
+        public required string? ColumnTypeName { get; init; }
 
-        public int DataLength { get; init; }
+        public required int DataLength { get; init; }
 
-        public int CharacterLength { get; init; }
+        public required int CharacterLength { get; init; }
 
-        public int Precision { get; init; }
+        public required int Precision { get; init; }
 
-        public int Scale { get; init; }
+        public required int Scale { get; init; }
 
-        public string? Collation { get; init; }
+        public required string? Collation { get; init; }
 
-        public string? IsComputed { get; init; }
+        public required string? IsComputed { get; init; }
 
-        public string? DefaultValue { get; init; }
+        public required string? DefaultValue { get; init; }
     }
 
     internal const string Sql = @$"

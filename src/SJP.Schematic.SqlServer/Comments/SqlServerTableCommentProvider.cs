@@ -221,14 +221,10 @@ public class SqlServerTableCommentProvider : IRelationalDatabaseTableCommentProv
 
     private sealed record CommentData
     {
-        public string SchemaName { get; init; } = default!;
+        public required string ObjectType { get; init; }
 
-        public string TableName { get; init; } = default!;
+        public required string ObjectName { get; init; }
 
-        public string ObjectType { get; init; } = default!;
-
-        public string ObjectName { get; init; } = default!;
-
-        public string? Comment { get; init; }
+        public required string? Comment { get; init; }
     }
 }

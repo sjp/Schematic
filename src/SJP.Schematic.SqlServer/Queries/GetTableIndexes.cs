@@ -4,32 +4,32 @@ internal static class GetTableIndexes
 {
     internal sealed record Query
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string TableName { get; init; } = default!;
+        public required string TableName { get; init; }
     }
 
     internal sealed record Result
     {
-        public string IndexName { get; init; } = default!;
+        public required string IndexName { get; init; }
 
-        public bool IsUnique { get; init; }
+        public required bool IsUnique { get; init; }
 
-        public int KeyOrdinal { get; init; }
+        public required int KeyOrdinal { get; init; }
 
-        public int IndexColumnId { get; init; }
+        public required int IndexColumnId { get; init; }
 
-        public bool IsIncludedColumn { get; init; }
+        public required bool IsIncludedColumn { get; init; }
 
-        public bool IsDescending { get; init; }
+        public required bool IsDescending { get; init; }
 
-        public string ColumnName { get; init; } = default!;
+        public required string ColumnName { get; init; }
 
-        public bool IsDisabled { get; init; }
+        public required bool IsDisabled { get; init; }
 
-        public bool IsFiltered { get; init; }
+        public required bool IsFiltered { get; init; }
 
-        public string FilterDefinition { get; init; } = default!;
+        public required string FilterDefinition { get; init; }
     }
 
     internal const string Sql = @$"

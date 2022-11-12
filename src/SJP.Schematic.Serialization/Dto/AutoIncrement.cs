@@ -2,7 +2,7 @@
 
 public class AutoIncrement
 {
-    public decimal InitialValue { get; set; }
+    public required decimal InitialValue { get; init; }
 
-    public decimal Increment { get; set; }
+    public required decimal Increment { get; init; }
 }

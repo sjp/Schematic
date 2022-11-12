@@ -2,7 +2,7 @@
 
 public class NumericPrecision
 {
-    public int Precision { get; set; }
+    public required int Precision { get; init; }
 
-    public int Scale { get; set; }
+    public required int Scale { get; init; }
 }

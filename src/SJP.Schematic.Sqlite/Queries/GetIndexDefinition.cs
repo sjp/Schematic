@@ -8,9 +8,9 @@ internal static class GetIndexDefinition
 {
     internal sealed record Query
     {
-        public string TableName { get; init; } = default!;
+        public required string TableName { get; init; }
 
-        public string IndexName { get; init; } = default!;
+        public required string IndexName { get; init; }
     }
 
     internal static string Sql(IDatabaseDialect dialect, string schemaName)

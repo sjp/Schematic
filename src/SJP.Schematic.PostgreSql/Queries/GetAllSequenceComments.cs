@@ -4,11 +4,11 @@ internal static class GetAllSequenceComments
 {
     internal sealed record Result
     {
-        public string? SchemaName { get; init; }
+        public required string? SchemaName { get; init; }
 
-        public string? SequenceName { get; init; }
+        public required string? SequenceName { get; init; }
 
-        public string? Comment { get; init; }
+        public required string? Comment { get; init; }
     }
 
     internal const string Sql = @$"

@@ -8,7 +8,7 @@ internal static class GetAllViewNames
 {
     internal sealed record Result
     {
-        public string ViewName { get; set; } = default!;
+        public required string ViewName { get; init; }
     }
 
     internal static string Sql(IDatabaseDialect dialect, string schemaName)

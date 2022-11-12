@@ -4,9 +4,9 @@ internal static class GetAllSequenceNames
 {
     internal sealed record Result
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string SequenceName { get; init; } = default!;
+        public required string SequenceName { get; init; }
     }
 
     internal const string Sql = @$"

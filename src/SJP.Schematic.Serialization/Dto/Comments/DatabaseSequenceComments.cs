@@ -2,7 +2,7 @@
 
 public class DatabaseSequenceComments
 {
-    public Identifier SequenceName { get; set; } = default!;
+    public required Identifier SequenceName { get; init; }
 
-    public string? Comment { get; set; }
+    public string? Comment { get; init; }
 }

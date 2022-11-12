@@ -4,26 +4,26 @@ internal static class GetTableChildKeys
 {
     internal sealed record Query
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string TableName { get; init; } = default!;
+        public required string TableName { get; init; }
     }
 
     internal sealed record Result
     {
-        public string? ChildTableSchema { get; init; }
+        public required string? ChildTableSchema { get; init; }
 
-        public string? ChildTableName { get; init; }
+        public required string? ChildTableName { get; init; }
 
-        public string? ChildKeyName { get; init; }
+        public required string? ChildKeyName { get; init; }
 
-        public string? EnabledStatus { get; init; }
+        public required string? EnabledStatus { get; init; }
 
-        public string? DeleteAction { get; init; }
+        public required string? DeleteAction { get; init; }
 
-        public string? ParentKeyName { get; init; }
+        public required string? ParentKeyName { get; init; }
 
-        public string? ParentKeyType { get; init; }
+        public required string? ParentKeyType { get; init; }
     }
 
     internal const string Sql = @$"

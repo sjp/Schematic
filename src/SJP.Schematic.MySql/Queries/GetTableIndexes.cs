@@ -4,20 +4,20 @@ internal static class GetTableIndexes
 {
     internal sealed record Query
     {
-        public string SchemaName { get; init; } = default!;
+        public required string SchemaName { get; init; }
 
-        public string TableName { get; init; } = default!;
+        public required string TableName { get; init; }
     }
 
     internal sealed record Result
     {
-        public string IndexName { get; init; } = default!;
+        public required string IndexName { get; init; }
 
-        public bool IsNonUnique { get; init; }
+        public required bool IsNonUnique { get; init; }
 
-        public int ColumnOrdinal { get; init; }
+        public required int ColumnOrdinal { get; init; }
 
-        public string ColumnName { get; init; } = default!;
+        public required string ColumnName { get; init; }
     }
 
     internal const string Sql = @$"

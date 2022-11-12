@@ -4,9 +4,9 @@ namespace SJP.Schematic.Serialization.Dto.Comments;
 
 public class DatabaseViewComments
 {
-    public Identifier ViewName { get; set; } = default!;
+    public required Identifier ViewName { get; init; }
 
-    public string? Comment { get; set; }
+    public string? Comment { get; init; }
 
-    public IReadOnlyDictionary<string, string?> ColumnComments { get; set; } = new Dictionary<string, string?>();
+    public required IReadOnlyDictionary<string, string?> ColumnComments { get; init; }
 }

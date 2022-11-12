@@ -2,17 +2,17 @@
 
 public class DatabaseColumn
 {
-    public Identifier? ColumnName { get; set; }
+    public Identifier? ColumnName { get; init; }
 
-    public bool IsNullable { get; set; }
+    public required bool IsNullable { get; init; }
 
-    public bool IsComputed { get; set; }
+    public bool IsComputed { get; init; }
 
-    public string? DefaultValue { get; set; }
+    public string? DefaultValue { get; init; }
 
-    public DbType? Type { get; set; }
+    public required DbType? Type { get; init; }
 
-    public AutoIncrement? AutoIncrement { get; set; }
+    public AutoIncrement? AutoIncrement { get; init; }
 
-    public string? Definition { get; set; }
+    public string? Definition { get; init; }
 }

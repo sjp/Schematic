@@ -4,7 +4,7 @@ internal static class GetUserSynonymName
 {
     internal sealed record Query
     {
-        public string SynonymName { get; init; } = default!;
+        public required string SynonymName { get; init; }
     }
 
     internal const string Sql = @$"
