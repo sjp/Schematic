@@ -450,8 +450,8 @@ public static class ConnectionExtensions
 
             if (_shouldDispose)
             {
-                if (_connection is DbConnection dbConnection)
-                    await dbConnection.DisposeAsync().ConfigureAwait(false);
+                if (_connection is IAsyncDisposable asyncDisposable)
+                    await asyncDisposable.DisposeAsync().ConfigureAwait(false);
                 else
                     _connection.Dispose();
 

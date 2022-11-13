@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using MySqlConnector;
@@ -25,34 +26,26 @@ public class MySqlConnectionFactory : IDbConnectionFactory
         if (connectionString.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(connectionString));
 
-        ConnectionString = connectionString;
+        DataSource = new MySqlDataSource(connectionString);
     }
 
     /// <summary>
-    /// Gets the connection string.
+    /// Gets the database provider's connection factory.
     /// </summary>
-    /// <value>The connection string.</value>
-    protected string ConnectionString { get; }
+    /// <value>The database provider connection factory.</value>
+    protected DbDataSource DataSource { get; }
 
     /// <summary>
     /// Creates a database connection instance, but does not open the connection.
     /// </summary>
     /// <returns>An object representing a database connection</returns>
-    public IDbConnection CreateConnection() => new MySqlConnection(ConnectionString);
+    public IDbConnection CreateConnection() => DataSource.CreateConnection();
 
     /// <summary>
     /// Creates and opens a database connection.
     /// </summary>
     /// <returns>An object representing a database connection.</returns>
-    public IDbConnection OpenConnection()
-    {
-        var connection = new MySqlConnection(ConnectionString);
-
-        if (connection.State != ConnectionState.Open)
-            connection.Open();
-
-        return connection;
-    }
+    public IDbConnection OpenConnection() => DataSource.OpenConnection();
 
     /// <summary>
     /// Creates and opens a database connection asynchronously.
@@ -60,14 +53,7 @@ public class MySqlConnectionFactory : IDbConnectionFactory
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task containing an object representing a database connection when completed.</returns>
     public async Task<IDbConnection> OpenConnectionAsync(CancellationToken cancellationToken = default)
-    {
-        var connection = new MySqlConnection(ConnectionString);
-
-        if (connection.State != ConnectionState.Open)
-            await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
-
-        return connection;
-    }
+        => await DataSource.OpenConnectionAsync(cancellationToken);
 
     /// <summary>
     /// Determines whether connections retrieved from this factory should be disposed.
