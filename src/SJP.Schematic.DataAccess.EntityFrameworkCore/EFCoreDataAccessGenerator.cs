@@ -79,7 +79,7 @@ public class EFCoreDataAccessGenerator : IDataAccessGenerator
         if (baseNamespace.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(baseNamespace));
 
-        var projectFileInfo = FileSystem.FileInfo.FromFileName(projectPath);
+        var projectFileInfo = FileSystem.FileInfo.New(projectPath);
         if (!string.Equals(projectFileInfo.Extension, ".csproj", StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException("The given path to a project must be a csproj file.", nameof(projectPath));
 
@@ -88,11 +88,11 @@ public class EFCoreDataAccessGenerator : IDataAccessGenerator
 
     private async Task GenerateAsyncCore(string projectPath, string baseNamespace, CancellationToken cancellationToken)
     {
-        var projectFileInfo = FileSystem.FileInfo.FromFileName(projectPath);
+        var projectFileInfo = FileSystem.FileInfo.New(projectPath);
         if (projectFileInfo.Exists)
             projectFileInfo.Delete();
 
-        if (!projectFileInfo.Directory.Exists)
+        if (projectFileInfo.Directory != null && !projectFileInfo.Directory.Exists)
             projectFileInfo.Directory.Create();
 
         await FileSystem.File.WriteAllTextAsync(projectPath, ProjectDefinition, cancellationToken).ConfigureAwait(false);
@@ -122,9 +122,9 @@ public class EFCoreDataAccessGenerator : IDataAccessGenerator
                 : Option<IRelationalDatabaseTableComments>.None;
 
             var tableClass = tableGenerator.Generate(tables, table, tableComment);
-            var tablePath = tableGenerator.GetFilePath(projectFileInfo.Directory, table.Name);
+            var tablePath = tableGenerator.GetFilePath(projectFileInfo.Directory!, table.Name);
 
-            if (!tablePath.Directory.Exists)
+            if (tablePath.Directory != null && !tablePath.Directory.Exists)
                 tablePath.Directory.Create();
 
             if (tablePath.Exists)
@@ -140,9 +140,9 @@ public class EFCoreDataAccessGenerator : IDataAccessGenerator
                 : Option<IDatabaseViewComments>.None;
 
             var viewClass = viewGenerator.Generate(view, viewComment);
-            var viewPath = viewGenerator.GetFilePath(projectFileInfo.Directory, view.Name);
+            var viewPath = viewGenerator.GetFilePath(projectFileInfo.Directory!, view.Name);
 
-            if (!viewPath.Directory.Exists)
+            if (viewPath.Directory != null && !viewPath.Directory.Exists)
                 viewPath.Directory.Create();
 
             if (viewPath.Exists)
@@ -152,7 +152,7 @@ public class EFCoreDataAccessGenerator : IDataAccessGenerator
         }
 
         var dbContextText = dbContextGenerator.Generate(tables, views, sequences);
-        var dbContextPath = FileSystem.Path.Combine(projectFileInfo.Directory.FullName, "AppContext.cs");
+        var dbContextPath = FileSystem.Path.Combine(projectFileInfo.Directory!.FullName, "AppContext.cs");
 
         await FileSystem.File.WriteAllTextAsync(dbContextPath, dbContextText, cancellationToken).ConfigureAwait(false);
     }

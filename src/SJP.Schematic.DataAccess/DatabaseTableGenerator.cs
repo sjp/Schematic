@@ -70,6 +70,6 @@ public abstract class DatabaseTableGenerator : IDatabaseTableGenerator
         paths.Add(tableName + ".cs");
 
         var tablePath = FileSystem.Path.Combine(paths.ToArray());
-        return FileSystem.FileInfo.FromFileName(tablePath);
+        return FileSystem.FileInfo.New(tablePath);
     }
 }

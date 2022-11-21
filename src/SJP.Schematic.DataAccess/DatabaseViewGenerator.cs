@@ -69,6 +69,6 @@ public abstract class DatabaseViewGenerator : IDatabaseViewGenerator
         paths.Add(viewName + ".cs");
 
         var viewPath = FileSystem.Path.Combine(paths.ToArray());
-        return FileSystem.FileInfo.FromFileName(viewPath);
+        return FileSystem.FileInfo.New(viewPath);
     }
 }
