@@ -130,9 +130,7 @@ internal static class IdentifierExtensions
             throw new ArgumentNullException(nameof(input));
 
         var bytes = Encoding.Unicode.GetBytes(input);
-
-        using var hasher = SHA512.Create();
-        var hash = hasher.ComputeHash(bytes);
+        var hash = SHA512.HashData(bytes);
 
         var builder = StringBuilderCache.Acquire(hash.Length);
         foreach (var hashByte in hash)

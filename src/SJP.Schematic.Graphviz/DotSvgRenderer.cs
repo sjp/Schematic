@@ -117,7 +117,7 @@ public class DotSvgRenderer : IDotSvgRenderer
 
                 if (process.ExitCode != ExitSuccess)
                 {
-                    var stdErr = await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
+                    var stdErr = await process.StandardError.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
                     throw new GraphvizException(process.ExitCode, stdErr);
                 }
             }

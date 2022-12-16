@@ -229,16 +229,13 @@ public static class OracleUnwrapper
         var hashBuffer = mappedCharBuffer[..hashSize];
         var dataBuffer = mappedCharBuffer[hashSize..];
 
-        using (var sha1 = SHA1.Create())
-        {
-            var computedHashBuffer = new byte[hashSize].AsSpan();
+        var computedHashBuffer = new byte[hashSize].AsSpan();
 
-            var areEqual = sha1.TryComputeHash(dataBuffer, computedHashBuffer, out _)
-                && computedHashBuffer.SequenceEqual(hashBuffer);
+        var areEqual = SHA1.TryHashData(dataBuffer, computedHashBuffer, out _)
+            && computedHashBuffer.SequenceEqual(hashBuffer);
 
-            if (!areEqual)
-                throw new InvalidDataException("The given data is not a valid wrapped definition as it has failed a checksum.");
-        }
+        if (!areEqual)
+            throw new InvalidDataException("The given data is not a valid wrapped definition as it has failed a checksum.");
 
         // need to skip zlib header bytes and trim trailing zlib checksum bytes to enable decompression
         var trimmedBuffer = ZlibToDeflate(dataBuffer);
@@ -275,16 +272,13 @@ public static class OracleUnwrapper
         var hashBuffer = mappedCharBuffer[..hashSize];
         var dataBuffer = mappedCharBuffer[hashSize..];
 
-        using (var sha1 = SHA1.Create())
-        {
-            var computedHashBuffer = new byte[hashSize].AsSpan();
+        var computedHashBuffer = new byte[hashSize].AsSpan();
 
-            var areEqual = sha1.TryComputeHash(dataBuffer, computedHashBuffer, out _)
-                && computedHashBuffer.SequenceEqual(hashBuffer);
+        var areEqual = SHA1.TryHashData(dataBuffer, computedHashBuffer, out _)
+            && computedHashBuffer.SequenceEqual(hashBuffer);
 
-            if (!areEqual)
-                return false;
-        }
+        if (!areEqual)
+            return false;
 
         // need to skip zlib header bytes and trim trailing zlib checksum bytes to enable decompression
         var trimmedBuffer = ZlibToDeflate(dataBuffer);
