@@ -1,8 +1,10 @@
-﻿namespace SJP.Schematic.Oracle.Queries;
+﻿using SJP.Schematic.Core.Extensions;
+
+namespace SJP.Schematic.Oracle.Queries;
 
 internal static class GetUserRoutineDefinition
 {
-    internal sealed record Query
+    internal sealed record Query : ISqlQuery<string>
     {
         public required string RoutineName { get; init; }
     }

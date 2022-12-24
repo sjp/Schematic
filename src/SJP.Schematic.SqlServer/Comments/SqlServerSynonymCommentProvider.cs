@@ -76,7 +76,7 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
         ArgumentNullException.ThrowIfNull(synonymName);
 
         synonymName = QualifySynonymName(synonymName);
-        var qualifiedSynonymName = Connection.QueryFirstOrNone<GetSynonymName.Result>(
+        var qualifiedSynonymName = Connection.QueryFirstOrNone(
             GetSynonymName.Sql,
             new GetSynonymName.Query { SchemaName = synonymName.Schema!, SynonymName = synonymName.LocalName },
             cancellationToken
@@ -118,7 +118,7 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
 
     private async Task<IDatabaseSynonymComments> LoadSynonymCommentsAsyncCore(Identifier synonymName, CancellationToken cancellationToken)
     {
-        var queryResult = await Connection.QueryAsync<GetSynonymComments.Result>(
+        var queryResult = await Connection.QueryAsync(
             Queries.GetSynonymComments.Sql,
             new GetSynonymComments.Query
             {

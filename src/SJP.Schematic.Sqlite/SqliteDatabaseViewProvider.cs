@@ -155,7 +155,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
         if (viewName.Schema != null)
         {
             var sql = GetViewName.Sql(Dialect, viewName.Schema);
-            var viewLocalName = await DbConnection.ExecuteScalarAsync<string>(
+            var viewLocalName = await DbConnection.ExecuteScalarAsync(
                 sql,
                 new GetViewName.Query { ViewName = viewName.LocalName },
                 cancellationToken
@@ -183,7 +183,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
         foreach (var dbName in dbNames)
         {
             var sql = GetViewName.Sql(Dialect, dbName);
-            var viewLocalName = await DbConnection.ExecuteScalarAsync<string>(
+            var viewLocalName = await DbConnection.ExecuteScalarAsync(
                 sql,
                 new GetViewName.Query { ViewName = viewName.LocalName },
                 cancellationToken
@@ -234,7 +234,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
         ArgumentNullException.ThrowIfNull(viewName);
 
         var sql = GetViewDefinition.Sql(Dialect, viewName.Schema!);
-        return DbConnection.ExecuteScalarAsync<string>(
+        return DbConnection.ExecuteScalarAsync(
             sql,
             new GetViewDefinition.Query { ViewName = viewName.LocalName },
             cancellationToken

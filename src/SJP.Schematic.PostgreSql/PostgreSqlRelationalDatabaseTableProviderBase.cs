@@ -148,7 +148,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         ArgumentNullException.ThrowIfNull(tableName);
 
         var candidateTableName = QualifyTableName(tableName);
-        var qualifiedTableName = DbConnection.QueryFirstOrNone<GetTableName.Result>(
+        var qualifiedTableName = DbConnection.QueryFirstOrNone(
             GetTableName.Sql,
             new GetTableName.Query { SchemaName = candidateTableName.Schema!, TableName = candidateTableName.LocalName },
             cancellationToken
@@ -228,7 +228,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
 
     private async Task<Option<IDatabaseKey>> LoadPrimaryKeyAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var primaryKeyColumns = await DbConnection.QueryAsync<GetTablePrimaryKey.Result>(
+        var primaryKeyColumns = await DbConnection.QueryAsync(
             GetTablePrimaryKey.Sql,
             new GetTablePrimaryKey.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
@@ -276,7 +276,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
 
     private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var queryResult = await DbConnection.QueryAsync<GetTableIndexes.Result>(
+        var queryResult = await DbConnection.QueryAsync(
             GetTableIndexes.Sql,
             new GetTableIndexes.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
@@ -358,7 +358,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
 
     private async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var uniqueKeyColumns = await DbConnection.QueryAsync<GetTableUniqueKeys.Result>(
+        var uniqueKeyColumns = await DbConnection.QueryAsync(
             GetTableUniqueKeys.Sql,
             new GetTableUniqueKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
@@ -412,7 +412,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
 
     private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var queryResult = await DbConnection.QueryAsync<GetTableChildKeys.Result>(
+        var queryResult = await DbConnection.QueryAsync(
             GetTableChildKeys.Sql,
             new GetTableChildKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
@@ -486,7 +486,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     /// <returns>A collection of check constraints.</returns>
     protected virtual async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, CancellationToken cancellationToken)
     {
-        var checks = await DbConnection.QueryAsync<GetTableChecks.Result>(
+        var checks = await DbConnection.QueryAsync(
             GetTableChecks.Sql,
             new GetTableChecks.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
@@ -530,7 +530,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
 
     private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var queryResult = await DbConnection.QueryAsync<GetTableParentKeys.Result>(
+        var queryResult = await DbConnection.QueryAsync(
             GetTableParentKeys.Sql,
             new GetTableParentKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
@@ -621,7 +621,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
-        var query = await DbConnection.QueryAsync<GetTableColumns.Result>(
+        var query = await DbConnection.QueryAsync(
             GetTableColumns.Sql,
             new GetTableColumns.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
@@ -687,7 +687,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
 
     private async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
-        var queryResult = await DbConnection.QueryAsync<GetTableTriggers.Result>(
+        var queryResult = await DbConnection.QueryAsync(
             GetTableTriggers.Sql,
             new GetTableTriggers.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken

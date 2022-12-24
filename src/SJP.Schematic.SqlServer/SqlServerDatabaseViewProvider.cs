@@ -97,7 +97,7 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
         ArgumentNullException.ThrowIfNull(viewName);
 
         var candidateViewName = QualifyViewName(viewName);
-        var qualifiedViewName = DbConnection.QueryFirstOrNone<GetViewName.Result>(
+        var qualifiedViewName = DbConnection.QueryFirstOrNone(
             GetViewName.Sql,
             new GetViewName.Query { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
             cancellationToken
@@ -150,7 +150,7 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
-        return DbConnection.ExecuteScalarAsync<string>(
+        return DbConnection.ExecuteScalarAsync(
             GetViewDefinition.Sql,
             new GetViewDefinition.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
@@ -168,7 +168,7 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
-        return DbConnection.ExecuteScalarAsync<bool>(
+        return DbConnection.ExecuteScalarAsync(
             GetViewIndexExists.Sql,
             new GetViewIndexExists.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
@@ -191,7 +191,7 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var query = await DbConnection.QueryAsync<GetViewColumns.Result>(
+        var query = await DbConnection.QueryAsync(
             GetViewColumns.Sql,
             new GetViewColumns.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken

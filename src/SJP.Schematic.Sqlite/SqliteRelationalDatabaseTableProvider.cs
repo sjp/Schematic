@@ -179,7 +179,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         if (tableName.Schema != null)
         {
             var sql = GetTableName.Sql(Dialect, tableName.Schema);
-            var queryResult = await DbConnection.ExecuteScalarAsync<string>(
+            var queryResult = await DbConnection.ExecuteScalarAsync(
                 sql,
                 new GetTableName.Query { TableName = tableName.LocalName },
                 cancellationToken
@@ -207,7 +207,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         foreach (var dbName in dbNames)
         {
             var sql = GetTableName.Sql(Dialect, dbName);
-            var tableLocalName = await DbConnection.ExecuteScalarAsync<string>(
+            var tableLocalName = await DbConnection.ExecuteScalarAsync(
                 sql,
                 new GetTableName.Query { TableName = tableName.LocalName },
                 cancellationToken
@@ -392,7 +392,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 .Select(i => columnLookup[i.name!])
                 .ToList();
 
-            var indexSchema = await DbConnection.ExecuteScalarAsync<string>(
+            var indexSchema = await DbConnection.ExecuteScalarAsync(
                 GetIndexDefinition.Sql(Dialect, tableName.Schema!),
                 new GetIndexDefinition.Query { TableName = tableName.LocalName, IndexName = indexList.name },
                 cancellationToken
@@ -866,7 +866,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         }
 
         var triggerQuery = GetTriggerDefinition.Sql(Dialect, tableName.Schema!);
-        var triggerInfos = await DbConnection.QueryAsync<GetTriggerDefinition.Result>(
+        var triggerInfos = await DbConnection.QueryAsync(
             triggerQuery,
             new GetTriggerDefinition.Query { TableName = tableName.LocalName },
             cancellationToken
@@ -935,7 +935,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         }
 
         var definitionQuery = GetTableDefinition.Sql(Dialect, tableName.Schema!);
-        var tableSql = await DbConnection.ExecuteScalarAsync<string>(
+        var tableSql = await DbConnection.ExecuteScalarAsync(
             definitionQuery,
             new GetTableDefinition.Query { TableName = tableName.LocalName },
             cancellationToken

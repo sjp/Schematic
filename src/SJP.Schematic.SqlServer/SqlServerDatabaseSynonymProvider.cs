@@ -91,7 +91,7 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
         ArgumentNullException.ThrowIfNull(synonymName);
 
         var candidateSynonymName = QualifySynonymName(synonymName);
-        var qualifiedSynonymName = Connection.QueryFirstOrNone<GetSynonymName.Result>(
+        var qualifiedSynonymName = Connection.QueryFirstOrNone(
             GetSynonymName.Sql,
             new GetSynonymName.Query { SchemaName = candidateSynonymName.Schema!, SynonymName = candidateSynonymName.LocalName },
             cancellationToken
@@ -115,7 +115,7 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
         return GetResolvedSynonymName(candidateSynonymName, cancellationToken)
             .Bind(name =>
             {
-                return Connection.QueryFirstOrNone<GetSynonymDefinition.Result>(
+                return Connection.QueryFirstOrNone(
                     GetSynonymDefinition.Sql,
                     new GetSynonymDefinition.Query { SchemaName = synonymName.Schema!, SynonymName = synonymName.LocalName },
                     cancellationToken

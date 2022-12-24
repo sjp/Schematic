@@ -6,7 +6,7 @@ namespace SJP.Schematic.Sqlite.Queries;
 
 internal static class GetViewName
 {
-    internal sealed record Query
+    internal sealed record Query : ISqlQuery<string>
     {
         public required string ViewName { get; init; }
     }

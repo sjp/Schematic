@@ -98,7 +98,7 @@ public class OracleQueryViewCommentProvider : IDatabaseViewCommentProvider
         ArgumentNullException.ThrowIfNull(viewName);
 
         var candidateViewName = QualifyViewName(viewName);
-        var qualifiedViewName = Connection.QueryFirstOrNone<GetViewName.Result>(
+        var qualifiedViewName = Connection.QueryFirstOrNone(
             GetViewName.Sql,
             new GetViewName.Query { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
             cancellationToken
@@ -143,7 +143,7 @@ public class OracleQueryViewCommentProvider : IDatabaseViewCommentProvider
         if (string.Equals(viewName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal)) // fast path
             return await LoadUserViewCommentsAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
 
-        var result = await Connection.QueryAsync<GetViewComments.Result>(
+        var result = await Connection.QueryAsync(
             Queries.GetViewComments.Sql,
             new GetViewComments.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
@@ -164,7 +164,7 @@ public class OracleQueryViewCommentProvider : IDatabaseViewCommentProvider
 
     private async Task<IDatabaseViewComments> LoadUserViewCommentsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var result = await Connection.QueryAsync<GetUserViewComments.Result>(
+        var result = await Connection.QueryAsync(
             GetUserViewComments.Sql,
             new GetUserViewComments.Query { ViewName = viewName.LocalName },
             cancellationToken

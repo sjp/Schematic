@@ -88,7 +88,7 @@ public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
         ArgumentNullException.ThrowIfNull(routineName);
 
         var candidateRoutineName = QualifyRoutineName(routineName);
-        var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineName.Result>(
+        var qualifiedRoutineName = Connection.QueryFirstOrNone(
             GetRoutineName.Sql,
             new GetRoutineName.Query { SchemaName = candidateRoutineName.Schema!, RoutineName = candidateRoutineName.LocalName },
             cancellationToken
@@ -130,7 +130,7 @@ public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
     {
         ArgumentNullException.ThrowIfNull(routineName);
 
-        return Connection.ExecuteScalarAsync<string>(
+        return Connection.ExecuteScalarAsync(
             GetRoutineDefinition.Sql,
             new GetRoutineDefinition.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken

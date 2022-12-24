@@ -98,7 +98,7 @@ public class PostgreSqlTableCommentProvider : IRelationalDatabaseTableCommentPro
         ArgumentNullException.ThrowIfNull(tableName);
 
         var candidateTableName = QualifyTableName(tableName);
-        var qualifiedTableName = Connection.QueryFirstOrNone<GetTableName.Result>(
+        var qualifiedTableName = Connection.QueryFirstOrNone(
             GetTableName.Sql,
             new GetTableName.Query { SchemaName = candidateTableName.Schema!, TableName = candidateTableName.LocalName },
             cancellationToken
@@ -140,7 +140,7 @@ public class PostgreSqlTableCommentProvider : IRelationalDatabaseTableCommentPro
 
     private async Task<IRelationalDatabaseTableComments> LoadTableCommentsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
-        var result = await Connection.QueryAsync<GetTableComments.Result>(
+        var result = await Connection.QueryAsync(
             Queries.GetTableComments.Sql,
             new GetTableComments.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken

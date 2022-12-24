@@ -103,7 +103,7 @@ public class PostgreSqlSequenceCommentProvider : IDatabaseSequenceCommentProvide
         ArgumentNullException.ThrowIfNull(sequenceName);
 
         var candidateSequenceName = QualifySequenceName(sequenceName);
-        var qualifiedSequenceName = Connection.QueryFirstOrNone<GetSequenceName.Result>(
+        var qualifiedSequenceName = Connection.QueryFirstOrNone(
             GetSequenceName.Sql,
             new GetSequenceName.Query { SchemaName = candidateSequenceName.Schema!, SequenceName = candidateSequenceName.LocalName },
             cancellationToken
@@ -142,7 +142,7 @@ public class PostgreSqlSequenceCommentProvider : IDatabaseSequenceCommentProvide
         return GetResolvedSequenceName(candidateSequenceName, cancellationToken)
             .Bind(name =>
             {
-                return Connection.QueryFirstOrNone<GetSequenceComments.Result>(
+                return Connection.QueryFirstOrNone(
                     Queries.GetSequenceComments.Sql,
                     new GetSequenceComments.Query { SchemaName = name.Schema!, SequenceName = name.LocalName },
                     cancellationToken

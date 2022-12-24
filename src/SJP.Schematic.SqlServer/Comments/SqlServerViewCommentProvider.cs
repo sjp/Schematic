@@ -76,7 +76,7 @@ public class SqlServerViewCommentProvider : IDatabaseViewCommentProvider
         ArgumentNullException.ThrowIfNull(viewName);
 
         viewName = QualifyViewName(viewName);
-        var qualifiedViewName = Connection.QueryFirstOrNone<GetViewName.Result>(
+        var qualifiedViewName = Connection.QueryFirstOrNone(
             GetViewName.Sql,
             new GetViewName.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
@@ -118,7 +118,7 @@ public class SqlServerViewCommentProvider : IDatabaseViewCommentProvider
 
     private async Task<IDatabaseViewComments> LoadViewCommentsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var queryResult = await Connection.QueryAsync<GetViewComments.Result>(
+        var queryResult = await Connection.QueryAsync(
             Queries.GetViewComments.Sql,
             new GetViewComments.Query
             {

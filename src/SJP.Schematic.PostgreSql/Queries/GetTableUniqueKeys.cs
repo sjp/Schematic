@@ -1,8 +1,10 @@
-﻿namespace SJP.Schematic.PostgreSql.Queries;
+﻿using SJP.Schematic.Core.Extensions;
+
+namespace SJP.Schematic.PostgreSql.Queries;
 
 internal static class GetTableUniqueKeys
 {
-    internal sealed record Query
+    internal sealed record Query : ISqlQuery<Result>
     {
         public required string SchemaName { get; init; }
 

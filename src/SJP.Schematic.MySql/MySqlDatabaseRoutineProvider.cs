@@ -54,7 +54,7 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <returns>A collection of database routines.</returns>
     public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResults = await DbConnection.QueryAsync<GetAllRoutineNames.Result>(
+        var queryResults = await DbConnection.QueryAsync(
             GetAllRoutineNames.Sql,
             new GetAllRoutineNames.Query { SchemaName = IdentifierDefaults.Schema! },
             cancellationToken
@@ -95,7 +95,7 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
         ArgumentNullException.ThrowIfNull(routineName);
 
         var candidateRoutineName = QualifyRoutineName(routineName);
-        var qualifiedRoutineName = DbConnection.QueryFirstOrNone<GetRoutineName.Result>(
+        var qualifiedRoutineName = DbConnection.QueryFirstOrNone(
             GetRoutineName.Sql,
             new GetRoutineName.Query { SchemaName = candidateRoutineName.Schema!, RoutineName = candidateRoutineName.LocalName },
             cancellationToken
@@ -142,7 +142,7 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
 
     private Task<string> LoadDefinitionAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
-        return DbConnection.ExecuteScalarAsync<string>(
+        return DbConnection.ExecuteScalarAsync(
             GetRoutineDefinition.Sql,
             new GetRoutineDefinition.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken

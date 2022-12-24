@@ -98,7 +98,7 @@ public class PostgreSqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
         ArgumentNullException.ThrowIfNull(routineName);
 
         var candidateRoutineName = QualifyRoutineName(routineName);
-        var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineName.Result>(
+        var qualifiedRoutineName = Connection.QueryFirstOrNone(
             GetRoutineName.Sql,
             new GetRoutineName.Query { SchemaName = candidateRoutineName.Schema!, RoutineName = candidateRoutineName.LocalName },
             cancellationToken
@@ -140,7 +140,7 @@ public class PostgreSqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
 
     private async Task<IDatabaseRoutineComments> LoadRoutineCommentsAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
-        var commentOption = Connection.QueryFirstOrNone<GetRoutineComments.Result>(
+        var commentOption = Connection.QueryFirstOrNone(
             Queries.GetRoutineComments.Sql,
             new GetRoutineComments.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken

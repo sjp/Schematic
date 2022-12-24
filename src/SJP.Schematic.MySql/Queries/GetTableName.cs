@@ -1,13 +1,16 @@
-﻿namespace SJP.Schematic.MySql.Queries;
+﻿using SJP.Schematic.Core.Extensions;
+
+namespace SJP.Schematic.MySql.Queries;
 
 internal static class GetTableName
 {
-    internal sealed record Query
+    internal sealed record Query : ISqlQuery<Result>
     {
         public required string SchemaName { get; init; }
 
         public required string TableName { get; init; }
     }
+
     internal sealed record Result
     {
         public required string SchemaName { get; init; }

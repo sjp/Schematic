@@ -76,7 +76,7 @@ public class SqlServerRoutineCommentProvider : IDatabaseRoutineCommentProvider
         ArgumentNullException.ThrowIfNull(routineName);
 
         routineName = QualifyRoutineName(routineName);
-        var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineName.Result>(
+        var qualifiedRoutineName = Connection.QueryFirstOrNone(
             GetRoutineName.Sql,
             new GetRoutineName.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken
@@ -118,7 +118,7 @@ public class SqlServerRoutineCommentProvider : IDatabaseRoutineCommentProvider
 
     private async Task<IDatabaseRoutineComments> LoadRoutineCommentsAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
-        var queryResult = await Connection.QueryAsync<GetRoutineComments.Result>(
+        var queryResult = await Connection.QueryAsync(
             Queries.GetRoutineComments.Sql,
             new GetRoutineComments.Query
             {

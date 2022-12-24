@@ -1,8 +1,10 @@
-﻿namespace SJP.Schematic.MySql.Queries;
+﻿using SJP.Schematic.Core.Extensions;
+
+namespace SJP.Schematic.MySql.Queries;
 
 internal static class GetRoutineName
 {
-    internal sealed record Query
+    internal sealed record Query : ISqlQuery<Result>
     {
         public required string SchemaName { get; init; }
 

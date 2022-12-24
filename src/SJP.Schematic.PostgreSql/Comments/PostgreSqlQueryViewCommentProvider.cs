@@ -98,7 +98,7 @@ public class PostgreSqlQueryViewCommentProvider : IDatabaseViewCommentProvider
         ArgumentNullException.ThrowIfNull(viewName);
 
         var candidateViewName = QualifyViewName(viewName);
-        var qualifiedViewName = Connection.QueryFirstOrNone<GetViewName.Result>(
+        var qualifiedViewName = Connection.QueryFirstOrNone(
             GetViewName.Sql,
             new GetViewName.Query { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
             cancellationToken
@@ -140,7 +140,7 @@ public class PostgreSqlQueryViewCommentProvider : IDatabaseViewCommentProvider
 
     private async Task<IDatabaseViewComments> LoadViewCommentsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var result = await Connection.QueryAsync<GetViewComments.Result>(
+        var result = await Connection.QueryAsync(
             Queries.GetViewComments.Sql,
             new GetViewComments.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken

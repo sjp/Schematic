@@ -133,7 +133,7 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
             && string.Equals(candidateSynonymName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal);
         if (isUserSynonym)
         {
-            var userSynonymName = Connection.QueryFirstOrNone<string>(
+            var userSynonymName = Connection.QueryFirstOrNone(
                 GetUserSynonymName.Sql,
                 new GetUserSynonymName.Query { SynonymName = candidateSynonymName.LocalName },
                 cancellationToken
@@ -142,7 +142,7 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
             return userSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, name));
         }
 
-        var qualifiedSynonymName = Connection.QueryFirstOrNone<GetSynonymName.Result>(
+        var qualifiedSynonymName = Connection.QueryFirstOrNone(
             GetSynonymName.Sql,
             new GetSynonymName.Query { SchemaName = candidateSynonymName.Schema!, SynonymName = candidateSynonymName.LocalName },
             cancellationToken
@@ -181,7 +181,7 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
     {
         ArgumentNullException.ThrowIfNull(synonymName);
 
-        return Connection.QueryFirstOrNone<GetSynonymDefinition.Result>(
+        return Connection.QueryFirstOrNone(
             GetSynonymDefinition.Sql,
             new GetSynonymDefinition.Query { SchemaName = synonymName.Schema!, SynonymName = synonymName.LocalName },
             cancellationToken
@@ -204,7 +204,7 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
         if (synonymName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(synonymName));
 
-        return Connection.QueryFirstOrNone<GetUserSynonymDefinition.Result>(
+        return Connection.QueryFirstOrNone(
             GetUserSynonymDefinition.Sql,
             new GetUserSynonymDefinition.Query { SynonymName = synonymName },
             cancellationToken

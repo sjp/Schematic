@@ -1,8 +1,10 @@
-﻿namespace SJP.Schematic.SqlServer.Queries;
+﻿using SJP.Schematic.Core.Extensions;
+
+namespace SJP.Schematic.SqlServer.Queries;
 
 internal static class GetViewIndexExists
 {
-    internal sealed record Query
+    internal sealed record Query : ISqlQuery<bool>
     {
         public required string SchemaName { get; init; }
 

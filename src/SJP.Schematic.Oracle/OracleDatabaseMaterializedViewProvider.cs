@@ -125,7 +125,7 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
         ArgumentNullException.ThrowIfNull(viewName);
 
         var candidateViewName = QualifyViewName(viewName);
-        var qualifiedViewName = DbConnection.QueryFirstOrNone<GetMaterializedViewName.Result>(
+        var qualifiedViewName = DbConnection.QueryFirstOrNone(
             GetMaterializedViewName.Sql,
             new GetMaterializedViewName.Query { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
             cancellationToken
@@ -170,7 +170,7 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
-        return DbConnection.ExecuteScalarAsync<string>(
+        return DbConnection.ExecuteScalarAsync(
             GetMaterializedViewDefinition.Sql,
             new GetMaterializedViewDefinition.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
@@ -193,7 +193,7 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var query = await DbConnection.QueryAsync<GetMaterializedViewColumns.Result>(
+        var query = await DbConnection.QueryAsync(
             GetMaterializedViewColumns.Sql,
             new GetMaterializedViewColumns.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
@@ -253,7 +253,7 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
 
     private async Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsyncCore(Identifier viewName, IEnumerable<string> columnNames, CancellationToken cancellationToken)
     {
-        var checks = await DbConnection.QueryAsync<GetMaterializedViewChecks.Result>(
+        var checks = await DbConnection.QueryAsync(
             GetMaterializedViewChecks.Sql,
             new GetMaterializedViewChecks.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken

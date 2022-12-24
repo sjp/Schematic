@@ -77,7 +77,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     /// <returns>A collection of database tables.</returns>
     public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResults = await DbConnection.QueryAsync<GetAllTableNames.Result>(
+        var queryResults = await DbConnection.QueryAsync(
             GetAllTableNames.Sql,
             new GetAllTableNames.Query { SchemaName = IdentifierDefaults.Schema! },
             cancellationToken
@@ -119,7 +119,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         ArgumentNullException.ThrowIfNull(tableName);
 
         tableName = QualifyTableName(tableName);
-        var qualifiedTableName = DbConnection.QueryFirstOrNone<GetTableName.Result>(
+        var qualifiedTableName = DbConnection.QueryFirstOrNone(
             GetTableName.Sql,
             new GetTableName.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
@@ -201,7 +201,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
 
     private async Task<Option<IDatabaseKey>> LoadPrimaryKeyAsyncCore(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var primaryKeyColumns = await DbConnection.QueryAsync<GetTablePrimaryKey.Result>(
+        var primaryKeyColumns = await DbConnection.QueryAsync(
             GetTablePrimaryKey.Sql,
             new GetTablePrimaryKey.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
@@ -244,7 +244,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
 
     private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var queryResult = await DbConnection.QueryAsync<GetTableIndexes.Result>(
+        var queryResult = await DbConnection.QueryAsync(
             GetTableIndexes.Sql,
             new GetTableIndexes.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
@@ -302,7 +302,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
 
     private async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsyncCore(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var uniqueKeyColumns = await DbConnection.QueryAsync<GetTableUniqueKeys.Result>(
+        var uniqueKeyColumns = await DbConnection.QueryAsync(
             GetTableUniqueKeys.Sql,
             new GetTableUniqueKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
@@ -352,7 +352,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
 
     private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var queryResult = await DbConnection.QueryAsync<GetTableChildKeys.Result>(
+        var queryResult = await DbConnection.QueryAsync(
             GetTableChildKeys.Sql,
             new GetTableChildKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
@@ -443,7 +443,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         if (!hasCheckSupport)
             return Array.Empty<IDatabaseCheckConstraint>();
 
-        var queryResult = await DbConnection.QueryAsync<GetTableCheckConstraints.Result>(
+        var queryResult = await DbConnection.QueryAsync(
             GetTableCheckConstraints.Sql,
             new GetTableCheckConstraints.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
@@ -482,7 +482,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
 
     private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsyncCore(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var queryResult = await DbConnection.QueryAsync<GetTableParentKeys.Result>(
+        var queryResult = await DbConnection.QueryAsync(
             GetTableParentKeys.Sql,
             new GetTableParentKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
@@ -571,7 +571,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
-        var query = await DbConnection.QueryAsync<GetTableColumns.Result>(
+        var query = await DbConnection.QueryAsync(
             GetTableColumns.Sql,
             new GetTableColumns.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
@@ -632,7 +632,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
 
     private async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
-        var queryResult = await DbConnection.QueryAsync<GetTableTriggers.Result>(
+        var queryResult = await DbConnection.QueryAsync(
             GetTableTriggers.Sql,
             new GetTableTriggers.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken

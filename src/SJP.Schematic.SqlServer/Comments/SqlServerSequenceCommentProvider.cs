@@ -76,7 +76,7 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
         ArgumentNullException.ThrowIfNull(sequenceName);
 
         sequenceName = QualifySequenceName(sequenceName);
-        var qualifiedSequenceName = Connection.QueryFirstOrNone<GetSequenceName.Result>(
+        var qualifiedSequenceName = Connection.QueryFirstOrNone(
             GetSequenceName.Sql,
             new GetSequenceName.Query { SchemaName = sequenceName.Schema!, SequenceName = sequenceName.LocalName },
             cancellationToken
@@ -118,7 +118,7 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
 
     private async Task<IDatabaseSequenceComments> LoadSequenceCommentsAsyncCore(Identifier sequenceName, CancellationToken cancellationToken)
     {
-        var queryResult = await Connection.QueryAsync<GetSequenceComments.Result>(
+        var queryResult = await Connection.QueryAsync(
             Queries.GetSequenceComments.Sql,
             new GetSequenceComments.Query
             {

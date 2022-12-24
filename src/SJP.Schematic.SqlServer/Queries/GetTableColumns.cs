@@ -1,8 +1,10 @@
-﻿namespace SJP.Schematic.SqlServer.Queries;
+﻿using SJP.Schematic.Core.Extensions;
+
+namespace SJP.Schematic.SqlServer.Queries;
 
 internal static class GetTableColumns
 {
-    internal sealed record Query
+    internal sealed record Query : ISqlQuery<Result>
     {
         public required string SchemaName { get; init; }
 

@@ -50,7 +50,7 @@ public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
     /// <returns>A collection of database table comments, where available.</returns>
     public async IAsyncEnumerable<IRelationalDatabaseTableComments> GetAllTableComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResults = await Connection.QueryAsync<GetAllTableNames.Result>(
+        var queryResults = await Connection.QueryAsync(
             GetAllTableNames.Sql,
             new GetAllTableNames.Query { SchemaName = IdentifierDefaults.Schema! },
             cancellationToken
@@ -76,7 +76,7 @@ public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
         ArgumentNullException.ThrowIfNull(tableName);
 
         tableName = QualifyTableName(tableName);
-        var qualifiedTableName = Connection.QueryFirstOrNone<GetTableName.Result>(
+        var qualifiedTableName = Connection.QueryFirstOrNone(
             GetTableName.Sql,
             new GetTableName.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
@@ -118,7 +118,7 @@ public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
 
     private async Task<IRelationalDatabaseTableComments> LoadTableCommentsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
-        var commentsData = await Connection.QueryAsync<GetTableComments.Result>(
+        var commentsData = await Connection.QueryAsync(
             Queries.GetTableComments.Sql,
             new GetTableComments.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken

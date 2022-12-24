@@ -125,7 +125,7 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
         ArgumentNullException.ThrowIfNull(sequenceName);
 
         var candidateSequenceName = QualifySequenceName(sequenceName);
-        var qualifiedSequenceName = Connection.QueryFirstOrNone<GetSequenceName.Result>(
+        var qualifiedSequenceName = Connection.QueryFirstOrNone(
             GetSequenceName.Sql,
             new GetSequenceName.Query { SchemaName = candidateSequenceName.Schema!, SequenceName = candidateSequenceName.LocalName },
             cancellationToken
@@ -154,7 +154,7 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
 
-        return Connection.QueryFirstOrNone<GetSequenceDefinition.Result>(
+        return Connection.QueryFirstOrNone(
             GetSequenceDefinition.Sql,
             new GetSequenceDefinition.Query { SchemaName = sequenceName.Schema!, SequenceName = sequenceName.LocalName },
             cancellationToken

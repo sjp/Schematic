@@ -125,7 +125,7 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
         ArgumentNullException.ThrowIfNull(viewName);
 
         var candidateViewName = QualifyViewName(viewName);
-        var qualifiedViewName = DbConnection.QueryFirstOrNone<GetMaterializedViewName.Result>(
+        var qualifiedViewName = DbConnection.QueryFirstOrNone(
             GetMaterializedViewName.Sql,
             new GetMaterializedViewName.Query { SchemaName = candidateViewName.Schema!, ViewName = candidateViewName.LocalName },
             cancellationToken
@@ -171,7 +171,7 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
-        return DbConnection.ExecuteScalarAsync<string>(
+        return DbConnection.ExecuteScalarAsync(
             GetMaterializedViewDefinition.Sql,
             new GetMaterializedViewDefinition.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
@@ -194,7 +194,7 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var query = await DbConnection.QueryAsync<GetMaterializedViewColumns.Result>(
+        var query = await DbConnection.QueryAsync(
             GetMaterializedViewColumns.Sql,
             new GetMaterializedViewColumns.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken

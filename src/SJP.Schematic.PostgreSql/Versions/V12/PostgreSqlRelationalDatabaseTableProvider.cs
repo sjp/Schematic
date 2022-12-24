@@ -44,7 +44,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : V11.PostgreSqlRelationa
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
-        var query = await DbConnection.QueryAsync<GetV12TableColumns.Result>(
+        var query = await DbConnection.QueryAsync(
             GetV12TableColumns.Sql,
             new GetV12TableColumns.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
@@ -109,7 +109,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : V11.PostgreSqlRelationa
     /// <returns>A collection of check constraints.</returns>
     protected override async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, CancellationToken cancellationToken)
     {
-        var checks = await DbConnection.QueryAsync<GetV12TableChecks.Result>(
+        var checks = await DbConnection.QueryAsync(
             GetV12TableChecks.Sql,
             new GetV12TableChecks.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken

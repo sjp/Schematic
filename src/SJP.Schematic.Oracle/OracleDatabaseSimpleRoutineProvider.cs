@@ -116,7 +116,7 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
         ArgumentNullException.ThrowIfNull(routineName);
 
         var candidateRoutineName = QualifyRoutineName(routineName);
-        var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineName.Result>(
+        var qualifiedRoutineName = Connection.QueryFirstOrNone(
             GetRoutineName.Sql,
             new GetRoutineName.Query { SchemaName = candidateRoutineName.Schema!, RoutineName = candidateRoutineName.LocalName },
             cancellationToken
@@ -167,7 +167,7 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
         if (string.Equals(routineName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal))
             return await LoadUserDefinitionAsyncCore(routineName, cancellationToken).ConfigureAwait(false);
 
-        var lines = await Connection.QueryAsync<string>(
+        var lines = await Connection.QueryAsync(
             GetRoutineDefinition.Sql,
             new GetRoutineDefinition.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken
@@ -182,7 +182,7 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
 
     private async Task<string> LoadUserDefinitionAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
-        var userLines = await Connection.QueryAsync<string>(
+        var userLines = await Connection.QueryAsync(
             GetUserRoutineDefinition.Sql,
             new GetUserRoutineDefinition.Query { RoutineName = routineName.LocalName },
             cancellationToken

@@ -1,8 +1,10 @@
-﻿namespace SJP.Schematic.SqlServer.Queries;
+﻿using SJP.Schematic.Core.Extensions;
+
+namespace SJP.Schematic.SqlServer.Queries;
 
 internal static class GetRoutineDefinition
 {
-    internal sealed record Query
+    internal sealed record Query : ISqlQuery<string>
     {
         public required string SchemaName { get; init; }
 

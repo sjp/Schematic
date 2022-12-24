@@ -6,7 +6,7 @@ namespace SJP.Schematic.Sqlite.Queries;
 
 internal static class GetTableDefinition
 {
-    internal sealed record Query
+    internal sealed record Query : ISqlQuery<string>
     {
         public required string TableName { get; init; }
     }

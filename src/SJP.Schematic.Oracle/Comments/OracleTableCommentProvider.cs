@@ -99,7 +99,7 @@ public class OracleTableCommentProvider : IRelationalDatabaseTableCommentProvide
         ArgumentNullException.ThrowIfNull(tableName);
 
         var candidateTableName = QualifyTableName(tableName);
-        var qualifiedTableName = Connection.QueryFirstOrNone<GetTableName.Result>(
+        var qualifiedTableName = Connection.QueryFirstOrNone(
             GetTableName.Sql,
             new GetTableName.Query { SchemaName = candidateTableName.Schema!, TableName = candidateTableName.LocalName },
             cancellationToken
@@ -144,7 +144,7 @@ public class OracleTableCommentProvider : IRelationalDatabaseTableCommentProvide
         if (string.Equals(tableName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal)) // fast path
             return await LoadUserTableCommentsAsyncCore(tableName, cancellationToken).ConfigureAwait(false);
 
-        var result = await Connection.QueryAsync<GetTableComments.Result>(
+        var result = await Connection.QueryAsync(
             Queries.GetTableComments.Sql,
             new GetTableComments.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
@@ -182,7 +182,7 @@ public class OracleTableCommentProvider : IRelationalDatabaseTableCommentProvide
 
     private async Task<IRelationalDatabaseTableComments> LoadUserTableCommentsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
-        var result = await Connection.QueryAsync<GetUserTableComments.Result>(
+        var result = await Connection.QueryAsync(
             GetUserTableComments.Sql,
             new GetUserTableComments.Query { TableName = tableName.LocalName },
             cancellationToken

@@ -45,7 +45,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : PostgreSqlRelationalDat
 
     private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var queryResult = await DbConnection.QueryAsync<GetV11TableIndexes.Result>(
+        var queryResult = await DbConnection.QueryAsync(
             GetV11TableIndexes.Sql,
             new GetV11TableIndexes.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken

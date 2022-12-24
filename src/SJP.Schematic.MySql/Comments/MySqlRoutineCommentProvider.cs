@@ -49,7 +49,7 @@ public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
     /// <returns>A collection of database routine comments, where available.</returns>
     public async IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryResults = await Connection.QueryAsync<GetAllRoutineNames.Result>(
+        var queryResults = await Connection.QueryAsync(
             GetAllRoutineNames.Sql,
             new GetAllRoutineNames.Query { SchemaName = IdentifierDefaults.Schema! },
             cancellationToken
@@ -75,7 +75,7 @@ public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
         ArgumentNullException.ThrowIfNull(routineName);
 
         routineName = QualifyRoutineName(routineName);
-        var qualifiedRoutineName = Connection.QueryFirstOrNone<GetRoutineName.Result>(
+        var qualifiedRoutineName = Connection.QueryFirstOrNone(
             GetRoutineName.Sql,
             new GetRoutineName.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken
@@ -117,7 +117,7 @@ public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
 
     private async Task<IDatabaseRoutineComments> LoadRoutineCommentsAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
-        var comment = await Connection.ExecuteScalarAsync<string>(
+        var comment = await Connection.ExecuteScalarAsync(
             Queries.GetRoutineComments.Sql,
             new GetRoutineComments.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken

@@ -6,7 +6,7 @@ namespace SJP.Schematic.Sqlite.Queries;
 
 internal static class GetTriggerDefinition
 {
-    internal sealed record Query
+    internal sealed record Query : ISqlQuery<Result>
     {
         public required string TableName { get; init; }
     }

@@ -116,7 +116,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
         ArgumentNullException.ThrowIfNull(packageName);
 
         var candidatePackageName = QualifyPackageName(packageName);
-        var qualifiedPackageName = Connection.QueryFirstOrNone<GetPackageName.Result>(
+        var qualifiedPackageName = Connection.QueryFirstOrNone(
             GetPackageName.Sql,
             new GetPackageName.Query { SchemaName = candidatePackageName.Schema!, PackageName = candidatePackageName.LocalName },
             cancellationToken
@@ -146,7 +146,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
         if (string.Equals(packageName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal)) // fast path
             return await LoadUserPackageAsyncCore(packageName, cancellationToken).ConfigureAwait(false);
 
-        var lines = await Connection.QueryAsync<GetPackageDefinition.Result>(
+        var lines = await Connection.QueryAsync(
             GetPackageDefinition.Sql,
             new GetPackageDefinition.Query { SchemaName = packageName.Schema!, PackageName = packageName.LocalName },
             cancellationToken
@@ -175,7 +175,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
 
     private async Task<IOracleDatabasePackage> LoadUserPackageAsyncCore(Identifier packageName, CancellationToken cancellationToken)
     {
-        var lines = await Connection.QueryAsync<GetUserPackageDefinition.Result>(
+        var lines = await Connection.QueryAsync(
             GetUserPackageDefinition.Sql,
             new GetUserPackageDefinition.Query { PackageName = packageName.LocalName },
             cancellationToken

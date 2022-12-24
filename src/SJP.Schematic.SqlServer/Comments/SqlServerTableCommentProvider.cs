@@ -76,7 +76,7 @@ public class SqlServerTableCommentProvider : IRelationalDatabaseTableCommentProv
         ArgumentNullException.ThrowIfNull(tableName);
 
         tableName = QualifyTableName(tableName);
-        var qualifiedTableName = Connection.QueryFirstOrNone<GetTableName.Result>(
+        var qualifiedTableName = Connection.QueryFirstOrNone(
             GetTableName.Sql,
             new GetTableName.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
@@ -118,7 +118,7 @@ public class SqlServerTableCommentProvider : IRelationalDatabaseTableCommentProv
 
     private async Task<IRelationalDatabaseTableComments> LoadTableCommentsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
-        var queryResult = await Connection.QueryAsync<GetTableComments.Result>(
+        var queryResult = await Connection.QueryAsync(
             Queries.GetTableComments.Sql,
             new GetTableComments.Query
             {
