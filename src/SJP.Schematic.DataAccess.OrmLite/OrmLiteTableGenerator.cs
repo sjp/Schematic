@@ -412,8 +412,6 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
 
             var parentTable = relationalKey.ParentTable;
             var parentClassName = NameTranslator.TableToClassName(parentTable);
-            // TODO check that this is not implicit -- i.e. there is a naming convention applied
-            //      so explicitly declaring via [References(...)] may not be necessary
 
             var fkAttributeArgs = new List<AttributeArgumentSyntax>
             {

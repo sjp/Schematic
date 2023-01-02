@@ -165,7 +165,7 @@ public class SqlServerConnectionFactory : IDbConnectionFactory
                 case 1205:
                 // SQL Error Code: 233
                 // The client was unable to establish a connection because of an error during connection initialization process before login.
-                // Possible causes include the following: the client tried to connect to an unsupported version of SQL Server;
+                // Possible causes include the following: the client tried to connect to an unsupported version of SQL Server
                 // the server was too busy to accept new connections; or there was a resource limitation (insufficient memory or maximum
                 // allowed connections) on the server. (provider: TCP Provider, error: 0 - An existing connection was forcibly closed by
                 // the remote host.)

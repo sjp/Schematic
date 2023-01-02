@@ -660,17 +660,17 @@ public class ConnectionPragma : ISqliteConnectionPragma
     protected virtual string SoftHeapLimitSetQuery(long heapLimit) => PragmaPrefix + "soft_heap_limit = " + heapLimit.ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
+    /// Gets a query to read table information for the connection.
+    /// </summary>
+    /// <value>A SQL query.</value>
+    protected virtual string TableListQuery => PragmaPrefix + "table_list";
+
+    /// <summary>
     /// Returns information about each table or view in all schemas.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of table or view information, one element for each table or view in all schemas.</returns>
     public Task<IEnumerable<pragma_table_list>> TableListAsync(CancellationToken cancellationToken = default) => DbConnection.QueryAsync<pragma_table_list>(TableListQuery, cancellationToken);
-
-    /// <summary>
-    /// Gets a query to read table information for the connection.
-    /// </summary>
-    /// <value>A SQL query.</value>
-    protected virtual string TableListQuery => PragmaPrefix + "table_list";
 
     /// <summary>
     /// Returns information about a given table or view in the given schema.
