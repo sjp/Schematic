@@ -45,7 +45,7 @@
     "jquery-ui-dist": "1.13.2",
     "natives": "1.1.6",
     "node-sass": "8.0.0",
-    "postcss": "8.4.20",
+    "postcss": "8.4.21",
     "postcss-preset-env": "7.8.3",
     "source-sans": "3.46.0",
     "svg-pan-zoom": "3.6.1"
