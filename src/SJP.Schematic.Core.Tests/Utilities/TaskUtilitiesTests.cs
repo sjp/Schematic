@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using SJP.Schematic.Core.Utilities;
 
-namespace SJP.Schematic.Core.Tests.Extensions;
+namespace SJP.Schematic.Core.Tests.Utilities;
 
 [TestFixture]
 internal static class TaskUtilitiesTests

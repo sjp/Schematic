@@ -51,7 +51,7 @@ public class DbmlFormatter : IDbmlFormatter
         return builder.GetStringAndRelease().TrimEnd();
     }
 
-    private void RenderTable(StringBuilder builder, IRelationalDatabaseTable table)
+    private static void RenderTable(StringBuilder builder, IRelationalDatabaseTable table)
     {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(table);
