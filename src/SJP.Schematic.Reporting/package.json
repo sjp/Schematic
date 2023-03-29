@@ -26,7 +26,7 @@
     "bootstrap": "4.6.0",
     "codemirror": "5.65.5",
     "cssnano": "6.0.0",
-    "datatables.net": "1.10.25",
+    "datatables.net": "1.13.4",
     "datatables.net-bs4": "1.10.24",
     "del": "7.0.0",
     "font-awesome": "4.7.0",
