@@ -23,7 +23,7 @@
     "@babel/preset-env": "7.21.4",
     "@babel/register": "7.21.0",
     "admin-lte": "3.2.0",
-    "bootstrap": "4.6.0",
+    "bootstrap": "5.2.3",
     "codemirror": "5.65.5",
     "cssnano": "6.0.0",
     "datatables.net": "1.10.25",
