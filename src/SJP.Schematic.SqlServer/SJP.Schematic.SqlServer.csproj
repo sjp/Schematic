@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
-    <PackageReference Include="Microsoft.SqlServer.TransactSql.ScriptDom" Version="150.4897.1" />
+    <PackageReference Include="Microsoft.SqlServer.TransactSql.ScriptDom" Version="161.8812.0" />
   </ItemGroup>
 
   <ItemGroup>
