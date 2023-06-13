@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using EnumsNET;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint;
@@ -29,18 +28,8 @@ public sealed class ReportingRuleProvider : IRuleProvider
 
         var ruleProvider = new RuleProviderBuilder()
             .AddRuleProvider<DefaultHtmlRuleProvider>()
-            .AddRuleProvider<PluginProvider>()
             .Build();
 
         return ruleProvider.GetRules(connection, level);
-    }
-
-    // ensures rules in the lint assembly and the reporting assembly are ignored
-    private sealed class PluginProvider : PluginRuleProvider
-    {
-        protected override bool TypeFilter(Type type, Type dialectType)
-            => !string.Equals(type.Assembly.Location, ReportingAssembly.Location, StringComparison.OrdinalIgnoreCase);
-
-        private static readonly Assembly ReportingAssembly = Assembly.GetExecutingAssembly();
     }
 }
