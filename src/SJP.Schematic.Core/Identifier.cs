@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Diagnostics;
 using SJP.Schematic.Core.Extensions;
@@ -11,7 +10,7 @@ namespace SJP.Schematic.Core;
 /// Describes an identifier which represents any object with a database. In particular it enables behaviour such a scoping an object name to a schema.
 /// </summary>
 [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-public sealed class Identifier : IEquatable<Identifier>, IComparable<Identifier>
+public sealed record Identifier : IComparable<Identifier>
 {
     /// <summary>
     /// Creates an identifier that only contains an object's local name.
@@ -105,17 +104,13 @@ public sealed class Identifier : IEquatable<Identifier>, IComparable<Identifier>
         var schemaPresent = !schema.IsNullOrWhiteSpace();
         var localNamePresent = !localName.IsNullOrWhiteSpace();
 
-        var identifierKey = GetHashCode(server, database, schema, localName);
-        if (Cache.TryGetValue(identifierKey, out var cachedReference) && cachedReference.TryGetTarget(out var cachedIdentifier))
-            return cachedIdentifier;
-
         Identifier? result = null;
         if (serverPresent && databasePresent && schemaPresent && localNamePresent)
             result = new Identifier(server!, database!, schema!, localName!);
         else if (serverPresent)
             throw new ArgumentNullException(nameof(server), "A server name was provided, but other components are missing.");
 
-        if (result == null)
+        if (result is null)
         {
             if (databasePresent && schemaPresent && localNamePresent)
                 result = new Identifier(database!, schema!, localName!);
@@ -123,7 +118,7 @@ public sealed class Identifier : IEquatable<Identifier>, IComparable<Identifier>
                 throw new ArgumentNullException(nameof(database), "A database name was provided, but other components are missing.");
         }
 
-        if (result == null)
+        if (result is null)
         {
             if (schemaPresent && localNamePresent)
                 result = new Identifier(schema!, localName!);
@@ -133,23 +128,8 @@ public sealed class Identifier : IEquatable<Identifier>, IComparable<Identifier>
 
         if (!localNamePresent)
             throw new ArgumentNullException(nameof(localName), "At least one component of an identifier must be provided.");
-        if (result == null)
+        if (result is null)
             result = new Identifier(localName!);
-
-        if (Cache.TryGetValue(identifierKey, out var reference) && !reference.TryGetTarget(out _))
-        {
-            reference.SetTarget(result);
-        }
-        else
-        {
-            WeakReference<Identifier> addFactory(int _) => new(result!);
-            WeakReference<Identifier> updateFactory(int _, WeakReference<Identifier> oldValue)
-            {
-                oldValue.SetTarget(result!);
-                return oldValue;
-            }
-            Cache.AddOrUpdate(identifierKey, addFactory, updateFactory);
-        }
 
         return result;
     }
@@ -185,20 +165,7 @@ public sealed class Identifier : IEquatable<Identifier>, IComparable<Identifier>
     /// </summary>
     /// <param name="localName">An object name.</param>
     public static implicit operator Identifier(string localName)
-    {
-        var identifierKey = GetHashCode(null, null, null, localName);
-
-        if (!Cache.TryGetValue(identifierKey, out var reference))
-            reference = new WeakReference<Identifier>(new Identifier(localName));
-
-        if (!reference.TryGetTarget(out var identifier))
-        {
-            identifier = new Identifier(localName);
-            reference.SetTarget(identifier);
-        }
-
-        return identifier;
-    }
+        => new Identifier(localName);
 
     /// <summary>
     /// A server name.
@@ -229,38 +196,6 @@ public sealed class Identifier : IEquatable<Identifier>, IComparable<Identifier>
     {
         // not intended to be used for anything except debugging
         return DebuggerDisplay;
-    }
-
-    /// <summary>
-    /// Checks whether two identifiers are equal using the default (ordinal) identifier comparer.
-    /// </summary>
-    /// <param name="a">A database identifier.</param>
-    /// <param name="b">Another database identifier.</param>
-    /// <returns><c>true</c> if all components of an identifier are equal; otherwise <c>false</c>.</returns>
-    public static bool operator ==(Identifier? a, Identifier? b)
-    {
-        if (a is null && b is null)
-            return true;
-        if (a is null || b is null)
-            return false;
-
-        return a.Equals(b);
-    }
-
-    /// <summary>
-    /// Checks whether two identifiers are not equal using the default (ordinal) identifier comparer.
-    /// </summary>
-    /// <param name="a">A database identifier.</param>
-    /// <param name="b">Another database identifier.</param>
-    /// <returns><c>false</c> if all components of an identifier are equal; otherwise <c>true</c>.</returns>
-    public static bool operator !=(Identifier? a, Identifier? b)
-    {
-        if (a is null && b is null)
-            return false;
-        if (a is null || b is null)
-            return true;
-
-        return !a.Equals(b);
     }
 
     /// <summary>
@@ -296,36 +231,6 @@ public sealed class Identifier : IEquatable<Identifier>, IComparable<Identifier>
     public static bool operator <=(Identifier a, Identifier b) => IdentifierComparer.Ordinal.Compare(a, b) <= 0;
 
     /// <summary>
-    /// Determines whether the specified identifier is equal to the current identifier using the default (ordinal) identifier comparer.
-    /// </summary>
-    /// <param name="other">The identifier to compare with the current identifier.</param>
-    /// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
-    public bool Equals(Identifier? other) => IdentifierComparer.Ordinal.Equals(this, other);
-
-    /// <summary>
-    /// Determines whether the specified object is equal to the current identifier using the default (ordinal) identifier comparer.
-    /// </summary>
-    /// <param name="obj">The object to compare with the current identifier.</param>
-    /// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public override bool Equals(object? obj)
-    {
-        if (ReferenceEquals(this, obj))
-            return true;
-
-        if (obj is not Identifier other)
-            return false;
-
-        return Equals(other);
-    }
-
-    /// <summary>
-    /// A hash code for the current identifier using the default (ordinal) identifier comparer.
-    /// </summary>
-    /// <returns>A hash code.</returns>
-    public override int GetHashCode() => IdentifierComparer.Ordinal.GetHashCode(this);
-
-    /// <summary>
     /// Compares this instance with a specified <see cref="Identifier"/> object and indicates whether this instance precedes, follows, or appears in the same position in the sort order as the specified <see cref="Identifier"/>.
     /// </summary>
     /// <param name="other">An identifier to compare with the current identifier.</param>
@@ -335,7 +240,7 @@ public sealed class Identifier : IEquatable<Identifier>, IComparable<Identifier>
         if (ReferenceEquals(this, other))
             return 0;
 
-        if (other == null)
+        if (other is null)
             return 1;
 
         return IdentifierComparer.Ordinal.Compare(this, other);
@@ -362,17 +267,4 @@ public sealed class Identifier : IEquatable<Identifier>, IComparable<Identifier>
             return builder.GetStringAndRelease();
         }
     }
-
-    private static int GetHashCode(string? server, string? database, string? schema, string? localName)
-    {
-        return HashCode.Combine(
-            server != null ? Comparer.GetHashCode(server) : 0,
-            database != null ? Comparer.GetHashCode(database) : 0,
-            schema != null ? Comparer.GetHashCode(schema) : 0,
-            localName != null ? Comparer.GetHashCode(localName) : 0
-        );
-    }
-
-    private static readonly ConcurrentDictionary<int, WeakReference<Identifier>> Cache = new();
-    private static readonly StringComparer Comparer = StringComparer.Ordinal;
 }
