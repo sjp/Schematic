@@ -107,7 +107,7 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database routine, if available.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
-    protected virtual OptionAsync<IDatabaseRoutine> LoadRoutine(Identifier routineName, CancellationToken cancellationToken)
+    protected OptionAsync<IDatabaseRoutine> LoadRoutine(Identifier routineName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(routineName);
 
@@ -129,7 +129,7 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A routine definition.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
-    protected virtual Task<string> LoadDefinitionAsync(Identifier routineName, CancellationToken cancellationToken)
+    protected Task<string> LoadDefinitionAsync(Identifier routineName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(routineName);
 

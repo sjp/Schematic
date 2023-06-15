@@ -46,7 +46,7 @@ public class SqlServerRoutineCommentProvider : IDatabaseRoutineCommentProvider
     /// Retrieves the extended property name used to store comments on an object.
     /// </summary>
     /// <value>The comment property name.</value>
-    protected virtual string CommentProperty { get; } = "MS_Description";
+    protected string CommentProperty { get; } = "MS_Description";
 
     /// <summary>
     /// Retrieves comments for all database routines.
@@ -104,7 +104,7 @@ public class SqlServerRoutineCommentProvider : IDatabaseRoutineCommentProvider
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>Comments for the given database routine, if available.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
-    protected virtual OptionAsync<IDatabaseRoutineComments> LoadRoutineComments(Identifier routineName, CancellationToken cancellationToken)
+    protected OptionAsync<IDatabaseRoutineComments> LoadRoutineComments(Identifier routineName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(routineName);
 

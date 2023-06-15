@@ -134,7 +134,7 @@ public class PostgreSqlDatabaseSequenceProviderBase : IDatabaseSequenceProvider
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database sequence in the 'some' state if found; otherwise 'none'.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
-    protected virtual OptionAsync<IDatabaseSequence> LoadSequence(Identifier sequenceName, CancellationToken cancellationToken)
+    protected OptionAsync<IDatabaseSequence> LoadSequence(Identifier sequenceName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
 

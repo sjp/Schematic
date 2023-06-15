@@ -83,14 +83,14 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// Gets a query to read the user version pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ApplicationIdReadQuery => PragmaPrefix + "application_id";
+    protected string ApplicationIdReadQuery => PragmaPrefix + "application_id";
 
     /// <summary>
     /// Creates a query to set the user version pragma.
     /// </summary>
     /// <param name="appId">The application identifier.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string ApplicationIdSetQuery(int appId) => PragmaPrefix + "application_id = " + appId.ToString(CultureInfo.InvariantCulture);
+    protected string ApplicationIdSetQuery(int appId) => PragmaPrefix + "application_id = " + appId.ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Query the auto-vacuum status in the database.
@@ -111,7 +111,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// Gets a query to read the auto vacuum pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string AutoVacuumReadQuery => PragmaPrefix + "auto_vacuum";
+    protected string AutoVacuumReadQuery => PragmaPrefix + "auto_vacuum";
 
     /// <summary>
     /// Creates a query to set the auto vacuum pragma.
@@ -119,7 +119,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <param name="autoVacuumMode">The automatic vacuum mode.</param>
     /// <returns>A SQL query.</returns>
     /// <exception cref="ArgumentException"><paramref name="autoVacuumMode"/> is an invalid enum value.</exception>
-    protected virtual string AutoVacuumSetQuery(AutoVacuumMode autoVacuumMode)
+    protected string AutoVacuumSetQuery(AutoVacuumMode autoVacuumMode)
     {
         if (!autoVacuumMode.IsValid())
             throw new ArgumentException($"The {nameof(AutoVacuumMode)} provided must be a valid enum.", nameof(autoVacuumMode));
@@ -157,14 +157,14 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// Gets a query to read the cache size pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string CacheSizeInPagesReadQuery => PragmaPrefix + "cache_size";
+    protected string CacheSizeInPagesReadQuery => PragmaPrefix + "cache_size";
 
     /// <summary>
     /// Creates a query to set the cache size pragma.
     /// </summary>
     /// <param name="cacheSize">Size of the cache (in pages).</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string CacheSizeInPagesSetQuery(ulong cacheSize) => PragmaPrefix + "cache_size = " + cacheSize.ToString(CultureInfo.InvariantCulture);
+    protected string CacheSizeInPagesSetQuery(ulong cacheSize) => PragmaPrefix + "cache_size = " + cacheSize.ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Query the suggested maximum number of database disk pages that SQLite will hold in memory at once per open database file.
@@ -194,14 +194,14 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// Gets a query to read the cache size pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string CacheSizeInKibibytesReadQuery => PragmaPrefix + "cache_size";
+    protected string CacheSizeInKibibytesReadQuery => PragmaPrefix + "cache_size";
 
     /// <summary>
     /// Creates a query to set the cache size pragma.
     /// </summary>
     /// <param name="cacheSize">Size of the cache (in kibibytes).</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string CacheSizeInKibibytesSetQuery(ulong cacheSize) => PragmaPrefix + "cache_size = -" + cacheSize.ToString(CultureInfo.InvariantCulture);
+    protected string CacheSizeInKibibytesSetQuery(ulong cacheSize) => PragmaPrefix + "cache_size = -" + cacheSize.ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Queries the ability of the pager to spill dirty cache pages to the database file in the middle of a transaction.
@@ -222,14 +222,14 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// Gets a query to read the cache spill pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string CacheSpillReadQuery => PragmaPrefix + "cache_spill";
+    protected string CacheSpillReadQuery => PragmaPrefix + "cache_spill";
 
     /// <summary>
     /// Creates a query to set the cache spill pragma.
     /// </summary>
     /// <param name="enable">if set to <c>true</c> dirty cache pages are able to be spilled.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string CacheSpillSetQuery(bool enable) => PragmaPrefix + "cache_spill = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
+    protected string CacheSpillSetQuery(bool enable) => PragmaPrefix + "cache_spill = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Provides an indication that the database file has been modified. A database change will cause <c>data_version</c> to be updated.
@@ -242,7 +242,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// Gets a query to read the data version pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string DataVersionQuery => PragmaPrefix + "data_version";
+    protected string DataVersionQuery => PragmaPrefix + "data_version";
 
     /// <summary>
     /// Checks the database, for foreign key constraints that are violated and returns one row of output for each violation.
@@ -255,7 +255,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// Gets a query to read the foreign key check pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ForeignKeyCheckDatabaseQuery => PragmaPrefix + "foreign_key_check";
+    protected string ForeignKeyCheckDatabaseQuery => PragmaPrefix + "foreign_key_check";
 
     /// <summary>
     /// Checks a database table, for foreign key constraints that are violated and returns one row of output for each violation.
@@ -281,7 +281,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <returns>A SQL query.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
-    protected virtual string ForeignKeyCheckTableQuery(Identifier tableName)
+    protected string ForeignKeyCheckTableQuery(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
@@ -314,7 +314,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <returns>A SQL query.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
-    protected virtual string ForeignKeyListQuery(Identifier tableName)
+    protected string ForeignKeyListQuery(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
@@ -334,7 +334,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// Gets a query to read the freelist count pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string FreeListCountQuery => PragmaPrefix + "freelist_count";
+    protected string FreeListCountQuery => PragmaPrefix + "freelist_count";
 
     /// <summary>
     /// Frees pages from the freelist. Given a number of pages, no more than the given number of pages will be freed.
@@ -349,7 +349,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// </summary>
     /// <param name="pages">The maximum number of pages to be freed.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string IncrementalVacuumQuery(ulong pages)
+    protected string IncrementalVacuumQuery(ulong pages)
     {
         return pages < 1
             ? PragmaPrefix + "incremental_vacuum"
@@ -370,7 +370,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <param name="indexName">An index name.</param>
     /// <returns>A SQL query.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="indexName"/> is <c>null</c>, empty or whitespace.</exception>
-    protected virtual string IndexInfoQuery(string indexName)
+    protected string IndexInfoQuery(string indexName)
     {
         if (indexName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(indexName));
@@ -402,7 +402,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <returns>A SQL query.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
-    protected virtual string IndexListQuery(Identifier tableName)
+    protected string IndexListQuery(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
@@ -432,7 +432,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <param name="indexName">An index name.</param>
     /// <returns>A SQL query.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="indexName"/> is <c>null</c>, empty or whitespace.</exception>
-    protected virtual string IndexXInfoQuery(string indexName)
+    protected string IndexXInfoQuery(string indexName)
     {
         if (indexName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(indexName));
@@ -459,7 +459,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// Gets a query to read the integrity check pragma.
     /// </summary>
     /// <returns>A SQL query.</returns>
-    protected virtual string IntegrityCheckDatabaseQuery => PragmaPrefix + "integrity_check";
+    protected string IntegrityCheckDatabaseQuery => PragmaPrefix + "integrity_check";
 
     /// <summary>
     /// Integrity check of the entire database. The <c>integrity_check</c> pragma looks for out-of-order records, missing pages, malformed records, missing index entries, and <c>UNIQUE</c>, <c>CHECK</c>, and <c>NOT NULL</c> constraint errors.
@@ -483,7 +483,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// </summary>
     /// <param name="maxErrors">The maximum error count.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string IntegrityCheckMaxErrorsQuery(uint maxErrors)
+    protected string IntegrityCheckMaxErrorsQuery(uint maxErrors)
     {
         return maxErrors == 0
             ? PragmaPrefix + "integrity_check"
@@ -521,7 +521,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// </summary>
     /// <param name="tableName">A table name.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string IntegrityCheckTableQuery(Identifier tableName)
+    protected string IntegrityCheckTableQuery(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
@@ -557,7 +557,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// Gets a query to read the journal mode pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string JournalModeReadQuery => PragmaPrefix + "journal_mode";
+    protected string JournalModeReadQuery => PragmaPrefix + "journal_mode";
 
     /// <summary>
     /// Creates a query to set the journal mode pragma.
@@ -565,7 +565,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <param name="journalMode">The journal mode.</param>
     /// <returns>A SQL query.</returns>
     /// <exception cref="ArgumentException"><paramref name="journalMode"/> has an invalid enum value.</exception>
-    protected virtual string JournalModeSetQuery(JournalMode journalMode)
+    protected string JournalModeSetQuery(JournalMode journalMode)
     {
         if (!journalMode.IsValid())
             throw new ArgumentException($"The {nameof(JournalMode)} provided must be a valid enum.", nameof(journalMode));
@@ -593,14 +593,14 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// Gets a query to read the journal size limit pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string JournalSizeLimitReadQuery => PragmaPrefix + "journal_size_limit";
+    protected string JournalSizeLimitReadQuery => PragmaPrefix + "journal_size_limit";
 
     /// <summary>
     /// Creates a query to set the journal size limit pragma.
     /// </summary>
     /// <param name="sizeLimit">The maximum size of the journal, in bytes.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string JournalSizeLimitSetQuery(long sizeLimit) => PragmaPrefix + "journal_size_limit = " + sizeLimit.ToString(CultureInfo.InvariantCulture);
+    protected string JournalSizeLimitSetQuery(long sizeLimit) => PragmaPrefix + "journal_size_limit = " + sizeLimit.ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Queries the database connection locking-mode. The locking-mode is either <c>NORMAL</c> or <c>EXCLUSIVE</c>.
@@ -629,7 +629,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// Gets a query to read the locking mode pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string LockingModeReadQuery => PragmaPrefix + "locking_mode";
+    protected string LockingModeReadQuery => PragmaPrefix + "locking_mode";
 
     /// <summary>
     /// Creates a query to set the locking mode pragma.
@@ -637,7 +637,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <param name="lockingMode">The locking mode.</param>
     /// <returns>A SQL query.</returns>
     /// <exception cref="ArgumentException"><paramref name="lockingMode"/> is an invalid enum value.</exception>
-    protected virtual string LockingModeSetQuery(LockingMode lockingMode)
+    protected string LockingModeSetQuery(LockingMode lockingMode)
     {
         if (!lockingMode.IsValid())
             throw new ArgumentException($"The {nameof(LockingMode)} provided must be a valid enum.", nameof(lockingMode));
@@ -665,14 +665,14 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// Gets a query to read the max page count pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string MaxPageCountReadQuery => PragmaPrefix + "max_page_count";
+    protected string MaxPageCountReadQuery => PragmaPrefix + "max_page_count";
 
     /// <summary>
     /// Creates a query to set the max page count pragma.
     /// </summary>
     /// <param name="maxPageCount">The maximum page count.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string MaxPageCountSetQuery(ulong maxPageCount) => PragmaPrefix + "max_page_count = " + maxPageCount.ToString(CultureInfo.InvariantCulture);
+    protected string MaxPageCountSetQuery(ulong maxPageCount) => PragmaPrefix + "max_page_count = " + maxPageCount.ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Query the maximum number of bytes that are set aside for memory-mapped I/O on a single database.
@@ -693,14 +693,14 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// Gets a query to read the mmap size read query pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string MmapSizeReadQuery => PragmaPrefix + "mmap_size";
+    protected string MmapSizeReadQuery => PragmaPrefix + "mmap_size";
 
     /// <summary>
     /// Creates a query to set the mmap size pragma.
     /// </summary>
     /// <param name="mmapLimit">The mmap limit.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string MmapSizeSetQuery(ulong mmapLimit) => PragmaPrefix + "mmap_size = " + mmapLimit.ToString(CultureInfo.InvariantCulture);
+    protected string MmapSizeSetQuery(ulong mmapLimit) => PragmaPrefix + "mmap_size = " + mmapLimit.ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Attempt to optimize the database.
@@ -716,7 +716,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <param name="features">The set of features to optimize.</param>
     /// <returns>A SQL query.</returns>
     /// <exception cref="ArgumentException"><paramref name="features"/> is an invalid enum value.</exception>
-    protected virtual string OptimizeSetQuery(OptimizeFeatures features)
+    protected string OptimizeSetQuery(OptimizeFeatures features)
     {
         if (!features.IsValid())
             throw new ArgumentException($"The {nameof(OptimizeFeatures)} provided must be a valid enum.", nameof(features));
@@ -736,7 +736,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// Gets a query to read the page count pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string PageCountReadQuery => PragmaPrefix + "page_count";
+    protected string PageCountReadQuery => PragmaPrefix + "page_count";
 
     /// <summary>
     /// Query the page size of the database. The page size must be a power of two between 512 and 65536 inclusive.
@@ -757,7 +757,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// Gets a query to read the page size pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string PageSizeReadQuery => PragmaPrefix + "page_size";
+    protected string PageSizeReadQuery => PragmaPrefix + "page_size";
 
     /// <summary>
     /// Creates a query to set the page size pragma.
@@ -765,7 +765,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <param name="pageSize">The page size to set in bytes.</param>
     /// <returns>A SQL query.</returns>
     /// <exception cref="ArgumentException">An invalid <paramref name="pageSize"/> value was provided. Must be a power of two, that is also at least 512.</exception>
-    protected virtual string PageSizeSetQuery(ushort pageSize)
+    protected string PageSizeSetQuery(ushort pageSize)
     {
         if (pageSize < 512)
             throw new ArgumentException("A page size must be a power of two whose value is at least 512. Given: " + pageSize.ToString(CultureInfo.InvariantCulture), nameof(pageSize));
@@ -804,7 +804,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// </summary>
     /// <param name="maxErrors">The maximum error count.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string QuickCheckQuery(uint maxErrors)
+    protected string QuickCheckQuery(uint maxErrors)
     {
         return maxErrors == 0
             ? PragmaPrefix + "quick_check"
@@ -830,14 +830,14 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// Gets a query to read the schema version pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string SchemaVersionReadQuery => PragmaPrefix + "schema_version";
+    protected string SchemaVersionReadQuery => PragmaPrefix + "schema_version";
 
     /// <summary>
     /// Creates a query to read the schema version pragma.
     /// </summary>
     /// <param name="schemaVersion">A schema version.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string SchemaVersionSetQuery(int schemaVersion) => PragmaPrefix + "schema_version = " + schemaVersion.ToString(CultureInfo.InvariantCulture);
+    protected string SchemaVersionSetQuery(int schemaVersion) => PragmaPrefix + "schema_version = " + schemaVersion.ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Query or change the secure-delete setting. When secure delete is on, SQLite overwrites deleted content with zeros.
@@ -866,7 +866,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// Gets a query to read the secure delete pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string SecureDeleteReadQuery => PragmaPrefix + "secure_delete";
+    protected string SecureDeleteReadQuery => PragmaPrefix + "secure_delete";
 
     /// <summary>
     /// Creates a query to set the secure delete pragma.
@@ -874,7 +874,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <param name="deleteMode">The secure delete mode.</param>
     /// <returns>A SQL query.</returns>
     /// <exception cref="ArgumentException"><paramref name="deleteMode"/> is an invalid enum value.</exception>
-    protected virtual string SecureDeleteSetQuery(SecureDeleteMode deleteMode)
+    protected string SecureDeleteSetQuery(SecureDeleteMode deleteMode)
     {
         if (!deleteMode.IsValid())
             throw new ArgumentException($"The {nameof(SecureDeleteMode)} provided must be a valid enum.", nameof(deleteMode));
@@ -910,7 +910,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// Gets a query to read the synchronous pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string SynchronousReadQuery => PragmaPrefix + "synchronous";
+    protected string SynchronousReadQuery => PragmaPrefix + "synchronous";
 
     /// <summary>
     /// Creates a query to set the synchronous pragma.
@@ -918,7 +918,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <param name="synchronousLevel">The synchronous level.</param>
     /// <returns>A SQL query.</returns>
     /// <exception cref="ArgumentException"><paramref name="synchronousLevel"/> is an invalid enum value.</exception>
-    protected virtual string SynchronousSetQuery(SynchronousLevel synchronousLevel)
+    protected string SynchronousSetQuery(SynchronousLevel synchronousLevel)
     {
         if (!synchronousLevel.IsValid())
             throw new ArgumentException($"The {nameof(SynchronousLevel)} provided must be a valid enum.", nameof(synchronousLevel));
@@ -951,7 +951,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <returns>A SQL query.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     /// <exception cref="ArgumentException">Thrown when the given table name's does not match the current schema.</exception>
-    protected virtual string TableInfoQuery(Identifier tableName)
+    protected string TableInfoQuery(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
@@ -971,7 +971,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// Gets a query to read table information for the connection.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string TableListQuery => PragmaPrefix + "table_list";
+    protected string TableListQuery => PragmaPrefix + "table_list";
 
     /// <summary>
     /// Returns information about a given table or view in the given schema.
@@ -993,7 +993,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <param name="tableName">A table name.</param>
     /// <returns>A SQL query.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
-    protected virtual string TableListTableQuery(Identifier tableName)
+    protected string TableListTableQuery(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
@@ -1026,7 +1026,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <returns>A SQL query.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
     /// <exception cref="ArgumentException">Thrown when the given table name's does not match the current schema.</exception>
-    protected virtual string TableXInfoQuery(Identifier tableName)
+    protected string TableXInfoQuery(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
         if (tableName.Schema != null && !string.Equals(tableName.Schema, SchemaName, StringComparison.OrdinalIgnoreCase))
@@ -1054,14 +1054,14 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// Gets a query to read the user version pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string UserVersionReadQuery => PragmaPrefix + "user_version";
+    protected string UserVersionReadQuery => PragmaPrefix + "user_version";
 
     /// <summary>
     /// Gets a query to set the user version pragma.
     /// </summary>
     /// <param name="userVersion">The user-defined database version.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string UserVersionSetQuery(int userVersion) => PragmaPrefix + "user_version = " + userVersion.ToString(CultureInfo.InvariantCulture);
+    protected string UserVersionSetQuery(int userVersion) => PragmaPrefix + "user_version = " + userVersion.ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Causes a checkpoint operation to run on the database.
@@ -1090,7 +1090,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <param name="checkpointMode">The checkpoint mode.</param>
     /// <returns>A SQL query</returns>
     /// <exception cref="ArgumentException"><paramref name="checkpointMode"/> is an invalid enum value.</exception>
-    protected virtual string WalCheckpointQuery(WalCheckpointMode checkpointMode)
+    protected string WalCheckpointQuery(WalCheckpointMode checkpointMode)
     {
         if (!checkpointMode.IsValid())
             throw new ArgumentException($"The {nameof(TemporaryStoreLocation)} provided must be a valid enum.", nameof(checkpointMode));

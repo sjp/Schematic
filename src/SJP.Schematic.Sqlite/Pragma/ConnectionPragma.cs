@@ -78,14 +78,14 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the analysis limit pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string AnalysisLimitReadQuery => PragmaPrefix + "analysis_limit";
+    protected string AnalysisLimitReadQuery => PragmaPrefix + "analysis_limit";
 
     /// <summary>
     /// Creates a query that sets the analysis limit pragma.
     /// </summary>
     /// <param name="rowLimit">The approximate number of rows to limit analysis to. Zero indicates analyzing all rows.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string AnalysisLimitSetQuery(uint rowLimit) => PragmaPrefix + "analysis_limit = " + rowLimit.ToString(CultureInfo.InvariantCulture);
+    protected string AnalysisLimitSetQuery(uint rowLimit) => PragmaPrefix + "analysis_limit = " + rowLimit.ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Queries the automatic indexing capability.
@@ -106,14 +106,14 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the automatic index pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string AutomaticIndexReadQuery => PragmaPrefix + "automatic_index";
+    protected string AutomaticIndexReadQuery => PragmaPrefix + "automatic_index";
 
     /// <summary>
     /// Creates a query that sets the automatic index pragma.
     /// </summary>
     /// <param name="enable">if set to <c>true</c> enables automatic indexing.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string AutomaticIndexSetQuery(bool enable) => PragmaPrefix + "automatic_index = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
+    protected string AutomaticIndexSetQuery(bool enable) => PragmaPrefix + "automatic_index = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Queries the timeout used before a busy handler is invoked.
@@ -138,14 +138,14 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the busy timeout pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string BusyTimeoutReadQuery => PragmaPrefix + "busy_timeout";
+    protected string BusyTimeoutReadQuery => PragmaPrefix + "busy_timeout";
 
     /// <summary>
     /// Creates a query that sets the busy timeout pragma.
     /// </summary>
     /// <param name="timeout">A timeout timespan.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string BusyTimeoutSetQuery(TimeSpan timeout)
+    protected string BusyTimeoutSetQuery(TimeSpan timeout)
     {
         var ms = timeout.TotalMilliseconds < 1 ? 0 : (int)timeout.TotalMilliseconds;
         return PragmaPrefix + "busy_timeout = " + ms.ToString(CultureInfo.InvariantCulture);
@@ -164,7 +164,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// </summary>
     /// <param name="enable">If enabled, ensures case sensitivity for <c>LIKE</c> expressions.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string CaseSensitiveLikeSetQuery(bool enable) => PragmaPrefix + "case_sensitive_like = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
+    protected string CaseSensitiveLikeSetQuery(bool enable) => PragmaPrefix + "case_sensitive_like = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Retrieves whether cell size checking is enabled. When enabled, database corruption is detected earlier and is less likely to "spread". However, there is a small performance hit for doing the extra checks and so cell size checking is turned off by default.
@@ -185,14 +185,14 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the cell size check pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string CellSizeCheckReadQuery => PragmaPrefix + "cell_size_check";
+    protected string CellSizeCheckReadQuery => PragmaPrefix + "cell_size_check";
 
     /// <summary>
     /// Creates a query that sets the cell size check pragma.
     /// </summary>
     /// <param name="enable">If enabled, performs cell size checking.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string CellSizeCheckSetQuery(bool enable) => PragmaPrefix + "cell_size_check = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
+    protected string CellSizeCheckSetQuery(bool enable) => PragmaPrefix + "cell_size_check = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Query or change the fullfsync flag for checkpoint operations.
@@ -213,14 +213,14 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the checkpoint full fsync pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string CheckpointFullFsyncReadQuery => PragmaPrefix + "checkpoint_fullfsync";
+    protected string CheckpointFullFsyncReadQuery => PragmaPrefix + "checkpoint_fullfsync";
 
     /// <summary>
     /// Creates a query that sets the checkpoint fullfsync pragma.
     /// </summary>
     /// <param name="enable">If <c>true</c>, the flag must be enabled.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string CheckpointFullFsyncSetQuery(bool enable) => PragmaPrefix + "checkpoint_fullfsync = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
+    protected string CheckpointFullFsyncSetQuery(bool enable) => PragmaPrefix + "checkpoint_fullfsync = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Return a list of the collating sequences defined for the current database connection
@@ -233,7 +233,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the collation list pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string CollationListReadQuery => PragmaPrefix + "collation_list";
+    protected string CollationListReadQuery => PragmaPrefix + "collation_list";
 
     /// <summary>
     /// This pragma returns the names of compile-time options used when building SQLite, one option per row.
@@ -246,7 +246,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the compile time options pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string CompileOptionsReadQuery => PragmaPrefix + "compile_options";
+    protected string CompileOptionsReadQuery => PragmaPrefix + "compile_options";
 
     /// <summary>
     /// The <c>PRAGMA data_version</c> command provides an indication that the database file has been modified.
@@ -259,7 +259,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the data version pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string DataVersionReadQuery => PragmaPrefix + "data_version";
+    protected string DataVersionReadQuery => PragmaPrefix + "data_version";
 
     /// <summary>
     /// This pragma works like a query to return one row for each database attached to the current database connection.
@@ -272,7 +272,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the database list pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string DatabaseListReadQuery => PragmaPrefix + "database_list";
+    protected string DatabaseListReadQuery => PragmaPrefix + "database_list";
 
     /// <summary>
     /// Queries whether <c>defer_foreign_keys</c> <c>PRAGMA</c> is on. When enabled, enforcement of all foreign key constraints is delayed until the outermost transaction is committed.
@@ -293,14 +293,14 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the defer foreign keys pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string DeferForeignKeysReadQuery => PragmaPrefix + "defer_foreign_keys";
+    protected string DeferForeignKeysReadQuery => PragmaPrefix + "defer_foreign_keys";
 
     /// <summary>
     /// Creates a query that sets the defer foreign keys pragma.
     /// </summary>
     /// <param name="enable">If <c>true</c>, enabled deferring of foreign key enforcement.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string DeferForeignKeysSetQuery(bool enable) => PragmaPrefix + "defer_foreign_keys = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
+    protected string DeferForeignKeysSetQuery(bool enable) => PragmaPrefix + "defer_foreign_keys = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Retrieves the text encoding used by the main database.
@@ -329,7 +329,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the encoding pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string EncodingReadQuery => PragmaPrefix + "encoding";
+    protected string EncodingReadQuery => PragmaPrefix + "encoding";
 
     /// <summary>
     /// Creates a query that sets the encoding pragma.
@@ -337,7 +337,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <param name="encoding">A text encoding.</param>
     /// <returns>A SQL query.</returns>
     /// <exception cref="ArgumentException"><paramref name="encoding"/> is an invalid enum.</exception>
-    protected virtual string EncodingSetQuery(Encoding encoding)
+    protected string EncodingSetQuery(Encoding encoding)
     {
         if (!encoding.IsValid())
             throw new ArgumentException($"The {nameof(Encoding)} provided must be a valid enum.", nameof(encoding));
@@ -365,14 +365,14 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the foreign keys pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ForeignKeysReadQuery => PragmaPrefix + "foreign_keys";
+    protected string ForeignKeysReadQuery => PragmaPrefix + "foreign_keys";
 
     /// <summary>
     /// Creates a query that sets the foreign keys pragma.
     /// </summary>
     /// <param name="enable">If <c>true</c>, foreign key constraints should be enforced.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string ForeignKeysSetQuery(bool enable) => PragmaPrefix + "foreign_keys = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
+    protected string ForeignKeysSetQuery(bool enable) => PragmaPrefix + "foreign_keys = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Query the fullfsync flag.
@@ -393,14 +393,14 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the full fsync pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string FullFsyncReadQuery => PragmaPrefix + "fullfsync";
+    protected string FullFsyncReadQuery => PragmaPrefix + "fullfsync";
 
     /// <summary>
     /// Creates a query that sets the fullfsync pragma.
     /// </summary>
     /// <param name="enable">If <c>true</c>, sets the fullfsync flag to <c>true</c>.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string FullFsyncSetQuery(bool enable) => PragmaPrefix + "fullfsync = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
+    protected string FullFsyncSetQuery(bool enable) => PragmaPrefix + "fullfsync = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Return a list of SQL functions known to the database connection
@@ -413,7 +413,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the function list pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string FunctionListReadQuery => PragmaPrefix + "function_list";
+    protected string FunctionListReadQuery => PragmaPrefix + "function_list";
 
     /// <summary>
     /// Enables or disables the enforcement of <c>CHECK</c> constraints.
@@ -428,7 +428,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// </summary>
     /// <param name="enable">If <c>true</c>, disables enforcement of <c>CHECK</c> constraints.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string IgnoreCheckConstraintsSetQuery(bool enable) => PragmaPrefix + "ignore_check_constraints = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
+    protected string IgnoreCheckConstraintsSetQuery(bool enable) => PragmaPrefix + "ignore_check_constraints = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Queries the value of the <c>legacy_alter_table</c> flag.
@@ -449,27 +449,27 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the legacy alter table pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string LegacyAlterTableReadQuery => PragmaPrefix + "legacy_alter_table";
+    protected string LegacyAlterTableReadQuery => PragmaPrefix + "legacy_alter_table";
 
     /// <summary>
     /// Creates a query that sets the legacy alter table pragma.
     /// </summary>
     /// <param name="enable">If set to <c>true</c> the <c>ALTER TABLE</c> behaviour will work as it did in v3.24.0 and earlier.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string LegacyAlterTableSetQuery(bool enable) => PragmaPrefix + "legacy_alter_table = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
+    protected string LegacyAlterTableSetQuery(bool enable) => PragmaPrefix + "legacy_alter_table = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
-    /// Retrieves a list of virtual table modules registered with the database connection.
+    /// Retrieves a list of table modules registered with the database connection.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A list of virtual table modules.</returns>
+    /// <returns>A list of table modules.</returns>
     public Task<IEnumerable<string>> ModuleListAsync(CancellationToken cancellationToken = default) => DbConnection.QueryAsync<string>(ModuleListReadQuery, cancellationToken);
 
     /// <summary>
     /// Gets a query to read the module list pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ModuleListReadQuery => PragmaPrefix + "module_list";
+    protected string ModuleListReadQuery => PragmaPrefix + "module_list";
 
     /// <summary>
     /// Attempt to optimize the database.
@@ -484,7 +484,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <param name="features">The optimisation options to run.</param>
     /// <returns>A SQL query.</returns>
     /// <exception cref="ArgumentException"><paramref name="features"/> is an invalid enum.</exception>
-    protected virtual string OptimizeSetQuery(OptimizeFeatures features)
+    protected string OptimizeSetQuery(OptimizeFeatures features)
     {
         if (!features.IsValid())
             throw new ArgumentException($"The {nameof(OptimizeFeatures)} provided must be a valid enum.", nameof(features));
@@ -504,7 +504,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the pragma list pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string PragmaListReadQuery => PragmaPrefix + "pragma_list";
+    protected string PragmaListReadQuery => PragmaPrefix + "pragma_list";
 
     /// <summary>
     /// Determines whether the database can only be queried and not mutated.
@@ -525,14 +525,14 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the query only pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string QueryOnlyReadQuery => PragmaPrefix + "query_only";
+    protected string QueryOnlyReadQuery => PragmaPrefix + "query_only";
 
     /// <summary>
     /// Creates a query that sets the query only pragma.
     /// </summary>
     /// <param name="enable">If <c>true</c>, only read-only queries may be run.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string QueryOnlySetQuery(bool enable) => PragmaPrefix + "query_only = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
+    protected string QueryOnlySetQuery(bool enable) => PragmaPrefix + "query_only = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Query the <c>READ UNCOMMITTED</c> transaction isolation level. The default isolation level for SQLite is <c>SERIALIZABLE</c>.
@@ -553,14 +553,14 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the read uncommitted pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ReadUncommittedReadQuery => PragmaPrefix + "read_uncommitted";
+    protected string ReadUncommittedReadQuery => PragmaPrefix + "read_uncommitted";
 
     /// <summary>
     /// Creates a query that sets the read uncommitted pragma.
     /// </summary>
     /// <param name="enable">If <c>true</c>, sets the isolation level to <c>READ UNCOMMITTED</c>.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string ReadUncommittedSetQuery(bool enable) => PragmaPrefix + "read_uncommitted = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
+    protected string ReadUncommittedSetQuery(bool enable) => PragmaPrefix + "read_uncommitted = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Query the recursive trigger capability.
@@ -581,14 +581,14 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the recursive triggers pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string RecursiveTriggersReadQuery => PragmaPrefix + "recursive_triggers";
+    protected string RecursiveTriggersReadQuery => PragmaPrefix + "recursive_triggers";
 
     /// <summary>
     /// Creates a query that sets the recursive triggers pragma.
     /// </summary>
     /// <param name="enable">If set to <c>true</c> recursive triggers are enabled.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string RecursiveTriggersSetQuery(bool enable) => PragmaPrefix + "recursive_triggers = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
+    protected string RecursiveTriggersSetQuery(bool enable) => PragmaPrefix + "recursive_triggers = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Queries whether statements missing an <c>ORDER BY</c> emit results in reverse order.
@@ -609,14 +609,14 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the reverse unordered selects pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ReverseUnorderedSelectsReadQuery => PragmaPrefix + "reverse_unordered_selects";
+    protected string ReverseUnorderedSelectsReadQuery => PragmaPrefix + "reverse_unordered_selects";
 
     /// <summary>
     /// Creates a query that sets the reverse unordered selects pragma.
     /// </summary>
     /// <param name="enable">If <c>true</c>, unordered <c>SELECT</c> queries are returned in reverse order.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string ReverseUnorderedSelectsSetQuery(bool enable) => PragmaPrefix + "reverse_unordered_selects = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
+    protected string ReverseUnorderedSelectsSetQuery(bool enable) => PragmaPrefix + "reverse_unordered_selects = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Causes the database connection on which it is invoked to free up as much memory as it can.
@@ -629,7 +629,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the shrink memory pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ShrinkMemoryQuery => PragmaPrefix + "shrink_memory";
+    protected string ShrinkMemoryQuery => PragmaPrefix + "shrink_memory";
 
     /// <summary>
     /// Queries the size of the heap used by all database connections within a single process.
@@ -650,20 +650,20 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the soft heap limit pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string SoftHeapLimitReadQuery => PragmaPrefix + "soft_heap_limit";
+    protected string SoftHeapLimitReadQuery => PragmaPrefix + "soft_heap_limit";
 
     /// <summary>
     /// Creates a query that sets the soft heap limit pragma.
     /// </summary>
     /// <param name="heapLimit">The heap limit.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string SoftHeapLimitSetQuery(long heapLimit) => PragmaPrefix + "soft_heap_limit = " + heapLimit.ToString(CultureInfo.InvariantCulture);
+    protected string SoftHeapLimitSetQuery(long heapLimit) => PragmaPrefix + "soft_heap_limit = " + heapLimit.ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Gets a query to read table information for the connection.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string TableListQuery => PragmaPrefix + "table_list";
+    protected string TableListQuery => PragmaPrefix + "table_list";
 
     /// <summary>
     /// Returns information about each table or view in all schemas.
@@ -692,7 +692,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <param name="tableName">A table name.</param>
     /// <returns>A SQL query.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
-    protected virtual string TableListTableQuery(Identifier tableName)
+    protected string TableListTableQuery(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
@@ -728,7 +728,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the temporary store pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string TemporaryStoreReadQuery => PragmaPrefix + "temp_store";
+    protected string TemporaryStoreReadQuery => PragmaPrefix + "temp_store";
 
     /// <summary>
     /// Creates a query that sets the temporary store pragma.
@@ -736,7 +736,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <param name="tempLocation">The temporary location.</param>
     /// <returns>A SQL query.</returns>
     /// <exception cref="ArgumentException"><paramref name="tempLocation"/> is an invalid enum.</exception>
-    protected virtual string TemporaryStoreSetQuery(TemporaryStoreLocation tempLocation)
+    protected string TemporaryStoreSetQuery(TemporaryStoreLocation tempLocation)
     {
         if (!tempLocation.IsValid())
             throw new ArgumentException($"The {nameof(TemporaryStoreLocation)} provided must be a valid enum.", nameof(tempLocation));
@@ -764,14 +764,14 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the threads pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string ThreadsReadQuery => PragmaPrefix + "threads";
+    protected string ThreadsReadQuery => PragmaPrefix + "threads";
 
     /// <summary>
     /// Creates a query that sets the threads pragma.
     /// </summary>
     /// <param name="maxThreads">The maximum threads.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string ThreadsSetQuery(int maxThreads) => PragmaPrefix + "threads = " + maxThreads.ToString(CultureInfo.InvariantCulture);
+    protected string ThreadsSetQuery(int maxThreads) => PragmaPrefix + "threads = " + maxThreads.ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Queries the write-ahead log auto-checkpoint interval.
@@ -792,14 +792,14 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the WAL auto checkpoint pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string WalAutoCheckpointReadQuery => PragmaPrefix + "wal_autocheckpoint";
+    protected string WalAutoCheckpointReadQuery => PragmaPrefix + "wal_autocheckpoint";
 
     /// <summary>
     /// Creates a query that sets the WAL auto checkpoint pragma.
     /// </summary>
     /// <param name="maxPages">The maximum number of pages before a checkpoint.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string WalAutoCheckpointSetQuery(int maxPages) => PragmaPrefix + "wal_autocheckpoint = " + maxPages.ToString(CultureInfo.InvariantCulture);
+    protected string WalAutoCheckpointSetQuery(int maxPages) => PragmaPrefix + "wal_autocheckpoint = " + maxPages.ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Queries whether the <c>sqlite_master</c> table can be changed using ordinary <c>UPDATE</c>, <c>INSERT</c>, and <c>DELETE</c> statements.
@@ -820,14 +820,14 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Gets a query to read the writable schema pragma.
     /// </summary>
     /// <value>A SQL query.</value>
-    protected virtual string WritableSchemaReadQuery => PragmaPrefix + "writable_schema";
+    protected string WritableSchemaReadQuery => PragmaPrefix + "writable_schema";
 
     /// <summary>
     /// Creates a query that sets the writable schema pragma.
     /// </summary>
     /// <param name="enable">If <c>true</c> enables the <c>sqlite_master</c> to be modified directly.</param>
     /// <returns>A SQL query.</returns>
-    protected virtual string WritableSchemaSetQuery(bool enable) => PragmaPrefix + "writable_schema = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
+    protected string WritableSchemaSetQuery(bool enable) => PragmaPrefix + "writable_schema = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
     private static readonly IReadOnlyDictionary<Encoding, string> EncodingNameMapping = new Dictionary<Encoding, string>
     {

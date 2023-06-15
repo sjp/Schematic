@@ -198,7 +198,7 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// <exception cref="ArgumentNullException">Thrown when either <paramref name="fileName"/> or <paramref name="schemaName"/> is null, empty or whitespace.</exception>
     /// <exception cref="ArgumentException">Thrown when <paramref name="schemaName"/> is <c>main</c>.</exception>
     /// <returns>A SQL query that can be used to add a database file to the current connection.</returns>
-    protected virtual string AttachDatabaseQuery(string schemaName, string fileName)
+    protected string AttachDatabaseQuery(string schemaName, string fileName)
     {
         if (schemaName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(schemaName));
@@ -239,7 +239,7 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// <exception cref="ArgumentNullException">Thrown when or <paramref name="schemaName"/> is null, empty or whitespace.</exception>
     /// <exception cref="ArgumentException">Thrown when <paramref name="schemaName"/> is <c>main</c>.</exception>
     /// <returns>A SQL query that can be used to remove a database file from the current connection.</returns>
-    protected virtual string DetachDatabaseQuery(string schemaName)
+    protected string DetachDatabaseQuery(string schemaName)
     {
         if (schemaName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(schemaName));
@@ -317,7 +317,7 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// <param name="schemaName">The name of an attached database.</param>
     /// <exception cref="ArgumentNullException">Thrown when or <paramref name="schemaName"/> is null, empty or whitespace.</exception>
     /// <returns>A SQL query that can be used to rebuild and repack a database file.</returns>
-    protected virtual string VacuumQuery(string schemaName)
+    protected string VacuumQuery(string schemaName)
     {
         if (schemaName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(schemaName));
@@ -331,7 +331,7 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// <param name="filePath">A file path that will store the resulting vacuum'd database.</param>
     /// <exception cref="ArgumentNullException">Thrown when or <paramref name="filePath"/> is null, empty or whitespace.</exception>
     /// <returns>A SQL query that can be used to rebuild and repack a database file.</returns>
-    protected virtual string VacuumIntoQuery(string filePath)
+    protected string VacuumIntoQuery(string filePath)
     {
         if (filePath.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(filePath));
@@ -346,7 +346,7 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// <param name="schemaName">The name of an attached database.</param>
     /// <exception cref="ArgumentNullException">Thrown when or <paramref name="schemaName"/> is null, empty or whitespace.</exception>
     /// <returns>A SQL query that can be used to rebuild and repack a database file.</returns>
-    protected virtual string VacuumIntoQuery(string filePath, string schemaName)
+    protected string VacuumIntoQuery(string filePath, string schemaName)
     {
         if (schemaName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(schemaName));

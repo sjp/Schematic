@@ -69,7 +69,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database views.</returns>
-    public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var dbNamesQuery = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
         var dbNames = dbNamesQuery
@@ -203,7 +203,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A view definition, if available.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
-    protected virtual OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
+    protected OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
@@ -229,7 +229,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A string representing the definition of a view.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
-    protected virtual Task<string> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
+    protected Task<string> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
@@ -249,7 +249,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An ordered collection of columns.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
-    protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(ISqliteDatabasePragma pragma, Identifier viewName, CancellationToken cancellationToken)
+    protected Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(ISqliteDatabasePragma pragma, Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(pragma);
         ArgumentNullException.ThrowIfNull(viewName);
@@ -308,7 +308,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The runtime type name of a column value.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> or <paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
-    protected virtual Task<string> GetTypeofColumnAsync(Identifier viewName, Identifier columnName, CancellationToken cancellationToken)
+    protected Task<string> GetTypeofColumnAsync(Identifier viewName, Identifier columnName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
         ArgumentNullException.ThrowIfNull(columnName);
@@ -337,7 +337,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="schema">A schema name.</param>
     /// <returns>A database pragma.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="schema"/> is <c>null</c>, empty or whitespace.</exception>
-    protected virtual ISqliteDatabasePragma GetDatabasePragma(string schema)
+    protected ISqliteDatabasePragma GetDatabasePragma(string schema)
     {
         if (schema.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(schema));

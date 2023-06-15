@@ -127,7 +127,7 @@ public class OracleTableCommentProvider : IRelationalDatabaseTableCommentProvide
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>Comments for a table, if available.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
-    protected virtual OptionAsync<IRelationalDatabaseTableComments> LoadTableComments(Identifier tableName, CancellationToken cancellationToken)
+    protected OptionAsync<IRelationalDatabaseTableComments> LoadTableComments(Identifier tableName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
 

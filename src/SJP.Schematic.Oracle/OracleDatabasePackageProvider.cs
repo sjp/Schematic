@@ -125,7 +125,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database package, if available.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="packageName"/> is <c>null</c>.</exception>
-    protected virtual OptionAsync<IOracleDatabasePackage> LoadPackage(Identifier packageName, CancellationToken cancellationToken)
+    protected OptionAsync<IOracleDatabasePackage> LoadPackage(Identifier packageName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(packageName);
 

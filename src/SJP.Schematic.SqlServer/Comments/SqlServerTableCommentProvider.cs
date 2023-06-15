@@ -46,7 +46,7 @@ public class SqlServerTableCommentProvider : IRelationalDatabaseTableCommentProv
     /// Retrieves the extended property name used to store comments on an object.
     /// </summary>
     /// <value>The comment property name.</value>
-    protected virtual string CommentProperty { get; } = "MS_Description";
+    protected string CommentProperty { get; } = "MS_Description";
 
     /// <summary>
     /// Retrieves comments for all database tables.
@@ -104,7 +104,7 @@ public class SqlServerTableCommentProvider : IRelationalDatabaseTableCommentProv
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>Comments for a table, if available.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
-    protected virtual OptionAsync<IRelationalDatabaseTableComments> LoadTableComments(Identifier tableName, CancellationToken cancellationToken)
+    protected OptionAsync<IRelationalDatabaseTableComments> LoadTableComments(Identifier tableName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
 

@@ -46,7 +46,7 @@ public class SqlServerViewCommentProvider : IDatabaseViewCommentProvider
     /// Retrieves the extended property name used to store comments on an object.
     /// </summary>
     /// <value>The comment property name.</value>
-    protected virtual string CommentProperty { get; } = "MS_Description";
+    protected string CommentProperty { get; } = "MS_Description";
 
     /// <summary>
     /// Retrieves all database view comments defined within a database.
@@ -104,7 +104,7 @@ public class SqlServerViewCommentProvider : IDatabaseViewCommentProvider
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>Comments for a view, if available.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
-    protected virtual OptionAsync<IDatabaseViewComments> LoadViewComments(Identifier viewName, CancellationToken cancellationToken)
+    protected OptionAsync<IDatabaseViewComments> LoadViewComments(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
 

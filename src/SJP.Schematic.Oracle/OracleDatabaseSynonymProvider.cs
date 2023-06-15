@@ -157,7 +157,7 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A synonym definition, if available.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
-    protected virtual OptionAsync<IDatabaseSynonym> LoadSynonym(Identifier synonymName, CancellationToken cancellationToken)
+    protected OptionAsync<IDatabaseSynonym> LoadSynonym(Identifier synonymName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(synonymName);
 

@@ -126,7 +126,7 @@ public class PostgreSqlQueryViewCommentProvider : IDatabaseViewCommentProvider
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>Comments for a view, if available.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
-    protected virtual OptionAsync<IDatabaseViewComments> LoadViewComments(Identifier viewName, CancellationToken cancellationToken)
+    protected OptionAsync<IDatabaseViewComments> LoadViewComments(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
 

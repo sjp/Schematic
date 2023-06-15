@@ -46,7 +46,7 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
     /// Retrieves the extended property name used to store comments on an object.
     /// </summary>
     /// <value>The comment property name.</value>
-    protected virtual string CommentProperty { get; } = "MS_Description";
+    protected string CommentProperty { get; } = "MS_Description";
 
     /// <summary>
     /// Retrieves comments for all database synonyms.
@@ -104,7 +104,7 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A comments object result in the some state, if found, none otherwise.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
-    protected virtual OptionAsync<IDatabaseSynonymComments> LoadSynonymComments(Identifier synonymName, CancellationToken cancellationToken)
+    protected OptionAsync<IDatabaseSynonymComments> LoadSynonymComments(Identifier synonymName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(synonymName);
 

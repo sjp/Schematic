@@ -46,7 +46,7 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
     /// Retrieves the extended property name used to store comments on an object.
     /// </summary>
     /// <value>The comment property name.</value>
-    protected virtual string CommentProperty { get; } = "MS_Description";
+    protected string CommentProperty { get; } = "MS_Description";
 
     /// <summary>
     /// Retrieves comments for all database sequences.
@@ -104,7 +104,7 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An <see cref="OptionAsync{A}" /> instance which holds the value of the sequence's comments, if available.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
-    protected virtual OptionAsync<IDatabaseSequenceComments> LoadSequenceComments(Identifier sequenceName, CancellationToken cancellationToken)
+    protected OptionAsync<IDatabaseSequenceComments> LoadSequenceComments(Identifier sequenceName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
 
