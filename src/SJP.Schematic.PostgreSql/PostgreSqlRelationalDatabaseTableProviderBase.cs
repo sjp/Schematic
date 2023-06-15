@@ -91,7 +91,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     {
         var queryCache = CreateQueryCache();
 
-        return DbConnection.QueryUnbufferedAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
+        return DbConnection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
             .Select(QualifyTableName)
             .SelectAwait(tableName => LoadTableAsyncCore(tableName, queryCache, cancellationToken).ToValue());
@@ -619,7 +619,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
-        return await DbConnection.QueryUnbufferedAsync(
+        return await DbConnection.QueryEnumerableAsync(
                 GetTableColumns.Sql,
                 new GetTableColumns.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken

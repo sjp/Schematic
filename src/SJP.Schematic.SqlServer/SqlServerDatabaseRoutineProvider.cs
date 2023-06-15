@@ -48,7 +48,7 @@ public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <returns>A collection of database routines.</returns>
     public IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines(CancellationToken cancellationToken = default)
     {
-        return Connection.QueryUnbufferedAsync<GetAllRoutineNames.Result>(GetAllRoutineNames.Sql, cancellationToken)
+        return Connection.QueryEnumerableAsync<GetAllRoutineNames.Result>(GetAllRoutineNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName)
             .SelectAwait(routineName => LoadRoutineAsyncCore(routineName, cancellationToken).ToValue());

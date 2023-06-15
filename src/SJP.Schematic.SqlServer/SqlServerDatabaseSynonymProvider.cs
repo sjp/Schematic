@@ -47,7 +47,7 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// <returns>A collection of database synonyms.</returns>
     public IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default)
     {
-        return Connection.QueryUnbufferedAsync<GetAllSynonymDefinitions.Result>(GetAllSynonymDefinitions.Sql, cancellationToken)
+        return Connection.QueryEnumerableAsync<GetAllSynonymDefinitions.Result>(GetAllSynonymDefinitions.Sql, cancellationToken)
             .Select(row =>
             {
                 var synonymName = QualifySynonymName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.SynonymName));

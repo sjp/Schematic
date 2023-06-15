@@ -90,17 +90,17 @@ public static class ConnectionExtensions
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of query results from the database.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c> or <paramref name="sql"/> is <c>null</c>, empty, or whitespace.</exception>
-    public static IAsyncEnumerable<T> QueryUnbufferedAsync<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
+    public static IAsyncEnumerable<T> QueryEnumerableAsync<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
         where T : notnull
     {
         ArgumentNullException.ThrowIfNull(connectionFactory);
         if (sql.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(sql));
 
-        return QueryUnbufferedAsyncCore<T>(connectionFactory, sql, cancellationToken);
+        return QueryEnumerableAsyncCore<T>(connectionFactory, sql, cancellationToken);
     }
 
-    private static async IAsyncEnumerable<T> QueryUnbufferedAsyncCore<T>(IDbConnectionFactory connectionFactory, string sql, [EnumeratorCancellation] CancellationToken cancellationToken)
+    private static async IAsyncEnumerable<T> QueryEnumerableAsyncCore<T>(IDbConnectionFactory connectionFactory, string sql, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
         await using var _ = connection.WithDispose(connectionFactory);
@@ -122,7 +122,7 @@ public static class ConnectionExtensions
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of query results from the database.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>, <paramref name="parameters"/> is <c>null</c>, or <paramref name="sql"/> is <c>null</c>, empty, or whitespace.</exception>
-    public static IAsyncEnumerable<T> QueryUnbufferedAsync<T>(this IDbConnectionFactory connectionFactory, string sql, ISqlQuery<T> parameters, CancellationToken cancellationToken)
+    public static IAsyncEnumerable<T> QueryEnumerableAsync<T>(this IDbConnectionFactory connectionFactory, string sql, ISqlQuery<T> parameters, CancellationToken cancellationToken)
         where T : notnull
     {
         ArgumentNullException.ThrowIfNull(connectionFactory);
@@ -130,10 +130,10 @@ public static class ConnectionExtensions
             throw new ArgumentNullException(nameof(sql));
         ArgumentNullException.ThrowIfNull(parameters);
 
-        return QueryUnbufferedAsyncCore(connectionFactory, sql, parameters, cancellationToken);
+        return QueryEnumerableAsyncCore(connectionFactory, sql, parameters, cancellationToken);
     }
 
-    private static async IAsyncEnumerable<T> QueryUnbufferedAsyncCore<T>(IDbConnectionFactory connectionFactory, string sql, ISqlQuery<T> parameters, [EnumeratorCancellation] CancellationToken cancellationToken)
+    private static async IAsyncEnumerable<T> QueryEnumerableAsyncCore<T>(IDbConnectionFactory connectionFactory, string sql, ISqlQuery<T> parameters, [EnumeratorCancellation] CancellationToken cancellationToken)
         where T : notnull
     {
         var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);

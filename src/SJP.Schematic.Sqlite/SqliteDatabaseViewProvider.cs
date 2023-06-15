@@ -82,7 +82,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
         foreach (var dbName in dbNames)
         {
             var sql = GetAllViewNames.Sql(Dialect, dbName);
-            var viewNames = await DbConnection.QueryUnbufferedAsync<GetAllViewNames.Result>(sql, cancellationToken)
+            var viewNames = await DbConnection.QueryEnumerableAsync<GetAllViewNames.Result>(sql, cancellationToken)
                 .Where(static result => !IsReservedViewName(result.ViewName))
                 .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.ViewName))
                 .ToListAsync(cancellationToken);

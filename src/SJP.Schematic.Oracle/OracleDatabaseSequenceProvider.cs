@@ -55,7 +55,7 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// <returns>A collection of database sequences.</returns>
     public IAsyncEnumerable<IDatabaseSequence> GetAllSequences(CancellationToken cancellationToken = default)
     {
-        return Connection.QueryUnbufferedAsync<GetAllSequences.Result>(Queries.GetAllSequences.Sql, cancellationToken)
+        return Connection.QueryEnumerableAsync<GetAllSequences.Result>(Queries.GetAllSequences.Sql, cancellationToken)
             .Select(row =>
             {
                 var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.SequenceName));

@@ -69,7 +69,7 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
     /// <returns>A collection of materialized views.</returns>
     public virtual IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default)
     {
-        return DbConnection.QueryUnbufferedAsync<GetAllMaterializedViewNames.Result>(GetAllMaterializedViewNames.Sql, cancellationToken)
+        return DbConnection.QueryEnumerableAsync<GetAllMaterializedViewNames.Result>(GetAllMaterializedViewNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName)
             .SelectAwait(viewName => LoadViewAsyncCore(viewName, cancellationToken).ToValue());
@@ -191,7 +191,7 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        return await DbConnection.QueryUnbufferedAsync(
+        return await DbConnection.QueryEnumerableAsync(
                 GetMaterializedViewColumns.Sql,
                 new GetMaterializedViewColumns.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
                 cancellationToken

@@ -76,7 +76,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     {
         var queryCache = CreateQueryCache();
 
-        return DbConnection.QueryUnbufferedAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
+        return DbConnection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
             .Select(QualifyTableName)
             .SelectAwait(tableName => LoadTableAsyncCore(tableName, queryCache, cancellationToken).ToValue());
@@ -451,7 +451,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     /// <returns>A collection of check constraints.</returns>
     protected virtual async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, CancellationToken cancellationToken)
     {
-        return await DbConnection.QueryUnbufferedAsync(
+        return await DbConnection.QueryEnumerableAsync(
                 GetTableChecks.Sql,
                 new GetTableChecks.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
@@ -578,7 +578,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
-        return await DbConnection.QueryUnbufferedAsync(
+        return await DbConnection.QueryEnumerableAsync(
                 GetTableColumns.Sql,
                 new GetTableColumns.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken

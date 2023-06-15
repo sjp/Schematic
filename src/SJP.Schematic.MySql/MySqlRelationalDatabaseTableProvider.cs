@@ -79,7 +79,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     {
         var queryCache = CreateQueryCache();
 
-        return DbConnection.QueryUnbufferedAsync(
+        return DbConnection.QueryEnumerableAsync(
                 GetAllTableNames.Sql,
                 new GetAllTableNames.Query { SchemaName = IdentifierDefaults.Schema! },
                 cancellationToken
@@ -441,7 +441,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         if (!hasCheckSupport)
             return Array.Empty<IDatabaseCheckConstraint>();
 
-        return await DbConnection.QueryUnbufferedAsync(
+        return await DbConnection.QueryEnumerableAsync(
                 GetTableCheckConstraints.Sql,
                 new GetTableCheckConstraints.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
@@ -563,7 +563,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
-        return await DbConnection.QueryUnbufferedAsync(
+        return await DbConnection.QueryEnumerableAsync(
                 GetTableColumns.Sql,
                 new GetTableColumns.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken

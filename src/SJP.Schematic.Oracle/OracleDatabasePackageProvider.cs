@@ -56,7 +56,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     /// <returns>A collection of database packages.</returns>
     public IAsyncEnumerable<IOracleDatabasePackage> GetAllPackages(CancellationToken cancellationToken = default)
     {
-        return Connection.QueryUnbufferedAsync<GetAllPackageNames.Result>(GetAllPackageNames.Sql, cancellationToken)
+        return Connection.QueryEnumerableAsync<GetAllPackageNames.Result>(GetAllPackageNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.PackageName))
             .Select(QualifyPackageName)
             .SelectAwait(packageName => LoadPackageAsyncCore(packageName, cancellationToken).ToValue());

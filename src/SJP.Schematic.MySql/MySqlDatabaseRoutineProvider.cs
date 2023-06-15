@@ -54,7 +54,7 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <returns>A collection of database routines.</returns>
     public IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines(CancellationToken cancellationToken = default)
     {
-        return DbConnection.QueryUnbufferedAsync(
+        return DbConnection.QueryEnumerableAsync(
                 GetAllRoutineNames.Sql,
                 new GetAllRoutineNames.Query { SchemaName = IdentifierDefaults.Schema! },
                 cancellationToken

@@ -59,7 +59,7 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
         // the main reason is to avoid queries where possible, especially when
         // the SYS.ALL_SYNONYMS data dictionary view is very slow
 
-        return Connection.QueryUnbufferedAsync<GetAllSynonyms.Result>(Queries.GetAllSynonyms.Sql, cancellationToken)
+        return Connection.QueryEnumerableAsync<GetAllSynonyms.Result>(Queries.GetAllSynonyms.Sql, cancellationToken)
             .Select(synonymRow =>
             {
                 var synonymSchema = !synonymRow.SchemaName.IsNullOrWhiteSpace() ? synonymRow.SchemaName : null;

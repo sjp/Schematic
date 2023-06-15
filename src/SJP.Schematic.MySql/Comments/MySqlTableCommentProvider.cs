@@ -50,7 +50,7 @@ public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
     /// <returns>A collection of database table comments, where available.</returns>
     public IAsyncEnumerable<IRelationalDatabaseTableComments> GetAllTableComments(CancellationToken cancellationToken = default)
     {
-        return Connection.QueryUnbufferedAsync(
+        return Connection.QueryEnumerableAsync(
                 GetAllTableNames.Sql,
                 new GetAllTableNames.Query { SchemaName = IdentifierDefaults.Schema! },
                 cancellationToken

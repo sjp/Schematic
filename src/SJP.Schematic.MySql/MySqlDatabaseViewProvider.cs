@@ -61,7 +61,7 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
     /// <returns>A collection of database views.</returns>
     public virtual IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default)
     {
-        var queryResult = DbConnection.QueryUnbufferedAsync(
+        var queryResult = DbConnection.QueryEnumerableAsync(
             GetAllViewNames.Sql,
             new GetAllViewNames.Query { SchemaName = IdentifierDefaults.Schema! },
             cancellationToken
@@ -169,7 +169,7 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var query = DbConnection.QueryUnbufferedAsync(
+        var query = DbConnection.QueryEnumerableAsync(
             GetViewColumns.Sql,
             new GetViewColumns.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken

@@ -55,7 +55,7 @@ public class PostgreSqlDatabaseSequenceProviderBase : IDatabaseSequenceProvider
     /// <returns>A collection of database sequences.</returns>
     public IAsyncEnumerable<IDatabaseSequence> GetAllSequences(CancellationToken cancellationToken = default)
     {
-        return Connection.QueryUnbufferedAsync<GetAllSequenceDefinitions.Result>(GetAllSequenceDefinitions.Sql, cancellationToken)
+        return Connection.QueryEnumerableAsync<GetAllSequenceDefinitions.Result>(GetAllSequenceDefinitions.Sql, cancellationToken)
             .Select(row =>
             {
                 var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.SequenceName));

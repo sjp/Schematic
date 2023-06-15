@@ -99,7 +99,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         foreach (var dbName in dbNames)
         {
             var sql = GetAllTableNames.Sql(Dialect, dbName);
-            var names = await DbConnection.QueryUnbufferedAsync<GetAllTableNames.Result>(sql, cancellationToken)
+            var names = await DbConnection.QueryEnumerableAsync<GetAllTableNames.Result>(sql, cancellationToken)
                 .Where(static result => !IsReservedTableName(result.TableName))
                 .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.TableName))
                 .ToListAsync(cancellationToken);
@@ -540,7 +540,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         foreach (var dbName in dbNames)
         {
             var sql = GetAllTableNames.Sql(Dialect, dbName);
-            var tableNames = await DbConnection.QueryUnbufferedAsync<GetAllTableNames.Result>(sql, cancellationToken)
+            var tableNames = await DbConnection.QueryEnumerableAsync<GetAllTableNames.Result>(sql, cancellationToken)
                 .Where(static result => !IsReservedTableName(result.TableName))
                 .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.TableName))
                 .ToListAsync(cancellationToken);
@@ -866,7 +866,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         }
 
         var triggerQuery = GetTriggerDefinition.Sql(Dialect, tableName.Schema!);
-        var triggerInfos = DbConnection.QueryUnbufferedAsync(
+        var triggerInfos = DbConnection.QueryEnumerableAsync(
             triggerQuery,
             new GetTriggerDefinition.Query { TableName = tableName.LocalName },
             cancellationToken

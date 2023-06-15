@@ -49,7 +49,7 @@ public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
     /// <returns>A collection of database routine comments, where available.</returns>
     public IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments(CancellationToken cancellationToken = default)
     {
-        return Connection.QueryUnbufferedAsync(
+        return Connection.QueryEnumerableAsync(
                 GetAllRoutineNames.Sql,
                 new GetAllRoutineNames.Query { SchemaName = IdentifierDefaults.Schema! },
                 cancellationToken

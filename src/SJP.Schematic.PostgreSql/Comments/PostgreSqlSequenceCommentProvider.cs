@@ -56,7 +56,7 @@ public class PostgreSqlSequenceCommentProvider : IDatabaseSequenceCommentProvide
     /// <returns>A collection of database sequence comments.</returns>
     public IAsyncEnumerable<IDatabaseSequenceComments> GetAllSequenceComments(CancellationToken cancellationToken = default)
     {
-        return Connection.QueryUnbufferedAsync<GetAllSequenceComments.Result>(Queries.GetAllSequenceComments.Sql, cancellationToken)
+        return Connection.QueryEnumerableAsync<GetAllSequenceComments.Result>(Queries.GetAllSequenceComments.Sql, cancellationToken)
             .Select(commentData =>
             {
                 var tmpIdentifier = Identifier.CreateQualifiedIdentifier(commentData.SchemaName, commentData.SequenceName);

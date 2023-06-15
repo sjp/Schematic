@@ -45,7 +45,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : V11.PostgreSqlRelationa
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
-        return await DbConnection.QueryUnbufferedAsync(
+        return await DbConnection.QueryEnumerableAsync(
                 GetV12TableColumns.Sql,
                 new GetV12TableColumns.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
@@ -109,7 +109,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : V11.PostgreSqlRelationa
         const string checkPrefix = "CHECK (";
         const string checkSuffix = ")";
 
-        return await DbConnection.QueryUnbufferedAsync(
+        return await DbConnection.QueryEnumerableAsync(
                 GetV12TableChecks.Sql,
                 new GetV12TableChecks.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
