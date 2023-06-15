@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using LanguageExt;
@@ -44,24 +45,23 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database synonyms.</returns>
-    public async IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default)
     {
-        var queryResult = await Connection.QueryAsync<GetAllSynonymDefinitions.Result>(GetAllSynonymDefinitions.Sql, cancellationToken).ConfigureAwait(false);
+        return Connection.QueryUnbufferedAsync<GetAllSynonymDefinitions.Result>(GetAllSynonymDefinitions.Sql, cancellationToken)
+            .Select(row =>
+            {
+                var synonymName = QualifySynonymName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.SynonymName));
 
-        foreach (var row in queryResult)
-        {
-            var synonymName = QualifySynonymName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.SynonymName));
+                var serverName = !row.TargetServerName.IsNullOrWhiteSpace() ? row.TargetServerName : null;
+                var databaseName = !row.TargetDatabaseName.IsNullOrWhiteSpace() ? row.TargetDatabaseName : null;
+                var schemaName = !row.TargetSchemaName.IsNullOrWhiteSpace() ? row.TargetSchemaName : null;
+                var localName = row.TargetObjectName;
 
-            var serverName = !row.TargetServerName.IsNullOrWhiteSpace() ? row.TargetServerName : null;
-            var databaseName = !row.TargetDatabaseName.IsNullOrWhiteSpace() ? row.TargetDatabaseName : null;
-            var schemaName = !row.TargetSchemaName.IsNullOrWhiteSpace() ? row.TargetSchemaName : null;
-            var localName = row.TargetObjectName;
+                var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
+                var qualifiedTargetName = QualifySynonymTargetName(targetName);
 
-            var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
-            var qualifiedTargetName = QualifySynonymTargetName(targetName);
-
-            yield return new DatabaseSynonym(synonymName, qualifiedTargetName);
-        }
+                return new DatabaseSynonym(synonymName, qualifiedTargetName);
+            });
     }
 
     /// <summary>

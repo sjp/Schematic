@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
@@ -48,15 +51,15 @@ public static class ConnectionExtensions
     /// <summary>
     /// Queries the database and returns a collection of results.
     /// </summary>
-    /// <typeparam name="TResult">The type of results to map to.</typeparam>
+    /// <typeparam name="T">The type of results to map to.</typeparam>
     /// <param name="connectionFactory">A connection factory.</param>
     /// <param name="sql">The SQL to query with.</param>
     /// <param name="parameters">Parameters for the associated SQL query.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of query results from the database.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>, <paramref name="parameters"/> is <c>null</c>, or <paramref name="sql"/> is <c>null</c>, empty, or whitespace.</exception>
-    public static Task<IEnumerable<TResult>> QueryAsync<TResult>(this IDbConnectionFactory connectionFactory, string sql, ISqlQuery<TResult> parameters, CancellationToken cancellationToken)
-        where TResult : notnull
+    public static Task<IEnumerable<T>> QueryAsync<T>(this IDbConnectionFactory connectionFactory, string sql, ISqlQuery<T> parameters, CancellationToken cancellationToken)
+        where T : notnull
     {
         ArgumentNullException.ThrowIfNull(connectionFactory);
         if (sql.IsNullOrWhiteSpace())
@@ -66,8 +69,8 @@ public static class ConnectionExtensions
         return QueryAsyncCore(connectionFactory, sql, parameters, cancellationToken);
     }
 
-    private static async Task<IEnumerable<TResult>> QueryAsyncCore<TResult>(IDbConnectionFactory connectionFactory, string sql, ISqlQuery<TResult> parameters, CancellationToken cancellationToken)
-        where TResult : notnull
+    private static async Task<IEnumerable<T>> QueryAsyncCore<T>(IDbConnectionFactory connectionFactory, string sql, ISqlQuery<T> parameters, CancellationToken cancellationToken)
+        where T : notnull
     {
         var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
 
@@ -75,7 +78,71 @@ public static class ConnectionExtensions
         await using var _ = connection.WithDispose(connectionFactory);
 
         var retryPolicy = BuildRetryPolicy(connectionFactory);
-        return await retryPolicy.ExecuteAsync(_ => connection.QueryAsync<TResult>(command), cancellationToken).ConfigureAwait(false);
+        return await retryPolicy.ExecuteAsync(_ => connection.QueryAsync<T>(command), cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Queries the database and returns a collection of results.
+    /// </summary>
+    /// <typeparam name="T">The type of results to map to.</typeparam>
+    /// <param name="connectionFactory">A connection factory.</param>
+    /// <param name="sql">The SQL to query with.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of query results from the database.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c> or <paramref name="sql"/> is <c>null</c>, empty, or whitespace.</exception>
+    public static IAsyncEnumerable<T> QueryUnbufferedAsync<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
+        where T : notnull
+    {
+        ArgumentNullException.ThrowIfNull(connectionFactory);
+        if (sql.IsNullOrWhiteSpace())
+            throw new ArgumentNullException(nameof(sql));
+
+        return QueryUnbufferedAsyncCore<T>(connectionFactory, sql, cancellationToken);
+    }
+
+    private static async IAsyncEnumerable<T> QueryUnbufferedAsyncCore<T>(IDbConnectionFactory connectionFactory, string sql, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        await using var _ = connection.WithDispose(connectionFactory);
+
+        var retryPolicy = BuildRetryPolicy(connectionFactory);
+
+        var source = connection.QueryUnbufferedAsync<T>(sql).WithRetryPolicy(retryPolicy, cancellationToken);
+        await foreach (var item in source.WithCancellation(cancellationToken))
+            yield return item;
+    }
+
+    /// <summary>
+    /// Queries the database and returns a collection of results.
+    /// </summary>
+    /// <typeparam name="T">The type of results to map to.</typeparam>
+    /// <param name="connectionFactory">A connection factory.</param>
+    /// <param name="sql">The SQL to query with.</param>
+    /// <param name="parameters">Parameters for the associated SQL query.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of query results from the database.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>, <paramref name="parameters"/> is <c>null</c>, or <paramref name="sql"/> is <c>null</c>, empty, or whitespace.</exception>
+    public static IAsyncEnumerable<T> QueryUnbufferedAsync<T>(this IDbConnectionFactory connectionFactory, string sql, ISqlQuery<T> parameters, CancellationToken cancellationToken)
+        where T : notnull
+    {
+        ArgumentNullException.ThrowIfNull(connectionFactory);
+        if (sql.IsNullOrWhiteSpace())
+            throw new ArgumentNullException(nameof(sql));
+        ArgumentNullException.ThrowIfNull(parameters);
+
+        return QueryUnbufferedAsyncCore(connectionFactory, sql, parameters, cancellationToken);
+    }
+
+    private static async IAsyncEnumerable<T> QueryUnbufferedAsyncCore<T>(IDbConnectionFactory connectionFactory, string sql, ISqlQuery<T> parameters, [EnumeratorCancellation] CancellationToken cancellationToken)
+        where T : notnull
+    {
+        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        await using var _ = connection.WithDispose(connectionFactory);
+
+        var retryPolicy = BuildRetryPolicy(connectionFactory);
+        var source = connection.QueryUnbufferedAsync<T>(sql, parameters).WithRetryPolicy(retryPolicy, cancellationToken);
+        await foreach (var item in source.WithCancellation(cancellationToken))
+            yield return item;
     }
 
     /// <summary>
@@ -429,6 +496,28 @@ public static class ConnectionExtensions
         return connectionFactory.RetryPolicy.WaitAndRetryAsync(
             Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromMilliseconds(100), MaxRetryAttempts)
         );
+    }
+
+    private static async IAsyncEnumerable<T> WithRetryPolicy<T>(this IAsyncEnumerable<T> source, IAsyncPolicy policy, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        var enumerator = source.ConfigureAwait(false).WithCancellation(cancellationToken).GetAsyncEnumerator();
+
+        try
+        {
+            bool hasNext;
+
+            do
+            {
+                hasNext = await policy.ExecuteAsync(async () => await enumerator.MoveNextAsync());
+                if (hasNext)
+                    yield return enumerator.Current;
+            }
+            while (hasNext);
+        }
+        finally
+        {
+            await policy.ExecuteAsync(async () => await enumerator.DisposeAsync());
+        }
     }
 
     private const int MaxRetryAttempts = 5;

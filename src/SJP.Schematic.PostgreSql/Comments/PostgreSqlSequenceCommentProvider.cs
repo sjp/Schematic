@@ -54,21 +54,20 @@ public class PostgreSqlSequenceCommentProvider : IDatabaseSequenceCommentProvide
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database sequence comments.</returns>
-    public async IAsyncEnumerable<IDatabaseSequenceComments> GetAllSequenceComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseSequenceComments> GetAllSequenceComments(CancellationToken cancellationToken = default)
     {
-        var allCommentsData = await Connection.QueryAsync<GetAllSequenceComments.Result>(Queries.GetAllSequenceComments.Sql, cancellationToken).ConfigureAwait(false);
+        return Connection.QueryUnbufferedAsync<GetAllSequenceComments.Result>(Queries.GetAllSequenceComments.Sql, cancellationToken)
+            .Select(commentData =>
+            {
+                var tmpIdentifier = Identifier.CreateQualifiedIdentifier(commentData.SchemaName, commentData.SequenceName);
+                var qualifiedName = QualifySequenceName(tmpIdentifier);
 
-        foreach (var commentData in allCommentsData)
-        {
-            var tmpIdentifier = Identifier.CreateQualifiedIdentifier(commentData.SchemaName, commentData.SequenceName);
-            var qualifiedName = QualifySequenceName(tmpIdentifier);
+                var sequenceComment = !commentData.Comment.IsNullOrWhiteSpace()
+                    ? Option<string>.Some(commentData.Comment)
+                    : Option<string>.None;
 
-            var sequenceComment = !commentData.Comment.IsNullOrWhiteSpace()
-                ? Option<string>.Some(commentData.Comment)
-                : Option<string>.None;
-
-            yield return new DatabaseSequenceComments(qualifiedName, sequenceComment);
-        }
+                return new DatabaseSequenceComments(qualifiedName, sequenceComment);
+            });
     }
 
     /// <summary>

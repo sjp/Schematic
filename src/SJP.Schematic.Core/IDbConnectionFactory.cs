@@ -1,4 +1,4 @@
-﻿using System.Data;
+﻿using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using Polly;
@@ -14,20 +14,20 @@ public interface IDbConnectionFactory
     /// Creates a database connection instance, but does not open the connection.
     /// </summary>
     /// <returns>An object representing a database connection</returns>
-    IDbConnection CreateConnection();
+    DbConnection CreateConnection();
 
     /// <summary>
     /// Creates and opens a database connection.
     /// </summary>
     /// <returns>An object representing a database connection</returns>
-    IDbConnection OpenConnection();
+    DbConnection OpenConnection();
 
     /// <summary>
     /// Creates and opens a database connection asynchronously.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task containing an object representing a database connection when completed.</returns>
-    Task<IDbConnection> OpenConnectionAsync(CancellationToken cancellationToken = default);
+    Task<DbConnection> OpenConnectionAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Determines whether connections retrieved from this factory should be disposed.

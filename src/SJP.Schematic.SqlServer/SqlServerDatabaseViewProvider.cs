@@ -59,15 +59,12 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database views.</returns>
-    public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public virtual IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default)
     {
-        var queryResult = await DbConnection.QueryAsync<GetAllViewNames.Result>(GetAllViewNames.Sql, cancellationToken).ConfigureAwait(false);
-        var viewNames = queryResult
+        return DbConnection.QueryUnbufferedAsync<GetAllViewNames.Result>(GetAllViewNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
-            .Select(QualifyViewName);
-
-        foreach (var viewName in viewNames)
-            yield return await LoadViewAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
+            .Select(QualifyViewName)
+            .SelectAwait(viewName => LoadViewAsyncCore(viewName, cancellationToken).ToValue());
     }
 
     /// <summary>
@@ -191,43 +188,38 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var query = await DbConnection.QueryAsync(
-            GetViewColumns.Sql,
-            new GetViewColumns.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
-            cancellationToken
-        ).ConfigureAwait(false);
-
-        var result = new List<IDatabaseColumn>();
-
-        foreach (var row in query)
-        {
-            var typeMetadata = new ColumnTypeMetadata
+        return await DbConnection.QueryUnbufferedAsync(
+                GetViewColumns.Sql,
+                new GetViewColumns.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+                cancellationToken
+            )
+            .Select(row =>
             {
-                TypeName = Identifier.CreateQualifiedIdentifier(row.ColumnTypeSchema, row.ColumnTypeName),
-                Collation = !row.Collation.IsNullOrWhiteSpace()
-                    ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
-                    : Option<Identifier>.None,
-                MaxLength = row.MaxLength,
-                NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
-            };
-            var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
+                var typeMetadata = new ColumnTypeMetadata
+                {
+                    TypeName = Identifier.CreateQualifiedIdentifier(row.ColumnTypeSchema, row.ColumnTypeName),
+                    Collation = !row.Collation.IsNullOrWhiteSpace()
+                        ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
+                        : Option<Identifier>.None,
+                    MaxLength = row.MaxLength,
+                    NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
+                };
+                var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
-            var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-            var autoIncrement = row.IdentityIncrement
-                .Match(
-                    incr => row.IdentitySeed.Match(seed => new AutoIncrement(seed, incr), () => Option<IAutoIncrement>.None),
-                    static () => Option<IAutoIncrement>.None
-                );
-            var defaultValue = row.HasDefaultValue && row.DefaultValue != null
-                ? Option<string>.Some(row.DefaultValue)
-                : Option<string>.None;
+                var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
+                var autoIncrement = row.IdentityIncrement
+                    .Match(
+                        incr => row.IdentitySeed.Match(seed => new AutoIncrement(seed, incr), () => Option<IAutoIncrement>.None),
+                        static () => Option<IAutoIncrement>.None
+                    );
+                var defaultValue = row.HasDefaultValue && row.DefaultValue != null
+                    ? Option<string>.Some(row.DefaultValue)
+                    : Option<string>.None;
 
-            var column = new DatabaseColumn(columnName, columnType, row.IsNullable, defaultValue, autoIncrement);
-
-            result.Add(column);
-        }
-
-        return result;
+                return new DatabaseColumn(columnName, columnType, row.IsNullable, defaultValue, autoIncrement);
+            })
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <summary>

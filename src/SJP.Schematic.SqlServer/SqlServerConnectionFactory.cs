@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Data;
+using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
@@ -39,13 +40,13 @@ public class SqlServerConnectionFactory : IDbConnectionFactory
     /// Creates a database connection instance, but does not open the connection.
     /// </summary>
     /// <returns>An object representing a database connection.</returns>
-    public IDbConnection CreateConnection() => new SqlConnection(ConnectionString);
+    public DbConnection CreateConnection() => new SqlConnection(ConnectionString);
 
     /// <summary>
     /// Creates and opens a database connection.
     /// </summary>
     /// <returns>An object representing a database connection.</returns>
-    public IDbConnection OpenConnection()
+    public DbConnection OpenConnection()
     {
         var connection = CreateConnection();
 
@@ -60,7 +61,7 @@ public class SqlServerConnectionFactory : IDbConnectionFactory
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task containing an object representing a database connection when completed.</returns>
-    public async Task<IDbConnection> OpenConnectionAsync(CancellationToken cancellationToken = default)
+    public async Task<DbConnection> OpenConnectionAsync(CancellationToken cancellationToken = default)
     {
         var connection = new SqlConnection(ConnectionString);
 

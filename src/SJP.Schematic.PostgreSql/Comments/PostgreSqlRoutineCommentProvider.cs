@@ -55,15 +55,12 @@ public class PostgreSqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database routine comments, where available.</returns>
-    public async IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments(CancellationToken cancellationToken = default)
     {
-        var queryResult = await Connection.QueryAsync<GetAllRoutineNames.Result>(GetAllRoutineNames.Sql, cancellationToken).ConfigureAwait(false);
-        var routineNames = queryResult
+        return Connection.QueryUnbufferedAsync<GetAllRoutineNames.Result>(GetAllRoutineNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
-            .Select(QualifyRoutineName);
-
-        foreach (var routineName in routineNames)
-            yield return await LoadRoutineCommentsAsyncCore(routineName, cancellationToken).ConfigureAwait(false);
+            .Select(QualifyRoutineName)
+            .SelectAwait(routineName => LoadRoutineCommentsAsyncCore(routineName, cancellationToken).ToValue());
     }
 
     /// <summary>

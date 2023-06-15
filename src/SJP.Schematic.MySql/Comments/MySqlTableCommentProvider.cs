@@ -48,20 +48,16 @@ public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database table comments, where available.</returns>
-    public async IAsyncEnumerable<IRelationalDatabaseTableComments> GetAllTableComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IRelationalDatabaseTableComments> GetAllTableComments(CancellationToken cancellationToken = default)
     {
-        var queryResults = await Connection.QueryAsync(
-            GetAllTableNames.Sql,
-            new GetAllTableNames.Query { SchemaName = IdentifierDefaults.Schema! },
-            cancellationToken
-        ).ConfigureAwait(false);
-
-        var tableNames = queryResults
+        return Connection.QueryUnbufferedAsync(
+                GetAllTableNames.Sql,
+                new GetAllTableNames.Query { SchemaName = IdentifierDefaults.Schema! },
+                cancellationToken
+            )
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
-            .Select(QualifyTableName);
-
-        foreach (var tableName in tableNames)
-            yield return await LoadTableCommentsAsyncCore(tableName, cancellationToken).ConfigureAwait(false);
+            .Select(QualifyTableName)
+            .SelectAwait(tableName => LoadTableCommentsAsyncCore(tableName, cancellationToken).ToValue());
     }
 
     /// <summary>

@@ -52,20 +52,16 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database routines.</returns>
-    public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines(CancellationToken cancellationToken = default)
     {
-        var queryResults = await DbConnection.QueryAsync(
-            GetAllRoutineNames.Sql,
-            new GetAllRoutineNames.Query { SchemaName = IdentifierDefaults.Schema! },
-            cancellationToken
-        ).ConfigureAwait(false);
-
-        var routineNames = queryResults
+        return DbConnection.QueryUnbufferedAsync(
+                GetAllRoutineNames.Sql,
+                new GetAllRoutineNames.Query { SchemaName = IdentifierDefaults.Schema! },
+                cancellationToken
+            )
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
-            .Select(QualifyRoutineName);
-
-        foreach (var routineName in routineNames)
-            yield return await LoadRoutineAsyncCore(routineName, cancellationToken).ConfigureAwait(false);
+            .Select(QualifyRoutineName)
+            .SelectAwait(routineName => LoadRoutineAsyncCore(routineName, cancellationToken).ToValue());
     }
 
     /// <summary>

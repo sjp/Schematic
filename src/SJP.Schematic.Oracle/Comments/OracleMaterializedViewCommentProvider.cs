@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -55,15 +54,12 @@ public class OracleMaterializedViewCommentProvider : IDatabaseViewCommentProvide
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of materialized view comments.</returns>
-    public async IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments(CancellationToken cancellationToken = default)
     {
-        var queryResult = await Connection.QueryAsync<GetAllMaterializedViewNames.Result>(GetAllMaterializedViewNames.Sql, cancellationToken).ConfigureAwait(false);
-        var viewNames = queryResult
+        return Connection.QueryUnbufferedAsync<GetAllMaterializedViewNames.Result>(GetAllMaterializedViewNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
-            .Select(QualifyViewName);
-
-        foreach (var viewName in viewNames)
-            yield return await LoadViewCommentsAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
+            .Select(QualifyViewName)
+            .SelectAwait(viewName => LoadViewCommentsAsyncCore(viewName, cancellationToken).ToValue());
     }
 
     /// <summary>

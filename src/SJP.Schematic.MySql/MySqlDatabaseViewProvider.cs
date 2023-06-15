@@ -59,20 +59,18 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database views.</returns>
-    public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public virtual IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default)
     {
-        var queryResult = await DbConnection.QueryAsync(
+        var queryResult = DbConnection.QueryUnbufferedAsync(
             GetAllViewNames.Sql,
             new GetAllViewNames.Query { SchemaName = IdentifierDefaults.Schema! },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
-        var viewNames = queryResult
+        return queryResult
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
-            .Select(QualifyViewName);
-
-        foreach (var viewName in viewNames)
-            yield return await LoadViewAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
+            .Select(QualifyViewName)
+            .SelectAwait(viewName => LoadViewAsyncCore(viewName, cancellationToken).ToValue());
     }
 
     /// <summary>
@@ -171,15 +169,15 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var query = await DbConnection.QueryAsync(
+        var query = DbConnection.QueryUnbufferedAsync(
             GetViewColumns.Sql,
             new GetViewColumns.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         var result = new List<IDatabaseColumn>();
 
-        foreach (var row in query)
+        await foreach (var row in query.ConfigureAwait(false).WithCancellation(cancellationToken))
         {
             var precision = row.DateTimePrecision > 0
                 ? new NumericPrecision(row.DateTimePrecision, 0)

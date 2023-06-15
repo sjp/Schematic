@@ -82,10 +82,10 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
         foreach (var dbName in dbNames)
         {
             var sql = GetAllViewNames.Sql(Dialect, dbName);
-            var queryResult = await DbConnection.QueryAsync<GetAllViewNames.Result>(sql, cancellationToken).ConfigureAwait(false);
-            var viewNames = queryResult
+            var viewNames = await DbConnection.QueryUnbufferedAsync<GetAllViewNames.Result>(sql, cancellationToken)
                 .Where(static result => !IsReservedViewName(result.ViewName))
-                .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.ViewName));
+                .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.ViewName))
+                .ToListAsync(cancellationToken);
 
             qualifiedViewNames.AddRange(viewNames);
         }

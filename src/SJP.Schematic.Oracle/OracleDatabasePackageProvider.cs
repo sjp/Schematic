@@ -54,19 +54,12 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database packages.</returns>
-    public async IAsyncEnumerable<IOracleDatabasePackage> GetAllPackages([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IOracleDatabasePackage> GetAllPackages(CancellationToken cancellationToken = default)
     {
-        var queryResults = await Connection.QueryAsync<GetAllPackageNames.Result>(
-            GetAllPackageNames.Sql,
-            cancellationToken
-        ).ConfigureAwait(false);
-
-        var routineNames = queryResults
+        return Connection.QueryUnbufferedAsync<GetAllPackageNames.Result>(GetAllPackageNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.PackageName))
-            .Select(QualifyPackageName);
-
-        foreach (var packageName in routineNames)
-            yield return await LoadPackageAsyncCore(packageName, cancellationToken).ConfigureAwait(false);
+            .Select(QualifyPackageName)
+            .SelectAwait(packageName => LoadPackageAsyncCore(packageName, cancellationToken).ToValue());
     }
 
     /// <summary>

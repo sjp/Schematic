@@ -72,16 +72,14 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database tables.</returns>
-    public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public virtual IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)
     {
-        var queryResults = await DbConnection.QueryAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken).ConfigureAwait(false);
-        var tableNames = queryResults
-            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
-            .Select(QualifyTableName);
-
         var queryCache = CreateQueryCache();
-        foreach (var tableName in tableNames)
-            yield return await LoadTableAsyncCore(tableName, queryCache, cancellationToken).ConfigureAwait(false);
+
+        return DbConnection.QueryUnbufferedAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
+            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
+            .Select(QualifyTableName)
+            .SelectAwait(tableName => LoadTableAsyncCore(tableName, queryCache, cancellationToken).ToValue());
     }
 
     /// <summary>
@@ -453,31 +451,22 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     /// <returns>A collection of check constraints.</returns>
     protected virtual async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, CancellationToken cancellationToken)
     {
-        var checks = await DbConnection.QueryAsync(
-            GetTableChecks.Sql,
-            new GetTableChecks.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-            cancellationToken
-        ).ConfigureAwait(false);
+        return await DbConnection.QueryUnbufferedAsync(
+                GetTableChecks.Sql,
+                new GetTableChecks.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+                cancellationToken
+            )
+            .Where(checkRow => checkRow.ConstraintName != null && checkRow.Definition != null)
+            .Select(checkRow =>
+            {
+                var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);
+                var definition = checkRow.Definition;
+                var isEnabled = !checkRow.IsDisabled;
 
-        if (checks.Empty())
-            return Array.Empty<IDatabaseCheckConstraint>();
-
-        var result = new List<IDatabaseCheckConstraint>();
-
-        foreach (var checkRow in checks)
-        {
-            if (checkRow.ConstraintName == null || checkRow.Definition == null)
-                continue;
-
-            var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);
-            var definition = checkRow.Definition;
-            var isEnabled = !checkRow.IsDisabled;
-
-            var check = new DatabaseCheckConstraint(constraintName, definition, isEnabled);
-            result.Add(check);
-        }
-
-        return result;
+                return new DatabaseCheckConstraint(constraintName, definition, isEnabled);
+            })
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <summary>
@@ -589,48 +578,43 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
-        var query = await DbConnection.QueryAsync(
-            GetTableColumns.Sql,
-            new GetTableColumns.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-            cancellationToken
-        ).ConfigureAwait(false);
-
-        var result = new List<IDatabaseColumn>();
-
-        foreach (var row in query)
-        {
-            var typeMetadata = new ColumnTypeMetadata
+        return await DbConnection.QueryUnbufferedAsync(
+                GetTableColumns.Sql,
+                new GetTableColumns.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+                cancellationToken
+            )
+            .Select(row =>
             {
-                TypeName = Identifier.CreateQualifiedIdentifier(row.ColumnTypeSchema, row.ColumnTypeName),
-                Collation = !row.Collation.IsNullOrWhiteSpace()
+                var typeMetadata = new ColumnTypeMetadata
+                {
+                    TypeName = Identifier.CreateQualifiedIdentifier(row.ColumnTypeSchema, row.ColumnTypeName),
+                    Collation = !row.Collation.IsNullOrWhiteSpace()
                     ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
                     : Option<Identifier>.None,
-                MaxLength = row.MaxLength,
-                NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
-            };
-            var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
+                    MaxLength = row.MaxLength,
+                    NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
+                };
+                var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
-            var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-            var autoIncrement = row.IdentityIncrement
-                .Match(
-                    incr => row.IdentitySeed.Match(seed => new AutoIncrement(seed, incr), () => Option<IAutoIncrement>.None),
-                    static () => Option<IAutoIncrement>.None
-                );
-            var defaultValue = row.HasDefaultValue && row.DefaultValue != null
-                ? Option<string>.Some(row.DefaultValue)
-                : Option<string>.None;
-            var computedColumnDefinition = !row.ComputedColumnDefinition.IsNullOrWhiteSpace()
-                ? Option<string>.Some(row.ComputedColumnDefinition)
-                : Option<string>.None;
+                var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
+                var autoIncrement = row.IdentityIncrement
+                    .Match(
+                        incr => row.IdentitySeed.Match(seed => new AutoIncrement(seed, incr), () => Option<IAutoIncrement>.None),
+                        static () => Option<IAutoIncrement>.None
+                    );
+                var defaultValue = row.HasDefaultValue && row.DefaultValue != null
+                    ? Option<string>.Some(row.DefaultValue)
+                    : Option<string>.None;
+                var computedColumnDefinition = !row.ComputedColumnDefinition.IsNullOrWhiteSpace()
+                    ? Option<string>.Some(row.ComputedColumnDefinition)
+                    : Option<string>.None;
 
-            var column = row.IsComputed
-                ? new DatabaseComputedColumn(columnName, columnType, row.IsNullable, defaultValue, computedColumnDefinition)
-                : new DatabaseColumn(columnName, columnType, row.IsNullable, defaultValue, autoIncrement);
-
-            result.Add(column);
-        }
-
-        return result;
+                return row.IsComputed
+                    ? new DatabaseComputedColumn(columnName, columnType, row.IsNullable, defaultValue, computedColumnDefinition)
+                    : new DatabaseColumn(columnName, columnType, row.IsNullable, defaultValue, autoIncrement);
+            })
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <summary>

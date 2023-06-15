@@ -47,20 +47,16 @@ public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database routine comments, where available.</returns>
-    public async IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments(CancellationToken cancellationToken = default)
     {
-        var queryResults = await Connection.QueryAsync(
-            GetAllRoutineNames.Sql,
-            new GetAllRoutineNames.Query { SchemaName = IdentifierDefaults.Schema! },
-            cancellationToken
-        ).ConfigureAwait(false);
-
-        var routineNames = queryResults
+        return Connection.QueryUnbufferedAsync(
+                GetAllRoutineNames.Sql,
+                new GetAllRoutineNames.Query { SchemaName = IdentifierDefaults.Schema! },
+                cancellationToken
+            )
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
-            .Select(QualifyRoutineName);
-
-        foreach (var routineName in routineNames)
-            yield return await LoadRoutineCommentsAsyncCore(routineName, cancellationToken).ConfigureAwait(false);
+            .Select(QualifyRoutineName)
+            .SelectAwait(routineName => LoadRoutineCommentsAsyncCore(routineName, cancellationToken).ToValue());
     }
 
     /// <summary>

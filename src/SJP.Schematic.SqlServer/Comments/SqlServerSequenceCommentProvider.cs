@@ -53,15 +53,12 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database sequence comments.</returns>
-    public async IAsyncEnumerable<IDatabaseSequenceComments> GetAllSequenceComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseSequenceComments> GetAllSequenceComments(CancellationToken cancellationToken = default)
     {
-        var queryResults = await Connection.QueryAsync<GetAllSequenceNames.Result>(GetAllSequenceNames.Sql, cancellationToken).ConfigureAwait(false);
-        var sequenceNames = queryResults
+        return Connection.QueryUnbufferedAsync<GetAllSequenceNames.Result>(GetAllSequenceNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.SequenceName))
-            .Select(QualifySequenceName);
-
-        foreach (var sequenceName in sequenceNames)
-            yield return await LoadSequenceCommentsAsyncCore(sequenceName, cancellationToken).ConfigureAwait(false);
+            .Select(QualifySequenceName)
+            .SelectAwait(sequenceName => LoadSequenceCommentsAsyncCore(sequenceName, cancellationToken).ToValue());
     }
 
     /// <summary>

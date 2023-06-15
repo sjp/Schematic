@@ -53,29 +53,28 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database sequences.</returns>
-    public async IAsyncEnumerable<IDatabaseSequence> GetAllSequences([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseSequence> GetAllSequences(CancellationToken cancellationToken = default)
     {
-        var queryResult = await Connection.QueryAsync<GetAllSequences.Result>(Queries.GetAllSequences.Sql, cancellationToken).ConfigureAwait(false);
+        return Connection.QueryUnbufferedAsync<GetAllSequences.Result>(Queries.GetAllSequences.Sql, cancellationToken)
+            .Select(row =>
+            {
+                var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.SequenceName));
 
-        foreach (var row in queryResult)
-        {
-            var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.SequenceName));
+                var cycle = string.Equals(row.Cycle, Constants.Y, StringComparison.Ordinal);
+                var start = row.Increment >= 0
+                    ? row.MinValue
+                    : row.MaxValue;
 
-            var cycle = string.Equals(row.Cycle, Constants.Y, StringComparison.Ordinal);
-            var start = row.Increment >= 0
-                ? row.MinValue
-                : row.MaxValue;
-
-            yield return new DatabaseSequence(
-                sequenceName,
-                start,
-                row.Increment,
-                Option<decimal>.Some(row.MinValue),
-                Option<decimal>.Some(row.MaxValue),
-                cycle,
-                row.CacheSize
-            );
-        }
+                return new DatabaseSequence(
+                    sequenceName,
+                    start,
+                    row.Increment,
+                    Option<decimal>.Some(row.MinValue),
+                    Option<decimal>.Some(row.MaxValue),
+                    cycle,
+                    row.CacheSize
+                );
+            });
     }
 
     /// <summary>

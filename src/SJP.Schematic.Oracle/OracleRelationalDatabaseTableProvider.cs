@@ -86,16 +86,14 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database tables.</returns>
-    public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public virtual IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)
     {
-        var queryResults = await DbConnection.QueryAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken).ConfigureAwait(false);
-        var tableNames = queryResults
-            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
-            .Select(QualifyTableName);
-
         var queryCache = CreateQueryCache();
-        foreach (var tableName in tableNames)
-            yield return await LoadTableAsyncCore(tableName, queryCache, cancellationToken).ConfigureAwait(false);
+
+        return DbConnection.QueryUnbufferedAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
+            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
+            .Select(QualifyTableName)
+            .SelectAwait(tableName => LoadTableAsyncCore(tableName, queryCache, cancellationToken).ToValue());
     }
 
     /// <summary>

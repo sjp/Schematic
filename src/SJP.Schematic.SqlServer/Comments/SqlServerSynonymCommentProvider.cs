@@ -53,15 +53,12 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database synonyms comments.</returns>
-    public async IAsyncEnumerable<IDatabaseSynonymComments> GetAllSynonymComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseSynonymComments> GetAllSynonymComments(CancellationToken cancellationToken = default)
     {
-        var queryResults = await Connection.QueryAsync<GetAllSynonymNames.Result>(GetAllSynonymNames.Sql, cancellationToken).ConfigureAwait(false);
-        var synonymNames = queryResults
+        return Connection.QueryUnbufferedAsync<GetAllSynonymNames.Result>(GetAllSynonymNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.SynonymName))
-            .Select(QualifySynonymName);
-
-        foreach (var synonymName in synonymNames)
-            yield return await LoadSynonymCommentsAsyncCore(synonymName, cancellationToken).ConfigureAwait(false);
+            .Select(QualifySynonymName)
+            .SelectAwait(synonymName => LoadSynonymCommentsAsyncCore(synonymName, cancellationToken).ToValue());
     }
 
     /// <summary>

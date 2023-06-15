@@ -99,10 +99,10 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         foreach (var dbName in dbNames)
         {
             var sql = GetAllTableNames.Sql(Dialect, dbName);
-            var queryResult = await DbConnection.QueryAsync<GetAllTableNames.Result>(sql, cancellationToken).ConfigureAwait(false);
-            var names = queryResult
+            var names = await DbConnection.QueryUnbufferedAsync<GetAllTableNames.Result>(sql, cancellationToken)
                 .Where(static result => !IsReservedTableName(result.TableName))
-                .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.TableName));
+                .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.TableName))
+                .ToListAsync(cancellationToken);
 
             qualifiedTableNames.AddRange(names);
         }
@@ -540,10 +540,10 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         foreach (var dbName in dbNames)
         {
             var sql = GetAllTableNames.Sql(Dialect, dbName);
-            var queryResult = await DbConnection.QueryAsync<GetAllTableNames.Result>(sql, cancellationToken).ConfigureAwait(false);
-            var tableNames = queryResult
+            var tableNames = await DbConnection.QueryUnbufferedAsync<GetAllTableNames.Result>(sql, cancellationToken)
                 .Where(static result => !IsReservedTableName(result.TableName))
-                .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.TableName));
+                .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.TableName))
+                .ToListAsync(cancellationToken);
 
             qualifiedChildTableNames.AddRange(tableNames);
         }
@@ -866,15 +866,15 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         }
 
         var triggerQuery = GetTriggerDefinition.Sql(Dialect, tableName.Schema!);
-        var triggerInfos = await DbConnection.QueryAsync(
+        var triggerInfos = DbConnection.QueryUnbufferedAsync(
             triggerQuery,
             new GetTriggerDefinition.Query { TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         var result = new List<IDatabaseTrigger>();
 
-        foreach (var triggerInfo in triggerInfos)
+        await foreach (var triggerInfo in triggerInfos.ConfigureAwait(false).WithCancellation(cancellationToken))
         {
             var triggerSql = triggerInfo.Sql;
             var parsedTrigger = _triggerParserCache.GetOrAdd(triggerSql, sql => new Lazy<ParsedTriggerData>(() =>

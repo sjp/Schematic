@@ -45,10 +45,9 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database sequences.</returns>
-    public async IAsyncEnumerable<IDatabaseSequence> GetAllSequences([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseSequence> GetAllSequences(CancellationToken cancellationToken = default)
     {
-        var queryResult = await Connection.QueryAsync<GetAllSequenceDefinitions.Result>(GetAllSequenceDefinitions.Sql, cancellationToken).ConfigureAwait(false);
-        var sequences = queryResult
+        return Connection.QueryUnbufferedAsync<GetAllSequenceDefinitions.Result>(GetAllSequenceDefinitions.Sql, cancellationToken)
             .Select(row =>
             {
                 var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.SequenceName));
@@ -62,9 +61,6 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
                     row.IsCached ? row.CacheSize ?? -1 : 0 // -1 as unknown/database determined
                 );
             });
-
-        foreach (var sequence in sequences)
-            yield return sequence;
     }
 
     /// <summary>

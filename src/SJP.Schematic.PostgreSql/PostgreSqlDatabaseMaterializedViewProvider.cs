@@ -67,15 +67,12 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of materialized views.</returns>
-    public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public virtual IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default)
     {
-        var queryResult = await DbConnection.QueryAsync<GetAllMaterializedViewNames.Result>(GetAllMaterializedViewNames.Sql, cancellationToken).ConfigureAwait(false);
-        var viewNames = queryResult
+        return DbConnection.QueryUnbufferedAsync<GetAllMaterializedViewNames.Result>(GetAllMaterializedViewNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
-            .Select(QualifyViewName);
-
-        foreach (var viewName in viewNames)
-            yield return await LoadViewAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
+            .Select(QualifyViewName)
+            .SelectAwait(viewName => LoadViewAsyncCore(viewName, cancellationToken).ToValue());
     }
 
     /// <summary>
@@ -194,40 +191,36 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var query = await DbConnection.QueryAsync(
-            GetMaterializedViewColumns.Sql,
-            new GetMaterializedViewColumns.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
-            cancellationToken
-        ).ConfigureAwait(false);
-
-        var result = new List<IDatabaseColumn>();
-
-        foreach (var row in query)
-        {
-            var typeMetadata = new ColumnTypeMetadata
+        return await DbConnection.QueryUnbufferedAsync(
+                GetMaterializedViewColumns.Sql,
+                new GetMaterializedViewColumns.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+                cancellationToken
+            )
+            .Select(row =>
             {
-                TypeName = Identifier.CreateQualifiedIdentifier(row.DataType),
-                Collation = !row.CollationName.IsNullOrWhiteSpace()
-                    ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.CollationCatalog, row.CollationSchema, row.CollationName))
-                    : Option<Identifier>.None,
-                //TODO -- need to fix max length as it's different for char-like objects and numeric
-                //MaxLength = row.,
-                // TODO: numeric_precision has a base, can be either binary or decimal, need to use the correct one
-                NumericPrecision = new NumericPrecision(row.NumericPrecision, row.NumericScale)
-            };
+                var typeMetadata = new ColumnTypeMetadata
+                {
+                    TypeName = Identifier.CreateQualifiedIdentifier(row.DataType),
+                    Collation = !row.CollationName.IsNullOrWhiteSpace()
+                        ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.CollationCatalog, row.CollationSchema, row.CollationName))
+                        : Option<Identifier>.None,
+                    //TODO -- need to fix max length as it's different for char-like objects and numeric
+                    //MaxLength = row.,
+                    // TODO: numeric_precision has a base, can be either binary or decimal, need to use the correct one
+                    NumericPrecision = new NumericPrecision(row.NumericPrecision, row.NumericScale)
+                };
 
-            var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
-            var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-            var autoIncrement = Option<IAutoIncrement>.None;
-            var defaultValue = !row.ColumnDefault.IsNullOrWhiteSpace()
-                ? Option<string>.Some(row.ColumnDefault)
-                : Option<string>.None;
+                var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
+                var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
+                var autoIncrement = Option<IAutoIncrement>.None;
+                var defaultValue = !row.ColumnDefault.IsNullOrWhiteSpace()
+                    ? Option<string>.Some(row.ColumnDefault)
+                    : Option<string>.None;
 
-            var column = new DatabaseColumn(columnName, columnType, string.Equals(row.IsNullable, Constants.Yes, StringComparison.Ordinal), defaultValue, autoIncrement);
-            result.Add(column);
-        }
-
-        return result;
+                return new DatabaseColumn(columnName, columnType, string.Equals(row.IsNullable, Constants.Yes, StringComparison.Ordinal), defaultValue, autoIncrement);
+            })
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <summary>

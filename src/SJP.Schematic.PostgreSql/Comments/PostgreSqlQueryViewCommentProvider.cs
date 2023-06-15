@@ -55,15 +55,12 @@ public class PostgreSqlQueryViewCommentProvider : IDatabaseViewCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of view comments.</returns>
-    public async IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments(CancellationToken cancellationToken = default)
     {
-        var queryResult = await Connection.QueryAsync<GetAllViewNames.Result>(GetAllViewNames.Sql, cancellationToken).ConfigureAwait(false);
-        var viewNames = queryResult
+        return Connection.QueryUnbufferedAsync<GetAllViewNames.Result>(GetAllViewNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
-            .Select(QualifyViewName);
-
-        foreach (var viewName in viewNames)
-            yield return await LoadViewCommentsAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
+            .Select(QualifyViewName)
+            .SelectAwait(viewName => LoadViewCommentsAsyncCore(viewName, cancellationToken).ToValue());
     }
 
     /// <summary>

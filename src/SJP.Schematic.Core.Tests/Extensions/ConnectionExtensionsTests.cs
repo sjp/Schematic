@@ -52,6 +52,49 @@ internal static class ConnectionExtensionsTests
     }
 
     [Test]
+    public static void QueryUnbufferedAsync_WithoutParamsGivenNullConnection_ThrowsArgumentNullException()
+    {
+        Assert.That(() => ConnectionExtensions.QueryUnbufferedAsync<string>(null, "test", CancellationToken.None), Throws.ArgumentNullException);
+    }
+
+    [TestCase((string)null)]
+    [TestCase("")]
+    [TestCase("    ")]
+    public static void QueryUnbufferedAsync_WithoutParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentNullException(string sql)
+    {
+        var connection = Mock.Of<IDbConnectionFactory>();
+
+        Assert.That(() => connection.QueryUnbufferedAsync<string>(sql, CancellationToken.None), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void QueryUnbufferedAsync_WithParamsGivenNullConnection_ThrowsArgumentNullException()
+    {
+        var param = new TestQuery { Test = "test" };
+
+        Assert.That(() => ConnectionExtensions.QueryUnbufferedAsync(null, "test", param, CancellationToken.None), Throws.ArgumentNullException);
+    }
+
+    [TestCase((string)null)]
+    [TestCase("")]
+    [TestCase("    ")]
+    public static void QueryUnbufferedAsync_WithParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentNullException(string sql)
+    {
+        var connection = Mock.Of<IDbConnectionFactory>();
+        var param = new TestQuery { Test = "test" };
+
+        Assert.That(() => connection.QueryUnbufferedAsync(sql, param, CancellationToken.None), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void QueryUnbufferedAsync_WithParamsGivenNullParam_ThrowsArgumentNullException()
+    {
+        var connection = Mock.Of<IDbConnectionFactory>();
+
+        Assert.That(() => connection.QueryUnbufferedAsync<string>("test", null, CancellationToken.None), Throws.ArgumentNullException);
+    }
+
+    [Test]
     public static void ExecuteScalarAsync_WithoutParamsGivenNullConnection_ThrowsArgumentNullException()
     {
         Assert.That(() => ConnectionExtensions.ExecuteScalarAsync<string>(null, "test", CancellationToken.None), Throws.ArgumentNullException);

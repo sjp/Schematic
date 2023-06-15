@@ -15,7 +15,7 @@ public class CachingConnectionFactory : IDbConnectionFactory
 {
     private readonly object _lock = new();
     private readonly IDbConnectionFactory _connectionFactory;
-    private IDbConnection? _connection;
+    private DbConnection? _connection;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CachingConnectionFactory"/> class.
@@ -32,7 +32,7 @@ public class CachingConnectionFactory : IDbConnectionFactory
     /// </summary>
     /// <returns>A database connection.</returns>
     /// <remarks>The connection will not be opened as part of this operation.</remarks>
-    public IDbConnection CreateConnection()
+    public DbConnection CreateConnection()
     {
         lock (_lock)
         {
@@ -48,7 +48,7 @@ public class CachingConnectionFactory : IDbConnectionFactory
     /// Creates a database connection, if required. The connection is then opened if it is not already open.
     /// </summary>
     /// <returns>A database connection in an open state.</returns>
-    public IDbConnection OpenConnection()
+    public DbConnection OpenConnection()
     {
         var connection = CreateConnection();
 
@@ -63,16 +63,13 @@ public class CachingConnectionFactory : IDbConnectionFactory
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database connection in an open state.</returns>
-    public async Task<IDbConnection> OpenConnectionAsync(CancellationToken cancellationToken = default)
+    public async Task<DbConnection> OpenConnectionAsync(CancellationToken cancellationToken = default)
     {
         var connection = CreateConnection();
 
         if (connection.State != ConnectionState.Open)
         {
-            if (connection is DbConnection dbConnection)
-                await dbConnection.OpenAsync(cancellationToken).ConfigureAwait(false);
-            else
-                connection.Open();
+            await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
         }
 
         return connection;

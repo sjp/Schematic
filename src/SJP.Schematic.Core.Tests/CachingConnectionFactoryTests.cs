@@ -19,7 +19,7 @@ internal static class CachingConnectionFactoryTests
     public static void CreateConnection_WhenCalledTwice_OnlyCreatesConnectionOnce()
     {
         var factory = new Mock<IDbConnectionFactory>(MockBehavior.Strict);
-        factory.Setup(f => f.CreateConnection()).Returns(Mock.Of<IDbConnection>);
+        factory.Setup(f => f.CreateConnection()).Returns(Mock.Of<DbConnection>);
 
         var cachingFactory = new CachingConnectionFactory(factory.Object);
 
@@ -33,7 +33,7 @@ internal static class CachingConnectionFactoryTests
     public static void OpenConnection_WhenCalledTwice_OnlyCreatesConnectionOnce()
     {
         var factory = new Mock<IDbConnectionFactory>(MockBehavior.Strict);
-        factory.Setup(f => f.CreateConnection()).Returns(Mock.Of<IDbConnection>);
+        factory.Setup(f => f.CreateConnection()).Returns(Mock.Of<DbConnection>);
 
         var cachingFactory = new CachingConnectionFactory(factory.Object);
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -67,15 +66,12 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database views.</returns>
-    public virtual async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public virtual IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default)
     {
-        var queryResult = await DbConnection.QueryAsync<GetAllViewNames.Result>(GetAllViewNames.Sql, cancellationToken).ConfigureAwait(false);
-        var viewNames = queryResult
-            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
-            .Select(QualifyViewName);
-
-        foreach (var viewName in viewNames)
-            yield return await LoadViewAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
+        return DbConnection.QueryUnbufferedAsync<GetAllViewNames.Result>(GetAllViewNames.Sql, cancellationToken)
+            .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
+            .Select(QualifyViewName)
+            .SelectAwait(viewName => LoadViewAsyncCore(viewName, cancellationToken).ToValue());
     }
 
     /// <summary>

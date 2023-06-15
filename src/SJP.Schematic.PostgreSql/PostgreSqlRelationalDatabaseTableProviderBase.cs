@@ -87,16 +87,14 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database tables.</returns>
-    public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public virtual IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)
     {
-        var queryResults = await DbConnection.QueryAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken).ConfigureAwait(false);
-        var tableNames = queryResults
-            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
-            .Select(QualifyTableName);
-
         var queryCache = CreateQueryCache();
-        foreach (var tableName in tableNames)
-            yield return await LoadTableAsyncCore(tableName, queryCache, cancellationToken).ConfigureAwait(false);
+
+        return DbConnection.QueryUnbufferedAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
+            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
+            .Select(QualifyTableName)
+            .SelectAwait(tableName => LoadTableAsyncCore(tableName, queryCache, cancellationToken).ToValue());
     }
 
     /// <summary>
@@ -621,54 +619,50 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
-        var query = await DbConnection.QueryAsync(
-            GetTableColumns.Sql,
-            new GetTableColumns.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-            cancellationToken
-        ).ConfigureAwait(false);
-
-        var result = new List<IDatabaseColumn>();
-
-        foreach (var row in query)
-        {
-            var typeMetadata = new ColumnTypeMetadata
+        return await DbConnection.QueryUnbufferedAsync(
+                GetTableColumns.Sql,
+                new GetTableColumns.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+                cancellationToken
+            )
+            .Select(row =>
             {
-                TypeName = Identifier.CreateQualifiedIdentifier(Constants.PgCatalog, row.DataType),
-                Collation = !row.CollationName.IsNullOrWhiteSpace()
-                    ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.CollationCatalog, row.CollationSchema, row.CollationName))
-                    : Option<Identifier>.None,
-                MaxLength = row.CharacterMaximumLength > 0
-                    ? row.CharacterMaximumLength
-                    : CreatePrecisionFromBase(row.NumericPrecision, row.NumericPrecisionRadix),
-                NumericPrecision = row.NumericPrecisionRadix > 0
-                    ? Option<INumericPrecision>.Some(CreatePrecisionWithScaleFromBase(row.NumericPrecision, row.NumericScale, row.NumericPrecisionRadix))
-                    : Option<INumericPrecision>.None
-            };
+                var typeMetadata = new ColumnTypeMetadata
+                {
+                    TypeName = Identifier.CreateQualifiedIdentifier(Constants.PgCatalog, row.DataType),
+                    Collation = !row.CollationName.IsNullOrWhiteSpace()
+                        ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.CollationCatalog, row.CollationSchema, row.CollationName))
+                        : Option<Identifier>.None,
+                    MaxLength = row.CharacterMaximumLength > 0
+                        ? row.CharacterMaximumLength
+                        : CreatePrecisionFromBase(row.NumericPrecision, row.NumericPrecisionRadix),
+                    NumericPrecision = row.NumericPrecisionRadix > 0
+                        ? Option<INumericPrecision>.Some(CreatePrecisionWithScaleFromBase(row.NumericPrecision, row.NumericScale, row.NumericPrecisionRadix))
+                        : Option<INumericPrecision>.None
+                };
 
-            var columnType = TypeProvider.CreateColumnType(typeMetadata);
-            var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
+                var columnType = TypeProvider.CreateColumnType(typeMetadata);
+                var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
 
-            var isAutoIncrement = string.Equals(row.IsIdentity, Constants.Yes, StringComparison.Ordinal);
-            var autoIncrement = isAutoIncrement
-                && decimal.TryParse(row.IdentityStart, NumberStyles.Float, CultureInfo.InvariantCulture, out var seqStart)
-                && decimal.TryParse(row.IdentityIncrement, NumberStyles.Float, CultureInfo.InvariantCulture, out var seqIncr)
-                ? Option<IAutoIncrement>.Some(new AutoIncrement(seqStart, seqIncr))
-                : Option<IAutoIncrement>.None;
+                var isAutoIncrement = string.Equals(row.IsIdentity, Constants.Yes, StringComparison.Ordinal);
+                var autoIncrement = isAutoIncrement
+                    && decimal.TryParse(row.IdentityStart, NumberStyles.Float, CultureInfo.InvariantCulture, out var seqStart)
+                    && decimal.TryParse(row.IdentityIncrement, NumberStyles.Float, CultureInfo.InvariantCulture, out var seqIncr)
+                    ? Option<IAutoIncrement>.Some(new AutoIncrement(seqStart, seqIncr))
+                    : Option<IAutoIncrement>.None;
 
-            var isSerialAutoIncrement = !isAutoIncrement && !row.SerialSequenceSchemaName.IsNullOrWhiteSpace() && !row.SerialSequenceLocalName.IsNullOrWhiteSpace();
-            if (isSerialAutoIncrement)
-                autoIncrement = Option<IAutoIncrement>.Some(new AutoIncrement(1, 1));
+                var isSerialAutoIncrement = !isAutoIncrement && !row.SerialSequenceSchemaName.IsNullOrWhiteSpace() && !row.SerialSequenceLocalName.IsNullOrWhiteSpace();
+                if (isSerialAutoIncrement)
+                    autoIncrement = Option<IAutoIncrement>.Some(new AutoIncrement(1, 1));
 
-            var defaultValue = !row.ColumnDefault.IsNullOrWhiteSpace()
-                ? Option<string>.Some(row.ColumnDefault)
-                : Option<string>.None;
-            var isNullable = string.Equals(row.IsNullable, Constants.Yes, StringComparison.Ordinal);
+                var defaultValue = !row.ColumnDefault.IsNullOrWhiteSpace()
+                    ? Option<string>.Some(row.ColumnDefault)
+                    : Option<string>.None;
+                var isNullable = string.Equals(row.IsNullable, Constants.Yes, StringComparison.Ordinal);
 
-            var column = new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement);
-            result.Add(column);
-        }
-
-        return result;
+                return new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement);
+            })
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <summary>

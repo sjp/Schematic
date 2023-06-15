@@ -75,20 +75,18 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database tables.</returns>
-    public virtual async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public virtual IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)
     {
-        var queryResults = await DbConnection.QueryAsync(
-            GetAllTableNames.Sql,
-            new GetAllTableNames.Query { SchemaName = IdentifierDefaults.Schema! },
-            cancellationToken
-        ).ConfigureAwait(false);
-        var tableNames = queryResults
-            .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
-            .Select(QualifyTableName);
-
         var queryCache = CreateQueryCache();
-        foreach (var tableName in tableNames)
-            yield return await LoadTableAsyncCore(tableName, queryCache, cancellationToken).ConfigureAwait(false);
+
+        return DbConnection.QueryUnbufferedAsync(
+                GetAllTableNames.Sql,
+                new GetAllTableNames.Query { SchemaName = IdentifierDefaults.Schema! },
+                cancellationToken
+            )
+            .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
+            .Select(QualifyTableName)
+            .SelectAwait(tableName => LoadTableAsyncCore(tableName, queryCache, cancellationToken).ToValue());
     }
 
     /// <summary>
@@ -443,25 +441,19 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         if (!hasCheckSupport)
             return Array.Empty<IDatabaseCheckConstraint>();
 
-        var queryResult = await DbConnection.QueryAsync(
-            GetTableCheckConstraints.Sql,
-            new GetTableCheckConstraints.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-            cancellationToken
-        ).ConfigureAwait(false);
-        if (queryResult.Empty())
-            return Array.Empty<IDatabaseCheckConstraint>();
-
-        var result = new List<IDatabaseCheckConstraint>();
-
-        foreach (var row in queryResult)
-        {
-            var checkName = Identifier.CreateQualifiedIdentifier(row.ConstraintName);
-            var isEnabled = string.Equals("YES", row.Enforced, StringComparison.OrdinalIgnoreCase);
-            var check = new MySqlCheckConstraint(checkName, row.Definition, isEnabled);
-            result.Add(check);
-        }
-
-        return result;
+        return await DbConnection.QueryUnbufferedAsync(
+                GetTableCheckConstraints.Sql,
+                new GetTableCheckConstraints.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+                cancellationToken
+            )
+            .Select(row =>
+            {
+                var checkName = Identifier.CreateQualifiedIdentifier(row.ConstraintName);
+                var isEnabled = string.Equals("YES", row.Enforced, StringComparison.OrdinalIgnoreCase);
+                return new MySqlCheckConstraint(checkName, row.Definition, isEnabled);
+            })
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <summary>
@@ -571,49 +563,44 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
-        var query = await DbConnection.QueryAsync(
-            GetTableColumns.Sql,
-            new GetTableColumns.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-            cancellationToken
-        ).ConfigureAwait(false);
-
-        var result = new List<IDatabaseColumn>();
-
-        foreach (var row in query)
-        {
-            var typeMetadata = new ColumnTypeMetadata
+        return await DbConnection.QueryUnbufferedAsync(
+                GetTableColumns.Sql,
+                new GetTableColumns.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+                cancellationToken
+            )
+            .Select(row =>
             {
-                TypeName = Identifier.CreateQualifiedIdentifier(row.DataTypeName),
-                Collation = !row.Collation.IsNullOrWhiteSpace()
+                var typeMetadata = new ColumnTypeMetadata
+                {
+                    TypeName = Identifier.CreateQualifiedIdentifier(row.DataTypeName),
+                    Collation = !row.Collation.IsNullOrWhiteSpace()
                     ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
                     : Option<Identifier>.None,
-                MaxLength = row.CharacterMaxLength,
-                NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
-            };
-            var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
+                    MaxLength = row.CharacterMaxLength,
+                    NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
+                };
+                var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
-            var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-            var isAutoIncrement = row.ExtraInformation?.Contains(Constants.AutoIncrement, StringComparison.OrdinalIgnoreCase) == true;
-            var autoIncrement = isAutoIncrement
-                ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
-                : Option<IAutoIncrement>.None;
-            var isComputed = !row.ComputedColumnDefinition.IsNullOrWhiteSpace();
-            var isNullable = !string.Equals(row.IsNullable, Constants.No, StringComparison.OrdinalIgnoreCase);
-            var defaultValue = !row.DefaultValue.IsNullOrWhiteSpace()
-                ? Option<string>.Some(row.DefaultValue)
-                : Option<string>.None;
-            var computedColumnDefinition = isComputed
-                ? Option<string>.Some(row.ComputedColumnDefinition!)
-                : Option<string>.None;
+                var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
+                var isAutoIncrement = row.ExtraInformation?.Contains(Constants.AutoIncrement, StringComparison.OrdinalIgnoreCase) == true;
+                var autoIncrement = isAutoIncrement
+                    ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
+                    : Option<IAutoIncrement>.None;
+                var isComputed = !row.ComputedColumnDefinition.IsNullOrWhiteSpace();
+                var isNullable = !string.Equals(row.IsNullable, Constants.No, StringComparison.OrdinalIgnoreCase);
+                var defaultValue = !row.DefaultValue.IsNullOrWhiteSpace()
+                    ? Option<string>.Some(row.DefaultValue)
+                    : Option<string>.None;
+                var computedColumnDefinition = isComputed
+                    ? Option<string>.Some(row.ComputedColumnDefinition!)
+                    : Option<string>.None;
 
-            var column = isComputed
-                ? new DatabaseComputedColumn(columnName, columnType, isNullable, defaultValue, computedColumnDefinition)
-                : new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement);
-
-            result.Add(column);
-        }
-
-        return result;
+                return isComputed
+                    ? new DatabaseComputedColumn(columnName, columnType, isNullable, defaultValue, computedColumnDefinition)
+                    : new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement) as IDatabaseColumn;
+            })
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <summary>
