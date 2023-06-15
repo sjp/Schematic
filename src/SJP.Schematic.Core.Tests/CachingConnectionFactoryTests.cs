@@ -1,5 +1,4 @@
-﻿using System.Data;
-using System.Data.Common;
+﻿using System.Data.Common;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
