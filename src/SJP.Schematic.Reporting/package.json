@@ -19,7 +19,7 @@
     "url": "https://github.com/sjp/Schematic/issues"
   },
   "devDependencies": {
-    "@babel/core": "7.22.8",
+    "@babel/core": "7.22.9",
     "@babel/preset-env": "7.22.7",
     "@babel/register": "7.22.5",
     "admin-lte": "3.2.0",
