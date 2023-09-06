@@ -10,9 +10,6 @@ namespace SJP.Schematic.Tests.Utilities;
 /// </summary>
 public sealed class LineEndingInvariantStringComparer : IEqualityComparer<string>
 {
-    private static readonly Regex _lineEndingRegex = new("\r\n|\n\r|\n|\r", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
-    private const string Crlf = "\r\n";
-
     private readonly StringComparer _comparer;
 
     /// <summary>
@@ -77,9 +74,9 @@ public sealed class LineEndingInvariantStringComparer : IEqualityComparer<string
     public bool Equals([AllowNull] string x, [AllowNull] string y)
     {
         if (x != null)
-            x = NormalizeNewlines(x);
+            x = x.ReplaceLineEndings();
         if (y != null)
-            y = NormalizeNewlines(y);
+            y = y.ReplaceLineEndings();
 
         return _comparer.Equals(x, y);
     }
@@ -94,8 +91,6 @@ public sealed class LineEndingInvariantStringComparer : IEqualityComparer<string
     {
         ArgumentNullException.ThrowIfNull(obj);
 
-        return _comparer.GetHashCode(NormalizeNewlines(obj));
+        return _comparer.GetHashCode(obj.ReplaceLineEndings());
     }
-
-    private static string NormalizeNewlines(string input) => _lineEndingRegex.Replace(input, Crlf);
 }
