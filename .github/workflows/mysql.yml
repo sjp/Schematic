@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tag: [8, latest]
+        tag: [8.0, 8.1, latest]
     services:
       mysql:
         image: mysql:${{ matrix.tag }}
