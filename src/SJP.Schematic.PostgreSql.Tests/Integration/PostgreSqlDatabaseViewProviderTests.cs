@@ -228,7 +228,12 @@ internal sealed class PostgreSqlDatabaseViewProviderTests : PostgreSqlTest
         var view = await GetViewAsync(viewName).ConfigureAwait(false);
 
         var definition = view.Definition;
-        const string expected = @" SELECT view_test_table_1.table_id AS test
+        var version = await Dialect.GetDatabaseVersionAsync(Connection).ConfigureAwait(false);
+
+        var expected = version.Major >= 16
+            ? @" SELECT table_id AS test
+   FROM view_test_table_1;"
+            : @" SELECT view_test_table_1.table_id AS test
    FROM view_test_table_1;";
 
         Assert.That(definition, Is.EqualTo(expected).Using(new LineEndingInvariantStringComparer()));
