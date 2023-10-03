@@ -75,7 +75,7 @@ public class SqliteDialect : DatabaseDialect
     private static async Task<Version> GetDatabaseVersionAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
         var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken).ConfigureAwait(false);
-        return Version.Parse(versionStr);
+        return Version.Parse(versionStr!);
     }
 
     private const string DatabaseDisplayVersionQuerySql = "select sqlite_version()";

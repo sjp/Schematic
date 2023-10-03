@@ -311,10 +311,10 @@ public class ConnectionPragma : ISqliteConnectionPragma
     public async Task<Encoding> EncodingAsync(CancellationToken cancellationToken = default)
     {
         var encodingName = await DbConnection.ExecuteScalarAsync<string>(EncodingReadQuery, cancellationToken).ConfigureAwait(false);
-        if (!NameEncodingMapping.ContainsKey(encodingName))
+        if (!NameEncodingMapping.TryGetValue(encodingName!, out var encoding))
             throw new InvalidOperationException("Unknown and unsupported encoding found: " + encodingName);
 
-        return NameEncodingMapping[encodingName];
+        return encoding;
     }
 
     /// <summary>
