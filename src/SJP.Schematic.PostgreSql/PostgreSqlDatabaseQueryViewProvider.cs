@@ -163,7 +163,7 @@ public class PostgreSqlDatabaseQueryViewProvider : IDatabaseViewProvider
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A string representing the definition of a view.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
-    protected Task<string> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
+    protected Task<string?> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
 

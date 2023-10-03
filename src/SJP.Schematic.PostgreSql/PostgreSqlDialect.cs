@@ -53,7 +53,7 @@ public class PostgreSqlDialect : DatabaseDialect
     {
         ArgumentNullException.ThrowIfNull(connection);
 
-        return connection.DbConnection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken);
+        return connection.DbConnection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken)!;
     }
 
     private const string DatabaseDisplayVersionQuerySql = "select pg_catalog.version() as DatabaseVersion";
@@ -75,7 +75,7 @@ public class PostgreSqlDialect : DatabaseDialect
     private static async Task<Version> GetDatabaseVersionAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
         var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
-        return ParsePostgresVersionString(versionStr) ?? new Version(0, 0);
+        return ParsePostgresVersionString(versionStr!) ?? new Version(0, 0);
     }
 
     private const string DatabaseVersionQuerySql = "select current_setting('server_version_num') as DatabaseVersion";

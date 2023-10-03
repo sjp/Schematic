@@ -88,7 +88,7 @@ public class MySqlDialect : DatabaseDialect
     private static async Task<Version> GetDatabaseVersionAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
         var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
-        return ParseMySqlVersion(versionStr);
+        return ParseMySqlVersion(versionStr!);
     }
 
     /// <summary>

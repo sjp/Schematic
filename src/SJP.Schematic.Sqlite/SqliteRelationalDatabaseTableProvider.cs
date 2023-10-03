@@ -941,11 +941,11 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             cancellationToken
         ).ConfigureAwait(false);
 
-        return _tableParserCache.GetOrAdd(tableSql, sql => new Lazy<ParsedTableData>(() =>
+        return _tableParserCache.GetOrAdd(tableSql!, sql => new Lazy<ParsedTableData>(() =>
         {
             var tokenizeResult = Tokenizer.TryTokenize(sql);
             if (!tokenizeResult.HasValue)
-                throw new SqliteTableParsingException(tableName, tableSql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
+                throw new SqliteTableParsingException(tableName, tableSql!, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
 
             var tokens = tokenizeResult.Value;
             return TableParser.ParseTokens(sql, tokens);
@@ -963,7 +963,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         if (schema.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(schema));
 
-        return _dbPragmaCache.GetOrAdd(schema, _ => new DatabasePragma(Connection, schema));
+        return _dbPragmaCache.GetOrAdd(schema, s => new DatabasePragma(Connection, s));
     }
 
     /// <summary>

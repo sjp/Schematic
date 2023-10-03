@@ -47,7 +47,7 @@ public class SqlServerDialect : DatabaseDialect
     {
         ArgumentNullException.ThrowIfNull(connection);
 
-        return connection.DbConnection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken);
+        return connection.DbConnection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken)!;
     }
 
     private const string DatabaseDisplayVersionQuerySql = "select @@version as DatabaseVersion";
@@ -69,7 +69,7 @@ public class SqlServerDialect : DatabaseDialect
     private static async Task<Version> GetDatabaseVersionAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
         var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(GetDatabaseVersion.Sql, cancellationToken).ConfigureAwait(false);
-        return Version.Parse(versionStr);
+        return Version.Parse(versionStr!);
     }
 
     /// <summary>

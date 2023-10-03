@@ -154,16 +154,16 @@ public static class ConnectionExtensions
     /// <returns>A single scalar value.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>, or <paramref name="sql"/> is <c>null</c>, empty, or whitespace.</exception>
     /// <remarks>If the results contain more than one column or row, the value of the first column of the first row is taken.</remarks>
-    public static Task<T> ExecuteScalarAsync<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
+    public static Task<T?> ExecuteScalarAsync<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(connectionFactory);
         if (sql.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(sql));
 
-        return ExecuteScalarAsyncCore<T>(connectionFactory, sql, cancellationToken);
+        return ExecuteScalarAsyncCore<T?>(connectionFactory, sql, cancellationToken);
     }
 
-    private static async Task<T> ExecuteScalarAsyncCore<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
+    private static async Task<T?> ExecuteScalarAsyncCore<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
     {
         var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
 
@@ -185,7 +185,7 @@ public static class ConnectionExtensions
     /// <returns>A single scalar value.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>, <paramref name="parameters"/> is <c>null</c>, or <paramref name="sql"/> is <c>null</c>, empty, or whitespace.</exception>
     /// <remarks>If the results contain more than one column or row, the value of the first column of the first row is taken.</remarks>
-    public static Task<TResult> ExecuteScalarAsync<TResult>(this IDbConnectionFactory connectionFactory, string sql, ISqlQuery<TResult> parameters, CancellationToken cancellationToken)
+    public static Task<TResult?> ExecuteScalarAsync<TResult>(this IDbConnectionFactory connectionFactory, string sql, ISqlQuery<TResult> parameters, CancellationToken cancellationToken)
         where TResult : notnull
     {
         ArgumentNullException.ThrowIfNull(connectionFactory);
@@ -196,7 +196,7 @@ public static class ConnectionExtensions
         return ExecuteScalarAsyncCore(connectionFactory, sql, parameters, cancellationToken);
     }
 
-    private static async Task<TResult> ExecuteScalarAsyncCore<TResult>(IDbConnectionFactory connectionFactory, string sql, ISqlQuery<TResult> parameters, CancellationToken cancellationToken)
+    private static async Task<TResult?> ExecuteScalarAsyncCore<TResult>(IDbConnectionFactory connectionFactory, string sql, ISqlQuery<TResult> parameters, CancellationToken cancellationToken)
         where TResult : notnull
     {
         var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);

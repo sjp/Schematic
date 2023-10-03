@@ -219,7 +219,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
         var columns = await LoadColumnsAsync(databasePragma, viewName, cancellationToken).ConfigureAwait(false);
         var definition = await LoadDefinitionAsync(viewName, cancellationToken).ConfigureAwait(false);
 
-        return new DatabaseView(viewName, definition, columns);
+        return new DatabaseView(viewName, definition!, columns);
     }
 
     /// <summary>
@@ -229,7 +229,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A string representing the definition of a view.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
-    protected Task<string> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
+    protected Task<string?> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
@@ -308,7 +308,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The runtime type name of a column value.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> or <paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
-    protected Task<string> GetTypeofColumnAsync(Identifier viewName, Identifier columnName, CancellationToken cancellationToken)
+    protected Task<string?> GetTypeofColumnAsync(Identifier viewName, Identifier columnName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
         ArgumentNullException.ThrowIfNull(columnName);

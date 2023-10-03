@@ -118,7 +118,7 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     private async Task<IDatabaseRoutine> LoadRoutineAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
         var definition = await LoadDefinitionAsync(routineName, cancellationToken).ConfigureAwait(false);
-        return new DatabaseRoutine(routineName, definition);
+        return new DatabaseRoutine(routineName, definition!);
     }
 
     /// <summary>
@@ -128,14 +128,14 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A routine definition.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
-    protected Task<string> LoadDefinitionAsync(Identifier routineName, CancellationToken cancellationToken)
+    protected Task<string?> LoadDefinitionAsync(Identifier routineName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(routineName);
 
         return LoadDefinitionAsyncCore(routineName, cancellationToken);
     }
 
-    private Task<string> LoadDefinitionAsyncCore(Identifier routineName, CancellationToken cancellationToken)
+    private Task<string?> LoadDefinitionAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
         return DbConnection.ExecuteScalarAsync(
             GetRoutineDefinition.Sql,
