@@ -38,7 +38,7 @@ public static class ConnectionExtensions
 
     private static async Task<IEnumerable<T>> QueryAsyncCore<T>(IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
     {
-        var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
+        var command = new CommandDefinition(sql, commandType: CommandType.Text, cancellationToken: cancellationToken);
 
         var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
         await using var _ = connection.WithDispose(connectionFactory);
@@ -71,7 +71,7 @@ public static class ConnectionExtensions
     private static async Task<IEnumerable<T>> QueryAsyncCore<T>(IDbConnectionFactory connectionFactory, string sql, ISqlQuery<T> parameters, CancellationToken cancellationToken)
         where T : notnull
     {
-        var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
+        var command = new CommandDefinition(sql, parameters, commandType: CommandType.Text, cancellationToken: cancellationToken);
 
         var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
         await using var _ = connection.WithDispose(connectionFactory);
@@ -199,7 +199,7 @@ public static class ConnectionExtensions
     private static async Task<TResult?> ExecuteScalarAsyncCore<TResult>(IDbConnectionFactory connectionFactory, string sql, ISqlQuery<TResult> parameters, CancellationToken cancellationToken)
         where TResult : notnull
     {
-        var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
+        var command = new CommandDefinition(sql, parameters, commandType: CommandType.Text, cancellationToken: cancellationToken);
 
         var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
         await using var _ = connection.WithDispose(connectionFactory);
@@ -227,7 +227,7 @@ public static class ConnectionExtensions
 
     private static async Task<int> ExecuteAsyncCore(IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
     {
-        var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
+        var command = new CommandDefinition(sql, commandType: CommandType.Text, cancellationToken: cancellationToken);
 
         var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
         await using var _ = connection.WithDispose(connectionFactory);
@@ -257,7 +257,7 @@ public static class ConnectionExtensions
 
     private static async Task<int> ExecuteAsyncCore(IDbConnectionFactory connectionFactory, string sql, object parameters, CancellationToken cancellationToken)
     {
-        var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
+        var command = new CommandDefinition(sql, parameters, commandType: CommandType.Text, cancellationToken: cancellationToken);
 
         var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
         await using var _ = connection.WithDispose(connectionFactory);
@@ -289,7 +289,7 @@ public static class ConnectionExtensions
     private static async Task<Option<T>> QueryFirstOrNoneAsyncCore<T>(IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
         where T : notnull
     {
-        var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
+        var command = new CommandDefinition(sql, commandType: CommandType.Text, cancellationToken: cancellationToken);
 
         var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
         await using var _ = connection.WithDispose(connectionFactory);
@@ -327,7 +327,7 @@ public static class ConnectionExtensions
     private static async Task<Option<TResult>> QueryFirstOrNoneAsyncCore<TResult>(IDbConnectionFactory connectionFactory, string sql, ISqlQuery<TResult> parameters, CancellationToken cancellationToken)
         where TResult : notnull
     {
-        var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
+        var command = new CommandDefinition(sql, parameters, commandType: CommandType.Text, cancellationToken: cancellationToken);
 
         var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
         await using var _ = connection.WithDispose(connectionFactory);
@@ -362,7 +362,7 @@ public static class ConnectionExtensions
     private static async Task<T> QuerySingleAsyncCore<T>(IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
         where T : notnull
     {
-        var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
+        var command = new CommandDefinition(sql, commandType: CommandType.Text, cancellationToken: cancellationToken);
 
         var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
         await using var _ = connection.WithDispose(connectionFactory);
@@ -395,7 +395,7 @@ public static class ConnectionExtensions
     private static async Task<TResult> QuerySingleAsyncCore<TResult>(IDbConnectionFactory connectionFactory, string sql, ISqlQuery<TResult> parameters, CancellationToken cancellationToken)
         where TResult : notnull
     {
-        var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
+        var command = new CommandDefinition(sql, parameters, commandType: CommandType.Text, cancellationToken: cancellationToken);
 
         var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
         await using var _ = connection.WithDispose(connectionFactory);
@@ -428,7 +428,7 @@ public static class ConnectionExtensions
     {
         try
         {
-            var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
+            var command = new CommandDefinition(sql, commandType: CommandType.Text, cancellationToken: cancellationToken);
 
             var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             await using var _ = connection.WithDispose(connectionFactory);
@@ -472,7 +472,7 @@ public static class ConnectionExtensions
     {
         try
         {
-            var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
+            var command = new CommandDefinition(sql, parameters, commandType: CommandType.Text, cancellationToken: cancellationToken);
 
             var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             await using var _ = connection.WithDispose(connectionFactory);
