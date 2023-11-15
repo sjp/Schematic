@@ -154,7 +154,7 @@ public class PocoDataAccessGenerator : IDataAccessGenerator
             new XAttribute("Sdk", "Microsoft.NET.Sdk"),
             new XElement(
                 "PropertyGroup",
-                new XElement("TargetFramework", "net7.0"),
+                new XElement("TargetFramework", "net8.0"),
                 new XElement("CheckForOverflowUnderflow", true),
                 new XElement("TreatWarningsAsErrors", true),
                 new XElement("Nullable", "enable"),

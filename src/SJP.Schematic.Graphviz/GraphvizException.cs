@@ -50,16 +50,6 @@ public class GraphvizException : Exception
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="GraphvizException" /> class.
-    /// </summary>
-    /// <param name="info">The information.</param>
-    /// <param name="context">The context.</param>
-    [ExcludeFromCodeCoverage]
-    protected GraphvizException(SerializationInfo info, StreamingContext context) : base(info, context)
-    {
-    }
-
-    /// <summary>
     /// The exit code of the graphviz process.
     /// </summary>
     /// <value>An exit code.</value>

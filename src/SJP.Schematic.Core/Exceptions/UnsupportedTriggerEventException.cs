@@ -41,16 +41,6 @@ public class UnsupportedTriggerEventException : SchematicException
     /// <summary>
     /// Initializes a new instance of the <see cref="UnsupportedTriggerEventException"/> class.
     /// </summary>
-    /// <param name="info">The <see cref="SerializationInfo" /> that holds the serialized object data about the exception being thrown.</param>
-    /// <param name="context">The <see cref="StreamingContext" /> that contains contextual information about the source or destination.</param>
-    [ExcludeFromCodeCoverage]
-    protected UnsupportedTriggerEventException(SerializationInfo info, StreamingContext context) : base(info, context)
-    {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="UnsupportedTriggerEventException"/> class.
-    /// </summary>
     /// <param name="tableName">The name of the table containing the trigger.</param>
     /// <param name="triggerEvent">The trigger event that is not supported.</param>
     public UnsupportedTriggerEventException(Identifier tableName, string triggerEvent)

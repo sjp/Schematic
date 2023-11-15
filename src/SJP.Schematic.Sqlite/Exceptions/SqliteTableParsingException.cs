@@ -43,16 +43,6 @@ public class SqliteTableParsingException : SchematicException
     /// <summary>
     /// Initializes a new instance of the <see cref="SqliteTableParsingException"/> class.
     /// </summary>
-    /// <param name="info">The <see cref="SerializationInfo" /> that holds the serialized object data about the exception being thrown.</param>
-    /// <param name="context">The <see cref="StreamingContext" /> that contains contextual information about the source or destination.</param>
-    [ExcludeFromCodeCoverage]
-    protected SqliteTableParsingException(SerializationInfo info, StreamingContext context) : base(info, context)
-    {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SqliteTableParsingException"/> class.
-    /// </summary>
     /// <param name="tableName">The table containing the trigger.</param>
     /// <param name="sql">The SQL which was unable to be parsed.</param>
     /// <param name="errorMessage">An error message.</param>

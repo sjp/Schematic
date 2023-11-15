@@ -19,9 +19,4 @@ internal class CommandException : Exception
         : base(message, innerException)
     {
     }
-
-    protected CommandException(SerializationInfo info, StreamingContext context)
-        : base(info, context)
-    {
-    }
 }
