@@ -35,7 +35,7 @@ create table test_table_1 (
     test_blob blob not null,
     test_datetime datetime default CURRENT_TIMESTAMP,
     test_string text,
-    test_string_with_default default 'test'
+    test_string_with_default text default 'test'
 )", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync(@"
 create table test_table_2 (
@@ -62,7 +62,7 @@ create table test_table_3 (
     test_blob blob not null,
     test_datetime datetime default CURRENT_TIMESTAMP,
     test_string text,
-    test_string_with_default default 'test'
+    test_string_with_default text default 'test'
 )", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync(@"
 create table test_table_4 (
@@ -74,7 +74,7 @@ create table test_table_4 (
     test_blob blob not null,
     test_datetime datetime default CURRENT_TIMESTAMP,
     test_string text,
-    test_string_with_default default 'test',
+    test_string_with_default text default 'test',
     test_table_3_fk1 integer,
     test_table_3_fk2 integer,
     test_table_3_fk3 integer,
@@ -371,8 +371,8 @@ namespace EFCoreTestNamespace.Main
         /// <summary>
         /// The <c>test_string_with_default</c> column.
         /// </summary>
-        [Column(""test_string_with_default"", TypeName = ""NUMERIC"")]
-        public decimal? TestStringWithDefault { get; set; }
+        [Column(""test_string_with_default"", TypeName = ""TEXT"")]
+        public string? TestStringWithDefault { get; set; }
     }
 }";
 
@@ -496,8 +496,8 @@ namespace EFCoreTestNamespace.Main
         /// <summary>
         /// The <c>test_string_with_default</c> column.
         /// </summary>
-        [Column(""test_string_with_default"", TypeName = ""NUMERIC"")]
-        public decimal? TestStringWithDefault { get; set; }
+        [Column(""test_string_with_default"", TypeName = ""TEXT"")]
+        public string? TestStringWithDefault { get; set; }
 
         /// <summary>
         /// The <c>fk_test_table_4_test_table_3_fk1</c> child key. Navigates from <c>test_table_3</c> to <c>test_table_4</c>.
@@ -587,8 +587,8 @@ namespace EFCoreTestNamespace.Main
         /// <summary>
         /// The <c>test_string_with_default</c> column.
         /// </summary>
-        [Column(""test_string_with_default"", TypeName = ""NUMERIC"")]
-        public decimal? TestStringWithDefault { get; set; }
+        [Column(""test_string_with_default"", TypeName = ""TEXT"")]
+        public string? TestStringWithDefault { get; set; }
 
         /// <summary>
         /// The <c>test_table_3_fk1</c> column.

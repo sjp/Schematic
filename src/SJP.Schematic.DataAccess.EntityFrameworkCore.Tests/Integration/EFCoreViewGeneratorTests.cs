@@ -33,7 +33,7 @@ create table test_view_table_1 (
     test_blob blob not null,
     test_datetime datetime default CURRENT_TIMESTAMP,
     test_string text,
-    test_string_with_default default 'test'
+    test_string_with_default text default 'test'
 )", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync("create view test_view_1 as select * from test_view_table_1", CancellationToken.None).ConfigureAwait(false);
     }
@@ -165,8 +165,8 @@ namespace EFCoreTestNamespace.Main
         /// <summary>
         /// The <c>test_string_with_default</c> column.
         /// </summary>
-        [Column(""test_string_with_default"", TypeName = ""NUMERIC"")]
-        public decimal? TestStringWithDefault { get; set; }
+        [Column(""test_string_with_default"", TypeName = ""TEXT"")]
+        public string? TestStringWithDefault { get; set; }
     }
 }";
 
@@ -232,8 +232,8 @@ namespace EFCoreTestNamespace.Main
         /// <summary>
         /// The <c>test_string_with_default</c> column.
         /// </summary>
-        [Column(""test_string_with_default"", TypeName = ""NUMERIC"")]
-        public decimal? TestStringWithDefault { get; set; }
+        [Column(""test_string_with_default"", TypeName = ""TEXT"")]
+        public string? TestStringWithDefault { get; set; }
     }
 }";
 
@@ -301,8 +301,8 @@ namespace EFCoreTestNamespace.Main
         /// <summary>
         /// The <c>test_string_with_default</c> column.
         /// </summary>
-        [Column(""test_string_with_default"", TypeName = ""NUMERIC"")]
-        public decimal? TestStringWithDefault { get; set; }
+        [Column(""test_string_with_default"", TypeName = ""TEXT"")]
+        public string? TestStringWithDefault { get; set; }
     }
 }";
 }

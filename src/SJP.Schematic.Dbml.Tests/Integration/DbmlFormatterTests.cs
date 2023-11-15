@@ -29,7 +29,7 @@ create table test_table_1 (
     test_blob blob not null,
     test_datetime datetime default CURRENT_TIMESTAMP,
     test_string text,
-    test_string_with_default default 'test'
+    test_string_with_default text default 'test'
 )", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync(@"
 create table test_table_2 (
@@ -56,7 +56,7 @@ create table test_table_3 (
     test_blob blob not null,
     test_datetime datetime default CURRENT_TIMESTAMP,
     test_string text,
-    test_string_with_default default 'test'
+    test_string_with_default text default 'test'
 )", CancellationToken.None).ConfigureAwait(false);
         await DbConnection.ExecuteAsync(@"
 create table test_table_4 (
@@ -68,7 +68,7 @@ create table test_table_4 (
     test_blob blob not null,
     test_datetime datetime default CURRENT_TIMESTAMP,
     test_string text,
-    test_string_with_default default 'test',
+    test_string_with_default text default 'test',
     test_table_3_fk1 integer,
     test_table_3_fk2 integer,
     test_table_3_fk3 integer,
@@ -178,7 +178,7 @@ create table test_table_9 (
     test_blob BLOB [not null]
     test_datetime NUMERIC [null, default: ""CURRENT_TIMESTAMP""]
     test_string TEXT [null]
-    test_string_with_default NUMERIC [null, default: ""'test'""]
+    test_string_with_default TEXT [null, default: ""'test'""]
 }";
 
     private const string TestTable2Dbml = @"Table main_test_table_2 {
