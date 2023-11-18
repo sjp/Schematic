@@ -172,6 +172,6 @@ internal sealed class MainRenderer : ITemplateRenderer
 
         using var writer = File.CreateText(outputPath);
         await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
-        await writer.FlushAsync().ConfigureAwait(false);
+        await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
     }
 }

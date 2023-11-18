@@ -58,7 +58,7 @@ internal sealed class TableOrderingRenderer : ITemplateRenderer
         }
 
         await writer.WriteAsync(insertionOrderDoc.AsMemory(), cancellationToken).ConfigureAwait(false);
-        await writer.FlushAsync().ConfigureAwait(false);
+        await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
     }
 
     private async Task ExportDeletionOrderAsync(bool hasCycles, CancellationToken cancellationToken)
@@ -80,7 +80,7 @@ internal sealed class TableOrderingRenderer : ITemplateRenderer
         }
 
         await writer.WriteAsync(deletionOrderDoc.AsMemory(), cancellationToken).ConfigureAwait(false);
-        await writer.FlushAsync().ConfigureAwait(false);
+        await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
     }
 
     private string BuildOrderDocument(IEnumerable<Identifier> tableNames)
