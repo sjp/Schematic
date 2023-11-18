@@ -69,7 +69,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     }
 
     private readonly AsyncLock _lock = new();
-    private readonly Dictionary<Identifier, AsyncLazy<IDatabaseSequence>> _sequencesCache = new();
+    private readonly Dictionary<Identifier, AsyncLazy<IDatabaseSequence>> _sequencesCache = [];
 
     [Test]
     public async Task GetSequence_WhenSequencePresent_ReturnsSequence()

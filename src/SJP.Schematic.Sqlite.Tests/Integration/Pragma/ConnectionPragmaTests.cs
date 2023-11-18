@@ -30,7 +30,7 @@ internal sealed class ConnectionPragmaTests : SqliteTest
     [Test]
     public static async Task DatabasePragmasAsync_ForNewDatabase_ShouldBeMainAndTempSchemasOnly()
     {
-        var expectedSchemas = new HashSet<string>(new[] { "main", "temp" }, StringComparer.OrdinalIgnoreCase);
+        var expectedSchemas = new HashSet<string>(["main", "temp"], StringComparer.OrdinalIgnoreCase);
 
         var connectionFactory = CreateConnectionFactory();
         var connPragma = CreateConnectionPragma(connectionFactory);
@@ -45,7 +45,7 @@ internal sealed class ConnectionPragmaTests : SqliteTest
     [Test]
     public static async Task DatabaseListAsync_ForNewDatabase_ShouldBeMainAndTempSchemasOnly()
     {
-        var expectedSchemas = new HashSet<string>(new[] { "main", "temp" }, StringComparer.OrdinalIgnoreCase);
+        var expectedSchemas = new HashSet<string>(["main", "temp"], StringComparer.OrdinalIgnoreCase);
 
         var connectionFactory = CreateConnectionFactory();
         var connPragma = CreateConnectionPragma(connectionFactory);

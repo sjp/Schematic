@@ -188,12 +188,12 @@ internal sealed class OracleTokenizer : Tokenizer<OracleToken>
         return false;
     }
 
-    private static readonly char[] AdditionalIdentifierChars = new[] { '$', '#', '_' };
+    private static readonly char[] AdditionalIdentifierChars = ['$', '#', '_'];
 
     private static readonly OracleToken[] SimpleOps = new OracleToken[128];
 
     private static readonly OracleKeyword[] SqlKeywords =
-    {
+    [
         new OracleKeyword("add", OracleToken.Add),
         new OracleKeyword("all", OracleToken.All),
         new OracleKeyword("alter", OracleToken.Alter),
@@ -382,5 +382,5 @@ internal sealed class OracleTokenizer : Tokenizer<OracleToken>
         new OracleKeyword("with", OracleToken.With),
         new OracleKeyword("within", OracleToken.Within),
         new OracleKeyword("writetext", OracleToken.WriteText)
-    };
+    ];
 }

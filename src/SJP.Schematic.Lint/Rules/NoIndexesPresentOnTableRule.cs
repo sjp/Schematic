@@ -51,7 +51,7 @@ public class NoIndexesPresentOnTableRule : Rule, ITableRule
             && table.Indexes.Count == 0;
 
         return noIndexesPresent
-            ? new[] { BuildMessage(table.Name) }
+            ? [BuildMessage(table.Name)]
             : Array.Empty<IRuleMessage>();
     }
 

@@ -188,7 +188,7 @@ public class SqliteTokenizer : Tokenizer<SqliteToken>
     private static readonly SqliteToken[] SimpleOps = new SqliteToken[128];
 
     private static readonly SqliteKeyword[] SqlKeywords =
-    {
+    [
         new SqliteKeyword("and", SqliteToken.And),
         new SqliteKeyword("is", SqliteToken.Is),
         new SqliteKeyword("like", SqliteToken.Like),
@@ -325,5 +325,5 @@ public class SqliteTokenizer : Tokenizer<SqliteToken>
         new SqliteKeyword("where", SqliteToken.Where),
         new SqliteKeyword("with", SqliteToken.With),
         new SqliteKeyword("without", SqliteToken.Without)
-    };
+    ];
 }

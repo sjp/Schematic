@@ -303,7 +303,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 {
                     var order = string.Equals(row.IsDescending, Constants.Y, StringComparison.Ordinal) ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
                     var indexColumns = columnLookup.ContainsKey(row.Column)
-                        ? new[] { columnLookup[row.Column] }
+                        ? [columnLookup[row.Column]]
                         : Array.Empty<IDatabaseColumn>();
                     var expression = Dialect.QuoteName(row.Column);
                     return new DatabaseIndexColumn(expression, indexColumns, order);

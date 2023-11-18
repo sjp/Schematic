@@ -63,7 +63,7 @@ public class NoSurrogatePrimaryKeyRule : Rule, ITableRule
                     var areAllColumnsFks = pk.Columns.All(c => fkColumns.Contains(c.Name.LocalName));
                     return areAllColumnsFks
                         ? Array.Empty<IRuleMessage>()
-                        : new[] { BuildMessage(table.Name) };
+                        : [BuildMessage(table.Name)];
                 },
                 None: Array.Empty<IRuleMessage>
             );

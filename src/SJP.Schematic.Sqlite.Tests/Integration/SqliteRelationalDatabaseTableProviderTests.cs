@@ -344,7 +344,7 @@ end", CancellationToken.None).ConfigureAwait(false);
     }
 
     private readonly AsyncLock _lock = new();
-    private readonly Dictionary<Identifier, AsyncLazy<IRelationalDatabaseTable>> _tablesCache = new();
+    private readonly Dictionary<Identifier, AsyncLazy<IRelationalDatabaseTable>> _tablesCache = [];
 
     [Test]
     public async Task GetTable_WhenTablePresent_ReturnsTable()

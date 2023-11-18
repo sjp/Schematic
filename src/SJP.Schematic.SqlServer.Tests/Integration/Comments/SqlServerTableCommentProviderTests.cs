@@ -135,7 +135,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     }
 
     private readonly AsyncLock _lock = new();
-    private readonly Dictionary<Identifier, AsyncLazy<IRelationalDatabaseTableComments>> _commentsCache = new();
+    private readonly Dictionary<Identifier, AsyncLazy<IRelationalDatabaseTableComments>> _commentsCache = [];
 
     [Test]
     public async Task GetTableComments_WhenTablePresent_ReturnsTableComment()

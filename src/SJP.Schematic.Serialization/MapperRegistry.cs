@@ -18,7 +18,7 @@ internal static class MapperRegistry
 {
     private sealed record TypePair(Type SourceType, Type TargetType);
 
-    private static readonly Dictionary<TypePair, object> _cache = new();
+    private static readonly Dictionary<TypePair, object> _cache = [];
 
     static MapperRegistry()
     {

@@ -64,7 +64,7 @@ END;", CancellationToken.None).ConfigureAwait(false);
     }
 
     private readonly AsyncLock _lock = new();
-    private readonly Dictionary<Identifier, AsyncLazy<IDatabaseRoutine>> _routinesCache = new();
+    private readonly Dictionary<Identifier, AsyncLazy<IDatabaseRoutine>> _routinesCache = [];
 
     [Test]
     public async Task GetRoutine_WhenRoutinePresent_ReturnsRoutine()

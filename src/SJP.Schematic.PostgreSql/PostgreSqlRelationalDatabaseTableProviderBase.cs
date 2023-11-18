@@ -773,8 +773,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     {
         if (precision <= 0)
             return 0;
-        if (radix < 0)
-            throw new ArgumentOutOfRangeException(nameof(radix));
+        ArgumentOutOfRangeException.ThrowIfNegative(radix);
 
         var newPrecision = Convert.ToInt64(Math.Pow(precision, radix));
         var newPrecisionStr = newPrecision.ToString(CultureInfo.InvariantCulture);
@@ -792,12 +791,9 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="precision"/> or <paramref name="scale"/> or <paramref name="radix"/> are less than zero.</exception>
     protected static INumericPrecision CreatePrecisionWithScaleFromBase(int precision, int scale, int radix)
     {
-        if (precision < 0)
-            throw new ArgumentOutOfRangeException(nameof(precision));
-        if (scale < 0)
-            throw new ArgumentOutOfRangeException(nameof(scale));
-        if (radix < 0)
-            throw new ArgumentOutOfRangeException(nameof(radix));
+        ArgumentOutOfRangeException.ThrowIfNegative(precision);
+        ArgumentOutOfRangeException.ThrowIfNegative(scale);
+        ArgumentOutOfRangeException.ThrowIfNegative(radix);
 
         var newPrecision = Convert.ToInt64(Math.Pow(precision, radix));
         var newPrecisionStr = newPrecision.ToString(CultureInfo.InvariantCulture);

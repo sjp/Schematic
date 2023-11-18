@@ -57,7 +57,7 @@ internal sealed class OracleDatabaseQueryViewProviderTests : OracleTest
     }
 
     private readonly AsyncLock _lock = new();
-    private readonly Dictionary<Identifier, AsyncLazy<IDatabaseView>> _viewsCache = new();
+    private readonly Dictionary<Identifier, AsyncLazy<IDatabaseView>> _viewsCache = [];
 
     [Test]
     public async Task GetView_WhenViewPresent_ReturnsView()

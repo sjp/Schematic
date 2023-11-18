@@ -283,7 +283,7 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
                 var uniqueTrueArgument = AttributeArgument(
                     LiteralExpression(SyntaxKind.TrueLiteralExpression)
                 );
-                attrParams = new[] { uniqueTrueArgument }.Concat(attrParams).ToList();
+                attrParams = [uniqueTrueArgument, ..attrParams];
             }
 
             var compositeIndexAttribute = AttributeList(

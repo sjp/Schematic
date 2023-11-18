@@ -65,7 +65,7 @@ END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
     }
 
     private readonly AsyncLock _lock = new();
-    private readonly Dictionary<Identifier, AsyncLazy<IOracleDatabasePackage>> _packagesCache = new();
+    private readonly Dictionary<Identifier, AsyncLazy<IOracleDatabasePackage>> _packagesCache = [];
 
     [Test]
     public async Task GetPackage_WhenPackagePresent_ReturnsPackage()

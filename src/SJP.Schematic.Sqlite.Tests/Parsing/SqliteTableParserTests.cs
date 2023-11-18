@@ -13,7 +13,7 @@ internal static class SqliteTableParserTests
     public static void ParseTokens_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentNullException(string definition)
     {
         var parser = new SqliteTableParser();
-        var tokens = new TokenList<SqliteToken>(new[] { new Token<SqliteToken>(SqliteToken.Create, new TextSpan("CREATE")) });
+        var tokens = new TokenList<SqliteToken>([new Token<SqliteToken>(SqliteToken.Create, new TextSpan("CREATE"))]);
 
         Assert.That(() => parser.ParseTokens(definition, tokens), Throws.ArgumentNullException);
     }

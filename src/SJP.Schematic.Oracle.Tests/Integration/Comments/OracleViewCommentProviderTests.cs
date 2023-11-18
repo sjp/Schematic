@@ -68,7 +68,7 @@ internal sealed class OracleViewCommentProviderTests : OracleTest
     }
 
     private readonly AsyncLock _lock = new();
-    private readonly Dictionary<Identifier, AsyncLazy<IDatabaseViewComments>> _commentsCache = new();
+    private readonly Dictionary<Identifier, AsyncLazy<IDatabaseViewComments>> _commentsCache = [];
 
     [Test]
     public async Task GetViewComments_WhenViewPresent_ReturnsViewComment()

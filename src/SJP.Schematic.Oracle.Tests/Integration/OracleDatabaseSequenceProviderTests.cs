@@ -69,7 +69,7 @@ internal sealed class OracleDatabaseSequenceProviderTests : OracleTest
     }
 
     private readonly AsyncLock _lock = new();
-    private readonly Dictionary<Identifier, AsyncLazy<IDatabaseSequence>> _sequencesCache = new();
+    private readonly Dictionary<Identifier, AsyncLazy<IDatabaseSequence>> _sequencesCache = [];
 
     private const int SequenceDefaultCache = 20;
     private const int SequenceDefaultMinValue = 1;

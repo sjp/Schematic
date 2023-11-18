@@ -55,7 +55,7 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
     }
 
     private readonly AsyncLock _lock = new();
-    private readonly Dictionary<Identifier, AsyncLazy<IDatabaseSequenceComments>> _commentsCache = new();
+    private readonly Dictionary<Identifier, AsyncLazy<IDatabaseSequenceComments>> _commentsCache = [];
 
     [Test]
     public async Task GetSequenceComments_WhenSequencePresent_ReturnsSequenceComment()
