@@ -2,15 +2,19 @@
 	"name": "Schematic Development",
 	"build": {
 		"dockerfile": "Dockerfile",
-		"args": { 
+		"args": {
 			"VARIANT": "8.0",
 			"INSTALL_NODE": "false",
 			"NODE_VERSION": "lts/*"
 		}
 	},
-	"settings": { },
-	"extensions": [
-		"ms-dotnettools.csharp"
-	],
+	"customizations": {
+		"vscode": {
+			"settings": { },
+			"extensions": [
+				"ms-dotnettools.csharp"
+			]
+		}
+	},
 	"remoteUser": "vscode"
 }
