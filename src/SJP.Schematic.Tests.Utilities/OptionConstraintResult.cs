@@ -28,14 +28,14 @@ public sealed class OptionConstraintResult : ConstraintResult
     /// <param name="writer">The writer on which the actual value is displayed</param>
     public override void WriteActualValueTo(MessageWriter writer)
     {
-        var value = (bool)ActualValue;
+        var value = (bool?)ActualValue;
         if (ExpectedSome)
         {
-            writer.Write(value ? "Some" : "None");
+            writer.Write(value.GetValueOrDefault() ? "Some" : "None");
         }
         else
         {
-            writer.Write(value ? "None" : "Some");
+            writer.Write(value.GetValueOrDefault() ? "None" : "Some");
         }
     }
 }

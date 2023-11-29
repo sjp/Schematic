@@ -14,7 +14,7 @@ public sealed class NoneConstraint : Constraint
     /// The Description of what this constraint tests, for
     /// use in messages and in the ConstraintResult. Always "None".
     /// </summary>
-    public override string Description { get; protected set; } = "None";
+    public override string Description { get; } = "None";
 
     /// <summary>
     /// Applies the constraint to an actual value, returning a <see cref="ConstraintResult"/>.

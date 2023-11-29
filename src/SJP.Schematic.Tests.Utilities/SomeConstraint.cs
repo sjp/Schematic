@@ -14,7 +14,7 @@ public sealed class SomeConstraint : Constraint
     /// The Description of what this constraint tests, for
     /// use in messages and in the ConstraintResult. Always "Some".
     /// </summary>
-    public override string Description { get; protected set; } = "Some";
+    public override string Description { get; } = "Some";
 
     /// <summary>
     /// Applies the constraint to an actual value, returning a <see cref="ConstraintResult"/>.
