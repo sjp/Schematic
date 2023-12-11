@@ -18,7 +18,7 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
     public static async Task Serialize_WhenInvoked_ExportsWithoutError()
     {
         var comments = SampleComments;
-        using var jsonOutputStream = new MemoryStream();
+        await using var jsonOutputStream = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream, comments).ConfigureAwait(false);
         var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
 
@@ -34,7 +34,7 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
     {
         var comments = new EmptyRelationalDatabaseCommentProvider(new IdentifierDefaults(null, null, "main"));
 
-        using var jsonOutputStream = new MemoryStream();
+        await using var jsonOutputStream = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream, comments).ConfigureAwait(false);
 
         jsonOutputStream.Seek(0, SeekOrigin.Begin);
@@ -48,14 +48,14 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
     {
         var comments = new EmptyRelationalDatabaseCommentProvider(new IdentifierDefaults(null, null, "main"));
 
-        using var jsonOutputStream = new MemoryStream();
+        await using var jsonOutputStream = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream, comments).ConfigureAwait(false);
         var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
 
         jsonOutputStream.Seek(0, SeekOrigin.Begin);
         var importedComments = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
 
-        using var jsonOutputStream2 = new MemoryStream();
+        await using var jsonOutputStream2 = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream2, importedComments).ConfigureAwait(false);
         var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
 
@@ -72,7 +72,7 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
     {
         var comments = SampleComments;
 
-        using var jsonOutputStream = new MemoryStream();
+        await using var jsonOutputStream = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream, comments).ConfigureAwait(false);
 
         jsonOutputStream.Seek(0, SeekOrigin.Begin);
@@ -86,14 +86,14 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
     {
         var comments = SampleComments;
 
-        using var jsonOutputStream = new MemoryStream();
+        await using var jsonOutputStream = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream, comments).ConfigureAwait(false);
         var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
 
         jsonOutputStream.Seek(0, SeekOrigin.Begin);
         var importedComments = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
 
-        using var jsonOutputStream2 = new MemoryStream();
+        await using var jsonOutputStream2 = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream2, importedComments).ConfigureAwait(false);
         var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
 

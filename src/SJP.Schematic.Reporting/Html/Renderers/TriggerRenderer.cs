@@ -58,7 +58,7 @@ internal sealed class TriggerRenderer : ITemplateRenderer
                 var container = new Container(renderedTable, pageTitle, "../../../");
                 var renderedPage = await Formatter.RenderTemplateAsync(container, cancellationToken).ConfigureAwait(false);
 
-                using var writer = File.CreateText(outputPath);
+                await using var writer = File.CreateText(outputPath);
                 await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
                 await writer.FlushAsync().ConfigureAwait(false);
             });

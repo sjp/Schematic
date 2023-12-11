@@ -45,7 +45,7 @@ internal sealed class TableOrderingRenderer : ITemplateRenderer
         var insertionOrder = orderer.GetInsertionOrder(Tables);
         var insertionOutputPath = Path.Combine(ExportDirectory.FullName, "insertion-order.sql");
         var insertionOrderDoc = BuildOrderDocument(insertionOrder);
-        using var writer = File.CreateText(insertionOutputPath);
+        await using var writer = File.CreateText(insertionOutputPath);
         await writer.WriteLineAsync("-- This is the insertion order for the database.".AsMemory(), cancellationToken).ConfigureAwait(false);
         await writer.WriteLineAsync("-- This may not be correct for your database or data relationships.".AsMemory(), cancellationToken).ConfigureAwait(false);
         await writer.WriteLineAsync("-- Please check before relying upon this information.".AsMemory(), cancellationToken).ConfigureAwait(false);
@@ -67,7 +67,7 @@ internal sealed class TableOrderingRenderer : ITemplateRenderer
         var deletionOrder = orderer.GetDeletionOrder(Tables);
         var deletionOutputPath = Path.Combine(ExportDirectory.FullName, "deletion-order.sql");
         var deletionOrderDoc = BuildOrderDocument(deletionOrder);
-        using var writer = File.CreateText(deletionOutputPath);
+        await using var writer = File.CreateText(deletionOutputPath);
         await writer.WriteLineAsync("-- This is the deletion order for the database.".AsMemory(), cancellationToken).ConfigureAwait(false);
         await writer.WriteLineAsync("-- This may not be correct for your database or data relationships.".AsMemory(), cancellationToken).ConfigureAwait(false);
         await writer.WriteLineAsync("-- Please check before relying upon this information.".AsMemory(), cancellationToken).ConfigureAwait(false);

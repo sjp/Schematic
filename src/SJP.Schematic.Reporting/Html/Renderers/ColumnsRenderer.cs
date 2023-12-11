@@ -64,7 +64,7 @@ internal sealed class ColumnsRenderer : ITemplateRenderer
             ExportDirectory.Create();
         var outputPath = Path.Combine(ExportDirectory.FullName, "columns.html");
 
-        using var writer = File.CreateText(outputPath);
+        await using var writer = File.CreateText(outputPath);
         await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
         await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
     }

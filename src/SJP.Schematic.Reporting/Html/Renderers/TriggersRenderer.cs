@@ -53,7 +53,7 @@ internal sealed class TriggersRenderer : ITemplateRenderer
             ExportDirectory.Create();
         var outputPath = Path.Combine(ExportDirectory.FullName, "triggers.html");
 
-        using var writer = File.CreateText(outputPath);
+        await using var writer = File.CreateText(outputPath);
         await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
         await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
     }

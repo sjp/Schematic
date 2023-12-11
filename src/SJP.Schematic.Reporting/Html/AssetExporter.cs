@@ -55,11 +55,11 @@ internal sealed class AssetExporter
             if (targetFile.Directory != null && !targetFile.Directory.Exists)
                 targetFile.Directory!.Create();
 
-            using var stream = targetFile.OpenWrite();
-            using var resourceStream = resourceFile.CreateReadStream();
+            await using var stream = targetFile.OpenWrite();
+            await using var resourceStream = resourceFile.CreateReadStream();
             if (isGzipped)
             {
-                using var gzipStream = new GZipStream(resourceStream, CompressionMode.Decompress);
+                await using var gzipStream = new GZipStream(resourceStream, CompressionMode.Decompress);
                 await gzipStream.CopyToAsync(stream, cancellationToken).ConfigureAwait(false);
                 await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
             }

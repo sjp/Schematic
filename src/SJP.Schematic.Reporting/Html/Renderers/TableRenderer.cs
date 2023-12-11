@@ -79,7 +79,7 @@ internal sealed class TableRenderer : ITemplateRenderer
                     linkNode.SetAttributeValue(xlinkNs + "show", "new");
                 }
 
-                using (var writer = new StringWriter())
+                await using (var writer = new StringWriter())
                 {
                     var svgRoot = doc.Root!;
                     svgRoot.Attribute("width")?.Remove();
@@ -100,7 +100,7 @@ internal sealed class TableRenderer : ITemplateRenderer
                     linkNode.Name = svgNs + "g";
                 }
 
-                using var svgFileStream = File.OpenWrite(svgFilePath);
+                await using var svgFileStream = File.OpenWrite(svgFilePath);
                 await doc.SaveAsync(svgFileStream, SaveOptions.DisableFormatting, cancellationToken).ConfigureAwait(false);
             }
 
@@ -113,7 +113,7 @@ internal sealed class TableRenderer : ITemplateRenderer
             var tableContainer = new Container(renderedTable, pageTitle, "../");
             var renderedPage = await Formatter.RenderTemplateAsync(tableContainer, cancellationToken).ConfigureAwait(false);
 
-            using (var writer = File.CreateText(outputPath))
+            await using (var writer = File.CreateText(outputPath))
             {
                 await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
                 await writer.FlushAsync().ConfigureAwait(false);

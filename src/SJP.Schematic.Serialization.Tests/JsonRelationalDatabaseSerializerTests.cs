@@ -18,7 +18,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     public async Task Serialize_WhenInvoked_ExportsWithoutError()
     {
         var db = GetDatabase();
-        using var jsonOutputStream = new MemoryStream();
+        await using var jsonOutputStream = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
         var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
 
@@ -34,7 +34,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     {
         var db = new EmptyRelationalDatabase(new IdentifierDefaults(null, null, "main"));
 
-        using var jsonOutputStream = new MemoryStream();
+        await using var jsonOutputStream = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
 
         jsonOutputStream.Seek(0, SeekOrigin.Begin);
@@ -48,14 +48,14 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     {
         var db = new EmptyRelationalDatabase(new IdentifierDefaults(null, null, "main"));
 
-        using var jsonOutputStream = new MemoryStream();
+        await using var jsonOutputStream = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
         var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
 
         jsonOutputStream.Seek(0, SeekOrigin.Begin);
         var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
 
-        using var jsonOutputStream2 = new MemoryStream();
+        await using var jsonOutputStream2 = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
         var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
 
@@ -72,7 +72,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     {
         var db = GetDatabase();
 
-        using var jsonOutputStream = new MemoryStream();
+        await using var jsonOutputStream = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
 
         jsonOutputStream.Seek(0, SeekOrigin.Begin);
@@ -86,14 +86,14 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     {
         var db = GetDatabase();
 
-        using var jsonOutputStream = new MemoryStream();
+        await using var jsonOutputStream = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
         var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
 
         jsonOutputStream.Seek(0, SeekOrigin.Begin);
         var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
 
-        using var jsonOutputStream2 = new MemoryStream();
+        await using var jsonOutputStream2 = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
         var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
 
@@ -135,7 +135,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             routines
         );
 
-        using var jsonOutputStream = new MemoryStream();
+        await using var jsonOutputStream = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
 
         jsonOutputStream.Seek(0, SeekOrigin.Begin);
@@ -173,14 +173,14 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             routines
         );
 
-        using var jsonOutputStream = new MemoryStream();
+        await using var jsonOutputStream = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
         var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
 
         jsonOutputStream.Seek(0, SeekOrigin.Begin);
         var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
 
-        using var jsonOutputStream2 = new MemoryStream();
+        await using var jsonOutputStream2 = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
         var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
 
@@ -213,7 +213,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             routines
         );
 
-        using var jsonOutputStream = new MemoryStream();
+        await using var jsonOutputStream = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
 
         jsonOutputStream.Seek(0, SeekOrigin.Begin);
@@ -243,14 +243,14 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             routines
         );
 
-        using var jsonOutputStream = new MemoryStream();
+        await using var jsonOutputStream = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
         var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
 
         jsonOutputStream.Seek(0, SeekOrigin.Begin);
         var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
 
-        using var jsonOutputStream2 = new MemoryStream();
+        await using var jsonOutputStream2 = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
         var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
 
@@ -283,7 +283,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             routines
         );
 
-        using var jsonOutputStream = new MemoryStream();
+        await using var jsonOutputStream = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
 
         jsonOutputStream.Seek(0, SeekOrigin.Begin);
@@ -313,14 +313,14 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             routines
         );
 
-        using var jsonOutputStream = new MemoryStream();
+        await using var jsonOutputStream = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
         var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
 
         jsonOutputStream.Seek(0, SeekOrigin.Begin);
         var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy()).ConfigureAwait(false);
 
-        using var jsonOutputStream2 = new MemoryStream();
+        await using var jsonOutputStream2 = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
         var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
 

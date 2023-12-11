@@ -71,7 +71,7 @@ internal sealed class RelationshipsRenderer : ITemplateRenderer
                     linkNode.SetAttributeValue(xlinkNs + "show", "new");
                 }
 
-                using (var writer = new StringWriter())
+                await using (var writer = new StringWriter())
                 {
                     var svgRoot = doc.Root!;
                     svgRoot.Attribute("width")?.Remove();
@@ -92,7 +92,7 @@ internal sealed class RelationshipsRenderer : ITemplateRenderer
                     linkNode.Name = svgNs + "g";
                 }
 
-                using var svgFileStream = File.CreateText(svgFilePath);
+                await using var svgFileStream = File.CreateText(svgFilePath);
                 await doc.SaveAsync(svgFileStream, SaveOptions.DisableFormatting, cancellationToken).ConfigureAwait(false);
             }
         }
@@ -108,7 +108,7 @@ internal sealed class RelationshipsRenderer : ITemplateRenderer
 
         var outputPath = Path.Combine(ExportDirectory.FullName, "relationships.html");
 
-        using (var writer = File.CreateText(outputPath))
+        await using (var writer = File.CreateText(outputPath))
         {
             await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
             await writer.FlushAsync(cancellationToken).ConfigureAwait(false);

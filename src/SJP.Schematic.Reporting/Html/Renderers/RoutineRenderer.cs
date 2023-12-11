@@ -57,7 +57,7 @@ internal sealed class RoutineRenderer : ITemplateRenderer
             if (!ExportDirectory.Exists)
                 ExportDirectory.Create();
 
-            using var writer = File.CreateText(outputPath);
+            await using var writer = File.CreateText(outputPath);
             await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
             await writer.FlushAsync().ConfigureAwait(false);
         });
