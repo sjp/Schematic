@@ -31,6 +31,13 @@ public enum JournalMode
     Wal,
 
     /// <summary>
+    /// The <c>WAL2</c> journaling mode uses two write-ahead logs instead of a rollback journal to implement transactions.
+    /// It avoids blocking writers during checkpointing by switching write operations to a second write-ahead log when a checkpoint occurs.
+    /// See <see href="https://sqlite.org/cgi/src/doc/wal2/doc/wal2.md"/>
+    /// </summary>
+    Wal2,
+
+    /// <summary>
     /// The <c>OFF</c> journaling mode disables the rollback journal completely.
     /// </summary>
     Off
