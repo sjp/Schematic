@@ -48,7 +48,7 @@ public sealed class DatabaseTestFixtureAttribute : TestFixtureAttribute
         IDbConnectionFactory factory;
         try
         {
-            var methodResult = getMethod.Invoke(null, Array.Empty<object>());
+            var methodResult = getMethod.Invoke(null, []);
             if (methodResult is not IDbConnectionFactory connFactory)
             {
                 ResultCache.AddOrUpdate(getMethod, false, static (_, __) => false);

@@ -32,7 +32,7 @@ public sealed class SomeConstraint : Constraint
             throw new ArgumentException($"Expected an Option<T> object, instead received {actualType.FullName}", nameof(actual));
 
         var propGet = actualType.GetProperty(nameof(Option<object>.IsSome))!.GetGetMethod()!;
-        var isSome = (bool)propGet.Invoke(actual, Array.Empty<object>())!;
+        var isSome = (bool)propGet.Invoke(actual, [])!;
 
         return new OptionConstraintResult(this, true, isSome);
     }

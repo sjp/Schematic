@@ -32,7 +32,7 @@ public sealed class NoneConstraint : Constraint
             throw new ArgumentException($"Expected an Option<T> object, instead received {actualType.FullName}", nameof(actual));
 
         var propGet = actualType.GetProperty(nameof(Option<object>.IsNone))!.GetGetMethod()!;
-        var isNone = (bool)propGet.Invoke(actual, Array.Empty<object>())!;
+        var isNone = (bool)propGet.Invoke(actual, [])!;
 
         return new OptionConstraintResult(this, false, isNone);
     }

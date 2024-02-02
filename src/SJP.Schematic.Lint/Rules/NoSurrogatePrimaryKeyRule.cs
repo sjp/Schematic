@@ -51,7 +51,7 @@ public class NoSurrogatePrimaryKeyRule : Rule, ITableRule
                 Some: pk =>
                 {
                     if (pk.Columns.Count == 1)
-                        return Array.Empty<IRuleMessage>();
+                        return [];
 
                     var fkColumns = table.ParentKeys
                         .Select(fk => fk.ChildKey)
@@ -62,7 +62,7 @@ public class NoSurrogatePrimaryKeyRule : Rule, ITableRule
 
                     var areAllColumnsFks = pk.Columns.All(c => fkColumns.Contains(c.Name.LocalName));
                     return areAllColumnsFks
-                        ? Array.Empty<IRuleMessage>()
+                        ? []
                         : [BuildMessage(table.Name)];
                 },
                 None: Array.Empty<IRuleMessage>
