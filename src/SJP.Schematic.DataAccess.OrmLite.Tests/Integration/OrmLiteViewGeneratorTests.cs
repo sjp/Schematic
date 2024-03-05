@@ -120,7 +120,8 @@ This is a second line for it.";
 
     private const string TestNamespace = "OrmLiteTestNamespace";
 
-    private readonly string TestView1Output = @"using System;
+    private readonly string TestView1Output = """
+using System;
 using ServiceStack.DataAnnotations;
 
 namespace OrmLiteTestNamespace.Main
@@ -128,43 +129,45 @@ namespace OrmLiteTestNamespace.Main
     /// <summary>
     /// A mapping class to query the <c>test_view_1</c> view.
     /// </summary>
-    [Schema(""main"")]
-    [Alias(""test_view_1"")]
+    [Schema("main")]
+    [Alias("test_view_1")]
     public sealed record TestView1
     {
         /// <summary>
         /// The <c>testint</c> column.
         /// </summary>
-        [Alias(""testint"")]
+        [Alias("testint")]
         public long? Testint { get; set; }
 
         /// <summary>
         /// The <c>testdouble</c> column.
         /// </summary>
-        [Alias(""testdouble"")]
+        [Alias("testdouble")]
         public double? Testdouble { get; set; }
 
         /// <summary>
         /// The <c>testblob</c> column.
         /// </summary>
-        [Alias(""testblob"")]
+        [Alias("testblob")]
         public byte[]? Testblob { get; set; }
 
         /// <summary>
         /// The <c>testdatetime</c> column.
         /// </summary>
-        [Alias(""testdatetime"")]
+        [Alias("testdatetime")]
         public string? Testdatetime { get; set; }
 
         /// <summary>
         /// The <c>teststring</c> column.
         /// </summary>
-        [Alias(""teststring"")]
+        [Alias("teststring")]
         public string? Teststring { get; set; }
     }
-}";
+}
+""";
 
-    private readonly string TestView2Output = @"using System;
+    private readonly string TestView2Output = """
+using System;
 using ServiceStack.DataAnnotations;
 
 namespace OrmLiteTestNamespace.Main
@@ -172,43 +175,45 @@ namespace OrmLiteTestNamespace.Main
     /// <summary>
     /// A mapping class to query the <c>test_view_2</c> view.
     /// </summary>
-    [Schema(""main"")]
-    [Alias(""test_view_2"")]
+    [Schema("main")]
+    [Alias("test_view_2")]
     public sealed record TestView2
     {
         /// <summary>
         /// The <c>testint</c> column.
         /// </summary>
-        [Alias(""testint"")]
+        [Alias("testint")]
         public long? Testint { get; set; }
 
         /// <summary>
         /// The <c>testdecimal</c> column.
         /// </summary>
-        [Alias(""testdecimal"")]
+        [Alias("testdecimal")]
         public decimal? Testdecimal { get; set; }
 
         /// <summary>
         /// The <c>testblob</c> column.
         /// </summary>
-        [Alias(""testblob"")]
+        [Alias("testblob")]
         public byte[]? Testblob { get; set; }
 
         /// <summary>
         /// The <c>testdatetime</c> column.
         /// </summary>
-        [Alias(""testdatetime"")]
+        [Alias("testdatetime")]
         public decimal? Testdatetime { get; set; }
 
         /// <summary>
         /// The <c>teststring</c> column.
         /// </summary>
-        [Alias(""teststring"")]
+        [Alias("teststring")]
         public string? Teststring { get; set; }
     }
-}";
+}
+""";
 
-    private readonly string TestView3Output = @"using System;
+    private readonly string TestView3Output = """
+using System;
 using ServiceStack.DataAnnotations;
 
 namespace OrmLiteTestNamespace.Main
@@ -216,19 +221,21 @@ namespace OrmLiteTestNamespace.Main
     /// <summary>
     /// This is a test view comment for OrmLite
     /// </summary>
-    [Schema(""main"")]
-    [Alias(""test_view_3"")]
+    [Schema("main")]
+    [Alias("test_view_3")]
     public sealed record TestView3
     {
         /// <summary>
         /// This is a test column comment for OrmLite
         /// </summary>
-        [Alias(""test_column_1"")]
+        [Alias("test_column_1")]
         public long? TestColumn1 { get; set; }
     }
-}";
+}
+""";
 
-    private readonly string TestView3MultiLineOutput = @"using System;
+    private readonly string TestView3MultiLineOutput = """
+using System;
 using ServiceStack.DataAnnotations;
 
 namespace OrmLiteTestNamespace.Main
@@ -237,16 +244,17 @@ namespace OrmLiteTestNamespace.Main
     /// <para>This is a test view comment for OrmLite.</para>
     /// <para>This is a second line for it.</para>
     /// </summary>
-    [Schema(""main"")]
-    [Alias(""test_view_3"")]
+    [Schema("main")]
+    [Alias("test_view_3")]
     public sealed record TestView3
     {
         /// <summary>
         /// <para>This is a test column comment for OrmLite.</para>
         /// <para>This is a second line for it.</para>
         /// </summary>
-        [Alias(""test_column_1"")]
+        [Alias("test_column_1")]
         public long? TestColumn1 { get; set; }
     }
-}";
+}
+""";
 }

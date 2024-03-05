@@ -20,11 +20,13 @@ internal static class GetTableChecks
         public required string EnabledStatus { get; init; }
     }
 
-    internal const string Sql = @$"
+    internal const string Sql = $"""
+
 select
-    CONSTRAINT_NAME as ""{nameof(Result.ConstraintName)}"",
-    SEARCH_CONDITION as ""{nameof(Result.Definition)}"",
-    STATUS as ""{nameof(Result.EnabledStatus)}""
+    CONSTRAINT_NAME as "{nameof(Result.ConstraintName)}",
+    SEARCH_CONDITION as "{nameof(Result.Definition)}",
+    STATUS as "{nameof(Result.EnabledStatus)}"
 from SYS.ALL_CONSTRAINTS
-where OWNER = :{nameof(Query.SchemaName)} and TABLE_NAME = :{nameof(Query.TableName)} and CONSTRAINT_TYPE = 'C'";
+where OWNER = :{nameof(Query.SchemaName)} and TABLE_NAME = :{nameof(Query.TableName)} and CONSTRAINT_TYPE = 'C'
+""";
 }

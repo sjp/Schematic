@@ -305,7 +305,8 @@ This is a second line for it.";
 
     private const string TestNamespace = "EFCoreTestNamespace";
 
-    private readonly string TestTable1Output = @"using System;
+    private readonly string TestTable1Output = """
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -315,68 +316,70 @@ namespace EFCoreTestNamespace.Main
     /// <summary>
     /// A mapping class to query the <c>test_table_1</c> table.
     /// </summary>
-    [Table(""test_table_1"", Schema = ""main"")]
+    [Table("test_table_1", Schema = "main")]
     public record TestTable1
     {
         /// <summary>
         /// The <c>test_pk</c> column.
         /// </summary>
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Column(""test_pk"", TypeName = ""INTEGER"")]
+        [Column("test_pk", TypeName = "INTEGER")]
         public long TestPk { get; set; }
 
         /// <summary>
         /// The <c>test_int</c> column.
         /// </summary>
-        [Column(""test_int"", TypeName = ""INTEGER"")]
+        [Column("test_int", TypeName = "INTEGER")]
         public long TestInt { get; set; }
 
         /// <summary>
         /// The <c>test_nullable_int</c> column.
         /// </summary>
-        [Column(""test_nullable_int"", TypeName = ""INTEGER"")]
+        [Column("test_nullable_int", TypeName = "INTEGER")]
         public long? TestNullableInt { get; set; }
 
         /// <summary>
         /// The <c>test_numeric</c> column.
         /// </summary>
-        [Column(""test_numeric"", TypeName = ""NUMERIC"")]
+        [Column("test_numeric", TypeName = "NUMERIC")]
         public decimal TestNumeric { get; set; }
 
         /// <summary>
         /// The <c>test_nullable_numeric</c> column.
         /// </summary>
-        [Column(""test_nullable_numeric"", TypeName = ""NUMERIC"")]
+        [Column("test_nullable_numeric", TypeName = "NUMERIC")]
         public decimal? TestNullableNumeric { get; set; }
 
         /// <summary>
         /// The <c>test_blob</c> column.
         /// </summary>
         [Required]
-        [Column(""test_blob"", TypeName = ""BLOB"")]
+        [Column("test_blob", TypeName = "BLOB")]
         public byte[] TestBlob { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_datetime</c> column.
         /// </summary>
-        [Column(""test_datetime"", TypeName = ""NUMERIC"")]
+        [Column("test_datetime", TypeName = "NUMERIC")]
         public decimal? TestDatetime { get; set; }
 
         /// <summary>
         /// The <c>test_string</c> column.
         /// </summary>
-        [Column(""test_string"", TypeName = ""TEXT"")]
+        [Column("test_string", TypeName = "TEXT")]
         public string? TestString { get; set; }
 
         /// <summary>
         /// The <c>test_string_with_default</c> column.
         /// </summary>
-        [Column(""test_string_with_default"", TypeName = ""TEXT"")]
+        [Column("test_string_with_default", TypeName = "TEXT")]
         public string? TestStringWithDefault { get; set; }
     }
-}";
+}
+""";
 
-    private readonly string TestTable2Output = @"using System;
+    private readonly string TestTable2Output = """
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -386,51 +389,53 @@ namespace EFCoreTestNamespace.Main
     /// <summary>
     /// A mapping class to query the <c>test_table_2</c> table.
     /// </summary>
-    [Table(""test_table_2"", Schema = ""main"")]
+    [Table("test_table_2", Schema = "main")]
     public record TestTable2
     {
         /// <summary>
         /// The <c>test_pk_1</c> column.
         /// </summary>
-        [Column(""test_pk_1"", TypeName = ""INTEGER"")]
+        [Column("test_pk_1", TypeName = "INTEGER")]
         public long TestPk1 { get; set; }
 
         /// <summary>
         /// The <c>test_pk_2</c> column.
         /// </summary>
-        [Column(""test_pk_2"", TypeName = ""INTEGER"")]
+        [Column("test_pk_2", TypeName = "INTEGER")]
         public long TestPk2 { get; set; }
 
         /// <summary>
         /// The <c>first_name</c> column.
         /// </summary>
         [Required]
-        [Column(""first_name"", TypeName = ""TEXT"")]
+        [Column("first_name", TypeName = "TEXT")]
         public string FirstName { get; set; } = default!;
 
         /// <summary>
         /// The <c>middle_name</c> column.
         /// </summary>
         [Required]
-        [Column(""middle_name"", TypeName = ""TEXT"")]
+        [Column("middle_name", TypeName = "TEXT")]
         public string MiddleName { get; set; } = default!;
 
         /// <summary>
         /// The <c>last_name</c> column.
         /// </summary>
         [Required]
-        [Column(""last_name"", TypeName = ""TEXT"")]
+        [Column("last_name", TypeName = "TEXT")]
         public string LastName { get; set; } = default!;
 
         /// <summary>
         /// The <c>comment</c> column.
         /// </summary>
-        [Column(""comment"", TypeName = ""TEXT"")]
+        [Column("comment", TypeName = "TEXT")]
         public string? Comment { get; set; }
     }
-}";
+}
+""";
 
-    private readonly string TestTable3Output = @"using System;
+    private readonly string TestTable3Output = """
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -440,63 +445,63 @@ namespace EFCoreTestNamespace.Main
     /// <summary>
     /// A mapping class to query the <c>test_table_3</c> table.
     /// </summary>
-    [Table(""test_table_3"", Schema = ""main"")]
+    [Table("test_table_3", Schema = "main")]
     public record TestTable3
     {
         /// <summary>
         /// The <c>test_pk</c> column.
         /// </summary>
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Column(""test_pk"", TypeName = ""INTEGER"")]
+        [Column("test_pk", TypeName = "INTEGER")]
         public long TestPk { get; set; }
 
         /// <summary>
         /// The <c>test_int</c> column.
         /// </summary>
-        [Column(""test_int"", TypeName = ""INTEGER"")]
+        [Column("test_int", TypeName = "INTEGER")]
         public long TestInt { get; set; }
 
         /// <summary>
         /// The <c>test_nullable_int</c> column.
         /// </summary>
-        [Column(""test_nullable_int"", TypeName = ""INTEGER"")]
+        [Column("test_nullable_int", TypeName = "INTEGER")]
         public long? TestNullableInt { get; set; }
 
         /// <summary>
         /// The <c>test_numeric</c> column.
         /// </summary>
-        [Column(""test_numeric"", TypeName = ""NUMERIC"")]
+        [Column("test_numeric", TypeName = "NUMERIC")]
         public decimal TestNumeric { get; set; }
 
         /// <summary>
         /// The <c>test_nullable_numeric</c> column.
         /// </summary>
-        [Column(""test_nullable_numeric"", TypeName = ""NUMERIC"")]
+        [Column("test_nullable_numeric", TypeName = "NUMERIC")]
         public decimal? TestNullableNumeric { get; set; }
 
         /// <summary>
         /// The <c>test_blob</c> column.
         /// </summary>
         [Required]
-        [Column(""test_blob"", TypeName = ""BLOB"")]
+        [Column("test_blob", TypeName = "BLOB")]
         public byte[] TestBlob { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_datetime</c> column.
         /// </summary>
-        [Column(""test_datetime"", TypeName = ""NUMERIC"")]
+        [Column("test_datetime", TypeName = "NUMERIC")]
         public decimal? TestDatetime { get; set; }
 
         /// <summary>
         /// The <c>test_string</c> column.
         /// </summary>
-        [Column(""test_string"", TypeName = ""TEXT"")]
+        [Column("test_string", TypeName = "TEXT")]
         public string? TestString { get; set; }
 
         /// <summary>
         /// The <c>test_string_with_default</c> column.
         /// </summary>
-        [Column(""test_string_with_default"", TypeName = ""TEXT"")]
+        [Column("test_string_with_default", TypeName = "TEXT")]
         public string? TestStringWithDefault { get; set; }
 
         /// <summary>
@@ -519,9 +524,11 @@ namespace EFCoreTestNamespace.Main
         /// </summary>
         public virtual ICollection<Main.TestTable4> TestTable4s_3 { get; set; } = new HashSet<Main.TestTable4>();
     }
-}";
+}
+""";
 
-    private readonly string TestTable4Output = @"using System;
+    private readonly string TestTable4Output = """
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -531,87 +538,87 @@ namespace EFCoreTestNamespace.Main
     /// <summary>
     /// A mapping class to query the <c>test_table_4</c> table.
     /// </summary>
-    [Table(""test_table_4"", Schema = ""main"")]
+    [Table("test_table_4", Schema = "main")]
     public record TestTable4
     {
         /// <summary>
         /// The <c>test_pk</c> column.
         /// </summary>
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Column(""test_pk"", TypeName = ""INTEGER"")]
+        [Column("test_pk", TypeName = "INTEGER")]
         public long TestPk { get; set; }
 
         /// <summary>
         /// The <c>test_int</c> column.
         /// </summary>
-        [Column(""test_int"", TypeName = ""INTEGER"")]
+        [Column("test_int", TypeName = "INTEGER")]
         public long TestInt { get; set; }
 
         /// <summary>
         /// The <c>test_nullable_int</c> column.
         /// </summary>
-        [Column(""test_nullable_int"", TypeName = ""INTEGER"")]
+        [Column("test_nullable_int", TypeName = "INTEGER")]
         public long? TestNullableInt { get; set; }
 
         /// <summary>
         /// The <c>test_numeric</c> column.
         /// </summary>
-        [Column(""test_numeric"", TypeName = ""NUMERIC"")]
+        [Column("test_numeric", TypeName = "NUMERIC")]
         public decimal TestNumeric { get; set; }
 
         /// <summary>
         /// The <c>test_nullable_numeric</c> column.
         /// </summary>
-        [Column(""test_nullable_numeric"", TypeName = ""NUMERIC"")]
+        [Column("test_nullable_numeric", TypeName = "NUMERIC")]
         public decimal? TestNullableNumeric { get; set; }
 
         /// <summary>
         /// The <c>test_blob</c> column.
         /// </summary>
         [Required]
-        [Column(""test_blob"", TypeName = ""BLOB"")]
+        [Column("test_blob", TypeName = "BLOB")]
         public byte[] TestBlob { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_datetime</c> column.
         /// </summary>
-        [Column(""test_datetime"", TypeName = ""NUMERIC"")]
+        [Column("test_datetime", TypeName = "NUMERIC")]
         public decimal? TestDatetime { get; set; }
 
         /// <summary>
         /// The <c>test_string</c> column.
         /// </summary>
-        [Column(""test_string"", TypeName = ""TEXT"")]
+        [Column("test_string", TypeName = "TEXT")]
         public string? TestString { get; set; }
 
         /// <summary>
         /// The <c>test_string_with_default</c> column.
         /// </summary>
-        [Column(""test_string_with_default"", TypeName = ""TEXT"")]
+        [Column("test_string_with_default", TypeName = "TEXT")]
         public string? TestStringWithDefault { get; set; }
 
         /// <summary>
         /// The <c>test_table_3_fk1</c> column.
         /// </summary>
-        [Column(""test_table_3_fk1"", TypeName = ""INTEGER"")]
+        [Column("test_table_3_fk1", TypeName = "INTEGER")]
         public long? TestTable3Fk1 { get; set; }
 
         /// <summary>
         /// The <c>test_table_3_fk2</c> column.
         /// </summary>
-        [Column(""test_table_3_fk2"", TypeName = ""INTEGER"")]
+        [Column("test_table_3_fk2", TypeName = "INTEGER")]
         public long? TestTable3Fk2 { get; set; }
 
         /// <summary>
         /// The <c>test_table_3_fk3</c> column.
         /// </summary>
-        [Column(""test_table_3_fk3"", TypeName = ""INTEGER"")]
+        [Column("test_table_3_fk3", TypeName = "INTEGER")]
         public long? TestTable3Fk3 { get; set; }
 
         /// <summary>
         /// The <c>test_table_3_fk4</c> column.
         /// </summary>
-        [Column(""test_table_3_fk4"", TypeName = ""INTEGER"")]
+        [Column("test_table_3_fk4", TypeName = "INTEGER")]
         public long? TestTable3Fk4 { get; set; }
 
         /// <summary>
@@ -634,9 +641,11 @@ namespace EFCoreTestNamespace.Main
         /// </summary>
         public virtual Main.TestTable3? TestTable3_3 { get; set; }
     }
-}";
+}
+""";
 
-    private readonly string TestTable5Output = @"using System;
+    private readonly string TestTable5Output = """
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -646,18 +655,20 @@ namespace EFCoreTestNamespace.Main
     /// <summary>
     /// This is a test table comment for EF Core
     /// </summary>
-    [Table(""test_table_5"", Schema = ""main"")]
+    [Table("test_table_5", Schema = "main")]
     public record TestTable5
     {
         /// <summary>
         /// This is a test column comment for EF Core
         /// </summary>
-        [Column(""test_column_1"", TypeName = ""INTEGER"")]
+        [Column("test_column_1", TypeName = "INTEGER")]
         public long? TestColumn1 { get; set; }
     }
-}";
+}
+""";
 
-    private readonly string TestTable5MultiLineOutput = @"using System;
+    private readonly string TestTable5MultiLineOutput = """
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -668,19 +679,21 @@ namespace EFCoreTestNamespace.Main
     /// <para>This is a test table comment for EF Core.</para>
     /// <para>This is a second line for it.</para>
     /// </summary>
-    [Table(""test_table_5"", Schema = ""main"")]
+    [Table("test_table_5", Schema = "main")]
     public record TestTable5
     {
         /// <summary>
         /// <para>This is a test column comment for EF Core.</para>
         /// <para>This is a second line for it.</para>
         /// </summary>
-        [Column(""test_column_1"", TypeName = ""INTEGER"")]
+        [Column("test_column_1", TypeName = "INTEGER")]
         public long? TestColumn1 { get; set; }
     }
-}";
+}
+""";
 
-    private readonly string TestTable6Output = @"using System;
+    private readonly string TestTable6Output = """
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -690,20 +703,20 @@ namespace EFCoreTestNamespace.Main
     /// <summary>
     /// A mapping class to query the <c>test_table_6</c> table.
     /// </summary>
-    [Table(""test_table_6"", Schema = ""main"")]
+    [Table("test_table_6", Schema = "main")]
     public record TestTable6
     {
         /// <summary>
         /// The <c>test_pk</c> column.
         /// </summary>
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Column(""test_pk"", TypeName = ""INTEGER"")]
+        [Column("test_pk", TypeName = "INTEGER")]
         public long TestPk { get; set; }
 
         /// <summary>
         /// The <c>test_int</c> column.
         /// </summary>
-        [Column(""test_int"", TypeName = ""INTEGER"")]
+        [Column("test_int", TypeName = "INTEGER")]
         public long TestInt { get; set; }
 
         /// <summary>
@@ -721,9 +734,11 @@ namespace EFCoreTestNamespace.Main
         /// </summary>
         public virtual Main.TestTable9? TestTable9s { get; set; }
     }
-}";
+}
+""";
 
-    private readonly string TestTable7Output = @"using System;
+    private readonly string TestTable7Output = """
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -733,20 +748,20 @@ namespace EFCoreTestNamespace.Main
     /// <summary>
     /// This is a test table comment for EF Core
     /// </summary>
-    [Table(""test_table_7"", Schema = ""main"")]
+    [Table("test_table_7", Schema = "main")]
     public record TestTable7
     {
         /// <summary>
         /// The <c>test_pk</c> column.
         /// </summary>
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Column(""test_pk"", TypeName = ""INTEGER"")]
+        [Column("test_pk", TypeName = "INTEGER")]
         public long TestPk { get; set; }
 
         /// <summary>
         /// The <c>test_table_6_fk1</c> column.
         /// </summary>
-        [Column(""test_table_6_fk1"", TypeName = ""INTEGER"")]
+        [Column("test_table_6_fk1", TypeName = "INTEGER")]
         public long TestTable6Fk1 { get; set; }
 
         /// <summary>
@@ -754,9 +769,11 @@ namespace EFCoreTestNamespace.Main
         /// </summary>
         public virtual Main.TestTable6 TestTable6 { get; set; } = default!;
     }
-}";
+}
+""";
 
-    private readonly string TestTable7MultiLineOutput = @"using System;
+    private readonly string TestTable7MultiLineOutput = """
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -767,20 +784,20 @@ namespace EFCoreTestNamespace.Main
     /// <para>This is a test table comment for EF Core.</para>
     /// <para>This is a second line for it.</para>
     /// </summary>
-    [Table(""test_table_7"", Schema = ""main"")]
+    [Table("test_table_7", Schema = "main")]
     public record TestTable7
     {
         /// <summary>
         /// The <c>test_pk</c> column.
         /// </summary>
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Column(""test_pk"", TypeName = ""INTEGER"")]
+        [Column("test_pk", TypeName = "INTEGER")]
         public long TestPk { get; set; }
 
         /// <summary>
         /// The <c>test_table_6_fk1</c> column.
         /// </summary>
-        [Column(""test_table_6_fk1"", TypeName = ""INTEGER"")]
+        [Column("test_table_6_fk1", TypeName = "INTEGER")]
         public long TestTable6Fk1 { get; set; }
 
         /// <summary>
@@ -789,5 +806,6 @@ namespace EFCoreTestNamespace.Main
         /// </summary>
         public virtual Main.TestTable6 TestTable6 { get; set; } = default!;
     }
-}";
+}
+""";
 }

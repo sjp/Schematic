@@ -881,7 +881,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             {
                 var tokenizeResult = Tokenizer.TryTokenize(sql);
                 if (!tokenizeResult.HasValue)
-                    throw new SqliteTriggerParsingException(tableName, triggerSql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
+                    throw new SqliteTriggerParsingException(tableName, sql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
 
                 var tokens = tokenizeResult.Value;
                 return TriggerParser.ParseTokens(tokens);
@@ -945,7 +945,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         {
             var tokenizeResult = Tokenizer.TryTokenize(sql);
             if (!tokenizeResult.HasValue)
-                throw new SqliteTableParsingException(tableName, tableSql!, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
+                throw new SqliteTableParsingException(tableName, sql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
 
             var tokens = tokenizeResult.Value;
             return TableParser.ParseTokens(sql, tokens);

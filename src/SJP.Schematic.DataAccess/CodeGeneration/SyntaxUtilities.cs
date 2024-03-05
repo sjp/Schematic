@@ -174,8 +174,9 @@ public static class SyntaxUtilities
     {
         ArgumentNullException.ThrowIfNull(comment);
 
-        return comment.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        return comment.Split(NewlineChars, StringSplitOptions.RemoveEmptyEntries);
     }
 
+    private static readonly char[] NewlineChars = { '\r', '\n' };
     private static readonly SyntaxToken XmlNewline = XmlTextNewLine(Environment.NewLine);
 }

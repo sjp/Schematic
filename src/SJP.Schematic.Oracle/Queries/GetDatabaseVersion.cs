@@ -9,10 +9,12 @@ internal static class GetDatabaseVersion
         public required string? VersionNumber { get; init; }
     }
 
-    internal const string Sql = @$"
+    internal const string Sql = $"""
+
 select
-    PRODUCT as ""{nameof(Result.ProductName)}"",
-    VERSION as ""{nameof(Result.VersionNumber)}""
+    PRODUCT as "{nameof(Result.ProductName)}",
+    VERSION as "{nameof(Result.VersionNumber)}"
 from PRODUCT_COMPONENT_VERSION
-where PRODUCT like 'Oracle Database%'";
+where PRODUCT like 'Oracle Database%'
+""";
 }

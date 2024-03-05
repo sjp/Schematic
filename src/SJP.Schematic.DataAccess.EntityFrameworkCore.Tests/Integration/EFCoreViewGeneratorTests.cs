@@ -103,7 +103,8 @@ This is a second line for it.";
 
     private const string TestNamespace = "EFCoreTestNamespace";
 
-    private readonly string TestView1Output = @"using System;
+    private readonly string TestView1Output = """
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -117,60 +118,62 @@ namespace EFCoreTestNamespace.Main
         /// <summary>
         /// The <c>test_pk</c> column.
         /// </summary>
-        [Column(""test_pk"", TypeName = ""INTEGER"")]
+        [Column("test_pk", TypeName = "INTEGER")]
         public long? TestPk { get; set; }
 
         /// <summary>
         /// The <c>test_int</c> column.
         /// </summary>
-        [Column(""test_int"", TypeName = ""INTEGER"")]
+        [Column("test_int", TypeName = "INTEGER")]
         public long? TestInt { get; set; }
 
         /// <summary>
         /// The <c>test_nullable_int</c> column.
         /// </summary>
-        [Column(""test_nullable_int"", TypeName = ""INTEGER"")]
+        [Column("test_nullable_int", TypeName = "INTEGER")]
         public long? TestNullableInt { get; set; }
 
         /// <summary>
         /// The <c>test_numeric</c> column.
         /// </summary>
-        [Column(""test_numeric"", TypeName = ""NUMERIC"")]
+        [Column("test_numeric", TypeName = "NUMERIC")]
         public decimal? TestNumeric { get; set; }
 
         /// <summary>
         /// The <c>test_nullable_numeric</c> column.
         /// </summary>
-        [Column(""test_nullable_numeric"", TypeName = ""NUMERIC"")]
+        [Column("test_nullable_numeric", TypeName = "NUMERIC")]
         public decimal? TestNullableNumeric { get; set; }
 
         /// <summary>
         /// The <c>test_blob</c> column.
         /// </summary>
-        [Column(""test_blob"", TypeName = ""BLOB"")]
+        [Column("test_blob", TypeName = "BLOB")]
         public byte[]? TestBlob { get; set; }
 
         /// <summary>
         /// The <c>test_datetime</c> column.
         /// </summary>
-        [Column(""test_datetime"", TypeName = ""NUMERIC"")]
+        [Column("test_datetime", TypeName = "NUMERIC")]
         public decimal? TestDatetime { get; set; }
 
         /// <summary>
         /// The <c>test_string</c> column.
         /// </summary>
-        [Column(""test_string"", TypeName = ""TEXT"")]
+        [Column("test_string", TypeName = "TEXT")]
         public string? TestString { get; set; }
 
         /// <summary>
         /// The <c>test_string_with_default</c> column.
         /// </summary>
-        [Column(""test_string_with_default"", TypeName = ""TEXT"")]
+        [Column("test_string_with_default", TypeName = "TEXT")]
         public string? TestStringWithDefault { get; set; }
     }
-}";
+}
+""";
 
-    private readonly string TestView1WithCommentOutput = @"using System;
+    private readonly string TestView1WithCommentOutput = """
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -184,60 +187,62 @@ namespace EFCoreTestNamespace.Main
         /// <summary>
         /// The <c>test_pk</c> column.
         /// </summary>
-        [Column(""test_pk"", TypeName = ""INTEGER"")]
+        [Column("test_pk", TypeName = "INTEGER")]
         public long? TestPk { get; set; }
 
         /// <summary>
         /// This is a test column comment for EF Core
         /// </summary>
-        [Column(""test_int"", TypeName = ""INTEGER"")]
+        [Column("test_int", TypeName = "INTEGER")]
         public long? TestInt { get; set; }
 
         /// <summary>
         /// The <c>test_nullable_int</c> column.
         /// </summary>
-        [Column(""test_nullable_int"", TypeName = ""INTEGER"")]
+        [Column("test_nullable_int", TypeName = "INTEGER")]
         public long? TestNullableInt { get; set; }
 
         /// <summary>
         /// The <c>test_numeric</c> column.
         /// </summary>
-        [Column(""test_numeric"", TypeName = ""NUMERIC"")]
+        [Column("test_numeric", TypeName = "NUMERIC")]
         public decimal? TestNumeric { get; set; }
 
         /// <summary>
         /// The <c>test_nullable_numeric</c> column.
         /// </summary>
-        [Column(""test_nullable_numeric"", TypeName = ""NUMERIC"")]
+        [Column("test_nullable_numeric", TypeName = "NUMERIC")]
         public decimal? TestNullableNumeric { get; set; }
 
         /// <summary>
         /// The <c>test_blob</c> column.
         /// </summary>
-        [Column(""test_blob"", TypeName = ""BLOB"")]
+        [Column("test_blob", TypeName = "BLOB")]
         public byte[]? TestBlob { get; set; }
 
         /// <summary>
         /// The <c>test_datetime</c> column.
         /// </summary>
-        [Column(""test_datetime"", TypeName = ""NUMERIC"")]
+        [Column("test_datetime", TypeName = "NUMERIC")]
         public decimal? TestDatetime { get; set; }
 
         /// <summary>
         /// The <c>test_string</c> column.
         /// </summary>
-        [Column(""test_string"", TypeName = ""TEXT"")]
+        [Column("test_string", TypeName = "TEXT")]
         public string? TestString { get; set; }
 
         /// <summary>
         /// The <c>test_string_with_default</c> column.
         /// </summary>
-        [Column(""test_string_with_default"", TypeName = ""TEXT"")]
+        [Column("test_string_with_default", TypeName = "TEXT")]
         public string? TestStringWithDefault { get; set; }
     }
-}";
+}
+""";
 
-    private readonly string TestView1MultiLineOutput = @"using System;
+    private readonly string TestView1MultiLineOutput = """
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -252,57 +257,58 @@ namespace EFCoreTestNamespace.Main
         /// <summary>
         /// The <c>test_pk</c> column.
         /// </summary>
-        [Column(""test_pk"", TypeName = ""INTEGER"")]
+        [Column("test_pk", TypeName = "INTEGER")]
         public long? TestPk { get; set; }
 
         /// <summary>
         /// <para>This is a test column comment for EF Core.</para>
         /// <para>This is a second line for it.</para>
         /// </summary>
-        [Column(""test_int"", TypeName = ""INTEGER"")]
+        [Column("test_int", TypeName = "INTEGER")]
         public long? TestInt { get; set; }
 
         /// <summary>
         /// The <c>test_nullable_int</c> column.
         /// </summary>
-        [Column(""test_nullable_int"", TypeName = ""INTEGER"")]
+        [Column("test_nullable_int", TypeName = "INTEGER")]
         public long? TestNullableInt { get; set; }
 
         /// <summary>
         /// The <c>test_numeric</c> column.
         /// </summary>
-        [Column(""test_numeric"", TypeName = ""NUMERIC"")]
+        [Column("test_numeric", TypeName = "NUMERIC")]
         public decimal? TestNumeric { get; set; }
 
         /// <summary>
         /// The <c>test_nullable_numeric</c> column.
         /// </summary>
-        [Column(""test_nullable_numeric"", TypeName = ""NUMERIC"")]
+        [Column("test_nullable_numeric", TypeName = "NUMERIC")]
         public decimal? TestNullableNumeric { get; set; }
 
         /// <summary>
         /// The <c>test_blob</c> column.
         /// </summary>
-        [Column(""test_blob"", TypeName = ""BLOB"")]
+        [Column("test_blob", TypeName = "BLOB")]
         public byte[]? TestBlob { get; set; }
 
         /// <summary>
         /// The <c>test_datetime</c> column.
         /// </summary>
-        [Column(""test_datetime"", TypeName = ""NUMERIC"")]
+        [Column("test_datetime", TypeName = "NUMERIC")]
         public decimal? TestDatetime { get; set; }
 
         /// <summary>
         /// The <c>test_string</c> column.
         /// </summary>
-        [Column(""test_string"", TypeName = ""TEXT"")]
+        [Column("test_string", TypeName = "TEXT")]
         public string? TestString { get; set; }
 
         /// <summary>
         /// The <c>test_string_with_default</c> column.
         /// </summary>
-        [Column(""test_string_with_default"", TypeName = ""TEXT"")]
+        [Column("test_string_with_default", TypeName = "TEXT")]
         public string? TestStringWithDefault { get; set; }
     }
-}";
+}
+""";
 }

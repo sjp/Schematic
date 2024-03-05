@@ -81,7 +81,8 @@ internal static class EFCoreDbContextBuilderTests
         Assert.That(result, Is.EqualTo(ExpectedSequenceTestResult).Using(LineEndingInvariantStringComparer.Ordinal));
     }
 
-    private const string ExpectedSequenceTestResult = @"using System;
+    private const string ExpectedSequenceTestResult = """
+using System;
 using Microsoft.EntityFrameworkCore;
 
 namespace test
@@ -91,11 +92,12 @@ namespace test
         /// <summary>
         /// Configure the model that was discovered by convention from the defined entity types.
         /// </summary>
-        /// <param name=""modelBuilder"">The builder being used to construct the model for this context.</param>
+        /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasSequence<decimal>(""test_sequence"").StartsAt(3M).IncrementsBy(20M);
+            modelBuilder.HasSequence<decimal>("test_sequence").StartsAt(3M).IncrementsBy(20M);
         }
     }
-}";
+}
+""";
 }

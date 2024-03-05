@@ -20,12 +20,13 @@ internal static class GetTableComments
         public required string? Comment { get; init; }
     }
 
-    internal const string Sql = @$"
+    internal const string Sql = $"""
+
 -- table
 select
-    'TABLE' as ""{nameof(Result.ObjectType)}"",
-    t.relname as ""{nameof(Result.ObjectName)}"",
-    d.description as ""{nameof(Result.Comment)}""
+    'TABLE' as "{nameof(Result.ObjectType)}",
+    t.relname as "{nameof(Result.ObjectName)}",
+    d.description as "{nameof(Result.Comment)}"
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 left join pg_catalog.pg_description d on d.objoid = t.oid and d.objsubid = 0
@@ -36,9 +37,9 @@ union
 
 -- columns
 select
-    'COLUMN' as ""{nameof(Result.ObjectType)}"",
-    a.attname as ""{nameof(Result.ObjectName)}"",
-    d.description as ""{nameof(Result.Comment)}""
+    'COLUMN' as "{nameof(Result.ObjectType)}",
+    a.attname as "{nameof(Result.ObjectName)}",
+    d.description as "{nameof(Result.Comment)}"
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 inner join pg_catalog.pg_attribute a on a.attrelid = t.oid
@@ -51,9 +52,9 @@ union
 
 -- checks
 select
-    'CHECK' as ""{nameof(Result.ObjectType)}"",
-    c.conname as ""{nameof(Result.ObjectName)}"",
-    d.description as ""{nameof(Result.Comment)}""
+    'CHECK' as "{nameof(Result.ObjectType)}",
+    c.conname as "{nameof(Result.ObjectName)}",
+    d.description as "{nameof(Result.Comment)}"
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
@@ -66,9 +67,9 @@ union
 
 -- foreign keys
 select
-    'FOREIGN KEY' as ""{nameof(Result.ObjectType)}"",
-    c.conname as ""{nameof(Result.ObjectName)}"",
-    d.description as ""{nameof(Result.Comment)}""
+    'FOREIGN KEY' as "{nameof(Result.ObjectType)}",
+    c.conname as "{nameof(Result.ObjectName)}",
+    d.description as "{nameof(Result.Comment)}"
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
@@ -81,9 +82,9 @@ union
 
 -- unique keys
 select
-    'UNIQUE' as ""{nameof(Result.ObjectType)}"",
-    c.conname as ""{nameof(Result.ObjectName)}"",
-    d.description as ""{nameof(Result.Comment)}""
+    'UNIQUE' as "{nameof(Result.ObjectType)}",
+    c.conname as "{nameof(Result.ObjectName)}",
+    d.description as "{nameof(Result.Comment)}"
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
@@ -96,9 +97,9 @@ union
 
 -- primary key
 select
-    'PRIMARY' as ""{nameof(Result.ObjectType)}"",
-    c.conname as ""{nameof(Result.ObjectName)}"",
-    d.description as ""{nameof(Result.Comment)}""
+    'PRIMARY' as "{nameof(Result.ObjectType)}",
+    c.conname as "{nameof(Result.ObjectName)}",
+    d.description as "{nameof(Result.Comment)}"
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid
@@ -111,9 +112,9 @@ union
 
 -- indexes
 select
-    'INDEX' as ""{nameof(Result.ObjectType)}"",
-    ci.relname as ""{nameof(Result.ObjectName)}"",
-    d.description as ""{nameof(Result.Comment)}""
+    'INDEX' as "{nameof(Result.ObjectType)}",
+    ci.relname as "{nameof(Result.ObjectName)}",
+    d.description as "{nameof(Result.Comment)}"
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 inner join pg_catalog.pg_index i on i.indrelid = t.oid and i.indisprimary = false
@@ -126,14 +127,15 @@ union
 
 -- triggers
 select
-    'TRIGGER' as ""{nameof(Result.ObjectType)}"",
-    tr.tgname as ""{nameof(Result.ObjectName)}"",
-    d.description as ""{nameof(Result.Comment)}""
+    'TRIGGER' as "{nameof(Result.ObjectType)}",
+    tr.tgname as "{nameof(Result.ObjectName)}",
+    d.description as "{nameof(Result.Comment)}"
 from pg_catalog.pg_class t
 inner join pg_catalog.pg_namespace ns on t.relnamespace = ns.oid
 inner join pg_catalog.pg_trigger tr on tr.tgrelid = t.oid and tr.tgisinternal = false
 left join pg_catalog.pg_description d on d.objoid = tr.oid
 where t.relkind = 'r' and ns.nspname = @{nameof(Query.SchemaName)} and t.relname = @{nameof(Query.TableName)}
     and ns.nspname not in ('pg_catalog', 'information_schema')
-";
+
+""";
 }

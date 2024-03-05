@@ -26,14 +26,16 @@ internal static class GetSequenceDefinition
         public required decimal StartValue { get; init; }
     }
 
-    internal const string Sql = @$"
+    internal const string Sql = $"""
+
 select
-    start_value as ""{nameof(Result.StartValue)}"",
-    min_value as ""{nameof(Result.MinValue)}"",
-    max_value as ""{nameof(Result.MaxValue)}"",
-    increment_by as ""{nameof(Result.Increment)}"",
-    cycle as ""{nameof(Result.Cycle)}"",
-    cache_size as ""{nameof(Result.CacheSize)}""
+    start_value as "{nameof(Result.StartValue)}",
+    min_value as "{nameof(Result.MinValue)}",
+    max_value as "{nameof(Result.MaxValue)}",
+    increment_by as "{nameof(Result.Increment)}",
+    cycle as "{nameof(Result.Cycle)}",
+    cache_size as "{nameof(Result.CacheSize)}"
 from pg_catalog.pg_sequences
-where schemaname = @{nameof(Query.SchemaName)} and sequencename = @{nameof(Query.SequenceName)}";
+where schemaname = @{nameof(Query.SchemaName)} and sequencename = @{nameof(Query.SequenceName)}
+""";
 }

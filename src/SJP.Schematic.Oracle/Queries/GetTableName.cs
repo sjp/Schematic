@@ -18,8 +18,9 @@ internal static class GetTableName
         public required string TableName { get; init; }
     }
 
-    internal const string Sql = @$"
-select t.OWNER as ""{nameof(Result.SchemaName)}"", t.TABLE_NAME as ""{nameof(Result.TableName)}""
+    internal const string Sql = $"""
+
+select t.OWNER as "{nameof(Result.SchemaName)}", t.TABLE_NAME as "{nameof(Result.TableName)}"
 from SYS.ALL_TABLES t
 inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
 left join SYS.ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
@@ -33,5 +34,6 @@ where
     and o.SUBOBJECT_NAME is null
     and mv.MVIEW_NAME is null
     and nt.TABLE_NAME is null
-    and et.TABLE_NAME is null";
+    and et.TABLE_NAME is null
+""";
 }

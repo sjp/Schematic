@@ -20,12 +20,13 @@ internal static class GetTableComments
         public required string? Comment { get; init; }
     }
 
-    internal const string Sql = @$"
+    internal const string Sql = $"""
+
 -- table
 select
-    'TABLE' as ""{nameof(Result.ObjectType)}"",
-    NULL as ""{nameof(Result.ColumnName)}"",
-    c.COMMENTS as ""{nameof(Result.Comment)}""
+    'TABLE' as "{nameof(Result.ObjectType)}",
+    NULL as "{nameof(Result.ColumnName)}",
+    c.COMMENTS as "{nameof(Result.Comment)}"
 from SYS.ALL_TABLES t
 left join SYS.ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
 inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
@@ -40,9 +41,9 @@ union
 
 -- columns
 select
-    'COLUMN' as ""{nameof(Result.ObjectType)}"",
-    tc.COLUMN_NAME as ""{nameof(Result.ColumnName)}"",
-    c.COMMENTS as ""{nameof(Result.Comment)}""
+    'COLUMN' as "{nameof(Result.ObjectType)}",
+    tc.COLUMN_NAME as "{nameof(Result.ColumnName)}",
+    c.COMMENTS as "{nameof(Result.Comment)}"
 from SYS.ALL_TABLES t
 left join SYS.ALL_MVIEWS mv on t.OWNER = mv.OWNER and t.TABLE_NAME = mv.MVIEW_NAME
 inner join SYS.ALL_OBJECTS o on t.OWNER = o.OWNER and t.TABLE_NAME = o.OBJECT_NAME
@@ -53,5 +54,6 @@ where t.OWNER = :{nameof(Query.SchemaName)} and t.TABLE_NAME = :{nameof(Query.Ta
     and o.GENERATED <> 'Y'
     and o.SECONDARY <> 'Y'
     and mv.MVIEW_NAME is null
-";
+
+""";
 }

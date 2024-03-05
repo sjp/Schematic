@@ -9,11 +9,13 @@ internal static class GetAllTableNames
         public required string TableName { get; init; }
     }
 
-    internal const string Sql = @$"
+    internal const string Sql = $"""
+
 select
-    schemaname as ""{nameof(Result.SchemaName)}"",
-    tablename as ""{nameof(Result.TableName)}""
+    schemaname as "{nameof(Result.SchemaName)}",
+    tablename as "{nameof(Result.TableName)}"
 from pg_catalog.pg_tables
 where schemaname not in ('pg_catalog', 'information_schema')
-order by schemaname, tablename";
+order by schemaname, tablename
+""";
 }

@@ -195,7 +195,8 @@ This is a second line for it.";
 
     private const string TestNamespace = "OrmLiteTestNamespace";
 
-    private readonly string TestTable1Output = @"using System;
+    private readonly string TestTable1Output = """
+using System;
 using ServiceStack.DataAnnotations;
 
 namespace OrmLiteTestNamespace.Main
@@ -203,8 +204,8 @@ namespace OrmLiteTestNamespace.Main
     /// <summary>
     /// A mapping class to query the <c>test_table_1</c> table.
     /// </summary>
-    [Schema(""main"")]
-    [Alias(""test_table_1"")]
+    [Schema("main")]
+    [Alias("test_table_1")]
     public sealed record TestTable1
     {
         /// <summary>
@@ -212,63 +213,65 @@ namespace OrmLiteTestNamespace.Main
         /// </summary>
         [PrimaryKey]
         [AutoIncrement]
-        [Alias(""test_pk"")]
+        [Alias("test_pk")]
         public long TestPk { get; set; }
 
         /// <summary>
         /// The <c>test_int</c> column.
         /// </summary>
-        [Alias(""test_int"")]
+        [Alias("test_int")]
         public long TestInt { get; set; }
 
         /// <summary>
         /// The <c>test_nullable_int</c> column.
         /// </summary>
-        [Alias(""test_nullable_int"")]
+        [Alias("test_nullable_int")]
         public long? TestNullableInt { get; set; }
 
         /// <summary>
         /// The <c>test_numeric</c> column.
         /// </summary>
-        [Alias(""test_numeric"")]
+        [Alias("test_numeric")]
         public decimal TestNumeric { get; set; }
 
         /// <summary>
         /// The <c>test_nullable_numeric</c> column.
         /// </summary>
-        [Alias(""test_nullable_numeric"")]
+        [Alias("test_nullable_numeric")]
         public decimal? TestNullableNumeric { get; set; }
 
         /// <summary>
         /// The <c>test_blob</c> column.
         /// </summary>
         [Required]
-        [Alias(""test_blob"")]
+        [Alias("test_blob")]
         public byte[] TestBlob { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_datetime</c> column.
         /// </summary>
-        [Default(""CURRENT_TIMESTAMP"")]
-        [Alias(""test_datetime"")]
+        [Default("CURRENT_TIMESTAMP")]
+        [Alias("test_datetime")]
         public decimal? TestDatetime { get; set; }
 
         /// <summary>
         /// The <c>test_string</c> column.
         /// </summary>
-        [Alias(""test_string"")]
+        [Alias("test_string")]
         public string? TestString { get; set; }
 
         /// <summary>
         /// The <c>test_string_with_default</c> column.
         /// </summary>
-        [Default(""'test'"")]
-        [Alias(""test_string_with_default"")]
+        [Default("'test'")]
+        [Alias("test_string_with_default")]
         public string? TestStringWithDefault { get; set; }
     }
-}";
+}
+""";
 
-    private readonly string TestTable2Output = @"using System;
+    private readonly string TestTable2Output = """
+using System;
 using ServiceStack.DataAnnotations;
 
 namespace OrmLiteTestNamespace.Main
@@ -276,8 +279,8 @@ namespace OrmLiteTestNamespace.Main
     /// <summary>
     /// A mapping class to query the <c>test_table_2</c> table.
     /// </summary>
-    [Schema(""main"")]
-    [Alias(""test_table_2"")]
+    [Schema("main")]
+    [Alias("test_table_2")]
     [UniqueConstraint(nameof(FirstName), nameof(MiddleName), nameof(LastName))]
     [CompositeIndex(true, nameof(FirstName), nameof(MiddleName))]
     [CompositeIndex(nameof(FirstName), nameof(LastName))]
@@ -286,20 +289,20 @@ namespace OrmLiteTestNamespace.Main
         /// <summary>
         /// The <c>test_pk_1</c> column.
         /// </summary>
-        [Alias(""test_pk_1"")]
+        [Alias("test_pk_1")]
         public long TestPk1 { get; set; }
 
         /// <summary>
         /// The <c>test_pk_2</c> column.
         /// </summary>
-        [Alias(""test_pk_2"")]
+        [Alias("test_pk_2")]
         public long TestPk2 { get; set; }
 
         /// <summary>
         /// The <c>first_name</c> column.
         /// </summary>
         [Required]
-        [Alias(""first_name"")]
+        [Alias("first_name")]
         public string FirstName { get; set; } = default!;
 
         /// <summary>
@@ -307,7 +310,7 @@ namespace OrmLiteTestNamespace.Main
         /// </summary>
         [Required]
         [Unique]
-        [Alias(""middle_name"")]
+        [Alias("middle_name")]
         public string MiddleName { get; set; } = default!;
 
         /// <summary>
@@ -315,19 +318,21 @@ namespace OrmLiteTestNamespace.Main
         /// </summary>
         [Required]
         [Index(true)]
-        [Alias(""last_name"")]
+        [Alias("last_name")]
         public string LastName { get; set; } = default!;
 
         /// <summary>
         /// The <c>comment</c> column.
         /// </summary>
         [Index]
-        [Alias(""comment"")]
+        [Alias("comment")]
         public string? Comment { get; set; }
     }
-}";
+}
+""";
 
-    private readonly string TestTable4Output = @"using System;
+    private readonly string TestTable4Output = """
+using System;
 using ServiceStack.DataAnnotations;
 
 namespace OrmLiteTestNamespace.Main
@@ -335,8 +340,8 @@ namespace OrmLiteTestNamespace.Main
     /// <summary>
     /// A mapping class to query the <c>test_table_4</c> table.
     /// </summary>
-    [Schema(""main"")]
-    [Alias(""test_table_4"")]
+    [Schema("main")]
+    [Alias("test_table_4")]
     public sealed record TestTable4
     {
         /// <summary>
@@ -344,91 +349,93 @@ namespace OrmLiteTestNamespace.Main
         /// </summary>
         [PrimaryKey]
         [AutoIncrement]
-        [Alias(""test_pk"")]
+        [Alias("test_pk")]
         public long TestPk { get; set; }
 
         /// <summary>
         /// The <c>test_int</c> column.
         /// </summary>
-        [Alias(""test_int"")]
+        [Alias("test_int")]
         public long TestInt { get; set; }
 
         /// <summary>
         /// The <c>test_nullable_int</c> column.
         /// </summary>
-        [Alias(""test_nullable_int"")]
+        [Alias("test_nullable_int")]
         public long? TestNullableInt { get; set; }
 
         /// <summary>
         /// The <c>test_numeric</c> column.
         /// </summary>
-        [Alias(""test_numeric"")]
+        [Alias("test_numeric")]
         public decimal TestNumeric { get; set; }
 
         /// <summary>
         /// The <c>test_nullable_numeric</c> column.
         /// </summary>
-        [Alias(""test_nullable_numeric"")]
+        [Alias("test_nullable_numeric")]
         public decimal? TestNullableNumeric { get; set; }
 
         /// <summary>
         /// The <c>test_blob</c> column.
         /// </summary>
         [Required]
-        [Alias(""test_blob"")]
+        [Alias("test_blob")]
         public byte[] TestBlob { get; set; } = default!;
 
         /// <summary>
         /// The <c>test_datetime</c> column.
         /// </summary>
-        [Default(""CURRENT_TIMESTAMP"")]
-        [Alias(""test_datetime"")]
+        [Default("CURRENT_TIMESTAMP")]
+        [Alias("test_datetime")]
         public decimal? TestDatetime { get; set; }
 
         /// <summary>
         /// The <c>test_string</c> column.
         /// </summary>
-        [Alias(""test_string"")]
+        [Alias("test_string")]
         public string? TestString { get; set; }
 
         /// <summary>
         /// The <c>test_string_with_default</c> column.
         /// </summary>
-        [Default(""'test'"")]
-        [Alias(""test_string_with_default"")]
+        [Default("'test'")]
+        [Alias("test_string_with_default")]
         public string? TestStringWithDefault { get; set; }
 
         /// <summary>
         /// The <c>test_table_3_fk1</c> column.
         /// </summary>
-        [ForeignKey(typeof(TestTable3), ForeignKeyName = ""fk_test_table_4_test_table_3_fk1"")]
-        [Alias(""test_table_3_fk1"")]
+        [ForeignKey(typeof(TestTable3), ForeignKeyName = "fk_test_table_4_test_table_3_fk1")]
+        [Alias("test_table_3_fk1")]
         public long? TestTable3Fk1 { get; set; }
 
         /// <summary>
         /// The <c>test_table_3_fk2</c> column.
         /// </summary>
-        [ForeignKey(typeof(TestTable3), ForeignKeyName = ""fk_test_table_4_test_table_3_fk1"", OnUpdate = ""CASCADE"")]
-        [Alias(""test_table_3_fk2"")]
+        [ForeignKey(typeof(TestTable3), ForeignKeyName = "fk_test_table_4_test_table_3_fk1", OnUpdate = "CASCADE")]
+        [Alias("test_table_3_fk2")]
         public long? TestTable3Fk2 { get; set; }
 
         /// <summary>
         /// The <c>test_table_3_fk3</c> column.
         /// </summary>
-        [ForeignKey(typeof(TestTable3), ForeignKeyName = ""fk_test_table_4_test_table_3_fk1"", OnDelete = ""SET NULL"")]
-        [Alias(""test_table_3_fk3"")]
+        [ForeignKey(typeof(TestTable3), ForeignKeyName = "fk_test_table_4_test_table_3_fk1", OnDelete = "SET NULL")]
+        [Alias("test_table_3_fk3")]
         public long? TestTable3Fk3 { get; set; }
 
         /// <summary>
         /// The <c>test_table_3_fk4</c> column.
         /// </summary>
-        [ForeignKey(typeof(TestTable3), ForeignKeyName = ""fk_test_table_4_test_table_3_fk1"", OnDelete = ""CASCADE"", OnUpdate = ""SET NULL"")]
-        [Alias(""test_table_3_fk4"")]
+        [ForeignKey(typeof(TestTable3), ForeignKeyName = "fk_test_table_4_test_table_3_fk1", OnDelete = "CASCADE", OnUpdate = "SET NULL")]
+        [Alias("test_table_3_fk4")]
         public long? TestTable3Fk4 { get; set; }
     }
-}";
+}
+""";
 
-    private readonly string TestTable5Output = @"using System;
+    private readonly string TestTable5Output = """
+using System;
 using ServiceStack.DataAnnotations;
 
 namespace OrmLiteTestNamespace.Main
@@ -436,19 +443,21 @@ namespace OrmLiteTestNamespace.Main
     /// <summary>
     /// This is a test table comment for OrmLite
     /// </summary>
-    [Schema(""main"")]
-    [Alias(""test_table_5"")]
+    [Schema("main")]
+    [Alias("test_table_5")]
     public sealed record TestTable5
     {
         /// <summary>
         /// This is a test column comment for OrmLite
         /// </summary>
-        [Alias(""test_column_1"")]
+        [Alias("test_column_1")]
         public long? TestColumn1 { get; set; }
     }
-}";
+}
+""";
 
-    private readonly string TestTable5MultiLineOutput = @"using System;
+    private readonly string TestTable5MultiLineOutput = """
+using System;
 using ServiceStack.DataAnnotations;
 
 namespace OrmLiteTestNamespace.Main
@@ -457,16 +466,17 @@ namespace OrmLiteTestNamespace.Main
     /// <para>This is a test table comment for OrmLite.</para>
     /// <para>This is a second line for it.</para>
     /// </summary>
-    [Schema(""main"")]
-    [Alias(""test_table_5"")]
+    [Schema("main")]
+    [Alias("test_table_5")]
     public sealed record TestTable5
     {
         /// <summary>
         /// <para>This is a test column comment for OrmLite.</para>
         /// <para>This is a second line for it.</para>
         /// </summary>
-        [Alias(""test_column_1"")]
+        [Alias("test_column_1")]
         public long? TestColumn1 { get; set; }
     }
-}";
+}
+""";
 }

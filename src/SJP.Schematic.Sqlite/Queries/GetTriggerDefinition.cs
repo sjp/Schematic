@@ -30,14 +30,16 @@ internal static class GetTriggerDefinition
         if (schemaName.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(schemaName));
 
-        return $@"
+        return $"""
+
 select
-    type AS ""{nameof(Result.Type)}"",
-    name AS ""{nameof(Result.Name)}"",
-    tbl_name AS ""{nameof(Result.TableName)}"",
-    rootpage AS ""{nameof(Result.RootPage)}"",
-    sql AS ""{nameof(Result.Sql)}""
+    type AS "{nameof(Result.Type)}",
+    name AS "{nameof(Result.Name)}",
+    tbl_name AS "{nameof(Result.TableName)}",
+    rootpage AS "{nameof(Result.RootPage)}",
+    sql AS "{nameof(Result.Sql)}"
 from {dialect.QuoteIdentifier(schemaName)}.sqlite_master
-where type = 'trigger' and tbl_name = @{nameof(Query.TableName)}";
+where type = 'trigger' and tbl_name = @{nameof(Query.TableName)}
+""";
     }
 }

@@ -134,31 +134,33 @@ internal static class GetViewColumns
         public string? SerialSequenceLocalName { get; init; }
     }
 
-    internal const string Sql = @$"
+    internal const string Sql = $"""
+
 select
-    column_name as ""{nameof(Result.ColumnName)}"",
-    ordinal_position as ""{nameof(Result.OrdinalPosition)}"",
-    column_default as ""{nameof(Result.ColumnDefault)}"",
-    is_nullable as ""{nameof(Result.IsNullable)}"",
-    data_type as ""{nameof(Result.DataType)}"",
-    character_maximum_length as ""{nameof(Result.CharacterMaximumLength)}"",
-    character_octet_length as ""{nameof(Result.CharacterOctetLength)}"",
-    numeric_precision as ""{nameof(Result.NumericPrecision)}"",
-    numeric_precision_radix as ""{nameof(Result.NumericPrecisionRadix)}"",
-    numeric_scale as ""{nameof(Result.NumericScale)}"",
-    datetime_precision as ""{nameof(Result.DatetimePrecision)}"",
-    interval_type as ""{nameof(Result.IntervalType)}"",
-    collation_catalog as ""{nameof(Result.CollationCatalog)}"",
-    collation_schema as ""{nameof(Result.CollationSchema)}"",
-    collation_name as ""{nameof(Result.CollationName)}"",
-    domain_catalog as ""{nameof(Result.DomainCatalog)}"",
-    domain_schema as ""{nameof(Result.DomainSchema)}"",
-    domain_name as ""{nameof(Result.DomainName)}"",
-    udt_catalog as ""{nameof(Result.UdtCatalog)}"",
-    udt_schema as ""{nameof(Result.UdtSchema)}"",
-    udt_name as ""{nameof(Result.UdtName)}"",
-    dtd_identifier as ""{nameof(Result.DtdIdentifier)}""
+    column_name as "{nameof(Result.ColumnName)}",
+    ordinal_position as "{nameof(Result.OrdinalPosition)}",
+    column_default as "{nameof(Result.ColumnDefault)}",
+    is_nullable as "{nameof(Result.IsNullable)}",
+    data_type as "{nameof(Result.DataType)}",
+    character_maximum_length as "{nameof(Result.CharacterMaximumLength)}",
+    character_octet_length as "{nameof(Result.CharacterOctetLength)}",
+    numeric_precision as "{nameof(Result.NumericPrecision)}",
+    numeric_precision_radix as "{nameof(Result.NumericPrecisionRadix)}",
+    numeric_scale as "{nameof(Result.NumericScale)}",
+    datetime_precision as "{nameof(Result.DatetimePrecision)}",
+    interval_type as "{nameof(Result.IntervalType)}",
+    collation_catalog as "{nameof(Result.CollationCatalog)}",
+    collation_schema as "{nameof(Result.CollationSchema)}",
+    collation_name as "{nameof(Result.CollationName)}",
+    domain_catalog as "{nameof(Result.DomainCatalog)}",
+    domain_schema as "{nameof(Result.DomainSchema)}",
+    domain_name as "{nameof(Result.DomainName)}",
+    udt_catalog as "{nameof(Result.UdtCatalog)}",
+    udt_schema as "{nameof(Result.UdtSchema)}",
+    udt_name as "{nameof(Result.UdtName)}",
+    dtd_identifier as "{nameof(Result.DtdIdentifier)}"
 from information_schema.columns
 where table_schema = @{nameof(Query.SchemaName)} and table_name = @{nameof(Query.ViewName)}
-order by ordinal_position";
+order by ordinal_position
+""";
 }

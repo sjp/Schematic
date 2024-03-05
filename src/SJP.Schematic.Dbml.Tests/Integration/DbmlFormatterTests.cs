@@ -169,17 +169,19 @@ create table test_table_9 (
         Assert.That(result, Is.EqualTo(MultipleRelationshipsDbml).Using(LineEndingInvariantStringComparer.Ordinal));
     }
 
-    private const string TestTable1Dbml = @"Table main_test_table_1 {
+    private const string TestTable1Dbml = """
+Table main_test_table_1 {
     test_pk INTEGER [not null, increment, primary key]
     test_int INTEGER [not null]
     test_nullable_int INTEGER [null]
     test_numeric NUMERIC [not null]
     test_nullable_numeric NUMERIC [null]
     test_blob BLOB [not null]
-    test_datetime NUMERIC [null, default: ""CURRENT_TIMESTAMP""]
+    test_datetime NUMERIC [null, default: "CURRENT_TIMESTAMP"]
     test_string TEXT [null]
-    test_string_with_default TEXT [null, default: ""'test'""]
-}";
+    test_string_with_default TEXT [null, default: "'test'"]
+}
+""";
 
     private const string TestTable2Dbml = @"Table main_test_table_2 {
     test_pk_1 INTEGER [not null]

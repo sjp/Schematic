@@ -26,14 +26,16 @@ internal static class GetTableTriggers
         public required string? EnabledStatus { get; init; }
     }
 
-    internal const string Sql = @$"
+    internal const string Sql = $"""
+
 select
-    OWNER as ""{nameof(Result.TriggerSchema)}"",
-    TRIGGER_NAME as ""{nameof(Result.TriggerName)}"",
-    TRIGGER_TYPE as ""{nameof(Result.TriggerType)}"",
-    TRIGGERING_EVENT as ""{nameof(Result.TriggerEvent)}"",
-    TRIGGER_BODY as ""{nameof(Result.Definition)}"",
-    STATUS as ""{nameof(Result.EnabledStatus)}""
+    OWNER as "{nameof(Result.TriggerSchema)}",
+    TRIGGER_NAME as "{nameof(Result.TriggerName)}",
+    TRIGGER_TYPE as "{nameof(Result.TriggerType)}",
+    TRIGGERING_EVENT as "{nameof(Result.TriggerEvent)}",
+    TRIGGER_BODY as "{nameof(Result.Definition)}",
+    STATUS as "{nameof(Result.EnabledStatus)}"
 from SYS.ALL_TRIGGERS
-where TABLE_OWNER = :{nameof(Query.SchemaName)} and TABLE_NAME = :{nameof(Query.TableName)} and BASE_OBJECT_TYPE = 'TABLE'";
+where TABLE_OWNER = :{nameof(Query.SchemaName)} and TABLE_NAME = :{nameof(Query.TableName)} and BASE_OBJECT_TYPE = 'TABLE'
+""";
 }
