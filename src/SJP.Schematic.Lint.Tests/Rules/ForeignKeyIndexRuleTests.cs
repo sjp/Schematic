@@ -48,14 +48,13 @@ internal static class ForeignKeyIndexRuleTests
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn>
-            {
+            [
                 GetColumn("a"),
                 GetColumn("b"),
                 GetColumn("c")
-            },
+            ],
             null,
-            Array.Empty<IDatabaseKey>(),
+            [],
             new[]
             {
                 new DatabaseRelationalKey(
@@ -67,20 +66,20 @@ internal static class ForeignKeyIndexRuleTests
                     ReferentialAction.Cascade
                 )
             },
-            Array.Empty<IDatabaseRelationalKey>(),
+            [],
             new[]
             {
                 new DatabaseIndex(
                     "test_index_1",
                     false,
                     new[] { GetIndexColumn("b"), GetIndexColumn("c") },
-                    Array.Empty<IDatabaseColumn>(),
+                    [],
                     true,
                     Option<string>.None
                 )
             },
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [],
+            []
         );
         var tables = new[] { table };
 
@@ -96,14 +95,13 @@ internal static class ForeignKeyIndexRuleTests
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn>
-            {
+            [
                 GetColumn("a"),
                 GetColumn("b"),
                 GetColumn("c")
-            },
+            ],
             null,
-            Array.Empty<IDatabaseKey>(),
+            [],
             new[]
             {
                 new DatabaseRelationalKey(
@@ -115,20 +113,20 @@ internal static class ForeignKeyIndexRuleTests
                     ReferentialAction.Cascade
                 )
             },
-            Array.Empty<IDatabaseRelationalKey>(),
+            [],
             new[]
             {
                 new DatabaseIndex(
                     "test_index_1",
                     false,
                     new[] { GetIndexColumn("c"), GetIndexColumn("b") },
-                    Array.Empty<IDatabaseColumn>(),
+                    [],
                     true,
                     Option<string>.None
                 )
             },
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [],
+            []
         );
         var tables = new[] { table };
 
@@ -144,14 +142,13 @@ internal static class ForeignKeyIndexRuleTests
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn>
-            {
+            [
                 GetColumn("a"),
                 GetColumn("b"),
                 GetColumn("c")
-            },
+            ],
             null,
-            Array.Empty<IDatabaseKey>(),
+            [],
             new[]
             {
                 new DatabaseRelationalKey(
@@ -163,7 +160,7 @@ internal static class ForeignKeyIndexRuleTests
                     ReferentialAction.Cascade
                 )
             },
-            Array.Empty<IDatabaseRelationalKey>(),
+            [],
             new[]
             {
                 new DatabaseIndex(
@@ -175,8 +172,8 @@ internal static class ForeignKeyIndexRuleTests
                     Option<string>.None
                 )
             },
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [],
+            []
         );
         var tables = new[] { table };
 
@@ -192,14 +189,13 @@ internal static class ForeignKeyIndexRuleTests
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn>
-            {
+            [
                 GetColumn("a"),
                 GetColumn("b"),
                 GetColumn("c")
-            },
+            ],
             null,
-            Array.Empty<IDatabaseKey>(),
+            [],
             new[]
             {
                 new DatabaseRelationalKey(
@@ -211,7 +207,7 @@ internal static class ForeignKeyIndexRuleTests
                     ReferentialAction.Cascade
                 )
             },
-            Array.Empty<IDatabaseRelationalKey>(),
+            [],
             new[]
             {
                 new DatabaseIndex(
@@ -223,8 +219,8 @@ internal static class ForeignKeyIndexRuleTests
                     Option<string>.None
                 )
             },
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [],
+            []
         );
         var tables = new[] { table };
 
@@ -240,14 +236,13 @@ internal static class ForeignKeyIndexRuleTests
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn>
-            {
+            [
                 GetColumn("a"),
                 GetColumn("b"),
                 GetColumn("c")
-            },
+            ],
             null,
-            Array.Empty<IDatabaseKey>(),
+            [],
             new[]
             {
                 new DatabaseRelationalKey(
@@ -259,7 +254,7 @@ internal static class ForeignKeyIndexRuleTests
                     ReferentialAction.Cascade
                 )
             },
-            Array.Empty<IDatabaseRelationalKey>(),
+            [],
             new[]
             {
                 new DatabaseIndex(
@@ -271,8 +266,8 @@ internal static class ForeignKeyIndexRuleTests
                     Option<string>.None
                 )
             },
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [],
+            []
         );
         var tables = new[] { table };
 
@@ -288,14 +283,13 @@ internal static class ForeignKeyIndexRuleTests
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn>
-            {
+            [
                 GetColumn("a"),
                 GetColumn("b"),
                 GetColumn("c")
-            },
+            ],
             null,
-            Array.Empty<IDatabaseKey>(),
+            [],
             new[]
             {
                 new DatabaseRelationalKey(
@@ -307,7 +301,7 @@ internal static class ForeignKeyIndexRuleTests
                     ReferentialAction.Cascade
                 )
             },
-            Array.Empty<IDatabaseRelationalKey>(),
+            [],
             new[]
             {
                 new DatabaseIndex(
@@ -319,8 +313,8 @@ internal static class ForeignKeyIndexRuleTests
                     Option<string>.None
                 )
             },
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [],
+            []
         );
         var tables = new[] { table };
 

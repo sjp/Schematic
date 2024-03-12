@@ -105,6 +105,6 @@ internal static class EFCoreTableGeneratorTests
         var generator = GetTableGenerator();
         var comment = Option<IRelationalDatabaseTableComments>.None;
 
-        Assert.That(() => generator.Generate(Array.Empty<IRelationalDatabaseTable>(), null, comment), Throws.ArgumentNullException);
+        Assert.That(() => generator.Generate([], null, comment), Throws.ArgumentNullException);
     }
 }

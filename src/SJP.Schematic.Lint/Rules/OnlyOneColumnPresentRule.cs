@@ -48,7 +48,7 @@ public class OnlyOneColumnPresentRule : Rule, ITableRule
 
         var columnCount = table.Columns.Count;
         if (columnCount > 1)
-            return Array.Empty<IRuleMessage>();
+            return [];
 
         var message = BuildMessage(table.Name, columnCount);
         return new[] { message };

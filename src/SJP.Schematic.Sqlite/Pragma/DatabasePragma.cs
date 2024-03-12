@@ -450,7 +450,7 @@ public class DatabasePragma : ISqliteDatabasePragma
         var errors = await DbConnection.QueryAsync<string>(IntegrityCheckDatabaseQuery, cancellationToken).ConfigureAwait(false);
         var result = errors.ToList();
         if (result.Count == 1 && string.Equals(result[0], "ok", StringComparison.Ordinal))
-            return Array.Empty<string>();
+            return [];
 
         return result;
     }
@@ -473,7 +473,7 @@ public class DatabasePragma : ISqliteDatabasePragma
         var errors = await DbConnection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
         var result = errors.ToList();
         if (result.Count == 1 && string.Equals(result[0], "ok", StringComparison.Ordinal))
-            return Array.Empty<string>();
+            return [];
 
         return result;
     }
@@ -511,7 +511,7 @@ public class DatabasePragma : ISqliteDatabasePragma
         var errors = await DbConnection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
         var result = errors.ToList();
         if (result.Count == 1 && string.Equals(result[0], "ok", StringComparison.Ordinal))
-            return Array.Empty<string>();
+            return [];
 
         return result;
     }
@@ -794,7 +794,7 @@ public class DatabasePragma : ISqliteDatabasePragma
         var errors = await DbConnection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
         var result = errors.ToList();
         if (result.Count == 1 && string.Equals(result[0], "ok", StringComparison.Ordinal))
-            return Array.Empty<string>();
+            return [];
 
         return result;
     }

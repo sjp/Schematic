@@ -34,14 +34,14 @@ internal static class UniqueIndexWithNullableColumnsRuleTests
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn>(),
+            [],
             null,
-            Array.Empty<IDatabaseKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseIndex>(),
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
         );
         var tables = new[] { table };
 
@@ -67,21 +67,21 @@ internal static class UniqueIndexWithNullableColumnsRuleTests
             "test_index_name",
             false,
             new[] { new DatabaseIndexColumn("test_column_1", testColumn, IndexColumnOrder.Ascending) },
-            Array.Empty<IDatabaseColumn>(),
+            [],
             true,
             Option<string>.None
         );
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn>(),
+            [],
             null,
-            Array.Empty<IDatabaseKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
+            [],
+            [],
+            [],
             new[] { index },
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [],
+            []
         );
         var tables = new[] { table };
 
@@ -107,21 +107,21 @@ internal static class UniqueIndexWithNullableColumnsRuleTests
             "test_index_name",
             true,
             new[] { new DatabaseIndexColumn("test_column_1", testColumn, IndexColumnOrder.Ascending) },
-            Array.Empty<IDatabaseColumn>(),
+            [],
             true,
             Option<string>.None
         );
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn>(),
+            [],
             null,
-            Array.Empty<IDatabaseKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
+            [],
+            [],
+            [],
             new[] { uniqueIndex },
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [],
+            []
         );
         var tables = new[] { table };
 
@@ -147,21 +147,21 @@ internal static class UniqueIndexWithNullableColumnsRuleTests
             "test_index_name",
             true,
             new[] { new DatabaseIndexColumn("test_column_1", testColumn, IndexColumnOrder.Ascending) },
-            Array.Empty<IDatabaseColumn>(),
+            [],
             true,
             Option<string>.None
         );
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn>(),
+            [],
             null,
-            Array.Empty<IDatabaseKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
+            [],
+            [],
+            [],
             new[] { uniqueIndex },
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [],
+            []
         );
         var tables = new[] { table };
 

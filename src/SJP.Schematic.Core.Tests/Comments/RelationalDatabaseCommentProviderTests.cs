@@ -14,11 +14,11 @@ internal static class RelationalDatabaseCommentProviderTests
     private static IRelationalDatabaseCommentProvider EmptyCommentProvider => new RelationalDatabaseCommentProvider(
         new IdentifierDefaults("test_server", "test_database", "test_schema"),
         new VerbatimIdentifierResolutionStrategy(),
-        Array.Empty<IRelationalDatabaseTableComments>(),
-        Array.Empty<IDatabaseViewComments>(),
-        Array.Empty<IDatabaseSequenceComments>(),
-        Array.Empty<IDatabaseSynonymComments>(),
-        Array.Empty<IDatabaseRoutineComments>()
+        [],
+        [],
+        [],
+        [],
+        []
     );
 
     [Test]

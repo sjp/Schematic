@@ -80,7 +80,7 @@ public class InvalidViewDefinitionRule : Rule, IViewRule
             var query = "select 1 as dummy from " + quotedViewName;
             await Connection.DbConnection.ExecuteScalarAsync<long>(query, cancellationToken).ConfigureAwait(false);
 
-            return Array.Empty<IRuleMessage>();
+            return [];
         }
         catch
         {

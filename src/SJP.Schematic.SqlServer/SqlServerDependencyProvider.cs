@@ -46,7 +46,7 @@ public class SqlServerDependencyProvider : IDependencyProvider
         using var reader = new StringReader(expression);
         var tokens = _parser.GetTokenStream(reader, out var errors);
 
-        var sqlErrors = errors ?? new List<ParseError>();
+        var sqlErrors = errors ?? [];
         if (sqlErrors.Count > 0)
         {
             var parserErrorMessages = sqlErrors.Select(e => e.Message ?? string.Empty).Join(", ");

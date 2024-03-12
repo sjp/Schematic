@@ -21,7 +21,7 @@ internal static class CycleDetectorTests
     public static void GetCyclePaths_GivenEmptyTables_ReturnsEmptyCollection()
     {
         var cycleDetector = new CycleDetector();
-        var result = cycleDetector.GetCyclePaths(Array.Empty<IRelationalDatabaseTable>());
+        var result = cycleDetector.GetCyclePaths([]);
 
         Assert.That(result, Is.Empty);
     }
@@ -70,7 +70,7 @@ internal static class CycleDetectorTests
 
         var tableCMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
         tableCMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("c"));
-        tableCMock.Setup(t => t.ParentKeys).Returns(Array.Empty<IDatabaseRelationalKey>());
+        tableCMock.Setup(t => t.ParentKeys).Returns([]);
 
         var tables = new[]
         {

@@ -91,11 +91,11 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     {
         var nullableColumns = table.Columns.Where(c => c.IsNullable).ToList();
         if (nullableColumns.Empty())
-            return Array.Empty<IRuleMessage>();
+            return [];
 
         var tableHasRows = await TableHasRowsAsync(table, cancellationToken).ConfigureAwait(false);
         if (!tableHasRows)
-            return Array.Empty<IRuleMessage>();
+            return [];
 
         var result = new List<IRuleMessage>();
 

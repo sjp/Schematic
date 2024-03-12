@@ -86,7 +86,7 @@ public class ForeignKeySelfReferenceRule : Rule, ITableRule
 
         return table.PrimaryKey.Match(
             pk => AnalyseTableWithPrimaryKeyAsync(table, pk, cancellationToken),
-            () => Task.FromResult<IEnumerable<IRuleMessage>>(Array.Empty<IRuleMessage>())
+            () => Task.FromResult<IEnumerable<IRuleMessage>>([])
         );
     }
 
@@ -98,7 +98,7 @@ public class ForeignKeySelfReferenceRule : Rule, ITableRule
             .ToList();
 
         if (matchingForeignKeys.Count == 0)
-            return Array.Empty<IRuleMessage>();
+            return [];
 
         var result = new List<IRuleMessage>();
 

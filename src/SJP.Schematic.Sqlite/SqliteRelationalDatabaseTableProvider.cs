@@ -351,18 +351,18 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
                 .MatchUnsafe(static name => name, static () => (Identifier?)null).ConfigureAwait(false);
             if (resolvedName == null)
-                return Array.Empty<IDatabaseIndex>();
+                return [];
             tableName = resolvedName;
         }
 
         var pragma = GetDatabasePragma(tableName.Schema!);
         var indexLists = await pragma.IndexListAsync(tableName, cancellationToken).ConfigureAwait(false);
         if (indexLists.Empty())
-            return Array.Empty<IDatabaseIndex>();
+            return [];
 
         var nonConstraintIndexLists = indexLists.Where(static i => string.Equals(i.origin, Constants.CreateIndex, StringComparison.Ordinal)).ToList();
         if (nonConstraintIndexLists.Empty())
-            return Array.Empty<IDatabaseIndex>();
+            return [];
 
         var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
         var columnLookup = GetColumnLookup(columns);
@@ -449,20 +449,20 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
                 .MatchUnsafe(static name => name, static () => (Identifier?)null).ConfigureAwait(false);
             if (resolvedName == null)
-                return Array.Empty<IDatabaseKey>();
+                return [];
             tableName = resolvedName;
         }
 
         var pragma = GetDatabasePragma(tableName.Schema!);
         var indexLists = await pragma.IndexListAsync(tableName, cancellationToken).ConfigureAwait(false);
         if (indexLists.Empty())
-            return Array.Empty<IDatabaseKey>();
+            return [];
 
         var ukIndexLists = indexLists
             .Where(static i => string.Equals(i.origin, Constants.UniqueConstraint, StringComparison.Ordinal) && i.unique && i.name != null)
             .ToList();
         if (ukIndexLists.Empty())
-            return Array.Empty<IDatabaseKey>();
+            return [];
 
         var result = new List<IDatabaseKey>(ukIndexLists.Count);
 
@@ -524,7 +524,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
                 .MatchUnsafe(static name => name, static () => (Identifier?)null).ConfigureAwait(false);
             if (resolvedName == null)
-                return Array.Empty<IDatabaseRelationalKey>();
+                return [];
             tableName = resolvedName;
         }
 
@@ -575,7 +575,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         var checks = parsedTable.Checks.ToList();
         if (checks.Empty())
-            return Array.Empty<IDatabaseCheckConstraint>();
+            return [];
 
         var result = new List<IDatabaseCheckConstraint>(checks.Count);
 
@@ -617,14 +617,14 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
                 .MatchUnsafe(static name => name, static () => (Identifier?)null).ConfigureAwait(false);
             if (resolvedName == null)
-                return Array.Empty<IDatabaseRelationalKey>();
+                return [];
             tableName = resolvedName;
         }
 
         var pragma = GetDatabasePragma(tableName.Schema!);
         var queryResult = await pragma.ForeignKeyListAsync(tableName, cancellationToken).ConfigureAwait(false);
         if (queryResult.Empty())
-            return Array.Empty<IDatabaseRelationalKey>();
+            return [];
 
         var foreignKeys = queryResult.GroupAsDictionary(static row => new
         {
@@ -634,7 +634,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             OnUpdate = row.on_update
         }).ToList();
         if (foreignKeys.Empty())
-            return Array.Empty<IDatabaseRelationalKey>();
+            return [];
 
         var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
         var parsedTable = await queryCache.GetParsedTableAsync(tableName, cancellationToken).ConfigureAwait(false);
@@ -739,14 +739,14 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
                 .MatchUnsafe(static name => name, static () => (Identifier?)null).ConfigureAwait(false);
             if (resolvedName == null)
-                return Array.Empty<IDatabaseColumn>();
+                return [];
             tableName = resolvedName;
         }
 
         var pragma = GetDatabasePragma(tableName.Schema!);
         var tableInfos = await pragma.TableXInfoAsync(tableName, cancellationToken).ConfigureAwait(false);
         if (tableInfos.Empty())
-            return Array.Empty<IDatabaseColumn>();
+            return [];
 
         var parsedTable = await queryCache.GetParsedTableAsync(tableName, cancellationToken).ConfigureAwait(false);
 
@@ -800,14 +800,14 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
                 .MatchUnsafe(static name => name, static () => (Identifier?)null).ConfigureAwait(false);
             if (resolvedName == null)
-                return Array.Empty<IDatabaseColumn>();
+                return [];
             tableName = resolvedName;
         }
 
         var pragma = GetDatabasePragma(tableName.Schema!);
         var tableInfos = await pragma.TableInfoAsync(tableName, cancellationToken).ConfigureAwait(false);
         if (tableInfos.Empty())
-            return Array.Empty<IDatabaseColumn>();
+            return [];
 
         var parsedTable = await queryCache.GetParsedTableAsync(tableName, cancellationToken).ConfigureAwait(false);
 
@@ -861,7 +861,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
                 .MatchUnsafe(static name => name, static () => (Identifier?)null).ConfigureAwait(false);
             if (resolvedName == null)
-                return Array.Empty<IDatabaseTrigger>();
+                return [];
             tableName = resolvedName;
         }
 

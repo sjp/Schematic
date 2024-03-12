@@ -10,14 +10,14 @@ internal sealed class TableMember
         ArgumentNullException.ThrowIfNull(column);
 
         Columns = column.ToEnumerable();
-        Constraints = Array.Empty<TableConstraint>();
+        Constraints = [];
     }
 
     public TableMember(TableConstraint constraint)
     {
         ArgumentNullException.ThrowIfNull(constraint);
 
-        Columns = Array.Empty<ColumnDefinition>();
+        Columns = [];
         Constraints = constraint.ToEnumerable();
     }
 

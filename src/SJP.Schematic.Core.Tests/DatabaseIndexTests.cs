@@ -15,7 +15,7 @@ internal static class DatabaseIndexTests
         var column = Mock.Of<IDatabaseIndexColumn>();
         var columns = new[] { column };
 
-        Assert.That(() => new DatabaseIndex(null, false, columns, Array.Empty<IDatabaseColumn>(), true, Option<string>.None), Throws.ArgumentNullException);
+        Assert.That(() => new DatabaseIndex(null, false, columns, [], true, Option<string>.None), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -23,7 +23,7 @@ internal static class DatabaseIndexTests
     {
         Identifier indexName = "test_index";
 
-        Assert.That(() => new DatabaseIndex(indexName, false, null, Array.Empty<IDatabaseColumn>(), true, Option<string>.None), Throws.ArgumentNullException);
+        Assert.That(() => new DatabaseIndex(indexName, false, null, [], true, Option<string>.None), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -32,7 +32,7 @@ internal static class DatabaseIndexTests
         Identifier indexName = "test_index";
         var columns = Array.Empty<IDatabaseIndexColumn>();
 
-        Assert.That(() => new DatabaseIndex(indexName, false, columns, Array.Empty<IDatabaseColumn>(), true, Option<string>.None), Throws.ArgumentNullException);
+        Assert.That(() => new DatabaseIndex(indexName, false, columns, [], true, Option<string>.None), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -41,7 +41,7 @@ internal static class DatabaseIndexTests
         Identifier indexName = "test_index";
         var columns = new IDatabaseIndexColumn[] { null };
 
-        Assert.That(() => new DatabaseIndex(indexName, false, columns, Array.Empty<IDatabaseColumn>(), true, Option<string>.None), Throws.ArgumentNullException);
+        Assert.That(() => new DatabaseIndex(indexName, false, columns, [], true, Option<string>.None), Throws.ArgumentNullException);
     }
 
     [Test]

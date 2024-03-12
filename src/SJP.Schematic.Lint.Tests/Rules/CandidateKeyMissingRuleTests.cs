@@ -34,14 +34,14 @@ internal static class CandidateKeyMissingRuleTests
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn>(),
+            [],
             null,
-            Array.Empty<IDatabaseKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseIndex>(),
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
         );
         var tables = new[] { table };
 
@@ -71,14 +71,14 @@ internal static class CandidateKeyMissingRuleTests
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn>(),
+            [],
             testPrimaryKey,
-            Array.Empty<IDatabaseKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseIndex>(),
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
         );
         var tables = new[] { table };
 
@@ -108,14 +108,14 @@ internal static class CandidateKeyMissingRuleTests
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn>(),
+            [],
             null,
-            new List<IDatabaseKey>() { testUniqueKey },
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseIndex>(),
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [testUniqueKey],
+            [],
+            [],
+            [],
+            [],
+            []
         );
         var tables = new[] { table };
 

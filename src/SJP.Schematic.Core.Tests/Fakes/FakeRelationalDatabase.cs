@@ -15,15 +15,15 @@ internal class FakeRelationalDatabase : IRelationalDatabase
 
     public IIdentifierDefaults IdentifierDefaults { get; }
 
-    public IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; set; } = new List<IRelationalDatabaseTable>();
+    public IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; set; } = [];
 
-    public IReadOnlyCollection<IDatabaseView> Views { get; set; } = new List<IDatabaseView>();
+    public IReadOnlyCollection<IDatabaseView> Views { get; set; } = [];
 
-    public IReadOnlyCollection<IDatabaseSequence> Sequences { get; set; } = new List<IDatabaseSequence>();
+    public IReadOnlyCollection<IDatabaseSequence> Sequences { get; set; } = [];
 
-    public IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; set; } = new List<IDatabaseSynonym>();
+    public IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; set; } = [];
 
-    public IReadOnlyCollection<IDatabaseRoutine> Routines { get; set; } = new List<IDatabaseRoutine>();
+    public IReadOnlyCollection<IDatabaseRoutine> Routines { get; set; } = [];
 
     public virtual OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default)
     {

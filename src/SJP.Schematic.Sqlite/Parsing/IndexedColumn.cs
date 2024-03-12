@@ -18,7 +18,7 @@ public class IndexedColumn
         ArgumentNullException.ThrowIfNull(identifier);
 
         Name = identifier.Value.LocalName;
-        Expression = Array.Empty<Token<SqliteToken>>();
+        Expression = [];
     }
 
     internal IndexedColumn(string identifier)
@@ -27,7 +27,7 @@ public class IndexedColumn
             throw new ArgumentNullException(nameof(identifier));
 
         Name = identifier;
-        Expression = Array.Empty<Token<SqliteToken>>();
+        Expression = [];
     }
 
     internal IndexedColumn(SqlExpression expression)

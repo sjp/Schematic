@@ -66,12 +66,12 @@ public class PrimaryKeyColumnNotFirstColumnRule : Rule, ITableRule
 
         var tableColumns = table.Columns;
         if (tableColumns.Empty())
-            return Array.Empty<IRuleMessage>();
+            return [];
 
         var pkColumnName = primaryKey.Columns.Single().Name;
         var firstColumnName = table.Columns[0].Name;
         if (pkColumnName == firstColumnName)
-            return Array.Empty<IRuleMessage>();
+            return [];
 
         var message = BuildMessage(table.Name);
         return new[] { message };

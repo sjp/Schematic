@@ -53,7 +53,7 @@ public class ColumnWithNumericSuffix : Rule, ITableRule
             .Where(c => NumericSuffixRegex.IsMatch(c))
             .ToList();
         if (columnsWithNumericSuffix.Empty())
-            return Array.Empty<IRuleMessage>();
+            return [];
 
         return columnsWithNumericSuffix
             .ConvertAll(c => BuildMessage(table.Name, c))

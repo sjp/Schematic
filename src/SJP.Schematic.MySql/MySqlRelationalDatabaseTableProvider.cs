@@ -248,11 +248,11 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         ).ConfigureAwait(false);
 
         if (queryResult.Empty())
-            return Array.Empty<IDatabaseIndex>();
+            return [];
 
         var indexColumns = queryResult.GroupAsDictionary(static row => new { row.IndexName, row.IsNonUnique }).ToList();
         if (indexColumns.Empty())
-            return Array.Empty<IDatabaseIndex>();
+            return [];
 
         var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
         var columnLookup = GetColumnLookup(columns);
@@ -306,7 +306,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         ).ConfigureAwait(false);
 
         if (uniqueKeyColumns.Empty())
-            return Array.Empty<IDatabaseKey>();
+            return [];
 
         var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
         var columnLookup = GetColumnLookup(columns);
@@ -320,7 +320,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             })
             .ToList();
         if (constraintColumns.Empty())
-            return Array.Empty<IDatabaseKey>();
+            return [];
 
         var result = new List<IDatabaseKey>(constraintColumns.Count);
         foreach (var uk in constraintColumns)
@@ -356,7 +356,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         ).ConfigureAwait(false);
 
         if (queryResult.Empty())
-            return Array.Empty<IDatabaseRelationalKey>();
+            return [];
 
         var groupedChildKeys = queryResult.GroupAsDictionary(static row =>
         new
@@ -370,7 +370,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             row.UpdateAction
         }).ToList();
         if (groupedChildKeys.Empty())
-            return Array.Empty<IDatabaseRelationalKey>();
+            return [];
 
         var uniqueKeys = await queryCache.GetUniqueKeysAsync(tableName, cancellationToken).ConfigureAwait(false);
         var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
@@ -438,7 +438,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     {
         var hasCheckSupport = await _supportsChecks.ConfigureAwait(false);
         if (!hasCheckSupport)
-            return Array.Empty<IDatabaseCheckConstraint>();
+            return [];
 
         return await DbConnection.QueryEnumerableAsync(
                 GetTableCheckConstraints.Sql,
@@ -480,7 +480,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         ).ConfigureAwait(false);
 
         if (queryResult.Empty())
-            return Array.Empty<IDatabaseRelationalKey>();
+            return [];
 
         var foreignKeys = queryResult.GroupAsDictionary(static row => new
         {
@@ -493,7 +493,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             row.UpdateAction,
         }).ToList();
         if (foreignKeys.Empty())
-            return Array.Empty<IDatabaseRelationalKey>();
+            return [];
 
         var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
         var columnLookup = GetColumnLookup(columns);
@@ -625,7 +625,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         ).ConfigureAwait(false);
 
         if (queryResult.Empty())
-            return Array.Empty<IDatabaseTrigger>();
+            return [];
 
         var triggers = queryResult.GroupAsDictionary(static row => new
         {
@@ -634,7 +634,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             row.Timing
         }).ToList();
         if (triggers.Empty())
-            return Array.Empty<IDatabaseTrigger>();
+            return [];
 
         var result = new List<IDatabaseTrigger>(triggers.Count);
         foreach (var trig in triggers)

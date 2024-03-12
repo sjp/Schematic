@@ -18,7 +18,7 @@ internal static class EnumerableExtensionsTests
     [Test]
     public static void NullOrEmpty_GivenEmptyCollection_ReturnsTrue()
     {
-        IEnumerable<string> input = Array.Empty<string>();
+        IEnumerable<string> input = [];
         Assert.That(input.NullOrEmpty(), Is.True);
     }
 
@@ -39,7 +39,7 @@ internal static class EnumerableExtensionsTests
     [Test]
     public static void Empty_GivenEmptyCollection_ReturnsTrue()
     {
-        IEnumerable<string> input = Array.Empty<string>();
+        IEnumerable<string> input = [];
         Assert.That(input.Empty(), Is.True);
     }
 
@@ -60,7 +60,7 @@ internal static class EnumerableExtensionsTests
     [Test]
     public static void NullOrAnyNull_GivenEmptyCollection_ReturnsFalse()
     {
-        IEnumerable<string> input = Array.Empty<string>();
+        IEnumerable<string> input = [];
         Assert.That(input.NullOrAnyNull(), Is.False);
     }
 
@@ -88,7 +88,7 @@ internal static class EnumerableExtensionsTests
     [Test]
     public static void AnyNull_GivenEmptyCollection_ReturnsFalse()
     {
-        IEnumerable<string> input = Array.Empty<string>();
+        IEnumerable<string> input = [];
         Assert.That(input.AnyNull(), Is.False);
     }
 

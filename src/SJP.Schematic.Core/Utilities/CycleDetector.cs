@@ -21,7 +21,7 @@ public class CycleDetector
     {
         ArgumentNullException.ThrowIfNull(tables);
         if (!tables.Any())
-            return Array.Empty<IReadOnlyCollection<Identifier>>();
+            return [];
 
         var graph = new AdjacencyGraph<Identifier, SEquatableEdge<Identifier>>();
         var tableNames = tables.Select(static t => t.Name).Distinct().ToList();

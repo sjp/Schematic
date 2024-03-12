@@ -13,11 +13,11 @@ internal static class RelationalDatabaseTests
     private static IRelationalDatabase EmptyDatabase => new RelationalDatabase(
         new IdentifierDefaults("test_server", "test_database", "test_schema"),
         new VerbatimIdentifierResolutionStrategy(),
-        Array.Empty<IRelationalDatabaseTable>(),
-        Array.Empty<IDatabaseView>(),
-        Array.Empty<IDatabaseSequence>(),
-        Array.Empty<IDatabaseSynonym>(),
-        Array.Empty<IDatabaseRoutine>()
+        [],
+        [],
+        [],
+        [],
+        []
     );
 
     [Test]
@@ -736,11 +736,11 @@ internal static class RelationalDatabaseTests
         var database = new RelationalDatabase(
             identifierDefaults,
             identifierResolver,
-            Array.Empty<IRelationalDatabaseTable>(),
-            Array.Empty<IDatabaseView>(),
-            Array.Empty<IDatabaseSequence>(),
-            Array.Empty<IDatabaseSynonym>(),
-            Array.Empty<IDatabaseRoutine>()
+            [],
+            [],
+            [],
+            [],
+            []
         );
 
         var snapshot = await RelationalDatabase.SnapshotAsync(database, identifierResolver).ConfigureAwait(false);

@@ -17,7 +17,7 @@ internal sealed class FakeDatabaseDialect : IDatabaseDialect
 
     public bool IsReservedKeyword(string text) => ReservedKeywords.Contains(text, StringComparer.OrdinalIgnoreCase);
 
-    public IEnumerable<string> ReservedKeywords { get; set; } = new List<string>();
+    public IEnumerable<string> ReservedKeywords { get; set; } = [];
 
     public Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(ISchematicConnection connection, CancellationToken cancellationToken = default) => Task.FromResult<IIdentifierDefaults>(null);
 

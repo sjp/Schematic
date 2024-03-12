@@ -246,7 +246,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         ).ConfigureAwait(false);
 
         if (queryResult.Empty())
-            return Array.Empty<IDatabaseIndex>();
+            return [];
 
         var indexColumns = queryResult
             .GroupAsDictionary(static row => new
@@ -259,7 +259,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             })
             .ToList();
         if (indexColumns.Empty())
-            return Array.Empty<IDatabaseIndex>();
+            return [];
 
         var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
         var columnLookup = GetColumnLookup(columns);
@@ -328,7 +328,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         ).ConfigureAwait(false);
 
         if (uniqueKeyColumns.Empty())
-            return Array.Empty<IDatabaseKey>();
+            return [];
 
         var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
         var columnLookup = GetColumnLookup(columns);
@@ -346,7 +346,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             })
             .ToList();
         if (constraintColumns.Empty())
-            return Array.Empty<IDatabaseKey>();
+            return [];
 
         var result = new List<IDatabaseKey>(constraintColumns.Count);
         foreach (var uk in constraintColumns)
@@ -382,7 +382,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         ).ConfigureAwait(false);
 
         if (queryResult.Empty())
-            return Array.Empty<IDatabaseRelationalKey>();
+            return [];
 
         var groupedChildKeys = queryResult.GroupAsDictionary(static row =>
         new
@@ -396,7 +396,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             row.UpdateAction
         }).ToList();
         if (groupedChildKeys.Empty())
-            return Array.Empty<IDatabaseRelationalKey>();
+            return [];
 
         var primaryKey = await queryCache.GetPrimaryKeyAsync(tableName, cancellationToken).ConfigureAwait(false);
         var uniqueKeys = await queryCache.GetUniqueKeysAsync(tableName, cancellationToken).ConfigureAwait(false);
@@ -493,7 +493,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         ).ConfigureAwait(false);
 
         if (queryResult.Empty())
-            return Array.Empty<IDatabaseRelationalKey>();
+            return [];
 
         var foreignKeys = queryResult.GroupAsDictionary(static row => new
         {
@@ -507,7 +507,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             row.IsDisabled
         }).ToList();
         if (foreignKeys.Empty())
-            return Array.Empty<IDatabaseRelationalKey>();
+            return [];
 
         var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
         var columnLookup = GetColumnLookup(columns);
@@ -639,7 +639,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         ).ConfigureAwait(false);
 
         if (queryResult.Empty())
-            return Array.Empty<IDatabaseTrigger>();
+            return [];
 
         var triggers = queryResult.GroupAsDictionary(static row => new
         {
@@ -649,7 +649,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             row.IsDisabled
         }).ToList();
         if (triggers.Empty())
-            return Array.Empty<IDatabaseTrigger>();
+            return [];
 
         var result = new List<IDatabaseTrigger>(triggers.Count);
         foreach (var trig in triggers)

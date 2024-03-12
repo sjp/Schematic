@@ -18,7 +18,7 @@ internal static class ReadOnlyCollectionExtensionsTests
     [Test]
     public static void Empty_GivenEmptyCollection_ReturnsTrue()
     {
-        IReadOnlyCollection<string> input = Array.Empty<string>();
+        IReadOnlyCollection<string> input = [];
         Assert.That(input.Empty(), Is.True);
     }
 

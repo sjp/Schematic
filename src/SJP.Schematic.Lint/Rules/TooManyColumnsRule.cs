@@ -61,7 +61,7 @@ public class TooManyColumnsRule : Rule, ITableRule
 
         var columnCount = table.Columns.Count;
         if (columnCount <= ColumnLimit)
-            return Array.Empty<IRuleMessage>();
+            return [];
 
         var message = BuildMessage(table.Name, columnCount);
         return new[] { message };

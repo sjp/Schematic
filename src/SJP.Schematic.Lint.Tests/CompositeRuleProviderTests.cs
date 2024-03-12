@@ -18,14 +18,14 @@ internal static class CompositeRuleProviderTests
     [Test]
     public static void GetRules_GivenNullConnection_ThrowsArgumentNullException()
     {
-        var ruleProvider = new CompositeRuleProvider(Array.Empty<IRuleProvider>());
+        var ruleProvider = new CompositeRuleProvider([]);
         Assert.That(() => ruleProvider.GetRules(null, RuleLevel.Error), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void GetRules_GivenInvalidRuleLevel_ThrowsArgumentException()
     {
-        var ruleProvider = new CompositeRuleProvider(Array.Empty<IRuleProvider>());
+        var ruleProvider = new CompositeRuleProvider([]);
         Assert.That(() => ruleProvider.GetRules(Mock.Of<ISchematicConnection>(), (RuleLevel)555), Throws.ArgumentException);
     }
 
@@ -36,7 +36,7 @@ internal static class CompositeRuleProviderTests
         var dialect = Mock.Of<IDatabaseDialect>();
         var connection = new SchematicConnection(dbConnection, dialect);
 
-        var ruleProvider = new CompositeRuleProvider(Array.Empty<IRuleProvider>());
+        var ruleProvider = new CompositeRuleProvider([]);
         var rules = ruleProvider.GetRules(connection, RuleLevel.Error);
 
         Assert.That(rules, Is.Empty);

@@ -18,7 +18,7 @@ public sealed class RuleProviderBuilder : IRuleProviderBuilder
     /// </summary>
     public RuleProviderBuilder()
     {
-        _ruleProviders = Array.Empty<IRuleProvider>();
+        _ruleProviders = [];
     }
 
     /// <summary>

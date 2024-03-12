@@ -9,7 +9,7 @@ namespace SJP.Schematic.Lint.Tests;
 [TestFixture]
 internal static class RelationalDatabaseLinterTests
 {
-    private static IRelationalDatabaseLinter Linter { get; } = new RelationalDatabaseLinter(Array.Empty<IRule>());
+    private static IRelationalDatabaseLinter Linter { get; } = new RelationalDatabaseLinter([]);
 
     private static EmptyRelationalDatabase EmptyDatabase { get; } = new EmptyRelationalDatabase(new IdentifierDefaults(null, null, null));
 
@@ -42,7 +42,7 @@ internal static class RelationalDatabaseLinterTests
     [Test]
     public static async Task AnalyseTables_GivenEmptyTables_ReturnsEmptyMessages()
     {
-        var messages = await Linter.AnalyseTables(Array.Empty<IRelationalDatabaseTable>()).ToListAsync().ConfigureAwait(false);
+        var messages = await Linter.AnalyseTables([]).ToListAsync().ConfigureAwait(false);
 
         Assert.That(messages, Is.Empty);
     }
@@ -56,7 +56,7 @@ internal static class RelationalDatabaseLinterTests
     [Test]
     public static async Task AnalyseViews_GivenEmptyViews_ReturnsEmptyMessages()
     {
-        var messages = await Linter.AnalyseViews(Array.Empty<IDatabaseView>()).ToListAsync().ConfigureAwait(false);
+        var messages = await Linter.AnalyseViews([]).ToListAsync().ConfigureAwait(false);
 
         Assert.That(messages, Is.Empty);
     }
@@ -70,7 +70,7 @@ internal static class RelationalDatabaseLinterTests
     [Test]
     public static async Task AnalyseSequences_GivenEmptySequences_ReturnsEmptyMessages()
     {
-        var messages = await Linter.AnalyseSequences(Array.Empty<IDatabaseSequence>()).ToListAsync().ConfigureAwait(false);
+        var messages = await Linter.AnalyseSequences([]).ToListAsync().ConfigureAwait(false);
 
         Assert.That(messages, Is.Empty);
     }
@@ -84,7 +84,7 @@ internal static class RelationalDatabaseLinterTests
     [Test]
     public static async Task AnalyseSynonyms_GivenEmptySynonyms_ReturnsEmptyMessages()
     {
-        var messages = await Linter.AnalyseSynonyms(Array.Empty<IDatabaseSynonym>()).ToListAsync().ConfigureAwait(false);
+        var messages = await Linter.AnalyseSynonyms([]).ToListAsync().ConfigureAwait(false);
 
         Assert.That(messages, Is.Empty);
     }
@@ -98,7 +98,7 @@ internal static class RelationalDatabaseLinterTests
     [Test]
     public static async Task AnalyseRoutines_GivenEmptyRoutines_ReturnsEmptyMessages()
     {
-        var messages = await Linter.AnalyseRoutines(Array.Empty<IDatabaseRoutine>()).ToListAsync().ConfigureAwait(false);
+        var messages = await Linter.AnalyseRoutines([]).ToListAsync().ConfigureAwait(false);
 
         Assert.That(messages, Is.Empty);
     }

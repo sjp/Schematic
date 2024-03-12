@@ -269,11 +269,11 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
         }
         catch (SqliteException ex) when (ex.SqliteErrorCode == SqliteError)
         {
-            return Array.Empty<IDatabaseColumn>();
+            return [];
         }
 
         if (tableInfos.Empty())
-            return Array.Empty<IDatabaseColumn>();
+            return [];
 
         var result = new List<IDatabaseColumn>();
         foreach (var tableInfo in tableInfos)

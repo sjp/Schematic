@@ -21,7 +21,7 @@ public sealed class TopologicalSortingAlgorithm<TVertex, TEdge> : AlgorithmBase<
     /// </summary>
     /// <param name="graph">The graph.</param>
     public TopologicalSortingAlgorithm(IVertexListGraph<TVertex, TEdge> graph)
-        : this(graph, new List<TVertex>())
+        : this(graph, [])
     {
     }
 

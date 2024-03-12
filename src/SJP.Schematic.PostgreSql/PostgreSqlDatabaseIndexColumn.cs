@@ -34,7 +34,7 @@ public class PostgreSqlDatabaseIndexColumn : IDatabaseIndexColumn
 
         Expression = expression;
         Order = order;
-        DependentColumns = Array.Empty<IDatabaseColumn>();
+        DependentColumns = [];
     }
 
     /// <summary>

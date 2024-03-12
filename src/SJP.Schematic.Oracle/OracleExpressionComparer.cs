@@ -101,7 +101,7 @@ public sealed class OracleExpressionComparer : IEqualityComparer<string>
 
         // copy to mutable result set
         if (tokens.Empty())
-            return Array.Empty<Token<OracleToken>>();
+            return [];
 
         var result = new List<Token<OracleToken>>();
         result.AddRange(tokens);

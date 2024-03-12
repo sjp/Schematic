@@ -257,7 +257,7 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
         ).ConfigureAwait(false);
 
         if (checks.Empty())
-            return Array.Empty<string>();
+            return [];
 
         var columnNotNullConstraints = columnNames
             .Select(name => new KeyValuePair<string, string>(GenerateNotNullDefinition(name), name))

@@ -50,7 +50,7 @@ public class UniqueIndexWithNullableColumnsRule : Rule, ITableRule
 
         var uniqueIndexes = table.Indexes.Where(i => i.IsUnique).ToList();
         if (uniqueIndexes.Empty())
-            return Array.Empty<IRuleMessage>();
+            return [];
 
         var result = new List<IRuleMessage>();
 

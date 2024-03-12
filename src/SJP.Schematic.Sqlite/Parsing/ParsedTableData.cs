@@ -49,10 +49,10 @@ public sealed class ParsedTableData
 
         Definition = definition;
         PrimaryKey = Option<PrimaryKey>.None;
-        Columns = Array.Empty<Column>();
-        UniqueKeys = Array.Empty<UniqueKey>();
-        Checks = Array.Empty<Check>();
-        ParentKeys = Array.Empty<ForeignKey>();
+        Columns = [];
+        UniqueKeys = [];
+        Checks = [];
+        ParentKeys = [];
     }
 
     /// <summary>

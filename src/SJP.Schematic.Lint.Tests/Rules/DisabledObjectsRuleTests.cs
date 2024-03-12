@@ -34,14 +34,14 @@ internal static class DisabledObjectsRuleTests
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn>(),
+            [],
             null,
-            Array.Empty<IDatabaseKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseIndex>(),
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
         );
         var tables = new[] { table };
 
@@ -71,14 +71,14 @@ internal static class DisabledObjectsRuleTests
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn>(),
+            [],
             testPrimaryKey,
-            Array.Empty<IDatabaseKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseIndex>(),
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
         );
         var tables = new[] { table };
 
@@ -122,14 +122,14 @@ internal static class DisabledObjectsRuleTests
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn>(),
+            [],
             null,
-            Array.Empty<IDatabaseKey>(),
+            [],
             new[] { testRelationalKey },
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseIndex>(),
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [],
+            [],
+            [],
+            []
         );
         var tables = new[] { table };
 
@@ -159,14 +159,14 @@ internal static class DisabledObjectsRuleTests
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn>(),
+            [],
             null,
             new[] { testUniqueKey },
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseIndex>(),
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [],
+            [],
+            [],
+            [],
+            []
         );
         var tables = new[] { table };
 
@@ -191,21 +191,21 @@ internal static class DisabledObjectsRuleTests
             "test_index",
             true,
             new[] { new DatabaseIndexColumn("test_column", testColumn, IndexColumnOrder.Ascending) },
-            Array.Empty<IDatabaseColumn>(),
+            [],
             false,
             Option<string>.None
         );
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn>(),
+            [],
             null,
-            Array.Empty<IDatabaseKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
+            [],
+            [],
+            [],
             new[] { testIndex },
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [],
+            []
         );
         var tables = new[] { table };
 
@@ -227,14 +227,14 @@ internal static class DisabledObjectsRuleTests
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn>(),
+            [],
             null,
-            Array.Empty<IDatabaseKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseIndex>(),
+            [],
+            [],
+            [],
+            [],
             new[] { testCheck },
-            Array.Empty<IDatabaseTrigger>()
+            []
         );
         var tables = new[] { table };
 
@@ -258,13 +258,13 @@ internal static class DisabledObjectsRuleTests
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn>(),
+            [],
             null,
-            Array.Empty<IDatabaseKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseIndex>(),
-            Array.Empty<IDatabaseCheckConstraint>(),
+            [],
+            [],
+            [],
+            [],
+            [],
             new[] { testTrigger }
         );
         var tables = new[] { table };

@@ -33,7 +33,7 @@ internal static class DotFormatterTests
     [Test]
     public static void Ctor_GivenNullOptionsWithValidTables_ThrowsArgumentNullException()
     {
-        Assert.That(() => Formatter.RenderTables(Array.Empty<IRelationalDatabaseTable>(), (DotRenderOptions)null), Throws.ArgumentNullException);
+        Assert.That(() => Formatter.RenderTables([], (DotRenderOptions)null), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -51,12 +51,12 @@ internal static class DotFormatterTests
     [Test]
     public static void Ctor_GivenNullRowCountsWithValidTablesAndOptions_ThrowsArgumentNullException()
     {
-        Assert.That(() => Formatter.RenderTables(Array.Empty<IRelationalDatabaseTable>(), null, new DotRenderOptions()), Throws.ArgumentNullException);
+        Assert.That(() => Formatter.RenderTables([], null, new DotRenderOptions()), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void Ctor_GivenNullOptionsWithTablesAndValidRowCounts_ThrowsArgumentNullException()
     {
-        Assert.That(() => Formatter.RenderTables(Array.Empty<IRelationalDatabaseTable>(), new Dictionary<Identifier, ulong>(), null), Throws.ArgumentNullException);
+        Assert.That(() => Formatter.RenderTables([], new Dictionary<Identifier, ulong>(), null), Throws.ArgumentNullException);
     }
 }

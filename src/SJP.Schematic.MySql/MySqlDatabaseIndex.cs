@@ -56,7 +56,7 @@ public class MySqlDatabaseIndex : IDatabaseIndex
     /// The included or leaf columns that are also available once the key columns have been searched. Always empty.
     /// </summary>
     /// <value>An empty collection of columns.</value>
-    public IReadOnlyCollection<IDatabaseColumn> IncludedColumns { get; } = Array.Empty<IDatabaseColumn>();
+    public IReadOnlyCollection<IDatabaseColumn> IncludedColumns { get; } = [];
 
     /// <summary>
     /// Indicates whether this instance is enabled.

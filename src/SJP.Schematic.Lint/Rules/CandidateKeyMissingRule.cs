@@ -47,7 +47,7 @@ public class CandidateKeyMissingRule : Rule, ITableRule
         ArgumentNullException.ThrowIfNull(table);
 
         if (table.PrimaryKey.IsSome || table.UniqueKeys.Count > 0)
-            return Array.Empty<IRuleMessage>();
+            return [];
 
         var ruleMessage = BuildMessage(table.Name);
         return new[] { ruleMessage };

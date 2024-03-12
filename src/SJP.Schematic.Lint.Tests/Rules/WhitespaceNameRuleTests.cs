@@ -62,14 +62,14 @@ internal static class WhitespaceNameRuleTests
 
         var table = new RelationalDatabaseTable(
             tableName,
-            new List<IDatabaseColumn>(),
+            [],
             null,
-            Array.Empty<IDatabaseKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseIndex>(),
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
         );
         var tables = new[] { table };
 
@@ -86,14 +86,14 @@ internal static class WhitespaceNameRuleTests
 
         var table = new RelationalDatabaseTable(
             tableName,
-            new List<IDatabaseColumn>(),
+            [],
             null,
-            Array.Empty<IDatabaseKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseIndex>(),
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
         );
         var tables = new[] { table };
 
@@ -117,14 +117,14 @@ internal static class WhitespaceNameRuleTests
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn> { testColumn },
+            [testColumn],
             null,
-            Array.Empty<IDatabaseKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseIndex>(),
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
         );
         var tables = new[] { table };
 
@@ -148,14 +148,14 @@ internal static class WhitespaceNameRuleTests
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn> { testColumn },
+            [testColumn],
             null,
-            Array.Empty<IDatabaseKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseIndex>(),
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
         );
         var tables = new[] { table };
 
@@ -173,7 +173,7 @@ internal static class WhitespaceNameRuleTests
         var view = new DatabaseView(
             viewName,
             "select 1",
-            new List<IDatabaseColumn>()
+            []
         );
         var views = new[] { view };
 
@@ -191,7 +191,7 @@ internal static class WhitespaceNameRuleTests
         var view = new DatabaseView(
             viewName,
             "select 1",
-            new List<IDatabaseColumn>()
+            []
         );
         var views = new[] { view };
 
@@ -217,7 +217,7 @@ internal static class WhitespaceNameRuleTests
         var view = new DatabaseView(
             viewName,
             "select 1",
-            new List<IDatabaseColumn> { testColumn }
+            [testColumn]
         );
         var views = new[] { view };
 
@@ -243,7 +243,7 @@ internal static class WhitespaceNameRuleTests
         var view = new DatabaseView(
             viewName,
             "select 1",
-            new List<IDatabaseColumn> { testColumn }
+            [testColumn]
         );
         var views = new[] { view };
 

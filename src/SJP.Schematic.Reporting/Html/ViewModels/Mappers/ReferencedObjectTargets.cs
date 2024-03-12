@@ -43,11 +43,11 @@ internal sealed class ReferencedObjectTargets
         ArgumentNullException.ThrowIfNull(rootPath);
         ArgumentNullException.ThrowIfNull(objectName);
         if (expression.IsNullOrWhiteSpace())
-            return Array.Empty<HtmlString>();
+            return [];
 
         var referencedNames = DependencyProvider.GetDependencies(objectName, expression);
         if (referencedNames.Count == 0)
-            return Array.Empty<HtmlString>();
+            return [];
 
         var referencedUris = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var result = new List<HtmlString>();
@@ -80,7 +80,7 @@ internal sealed class ReferencedObjectTargets
         var isSelfReference = string.Equals(objectName.Schema, qualifiedReference.Schema, StringComparison.OrdinalIgnoreCase)
             && string.Equals(objectName.LocalName, qualifiedReference.LocalName, StringComparison.OrdinalIgnoreCase);
         if (isSelfReference)
-            return Array.Empty<Link>();
+            return [];
 
         var result = new List<Link>();
 

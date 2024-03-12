@@ -47,14 +47,14 @@ internal static class TooManyColumnsRuleTests
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn> { testColumn },
+            [testColumn],
             null,
-            Array.Empty<IDatabaseKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseIndex>(),
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
         );
         var tables = new[] { table };
 
@@ -94,14 +94,14 @@ internal static class TooManyColumnsRuleTests
 
         var table = new RelationalDatabaseTable(
             "test",
-            new List<IDatabaseColumn> { testColumn1, testColumn2, testColumn3 },
+            [testColumn1, testColumn2, testColumn3],
             null,
-            Array.Empty<IDatabaseKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseRelationalKey>(),
-            Array.Empty<IDatabaseIndex>(),
-            Array.Empty<IDatabaseCheckConstraint>(),
-            Array.Empty<IDatabaseTrigger>()
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
         );
         var tables = new[] { table };
 

@@ -52,7 +52,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : PostgreSqlRelationalDat
         ).ConfigureAwait(false);
 
         if (queryResult.Empty())
-            return Array.Empty<IDatabaseIndex>();
+            return [];
 
         var indexColumns = queryResult
             .GroupAsDictionary(static row => new
@@ -65,7 +65,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : PostgreSqlRelationalDat
             })
             .ToList();
         if (indexColumns.Empty())
-            return Array.Empty<IDatabaseIndex>();
+            return [];
 
         var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
         var columnLookup = GetColumnLookup(columns);

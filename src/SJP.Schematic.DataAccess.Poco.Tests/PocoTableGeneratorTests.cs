@@ -99,6 +99,6 @@ internal static class PocoTableGeneratorTests
     {
         var generator = GetTableGenerator();
 
-        Assert.That(() => generator.Generate(Array.Empty<IRelationalDatabaseTable>(), null, Option<IRelationalDatabaseTableComments>.None), Throws.ArgumentNullException);
+        Assert.That(() => generator.Generate([], null, Option<IRelationalDatabaseTableComments>.None), Throws.ArgumentNullException);
     }
 }

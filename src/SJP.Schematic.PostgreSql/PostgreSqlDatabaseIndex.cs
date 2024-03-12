@@ -25,7 +25,7 @@ public class PostgreSqlDatabaseIndex : IDatabaseIndex
     /// <param name="filterDefinition">The definition, if present, for the subset of rows the index applies to</param>
     /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>. Alternatively if <paramref name="columns"/> is <c>null</c>, empty or has a <c>null</c> value.</exception>
     public PostgreSqlDatabaseIndex(Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns, Option<string> filterDefinition)
-        : this(name, isUnique, columns, Array.Empty<IDatabaseColumn>(), filterDefinition)
+        : this(name, isUnique, columns, [], filterDefinition)
     {
     }
 

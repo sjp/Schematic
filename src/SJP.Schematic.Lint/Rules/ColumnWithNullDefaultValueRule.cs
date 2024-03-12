@@ -49,7 +49,7 @@ public class ColumnWithNullDefaultValueRule : Rule, ITableRule
 
         var nullableColumns = table.Columns.Where(c => c.IsNullable).ToList();
         if (nullableColumns.Empty())
-            return Array.Empty<IRuleMessage>();
+            return [];
 
         var result = new List<IRuleMessage>();
 

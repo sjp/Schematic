@@ -25,6 +25,6 @@ public sealed class EmptyRuleProvider : IRuleProvider
         if (!level.IsValid())
             throw new ArgumentException($"The {nameof(RuleLevel)} provided must be a valid enum.", nameof(level));
 
-        return Array.Empty<IRule>();
+        return [];
     }
 }

@@ -231,7 +231,7 @@ public class OrmLiteViewGenerator : DatabaseViewGenerator
             throw new ArgumentNullException(nameof(propertyName));
 
         if (string.Equals(propertyName, column.Name.LocalName, StringComparison.Ordinal))
-            return Array.Empty<AttributeListSyntax>();
+            return [];
 
         return new[]
         {

@@ -48,7 +48,7 @@ public class NoNonNullableColumnsPresentRule : Rule, ITableRule
 
         var containsNotNullColumns = table.Columns.Any(c => !c.IsNullable);
         if (containsNotNullColumns)
-            return Array.Empty<IRuleMessage>();
+            return [];
 
         var message = BuildMessage(table.Name);
         return new[] { message };

@@ -280,11 +280,11 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         ).ConfigureAwait(false);
 
         if (queryResult.Empty())
-            return Array.Empty<IDatabaseIndex>();
+            return [];
 
         var indexColumns = queryResult.GroupAsDictionary(static row => new { row.IndexName, row.Uniqueness }).ToList();
         if (indexColumns.Empty())
-            return Array.Empty<IDatabaseIndex>();
+            return [];
 
         var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
         var columnLookup = GetColumnLookup(columns);
@@ -342,7 +342,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         ).ConfigureAwait(false);
 
         if (uniqueKeyColumns.Empty())
-            return Array.Empty<IDatabaseKey>();
+            return [];
 
         var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
         var columnLookup = GetColumnLookup(columns);
@@ -363,7 +363,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             })
             .ToList();
         if (constraintColumns.Empty())
-            return Array.Empty<IDatabaseKey>();
+            return [];
 
         return constraintColumns
             .ConvertAll(uk => new OracleDatabaseKey(uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, uk.IsEnabled));
@@ -393,11 +393,11 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             cancellationToken
         ).ConfigureAwait(false);
         if (queryResult.Empty())
-            return Array.Empty<IDatabaseRelationalKey>();
+            return [];
 
         var childKeyRows = queryResult.ToList();
         if (childKeyRows.Empty())
-            return Array.Empty<IDatabaseRelationalKey>();
+            return [];
 
         var primaryKey = await queryCache.GetPrimaryKeyAsync(tableName, cancellationToken).ConfigureAwait(false);
         var uniqueKeys = await queryCache.GetUniqueKeysAsync(tableName, cancellationToken).ConfigureAwait(false);
@@ -468,7 +468,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         ).ConfigureAwait(false);
 
         if (checks.Empty())
-            return Array.Empty<IDatabaseCheckConstraint>();
+            return [];
 
         var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
         var columnLookup = GetColumnLookup(columns);
@@ -521,7 +521,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         ).ConfigureAwait(false);
 
         if (queryResult.Empty())
-            return Array.Empty<IDatabaseRelationalKey>();
+            return [];
 
         var foreignKeys = queryResult.GroupAsDictionary(static row => new
         {
@@ -534,7 +534,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             KeyType = row.ParentKeyType,
         }).ToList();
         if (foreignKeys.Empty())
-            return Array.Empty<IDatabaseRelationalKey>();
+            return [];
 
         var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
         var columnLookup = GetColumnLookup(columns);
@@ -673,11 +673,11 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         ).ConfigureAwait(false);
 
         if (queryResult.Empty())
-            return Array.Empty<IDatabaseTrigger>();
+            return [];
 
         var triggers = queryResult.ToList();
         if (triggers.Empty())
-            return Array.Empty<IDatabaseTrigger>();
+            return [];
 
         var result = new List<IDatabaseTrigger>(triggers.Count);
         foreach (var triggerRow in triggers)
@@ -738,7 +738,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         ).ConfigureAwait(false);
 
         if (checks.Empty())
-            return Array.Empty<string>();
+            return [];
 
         var columnNotNullConstraints = columnNames
             .Select(name => new KeyValuePair<string, string>(GenerateNotNullDefinition(name), name))

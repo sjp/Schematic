@@ -124,8 +124,8 @@ public abstract class NameTranslator : INameTranslator
         return new string(chars.ToArray());
     }
 
-    private static readonly IEnumerable<UnicodeCategory> ValidPartCategories = new HashSet<UnicodeCategory>
-    {
+    private static readonly IEnumerable<UnicodeCategory> ValidPartCategories =
+    [
         // letter character
         UnicodeCategory.UppercaseLetter,
         UnicodeCategory.LowercaseLetter,
@@ -146,7 +146,7 @@ public abstract class NameTranslator : INameTranslator
 
         // formatting character
         UnicodeCategory.Format
-    };
+    ];
 
     private static readonly IEnumerable<string> Keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {

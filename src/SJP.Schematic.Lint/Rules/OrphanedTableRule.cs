@@ -46,10 +46,10 @@ public class OrphanedTableRule : Rule, ITableRule
         ArgumentNullException.ThrowIfNull(table);
 
         if (table.ParentKeys.Count > 0)
-            return Array.Empty<IRuleMessage>();
+            return [];
 
         if (table.ChildKeys.Count > 0)
-            return Array.Empty<IRuleMessage>();
+            return [];
 
         var message = BuildMessage(table.Name);
         return new[] { message };

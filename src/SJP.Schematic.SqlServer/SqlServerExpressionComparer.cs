@@ -115,7 +115,7 @@ public sealed class SqlServerExpressionComparer : IEqualityComparer<string>
 
         // copy to mutable result set
         if (tokens.Empty())
-            return Array.Empty<TSqlParserToken>();
+            return [];
 
         var result = new List<TSqlParserToken>();
         result.AddRange(tokens);

@@ -20,6 +20,6 @@ public sealed class EmptyDependencyProvider : IDependencyProvider
     {
         ArgumentNullException.ThrowIfNull(objectName);
 
-        return Array.Empty<Identifier>();
+        return [];
     }
 }

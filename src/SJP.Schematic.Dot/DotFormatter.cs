@@ -193,7 +193,7 @@ public class DotFormatter : IDotFormatter
                     new DotIdentifier(childKeyName),
                     new DotIdentifier(parentKeyTableName),
                     new DotIdentifier(parentKeyName),
-                    Array.Empty<EdgeAttribute>()
+                    []
                 );
                 edges.Add(childKeyToParentKeyEdge);
 
