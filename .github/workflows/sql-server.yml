@@ -27,7 +27,7 @@ jobs:
         ports:
           - 1433:1433
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v4
