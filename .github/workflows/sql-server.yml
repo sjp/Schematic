@@ -49,4 +49,4 @@ jobs:
         ConnectionStrings__SqlServer_TestDb: Data Source=localhost,1433; User Id=sa; Password=Schematic0123!; MultipleActiveResultSets=True; TrustServerCertificate=True;
 
     - name: Coverage
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4

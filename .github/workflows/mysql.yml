@@ -49,4 +49,4 @@ jobs:
         ConnectionStrings__MySql_TestDb: Server=localhost; Port=3306; Database=schematic; Uid=root; Pwd=Schematic1234; ConnectionTimeout=2
 
     - name: Coverage
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
