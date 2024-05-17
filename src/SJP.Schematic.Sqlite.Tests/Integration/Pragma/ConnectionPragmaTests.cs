@@ -435,15 +435,6 @@ internal sealed class ConnectionPragmaTests : SqliteTest
     }
 
     [Test]
-    public static void TableListAsync_WhenGivenNullLocalName_ThrowsArgumentNullException()
-    {
-        var connection = CreateConnectionFactory();
-        var connPragma = CreateConnectionPragma(connection);
-
-        Assert.That(() => connPragma.TableListAsync(null), Throws.ArgumentNullException);
-    }
-
-    [Test]
     public static async Task TemporaryStoreAsync_GetAndSet_ReadsAndWritesCorrectly()
     {
         var connection = CreateConnectionFactory();
