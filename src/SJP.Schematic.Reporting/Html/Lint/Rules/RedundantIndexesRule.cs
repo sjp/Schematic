@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Lint;
 
@@ -16,40 +14,69 @@ internal sealed class RedundantIndexesRule : Schematic.Lint.Rules.RedundantIndex
     {
     }
 
-    protected override IRuleMessage BuildMessage(Identifier tableName, string indexName, IEnumerable<string> redundantIndexColumnNames, string otherIndexName, IEnumerable<string> otherIndexColumnNames)
+    protected override IRuleMessage BuildMessage(Identifier tableName, IDatabaseIndex redundantIndex, IDatabaseIndex otherIndex)
     {
         ArgumentNullException.ThrowIfNull(tableName);
-        if (indexName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(indexName));
-        if (redundantIndexColumnNames.NullOrEmpty())
-            throw new ArgumentNullException(nameof(redundantIndexColumnNames));
-        if (otherIndexName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(otherIndexName));
-        if (otherIndexColumnNames.NullOrEmpty())
-            throw new ArgumentNullException(nameof(otherIndexColumnNames));
+        ArgumentNullException.ThrowIfNull(redundantIndex);
+        ArgumentNullException.ThrowIfNull(otherIndex);
 
         var tableUrl = UrlRouter.GetTableUrl(tableName);
         var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
 
-        var columnNames = redundantIndexColumnNames
-            .Select(static columnName => "<code>" + HttpUtility.HtmlEncode(columnName) + "</code>");
-        var otherColumnNames = otherIndexColumnNames
-            .Select(static columnName => "<code>" + HttpUtility.HtmlEncode(columnName) + "</code>");
+        var redundantIndexColumnNames = redundantIndex.Columns
+            .SelectMany(c => c.DependentColumns)
+            .Select(c => c.Name.LocalName)
+            .Select(EncodeColumnName)
+            .ToList();
+        var redundantIncludedColumnNames = redundantIndex.IncludedColumns
+            .Select(c => c.Name.LocalName)
+            .Select(EncodeColumnName)
+            .ToList();
+        var otherIndexColumnNames = otherIndex.Columns
+            .SelectMany(c => c.DependentColumns)
+            .Select(c => c.Name.LocalName)
+            .Select(EncodeColumnName)
+            .ToList();
+        var otherIncludedColumnNames = otherIndex.IncludedColumns
+            .Select(c => c.Name.LocalName)
+            .Select(EncodeColumnName)
+            .ToList();
 
         var builder = StringBuilderCache.Acquire();
         builder.Append("The table ")
             .Append(tableLink)
             .Append(" has an index <code>")
-            .Append(HttpUtility.HtmlEncode(indexName))
+            .Append(HttpUtility.HtmlEncode(redundantIndex.Name.LocalName))
             .Append("</code> which may be redundant, as its column set (")
-            .AppendJoin(", ", columnNames)
-            .Append(") is the prefix of another index <code>")
-            .Append(HttpUtility.HtmlEncode(otherIndexName))
+            .AppendJoin(", ", redundantIndexColumnNames)
+            .Append(')');
+
+        if (redundantIndex.IncludedColumns.Count > 0)
+        {
+            builder.Append(" INCLUDE (")
+                .AppendJoin(", ", redundantIncludedColumnNames)
+                .Append(')');
+        }
+
+        builder
+            .Append(" is the prefix or subset of another index <code>")
+            .Append(HttpUtility.HtmlEncode(otherIndex.Name.LocalName))
             .Append("</code> (")
-            .AppendJoin(", ", otherColumnNames)
-            .Append(").");
+            .AppendJoin(", ", otherIndexColumnNames)
+            .Append(')');
+
+        if (otherIndex.IncludedColumns.Count > 0)
+        {
+            builder.Append(" INCLUDE (")
+                .AppendJoin(", ", otherIncludedColumnNames)
+                .Append(')');
+        }
+
+        builder.Append('.');
 
         var messageText = builder.GetStringAndRelease();
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
+
+    private static string EncodeColumnName(string columnName) => "<code>" + HttpUtility.HtmlEncode(columnName) + "</code>";
 }

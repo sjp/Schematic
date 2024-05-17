@@ -25,7 +25,9 @@ public class RedundantIndexesRule : Rule, ITableRule
     }
 
     /// <summary>
-    /// Analyses database tables. Reports messages when tables contain redundant indexes, where the index column set is a prefix of another index.
+    /// Analyses database tables.
+    /// Reports messages when tables contain redundant indexes, where the index column set is a prefix of another index.
+    /// Additionally, this requires both column sort ordering to be equivalent and the included columns (if present) to be a subset also.
     /// </summary>
     /// <param name="tables">A set of database tables.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
@@ -39,7 +41,9 @@ public class RedundantIndexesRule : Rule, ITableRule
     }
 
     /// <summary>
-    /// Analyses a database table. Reports messages when the table contains redundant indexes, where the index column set is a prefix of another index.
+    /// Analyses a database table.
+    /// Reports messages when the table contains redundant indexes, where the index column set is a prefix of another index.
+    /// Additionally, this requires both column sort ordering to be equivalent and the included columns (if present) to be a subset also.
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
@@ -53,34 +57,71 @@ public class RedundantIndexesRule : Rule, ITableRule
         var indexes = table.Indexes;
         foreach (var index in indexes)
         {
-            var indexColumnList = index.Columns
-                .SelectMany(c => c.DependentColumns)
-                .Select(c => c.Name);
-
             var otherIndexes = indexes.Where(i => i.Name != index.Name);
             foreach (var otherIndex in otherIndexes)
             {
-                var otherIndexColumnList = otherIndex.Columns
-                    .SelectMany(c => c.DependentColumns)
-                    .Select(c => c.Name);
+                if (!IsIndexRedundant(index, otherIndex))
+                    continue;
 
-                var isPrefix = IsPrefixOf(indexColumnList, otherIndexColumnList);
-                if (isPrefix)
-                {
-                    var redundantIndexColumns = index.Columns
-                        .SelectMany(c => c.DependentColumns)
-                        .Select(c => c.Name.LocalName);
-                    var otherIndexColumns = otherIndex.Columns
-                        .SelectMany(c => c.DependentColumns)
-                        .Select(c => c.Name.LocalName);
-
-                    var message = BuildMessage(table.Name, index.Name.LocalName, redundantIndexColumns, otherIndex.Name.LocalName, otherIndexColumns);
-                    result.Add(message);
-                }
+                var message = BuildMessage(
+                    table.Name,
+                    index,
+                    otherIndex);
+                result.Add(message);
             }
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Determines whether an index is redundant.
+    /// </summary>
+    /// <param name="index">The index that is tested for being redundant.</param>
+    /// <param name="otherIndex">An index that is being compared against for <paramref name="index"/>. <paramref name="index"/> is redundant if <paramref name="otherIndex"/> has at least the equivalent behaviour (if not more).</param>
+    /// <returns><c>true</c> if <paramref name="index"/> is redundant; <c>false</c> otherwise.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="index"/> is <c>null</c>; or <paramref name="otherIndex"/> is <c>null</c>.</exception>
+    private static bool IsIndexRedundant(IDatabaseIndex index, IDatabaseIndex otherIndex)
+    {
+        ArgumentNullException.ThrowIfNull(index);
+        ArgumentNullException.ThrowIfNull(otherIndex);
+
+        // can't be redundant if we have more columns
+        if (index.Columns.Count > otherIndex.Columns.Count)
+            return false;
+
+        var indexColumns = index.Columns;
+        var otherIndexColumns = otherIndex.Columns.Count > indexColumns.Count
+            ? otherIndex.Columns.Take(indexColumns.Count).ToList()
+            : otherIndex.Columns;
+
+        // when we have more than one column, ordering becomes important
+        if (indexColumns.Count > 1)
+        {
+            var sortOrdersEqual = indexColumns.Select(c => c.Order)
+                .SequenceEqual(otherIndexColumns.Select(c => c.Order));
+            if (!sortOrdersEqual)
+                return false;
+        }
+
+        // if we have different included column sets then we know that the index
+        // is not equivalent, even if it may have the same sorting behaviour
+        if (index.IncludedColumns.Count > 0)
+        {
+            var indexIncludedColumns = index.IncludedColumns.Select(c => c.Name.LocalName).ToHashSet();
+            var otherIndexIncludedColumns = otherIndex.IncludedColumns.Select(c => c.Name.LocalName).ToHashSet();
+            var includedColumnSubset = indexIncludedColumns.IsSubsetOf(otherIndexIncludedColumns);
+            if (!includedColumnSubset)
+                return false;
+        }
+
+        var indexColumnNames = index.Columns
+            .SelectMany(c => c.DependentColumns)
+            .Select(c => c.Name);
+        var otherIndexColumnNames = otherIndex.Columns
+            .SelectMany(c => c.DependentColumns)
+            .Select(c => c.Name);
+        return IsPrefixOf(indexColumnNames, otherIndexColumnNames);
     }
 
     /// <summary>
@@ -92,7 +133,7 @@ public class RedundantIndexesRule : Rule, ITableRule
     /// <returns><c>true</c> if <paramref name="prefixSet"/> is a prefix of <paramref name="superSet"/>; otherwise, <c>false</c>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="prefixSet"/> or <paramref name="superSet"/> is <c>null</c>.</exception>
     /// <exception cref="ArgumentException"><paramref name="prefixSet"/> or <paramref name="superSet"/> is empty.</exception>
-    protected static bool IsPrefixOf<T>(IEnumerable<T> prefixSet, IEnumerable<T> superSet)
+    private static bool IsPrefixOf<T>(IEnumerable<T> prefixSet, IEnumerable<T> superSet)
     {
         ArgumentNullException.ThrowIfNull(prefixSet);
         ArgumentNullException.ThrowIfNull(superSet);
@@ -118,36 +159,62 @@ public class RedundantIndexesRule : Rule, ITableRule
     /// Builds the message used for reporting.
     /// </summary>
     /// <param name="tableName">The name of the table.</param>
-    /// <param name="indexName">The name of the index that has redundant columns.</param>
-    /// <param name="redundantIndexColumnNames">The names of the columns in <paramref name="indexName"/> that are redundant.</param>
-    /// <param name="otherIndexName">The other index that is a superset of <paramref name="indexName"/>.</param>
-    /// <param name="otherIndexColumnNames">The column names in the index <paramref name="otherIndexName"/>.</param>
+    /// <param name="redundantIndex">The index that is redundant.</param>
+    /// <param name="otherIndex">The other index that is either equivalent or a superset of <paramref name="redundantIndex"/>.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>; or <paramref name="indexName"/> is <c>null</c>, empty or whitespace; or <paramref name="redundantIndexColumnNames"/> is <c>null</c> or empty; or <paramref name="otherIndexName"/> is <c>null</c>, empty or whitespace; or <paramref name="otherIndexColumnNames"/> is <c>null</c> or empty.</exception>
-    protected virtual IRuleMessage BuildMessage(Identifier tableName, string indexName, IEnumerable<string> redundantIndexColumnNames, string otherIndexName, IEnumerable<string> otherIndexColumnNames)
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>; or <paramref name="redundantIndex"/> is <c>null</c>; or <paramref name="otherIndex"/> is <c>null</c>.</exception>
+    protected virtual IRuleMessage BuildMessage(Identifier tableName, IDatabaseIndex redundantIndex, IDatabaseIndex otherIndex)
     {
         ArgumentNullException.ThrowIfNull(tableName);
-        if (indexName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(indexName));
-        if (redundantIndexColumnNames.NullOrEmpty())
-            throw new ArgumentNullException(nameof(redundantIndexColumnNames));
-        if (otherIndexName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(otherIndexName));
-        if (otherIndexColumnNames.NullOrEmpty())
-            throw new ArgumentNullException(nameof(otherIndexColumnNames));
+        ArgumentNullException.ThrowIfNull(redundantIndex);
+        ArgumentNullException.ThrowIfNull(otherIndex);
+
+        var redundantIndexColumnNames = redundantIndex.Columns
+            .SelectMany(c => c.DependentColumns)
+            .Select(c => c.Name)
+            .ToList();
+        var redundantIncludedColumnNames = redundantIndex.IncludedColumns
+            .Select(c => c.Name)
+            .ToList();
+        var otherIndexColumnNames = otherIndex.Columns
+            .SelectMany(c => c.DependentColumns)
+            .Select(c => c.Name)
+            .ToList();
+        var otherIncludedColumnNames = otherIndex.IncludedColumns
+            .Select(c => c.Name)
+            .ToList();
 
         var builder = StringBuilderCache.Acquire();
         builder.Append("The table ")
             .Append(tableName)
             .Append(" has an index '")
-            .Append(indexName)
-            .Append("' which may be redundant, as its column set (")
+            .Append(redundantIndex.Name.LocalName)
+            .Append("' which is redundant, as its column set (")
             .AppendJoin(", ", redundantIndexColumnNames)
-            .Append(") is the prefix of another index '")
-            .Append(otherIndexName)
+            .Append(')');
+
+        if (redundantIndex.IncludedColumns.Count > 0)
+        {
+            builder.Append(" INCLUDE (")
+                .AppendJoin(", ", redundantIncludedColumnNames)
+                .Append(')');
+        }
+
+        builder
+            .Append(" is the prefix or subset of another index '")
+            .Append(otherIndex.Name.LocalName)
             .Append("' (")
             .AppendJoin(", ", otherIndexColumnNames)
-            .Append(").");
+            .Append(')');
+
+        if (otherIndex.IncludedColumns.Count > 0)
+        {
+            builder.Append(" INCLUDE (")
+                .AppendJoin(", ", otherIncludedColumnNames)
+                .Append(')');
+        }
+
+        builder.Append('.');
 
         var messageText = builder.GetStringAndRelease();
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
