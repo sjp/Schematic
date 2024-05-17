@@ -643,7 +643,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         Assert.That(() => dbPragma.TableInfoAsync(name), Throws.ArgumentException);
     }
 
-    [Test, Ignore("Requires v3.37")]
+    [Test]
     public static async Task TableListAsync_WhenTableExists_ReadsValuesCorrectlyForSchema()
     {
         var connection = CreateConnectionFactory();
@@ -656,7 +656,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         Assert.That(tableInfo, Is.Not.Empty);
     }
 
-    [Test, Ignore("Requires v3.37")]
+    [Test]
     public static async Task TableListAsync_WhenTableExists_ReadsValuesCorrectly()
     {
         var connection = CreateConnectionFactory();
@@ -669,7 +669,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         Assert.That(tableInfo, Is.Not.Empty);
     }
 
-    [Test, Ignore("Requires v3.37")]
+    [Test]
     public static async Task TableListAsync_WhenViewExists_ReadsValuesCorrectly()
     {
         var connection = CreateConnectionFactory();

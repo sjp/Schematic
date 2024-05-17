@@ -673,35 +673,6 @@ public class ConnectionPragma : ISqliteConnectionPragma
     public Task<IEnumerable<pragma_table_list>> TableListAsync(CancellationToken cancellationToken = default) => DbConnection.QueryAsync<pragma_table_list>(TableListQuery, cancellationToken);
 
     /// <summary>
-    /// Returns information about a given table or view in the given schema.
-    /// </summary>
-    /// <param name="tableName">A table or view name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>Information relevant to the given table or view. Will be <c>null</c> if the table or view does not exist.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
-    public Task<IEnumerable<pragma_table_list>> TableListAsync(Identifier tableName, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(tableName);
-
-        return DbConnection.QueryAsync<pragma_table_list>(TableListTableQuery(tableName), cancellationToken);
-    }
-
-    /// <summary>
-    /// Gets a query to read table information pragma for a given table.
-    /// </summary>
-    /// <param name="tableName">A table name.</param>
-    /// <returns>A SQL query.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
-    protected string TableListTableQuery(Identifier tableName)
-    {
-        ArgumentNullException.ThrowIfNull(tableName);
-
-        // default to 'main'
-        var identifier = Identifier.CreateQualifiedIdentifier(tableName.Schema ?? "main", tableName.LocalName);
-        return PragmaPrefix + "table_list(" + Connection.Dialect.QuoteName(identifier) + ")";
-    }
-
-    /// <summary>
     /// Queries where temporary storage is located.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>

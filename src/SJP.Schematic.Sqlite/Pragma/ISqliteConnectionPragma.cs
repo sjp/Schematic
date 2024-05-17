@@ -331,14 +331,6 @@ public interface ISqliteConnectionPragma
     Task<IEnumerable<pragma_table_list>> TableListAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Returns information about a given table or view in the given schema.
-    /// </summary>
-    /// <param name="tableName">A table or view name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>Information relevant to the given table or view. Will be empty if the table or view does not exist.</returns>
-    Task<IEnumerable<pragma_table_list>> TableListAsync(Identifier tableName, CancellationToken cancellationToken = default);
-
-    /// <summary>
     /// Queries where temporary storage is located.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>

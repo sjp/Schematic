@@ -421,7 +421,7 @@ internal sealed class ConnectionPragmaTests : SqliteTest
         Assert.That(readOfNewValue, Is.EqualTo(newValue));
     }
 
-    [Test, Ignore("Requires v3.37")]
+    [Test]
     public static async Task TableListAsync_WhenTableExists_ReadsValuesCorrectlyForDatabase()
     {
         var connection = CreateConnectionFactory();
@@ -430,60 +430,6 @@ internal sealed class ConnectionPragmaTests : SqliteTest
         await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
 
         var tableInfo = await connPragma.TableListAsync().ConfigureAwait(false);
-
-        Assert.That(tableInfo, Is.Not.Empty);
-    }
-
-    [Test, Ignore("Requires v3.37")]
-    public static async Task TableListAsync_WhenTableExists_ReadsValuesCorrectlyForMainSchema()
-    {
-        var connection = CreateConnectionFactory();
-        var connPragma = CreateConnectionPragma(connection);
-
-        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
-
-        var tableName = Identifier.CreateQualifiedIdentifier("main", "test_table");
-        var tableInfo = await connPragma.TableListAsync(tableName).ConfigureAwait(false);
-
-        Assert.That(tableInfo, Is.Not.Empty);
-    }
-
-    [Test, Ignore("Requires v3.37")]
-    public static async Task TableListAsync_WhenTableExists_ReadsValuesCorrectlyForDefaultedMainSchema()
-    {
-        var connection = CreateConnectionFactory();
-        var connPragma = CreateConnectionPragma(connection);
-
-        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
-
-        var tableInfo = await connPragma.TableListAsync("test_table").ConfigureAwait(false);
-
-        Assert.That(tableInfo, Is.Not.Empty);
-    }
-
-    [Test, Ignore("Requires v3.37")]
-    public static async Task TableListAsync_WhenViewExists_ReadsValuesCorrectlyForMainSchema()
-    {
-        var connection = CreateConnectionFactory();
-        var connPragma = CreateConnectionPragma(connection);
-
-        await connection.ExecuteAsync("create view test_view as select 1 as dummy", CancellationToken.None).ConfigureAwait(false);
-
-        var viewName = Identifier.CreateQualifiedIdentifier("main", "test_view");
-        var tableInfo = await connPragma.TableListAsync(viewName).ConfigureAwait(false);
-
-        Assert.That(tableInfo, Is.Not.Empty);
-    }
-
-    [Test, Ignore("Requires v3.37")]
-    public static async Task TableListAsync_WhenViewExists_ReadsValuesCorrectlyForDefaultedMainSchema()
-    {
-        var connection = CreateConnectionFactory();
-        var connPragma = CreateConnectionPragma(connection);
-
-        await connection.ExecuteAsync("create view test_view as select 1 as dummy", CancellationToken.None).ConfigureAwait(false);
-
-        var tableInfo = await connPragma.TableListAsync("test_view").ConfigureAwait(false);
 
         Assert.That(tableInfo, Is.Not.Empty);
     }
