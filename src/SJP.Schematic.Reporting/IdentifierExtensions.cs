@@ -11,7 +11,7 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Reporting;
 
-internal static class IdentifierExtensions
+internal static partial class IdentifierExtensions
 {
     public static string ToVisibleName(this Identifier identifier)
     {
