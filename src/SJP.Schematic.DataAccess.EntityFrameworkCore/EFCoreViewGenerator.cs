@@ -160,12 +160,12 @@ public class EFCoreViewGenerator : DatabaseViewGenerator
             .Bind(static c => c.Comment)
             .Match(
                 SyntaxUtilities.BuildCommentTrivia,
-                () => SyntaxUtilities.BuildCommentTrivia(new XmlNodeSyntax[]
-                {
+                () => SyntaxUtilities.BuildCommentTrivia(
+                [
                     XmlText("A mapping class to query the "),
                     XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(viewName.LocalName))),
                     XmlText(" view.")
-                })
+                ])
             );
     }
 
@@ -177,12 +177,12 @@ public class EFCoreViewGenerator : DatabaseViewGenerator
             .Bind(c => c.ColumnComments.TryGetValue(columnName, out var cc) ? cc : Option<string>.None)
             .Match(
                 SyntaxUtilities.BuildCommentTrivia,
-                () => SyntaxUtilities.BuildCommentTrivia(new XmlNodeSyntax[]
-                {
+                () => SyntaxUtilities.BuildCommentTrivia(
+                [
                     XmlText("The "),
                     XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(columnName.LocalName))),
                     XmlText(" column.")
-                })
+                ])
             );
     }
 
@@ -210,14 +210,14 @@ public class EFCoreViewGenerator : DatabaseViewGenerator
                         SyntaxKind.StringLiteralExpression,
                         Literal(column.Type.TypeName.LocalName)))));
 
-        return new[]
-        {
+        return
+        [
             AttributeList(
                 SingletonSeparatedList(
                     Attribute(
                         SyntaxUtilities.AttributeName(nameof(ColumnAttribute)),
                         AttributeArgumentList(
                             SeparatedList(columnAttributeArgs)))))
-        };
+        ];
     }
 }

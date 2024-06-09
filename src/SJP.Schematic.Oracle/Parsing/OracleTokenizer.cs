@@ -73,7 +73,7 @@ internal sealed class OracleTokenizer : Tokenizer<OracleToken>
 
                 if (next.HasValue && !next.Value.IsPunctuation() && !next.Value.IsWhiteSpace())
                 {
-                    yield return Result.Empty<OracleToken>(next.Location, new[] { "digit" });
+                    yield return Result.Empty<OracleToken>(next.Location, ["digit"]);
                 }
             }
             else if (next.Value == '\'')

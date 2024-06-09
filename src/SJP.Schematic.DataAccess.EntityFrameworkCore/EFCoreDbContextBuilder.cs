@@ -98,8 +98,8 @@ public class EFCoreDbContextBuilder
         .ToList();
 
     private SyntaxTriviaList OnModelCreateComment { get; } = SyntaxUtilities.BuildCommentTriviaWithParams(
-        new[] { XmlText(ModelBuilderMethodSummaryComment) },
-        new Dictionary<string, IEnumerable<XmlNodeSyntax>>(StringComparer.Ordinal) { [ModelBuilderParameterName] = new[] { XmlText(ModelBuilderMethodParamComment) } }
+        [XmlText(ModelBuilderMethodSummaryComment)],
+        new Dictionary<string, IEnumerable<XmlNodeSyntax>>(StringComparer.Ordinal) { [ModelBuilderParameterName] = [XmlText(ModelBuilderMethodParamComment)] }
     );
 
     private ClassDeclarationSyntax BuildDbContext(IEnumerable<IRelationalDatabaseTable> tables, IEnumerable<IDatabaseView> views, IEnumerable<IDatabaseSequence> sequences)
@@ -194,12 +194,12 @@ public class EFCoreDbContextBuilder
         if (objectType.IsNullOrWhiteSpace())
             throw new ArgumentNullException(nameof(objectType));
 
-        return SyntaxUtilities.BuildCommentTrivia(new XmlNodeSyntax[]
-        {
+        return SyntaxUtilities.BuildCommentTrivia(
+        [
             XmlText("Accesses the "),
             XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(targetName))),
             XmlText(" " + objectType + ".")
-        });
+        ]);
     }
 
     private MethodDeclarationSyntax BuildOnModelCreatingMethod(IEnumerable<IRelationalDatabaseTable> tables, IEnumerable<IDatabaseView> views, IEnumerable<IDatabaseSequence> sequences)
@@ -240,7 +240,7 @@ public class EFCoreDbContextBuilder
             .Select(c => BuildTableColumnPropertyForBuilder(table, c));
         var primaryKeyExpr = table.PrimaryKey
             .Match(
-                pk => new[] { BuildTablePrimaryKeyForBuilder(table, pk) },
+                pk => [BuildTablePrimaryKeyForBuilder(table, pk)],
                 Array.Empty<InvocationExpressionSyntax>
             );
         var uniqueKeyExprs = table.UniqueKeys.Select(uk => BuildTableUniqueKeyForBuilder(table, uk));

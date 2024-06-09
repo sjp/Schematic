@@ -152,12 +152,12 @@ public class PocoTableGenerator : DatabaseTableGenerator
             .Bind(static c => c.Comment)
             .Match(
                 SyntaxUtilities.BuildCommentTrivia,
-                () => SyntaxUtilities.BuildCommentTrivia(new XmlNodeSyntax[]
-                {
+                () => SyntaxUtilities.BuildCommentTrivia(
+                [
                     XmlText("A mapping class to query the "),
                     XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(tableName.LocalName))),
                     XmlText(" table.")
-                })
+                ])
             );
     }
 
@@ -169,12 +169,12 @@ public class PocoTableGenerator : DatabaseTableGenerator
             .Bind(c => c.ColumnComments.TryGetValue(columnName, out var cc) ? cc : Option<string>.None)
             .Match(
                 SyntaxUtilities.BuildCommentTrivia,
-                () => SyntaxUtilities.BuildCommentTrivia(new XmlNodeSyntax[]
-                {
+                () => SyntaxUtilities.BuildCommentTrivia(
+                [
                     XmlText("The "),
                     XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(columnName.LocalName))),
                     XmlText(" column.")
-                })
+                ])
             );
     }
 }

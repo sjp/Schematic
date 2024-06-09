@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt;
 using Moq;
@@ -88,7 +86,7 @@ internal static class NoIndexesPresentOnTableRuleTests
         var testUniqueKey = new DatabaseKey(
             Option<Identifier>.Some("test_unique_key"),
             DatabaseKeyType.Unique,
-            new[] { testColumn },
+            [testColumn],
             true
         );
 
@@ -96,7 +94,7 @@ internal static class NoIndexesPresentOnTableRuleTests
             "test",
             [],
             Option<IDatabaseKey>.None,
-            new[] { testUniqueKey },
+            [testUniqueKey],
             [],
             [],
             [],
@@ -122,7 +120,7 @@ internal static class NoIndexesPresentOnTableRuleTests
             [],
             [],
             [],
-            new[] { Mock.Of<IDatabaseIndex>() },
+            [Mock.Of<IDatabaseIndex>()],
             [],
             []
         );

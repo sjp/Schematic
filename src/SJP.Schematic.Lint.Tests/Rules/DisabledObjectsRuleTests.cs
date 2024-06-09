@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt;
 using Moq;
@@ -65,7 +63,7 @@ internal static class DisabledObjectsRuleTests
         var testPrimaryKey = new DatabaseKey(
             Option<Identifier>.Some("test_primary_key"),
             DatabaseKeyType.Primary,
-            new[] { testColumn },
+            [testColumn],
             false
         );
 
@@ -102,13 +100,13 @@ internal static class DisabledObjectsRuleTests
         var testForeignKey = new DatabaseKey(
             Option<Identifier>.Some("test_foreign_key"),
             DatabaseKeyType.Foreign,
-            new[] { testColumn },
+            [testColumn],
             false
         );
         var testPrimaryKey = new DatabaseKey(
             Option<Identifier>.Some("test_primary_key"),
             DatabaseKeyType.Primary,
-            new[] { testColumn },
+            [testColumn],
             false
         );
         var testRelationalKey = new DatabaseRelationalKey(
@@ -125,7 +123,7 @@ internal static class DisabledObjectsRuleTests
             [],
             null,
             [],
-            new[] { testRelationalKey },
+            [testRelationalKey],
             [],
             [],
             [],
@@ -153,7 +151,7 @@ internal static class DisabledObjectsRuleTests
         var testUniqueKey = new DatabaseKey(
             Option<Identifier>.Some("test_unique_key"),
             DatabaseKeyType.Unique,
-            new[] { testColumn },
+            [testColumn],
             false
         );
 
@@ -161,7 +159,7 @@ internal static class DisabledObjectsRuleTests
             "test",
             [],
             null,
-            new[] { testUniqueKey },
+            [testUniqueKey],
             [],
             [],
             [],
@@ -190,7 +188,7 @@ internal static class DisabledObjectsRuleTests
         var testIndex = new DatabaseIndex(
             "test_index",
             true,
-            new[] { new DatabaseIndexColumn("test_column", testColumn, IndexColumnOrder.Ascending) },
+            [new DatabaseIndexColumn("test_column", testColumn, IndexColumnOrder.Ascending)],
             [],
             false,
             Option<string>.None
@@ -203,7 +201,7 @@ internal static class DisabledObjectsRuleTests
             [],
             [],
             [],
-            new[] { testIndex },
+            [testIndex],
             [],
             []
         );
@@ -233,7 +231,7 @@ internal static class DisabledObjectsRuleTests
             [],
             [],
             [],
-            new[] { testCheck },
+            [testCheck],
             []
         );
         var tables = new[] { table };
@@ -265,7 +263,7 @@ internal static class DisabledObjectsRuleTests
             [],
             [],
             [],
-            new[] { testTrigger }
+            [testTrigger]
         );
         var tables = new[] { table };
 

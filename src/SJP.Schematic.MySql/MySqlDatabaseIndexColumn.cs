@@ -28,7 +28,7 @@ public class MySqlDatabaseIndexColumn : IDatabaseIndexColumn
             throw new ArgumentNullException(nameof(expression));
 
         Expression = expression;
-        DependentColumns = new[] { column };
+        DependentColumns = [column];
     }
 
     /// <summary>

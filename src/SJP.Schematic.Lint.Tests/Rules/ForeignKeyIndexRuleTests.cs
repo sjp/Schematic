@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt;
 using Moq;
@@ -23,7 +21,7 @@ internal static class ForeignKeyIndexRuleTests
     private static IDatabaseIndexColumn GetIndexColumn(Identifier columnName)
     {
         var indexColumnMock = new Mock<IDatabaseIndexColumn>(MockBehavior.Strict);
-        indexColumnMock.Setup(c => c.DependentColumns).Returns(new[] { GetColumn(columnName) });
+        indexColumnMock.Setup(c => c.DependentColumns).Returns([GetColumn(columnName)]);
         return indexColumnMock.Object;
     }
 
@@ -55,29 +53,27 @@ internal static class ForeignKeyIndexRuleTests
             ],
             null,
             [],
-            new[]
-            {
+            [
                 new DatabaseRelationalKey(
                     "test",
-                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, new[] { GetColumn("b") }, true),
+                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, [GetColumn("b")], true),
                     "test_parent",
-                    new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, new[] { GetColumn("b") }, true),
+                    new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, [GetColumn("b")], true),
                     ReferentialAction.Cascade,
                     ReferentialAction.Cascade
                 )
-            },
+            ],
             [],
-            new[]
-            {
+            [
                 new DatabaseIndex(
                     "test_index_1",
                     false,
-                    new[] { GetIndexColumn("b"), GetIndexColumn("c") },
+                    [GetIndexColumn("b"), GetIndexColumn("c")],
                     [],
                     true,
                     Option<string>.None
                 )
-            },
+            ],
             [],
             []
         );
@@ -102,29 +98,27 @@ internal static class ForeignKeyIndexRuleTests
             ],
             null,
             [],
-            new[]
-            {
+            [
                 new DatabaseRelationalKey(
                     "test",
-                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, new[] { GetColumn("b") }, true),
+                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, [GetColumn("b")], true),
                     "test_parent",
-                    new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, new[] { GetColumn("b") }, true),
+                    new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, [GetColumn("b")], true),
                     ReferentialAction.Cascade,
                     ReferentialAction.Cascade
                 )
-            },
+            ],
             [],
-            new[]
-            {
+            [
                 new DatabaseIndex(
                     "test_index_1",
                     false,
-                    new[] { GetIndexColumn("c"), GetIndexColumn("b") },
+                    [GetIndexColumn("c"), GetIndexColumn("b")],
                     [],
                     true,
                     Option<string>.None
                 )
-            },
+            ],
             [],
             []
         );
@@ -149,29 +143,27 @@ internal static class ForeignKeyIndexRuleTests
             ],
             null,
             [],
-            new[]
-            {
+            [
                 new DatabaseRelationalKey(
                     "test",
-                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, new[] { GetColumn("b"), GetColumn("c") }, true),
+                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, [GetColumn("b"), GetColumn("c")], true),
                     "test_parent",
-                    new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, new[] { GetColumn("b"), GetColumn("c") }, true),
+                    new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, [GetColumn("b"), GetColumn("c")], true),
                     ReferentialAction.Cascade,
                     ReferentialAction.Cascade
                 )
-            },
+            ],
             [],
-            new[]
-            {
+            [
                 new DatabaseIndex(
                     "test_index_1",
                     false,
-                    new[] { GetIndexColumn("b") },
-                    new[] { GetColumn("c") },
+                    [GetIndexColumn("b")],
+                    [GetColumn("c")],
                     true,
                     Option<string>.None
                 )
-            },
+            ],
             [],
             []
         );
@@ -196,29 +188,27 @@ internal static class ForeignKeyIndexRuleTests
             ],
             null,
             [],
-            new[]
-            {
+            [
                 new DatabaseRelationalKey(
                     "test",
-                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, new[] { GetColumn("b"), GetColumn("c") }, true),
+                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, [GetColumn("b"), GetColumn("c")], true),
                     "test_parent",
-                    new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, new[] { GetColumn("b"), GetColumn("c") }, true),
+                    new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, [GetColumn("b"), GetColumn("c")], true),
                     ReferentialAction.Cascade,
                     ReferentialAction.Cascade
                 )
-            },
+            ],
             [],
-            new[]
-            {
+            [
                 new DatabaseIndex(
                     "test_index_1",
                     false,
-                    new[] { GetIndexColumn("b") },
-                    new[] { GetColumn("a") },
+                    [GetIndexColumn("b")],
+                    [GetColumn("a")],
                     true,
                     Option<string>.None
                 )
-            },
+            ],
             [],
             []
         );
@@ -243,29 +233,27 @@ internal static class ForeignKeyIndexRuleTests
             ],
             null,
             [],
-            new[]
-            {
+            [
                 new DatabaseRelationalKey(
                     "test",
-                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, new[] { GetColumn("b"), GetColumn("c") }, true),
+                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, [GetColumn("b"), GetColumn("c")], true),
                     "test_parent",
-                    new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, new[] { GetColumn("b"), GetColumn("c") }, true),
+                    new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, [GetColumn("b"), GetColumn("c")], true),
                     ReferentialAction.Cascade,
                     ReferentialAction.Cascade
                 )
-            },
+            ],
             [],
-            new[]
-            {
+            [
                 new DatabaseIndex(
                     "test_index_1",
                     false,
-                    new[] { GetIndexColumn("b") },
-                    new[] { GetColumn("a"), GetColumn("c") },
+                    [GetIndexColumn("b")],
+                    [GetColumn("a"), GetColumn("c")],
                     true,
                     Option<string>.None
                 )
-            },
+            ],
             [],
             []
         );
@@ -290,29 +278,27 @@ internal static class ForeignKeyIndexRuleTests
             ],
             null,
             [],
-            new[]
-            {
+            [
                 new DatabaseRelationalKey(
                     "test",
-                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, new[] { GetColumn("b"), GetColumn("c") }, true),
+                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, [GetColumn("b"), GetColumn("c")], true),
                     "test_parent",
-                    new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, new[] { GetColumn("b"), GetColumn("c") }, true),
+                    new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, [GetColumn("b"), GetColumn("c")], true),
                     ReferentialAction.Cascade,
                     ReferentialAction.Cascade
                 )
-            },
+            ],
             [],
-            new[]
-            {
+            [
                 new DatabaseIndex(
                     "test_index_1",
                     false,
-                    new[] { GetIndexColumn("b"), GetIndexColumn("a") },
-                    new[] { GetColumn("c") },
+                    [GetIndexColumn("b"), GetIndexColumn("a")],
+                    [GetColumn("c")],
                     true,
                     Option<string>.None
                 )
-            },
+            ],
             [],
             []
         );

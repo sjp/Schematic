@@ -71,7 +71,7 @@ public class SqliteTokenizer : Tokenizer<SqliteToken>
 
                 if (next.HasValue && !next.Value.IsPunctuation() && !next.Value.IsWhiteSpace())
                 {
-                    yield return Result.Empty<SqliteToken>(next.Location, new[] { "digit" });
+                    yield return Result.Empty<SqliteToken>(next.Location, ["digit"]);
                 }
             }
             else if (next.Value == '\'')

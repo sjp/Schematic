@@ -13,7 +13,7 @@ internal static class ParsingExtensions
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        return new[] { input };
+        return [input];
     }
 
     // useful for turning array objects to enumerables

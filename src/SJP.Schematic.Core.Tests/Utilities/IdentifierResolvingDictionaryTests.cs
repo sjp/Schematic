@@ -265,13 +265,13 @@ internal static class IdentifierResolvingDictionaryTests
     {
         public IEnumerable<Identifier> GetResolutionOrder(Identifier identifier) => Identifiers;
 
-        private static readonly IEnumerable<Identifier> Identifiers = new[]
-        {
+        private static readonly IEnumerable<Identifier> Identifiers =
+        [
             new Identifier("A"),
             new Identifier("B"),
             new Identifier("C"),
             new Identifier("D"),
             new Identifier("E")
-        };
+        ];
     }
 }

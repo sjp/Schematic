@@ -20,7 +20,7 @@ public class ForeignKey
     /// <param name="parentTable">The parent table that the foreign key refers to.</param>
     /// <param name="parentColumnNames">The column names in the parent table that the foreign key refers to. Should be a single column name.</param>
     public ForeignKey(Option<string> constraintName, string columnName, Identifier parentTable, IReadOnlyCollection<string> parentColumnNames)
-        : this(constraintName, new[] { columnName }, parentTable, parentColumnNames)
+        : this(constraintName, [columnName], parentTable, parentColumnNames)
     {
     }
 

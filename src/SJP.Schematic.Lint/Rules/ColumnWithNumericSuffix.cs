@@ -13,7 +13,7 @@ namespace SJP.Schematic.Lint.Rules;
 /// </summary>
 /// <seealso cref="Rule" />
 /// <seealso cref="ITableRule" />
-public class ColumnWithNumericSuffix : Rule, ITableRule
+public partial class ColumnWithNumericSuffix : Rule, ITableRule
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="ColumnWithNumericSuffix"/> class.
@@ -50,7 +50,7 @@ public class ColumnWithNumericSuffix : Rule, ITableRule
 
         var columnsWithNumericSuffix = table.Columns
             .Select(c => c.Name.LocalName)
-            .Where(c => NumericSuffixRegex.IsMatch(c))
+            .Where(c => NumericSuffixRegex().IsMatch(c))
             .ToList();
         if (columnsWithNumericSuffix.Empty())
             return [];
@@ -89,5 +89,6 @@ public class ColumnWithNumericSuffix : Rule, ITableRule
     /// <value>The rule title.</value>
     protected static string RuleTitle { get; } = "Column with a numeric suffix.";
 
-    private static readonly Regex NumericSuffixRegex = new(".*[0-9]$", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
+    [GeneratedRegex(".*[0-9]$", RegexOptions.Compiled, matchTimeoutMilliseconds: 100)]
+    private static partial Regex NumericSuffixRegex();
 }

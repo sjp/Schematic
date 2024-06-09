@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using LanguageExt;
 using Moq;
 using NUnit.Framework;

@@ -11,7 +11,7 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Dot;
 
-internal static class IdentifierExtensions
+internal static partial class IdentifierExtensions
 {
     public static string ToVisibleName(this Identifier identifier)
     {
@@ -52,15 +52,15 @@ internal static class IdentifierExtensions
 
         var result = RemoveDiacritics(input).ToLowerInvariant();
         // invalid chars
-        result = _invalidCharRegex.Replace(result, string.Empty);
+        result = InvalidCharRegex().Replace(result, string.Empty);
         // convert multiple spaces into one space
-        result = _spaceCollapseRegex.Replace(result, " ").Trim();
+        result = SpaceCollapseRegex().Replace(result, " ").Trim();
         // cut and trim
         result = Truncate(result, maxChars).Trim();
         // whitespace to hyphens
-        result = _whitespaceRegex.Replace(result, "-").Trim();
+        result = WhitespaceRegex().Replace(result, "-").Trim();
         // underscore/period to hyphen
-        result = _underscorePeriodRegex.Replace(result, "-").Trim();
+        result = UnderscorePeriodRegex().Replace(result, "-").Trim();
 
         // ensure chars are safe on disk
         var invalidChars = Path.GetInvalidFileNameChars();
@@ -69,10 +69,17 @@ internal static class IdentifierExtensions
         return new string(validChars);
     }
 
-    private static readonly Regex _invalidCharRegex = new(@"[^a-z0-9\s-_.]", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
-    private static readonly Regex _spaceCollapseRegex = new(@"\s+", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
-    private static readonly Regex _whitespaceRegex = new("\\s", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
-    private static readonly Regex _underscorePeriodRegex = new("[_.]", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
+    [GeneratedRegex(@"[^a-z0-9\s-_.]", RegexOptions.Compiled, matchTimeoutMilliseconds: 100)]
+    private static partial Regex InvalidCharRegex();
+
+    [GeneratedRegex(@"\s+", RegexOptions.Compiled, matchTimeoutMilliseconds: 100)]
+    private static partial Regex SpaceCollapseRegex();
+
+    [GeneratedRegex("\\s", RegexOptions.Compiled, matchTimeoutMilliseconds: 100)]
+    private static partial Regex WhitespaceRegex();
+
+    [GeneratedRegex("[_.]", RegexOptions.Compiled, matchTimeoutMilliseconds: 100)]
+    private static partial Regex UnderscorePeriodRegex();
 
     private static string RemoveDiacritics(string input)
     {

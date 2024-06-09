@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt;
 using Moq;
@@ -66,7 +64,7 @@ internal static class UniqueIndexWithNullableColumnsRuleTests
         var index = new DatabaseIndex(
             "test_index_name",
             false,
-            new[] { new DatabaseIndexColumn("test_column_1", testColumn, IndexColumnOrder.Ascending) },
+            [new DatabaseIndexColumn("test_column_1", testColumn, IndexColumnOrder.Ascending)],
             [],
             true,
             Option<string>.None
@@ -79,7 +77,7 @@ internal static class UniqueIndexWithNullableColumnsRuleTests
             [],
             [],
             [],
-            new[] { index },
+            [index],
             [],
             []
         );
@@ -106,7 +104,7 @@ internal static class UniqueIndexWithNullableColumnsRuleTests
         var uniqueIndex = new DatabaseIndex(
             "test_index_name",
             true,
-            new[] { new DatabaseIndexColumn("test_column_1", testColumn, IndexColumnOrder.Ascending) },
+            [new DatabaseIndexColumn("test_column_1", testColumn, IndexColumnOrder.Ascending)],
             [],
             true,
             Option<string>.None
@@ -119,7 +117,7 @@ internal static class UniqueIndexWithNullableColumnsRuleTests
             [],
             [],
             [],
-            new[] { uniqueIndex },
+            [uniqueIndex],
             [],
             []
         );
@@ -146,7 +144,7 @@ internal static class UniqueIndexWithNullableColumnsRuleTests
         var uniqueIndex = new DatabaseIndex(
             "test_index_name",
             true,
-            new[] { new DatabaseIndexColumn("test_column_1", testColumn, IndexColumnOrder.Ascending) },
+            [new DatabaseIndexColumn("test_column_1", testColumn, IndexColumnOrder.Ascending)],
             [],
             true,
             Option<string>.None
@@ -159,7 +157,7 @@ internal static class UniqueIndexWithNullableColumnsRuleTests
             [],
             [],
             [],
-            new[] { uniqueIndex },
+            [uniqueIndex],
             [],
             []
         );

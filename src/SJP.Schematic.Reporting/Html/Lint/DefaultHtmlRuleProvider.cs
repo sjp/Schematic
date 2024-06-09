@@ -27,8 +27,8 @@ public sealed class DefaultHtmlRuleProvider : IRuleProvider
         if (!level.IsValid())
             throw new ArgumentException($"The {nameof(RuleLevel)} provided must be a valid enum.", nameof(level));
 
-        return new IRule[]
-        {
+        return
+        [
             new CandidateKeyMissingRule(level),
             new ColumnWithNullDefaultValueRule(level),
             new ColumnWithNumericSuffix(level),
@@ -53,6 +53,6 @@ public sealed class DefaultHtmlRuleProvider : IRuleProvider
             new TooManyColumnsRule(level),
             new UniqueIndexWithNullableColumnsRule(level),
             new WhitespaceNameRule(level)
-        };
+        ];
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt;
 using Moq;
@@ -37,14 +35,14 @@ internal static class OrphanedTableRuleTests
             new DatabaseKey(
                 Option<Identifier>.Some("child_key"),
                 DatabaseKeyType.Foreign,
-                new[] { Mock.Of<IDatabaseColumn>() },
+                [Mock.Of<IDatabaseColumn>()],
                 true
             ),
             "parent_table",
             new DatabaseKey(
                 Option<Identifier>.Some("parent_key"),
                 DatabaseKeyType.Primary,
-                new[] { Mock.Of<IDatabaseColumn>() },
+                [Mock.Of<IDatabaseColumn>()],
                 true
             ),
             ReferentialAction.NoAction,
@@ -55,7 +53,7 @@ internal static class OrphanedTableRuleTests
             [],
             null,
             [],
-            new[] { parentKey },
+            [parentKey],
             [],
             [],
             [],
@@ -78,14 +76,14 @@ internal static class OrphanedTableRuleTests
             new DatabaseKey(
                 Option<Identifier>.Some("child_key"),
                 DatabaseKeyType.Foreign,
-                new[] { Mock.Of<IDatabaseColumn>() },
+                [Mock.Of<IDatabaseColumn>()],
                 true
             ),
             "parent_table",
             new DatabaseKey(
                 Option<Identifier>.Some("parent_key"),
                 DatabaseKeyType.Primary,
-                new[] { Mock.Of<IDatabaseColumn>() },
+                [Mock.Of<IDatabaseColumn>()],
                 true
             ),
             ReferentialAction.NoAction,
@@ -97,7 +95,7 @@ internal static class OrphanedTableRuleTests
             null,
             [],
             [],
-            new[] { childKey },
+            [childKey],
             [],
             [],
             []

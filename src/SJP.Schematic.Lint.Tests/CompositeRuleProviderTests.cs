@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -49,7 +48,7 @@ internal static class CompositeRuleProviderTests
         var dialect = Mock.Of<IDatabaseDialect>();
         var connection = new SchematicConnection(dbConnection, dialect);
 
-        var ruleProvider = new CompositeRuleProvider(new[] { new DefaultRuleProvider() });
+        var ruleProvider = new CompositeRuleProvider([new DefaultRuleProvider()]);
         var rules = ruleProvider.GetRules(connection, RuleLevel.Error);
 
         Assert.That(rules, Is.Not.Empty);
@@ -64,7 +63,7 @@ internal static class CompositeRuleProviderTests
 
         var defaultProvider = new DefaultRuleProvider();
 
-        var ruleProvider = new CompositeRuleProvider(new[] { defaultProvider, defaultProvider });
+        var ruleProvider = new CompositeRuleProvider([defaultProvider, defaultProvider]);
         var defaultRules = defaultProvider.GetRules(connection, RuleLevel.Error).ToList();
         var expectedCount = defaultRules.Count * 2;
 

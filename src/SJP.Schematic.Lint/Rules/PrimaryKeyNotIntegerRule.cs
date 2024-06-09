@@ -48,7 +48,7 @@ public class PrimaryKeyNotIntegerRule : Rule, ITableRule
 
         return table.PrimaryKey
             .Where(pk => pk.Columns.Count != 1 || !ColumnIsInteger(pk.Columns.First()))
-            .Match(_ => new[] { BuildMessage(table.Name) }, Array.Empty<IRuleMessage>);
+            .Match(_ => [BuildMessage(table.Name)], Array.Empty<IRuleMessage>);
     }
 
     /// <summary>

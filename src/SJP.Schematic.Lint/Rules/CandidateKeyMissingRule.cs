@@ -50,7 +50,7 @@ public class CandidateKeyMissingRule : Rule, ITableRule
             return [];
 
         var ruleMessage = BuildMessage(table.Name);
-        return new[] { ruleMessage };
+        return [ruleMessage];
     }
 
     /// <summary>

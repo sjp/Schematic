@@ -67,7 +67,7 @@ public static class SyntaxUtilities
         var commentLines = GetLines(comment);
         var commentNodes = commentLines.Count > 1
             ? commentLines.SelectMany(static l => new XmlNodeSyntax[] { XmlParaElement(XmlText(l)), XmlText(XmlNewline) }).ToArray()
-            : new XmlNodeSyntax[] { XmlText(XmlTextLiteral(comment), XmlNewline) };
+            : [XmlText(XmlTextLiteral(comment), XmlNewline)];
         // add a newline after the summary element
         var formattedCommentNodes = new XmlNodeSyntax[] { XmlText(XmlNewline) }.Concat(commentNodes).ToArray();
 
@@ -91,7 +91,7 @@ public static class SyntaxUtilities
 
         var commentsWithNewlines = new XmlNodeSyntax[] { XmlText(XmlNewline) }
             .Concat(commentNodes)
-            .Concat(new XmlNodeSyntax[] { XmlText(XmlNewline) })
+            .Concat([XmlText(XmlNewline)])
             .ToArray();
 
         return TriviaList(
@@ -116,7 +116,7 @@ public static class SyntaxUtilities
 
         var commentsWithNewlines = new XmlNodeSyntax[] { XmlText(XmlNewline) }
             .Concat(commentNodes)
-            .Concat(new XmlNodeSyntax[] { XmlText(XmlNewline) })
+            .Concat([XmlText(XmlNewline)])
             .ToArray();
 
         var summarySyntaxNode = XmlSummaryElement(commentsWithNewlines);
@@ -177,6 +177,6 @@ public static class SyntaxUtilities
         return comment.Split(NewlineChars, StringSplitOptions.RemoveEmptyEntries);
     }
 
-    private static readonly char[] NewlineChars = { '\r', '\n' };
+    private static readonly char[] NewlineChars = ['\r', '\n'];
     private static readonly SyntaxToken XmlNewline = XmlTextNewLine(Environment.NewLine);
 }

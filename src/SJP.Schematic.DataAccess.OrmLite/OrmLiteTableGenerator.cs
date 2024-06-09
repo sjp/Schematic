@@ -67,7 +67,7 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
             .Select(static c => c.Type.ClrType.Namespace)
             .Where(ns => ns != null && !string.Equals(ns, tableNamespace, StringComparison.Ordinal))
             .Select(static ns => ns!)
-            .Union(new[] { "ServiceStack.DataAnnotations" }, StringComparer.Ordinal)
+            .Union(["ServiceStack.DataAnnotations"], StringComparer.Ordinal)
             .Distinct(StringComparer.Ordinal)
             .OrderNamespaces()
             .ToList();
@@ -158,12 +158,12 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
             .Bind(c => c.Comment)
             .Match(
                 SyntaxUtilities.BuildCommentTrivia,
-                () => SyntaxUtilities.BuildCommentTrivia(new XmlNodeSyntax[]
-                {
+                () => SyntaxUtilities.BuildCommentTrivia(
+                [
                     XmlText("A mapping class to query the "),
                     XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(tableName.LocalName))),
                     XmlText(" table.")
-                })
+                ])
             );
     }
 
@@ -175,12 +175,12 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
             .Bind(c => c.ColumnComments.TryGetValue(columnName, out var cc) ? cc : Option<string>.None)
             .Match(
                 SyntaxUtilities.BuildCommentTrivia,
-                () => SyntaxUtilities.BuildCommentTrivia(new XmlNodeSyntax[]
-                {
+                () => SyntaxUtilities.BuildCommentTrivia(
+                [
                     XmlText("The "),
                     XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(columnName.LocalName))),
                     XmlText(" column.")
-                })
+                ])
             );
     }
 

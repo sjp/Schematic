@@ -51,7 +51,7 @@ public class NoNonNullableColumnsPresentRule : Rule, ITableRule
             return [];
 
         var message = BuildMessage(table.Name);
-        return new[] { message };
+        return [message];
     }
 
     /// <summary>

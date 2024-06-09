@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt;
 using Moq;
@@ -65,7 +63,7 @@ internal static class NoSurrogatePrimaryKeyRuleTests
         var testPrimaryKey = new DatabaseKey(
             Option<Identifier>.Some("test_primary_key"),
             DatabaseKeyType.Primary,
-            new[] { testColumn },
+            [testColumn],
             true
         );
 
@@ -109,7 +107,7 @@ internal static class NoSurrogatePrimaryKeyRuleTests
         var testPrimaryKey = new DatabaseKey(
             Option<Identifier>.Some("test_primary_key"),
             DatabaseKeyType.Primary,
-            new[] { testColumnA, testColumnB },
+            [testColumnA, testColumnB],
             true
         );
 
@@ -153,20 +151,20 @@ internal static class NoSurrogatePrimaryKeyRuleTests
         var testPrimaryKey = new DatabaseKey(
             Option<Identifier>.Some("test_primary_key"),
             DatabaseKeyType.Primary,
-            new[] { testColumnA, testColumnB },
+            [testColumnA, testColumnB],
             true
         );
 
         var testForeignKey1 = new DatabaseKey(
             Option<Identifier>.Some("test_fk1"),
             DatabaseKeyType.Foreign,
-            new[] { testColumnA },
+            [testColumnA],
             true
         );
         var testForeignKey2 = new DatabaseKey(
             Option<Identifier>.Some("test_fk2"),
             DatabaseKeyType.Foreign,
-            new[] { testColumnB },
+            [testColumnB],
             true
         );
 
@@ -192,7 +190,7 @@ internal static class NoSurrogatePrimaryKeyRuleTests
             [],
             testPrimaryKey,
             [],
-            new[] { relationalKey1, relationalKey2 },
+            [relationalKey1, relationalKey2],
             [],
             [],
             [],

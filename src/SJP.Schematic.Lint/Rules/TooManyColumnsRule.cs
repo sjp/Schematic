@@ -64,7 +64,7 @@ public class TooManyColumnsRule : Rule, ITableRule
             return [];
 
         var message = BuildMessage(table.Name, columnCount);
-        return new[] { message };
+        return [message];
     }
 
     /// <summary>

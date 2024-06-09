@@ -25,7 +25,7 @@ internal sealed class RelationshipFinder
         ArgumentNullException.ThrowIfNull(table);
 
         var result = new Dictionary<Identifier, IRelationalDatabaseTable> { [table.Name] = table };
-        AddRelatedTables(result, new[] { table }, degrees);
+        AddRelatedTables(result, [table], degrees);
 
         return result.Values;
     }

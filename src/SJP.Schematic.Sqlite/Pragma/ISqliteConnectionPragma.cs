@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite.Pragma.Query;
 
 namespace SJP.Schematic.Sqlite.Pragma;

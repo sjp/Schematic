@@ -74,7 +74,7 @@ public class PrimaryKeyColumnNotFirstColumnRule : Rule, ITableRule
             return [];
 
         var message = BuildMessage(table.Name);
-        return new[] { message };
+        return [message];
     }
 
     /// <summary>

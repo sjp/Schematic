@@ -26,8 +26,8 @@ public class DefaultRuleProvider : IRuleProvider
         if (!level.IsValid())
             throw new ArgumentException($"The {nameof(RuleLevel)} provided must be a valid enum.", nameof(level));
 
-        return new IRule[]
-        {
+        return
+        [
             new CandidateKeyMissingRule(level),
             new ColumnWithNullDefaultValueRule(level),
             new DisabledObjectsRule(level),
@@ -51,6 +51,6 @@ public class DefaultRuleProvider : IRuleProvider
             new TooManyColumnsRule(level),
             new UniqueIndexWithNullableColumnsRule(level),
             new WhitespaceNameRule(level)
-        };
+        ];
     }
 }

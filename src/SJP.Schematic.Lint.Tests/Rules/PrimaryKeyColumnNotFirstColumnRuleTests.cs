@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt;
 using Moq;
@@ -72,7 +70,7 @@ internal static class PrimaryKeyColumnNotFirstColumnRuleTests
         var testPrimaryKey = new DatabaseKey(
             Option<Identifier>.Some("test_primary_key"),
             DatabaseKeyType.Primary,
-            new[] { testColumn1, testColumn2 },
+            [testColumn1, testColumn2],
             true
         );
 
@@ -116,7 +114,7 @@ internal static class PrimaryKeyColumnNotFirstColumnRuleTests
         var testPrimaryKey = new DatabaseKey(
             Option<Identifier>.Some("test_primary_key"),
             DatabaseKeyType.Primary,
-            new[] { testColumn1 },
+            [testColumn1],
             true
         );
 
@@ -160,7 +158,7 @@ internal static class PrimaryKeyColumnNotFirstColumnRuleTests
         var testPrimaryKey = new DatabaseKey(
             Option<Identifier>.Some("test_primary_key"),
             DatabaseKeyType.Primary,
-            new[] { testColumn2 },
+            [testColumn2],
             true
         );
 

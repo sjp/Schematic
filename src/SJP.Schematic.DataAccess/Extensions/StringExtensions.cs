@@ -7,13 +7,19 @@ namespace SJP.Schematic.DataAccess.Extensions;
 /// <summary>
 /// Utility methods for transforming strings into different naming conventions.
 /// </summary>
-public static class StringExtensions
+public static partial class StringExtensions
 {
-    private static readonly Regex _pascalizeRegex = new("(?:^|_| +)(.)", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
+    [GeneratedRegex("(?:^|_| +)(.)", RegexOptions.Compiled, matchTimeoutMilliseconds: 200)]
+    private static partial Regex PascalizeRegex();
 
-    private static readonly Regex _underscore1Regex = new(@"([\p{Lu}]+)([\p{Lu}][\p{Ll}])", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
-    private static readonly Regex _underscore2Regex = new(@"([\p{Ll}\d])([\p{Lu}])", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
-    private static readonly Regex _underscore3Regex = new(@"[-\s]", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
+    [GeneratedRegex(@"([\p{Lu}]+)([\p{Lu}][\p{Ll}])", RegexOptions.Compiled, matchTimeoutMilliseconds: 200)]
+    private static partial Regex Underscore1Regex();
+
+    [GeneratedRegex(@"([\p{Ll}\d])([\p{Lu}])", RegexOptions.Compiled, matchTimeoutMilliseconds: 200)]
+    private static partial Regex Underscore2Regex();
+
+    [GeneratedRegex(@"[-\s]", RegexOptions.Compiled, matchTimeoutMilliseconds: 200)]
+    private static partial Regex Underscore3Regex();
 
     /// <summary>
     /// Same as <see cref="Pascalize(string)"/> except that the first character is lower case.
@@ -33,7 +39,7 @@ public static class StringExtensions
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        return _pascalizeRegex.Replace(input, static match => match.Groups[1].Value.ToUpper(CultureInfo.InvariantCulture));
+        return PascalizeRegex().Replace(input, static match => match.Groups[1].Value.ToUpper(CultureInfo.InvariantCulture));
     }
 
     /// <summary>
@@ -44,8 +50,8 @@ public static class StringExtensions
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        return _underscore3Regex.Replace(
-            _underscore2Regex.Replace(_underscore1Regex.Replace(input, "$1_$2"), "$1_$2"),
+        return Underscore3Regex().Replace(
+            Underscore2Regex().Replace(Underscore1Regex().Replace(input, "$1_$2"), "$1_$2"),
             "_"
         ).ToLower(CultureInfo.InvariantCulture);
     }

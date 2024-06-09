@@ -25,7 +25,7 @@ public class DatabaseIndexColumn : IDatabaseIndexColumn
     /// <exception cref="ArgumentNullException"><paramref name="column"/> is <c>null</c>. Alternatively if <paramref name="expression"/> is <c>null</c>, empty or whitespace.</exception>
     /// <exception cref="ArgumentException"><paramref name="order"/> is an invalid enum.</exception>
     public DatabaseIndexColumn(string expression, IDatabaseColumn column, IndexColumnOrder order)
-        : this(expression, new[] { column }, order)
+        : this(expression, [column], order)
     {
     }
 

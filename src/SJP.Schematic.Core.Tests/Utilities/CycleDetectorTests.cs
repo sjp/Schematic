@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core.Utilities;
@@ -42,8 +41,8 @@ internal static class CycleDetectorTests
         // create tables with no cycle where the path is a -> b -> c
         var tableAMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
         tableAMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("a"));
-        tableAMock.Setup(t => t.ParentKeys).Returns(new[]
-        {
+        tableAMock.Setup(t => t.ParentKeys).Returns(
+        [
             new DatabaseRelationalKey(
                 Identifier.CreateQualifiedIdentifier("a"),
                 childKey,
@@ -52,12 +51,12 @@ internal static class CycleDetectorTests
                 ReferentialAction.NoAction,
                 ReferentialAction.NoAction
             )
-        });
+        ]);
 
         var tableBMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
         tableBMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("b"));
-        tableBMock.Setup(t => t.ParentKeys).Returns(new[]
-        {
+        tableBMock.Setup(t => t.ParentKeys).Returns(
+        [
             new DatabaseRelationalKey(
                 Identifier.CreateQualifiedIdentifier("b"),
                 childKey,
@@ -66,7 +65,7 @@ internal static class CycleDetectorTests
                 ReferentialAction.NoAction,
                 ReferentialAction.NoAction
             )
-        });
+        ]);
 
         var tableCMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
         tableCMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("c"));
@@ -100,8 +99,8 @@ internal static class CycleDetectorTests
         // create tables with no cycle where the path is a -> b -> c -> a
         var tableAMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
         tableAMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("a"));
-        tableAMock.Setup(t => t.ParentKeys).Returns(new[]
-        {
+        tableAMock.Setup(t => t.ParentKeys).Returns(
+        [
             new DatabaseRelationalKey(
                 Identifier.CreateQualifiedIdentifier("a"),
                 childKey,
@@ -110,12 +109,12 @@ internal static class CycleDetectorTests
                 ReferentialAction.NoAction,
                 ReferentialAction.NoAction
             )
-        });
+        ]);
 
         var tableBMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
         tableBMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("b"));
-        tableBMock.Setup(t => t.ParentKeys).Returns(new[]
-        {
+        tableBMock.Setup(t => t.ParentKeys).Returns(
+        [
             new DatabaseRelationalKey(
                 Identifier.CreateQualifiedIdentifier("b"),
                 childKey,
@@ -124,12 +123,12 @@ internal static class CycleDetectorTests
                 ReferentialAction.NoAction,
                 ReferentialAction.NoAction
             )
-        });
+        ]);
 
         var tableCMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
         tableCMock.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("c"));
-        tableCMock.Setup(t => t.ParentKeys).Returns(new[]
-        {
+        tableCMock.Setup(t => t.ParentKeys).Returns(
+        [
             new DatabaseRelationalKey(
                 Identifier.CreateQualifiedIdentifier("c"),
                 childKey,
@@ -138,7 +137,7 @@ internal static class CycleDetectorTests
                 ReferentialAction.NoAction,
                 ReferentialAction.NoAction
             )
-        });
+        ]);
 
         var tables = new[]
         {

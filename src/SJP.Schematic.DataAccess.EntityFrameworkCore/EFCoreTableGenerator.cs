@@ -86,12 +86,12 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
             .Select(static c => c.Type.ClrType.Namespace)
             .Where(ns => ns != null && !string.Equals(ns, tableNamespace, StringComparison.Ordinal))
             .Select(static ns => ns!)
-            .Union(new[]
-            {
+            .Union(
+            [
                 "System.Collections.Generic",
                 "System.ComponentModel.DataAnnotations",
                 "System.ComponentModel.DataAnnotations.Schema"
-            }, StringComparer.Ordinal)
+            ], StringComparer.Ordinal)
             .Distinct(StringComparer.Ordinal)
             .OrderNamespaces()
             .ToList();
@@ -303,12 +303,12 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
             .Bind(static c => c.Comment)
             .Match(
                 SyntaxUtilities.BuildCommentTrivia,
-                () => SyntaxUtilities.BuildCommentTrivia(new XmlNodeSyntax[]
-                {
+                () => SyntaxUtilities.BuildCommentTrivia(
+                [
                     XmlText("A mapping class to query the "),
                     XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(tableName.LocalName))),
                     XmlText(" table.")
-                })
+                ])
             );
     }
 
@@ -320,12 +320,12 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
             .Bind(c => c.ColumnComments.TryGetValue(columnName, out var cc) ? cc : Option<string>.None)
             .Match(
                 SyntaxUtilities.BuildCommentTrivia,
-                () => SyntaxUtilities.BuildCommentTrivia(new XmlNodeSyntax[]
-                {
+                () => SyntaxUtilities.BuildCommentTrivia(
+                [
                     XmlText("The "),
                     XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(columnName.LocalName))),
                     XmlText(" column.")
-                })
+                ])
             );
     }
 
@@ -349,8 +349,8 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
                         static () => XmlText(string.Empty) as XmlNodeSyntax
                     );
 
-                    return SyntaxUtilities.BuildCommentTrivia(new XmlNodeSyntax[]
-                    {
+                    return SyntaxUtilities.BuildCommentTrivia(
+                    [
                         XmlText("The" + (hasChildKeyName ? " " : string.Empty)),
                         foreignKeyNameNode,
                         XmlText(" foreign key. Navigates from "),
@@ -358,7 +358,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
                         XmlText(" to "),
                         XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(relationalKey.ParentTable.LocalName))),
                         XmlText(".")
-                    });
+                    ]);
                 }
             );
     }
@@ -373,8 +373,8 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
             static () => XmlText(string.Empty) as XmlNodeSyntax
         );
 
-        return SyntaxUtilities.BuildCommentTrivia(new XmlNodeSyntax[]
-        {
+        return SyntaxUtilities.BuildCommentTrivia(
+        [
             XmlText("The" + (hasChildKeyName ? " " : string.Empty)),
             foreignKeyNameNode,
             XmlText(" child key. Navigates from "),
@@ -382,7 +382,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
             XmlText(" to "),
             XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(relationalKey.ChildTable.LocalName))),
             XmlText(".")
-        });
+        ]);
     }
 
     private static IEnumerable<AttributeListSyntax> BuildClassAttributes(IRelationalDatabaseTable table, string className)

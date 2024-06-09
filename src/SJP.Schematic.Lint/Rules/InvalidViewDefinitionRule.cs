@@ -85,7 +85,7 @@ public class InvalidViewDefinitionRule : Rule, IViewRule
         catch
         {
             var message = BuildMessage(view.Name);
-            return new[] { message };
+            return [message];
         }
     }
 

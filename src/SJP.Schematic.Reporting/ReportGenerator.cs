@@ -113,8 +113,8 @@ public class ReportGenerator
         var dependencyProvider = Connection.Dialect.GetDependencyProvider();
         var referencedObjectTargets = new ReferencedObjectTargets(dependencyProvider, tableNames, viewNames, sequenceNames, synonymNames, routineNames);
 
-        return new ITemplateRenderer[]
-        {
+        return
+        [
             new ColumnsRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, views, ExportDirectory),
             new ConstraintsRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, ExportDirectory),
             new IndexesRenderer(Database.IdentifierDefaults, TemplateFormatter, tables, ExportDirectory),
@@ -136,6 +136,6 @@ public class ReportGenerator
             new RoutinesRenderer(Database.IdentifierDefaults, TemplateFormatter, routines, ExportDirectory),
             new TableOrderingRenderer(Connection.Dialect, tables, ExportDirectory),
             new DbmlRenderer(tables, ExportDirectory)
-        };
+        ];
     }
 }

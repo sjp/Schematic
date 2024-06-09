@@ -54,7 +54,7 @@ public class PostgreSqlDatabaseIndexColumn : IDatabaseIndexColumn
             throw new ArgumentException($"The {nameof(IndexColumnOrder)} provided must be a valid enum.", nameof(order));
 
         Expression = expression;
-        DependentColumns = new[] { column };
+        DependentColumns = [column];
         Order = order;
     }
 

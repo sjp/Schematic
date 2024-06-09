@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt;
 using Moq;
@@ -65,7 +63,7 @@ internal static class CandidateKeyMissingRuleTests
         var testPrimaryKey = new DatabaseKey(
             Option<Identifier>.Some("test_primary_key"),
             DatabaseKeyType.Primary,
-            new[] { testColumn },
+            [testColumn],
             true
         );
 
@@ -102,7 +100,7 @@ internal static class CandidateKeyMissingRuleTests
         var testUniqueKey = new DatabaseKey(
             Option<Identifier>.Some("test_unique_key"),
             DatabaseKeyType.Unique,
-            new[] { testColumn },
+            [testColumn],
             true
         );
 

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -364,5 +362,5 @@ internal static class ReservedKeywordNameRuleTests
         Assert.That(hasMessages, Is.True);
     }
 
-    private static IDatabaseDialect CreateFakeDialect() => new FakeDatabaseDialect { ReservedKeywords = new[] { "SELECT" } };
+    private static IDatabaseDialect CreateFakeDialect() => new FakeDatabaseDialect { ReservedKeywords = ["SELECT"] };
 }

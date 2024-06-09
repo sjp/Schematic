@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
 
@@ -25,7 +24,7 @@ internal static class ReadOnlyCollectionExtensionsTests
     [Test]
     public static void Empty_GivenNonEmptyCollection_ReturnsFalse()
     {
-        IReadOnlyCollection<string> input = new[] { "A" };
+        IReadOnlyCollection<string> input = ["A"];
         Assert.That(input.Empty(), Is.False);
     }
 }

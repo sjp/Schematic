@@ -109,7 +109,7 @@ public class DotFormatter : IDotFormatter
 
             var keyColumnNames = uniqueKeys
                 .Concat(parentKeys.Select(static fk => fk.ChildKey))
-                .Concat(primaryKey.Match(static pk => new[] { pk }, Array.Empty<IDatabaseKey>))
+                .Concat(primaryKey.Match(static pk => [pk], Array.Empty<IDatabaseKey>))
                 .SelectMany(static key => key.Columns.Select(static c => c.Name.LocalName))
                 .Distinct(StringComparer.Ordinal)
                 .ToList();
@@ -245,22 +245,22 @@ public class DotFormatter : IDotFormatter
         return graph.ToString();
     }
 
-    private static readonly IEnumerable<GraphAttribute> _globalGraphAttrs = new[]
-    {
+    private static readonly IEnumerable<GraphAttribute> _globalGraphAttrs =
+    [
         GraphAttribute.RankDirection(RankDirection.RL),
         GraphAttribute.Ratio(GraphRatio.Compress)
-    };
+    ];
 
-    private static readonly IEnumerable<NodeAttribute> _globalNodeAttrs = new[]
-    {
+    private static readonly IEnumerable<NodeAttribute> _globalNodeAttrs =
+    [
         NodeAttribute.FontFace(FontFace.Courier),
         NodeAttribute.EmptyNodeShape()
-    };
+    ];
 
-    private static readonly IEnumerable<EdgeAttribute> _globalEdgeAttrs = new[]
-    {
+    private static readonly IEnumerable<EdgeAttribute> _globalEdgeAttrs =
+    [
         EdgeAttribute.ArrowHead(ArrowStyleName.Open)
-    };
+    ];
 
     private static readonly IReadOnlyDictionary<Identifier, ulong> EmptyRowCounts = new Dictionary<Identifier, ulong>();
 }

@@ -19,6 +19,6 @@ public class VerbatimIdentifierResolutionStrategy : IIdentifierResolutionStrateg
     {
         ArgumentNullException.ThrowIfNull(identifier);
 
-        return new[] { identifier };
+        return [identifier];
     }
 }

@@ -109,8 +109,7 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
         new RelationalDatabaseCommentProvider(
             new IdentifierDefaults(null, null, "main"),
             new VerbatimIdentifierResolutionStrategy(),
-            new[]
-            {
+            [
                 new RelationalDatabaseTableComments(
                     "test_table_1",
                     Option<string>.Some("a table comment"),
@@ -151,9 +150,8 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
                     new Dictionary<Identifier, Option<string>>(),
                     new Dictionary<Identifier, Option<string>>()
                 )
-            },
-            new[]
-            {
+            ],
+            [
                 new DatabaseViewComments(
                     "test_view_1",
                     Option<string>.Some("a view comment"),
@@ -167,9 +165,8 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
                     Option<string>.None,
                     new Dictionary<Identifier, Option<string>>()
                 )
-            },
-            new[]
-            {
+            ],
+            [
                 new DatabaseSequenceComments(
                     "test_sequence_1",
                     Option<string>.Some("a sequence comment")
@@ -178,9 +175,8 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
                     "test_sequence_2",
                     Option<string>.None
                 )
-            },
-            new[]
-            {
+            ],
+            [
                 new DatabaseSynonymComments(
                     "test_synonym_1",
                     Option<string>.Some("a synonym comment")
@@ -189,9 +185,8 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
                     "test_synonym_2",
                     Option<string>.None
                 )
-            },
-            new[]
-            {
+            ],
+            [
                 new DatabaseRoutineComments(
                     "test_routine_1",
                     Option<string>.Some("a routine comment")
@@ -200,6 +195,6 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
                     "test_routine_2",
                     Option<string>.None
                 )
-            }
+            ]
         );
 }
