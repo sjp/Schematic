@@ -15,7 +15,7 @@ namespace SJP.Schematic.SqlServer;
 /// </summary>
 public class SqlServerDependencyProvider : IDependencyProvider
 {
-    private static readonly TSql150Parser _parser = new(true, SqlEngineType.All);
+    private static readonly TSql160Parser _parser = new(true, SqlEngineType.All);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SqlServerDependencyProvider"/> class.

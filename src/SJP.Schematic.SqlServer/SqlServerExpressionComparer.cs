@@ -13,7 +13,7 @@ namespace SJP.Schematic.SqlServer;
 /// <seealso cref="IEqualityComparer{T}" />
 public sealed class SqlServerExpressionComparer : IEqualityComparer<string>
 {
-    private static readonly TSql150Parser _parser = new(true, SqlEngineType.All);
+    private static readonly TSql160Parser _parser = new(true, SqlEngineType.All);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SqlServerExpressionComparer"/> class.
