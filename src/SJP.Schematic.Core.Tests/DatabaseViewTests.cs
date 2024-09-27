@@ -15,15 +15,23 @@ internal static class DatabaseViewTests
         Assert.That(() => new DatabaseView(null, definition, columns), Throws.ArgumentNullException);
     }
 
-    [TestCase((string)null)]
-    [TestCase("")]
-    [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentNullException(string definition)
+    [Test]
+    public static void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
     {
         Identifier viewName = "test_view";
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
 
-        Assert.That(() => new DatabaseView(viewName, definition, columns), Throws.ArgumentNullException);
+        Assert.That(() => new DatabaseView(viewName, null!, columns), Throws.ArgumentNullException);
+    }
+
+    [TestCase("")]
+    [TestCase("    ")]
+    public static void Ctor_GivenEmptyOrWhiteSpaceDefinition_ThrowsArgumentException(string definition)
+    {
+        Identifier viewName = "test_view";
+        var columns = new[] { Mock.Of<IDatabaseColumn>() };
+
+        Assert.That(() => new DatabaseView(viewName, definition, columns), Throws.ArgumentException);
     }
 
     [Test]

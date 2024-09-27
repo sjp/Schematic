@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Oracle.Parsing;
 
 namespace SJP.Schematic.Oracle;
@@ -33,8 +32,7 @@ public sealed class OracleDependencyProvider : IDependencyProvider
     public IReadOnlyCollection<Identifier> GetDependencies(Identifier objectName, string expression)
     {
         ArgumentNullException.ThrowIfNull(objectName);
-        if (expression.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(expression));
+        ArgumentException.ThrowIfNullOrWhiteSpace(expression);
 
         var tokenizer = new OracleTokenizer();
 

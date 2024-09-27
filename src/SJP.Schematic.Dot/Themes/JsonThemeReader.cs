@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Dot.Themes;
 
@@ -34,8 +33,7 @@ internal sealed class JsonThemeReader
     /// <returns>A theme to render a graph with.</returns>
     public IGraphTheme ReadFromJson(string json)
     {
-        if (json.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(json));
+        ArgumentException.ThrowIfNullOrWhiteSpace(json);
 
         var defaultTheme = new DefaultTheme();
         var dto = JsonSerializer.Deserialize<GraphThemeDto>(json, GetSerializerSettings());

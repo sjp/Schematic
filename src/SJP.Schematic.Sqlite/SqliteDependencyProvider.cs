@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite.Parsing;
 
 namespace SJP.Schematic.Sqlite;
@@ -35,8 +34,7 @@ public sealed class SqliteDependencyProvider : IDependencyProvider
     public IReadOnlyCollection<Identifier> GetDependencies(Identifier objectName, string expression)
     {
         ArgumentNullException.ThrowIfNull(objectName);
-        if (expression.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(expression));
+        ArgumentException.ThrowIfNullOrWhiteSpace(expression);
 
         var tokenizer = new SqliteTokenizer();
 

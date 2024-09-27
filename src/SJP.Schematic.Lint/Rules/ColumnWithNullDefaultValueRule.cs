@@ -88,8 +88,7 @@ public class ColumnWithNullDefaultValueRule : Rule, ITableRule
     protected virtual IRuleMessage BuildMessage(Identifier tableName, string columnName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
-        if (columnName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         var messageText = $"The table '{tableName}' has a column '{columnName}' whose default value is null. Consider removing the default value on the column.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);

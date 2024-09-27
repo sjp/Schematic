@@ -33,8 +33,7 @@ public class OrmLiteViewGenerator : DatabaseViewGenerator
     public OrmLiteViewGenerator(IFileSystem fileSystem, INameTranslator nameTranslator, string baseNamespace)
         : base(fileSystem, nameTranslator)
     {
-        if (baseNamespace.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(baseNamespace));
+        ArgumentException.ThrowIfNullOrWhiteSpace(baseNamespace);
 
         Namespace = baseNamespace;
     }
@@ -112,8 +111,7 @@ public class OrmLiteViewGenerator : DatabaseViewGenerator
     private static IEnumerable<AttributeListSyntax> BuildClassAttributes(IDatabaseView view, string className)
     {
         ArgumentNullException.ThrowIfNull(view);
-        if (className.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(className));
+        ArgumentException.ThrowIfNullOrWhiteSpace(className);
 
         var attributes = new List<AttributeListSyntax>();
 
@@ -154,8 +152,7 @@ public class OrmLiteViewGenerator : DatabaseViewGenerator
     private PropertyDeclarationSyntax BuildColumn(IDatabaseColumn column, Option<IDatabaseViewComments> comment, string className)
     {
         ArgumentNullException.ThrowIfNull(column);
-        if (className.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(className));
+        ArgumentException.ThrowIfNullOrWhiteSpace(className);
 
         var clrType = column.Type.ClrType;
         var propertyName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);
@@ -227,8 +224,7 @@ public class OrmLiteViewGenerator : DatabaseViewGenerator
     private static IEnumerable<AttributeListSyntax> BuildColumnAttributes(IDatabaseColumn column, string propertyName)
     {
         ArgumentNullException.ThrowIfNull(column);
-        if (propertyName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(propertyName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(propertyName);
 
         if (string.Equals(propertyName, column.Name.LocalName, StringComparison.Ordinal))
             return [];

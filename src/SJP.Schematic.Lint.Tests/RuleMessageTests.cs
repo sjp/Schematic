@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 
 namespace SJP.Schematic.Lint.Tests;
 
@@ -8,23 +9,23 @@ internal static class RuleMessageTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceId_ThrowsArgumentNullException(string ruleId)
+    public static void Ctor_GivenNullOrWhiteSpaceId_ThrowsArgumentException(string ruleId)
     {
         const string title = "title";
         const RuleLevel level = RuleLevel.Error;
         const string message = "message";
-        Assert.That(() => new RuleMessage(ruleId, title, level, message), Throws.ArgumentNullException);
+        Assert.That(() => new RuleMessage(ruleId, title, level, message), Throws.InstanceOf<ArgumentException>());
     }
 
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceTitle_ThrowsArgumentNullException(string title)
+    public static void Ctor_GivenNullOrWhiteSpaceTitle_ThrowsArgumentException(string title)
     {
         const string ruleId = "TEST_ID";
         const RuleLevel level = RuleLevel.Error;
         const string message = "message";
-        Assert.That(() => new RuleMessage(ruleId, title, level, message), Throws.ArgumentNullException);
+        Assert.That(() => new RuleMessage(ruleId, title, level, message), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]
@@ -40,12 +41,12 @@ internal static class RuleMessageTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceMessage_ThrowsArgumentNullException(string message)
+    public static void Ctor_GivenNullOrWhiteSpaceMessage_ThrowsArgumentException(string message)
     {
         const string ruleId = "TEST_ID";
         const string title = "title";
         const RuleLevel level = RuleLevel.Error;
-        Assert.That(() => new RuleMessage(ruleId, title, level, message), Throws.ArgumentNullException);
+        Assert.That(() => new RuleMessage(ruleId, title, level, message), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

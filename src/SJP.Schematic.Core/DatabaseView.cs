@@ -27,8 +27,7 @@ public class DatabaseView : IDatabaseView
         IReadOnlyList<IDatabaseColumn> columns
     )
     {
-        if (definition.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(definition));
+        ArgumentException.ThrowIfNullOrWhiteSpace(definition);
         if (columns.NullOrAnyNull())
             throw new ArgumentNullException(nameof(columns));
 

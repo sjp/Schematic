@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Web;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules;
@@ -16,8 +15,7 @@ internal sealed class NoValueForNullableColumnRule : Schematic.Lint.Rules.NoValu
     protected override IRuleMessage BuildMessage(Identifier tableName, string columnName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
-        if (columnName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         var tableUrl = UrlRouter.GetTableUrl(tableName);
         var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";

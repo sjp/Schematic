@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite;
 using SJP.Schematic.Tests.Utilities;
 using SJP.Schematic.Tests.Utilities.Integration;
@@ -72,8 +71,7 @@ internal sealed class EfCoreSakilaDataAccessGeneratorTests : SakilaTest
 
     private static Task<bool> ProjectBuildsSuccessfullyAsync(string projectPath)
     {
-        if (projectPath.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(projectPath));
+        ArgumentException.ThrowIfNullOrWhiteSpace(projectPath);
         if (!File.Exists(projectPath))
             throw new FileNotFoundException("Expected to find a csproj at: " + projectPath, projectPath);
 

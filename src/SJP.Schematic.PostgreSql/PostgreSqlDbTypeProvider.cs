@@ -208,8 +208,7 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
     /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <c>null</c>, empty or whitespace.</exception>
     protected static string QuoteIdentifier(string identifier)
     {
-        if (identifier.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(identifier));
+        ArgumentException.ThrowIfNullOrWhiteSpace(identifier);
 
         return $"\"{identifier.Replace("\"", "\"\"", StringComparison.Ordinal)}\"";
     }

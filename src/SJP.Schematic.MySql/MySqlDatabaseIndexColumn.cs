@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.MySql;
@@ -24,8 +23,7 @@ public class MySqlDatabaseIndexColumn : IDatabaseIndexColumn
     public MySqlDatabaseIndexColumn(string expression, IDatabaseColumn column)
     {
         ArgumentNullException.ThrowIfNull(column);
-        if (expression.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(expression));
+        ArgumentException.ThrowIfNullOrWhiteSpace(expression);
 
         Expression = expression;
         DependentColumns = [column];

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Oracle.ManagedDataAccess.Client;
 using Polly;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Oracle;
 
@@ -23,8 +22,7 @@ public class OracleConnectionFactory : IDbConnectionFactory
     /// <exception cref="ArgumentNullException"><paramref name="connectionString"/> is <c>null</c>, empty or whitespace.</exception>
     public OracleConnectionFactory(string connectionString)
     {
-        if (connectionString.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(connectionString));
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
         ConnectionString = connectionString;
     }

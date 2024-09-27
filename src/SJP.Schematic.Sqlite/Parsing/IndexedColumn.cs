@@ -23,8 +23,7 @@ public class IndexedColumn
 
     internal IndexedColumn(string identifier)
     {
-        if (identifier.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(identifier));
+        ArgumentException.ThrowIfNullOrWhiteSpace(identifier);
 
         Name = identifier;
         Expression = [];

@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 
 namespace SJP.Schematic.Oracle.Tests;
 
@@ -8,37 +9,37 @@ internal static class OracleDialectTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void QuoteIdentifier_GivenNullOrWhiteSpaceIdentifier_ThrowsArgumentNullException(string identifier)
+    public static void QuoteIdentifier_GivenNullOrWhiteSpaceIdentifier_ThrowsArgumentException(string identifier)
     {
         var dialect = new OracleDialect();
 
-        Assert.That(() => dialect.QuoteIdentifier(identifier), Throws.ArgumentNullException);
+        Assert.That(() => dialect.QuoteIdentifier(identifier), Throws.InstanceOf<ArgumentException>());
     }
 
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void QuoteName_GivenNullOrWhiteSpaceName_ThrowsArgumentNullException(string name)
+    public static void QuoteName_GivenNullOrWhiteSpaceName_ThrowsArgumentException(string name)
     {
         var dialect = new OracleDialect();
 
-        Assert.That(() => dialect.QuoteName(name), Throws.ArgumentNullException);
+        Assert.That(() => dialect.QuoteName(name), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]
-    public static void QuoteName_GivenEmptyString_ThrowsArgumentNullException()
+    public static void QuoteName_GivenEmptyString_ThrowsArgumentException()
     {
         var dialect = new OracleDialect();
 
-        Assert.That(() => dialect.QuoteName(string.Empty), Throws.ArgumentNullException);
+        Assert.That(() => dialect.QuoteName(string.Empty), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]
-    public static void QuoteName_GivenWhiteSpace_ThrowsArgumentNullException()
+    public static void QuoteName_GivenWhiteSpace_ThrowsArgumentException()
     {
         var dialect = new OracleDialect();
 
-        Assert.That(() => dialect.QuoteName("    "), Throws.ArgumentNullException);
+        Assert.That(() => dialect.QuoteName("    "), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

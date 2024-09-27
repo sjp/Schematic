@@ -15,16 +15,25 @@ internal static class DatabaseTriggerTests
         Assert.That(() => new DatabaseTrigger(null, definition, timing, events, true), Throws.ArgumentNullException);
     }
 
-    [TestCase((string)null)]
-    [TestCase("")]
-    [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentNullException(string definition)
+    [Test]
+    public static void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
     {
         Identifier triggerName = "test_trigger";
         const TriggerQueryTiming timing = TriggerQueryTiming.Before;
         const TriggerEvent events = TriggerEvent.Update;
 
-        Assert.That(() => new DatabaseTrigger(triggerName, definition, timing, events, true), Throws.ArgumentNullException);
+        Assert.That(() => new DatabaseTrigger(triggerName, null!, timing, events, true), Throws.ArgumentNullException);
+    }
+
+    [TestCase("")]
+    [TestCase("    ")]
+    public static void Ctor_GivenEmptyOrWhiteSpaceDefinition_ThrowsArgumentException(string definition)
+    {
+        Identifier triggerName = "test_trigger";
+        const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+        const TriggerEvent events = TriggerEvent.Update;
+
+        Assert.That(() => new DatabaseTrigger(triggerName, definition, timing, events, true), Throws.ArgumentException);
     }
 
     [Test]

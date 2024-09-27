@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.PostgreSql.Tests;
@@ -20,14 +21,14 @@ internal static class PostgreSqlDatabaseTriggerTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentNullException(string definition)
+    public static void Ctor_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentException(string definition)
     {
         Identifier triggerName = "test_trigger";
         const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
         const TriggerEvent events = TriggerEvent.Update;
         const bool enabled = true;
 
-        Assert.That(() => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

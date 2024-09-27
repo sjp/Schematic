@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels;
 
@@ -25,14 +24,11 @@ public sealed class Relationships : ITemplateParameter
     {
         public Diagram(string diagramName, string dotDefinition, bool isActive)
         {
-            if (diagramName.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(diagramName));
+            ArgumentException.ThrowIfNullOrWhiteSpace(diagramName);
+            ArgumentException.ThrowIfNullOrWhiteSpace(dotDefinition);
+
             Name = diagramName;
-
-            if (dotDefinition.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(dotDefinition));
             Dot = dotDefinition;
-
             ContainerId = Name.ToLowerInvariant().Replace(' ', '-') + "-chart";
             ActiveClass = isActive ? "active" : string.Empty;
             Selected = isActive ? "true" : "false";

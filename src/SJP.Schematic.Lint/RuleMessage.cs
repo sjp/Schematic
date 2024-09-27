@@ -1,6 +1,5 @@
 ﻿using System;
 using EnumsNET;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Lint;
 
@@ -21,14 +20,11 @@ public class RuleMessage : IRuleMessage
     /// <exception cref="ArgumentException">The given rule reporting level was not a valid value.</exception>
     public RuleMessage(string ruleId, string title, RuleLevel level, string message)
     {
-        if (ruleId.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(ruleId));
-        if (title.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(title));
+        ArgumentException.ThrowIfNullOrWhiteSpace(ruleId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(title);
         if (!level.IsValid())
             throw new ArgumentException($"The {nameof(RuleLevel)} provided must be a valid enum.", nameof(level));
-        if (message.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(message));
+        ArgumentException.ThrowIfNullOrWhiteSpace(message);
 
         RuleId = ruleId;
         Title = title;

@@ -21,8 +21,7 @@ public class SqliteTableParser
     /// <exception cref="ArgumentNullException"><paramref name="tokens"/> is empty.</exception>
     public ParsedTableData ParseTokens(string definition, TokenList<SqliteToken> tokens)
     {
-        if (definition.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(definition));
+        ArgumentException.ThrowIfNullOrWhiteSpace(definition);
         if (tokens == default || tokens.Empty())
             throw new ArgumentNullException(nameof(tokens));
 

@@ -82,8 +82,7 @@ public class PostgreSqlDialect : DatabaseDialect
 
     private static Version? ParsePostgresVersionString(string versionStr)
     {
-        if (versionStr.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(versionStr));
+        ArgumentException.ThrowIfNullOrWhiteSpace(versionStr);
 
         return versionStr.Length >= 6
             ? ParseNewPostgresVersionString(versionStr)
@@ -93,8 +92,7 @@ public class PostgreSqlDialect : DatabaseDialect
     // for v10 or newer
     private static Version? ParseNewPostgresVersionString(string versionStr)
     {
-        if (versionStr.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(versionStr));
+        ArgumentException.ThrowIfNullOrWhiteSpace(versionStr);
         if (versionStr.Length != 6)
             throw new ArgumentException("The version string must be 6 characters long", nameof(versionStr));
 
@@ -111,8 +109,7 @@ public class PostgreSqlDialect : DatabaseDialect
     // for v9 or older
     private static Version? ParseOldPostgresVersionString(string versionStr)
     {
-        if (versionStr.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(versionStr));
+        ArgumentException.ThrowIfNullOrWhiteSpace(versionStr);
         if (versionStr.Length != 5)
             throw new ArgumentException("The version string must be 5 characters long", nameof(versionStr));
 
@@ -178,8 +175,7 @@ public class PostgreSqlDialect : DatabaseDialect
     /// <exception cref="ArgumentNullException"><paramref name="text"/> is <c>null</c>, empty or whitespace.</exception>
     public override bool IsReservedKeyword(string text)
     {
-        if (text.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(text));
+        ArgumentException.ThrowIfNullOrWhiteSpace(text);
 
         return Keywords.Contains(text, StringComparer.OrdinalIgnoreCase);
     }
@@ -954,8 +950,7 @@ public class PostgreSqlDialect : DatabaseDialect
     /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <c>null</c>, empty or whitespace.</exception>
     public override string QuoteIdentifier(string identifier)
     {
-        if (identifier.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(identifier));
+        ArgumentException.ThrowIfNullOrWhiteSpace(identifier);
 
         return $"\"{identifier.Replace("\"", "\"\"", StringComparison.Ordinal)}\"";
     }

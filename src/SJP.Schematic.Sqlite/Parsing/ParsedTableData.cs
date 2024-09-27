@@ -29,8 +29,7 @@ public sealed class ParsedTableData
         IReadOnlyCollection<Check> checks
     )
     {
-        if (definition.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(definition));
+        ArgumentException.ThrowIfNullOrWhiteSpace(definition);
         if (columns.NullOrEmpty())
             throw new ArgumentNullException(nameof(columns));
 
@@ -44,8 +43,7 @@ public sealed class ParsedTableData
 
     private ParsedTableData(string definition)
     {
-        if (definition.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(definition));
+        ArgumentException.ThrowIfNullOrWhiteSpace(definition);
 
         Definition = definition;
         PrimaryKey = Option<PrimaryKey>.None;

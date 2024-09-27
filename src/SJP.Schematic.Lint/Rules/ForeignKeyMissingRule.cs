@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Lint.Rules;
@@ -89,8 +88,7 @@ public class ForeignKeyMissingRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
     protected static string GetImpliedTableName(string columnName)
     {
-        if (columnName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         const string snakeCaseSuffix = "_id";
         if (columnName.EndsWith(snakeCaseSuffix, StringComparison.OrdinalIgnoreCase))
@@ -113,8 +111,7 @@ public class ForeignKeyMissingRule : Rule, ITableRule
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="targetTableName"/> is <c>null</c>. Also thrown when <paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
     protected virtual IRuleMessage BuildMessage(string columnName, Identifier tableName, Identifier targetTableName)
     {
-        if (columnName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
         ArgumentNullException.ThrowIfNull(tableName);
         ArgumentNullException.ThrowIfNull(targetTableName);
 

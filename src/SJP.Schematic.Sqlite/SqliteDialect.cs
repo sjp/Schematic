@@ -127,8 +127,7 @@ public class SqliteDialect : DatabaseDialect
     /// <exception cref="ArgumentNullException"><paramref name="text"/> is <c>null</c>, empty or whitespace.</exception>
     public override bool IsReservedKeyword(string text)
     {
-        if (text.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(text));
+        ArgumentException.ThrowIfNullOrWhiteSpace(text);
 
         return Keywords.Contains(text, StringComparer.OrdinalIgnoreCase);
     }

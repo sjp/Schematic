@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Tests.Utilities;
 
@@ -16,11 +17,11 @@ internal static class MySqlCheckConstraintTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentNullException(string definition)
+    public static void Ctor_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentException(string definition)
     {
         Identifier checkName = "test_check";
 
-        Assert.That(() => new MySqlCheckConstraint(checkName, definition, true), Throws.ArgumentNullException);
+        Assert.That(() => new MySqlCheckConstraint(checkName, definition, true), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

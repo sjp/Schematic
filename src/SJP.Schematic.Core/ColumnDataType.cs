@@ -1,7 +1,6 @@
 ﻿using System;
 using EnumsNET;
 using LanguageExt;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core;
 
@@ -35,10 +34,10 @@ public class ColumnDataType : IDbType
         Option<Identifier> collation
     )
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(definition);
+
         if (!dataType.IsValid())
             throw new ArgumentException($"The {nameof(DataType)} provided must be a valid enum.", nameof(dataType));
-        if (definition.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(definition));
 
         TypeName = typeName ?? throw new ArgumentNullException(nameof(typeName));
         DataType = dataType;

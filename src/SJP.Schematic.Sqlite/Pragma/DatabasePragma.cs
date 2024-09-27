@@ -25,10 +25,9 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>. If <paramref name="schemaName"/> is <c>null</c>, empty or whitespace.</exception>
     public DatabasePragma(ISchematicConnection connection, string schemaName)
     {
-        if (schemaName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(schemaName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(schemaName);
 
-        SchemaName = schemaName;
+    SchemaName = schemaName;
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
 
         PragmaPrefix = "PRAGMA " + connection.Dialect.QuoteIdentifier(schemaName) + ".";
@@ -372,8 +371,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <exception cref="ArgumentNullException"><paramref name="indexName"/> is <c>null</c>, empty or whitespace.</exception>
     protected string IndexInfoQuery(string indexName)
     {
-        if (indexName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(indexName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(indexName);
 
         return PragmaPrefix + "index_info(" + Dialect.QuoteIdentifier(indexName) + ")";
     }
@@ -420,8 +418,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <exception cref="ArgumentNullException"><paramref name="indexName"/> is <c>null</c>, empty or whitespace.</exception>
     public Task<IEnumerable<pragma_index_xinfo>> IndexXInfoAsync(string indexName, CancellationToken cancellationToken = default)
     {
-        if (indexName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(indexName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(indexName);
 
         return DbConnection.QueryAsync<pragma_index_xinfo>(IndexXInfoQuery(indexName), cancellationToken);
     }
@@ -434,8 +431,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <exception cref="ArgumentNullException"><paramref name="indexName"/> is <c>null</c>, empty or whitespace.</exception>
     protected string IndexXInfoQuery(string indexName)
     {
-        if (indexName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(indexName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(indexName);
 
         return PragmaPrefix + "index_xinfo(" + Dialect.QuoteIdentifier(indexName) + ")";
     }

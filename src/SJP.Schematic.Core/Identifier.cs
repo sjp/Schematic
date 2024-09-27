@@ -19,8 +19,7 @@ public sealed record Identifier : IComparable<Identifier>
     /// <exception cref="ArgumentNullException"><paramref name="localName"/> is <c>null</c>, empty, or whitespace.</exception>
     public Identifier(string localName)
     {
-        if (localName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(localName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(localName);
 
         LocalName = localName;
     }
@@ -33,10 +32,8 @@ public sealed record Identifier : IComparable<Identifier>
     /// <exception cref="ArgumentNullException"><paramref name="schema"/> or <paramref name="localName"/> is <c>null</c>, empty, or whitespace.</exception>
     public Identifier(string schema, string localName)
     {
-        if (schema.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(schema));
-        if (localName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(localName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(schema);
+        ArgumentException.ThrowIfNullOrWhiteSpace(localName);
 
         Schema = schema;
         LocalName = localName;
@@ -51,12 +48,9 @@ public sealed record Identifier : IComparable<Identifier>
     /// <exception cref="ArgumentNullException"><paramref name="database"/> or <paramref name="schema"/> or <paramref name="localName"/> is <c>null</c>, empty, or whitespace.</exception>
     public Identifier(string database, string schema, string localName)
     {
-        if (database.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(database));
-        if (schema.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(schema));
-        if (localName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(localName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(database);
+        ArgumentException.ThrowIfNullOrWhiteSpace(schema);
+        ArgumentException.ThrowIfNullOrWhiteSpace(localName);
 
         Database = database;
         Schema = schema;
@@ -73,14 +67,10 @@ public sealed record Identifier : IComparable<Identifier>
     /// <exception cref="ArgumentNullException"><paramref name="server"/> or <paramref name="database"/> or <paramref name="schema"/> or <paramref name="localName"/> is <c>null</c>, empty, or whitespace.</exception>
     public Identifier(string server, string database, string schema, string localName)
     {
-        if (server.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(server));
-        if (database.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(database));
-        if (schema.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(schema));
-        if (localName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(localName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(server);
+        ArgumentException.ThrowIfNullOrWhiteSpace(database);
+        ArgumentException.ThrowIfNullOrWhiteSpace(schema);
+        ArgumentException.ThrowIfNullOrWhiteSpace(localName);
 
         Server = server;
         Database = database;

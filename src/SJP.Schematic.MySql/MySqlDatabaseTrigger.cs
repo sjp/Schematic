@@ -27,8 +27,7 @@ public class MySqlDatabaseTrigger : IDatabaseTrigger
     public MySqlDatabaseTrigger(Identifier name, string definition, TriggerQueryTiming queryTiming, TriggerEvent events)
     {
         ArgumentNullException.ThrowIfNull(name);
-        if (definition.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(definition));
+        ArgumentException.ThrowIfNullOrWhiteSpace(definition);
         if (!queryTiming.IsValid())
             throw new ArgumentException($"The {nameof(TriggerQueryTiming)} provided must be a valid enum.", nameof(queryTiming));
         if (!events.IsValid())

@@ -31,8 +31,7 @@ public class PocoViewGenerator : DatabaseViewGenerator
     public PocoViewGenerator(IFileSystem fileSystem, INameTranslator nameTranslator, string baseNamespace)
         : base(fileSystem, nameTranslator)
     {
-        if (baseNamespace.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(baseNamespace));
+        ArgumentException.ThrowIfNullOrWhiteSpace(baseNamespace);
 
         Namespace = baseNamespace;
     }
@@ -106,8 +105,7 @@ public class PocoViewGenerator : DatabaseViewGenerator
     private PropertyDeclarationSyntax BuildColumn(IDatabaseColumn column, Option<IDatabaseViewComments> comment, string className)
     {
         ArgumentNullException.ThrowIfNull(column);
-        if (className.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(className));
+        ArgumentException.ThrowIfNullOrWhiteSpace(className);
 
         var clrType = column.Type.ClrType;
         var propertyName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);

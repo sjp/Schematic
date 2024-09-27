@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using NUnit.Framework;
 
 namespace SJP.Schematic.SqlServer.Tests;
@@ -9,9 +10,9 @@ internal static class SqlServerConnectionFactoryTests
     [TestCase(null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceName_ThrowsArgumentNullException(string connectionString)
+    public static void Ctor_GivenNullOrWhiteSpaceName_ThrowsArgumentException(string connectionString)
     {
-        Assert.That(() => new SqlServerConnectionFactory(connectionString), Throws.ArgumentNullException);
+        Assert.That(() => new SqlServerConnectionFactory(connectionString), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

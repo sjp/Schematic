@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using NUnit.Framework;
 
 namespace SJP.Schematic.Sqlite.Tests;
@@ -9,9 +10,9 @@ internal static class SqliteConnectionFactoryTests
     [TestCase(null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceName_ThrowsArgumentNullException(string connectionString)
+    public static void Ctor_GivenNullOrWhiteSpaceName_ThrowsArgumentException(string connectionString)
     {
-        Assert.That(() => new SqliteConnectionFactory(connectionString), Throws.ArgumentNullException);
+        Assert.That(() => new SqliteConnectionFactory(connectionString), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

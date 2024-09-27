@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Security;
 using EnumsNET;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Dot;
 
@@ -10,10 +9,8 @@ internal sealed class NodeAttribute : IEquatable<NodeAttribute>
 {
     private NodeAttribute(string attrName, string attrValue)
     {
-        if (attrName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(attrName));
-        if (attrValue.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(attrValue));
+        ArgumentException.ThrowIfNullOrWhiteSpace(attrName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(attrValue);
 
         _attr = attrName + "=" + attrValue;
         _hashCode = _attr.GetHashCode(StringComparison.Ordinal);
@@ -57,8 +54,7 @@ internal sealed class NodeAttribute : IEquatable<NodeAttribute>
 
     public static NodeAttribute Tooltip(string tooltip)
     {
-        if (tooltip.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(tooltip));
+        ArgumentException.ThrowIfNullOrWhiteSpace(tooltip);
 
         var escapedTooltip = "\"" + tooltip.Replace("\"", "\\\"", StringComparison.Ordinal) + "\"";
         return new NodeAttribute("tooltip", escapedTooltip);

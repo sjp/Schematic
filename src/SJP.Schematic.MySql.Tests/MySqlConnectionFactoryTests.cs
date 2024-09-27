@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using NUnit.Framework;
 
 namespace SJP.Schematic.MySql.Tests;
@@ -9,9 +10,9 @@ internal static class MySqlConnectionFactoryTests
     [TestCase(null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceName_ThrowsArgumentNullException(string connectionString)
+    public static void Ctor_GivenNullOrWhiteSpaceName_ThrowsArgumentException(string connectionString)
     {
-        Assert.That(() => new MySqlConnectionFactory(connectionString), Throws.ArgumentNullException);
+        Assert.That(() => new MySqlConnectionFactory(connectionString), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

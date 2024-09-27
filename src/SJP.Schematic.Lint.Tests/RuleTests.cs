@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 
 namespace SJP.Schematic.Lint.Tests;
 
@@ -8,19 +9,19 @@ internal static class RuleTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceId_ThrowsArgumentNullException(string id)
+    public static void Ctor_GivenNullOrWhiteSpaceId_ThrowsArgumentException(string id)
     {
         const RuleLevel level = RuleLevel.Error;
-        Assert.That(() => new FakeRule(id, "test_title", level), Throws.ArgumentNullException);
+        Assert.That(() => new FakeRule(id, "test_title", level), Throws.InstanceOf<ArgumentException>());
     }
 
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceTitle_ThrowsArgumentNullException(string title)
+    public static void Ctor_GivenNullOrWhiteSpaceTitle_ThrowsArgumentException(string title)
     {
         const RuleLevel level = RuleLevel.Error;
-        Assert.That(() => new FakeRule("TEST_ID", title, level), Throws.ArgumentNullException);
+        Assert.That(() => new FakeRule("TEST_ID", title, level), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

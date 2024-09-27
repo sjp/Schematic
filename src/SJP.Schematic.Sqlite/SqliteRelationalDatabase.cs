@@ -179,10 +179,8 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// <returns>A task that represents the asynchronous operation.</returns>
     public Task AttachDatabaseAsync(string schemaName, string fileName, CancellationToken cancellationToken = default)
     {
-        if (schemaName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(schemaName));
-        if (fileName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(fileName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(schemaName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
         if ("main".Equals(schemaName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException("'main' is not a valid name to assign to an attached database. It will always be present.", nameof(schemaName));
 
@@ -200,10 +198,8 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// <returns>A SQL query that can be used to add a database file to the current connection.</returns>
     protected string AttachDatabaseQuery(string schemaName, string fileName)
     {
-        if (schemaName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(schemaName));
-        if (fileName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(fileName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(schemaName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
         if ("main".Equals(schemaName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException("'main' is not a valid name to assign to an attached database. It will always be present.", nameof(schemaName));
 
@@ -223,8 +219,7 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// <returns>A task that represents the asynchronous operation.</returns>
     public Task DetachDatabaseAsync(string schemaName, CancellationToken cancellationToken = default)
     {
-        if (schemaName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(schemaName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(schemaName);
         if ("main".Equals(schemaName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException("'main' is not a valid database name to remove. It must always be present.", nameof(schemaName));
 
@@ -241,8 +236,7 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// <returns>A SQL query that can be used to remove a database file from the current connection.</returns>
     protected string DetachDatabaseQuery(string schemaName)
     {
-        if (schemaName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(schemaName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(schemaName);
         if ("main".Equals(schemaName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException("'main' is not a valid database name to remove. It must always be present.", nameof(schemaName));
 
@@ -269,8 +263,7 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// <returns>A task that represents the asynchronous operation.</returns>
     public Task VacuumAsync(string schemaName, CancellationToken cancellationToken = default)
     {
-        if (schemaName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(schemaName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(schemaName);
 
         var sql = VacuumQuery(schemaName);
         return DbConnection.ExecuteAsync(sql, cancellationToken);
@@ -285,8 +278,7 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// <returns>A task that represents the asynchronous operation.</returns>
     public Task VacuumIntoAsync(string filePath, CancellationToken cancellationToken = default)
     {
-        if (filePath.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(filePath));
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
 
         var sql = VacuumIntoQuery(filePath);
         return DbConnection.ExecuteAsync(sql, cancellationToken);
@@ -302,10 +294,8 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// <returns>A task that represents the asynchronous operation.</returns>
     public Task VacuumIntoAsync(string filePath, string schemaName, CancellationToken cancellationToken = default)
     {
-        if (filePath.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(filePath));
-        if (schemaName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(schemaName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+        ArgumentException.ThrowIfNullOrWhiteSpace(schemaName);
 
         var sql = VacuumIntoQuery(filePath, schemaName);
         return DbConnection.ExecuteAsync(sql, cancellationToken);
@@ -319,8 +309,7 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// <returns>A SQL query that can be used to rebuild and repack a database file.</returns>
     protected string VacuumQuery(string schemaName)
     {
-        if (schemaName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(schemaName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(schemaName);
 
         return "VACUUM " + Dialect.QuoteIdentifier(schemaName);
     }
@@ -333,8 +322,7 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// <returns>A SQL query that can be used to rebuild and repack a database file.</returns>
     protected string VacuumIntoQuery(string filePath)
     {
-        if (filePath.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(filePath));
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
 
         return "VACUUM INTO '" + filePath.Replace("'", "''", StringComparison.Ordinal) + "'";
     }
@@ -348,8 +336,7 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// <returns>A SQL query that can be used to rebuild and repack a database file.</returns>
     protected string VacuumIntoQuery(string filePath, string schemaName)
     {
-        if (schemaName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(schemaName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(schemaName);
 
         return "VACUUM " + Dialect.QuoteIdentifier(schemaName) + " INTO '" + filePath.Replace("'", "''", StringComparison.Ordinal) + "'";
     }

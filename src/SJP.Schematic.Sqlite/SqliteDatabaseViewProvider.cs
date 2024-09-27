@@ -339,10 +339,9 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <exception cref="ArgumentNullException"><paramref name="schema"/> is <c>null</c>, empty or whitespace.</exception>
     protected ISqliteDatabasePragma GetDatabasePragma(string schema)
     {
-        if (schema.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(schema));
+        ArgumentException.ThrowIfNullOrWhiteSpace(schema);
 
-        var loader = _dbPragmaCache.GetOrAdd(schema, new Lazy<ISqliteDatabasePragma>(() => new DatabasePragma(Connection, schema)));
+    var loader = _dbPragmaCache.GetOrAdd(schema, new Lazy<ISqliteDatabasePragma>(() => new DatabasePragma(Connection, schema)));
         return loader.Value;
     }
 

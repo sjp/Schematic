@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 
 namespace SJP.Schematic.SqlServer.Tests;
 
@@ -8,21 +9,21 @@ internal static class SqlServerDialectTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void QuoteIdentifier_GivenNullOrWhiteSpaceIdentifier_ThrowsArgumentNullException(string identifier)
+    public static void QuoteIdentifier_GivenNullOrWhiteSpaceIdentifier_ThrowsArgumentException(string identifier)
     {
         var dialect = new SqlServerDialect();
 
-        Assert.That(() => dialect.QuoteIdentifier(identifier), Throws.ArgumentNullException);
+        Assert.That(() => dialect.QuoteIdentifier(identifier), Throws.InstanceOf<ArgumentException>());
     }
 
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void QuoteName_GivenNullOrWhiteSpaceName_ThrowsArgumentNullException(string name)
+    public static void QuoteName_GivenNullOrWhiteSpaceName_ThrowsArgumentException(string name)
     {
         var dialect = new SqlServerDialect();
 
-        Assert.That(() => dialect.QuoteName(name), Throws.ArgumentNullException);
+        Assert.That(() => dialect.QuoteName(name), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

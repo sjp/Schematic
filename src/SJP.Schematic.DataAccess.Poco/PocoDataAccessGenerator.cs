@@ -8,7 +8,6 @@ using System.Xml.Linq;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.DataAccess.Poco;
 
@@ -73,10 +72,8 @@ public class PocoDataAccessGenerator : IDataAccessGenerator
     /// <exception cref="ArgumentException">Thrown if <paramref name="projectPath"/> is not a path to a <c>csproj</c> file.</exception>
     public Task GenerateAsync(string projectPath, string baseNamespace, CancellationToken cancellationToken = default)
     {
-        if (projectPath.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(projectPath));
-        if (baseNamespace.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(baseNamespace));
+        ArgumentException.ThrowIfNullOrWhiteSpace(projectPath);
+        ArgumentException.ThrowIfNullOrWhiteSpace(baseNamespace);
 
         var projectFileInfo = FileSystem.FileInfo.New(projectPath);
         if (!string.Equals(projectFileInfo.Extension, ".csproj", StringComparison.OrdinalIgnoreCase))

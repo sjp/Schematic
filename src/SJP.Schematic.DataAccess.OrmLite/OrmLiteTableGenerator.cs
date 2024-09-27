@@ -33,8 +33,7 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
     public OrmLiteTableGenerator(IFileSystem fileSystem, INameTranslator nameTranslator, string baseNamespace)
         : base(fileSystem, nameTranslator)
     {
-        if (baseNamespace.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(baseNamespace));
+        ArgumentException.ThrowIfNullOrWhiteSpace(baseNamespace);
 
         Namespace = baseNamespace;
     }
@@ -114,8 +113,7 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
     {
         ArgumentNullException.ThrowIfNull(table);
         ArgumentNullException.ThrowIfNull(column);
-        if (className.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(className));
+        ArgumentException.ThrowIfNullOrWhiteSpace(className);
 
         var clrType = column.Type.ClrType;
         var propertyName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);
@@ -187,8 +185,7 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
     private IEnumerable<AttributeListSyntax> BuildClassAttributes(IRelationalDatabaseTable table, string className)
     {
         ArgumentNullException.ThrowIfNull(table);
-        if (className.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(className));
+        ArgumentException.ThrowIfNullOrWhiteSpace(className);
 
         var attributes = new List<AttributeListSyntax>();
 
@@ -301,8 +298,7 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
     private IEnumerable<AttributeListSyntax> BuildColumnAttributes(IRelationalDatabaseTable table, IDatabaseColumn column, string propertyName)
     {
         ArgumentNullException.ThrowIfNull(column);
-        if (propertyName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(propertyName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(propertyName);
 
         var attributes = new List<AttributeListSyntax>();
         var clrType = column.Type.ClrType;

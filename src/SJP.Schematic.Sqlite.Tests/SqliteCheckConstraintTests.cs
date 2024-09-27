@@ -1,4 +1,5 @@
-﻿using LanguageExt;
+﻿using System;
+using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -12,9 +13,9 @@ internal static class SqliteCheckConstraintTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentNullException(string definition)
+    public static void Ctor_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentException(string definition)
     {
-        Assert.That(() => new SqliteCheckConstraint(Option<Identifier>.Some("test_check"), definition), Throws.ArgumentNullException);
+        Assert.That(() => new SqliteCheckConstraint(Option<Identifier>.Some("test_check"), definition), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

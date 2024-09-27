@@ -49,8 +49,7 @@ public abstract class NameTranslator : INameTranslator
     /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <c>null</c>, empty or whitespace</exception>
     protected static bool IsValidIdentifier(string identifier)
     {
-        if (identifier.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(identifier));
+        ArgumentException.ThrowIfNullOrWhiteSpace(identifier);
 
         if (Keywords.Contains(identifier, StringComparer.OrdinalIgnoreCase))
             return false;
@@ -77,8 +76,7 @@ public abstract class NameTranslator : INameTranslator
     /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <c>null</c>, empty or whitespace</exception>
     protected static string CreateValidIdentifier(string objectName)
     {
-        if (objectName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(objectName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(objectName);
 
         var firstChar = objectName[0];
         var isValidFirstChar = firstChar == '_' || firstChar.IsLetter();
@@ -103,10 +101,8 @@ public abstract class NameTranslator : INameTranslator
     /// </exception>
     protected static string CreateValidIdentifier(string className, string columnName)
     {
-        if (className.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(className));
-        if (columnName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(className);
+        ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         if (string.Equals(columnName, className, StringComparison.Ordinal))
             return columnName + "_";

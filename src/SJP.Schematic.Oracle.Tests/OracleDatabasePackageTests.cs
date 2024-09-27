@@ -1,4 +1,5 @@
-﻿using LanguageExt;
+﻿using System;
+using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Tests.Utilities;
@@ -20,12 +21,12 @@ internal static class OracleDatabasePackageTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceSpecification_ThrowsArgumentNullException(string specification)
+    public static void Ctor_GivenNullOrWhiteSpaceSpecification_ThrowsArgumentException(string specification)
     {
         const string packageName = "test_package";
         var body = Option<string>.Some("body");
 
-        Assert.That(() => new OracleDatabasePackage(packageName, specification, body), Throws.ArgumentNullException);
+        Assert.That(() => new OracleDatabasePackage(packageName, specification, body), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

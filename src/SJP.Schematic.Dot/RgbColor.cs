@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Globalization;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Dot;
 
@@ -17,8 +16,7 @@ public sealed class RgbColor : IEquatable<RgbColor>
     /// <exception cref="ArgumentNullException">hex</exception>
     public RgbColor(string hex)
     {
-        if (hex.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(hex));
+        ArgumentException.ThrowIfNullOrWhiteSpace(hex);
 
         // validate hex string
         var hexOnly = hex.StartsWith('#') ? hex[1..] : hex;

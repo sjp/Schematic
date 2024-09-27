@@ -15,15 +15,23 @@ internal static class DatabaseMaterializedViewTests
         Assert.That(() => new DatabaseMaterializedView(null, definition, columns), Throws.ArgumentNullException);
     }
 
-    [TestCase((string)null)]
-    [TestCase("")]
-    [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentNullException(string definition)
+    [Test]
+    public static void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
     {
         Identifier viewName = "test_mat_view";
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
 
-        Assert.That(() => new DatabaseMaterializedView(viewName, definition, columns), Throws.ArgumentNullException);
+        Assert.That(() => new DatabaseMaterializedView(viewName, null!, columns), Throws.ArgumentNullException);
+    }
+
+    [TestCase("")]
+    [TestCase("    ")]
+    public static void Ctor_GivenEmptyOrWhiteSpaceDefinition_ThrowsArgumentException(string definition)
+    {
+        Identifier viewName = "test_mat_view";
+        var columns = new[] { Mock.Of<IDatabaseColumn>() };
+
+        Assert.That(() => new DatabaseMaterializedView(viewName, definition, columns), Throws.ArgumentException);
     }
 
     [Test]

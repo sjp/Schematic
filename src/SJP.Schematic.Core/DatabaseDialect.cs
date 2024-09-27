@@ -45,8 +45,7 @@ public abstract class DatabaseDialect : IDatabaseDialect
     /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <c>null</c>.</exception>
     public virtual string QuoteIdentifier(string identifier)
     {
-        if (identifier.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(identifier));
+        ArgumentException.ThrowIfNullOrWhiteSpace(identifier);
 
         return $"\"{identifier.Replace("\"", "\"\"", StringComparison.Ordinal)}\"";
     }

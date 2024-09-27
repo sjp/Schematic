@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -154,41 +155,41 @@ internal static class SqliteRelationalDatabaseTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void VacuumAsync_WhenGivenNullOrWhiteSpaceSchemaName_ThrowsArgumentNullException(string schemaName)
+    public static void VacuumAsync_WhenGivenNullOrWhiteSpaceSchemaName_ThrowsArgumentException(string schemaName)
     {
-        Assert.That(() => Database.VacuumAsync(schemaName), Throws.ArgumentNullException);
+        Assert.That(() => Database.VacuumAsync(schemaName), Throws.InstanceOf<ArgumentException>());
     }
 
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void VacuumIntoAsync_WhenGivenNullOrWhiteSpaceFileName_ThrowsArgumentNullException(string fileName)
+    public static void VacuumIntoAsync_WhenGivenNullOrWhiteSpaceFileName_ThrowsArgumentException(string fileName)
     {
-        Assert.That(() => Database.VacuumIntoAsync(fileName), Throws.ArgumentNullException);
+        Assert.That(() => Database.VacuumIntoAsync(fileName), Throws.InstanceOf<ArgumentException>());
     }
 
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void VacuumIntoAsync_WhenGivenFileNameWithNullSchemaName_ThrowsArgumentNullException(string schemaName)
+    public static void VacuumIntoAsync_WhenGivenFileNameWithNullSchemaName_ThrowsArgumentException(string schemaName)
     {
-        Assert.That(() => Database.VacuumIntoAsync("test_file", schemaName), Throws.ArgumentNullException);
+        Assert.That(() => Database.VacuumIntoAsync("test_file", schemaName), Throws.InstanceOf<ArgumentException>());
     }
 
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void AttachDatabaseAsync_WhenGivenNullOrWhiteSpaceSchemaName_ThrowsArgumentNullException(string schemaName)
+    public static void AttachDatabaseAsync_WhenGivenNullOrWhiteSpaceSchemaName_ThrowsArgumentException(string schemaName)
     {
-        Assert.That(() => Database.AttachDatabaseAsync(schemaName, ":memory:"), Throws.ArgumentNullException);
+        Assert.That(() => Database.AttachDatabaseAsync(schemaName, ":memory:"), Throws.InstanceOf<ArgumentException>());
     }
 
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void AttachDatabaseAsync_WhenGivenNullOrWhiteSpaceFileName_ThrowsArgumentNullException(string fileName)
+    public static void AttachDatabaseAsync_WhenGivenNullOrWhiteSpaceFileName_ThrowsArgumentException(string fileName)
     {
-        Assert.That(() => Database.AttachDatabaseAsync("test", fileName), Throws.ArgumentNullException);
+        Assert.That(() => Database.AttachDatabaseAsync("test", fileName), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]
@@ -200,9 +201,9 @@ internal static class SqliteRelationalDatabaseTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void DetachDatabaseAsync_WhenGivenNullOrWhiteSpaceSchemaName_ThrowsArgumentNullException(string schemaName)
+    public static void DetachDatabaseAsync_WhenGivenNullOrWhiteSpaceSchemaName_ThrowsArgumentException(string schemaName)
     {
-        Assert.That(() => Database.DetachDatabaseAsync(schemaName), Throws.ArgumentNullException);
+        Assert.That(() => Database.DetachDatabaseAsync(schemaName), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

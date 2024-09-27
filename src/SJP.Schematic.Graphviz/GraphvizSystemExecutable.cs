@@ -1,5 +1,4 @@
 ﻿using System;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Graphviz;
 
@@ -16,8 +15,7 @@ public sealed class GraphvizSystemExecutable : IGraphvizExecutable
     /// <exception cref="ArgumentNullException"><paramref name="dotExecutablePath"/> is <c>null</c>, empty or whitespace.</exception>
     public GraphvizSystemExecutable(string dotExecutablePath)
     {
-        if (dotExecutablePath.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(dotExecutablePath));
+        ArgumentException.ThrowIfNullOrWhiteSpace(dotExecutablePath);
 
         DotPath = dotExecutablePath;
     }

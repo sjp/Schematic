@@ -40,8 +40,7 @@ public class SqlServerDependencyProvider : IDependencyProvider
     public IReadOnlyCollection<Identifier> GetDependencies(Identifier objectName, string expression)
     {
         ArgumentNullException.ThrowIfNull(objectName);
-        if (expression.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(expression));
+        ArgumentException.ThrowIfNullOrWhiteSpace(expression);
 
         using var reader = new StringReader(expression);
         var tokens = _parser.GetTokenStream(reader, out var errors);

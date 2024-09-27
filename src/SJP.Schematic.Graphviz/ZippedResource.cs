@@ -11,8 +11,7 @@ internal sealed class ZippedResource
 {
     public ZippedResource(string resourceName)
     {
-        if (string.IsNullOrWhiteSpace(resourceName))
-            throw new ArgumentNullException(nameof(resourceName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(resourceName);
 
         var asm = Assembly.GetExecutingAssembly();
         var namePrefix = asm.GetName().Name + ".";
@@ -25,8 +24,7 @@ internal sealed class ZippedResource
 
     public void ExtractToDirectory(string directoryPath)
     {
-        if (string.IsNullOrWhiteSpace(directoryPath))
-            throw new ArgumentNullException(nameof(directoryPath));
+        ArgumentException.ThrowIfNullOrWhiteSpace(directoryPath);
         if (!Directory.Exists(directoryPath))
             throw new DirectoryNotFoundException(directoryPath);
 
@@ -46,8 +44,7 @@ internal sealed class ZippedResource
 
     private static byte[] GetResourceByName(string resourceName)
     {
-        if (string.IsNullOrWhiteSpace(resourceName))
-            throw new ArgumentNullException(nameof(resourceName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(resourceName);
 
         var asm = Assembly.GetExecutingAssembly();
         var namePrefix = asm.GetName().Name + ".";

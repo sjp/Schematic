@@ -187,8 +187,7 @@ public sealed class Constraints : ITemplateParameter
         public CheckConstraint(Identifier tableName, string constraintName, string definition)
             : base(tableName, constraintName)
         {
-            if (definition.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(definition));
+            ArgumentException.ThrowIfNullOrWhiteSpace(definition);
 
             Definition = definition;
         }

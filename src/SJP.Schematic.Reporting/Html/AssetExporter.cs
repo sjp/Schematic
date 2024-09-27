@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.FileProviders;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html;
 
@@ -15,8 +14,7 @@ internal sealed class AssetExporter
 {
     public Task SaveAssetsAsync(string directory, bool overwrite = true, CancellationToken cancellationToken = default)
     {
-        if (directory.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(directory));
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
 
         var dirInfo = new DirectoryInfo(directory);
         return SaveAssetsAsync(dirInfo, overwrite, cancellationToken);
@@ -73,8 +71,7 @@ internal sealed class AssetExporter
 
     private static string FileNameToRelativePath(string fileName)
     {
-        if (fileName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(fileName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
 
         var pieces = fileName.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
 

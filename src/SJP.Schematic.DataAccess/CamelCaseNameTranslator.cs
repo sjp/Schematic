@@ -1,6 +1,5 @@
 ﻿using System;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.DataAccess.Extensions;
 
 namespace SJP.Schematic.DataAccess;
@@ -59,10 +58,8 @@ public class CamelCaseNameTranslator : NameTranslator
     /// <returns>A property name.</returns>
     public override string ColumnToPropertyName(string className, string columnName)
     {
-        if (className.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(className));
-        if (columnName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(className);
+        ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         var isValid = IsValidIdentifier(columnName);
         var columnIdentifier = isValid

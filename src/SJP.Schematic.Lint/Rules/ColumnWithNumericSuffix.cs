@@ -70,8 +70,7 @@ public partial class ColumnWithNumericSuffix : Rule, ITableRule
     protected virtual IRuleMessage BuildMessage(Identifier tableName, string columnName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
-        if (columnName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         var messageText = $"The table '{tableName}' has a column '{columnName}' with a numeric suffix, indicating denormalization.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);

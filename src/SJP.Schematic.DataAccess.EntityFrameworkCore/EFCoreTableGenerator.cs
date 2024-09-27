@@ -36,8 +36,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
     public EFCoreTableGenerator(IFileSystem fileSystem, INameTranslator nameTranslator, string baseNamespace)
         : base(fileSystem, nameTranslator)
     {
-        if (baseNamespace.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(baseNamespace));
+        ArgumentException.ThrowIfNullOrWhiteSpace(baseNamespace);
 
         Namespace = baseNamespace;
     }
@@ -155,8 +154,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
     private PropertyDeclarationSyntax BuildColumn(IDatabaseColumn column, Option<IRelationalDatabaseTableComments> comment, string className)
     {
         ArgumentNullException.ThrowIfNull(column);
-        if (className.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(className));
+        ArgumentException.ThrowIfNullOrWhiteSpace(className);
 
         var clrType = column.Type.ClrType;
         var propertyName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);
@@ -195,10 +193,8 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
     {
         ArgumentNullException.ThrowIfNull(tables);
         ArgumentNullException.ThrowIfNull(relationalKey);
-        if (className.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(className));
-        if (propertyName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(propertyName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(className);
+        ArgumentException.ThrowIfNullOrWhiteSpace(propertyName);
 
         var parentTable = relationalKey.ParentTable;
 
@@ -236,10 +232,8 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
     {
         ArgumentNullException.ThrowIfNull(tables);
         ArgumentNullException.ThrowIfNull(relationalKey);
-        if (className.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(className));
-        if (propertyName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(propertyName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(className);
+        ArgumentException.ThrowIfNullOrWhiteSpace(propertyName);
 
         var childTableName = relationalKey.ChildTable;
 
@@ -388,8 +382,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
     private static IEnumerable<AttributeListSyntax> BuildClassAttributes(IRelationalDatabaseTable table, string className)
     {
         ArgumentNullException.ThrowIfNull(table);
-        if (className.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(className));
+        ArgumentException.ThrowIfNullOrWhiteSpace(className);
 
         var attributes = new List<AttributeListSyntax>();
 
@@ -432,8 +425,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
     private static IEnumerable<AttributeListSyntax> BuildColumnAttributes(IDatabaseColumn column, string propertyName)
     {
         ArgumentNullException.ThrowIfNull(column);
-        if (propertyName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(propertyName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(propertyName);
 
         var attributes = new List<AttributeListSyntax>();
         var clrType = column.Type.ClrType;

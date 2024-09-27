@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using LanguageExt;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.PostgreSql;
@@ -24,8 +23,7 @@ public class PostgreSqlCheckConstraint : IDatabaseCheckConstraint
     public PostgreSqlCheckConstraint(Identifier checkName, string definition)
     {
         ArgumentNullException.ThrowIfNull(checkName);
-        if (definition.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(definition));
+        ArgumentException.ThrowIfNullOrWhiteSpace(definition);
 
         Name = Option<Identifier>.Some(checkName.LocalName);
         Definition = definition;

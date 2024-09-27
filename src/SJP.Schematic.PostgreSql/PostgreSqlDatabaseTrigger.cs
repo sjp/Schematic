@@ -28,8 +28,7 @@ public class PostgreSqlDatabaseTrigger : IDatabaseTrigger
     public PostgreSqlDatabaseTrigger(Identifier name, string definition, TriggerQueryTiming queryTiming, TriggerEvent events, bool isEnabled)
     {
         ArgumentNullException.ThrowIfNull(name);
-        if (definition.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(definition));
+        ArgumentException.ThrowIfNullOrWhiteSpace(definition);
         if (!queryTiming.IsValid())
             throw new ArgumentException($"The {nameof(TriggerQueryTiming)} provided must be a valid enum.", nameof(queryTiming));
         if (!events.IsValid())

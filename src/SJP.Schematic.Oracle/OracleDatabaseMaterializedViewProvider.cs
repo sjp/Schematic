@@ -278,8 +278,7 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
     /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
     protected static string GenerateNotNullDefinition(string columnName)
     {
-        if (columnName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         return "\"" + columnName + "\" IS NOT NULL";
     }

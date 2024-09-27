@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
-using SJP.Schematic.Core.Extensions;
 using Superpower.Model;
 
 namespace SJP.Schematic.Sqlite.Parsing;
@@ -21,8 +20,7 @@ internal sealed class ColumnDefinition
 
     public ColumnDefinition(string columnName, IEnumerable<Token<SqliteToken>> typeDefinition, IEnumerable<ColumnConstraint> columnConstraints)
     {
-        if (columnName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         Name = columnName;
         TypeDefinition = typeDefinition?.ToList() ?? Enumerable.Empty<Token<SqliteToken>>();

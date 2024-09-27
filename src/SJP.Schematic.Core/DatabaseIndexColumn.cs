@@ -39,8 +39,7 @@ public class DatabaseIndexColumn : IDatabaseIndexColumn
     /// <exception cref="ArgumentException"><paramref name="order"/> is an invalid enum.</exception>
     public DatabaseIndexColumn(string expression, IEnumerable<IDatabaseColumn> dependentColumns, IndexColumnOrder order)
     {
-        if (expression.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(expression));
+        ArgumentException.ThrowIfNullOrWhiteSpace(expression);
         if (dependentColumns.NullOrAnyNull())
             throw new ArgumentNullException(nameof(dependentColumns));
         if (!order.IsValid())

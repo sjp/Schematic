@@ -29,8 +29,7 @@ public class EFCoreDbContextBuilder
     /// <exception cref="ArgumentNullException"><paramref name="nameTranslator"/> is <c>null</c>, or <paramref name="baseNamespace"/> is <c>null</c>, empty or whitespace.</exception>
     public EFCoreDbContextBuilder(INameTranslator nameTranslator, string baseNamespace)
     {
-        if (baseNamespace.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(baseNamespace));
+        ArgumentException.ThrowIfNullOrWhiteSpace(baseNamespace);
 
         NameTranslator = nameTranslator ?? throw new ArgumentNullException(nameof(nameTranslator));
         Namespace = baseNamespace;
@@ -164,14 +163,10 @@ public class EFCoreDbContextBuilder
 
     private static PropertyDeclarationSyntax BuildDbSetProperty(string typeArgument, string propertyName, string qualifiedTargetName, string objectType)
     {
-        if (typeArgument.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(typeArgument));
-        if (propertyName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(propertyName));
-        if (qualifiedTargetName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(qualifiedTargetName));
-        if (objectType.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(objectType));
+        ArgumentException.ThrowIfNullOrWhiteSpace(typeArgument);
+        ArgumentException.ThrowIfNullOrWhiteSpace(propertyName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(qualifiedTargetName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
 
         var dbSetType = GenericName(
             Identifier(nameof(DbSet<object>)),
@@ -189,10 +184,8 @@ public class EFCoreDbContextBuilder
 
     private static SyntaxTriviaList BuildDbSetComment(string targetName, string objectType)
     {
-        if (targetName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(targetName));
-        if (objectType.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(objectType));
+        ArgumentException.ThrowIfNullOrWhiteSpace(targetName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
 
         return SyntaxUtilities.BuildCommentTrivia(
         [
@@ -597,8 +590,7 @@ public class EFCoreDbContextBuilder
 
     private static InvocationExpressionSyntax GetEntityBuilder(string qualifiedClassName)
     {
-        if (string.IsNullOrWhiteSpace(qualifiedClassName))
-            throw new ArgumentNullException(nameof(qualifiedClassName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(qualifiedClassName);
 
         return InvocationExpression(
             MemberAccessExpression(

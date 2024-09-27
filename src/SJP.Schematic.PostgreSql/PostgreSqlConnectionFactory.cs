@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Npgsql;
 using Polly;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.PostgreSql;
 
@@ -22,8 +21,7 @@ public class PostgreSqlConnectionFactory : IDbConnectionFactory
     /// <exception cref="ArgumentNullException"><paramref name="connectionString"/> is <c>null</c>, empty or whitespace.</exception>
     public PostgreSqlConnectionFactory(string connectionString)
     {
-        if (connectionString.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(connectionString));
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
         DataSource = new NpgsqlDataSourceBuilder(connectionString).Build();
     }

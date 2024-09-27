@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.MySql.Tests;
@@ -19,13 +20,13 @@ internal static class MySqlDatabaseTriggerTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentNullException(string definition)
+    public static void Ctor_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentException(string definition)
     {
         Identifier triggerName = "test_trigger";
         const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
         const TriggerEvent events = TriggerEvent.Update;
 
-        Assert.That(() => new MySqlDatabaseTrigger(triggerName, definition, timing, events), Throws.ArgumentNullException);
+        Assert.That(() => new MySqlDatabaseTrigger(triggerName, definition, timing, events), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

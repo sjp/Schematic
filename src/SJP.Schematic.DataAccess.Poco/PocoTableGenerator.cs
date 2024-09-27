@@ -32,8 +32,7 @@ public class PocoTableGenerator : DatabaseTableGenerator
     public PocoTableGenerator(IFileSystem fileSystem, INameTranslator nameTranslator, string baseNamespace)
         : base(fileSystem, nameTranslator)
     {
-        if (baseNamespace.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(baseNamespace));
+        ArgumentException.ThrowIfNullOrWhiteSpace(baseNamespace);
 
         Namespace = baseNamespace;
     }
@@ -109,8 +108,7 @@ public class PocoTableGenerator : DatabaseTableGenerator
     private PropertyDeclarationSyntax BuildColumn(IDatabaseColumn column, Option<IRelationalDatabaseTableComments> comment, string className)
     {
         ArgumentNullException.ThrowIfNull(column);
-        if (className.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(className));
+        ArgumentException.ThrowIfNullOrWhiteSpace(className);
 
         var clrType = column.Type.ClrType;
         var propertyName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);

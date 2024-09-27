@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 using Moq;
@@ -54,7 +55,7 @@ internal static class PocoDataAccessGeneratorTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void GenerateAsync_GivenNullProjectPath_ThrowsArgumentNullException(string projectPath)
+    public static void GenerateAsync_GivenNullProjectPath_ThrowsArgumentException(string projectPath)
     {
         var mockFs = new MockFileSystem();
         var database = Mock.Of<IRelationalDatabase>();
@@ -62,13 +63,13 @@ internal static class PocoDataAccessGeneratorTests
         var nameTranslator = new VerbatimNameTranslator();
         var generator = new PocoDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
 
-        Assert.That(() => generator.GenerateAsync(projectPath, "test"), Throws.ArgumentNullException);
+        Assert.That(() => generator.GenerateAsync(projectPath, "test"), Throws.InstanceOf<ArgumentException>());
     }
 
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void GenerateAsync_GivenNullOrWhiteSpaceNamespace_ThrowsArgumentNullException(string ns)
+    public static void GenerateAsync_GivenNullOrWhiteSpaceNamespace_ThrowsArgumentException(string ns)
     {
         var mockFs = new MockFileSystem();
         var database = Mock.Of<IRelationalDatabase>();
@@ -78,7 +79,7 @@ internal static class PocoDataAccessGeneratorTests
         using var tempDir = new TemporaryDirectory();
         var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFileName);
 
-        Assert.That(() => generator.GenerateAsync(projectPath, ns), Throws.ArgumentNullException);
+        Assert.That(() => generator.GenerateAsync(projectPath, ns), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

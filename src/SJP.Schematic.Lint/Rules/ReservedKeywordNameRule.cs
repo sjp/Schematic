@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Lint.Rules;
 
@@ -260,8 +259,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     protected virtual IRuleMessage BuildTableColumnMessage(Identifier tableName, string columnName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
-        if (columnName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         var messageText = $"The table '{tableName}' contains a column '{columnName}' which is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
@@ -291,8 +289,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     protected virtual IRuleMessage BuildViewColumnMessage(Identifier viewName, string columnName)
     {
         ArgumentNullException.ThrowIfNull(viewName);
-        if (columnName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         var messageText = $"The view '{viewName}' contains a column '{columnName}' which is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);

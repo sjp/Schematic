@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 
 namespace SJP.Schematic.Core.Tests;
 
@@ -10,7 +11,7 @@ internal static class IdentifierTests
     [TestCase("    ")]
     public static void Ctor_GivenNullOrWhiteSpaceLocalName_ThrowsArgumentNullException(string localName)
     {
-        Assert.That(() => new Identifier(localName), Throws.ArgumentNullException);
+        Assert.That(() => new Identifier(localName), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]
@@ -22,12 +23,12 @@ internal static class IdentifierTests
     }
 
     [Test, Combinatorial]
-    public static void Ctor_GivenNullWhiteSpaceSchemaAndLocalNames_ThrowsArgumentNullException(
+    public static void Ctor_GivenNullWhiteSpaceSchemaAndLocalNames_ThrowsArgumentException(
         [Values(null, "", "    ")] string schemaName,
         [Values(null, "", "    ")] string localName
     )
     {
-        Assert.That(() => new Identifier(schemaName, localName), Throws.ArgumentNullException);
+        Assert.That(() => new Identifier(schemaName, localName), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]
@@ -51,7 +52,7 @@ internal static class IdentifierTests
         [Values(null, "", "    ")] string localName
     )
     {
-        Assert.That(() => new Identifier(databaseName, schemaName, localName), Throws.ArgumentNullException);
+        Assert.That(() => new Identifier(databaseName, schemaName, localName), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]
@@ -78,7 +79,7 @@ internal static class IdentifierTests
         [Values(null, "", "    ")] string localName
     )
     {
-        Assert.That(() => new Identifier(serverName, databaseName, schemaName, localName), Throws.ArgumentNullException);
+        Assert.That(() => new Identifier(serverName, databaseName, schemaName, localName), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

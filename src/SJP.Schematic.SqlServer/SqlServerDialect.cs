@@ -126,8 +126,7 @@ public class SqlServerDialect : DatabaseDialect
     /// <exception cref="ArgumentNullException"><paramref name="text"/> is <c>null</c>, empty or whitespace.</exception>
     public override bool IsReservedKeyword(string text)
     {
-        if (text.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(text));
+        ArgumentException.ThrowIfNullOrWhiteSpace(text);
 
         return Keywords.Contains(text, StringComparer.OrdinalIgnoreCase);
     }
@@ -457,8 +456,7 @@ public class SqlServerDialect : DatabaseDialect
     /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <c>null</c>, empty or whitespace.</exception>
     public override string QuoteIdentifier(string identifier)
     {
-        if (identifier.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(identifier));
+        ArgumentException.ThrowIfNullOrWhiteSpace(identifier);
 
         return $"[{identifier.Replace("]", "]]", StringComparison.Ordinal)}]";
     }

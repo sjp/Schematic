@@ -344,8 +344,7 @@ public sealed class Table : ITemplateParameter
         public CheckConstraint(string constraintName, string definition)
             : base(constraintName)
         {
-            if (definition.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(definition));
+            ArgumentException.ThrowIfNullOrWhiteSpace(definition);
 
             Definition = definition;
         }
@@ -407,8 +406,7 @@ public sealed class Table : ITemplateParameter
         {
             ArgumentNullException.ThrowIfNull(tableName);
             ArgumentNullException.ThrowIfNull(triggerName);
-            if (definition.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(definition));
+            ArgumentException.ThrowIfNullOrWhiteSpace(definition);
 
             TriggerName = triggerName.LocalName;
             Definition = definition;
@@ -461,10 +459,8 @@ public sealed class Table : ITemplateParameter
         public ParentKey(string constraintName, Identifier parentTableName, string parentColumnName, string qualifiedChildColumnName, string rootPath)
         {
             ArgumentNullException.ThrowIfNull(parentTableName);
-            if (parentColumnName.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(parentColumnName));
-            if (qualifiedChildColumnName.IsNullOrWhiteSpace())
-                throw new ArgumentOutOfRangeException(nameof(qualifiedChildColumnName));
+            ArgumentException.ThrowIfNullOrWhiteSpace(parentColumnName);
+            ArgumentException.ThrowIfNullOrWhiteSpace(qualifiedChildColumnName);
             ArgumentNullException.ThrowIfNull(rootPath);
 
             ParentTableName = parentTableName.ToVisibleName();
@@ -495,10 +491,8 @@ public sealed class Table : ITemplateParameter
         public ChildKey(string constraintName, Identifier childTableName, string childColumnName, string qualifiedParentColumnName, string rootPath)
         {
             ArgumentNullException.ThrowIfNull(childTableName);
-            if (childColumnName.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(childColumnName));
-            if (qualifiedParentColumnName.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(qualifiedParentColumnName));
+            ArgumentException.ThrowIfNullOrWhiteSpace(childColumnName);
+            ArgumentException.ThrowIfNullOrWhiteSpace(qualifiedParentColumnName);
             ArgumentNullException.ThrowIfNull(rootPath);
 
             ChildTableName = childTableName.ToVisibleName();
@@ -529,15 +523,11 @@ public sealed class Table : ITemplateParameter
         public Diagram(Identifier tableName, string diagramName, string dotDefinition, bool isActive)
         {
             ArgumentNullException.ThrowIfNull(tableName);
+            ArgumentException.ThrowIfNullOrWhiteSpace(diagramName);
+            ArgumentException.ThrowIfNullOrWhiteSpace(dotDefinition);
 
-            if (diagramName.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(diagramName));
             Name = diagramName;
-
-            if (dotDefinition.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(dotDefinition));
             Dot = dotDefinition;
-
             ContainerId = tableName.ToSafeKey() + "-" + Name.ToLowerInvariant().Replace(' ', '-') + "-chart";
             ActiveClass = isActive ? "active" : string.Empty;
             Selected = isActive ? "true" : "false";

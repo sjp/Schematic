@@ -297,8 +297,7 @@ public static class OracleUnwrapper
 
     private static bool IsValidBase64String(string input)
     {
-        if (input.IsNullOrWhiteSpace())
-            return false;
+        ArgumentException.ThrowIfNullOrWhiteSpace(input);
 
         var buffer = new byte[input.Length].AsSpan();
         return Convert.TryFromBase64String(input, buffer, out _);

@@ -140,8 +140,7 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
     private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
     {
         ArgumentNullException.ThrowIfNull(commentsData);
-        if (objectType.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(objectType));
+        ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
 
         return commentsData
             .Where(c => string.Equals(c.ObjectType, objectType, StringComparison.Ordinal))

@@ -145,8 +145,7 @@ public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
     private static Option<string> GetFirstCommentByType(IEnumerable<GetTableComments.Result> commentsData, string objectType)
     {
         ArgumentNullException.ThrowIfNull(commentsData);
-        if (objectType.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(objectType));
+        ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
 
         return commentsData
             .Where(c => string.Equals(c.ObjectType, objectType, StringComparison.Ordinal))
@@ -157,8 +156,7 @@ public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
     private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IEnumerable<GetTableComments.Result> commentsData, string objectType)
     {
         ArgumentNullException.ThrowIfNull(commentsData);
-        if (objectType.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(objectType));
+        ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
 
         return commentsData
             .Where(c => string.Equals(c.ObjectType, objectType, StringComparison.Ordinal))

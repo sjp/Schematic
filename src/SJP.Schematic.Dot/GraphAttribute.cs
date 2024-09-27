@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using EnumsNET;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Dot;
 
@@ -9,10 +8,8 @@ internal sealed class GraphAttribute : IEquatable<GraphAttribute>
 {
     private GraphAttribute(string attrName, string attrValue)
     {
-        if (attrName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(attrName));
-        if (attrValue.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(attrValue));
+        ArgumentException.ThrowIfNullOrWhiteSpace(attrName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(attrValue);
 
         _attr = attrName + "=" + attrValue;
         _hashCode = _attr.GetHashCode(StringComparison.Ordinal);

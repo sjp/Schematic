@@ -33,8 +33,7 @@ public class EFCoreViewGenerator : DatabaseViewGenerator
     public EFCoreViewGenerator(IFileSystem fileSystem, INameTranslator nameTranslator, string baseNamespace)
         : base(fileSystem, nameTranslator)
     {
-        if (baseNamespace.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(baseNamespace));
+        ArgumentException.ThrowIfNullOrWhiteSpace(baseNamespace);
 
         Namespace = baseNamespace;
     }
@@ -116,8 +115,7 @@ public class EFCoreViewGenerator : DatabaseViewGenerator
     private PropertyDeclarationSyntax BuildColumn(IDatabaseColumn column, Option<IDatabaseViewComments> comment, string className)
     {
         ArgumentNullException.ThrowIfNull(column);
-        if (className.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(className));
+        ArgumentException.ThrowIfNullOrWhiteSpace(className);
 
         var clrType = column.Type.ClrType;
         var propertyName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);
@@ -189,8 +187,7 @@ public class EFCoreViewGenerator : DatabaseViewGenerator
     private static IEnumerable<AttributeListSyntax> BuildColumnAttributes(IDatabaseColumn column, string propertyName)
     {
         ArgumentNullException.ThrowIfNull(column);
-        if (propertyName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(propertyName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(propertyName);
 
         var columnAttributeArgs = new List<AttributeArgumentSyntax>();
         if (!string.Equals(propertyName, column.Name.LocalName, StringComparison.Ordinal))

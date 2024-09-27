@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -10,19 +11,19 @@ internal static class PostgreSqlDatabaseIndexColumnTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceExpression_ThrowsArgumentNullException(string expression)
+    public static void Ctor_GivenNullOrWhiteSpaceExpression_ThrowsArgumentException(string expression)
     {
-        Assert.That(() => new PostgreSqlDatabaseIndexColumn(expression, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlDatabaseIndexColumn(expression, IndexColumnOrder.Ascending), Throws.InstanceOf<ArgumentException>());
     }
 
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceExpressionWithColumn_ThrowsArgumentNullException(string expression)
+    public static void Ctor_GivenNullOrWhiteSpaceExpressionWithColumn_ThrowsArgumentException(string expression)
     {
         var column = Mock.Of<IDatabaseColumn>();
 
-        Assert.That(() => new PostgreSqlDatabaseIndexColumn(expression, column, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlDatabaseIndexColumn(expression, column, IndexColumnOrder.Ascending), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

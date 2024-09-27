@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using EnumsNET;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.PostgreSql;
@@ -27,8 +26,7 @@ public class PostgreSqlDatabaseIndexColumn : IDatabaseIndexColumn
     /// <exception cref="ArgumentException"><paramref name="order"/> is an invalid enum value.</exception>
     public PostgreSqlDatabaseIndexColumn(string expression, IndexColumnOrder order)
     {
-        if (expression.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(expression));
+        ArgumentException.ThrowIfNullOrWhiteSpace(expression);
         if (!order.IsValid())
             throw new ArgumentException($"The {nameof(IndexColumnOrder)} provided must be a valid enum.", nameof(order));
 
@@ -47,8 +45,7 @@ public class PostgreSqlDatabaseIndexColumn : IDatabaseIndexColumn
     /// <exception cref="ArgumentException"><paramref name="order"/> is an invalid enum value.</exception>
     public PostgreSqlDatabaseIndexColumn(string expression, IDatabaseColumn column, IndexColumnOrder order)
     {
-        if (expression.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(expression));
+        ArgumentException.ThrowIfNullOrWhiteSpace(expression);
         ArgumentNullException.ThrowIfNull(column);
         if (!order.IsValid())
             throw new ArgumentException($"The {nameof(IndexColumnOrder)} provided must be a valid enum.", nameof(order));

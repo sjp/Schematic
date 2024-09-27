@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Web;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Lint;
 
@@ -16,8 +15,7 @@ internal sealed class ForeignKeyMissingRule : Schematic.Lint.Rules.ForeignKeyMis
 
     protected override IRuleMessage BuildMessage(string columnName, Identifier tableName, Identifier targetTableName)
     {
-        if (columnName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
         ArgumentNullException.ThrowIfNull(tableName);
         ArgumentNullException.ThrowIfNull(targetTableName);
 

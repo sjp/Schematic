@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite.Pragma;
@@ -17,10 +18,10 @@ internal static class DatabasePragmaTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceSchemaName_ThrowsArgumentNullException(string schemaName)
+    public static void Ctor_GivenNullOrWhiteSpaceSchemaName_ThrowsArgumentException(string schemaName)
     {
         var connection = Mock.Of<ISchematicConnection>();
-        Assert.That(() => new DatabasePragma(connection, schemaName), Throws.ArgumentNullException);
+        Assert.That(() => new DatabasePragma(connection, schemaName), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

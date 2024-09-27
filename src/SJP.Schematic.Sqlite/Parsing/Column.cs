@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using EnumsNET;
-using SJP.Schematic.Core.Extensions;
 using Superpower.Model;
 
 namespace SJP.Schematic.Sqlite.Parsing;
@@ -36,8 +35,7 @@ public class Column
         SqliteGeneratedColumnType computedColumnType
     )
     {
-        if (columnName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
         if (!collation.IsValid())
             throw new ArgumentException($"The {nameof(SqliteCollation)} provided must be a valid enum.", nameof(collation));
         if (!computedColumnType.IsValid())

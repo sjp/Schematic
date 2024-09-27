@@ -1,6 +1,5 @@
 ﻿using System;
 using EnumsNET;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Lint;
 
@@ -20,10 +19,8 @@ public abstract class Rule : IRule
     /// <exception cref="ArgumentException"><paramref name="level"/> is an invalid value.</exception>
     protected Rule(string id, string title, RuleLevel level)
     {
-        if (id.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(id));
-        if (title.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(title));
+        ArgumentException.ThrowIfNullOrWhiteSpace(id);
+        ArgumentException.ThrowIfNullOrWhiteSpace(title);
         if (!level.IsValid())
             throw new ArgumentException($"The {nameof(RuleLevel)} provided must be a valid enum.", nameof(level));
 

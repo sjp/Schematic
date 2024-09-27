@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Tests.Utilities;
 
@@ -16,9 +17,9 @@ internal static class PostgreSqlCheckConstraintTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentNullException(string definition)
+    public static void Ctor_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentException(string definition)
     {
-        Assert.That(() => new PostgreSqlCheckConstraint("test_check", definition), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlCheckConstraint("test_check", definition), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

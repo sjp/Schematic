@@ -121,8 +121,7 @@ select
 
     private static Task<bool> ProjectBuildsSuccessfullyAsync(string projectPath)
     {
-        if (projectPath.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(projectPath));
+        ArgumentException.ThrowIfNullOrWhiteSpace(projectPath);
         if (!File.Exists(projectPath))
             throw new FileNotFoundException("Expected to find a csproj at: " + projectPath, projectPath);
 

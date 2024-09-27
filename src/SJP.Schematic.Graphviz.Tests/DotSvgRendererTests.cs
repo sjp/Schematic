@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using NUnit.Framework;
@@ -28,17 +29,17 @@ internal sealed class DotSvgRendererTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public void DotRenderer_GivenNullOrWhiteSpaceExecutablePath_ThrowsArgumentNullException(string exePath)
+    public void DotRenderer_GivenNullOrWhiteSpaceExecutablePath_ThrowsArgumentException(string exePath)
     {
-        Assert.That(() => new DotSvgRenderer(exePath), Throws.ArgumentNullException);
+        Assert.That(() => new DotSvgRenderer(exePath), Throws.InstanceOf<ArgumentException>());
     }
 
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public void RenderToSvg_GivenNullOrWhiteSpaceDotDiagram_ThrowsArgumentNullException(string dot)
+    public void RenderToSvg_GivenNullOrWhiteSpaceDotDiagram_ThrowsArgumentException(string dot)
     {
-        Assert.That(() => Renderer.RenderToSvg(dot), Throws.ArgumentNullException);
+        Assert.That(() => Renderer.RenderToSvg(dot), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test, GraphvizAvailable]
@@ -66,9 +67,9 @@ internal sealed class DotSvgRendererTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public void RenderToSvgAsync_GivenNullOrWhiteSpaceDotDiagram_ThrowsArgumentNullException(string dot)
+    public void RenderToSvgAsync_GivenNullOrWhiteSpaceDotDiagram_ThrowsArgumentException(string dot)
     {
-        Assert.That(() => Renderer.RenderToSvgAsync(dot), Throws.ArgumentNullException);
+        Assert.That(() => Renderer.RenderToSvgAsync(dot), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test, GraphvizAvailable]

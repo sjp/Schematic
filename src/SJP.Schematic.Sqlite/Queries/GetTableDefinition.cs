@@ -14,8 +14,7 @@ internal static class GetTableDefinition
     internal static string Sql(IDatabaseDialect dialect, string schemaName)
     {
         ArgumentNullException.ThrowIfNull(dialect);
-        if (schemaName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(schemaName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(schemaName);
 
         return $"select sql from {dialect.QuoteIdentifier(schemaName)}.sqlite_master where type = 'table' and tbl_name = @{nameof(Query.TableName)}";
     }

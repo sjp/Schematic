@@ -2,7 +2,6 @@
 using System.IO;
 using System.Text;
 using RazorLight.Razor;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html;
 
@@ -10,8 +9,7 @@ internal sealed class ReportingRazorProjectItem : RazorLightProjectItem
 {
     public ReportingRazorProjectItem(string key, string content)
     {
-        if (key.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(key));
+        ArgumentException.ThrowIfNullOrWhiteSpace(key);
 
         Key = key;
         _content = content;

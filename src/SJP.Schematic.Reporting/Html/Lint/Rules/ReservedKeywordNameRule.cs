@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Web;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules;
@@ -26,8 +25,7 @@ internal sealed class ReservedKeywordNameRule : Schematic.Lint.Rules.ReservedKey
     protected override IRuleMessage BuildTableColumnMessage(Identifier tableName, string columnName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
-        if (columnName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         var tableUrl = UrlRouter.GetTableUrl(tableName);
         var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
@@ -48,8 +46,7 @@ internal sealed class ReservedKeywordNameRule : Schematic.Lint.Rules.ReservedKey
     protected override IRuleMessage BuildViewColumnMessage(Identifier viewName, string columnName)
     {
         ArgumentNullException.ThrowIfNull(viewName);
-        if (columnName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         var viewUrl = UrlRouter.GetViewUrl(viewName);
         var viewLink = $"<a href=\"{viewUrl}\">{HttpUtility.HtmlEncode(viewName.ToVisibleName())}</a>";

@@ -37,10 +37,9 @@ public sealed class Columns : ITemplateParameter
             Option<string> defaultValue
         )
         {
-            if (columnName.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(nameof(columnName));
+            ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
-            ColumnName = columnName;
+                ColumnName = columnName;
             Name = tableName.ToVisibleName();
             Ordinal = ordinalPosition;
             TitleNullable = isNullable ? "Nullable" : string.Empty;

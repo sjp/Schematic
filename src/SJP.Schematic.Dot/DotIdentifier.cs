@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Dot;
 
@@ -8,8 +7,7 @@ internal sealed class DotIdentifier : IEquatable<DotIdentifier>
 {
     public DotIdentifier(string identifier)
     {
-        if (identifier.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(identifier));
+        ArgumentException.ThrowIfNullOrWhiteSpace(identifier);
 
         _identifier = "\"" + identifier.Replace("\"", "\\\"", StringComparison.Ordinal) + "\"";
         _hash = _identifier.GetHashCode(StringComparison.Ordinal);

@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using LanguageExt;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.MySql;
@@ -25,8 +24,7 @@ public class MySqlCheckConstraint : IDatabaseCheckConstraint
     public MySqlCheckConstraint(Identifier checkName, string definition, bool isEnabled)
     {
         ArgumentNullException.ThrowIfNull(checkName);
-        if (definition.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(definition));
+        ArgumentException.ThrowIfNullOrWhiteSpace(definition);
 
         Name = Option<Identifier>.Some(checkName.LocalName);
         Definition = definition;

@@ -199,8 +199,7 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
 
     private OptionAsync<IDatabaseSynonym> LoadUserSynonymData(string synonymName, CancellationToken cancellationToken)
     {
-        if (synonymName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(synonymName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(synonymName);
 
         return Connection.QueryFirstOrNone(
             GetUserSynonymDefinition.Sql,

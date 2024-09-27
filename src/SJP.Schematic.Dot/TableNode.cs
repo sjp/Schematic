@@ -25,8 +25,7 @@ internal sealed class TableNode : DotNode
     )
         : base(identifier)
     {
-        if (tableName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(tableName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(tableName);
         _tableName = tableName;
         _columnNames = columnNames?.ToList() ?? throw new ArgumentNullException(nameof(columnNames));
         _columnTypes = columnTypes?.ToList() ?? throw new ArgumentNullException(nameof(columnTypes));

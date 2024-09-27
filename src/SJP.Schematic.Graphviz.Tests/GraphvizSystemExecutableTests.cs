@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 
 namespace SJP.Schematic.Graphviz.Tests;
@@ -8,9 +9,9 @@ internal static class GraphvizSystemExecutableTests
     [TestCase(null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpace_ThrowsArgNullException(string path)
+    public static void Ctor_GivenNullOrWhiteSpace_ThrowsArgException(string path)
     {
-        Assert.That(() => new GraphvizSystemExecutable(path), Throws.ArgumentNullException);
+        Assert.That(() => new GraphvizSystemExecutable(path), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
@@ -17,11 +18,11 @@ internal static class ConnectionExtensionsTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void QueryAsync_WithoutParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentNullException(string sql)
+    public static void QueryAsync_WithoutParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentException(string sql)
     {
         var connection = Mock.Of<IDbConnectionFactory>();
 
-        Assert.That(() => connection.QueryAsync<string>(sql, CancellationToken.None), Throws.ArgumentNullException);
+        Assert.That(() => connection.QueryAsync<string>(sql, CancellationToken.None), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]
@@ -35,12 +36,12 @@ internal static class ConnectionExtensionsTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void QueryAsync_WithParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentNullException(string sql)
+    public static void QueryAsync_WithParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentException(string sql)
     {
         var connection = Mock.Of<IDbConnectionFactory>();
         var param = new TestQuery { Test = "test" };
 
-        Assert.That(() => connection.QueryAsync(sql, param, CancellationToken.None), Throws.ArgumentNullException);
+        Assert.That(() => connection.QueryAsync(sql, param, CancellationToken.None), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]
@@ -60,11 +61,11 @@ internal static class ConnectionExtensionsTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void QueryEnumerableAsync_WithoutParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentNullException(string sql)
+    public static void QueryEnumerableAsync_WithoutParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentException(string sql)
     {
         var connection = Mock.Of<IDbConnectionFactory>();
 
-        Assert.That(() => connection.QueryEnumerableAsync<string>(sql, CancellationToken.None), Throws.ArgumentNullException);
+        Assert.That(() => connection.QueryEnumerableAsync<string>(sql, CancellationToken.None), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]
@@ -78,12 +79,12 @@ internal static class ConnectionExtensionsTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void QueryEnumerableAsync_WithParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentNullException(string sql)
+    public static void QueryEnumerableAsync_WithParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentException(string sql)
     {
         var connection = Mock.Of<IDbConnectionFactory>();
         var param = new TestQuery { Test = "test" };
 
-        Assert.That(() => connection.QueryEnumerableAsync(sql, param, CancellationToken.None), Throws.ArgumentNullException);
+        Assert.That(() => connection.QueryEnumerableAsync(sql, param, CancellationToken.None), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]
@@ -103,11 +104,11 @@ internal static class ConnectionExtensionsTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void ExecuteScalarAsync_WithoutParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentNullException(string sql)
+    public static void ExecuteScalarAsync_WithoutParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentException(string sql)
     {
         var connection = Mock.Of<IDbConnectionFactory>();
 
-        Assert.That(() => connection.ExecuteScalarAsync<string>(sql, CancellationToken.None), Throws.ArgumentNullException);
+        Assert.That(() => connection.ExecuteScalarAsync<string>(sql, CancellationToken.None), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]
@@ -121,12 +122,12 @@ internal static class ConnectionExtensionsTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void ExecuteScalarAsync_WithParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentNullException(string sql)
+    public static void ExecuteScalarAsync_WithParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentException(string sql)
     {
         var connection = Mock.Of<IDbConnectionFactory>();
         var param = new TestQuery { Test = "test" };
 
-        Assert.That(() => connection.ExecuteScalarAsync(sql, param, CancellationToken.None), Throws.ArgumentNullException);
+        Assert.That(() => connection.ExecuteScalarAsync(sql, param, CancellationToken.None), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]
@@ -146,11 +147,11 @@ internal static class ConnectionExtensionsTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void ExecuteAsync_WithoutParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentNullException(string sql)
+    public static void ExecuteAsync_WithoutParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentException(string sql)
     {
         var connection = Mock.Of<IDbConnectionFactory>();
 
-        Assert.That(() => connection.ExecuteAsync(sql, CancellationToken.None), Throws.ArgumentNullException);
+        Assert.That(() => connection.ExecuteAsync(sql, CancellationToken.None), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]
@@ -164,12 +165,12 @@ internal static class ConnectionExtensionsTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void ExecuteAsync_WithParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentNullException(string sql)
+    public static void ExecuteAsync_WithParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentException(string sql)
     {
         var connection = Mock.Of<IDbConnectionFactory>();
         var param = new { Test = "test" };
 
-        Assert.That(() => connection.ExecuteAsync(sql, param, CancellationToken.None), Throws.ArgumentNullException);
+        Assert.That(() => connection.ExecuteAsync(sql, param, CancellationToken.None), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]
@@ -189,11 +190,11 @@ internal static class ConnectionExtensionsTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void QueryFirstOrNone_WithoutParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentNullException(string sql)
+    public static void QueryFirstOrNone_WithoutParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentException(string sql)
     {
         var connection = Mock.Of<IDbConnectionFactory>();
 
-        Assert.That(() => connection.QueryFirstOrNone<string>(sql, CancellationToken.None), Throws.ArgumentNullException);
+        Assert.That(() => connection.QueryFirstOrNone<string>(sql, CancellationToken.None), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]
@@ -207,12 +208,12 @@ internal static class ConnectionExtensionsTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void QueryFirstOrNone_WithParamsGivenNullSql_ThrowsArgumentNullException(string sql)
+    public static void QueryFirstOrNone_WithParamsGivenNullSql_ThrowsArgumentException(string sql)
     {
         var connection = Mock.Of<IDbConnectionFactory>();
         var param = new TestQuery { Test = "test" };
 
-        Assert.That(() => connection.QueryFirstOrNone(sql, param, CancellationToken.None), Throws.ArgumentNullException);
+        Assert.That(() => connection.QueryFirstOrNone(sql, param, CancellationToken.None), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]
@@ -232,11 +233,11 @@ internal static class ConnectionExtensionsTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void QuerySingleAsync_WithoutParamsGivenNullSql_ThrowsArgumentNullException(string sql)
+    public static void QuerySingleAsync_WithoutParamsGivenNullSql_ThrowsArgumentException(string sql)
     {
         var connection = Mock.Of<IDbConnectionFactory>();
 
-        Assert.That(() => connection.QuerySingleAsync<string>(sql, CancellationToken.None), Throws.ArgumentNullException);
+        Assert.That(() => connection.QuerySingleAsync<string>(sql, CancellationToken.None), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]
@@ -250,12 +251,12 @@ internal static class ConnectionExtensionsTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void QuerySingleAsync_WithParamsGivenNullSql_ThrowsArgumentNullException(string sql)
+    public static void QuerySingleAsync_WithParamsGivenNullSql_ThrowsArgumentException(string sql)
     {
         var connection = Mock.Of<IDbConnectionFactory>();
         var param = new TestQuery { Test = "test" };
 
-        Assert.That(() => connection.QuerySingleAsync(sql, param, CancellationToken.None), Throws.ArgumentNullException);
+        Assert.That(() => connection.QuerySingleAsync(sql, param, CancellationToken.None), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]
@@ -275,11 +276,11 @@ internal static class ConnectionExtensionsTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void QuerySingleOrNone_WithoutParamsGivenNullSql_ThrowsArgumentNullException(string sql)
+    public static void QuerySingleOrNone_WithoutParamsGivenNullSql_ThrowsArgumentException(string sql)
     {
         var connection = Mock.Of<IDbConnectionFactory>();
 
-        Assert.That(() => connection.QuerySingleOrNone<string>(sql, CancellationToken.None), Throws.ArgumentNullException);
+        Assert.That(() => connection.QuerySingleOrNone<string>(sql, CancellationToken.None), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]
@@ -293,12 +294,12 @@ internal static class ConnectionExtensionsTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void QuerySingleOrNone_WithParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentNullException(string sql)
+    public static void QuerySingleOrNone_WithParamsGivenNullOrWhiteSpaceSql_ThrowsArgumentException(string sql)
     {
         var connection = Mock.Of<IDbConnectionFactory>();
         var param = new TestQuery { Test = "test" };
 
-        Assert.That(() => connection.QuerySingleOrNone(sql, param, CancellationToken.None), Throws.ArgumentNullException);
+        Assert.That(() => connection.QuerySingleOrNone(sql, param, CancellationToken.None), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.MySql;
@@ -77,8 +76,7 @@ public class MySqlDbTypeProvider : IDbTypeProvider
     /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <c>null</c>, empty or whitespace.</exception>
     protected static bool GetIsFixedLength(string typeName)
     {
-        if (typeName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(typeName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(typeName);
 
         return FixedLengthTypes.Contains(typeName, StringComparer.OrdinalIgnoreCase);
     }
@@ -170,8 +168,7 @@ public class MySqlDbTypeProvider : IDbTypeProvider
     /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <c>null</c>, empty or whitespace.</exception>
     protected static DataType GetDataType(string typeName)
     {
-        if (typeName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(typeName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(typeName);
 
         return StringToDataTypeMap.ContainsKey(typeName)
             ? StringToDataTypeMap[typeName]
@@ -186,8 +183,7 @@ public class MySqlDbTypeProvider : IDbTypeProvider
     /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <c>null</c>, empty or whitespace.</exception>
     protected static Type GetClrType(string typeName)
     {
-        if (typeName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(typeName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(typeName);
 
         return StringToClrTypeMap.ContainsKey(typeName)
             ? StringToClrTypeMap[typeName]

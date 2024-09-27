@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -139,21 +140,21 @@ internal static class SnakeCaseNameTranslatorTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void ColumnToPropertyName_GivenNullOrWhiteSpaceClassName_ThrowsArgumentNullException(string className)
+    public static void ColumnToPropertyName_GivenNullOrWhiteSpaceClassName_ThrowsArgumentException(string className)
     {
         const string columnName = "test";
         var nameTranslator = new SnakeCaseNameTranslator();
-        Assert.That(() => nameTranslator.ColumnToPropertyName(className, columnName), Throws.ArgumentNullException);
+        Assert.That(() => nameTranslator.ColumnToPropertyName(className, columnName), Throws.InstanceOf<ArgumentException>());
     }
 
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void ColumnToPropertyName_GivenNullOrWhiteSpaceColumnName_ThrowsArgumentNullException(string columnName)
+    public static void ColumnToPropertyName_GivenNullOrWhiteSpaceColumnName_ThrowsArgumentException(string columnName)
     {
         const string className = "test";
         var nameTranslator = new SnakeCaseNameTranslator();
-        Assert.That(() => nameTranslator.ColumnToPropertyName(className, columnName), Throws.ArgumentNullException);
+        Assert.That(() => nameTranslator.ColumnToPropertyName(className, columnName), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

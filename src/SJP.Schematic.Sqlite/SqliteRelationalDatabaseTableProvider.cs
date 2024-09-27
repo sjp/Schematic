@@ -960,8 +960,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <exception cref="ArgumentNullException"><paramref name="schema"/> is <c>null</c>, empty or whitespace.</exception>
     protected ISqliteDatabasePragma GetDatabasePragma(string schema)
     {
-        if (schema.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(schema));
+        ArgumentException.ThrowIfNullOrWhiteSpace(schema);
 
         return _dbPragmaCache.GetOrAdd(schema, s => new DatabasePragma(Connection, s));
     }
@@ -1001,8 +1000,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <exception cref="ArgumentNullException"><paramref name="pragmaUpdateAction"/> is <c>null</c>, empty or whitespace.</exception>
     protected static ReferentialAction GetReferentialAction(string pragmaUpdateAction)
     {
-        if (pragmaUpdateAction.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(pragmaUpdateAction));
+        ArgumentException.ThrowIfNullOrWhiteSpace(pragmaUpdateAction);
 
         return RelationalUpdateMapping.ContainsKey(pragmaUpdateAction)
             ? RelationalUpdateMapping[pragmaUpdateAction]

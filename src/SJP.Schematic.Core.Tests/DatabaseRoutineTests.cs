@@ -13,14 +13,21 @@ internal static class DatabaseRoutineTests
         Assert.That(() => new DatabaseRoutine(null, definition), Throws.ArgumentNullException);
     }
 
-    [TestCase((string)null)]
-    [TestCase("")]
-    [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentNullException(string definition)
+    [Test]
+    public static void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
     {
         Identifier routineName = "test_routine";
 
-        Assert.That(() => new DatabaseRoutine(routineName, definition), Throws.ArgumentNullException);
+        Assert.That(() => new DatabaseRoutine(routineName, null!), Throws.ArgumentNullException);
+    }
+
+    [TestCase("")]
+    [TestCase("    ")]
+    public static void Ctor_GivenEmptyOrWhiteSpaceDefinition_ThrowsArgumentException(string definition)
+    {
+        Identifier routineName = "test_routine";
+
+        Assert.That(() => new DatabaseRoutine(routineName, definition), Throws.ArgumentException);
     }
 
     [Test]

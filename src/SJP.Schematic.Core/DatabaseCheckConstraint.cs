@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using LanguageExt;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core;
@@ -23,8 +22,7 @@ public class DatabaseCheckConstraint : IDatabaseCheckConstraint
     /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <c>null</c>, empty or whitespace.</exception>
     public DatabaseCheckConstraint(Option<Identifier> checkName, string definition, bool isEnabled)
     {
-        if (definition.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(definition));
+        ArgumentException.ThrowIfNullOrWhiteSpace(definition);
 
         Name = checkName.Map(name => Identifier.CreateQualifiedIdentifier(name.LocalName));
         Definition = definition;

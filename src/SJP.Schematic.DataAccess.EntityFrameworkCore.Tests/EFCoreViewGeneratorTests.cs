@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
@@ -33,12 +34,12 @@ internal static class EFCoreViewGeneratorTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceNamespace_ThrowsArgumentNullException(string ns)
+    public static void Ctor_GivenNullOrWhiteSpaceNamespace_ThrowsArgumentException(string ns)
     {
         var fileSystem = new MockFileSystem();
         var nameTranslator = new VerbatimNameTranslator();
 
-        Assert.That(() => new EFCoreViewGenerator(fileSystem, nameTranslator, ns), Throws.ArgumentNullException);
+        Assert.That(() => new EFCoreViewGenerator(fileSystem, nameTranslator, ns), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

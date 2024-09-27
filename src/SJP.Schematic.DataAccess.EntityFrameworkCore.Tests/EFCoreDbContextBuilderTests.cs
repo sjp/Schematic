@@ -18,10 +18,10 @@ internal static class EFCoreDbContextBuilderTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceNamespace_ThrowsArgumentNullException(string ns)
+    public static void Ctor_GivenNullOrWhiteSpaceNamespace_ThrowsArgumentException(string ns)
     {
         var nameTranslator = new VerbatimNameTranslator();
-        Assert.That(() => new EFCoreDbContextBuilder(nameTranslator, ns), Throws.ArgumentNullException);
+        Assert.That(() => new EFCoreDbContextBuilder(nameTranslator, ns), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

@@ -165,8 +165,7 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     protected virtual IRuleMessage BuildMessage(Identifier tableName, string columnName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
-        if (columnName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         var messageText = $"The table '{tableName}' has a nullable column '{columnName}' whose values are always null. Consider removing the column.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);

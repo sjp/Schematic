@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -24,12 +25,12 @@ internal static class SqlServerDependencyProviderTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void GetDependencies_GivenNullOrWhiteSpaceExpression_ThrowsArgumentsNullException(string expression)
+    public static void GetDependencies_GivenNullOrWhiteSpaceExpression_ThrowsArgumentsException(string expression)
     {
         var provider = new SqlServerDependencyProvider();
         Identifier objectName = "test";
 
-        Assert.That(() => provider.GetDependencies(objectName, expression), Throws.ArgumentNullException);
+        Assert.That(() => provider.GetDependencies(objectName, expression), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

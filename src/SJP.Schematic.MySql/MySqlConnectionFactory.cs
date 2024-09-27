@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using MySqlConnector;
 using Polly;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.MySql;
 
@@ -22,8 +21,7 @@ public class MySqlConnectionFactory : IDbConnectionFactory
     /// <exception cref="ArgumentNullException"><paramref name="connectionString"/> is <c>null</c>, empty or whitespace.</exception>
     public MySqlConnectionFactory(string connectionString)
     {
-        if (connectionString.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(connectionString));
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
         DataSource = new MySqlDataSource(connectionString);
     }

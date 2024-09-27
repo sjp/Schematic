@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using LanguageExt;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Sqlite;
@@ -23,8 +22,7 @@ public class SqliteCheckConstraint : IDatabaseCheckConstraint
     /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <c>null</c>, empty or whitespace.</exception>
     public SqliteCheckConstraint(Option<Identifier> checkName, string definition)
     {
-        if (definition.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(definition));
+        ArgumentException.ThrowIfNullOrWhiteSpace(definition);
 
         Name = checkName.Map(static name => Identifier.CreateQualifiedIdentifier(name.LocalName));
         Definition = definition;

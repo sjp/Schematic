@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -10,11 +11,11 @@ internal static class MySqlDatabaseIndexColumnTests
     [TestCase((string)null)]
     [TestCase("")]
     [TestCase("    ")]
-    public static void Ctor_GivenNullOrWhiteSpaceExpression_ThrowsArgumentNullException(string expression)
+    public static void Ctor_GivenNullOrWhiteSpaceExpression_ThrowsArgumentException(string expression)
     {
         var column = Mock.Of<IDatabaseColumn>();
 
-        Assert.That(() => new MySqlDatabaseIndexColumn(expression, column), Throws.ArgumentNullException);
+        Assert.That(() => new MySqlDatabaseIndexColumn(expression, column), Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]

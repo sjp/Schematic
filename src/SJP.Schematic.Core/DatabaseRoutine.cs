@@ -21,8 +21,7 @@ public class DatabaseRoutine : IDatabaseRoutine
     /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>. Alternatively, if <paramref name="definition"/> is <c>null</c>, empty or whitespace.</exception>
     public DatabaseRoutine(Identifier routineName, string definition)
     {
-        if (definition.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(definition));
+        ArgumentException.ThrowIfNullOrWhiteSpace(definition);
 
         Name = routineName ?? throw new ArgumentNullException(nameof(routineName));
         Definition = definition;

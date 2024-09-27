@@ -19,8 +19,7 @@ public class DotSvgRenderer : IDotSvgRenderer
     /// <exception cref="ArgumentNullException"><paramref name="dotExecutablePath"/> is <c>null</c>, empty or whitespace.</exception>
     public DotSvgRenderer(string dotExecutablePath)
     {
-        if (string.IsNullOrWhiteSpace(dotExecutablePath))
-            throw new ArgumentNullException(nameof(dotExecutablePath));
+        ArgumentException.ThrowIfNullOrWhiteSpace(dotExecutablePath);
 
         _dotPath = dotExecutablePath;
     }
@@ -34,8 +33,7 @@ public class DotSvgRenderer : IDotSvgRenderer
     /// <exception cref="GraphvizException">Thrown when the Graphviz process exited unsuccessfully.</exception>
     public string RenderToSvg(string dot)
     {
-        if (string.IsNullOrWhiteSpace(dot))
-            throw new ArgumentNullException(nameof(dot));
+        ArgumentException.ThrowIfNullOrWhiteSpace(dot);
 
         var tmpInputFilePath = Path.GetRandomFileName();
         var tmpOutputFilePath = Path.GetRandomFileName();
@@ -86,8 +84,7 @@ public class DotSvgRenderer : IDotSvgRenderer
     /// <exception cref="GraphvizException">Thrown when the Graphviz process exited unsuccessfully.</exception>
     public Task<string> RenderToSvgAsync(string dot, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(dot))
-            throw new ArgumentNullException(nameof(dot));
+        ArgumentException.ThrowIfNullOrWhiteSpace(dot);
 
         return RenderToSvgAsyncCore(dot, cancellationToken);
     }

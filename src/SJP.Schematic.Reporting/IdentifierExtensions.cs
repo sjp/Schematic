@@ -45,8 +45,7 @@ internal static partial class IdentifierExtensions
     // with some modifications
     private static string ToSlug(string input, int maxChars = 45)
     {
-        if (input.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(input));
+        ArgumentException.ThrowIfNullOrWhiteSpace(input);
         if (maxChars <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxChars), "The limit to the number of characters in a slug must be at least 1.");
 
@@ -92,8 +91,7 @@ internal static partial class IdentifierExtensions
 
     private static string Truncate(string input, int maxChars)
     {
-        if (input.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(input));
+        ArgumentException.ThrowIfNullOrWhiteSpace(input);
         if (maxChars < 0)
             throw new ArgumentOutOfRangeException(nameof(maxChars), "The number of characters to truncate to must be at least 1.");
 
@@ -133,10 +131,9 @@ internal static partial class IdentifierExtensions
 
     private static string GenerateHashKey(string input)
     {
-        if (input.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(input));
+        ArgumentException.ThrowIfNullOrWhiteSpace(input);
 
-        var bytes = Encoding.Unicode.GetBytes(input);
+    var bytes = Encoding.Unicode.GetBytes(input);
         var hash = SHA512.HashData(bytes);
 
         var builder = StringBuilderCache.Acquire(hash.Length);
