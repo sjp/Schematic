@@ -28,7 +28,7 @@
     "cssnano": "7.0.6",
     "datatables.net": "1.10.25",
     "datatables.net-bs4": "1.10.24",
-    "del": "7.1.0",
+    "del": "8.0.0",
     "font-awesome": "4.7.0",
     "gulp": "5.0.0",
     "gulp-cli": "3.0.0",
