@@ -48,6 +48,6 @@
     "postcss": "8.4.47",
     "postcss-preset-env": "10.0.7",
     "source-sans": "3.46.0",
-    "svg-pan-zoom": "3.6.1"
+    "svg-pan-zoom": "3.6.2"
   }
 }
