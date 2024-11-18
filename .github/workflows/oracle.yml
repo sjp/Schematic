@@ -51,6 +51,6 @@ jobs:
         ConnectionStrings__Oracle_TestDb: Data Source=localhost/XEPDB1; User Id=schematic; Password=schematic
 
     - name: Coverage
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
