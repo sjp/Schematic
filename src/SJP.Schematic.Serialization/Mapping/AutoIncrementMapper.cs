@@ -1,5 +1,4 @@
-﻿using System;
-using Boxed.Mapping;
+﻿using Boxed.Mapping;
 using LanguageExt;
 using SJP.Schematic.Core;
 
