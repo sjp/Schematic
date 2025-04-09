@@ -48,6 +48,7 @@
     "postcss": "8.5.3",
     "postcss-preset-env": "10.1.5",
     "source-sans": "3.46.0",
+    "summernote": "0.9.1",
     "svg-pan-zoom": "3.6.2"
   }
 }
