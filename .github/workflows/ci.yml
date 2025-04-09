@@ -19,9 +19,6 @@ jobs:
       with:
         dotnet-version: 9.0.x
 
-    - name: Install husky (workaround)
-      run: npm install --global husky
-
     - name: Install dependencies
       run: dotnet restore
       working-directory: src
