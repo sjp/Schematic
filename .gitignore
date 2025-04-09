@@ -31,7 +31,6 @@ bld/
 
 # For the Reporting build
 src/SJP.Schematic.Reporting/assets
-src/SJP.Schematic.Reporting/package-lock.json
 
 # Connection strings
 src/SJP.Schematic.MySql.Tests/mysql-test.config.json

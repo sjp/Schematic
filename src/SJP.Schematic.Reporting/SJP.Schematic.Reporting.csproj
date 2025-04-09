@@ -45,7 +45,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <GulpSourceFiles Include="package.json;gulpfile.babel.js;Source/**/*.*" />
+    <GulpSourceFiles Include="package.json;package-lock.json;gulpfile.babel.js;Source/**/*.*" />
   </ItemGroup>
 
   <ItemGroup>
@@ -59,13 +59,13 @@
   </Target>
 
   <Target Name="NpmClean" BeforeTargets="BeforeClean" DependsOnTargets="CheckNpmExists">
-    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm install" WorkingDirectory="$(MSBuildThisFileDirectory)" />
+    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm ci" WorkingDirectory="$(MSBuildThisFileDirectory)" />
     <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm run clean" WorkingDirectory="$(MSBuildThisFileDirectory)" />
     <Message Condition="'$(NpmExitCode)' != '$(NpmExpectedExitCode)'" Text="npm is not available. Cleaning of front-end code will not occur." />
   </Target>
 
   <Target Name="NpmBuild" BeforeTargets="GulpBuild" DependsOnTargets="CheckNpmExists" Inputs="package.json" Outputs="$(NpmInstallStampFile)">
-    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm install" WorkingDirectory="$(MSBuildThisFileDirectory)" />
+    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm ci" WorkingDirectory="$(MSBuildThisFileDirectory)" />
     <Touch Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Files="$(NpmInstallStampFile)" AlwaysCreate="true" />
     <Message Condition="'$(NpmExitCode)' != '$(NpmExpectedExitCode)'" Text="npm is not available. Building of front-end code will not occur." />
   </Target>
