@@ -27,7 +27,7 @@
     "codemirror": "5.65.5",
     "cssnano": "7.0.7",
     "datatables.net": "1.10.25",
-    "datatables.net-bs4": "1.10.24",
+    "datatables.net-bs4": "2.3.0",
     "del": "8.0.0",
     "font-awesome": "4.7.0",
     "gulp": "5.0.0",
