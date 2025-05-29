@@ -44,7 +44,7 @@
     "jquery": "3.7.1",
     "jquery-ui-dist": "1.13.3",
     "natives": "1.1.6",
-    "postcss": "8.5.3",
+    "postcss": "8.5.4",
     "postcss-preset-env": "10.2.0",
     "source-sans": "3.46.0",
     "summernote": "0.9.1",
