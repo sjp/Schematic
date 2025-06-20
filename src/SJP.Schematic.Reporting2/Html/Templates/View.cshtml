@@ -1,0 +1,107 @@
+@using RazorLight
+@using SJP.Schematic.Reporting.Html.ViewModels
+@inherits TemplatePage<View>
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>@Model.Name</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@(Model.RootPath)index.html">Home</a></li>
+                    <li class="breadcrumb-item"><a href="@(Model.RootPath)views.html">Views</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="content">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-columns" aria-hidden="true">&nbsp;&nbsp;</i>Columns</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fa fa-minus" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="@Raw(Model.ColumnsTableClass.ToHtmlString()) table table-bordered table-hover" role="grid" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th scope="col">Ordinal Position</th>
+                                <th scope="col">Column</th>
+                                <th scope="col">Type</th>
+                                <th scope="col" title="Are nulls allowed?">Nullable</th>
+                                <th scope="col" title="Default value">Default</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.ColumnsCount > 0)
+                            {
+                                foreach (var column in Model.Columns)
+                                {
+                                    <tr>
+                                        <td>@column.Ordinal</td>
+                                        <td>@column.ColumnName</td>
+                                        <td>@column.Type</td>
+                                        <td title="@column.TitleNullable">@column.NullableText</td>
+                                        <td>@column.DefaultValue</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5">No columns present.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-file-code-o" aria-hidden="true">&nbsp;&nbsp;</i>View Definition</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fa fa-minus" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <textarea id="sql-script-codemirror" name="sql-script-codemirror" style="display: none">@Model.Definition</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (Model.ReferencedObjectsCount > 0)
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fa fa-code-fork" aria-hidden="true">&nbsp;&nbsp;</i>Possibly Referenced Objects</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fa fa-minus" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        @Raw(Model.ReferencedObjects.ToHtmlString())
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</section>

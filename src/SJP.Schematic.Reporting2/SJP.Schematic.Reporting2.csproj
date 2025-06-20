@@ -1,0 +1,81 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Description>A reporting engine for Schematic. Generates schema reports for databases.</Description>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SJP.Schematic.Core\SJP.Schematic.Core.csproj" />
+    <ProjectReference Include="..\SJP.Schematic.Dbml\SJP.Schematic.Dbml.csproj" />
+    <ProjectReference Include="..\SJP.Schematic.Dot\SJP.Schematic.Dot.csproj" />
+    <ProjectReference Include="..\SJP.Schematic.Graphviz\SJP.Schematic.Graphviz.csproj" />
+    <ProjectReference Include="..\SJP.Schematic.Lint\SJP.Schematic.Lint.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="9.0.3">
+      <TreatAsUsed>true</TreatAsUsed>
+    </PackageReference>
+    <PackageReference Include="RazorLight" Version="2.3.1" />
+    <PackageReference Include="System.Text.Encodings.Web" Version="9.0.3">
+      <TreatAsUsed>true</TreatAsUsed>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Html\Templates\*.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="node_modules\**" />
+    <EmbeddedResource Remove="node_modules\**" />
+    <None Remove="node_modules\**" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <UiContentDir>$(MSBuildThisFileDirectory)/ui</UiContentDir>
+
+    <!-- File with mtime of last successful npm install -->
+    <NpmInstallStampFile>$(UiContentDir)/node_modules/.install-stamp</NpmInstallStampFile>
+	<ViteBuildStampFile>$(UiContentDir)/node_modules/.vite-build-stamp</ViteBuildStampFile>
+
+	<NpmExitCode></NpmExitCode>
+    <NpmExpectedExitCode>1</NpmExpectedExitCode>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ViteSourceFiles Include="package.json;package-lock.json;ui/**/*.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="8.0.0" />
+  </ItemGroup>
+
+  <Target Name="CheckNpmExists">
+    <Exec Command="npm" ContinueOnError="true" IgnoreExitCode="true" StandardErrorImportance="Low" StandardOutputImportance="Low">
+      <Output TaskParameter="ExitCode" PropertyName="NpmExitCode" />
+    </Exec>
+  </Target>
+
+  <Target Name="NpmClean" BeforeTargets="BeforeClean" DependsOnTargets="CheckNpmExists">
+    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm ci" WorkingDirectory="$(UiContentDir)" />
+    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm run clean" WorkingDirectory="$(UiContentDir)" />
+    <Message Condition="'$(NpmExitCode)' != '$(NpmExpectedExitCode)'" Text="npm is not available. Cleaning of front-end code will not occur." />
+  </Target>
+
+  <Target Name="NpmCi" BeforeTargets="ViteBuild" DependsOnTargets="CheckNpmExists" Inputs="package.json" Outputs="$(NpmInstallStampFile)">
+    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm ci" WorkingDirectory="$(UiContentDir)" />
+    <Touch Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Files="$(NpmInstallStampFile)" AlwaysCreate="true" />
+    <Message Condition="'$(NpmExitCode)' != '$(NpmExpectedExitCode)'" Text="npm is not available. Building of front-end code will not occur." />
+  </Target>
+
+  <Target Name="ViteBuild" BeforeTargets="BeforeBuild" Inputs="@(ViteSourceFiles)" Outputs="$(ViteBuildStampFile)">
+    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm run build" WorkingDirectory="$(UiContentDir)" />
+    <Touch Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Files="$(ViteBuildStampFile)" AlwaysCreate="true" />
+    <Message Condition="'$(NpmExitCode)' != '$(NpmExpectedExitCode)'" Text="npm is not available. A vite build will not occur." />
+  </Target>
+
+</Project>

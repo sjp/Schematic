@@ -1,0 +1,368 @@
+@using RazorLight
+@using SJP.Schematic.Reporting.Html.ViewModels
+@inherits TemplatePage<Main>
+
+<section class="content-header">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="callout callout-primary">
+                <h4>Analysis of @Model.DatabaseName</h4>
+                <p>Generated on @Model.GenerationTime</p>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="content">
+    <div class="row">
+        <div class="col-lg-3 col-6">
+            <a href="tables.html">
+                <div class="small-box bg-primary">
+                    <div class="inner">
+                        <h3>@Model.TablesCount</h3>
+                        <p>Tables</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-table" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-3 col-6">
+            <a href="views.html">
+                <div class="small-box bg-primary">
+                    <div class="inner">
+                        <h3>@Model.ViewsCount</h3>
+                        <p>Views</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-search-plus" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-3 col-6">
+            <a href="sequences.html">
+                <div class="small-box bg-primary">
+                    <div class="inner">
+                        <h3>@Model.SequencesCount</h3>
+                        <p>Sequences</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-sort-numeric-asc" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-3 col-6">
+            <a href="synonyms.html">
+                <div class="small-box bg-primary">
+                    <div class="inner">
+                        <h3>@Model.SynonymsCount</h3>
+                        <p>Synonyms</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-share" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-3 col-6">
+            <a href="routines.html">
+                <div class="small-box bg-primary">
+                    <div class="inner">
+                        <h3>@Model.RoutinesCount</h3>
+                        <p>Routines</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-code" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-3 col-6">
+            <a href="columns.html">
+                <div class="small-box bg-primary">
+                    <div class="inner">
+                        <h3>@Model.ColumnsCount</h3>
+                        <p>Columns</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-columns" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-3 col-6">
+            <a href="constraints.html">
+                <div class="small-box bg-primary">
+                    <div class="inner">
+                        <h3>@Model.ConstraintsCount</h3>
+                        <p>Constraints</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-key" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-3 col-6">
+            <a href="indexes.html">
+                <div class="small-box bg-primary">
+                    <div class="inner">
+                        <h3>@Model.IndexesCount</h3>
+                        <p>Indexes</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-sitemap" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-cog" aria-hidden="true">&nbsp;&nbsp;</i>Schemas</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table-db-objects table table-bordered table-hover" role="grid" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th scope="row">Schema</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.SchemasCount > 0)
+                            {
+                                foreach (var schema in Model.Schemas)
+                                {
+                                    <tr>
+                                        <td>@schema</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="1">No schemas present.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-table" aria-hidden="true">&nbsp;&nbsp;</i>Tables</h3>
+                    <ul class="nav nav-pills ml-auto p-0 card-title-clearfix">
+                        <li class="nav-item"><a class="nav-link" href="insertion-order.sql">Insertion Order</a></li>
+                        <li class="nav-item"><a class="nav-link" href="deletion-order.sql">Deletion Order</a></li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <table class="@Raw(Model.TablesTableClass.ToHtmlString()) table table-bordered table-hover" role="grid" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th scope="row">Table</th>
+                                <th scope="row">Children</th>
+                                <th scope="row">Parents</th>
+                                <th scope="row">Columns</th>
+                                <th scope="row">Rows</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.TablesCount > 0)
+                            {
+                                foreach (var table in Model.Tables)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a href="@(table.TableUrl)">@table.Name</a>
+                                        </td>
+                                        <td>@table.ChildrenCount</td>
+                                        <td>@table.ParentsCount</td>
+                                        <td>@table.ColumnCount</td>
+                                        <td>@table.RowCount</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5">No tables present.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-search-plus" aria-hidden="true">&nbsp;&nbsp;</i>Views</h3>
+                </div>
+                <div class="card-body">
+                    <table class="@Raw(Model.ViewsTableClass.ToHtmlString()) table table-bordered table-hover" role="grid" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th scope="row">View</th>
+                                <th scope="row">Columns</th>
+                                <th scope="row">Materialized</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.ViewsCount > 0)
+                            {
+                                foreach (var view in Model.Views)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a href="@(view.ViewUrl)">@view.Name</a>
+                                        </td>
+                                        <td>@view.ColumnCount</td>
+                                        <td>@view.MaterializedText</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="3">No views present.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-sort-numeric-asc" aria-hidden="true">&nbsp;&nbsp;</i>Sequences</h3>
+                </div>
+                <div class="card-body">
+                    <table class="@Raw(Model.SequencesTableClass.ToHtmlString()) table table-bordered table-hover" role="grid" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th scope="row">Sequence</th>
+                                <th scope="row">Start</th>
+                                <th scope="row">Increment</th>
+                                <th scope="row">Minimum Value</th>
+                                <th scope="row">Maximum Value</th>
+                                <th scope="row">Cache</th>
+                                <th scope="row">Cycle</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.SequencesCount > 0)
+                            {
+                                foreach (var sequence in Model.Sequences)
+                                {
+                                    <tr>
+                                        <td><a href="@(sequence.SequenceUrl)">@sequence.Name</a></td>
+                                        <td>@sequence.Start</td>
+                                        <td>@sequence.Increment</td>
+                                        <td>@sequence.MinValueText</td>
+                                        <td>@sequence.MaxValueText</td>
+                                        <td>@sequence.Cache</td>
+                                        <td>@sequence.CycleText</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="7">No sequences present.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-share" aria-hidden="true">&nbsp;&nbsp;</i>Synonyms</h3>
+                </div>
+                <div class="card-body">
+                    <table class="@Raw(Model.SynonymsTableClass.ToHtmlString()) table table-bordered table-hover" role="grid" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th scope="row">Synonym</th>
+                                <th scope="row">Target</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.SynonymsCount > 0)
+                            {
+                                foreach (var synonym in Model.Synonyms)
+                                {
+                                    <tr>
+                                        <td><a href="@(synonym.SynonymUrl)">@synonym.Name</a></td>
+                                        <td>@Raw(synonym.TargetText.ToHtmlString())</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="2">No synonyms present.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-code" aria-hidden="true">&nbsp;&nbsp;</i>Routines</h3>
+                </div>
+                <div class="card-body">
+                    <table class="@Raw(Model.RoutinesTableClass.ToHtmlString()) table table-bordered table-hover" role="grid" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th scope="row">Routine</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.RoutinesCount > 0)
+                            {
+                                foreach (var routine in Model.Routines)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a href="@(routine.RoutineUrl)">@routine.Name</a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td>No routines present.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,52 @@
+@using RazorLight
+@using SJP.Schematic.Reporting.Html.ViewModels
+@inherits TemplatePage<Synonym>
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>@Model.Name</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@(Model.RootPath)index.html">Home</a></li>
+                    <li class="breadcrumb-item"><a href="@(Model.RootPath)synonyms.html">Synonyms</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="content">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-share" aria-hidden="true">&nbsp;&nbsp;</i>Synonym Definition</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fa fa-minus" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="table-db-objects table table-bordered table-hover" role="grid" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th scope="col">Synonym</th>
+                                <th scope="col">Target</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>@Model.Name</td>
+                                <td>@Raw(Model.TargetText.ToHtmlString())</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

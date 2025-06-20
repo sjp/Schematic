@@ -1,0 +1,58 @@
+@using RazorLight
+@using SJP.Schematic.Reporting.Html.ViewModels
+@inherits TemplatePage<Synonyms>
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Synonyms</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Synonyms</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="content">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-share" aria-hidden="true">&nbsp;&nbsp;</i>Synonyms</h3>
+                </div>
+                <div class="card-body">
+                    <table class="@Raw(Model.SynonymsTableClass.ToHtmlString()) table table-bordered table-hover" role="grid" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th scope="col">Synonym</th>
+                                <th scope="col">Target</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.SynonymsCount > 0)
+                            {
+                                foreach (var synonym in Model.AllSynonyms)
+                                {
+                                    <tr>
+                                        <td><a href="@(synonym.SynonymUrl)">@synonym.Name</a></td>
+                                        <td>@Raw(synonym.TargetText.ToHtmlString())</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="2">No synonyms present.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

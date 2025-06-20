@@ -1,0 +1,212 @@
+@using RazorLight
+@using SJP.Schematic.Reporting.Html.ViewModels
+@inherits TemplatePage<Constraints>
+
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Constraints</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Constraints</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="content">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-key" aria-hidden="true">&nbsp;&nbsp;</i>@Model.PrimaryKeysCount Primary Key Constraint@(Model.PrimaryKeysCount != 1 ? "s" : string.Empty)</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fa fa-minus" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="@Raw(Model.PrimaryKeysTableClass.ToHtmlString()) table table-bordered table-hover" role="grid" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th scope="row">Constraint Name</th>
+                                <th scope="row">Table</th>
+                                <th scope="row">Columns</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.PrimaryKeysCount > 0)
+                            {
+                                foreach (var primaryKey in Model.PrimaryKeys)
+                                {
+                                    <tr>
+                                        <td>@primaryKey.ConstraintName</td>
+                                        <td>
+                                            <a href="@(primaryKey.TableUrl)">@primaryKey.TableName</a>
+                                        </td>
+                                        <td>@primaryKey.ColumnNames</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="3">No primary key constraints present.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-key" aria-hidden="true">&nbsp;&nbsp;</i>@Model.UniqueKeysCount Unique Key Constraint@(Model.UniqueKeysCount != 1 ? "s" : string.Empty)</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fa fa-minus" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="@Raw(Model.UniqueKeysTableClass.ToHtmlString()) table table-bordered table-hover" role="grid" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th scope="row">Constraint Name</th>
+                                <th scope="row">Columns</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.UniqueKeysCount > 0)
+                            {
+                                foreach (var uniqueKey in Model.UniqueKeys)
+                                {
+                                    <tr>
+                                        <td>@uniqueKey.ConstraintName</td>
+                                        <td>@uniqueKey.ColumnNames</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="2">No unique key constraints present.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-key" aria-hidden="true">&nbsp;&nbsp;</i>@Model.ForeignKeysCount Foreign Key Constraint@(Model.ForeignKeysCount != 1 ? "s" : string.Empty)</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fa fa-minus" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="@Raw(Model.ForeignKeysTableClass.ToHtmlString()) table table-bordered table-hover" role="grid" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th scope="row">Constraint Name</th>
+                                <th scope="row">Columns</th>
+                                <th scope="row">Parent Constraint Name</th>
+                                <th scope="row">Parent Table</th>
+                                <th scope="row">Parent Columns</th>
+                                <th scope="row">Delete Action</th>
+                                <th scope="row">Update Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.ForeignKeysCount > 0)
+                            {
+                                foreach (var foreignKey in Model.ForeignKeys)
+                                {
+                                    <tr>
+                                        <td>@foreignKey.ConstraintName</td>
+                                        <td>@foreignKey.ChildColumnNames</td>
+                                        <td>@foreignKey.ParentConstraintName</td>
+                                        <td>
+                                            <a href="@(foreignKey.ParentTableUrl)">@foreignKey.ParentTableName</a>
+                                        </td>
+                                        <td>@foreignKey.ParentColumnNames</td>
+                                        <td>
+                                            <code>@foreignKey.DeleteActionDescription</code>
+                                        </td>
+                                        <td>
+                                            <code>@foreignKey.UpdateActionDescription</code>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="7">No foreign key constraints present.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-check" aria-hidden="true">&nbsp;&nbsp;</i>@Model.CheckConstraintsCount Check Constraint@(Model.CheckConstraintsCount != 1 ? "s" : string.Empty)</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fa fa-minus" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="@Raw(Model.CheckConstraintsTableClass.ToHtmlString()) table table-bordered table-hover" role="grid" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th scope="row">Constraint Name</th>
+                                <th scope="row">Definition</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.CheckConstraintsCount > 0)
+                            {
+                                foreach (var check in Model.CheckConstraints)
+                                {
+                                    <tr>
+                                        <td>@check.ConstraintName</td>
+                                        <td>
+                                            <code>@check.Definition</code>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="2">No check constraints present.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

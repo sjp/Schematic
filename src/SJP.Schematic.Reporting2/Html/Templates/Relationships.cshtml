@@ -1,0 +1,61 @@
+@using RazorLight
+@using SJP.Schematic.Reporting.Html.ViewModels
+@inherits TemplatePage<Relationships>
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Relationships</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Relationships</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="content">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-code-fork" aria-hidden="true">&nbsp;&nbsp;</i>Diagrams</h3>
+                    <ul class="nav nav-pills ml-auto p-2 card-title-clearfix">
+                        @foreach (var diagram in Model.Diagrams)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @diagram.ActiveClass" href="#@diagram.ContainerId" data-toggle="pill" aria-selected="@diagram.Selected">@diagram.Name</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content">
+                        @foreach (var diagram in Model.Diagrams)
+                        {
+                            <div class="tab-pane @diagram.ActiveClass" id="@diagram.ContainerId">
+                                @Raw(diagram.Svg)
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <ul class="nav nav-pills ml-auto p-2">
+                        @foreach (var diagram in Model.Diagrams)
+                        {
+                            <li class="nav-item mt-2 mr-2">
+                                <a class="nav-link active" href="@(diagram.ContainerId).svg" role="button">Download @diagram.Name</a>
+                            </li>
+                        }
+                        <li class="nav-item mt-2 mr-2">
+                            <a class="nav-link active" href="relationships.dbml" role="button">Download DBML for dbdiagram.io</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

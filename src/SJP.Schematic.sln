@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28803.202
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36212.18 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Core", "SJP.Schematic.Core\SJP.Schematic.Core.csproj", "{A46BFB1C-82E2-443A-8163-9BFFE052DE3D}"
 EndProject
@@ -72,6 +72,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Dbml", "SJP.Schematic.Dbml\SJP.Schematic.Dbml.csproj", "{34EAF876-8534-412E-95E3-06505AE2167F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SJP.Schematic.Dbml.Tests", "SJP.Schematic.Dbml.Tests\SJP.Schematic.Dbml.Tests.csproj", "{66685907-7CEF-48BC-A74B-E2A8D0D01583}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SJP.Schematic.Reporting2", "SJP.Schematic.Reporting2\SJP.Schematic.Reporting2.csproj", "{C6F2BA7A-D063-7C13-67EE-DCB7EBDFCCF4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -219,6 +221,10 @@ Global
 		{66685907-7CEF-48BC-A74B-E2A8D0D01583}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66685907-7CEF-48BC-A74B-E2A8D0D01583}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66685907-7CEF-48BC-A74B-E2A8D0D01583}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6F2BA7A-D063-7C13-67EE-DCB7EBDFCCF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6F2BA7A-D063-7C13-67EE-DCB7EBDFCCF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6F2BA7A-D063-7C13-67EE-DCB7EBDFCCF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6F2BA7A-D063-7C13-67EE-DCB7EBDFCCF4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
