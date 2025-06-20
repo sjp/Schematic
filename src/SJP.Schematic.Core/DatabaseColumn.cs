@@ -22,6 +22,7 @@ public class DatabaseColumn : IDatabaseColumn
     /// <param name="defaultValue">The default value expression, if available.</param>
     /// <param name="autoIncrement">The auto-increment definition, if available.</param>
     /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <c>null</c></exception>
+    /// <exception cref="ArgumentException">The column name must be unqualified, i.e. not contain a server, database or schema name.</exception>
     public DatabaseColumn(
         Identifier columnName,
         IDbType type,
@@ -31,8 +32,10 @@ public class DatabaseColumn : IDatabaseColumn
     )
     {
         ArgumentNullException.ThrowIfNull(columnName);
+        if (columnName.Server != null || columnName.Database != null || columnName.Schema != null)
+            throw new ArgumentException("The column name must be unqualified, i.e. not contain a server, database or schema name.", nameof(columnName));
 
-        Name = columnName.LocalName;
+        Name = columnName;
         Type = type ?? throw new ArgumentNullException(nameof(type));
         IsNullable = isNullable;
         DefaultValue = defaultValue;

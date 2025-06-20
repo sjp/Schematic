@@ -129,7 +129,7 @@ public readonly struct AutoIncrement : IAutoIncrement, IEquatable<AutoIncrement>
         if (left == null)
             return true;
 
-        return !(left == right);
+        return !right.Equals(left);
     }
 
     /// <summary>
@@ -157,6 +157,6 @@ public readonly struct AutoIncrement : IAutoIncrement, IEquatable<AutoIncrement>
         if (right == null)
             return true;
 
-        return !(left == right);
+        return !left.Equals(right);
     }
 }

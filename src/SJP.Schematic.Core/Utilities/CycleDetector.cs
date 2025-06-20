@@ -64,30 +64,24 @@ public class CycleDetector
 
     private static void OnCyclingEdgeFound(IEnumerable<IEdge<Identifier>> examinedEdges, ICollection<IReadOnlyCollection<Identifier>> cycles, SEquatableEdge<Identifier> e)
     {
-        var startingNode = e.Target;
-        var nextNode = e.Source;
+        var cycleNodes = new HashSet<Identifier>();
+        cycleNodes.Add(e.Source);
+        cycleNodes.Add(e.Target);
 
-        var knownNodes = new List<Identifier> { startingNode, nextNode };
+        var examinedEdgesList = examinedEdges.ToList();
+        var startIndex = examinedEdgesList.FindIndex(edge => edge.Source.Equals(e.Target));
 
-        var edges = examinedEdges.Reverse().Skip(1); // skipping first edge because that's the back edge
-        foreach (var edge in edges)
+        for (var i = startIndex; i < examinedEdgesList.Count; i++)
         {
-            if (edge.Target != nextNode)
-                continue;
-
-            if (!knownNodes.Contains(edge.Source))
-            {
-                knownNodes.Add(edge.Source);
-                nextNode = edge.Source;
-            }
-            else
-            {
-                knownNodes.Reverse();
-                if (!ContainsCycle(cycles, knownNodes))
-                    cycles.Add(knownNodes);
-                return;
-            }
+            var edge = examinedEdgesList[i];
+            cycleNodes.Add(edge.Source);
+            cycleNodes.Add(edge.Target);
         }
+
+        if (ContainsCycle(cycles, cycleNodes))
+            return;
+
+        cycles.Add(cycleNodes);
     }
 
     private static bool ContainsCycle(IEnumerable<IReadOnlyCollection<Identifier>> existingCycles, IReadOnlyCollection<Identifier> newCycle)

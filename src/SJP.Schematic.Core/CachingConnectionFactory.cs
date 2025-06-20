@@ -11,7 +11,7 @@ namespace SJP.Schematic.Core;
 /// A <see cref="IDbConnectionFactory"/> instance that always returns the same <see cref="IDbConnection"/> instance.
 /// </summary>
 /// <seealso cref="IDbConnectionFactory" />
-public class CachingConnectionFactory : IDbConnectionFactory
+public sealed class CachingConnectionFactory : IDbConnectionFactory
 {
     private readonly object _lock = new();
     private readonly IDbConnectionFactory _connectionFactory;

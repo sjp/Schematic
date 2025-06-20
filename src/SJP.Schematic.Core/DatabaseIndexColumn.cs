@@ -40,7 +40,7 @@ public class DatabaseIndexColumn : IDatabaseIndexColumn
     public DatabaseIndexColumn(string expression, IEnumerable<IDatabaseColumn> dependentColumns, IndexColumnOrder order)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(expression);
-        if (dependentColumns.NullOrAnyNull())
+        if (dependentColumns.NullOrEmpty() || dependentColumns.AnyNull())
             throw new ArgumentNullException(nameof(dependentColumns));
         if (!order.IsValid())
             throw new ArgumentException($"The {nameof(IndexColumnOrder)} provided must be a valid enum.", nameof(order));
