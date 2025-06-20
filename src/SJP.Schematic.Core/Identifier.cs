@@ -7,7 +7,7 @@ using SJP.Schematic.Core.Utilities;
 namespace SJP.Schematic.Core;
 
 /// <summary>
-/// Describes an identifier which represents any object with a database. In particular it enables behaviour such a scoping an object name to a schema.
+/// Describes an identifier which represents any object within a database. In particular it enables behaviour such as scoping an object name to a schema.
 /// </summary>
 [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
 public sealed record Identifier : IComparable<Identifier>

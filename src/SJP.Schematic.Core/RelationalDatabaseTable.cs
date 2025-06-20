@@ -79,10 +79,6 @@ public class RelationalDatabaseTable : IRelationalDatabaseTable
         ChildKeys = childKeys;
         Indexes = indexes;
         Checks = checks;
-
-        var act = new Activity("test");
-        act.SetParentId("");
-
         Triggers = triggers;
     }
 

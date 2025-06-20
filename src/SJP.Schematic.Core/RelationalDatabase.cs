@@ -112,6 +112,7 @@ public class RelationalDatabase : IRelationalDatabase
     {
         ArgumentNullException.ThrowIfNull(objectName);
 
+        var objectsByName = objects.ToLookup(o => QualifyObjectName(o.Name));
         var resolvedNames = IdentifierResolver
             .GetResolutionOrder(objectName)
             .Select(QualifyObjectName);
@@ -119,7 +120,7 @@ public class RelationalDatabase : IRelationalDatabase
         return resolvedNames
             .Select(name =>
             {
-                var obj = objects.FirstOrDefault(o => QualifyObjectName(o.Name) == name);
+                var obj = objectsByName[name].FirstOrDefault();
                 return obj != null
                     ? Option<T>.Some(obj)
                     : Option<T>.None;
