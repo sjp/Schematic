@@ -16,11 +16,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="9.0.6">
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
-    <PackageReference Include="RazorLight" Version="2.3.1" />
-    <PackageReference Include="System.Text.Encodings.Web" Version="9.0.6">
+    <PackageReference Include="RazorLight" />
+    <PackageReference Include="System.Text.Encodings.Web">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
   </ItemGroup>
@@ -46,10 +46,6 @@
 
   <ItemGroup>
     <GulpSourceFiles Include="package.json;package-lock.json;gulpfile.babel.js;Source/**/*.*" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="8.0.0" />
   </ItemGroup>
 
   <Target Name="CheckNpmExists">
