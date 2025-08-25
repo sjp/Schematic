@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
     <Description>A serialization provider for Schematic. Serializes common Schematic types to formats such as JSON.</Description>
     <Nullable>enable</Nullable>
   </PropertyGroup>

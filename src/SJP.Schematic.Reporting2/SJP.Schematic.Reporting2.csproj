@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
     <Description>A reporting engine for Schematic. Generates schema reports for databases.</Description>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <Nullable>enable</Nullable>

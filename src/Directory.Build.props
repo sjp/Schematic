@@ -1,5 +1,6 @@
 <Project>
     <PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
         <RootDirectory>$([System.IO.Path]::GetDirectoryName($([System.IO.Path]::GetDirectoryName($(MSBuildThisFileDirectory)))))</RootDirectory>
         <LangVersion>latest</LangVersion>
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
