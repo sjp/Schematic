@@ -1,45 +1,20 @@
-﻿using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
-using System.IO;
-using System.Threading;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using SJP.Schematic.Tool.Handlers;
+using Spectre.Console;
+using Spectre.Console.Cli;
 
 namespace SJP.Schematic.Tool.Commands;
 
-internal sealed class GenerateEfCoreCommand : Command
+internal sealed class GenerateEfCoreCommand : AsyncCommand<GenerateEfCoreCommand.Settings>
 {
-    public GenerateEfCoreCommand()
-        : base("efcore", "Generate a C# project for use with EF Core.")
+    public sealed class Settings : OrmCommand.Settings
     {
-        var namingOption = new Option<NamingConvention>(
-            "--convention",
-            () => NamingConvention.Pascal,
-            "The naming convention to use."
-        );
-        AddOption(namingOption);
+    }
 
-        var projectPathOption = new Option<FileInfo>(
-            "--project-path",
-            description: "The file path used to save the generated .csproj, e.g. 'C:\\tmp\\Example.DataAccess.EFCore.csproj'. Related files will use the same directory."
-        )
-        {
-            IsRequired = true
-        };
-        AddOption(projectPathOption);
-
-        var baseNamespaceOption = new Option<string>(
-            "--base-namespace",
-            description: "A namespace to use that generated classes will belong in. e.g. 'Example.DataAccess.EFCore'."
-        )
-        {
-            IsRequired = true
-        };
-        AddOption(baseNamespaceOption);
-
-        Handler = CommandHandler.Create<IConsole, FileInfo, NamingConvention, FileInfo, string, CancellationToken>(static (console, config, convention, projectPath, baseNamespace, cancellationToken) =>
-        {
-            var handler = new GenerateEfCoreCommandHandler(console, config);
-            return handler.HandleCommandAsync(projectPath, baseNamespace, convention, cancellationToken);
-        });
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
+    {
+        var handler = new GenerateEfCoreCommandHandler(AnsiConsole.Console, settings.ConfigFile!);
+        return await handler.HandleCommandAsync(settings.ProjectPath!, settings.BaseNamespace!, settings.NamingConvention, CancellationToken.None).ConfigureAwait(false);
     }
 }

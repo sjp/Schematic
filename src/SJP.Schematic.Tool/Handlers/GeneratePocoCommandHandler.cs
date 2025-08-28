@@ -1,19 +1,19 @@
 ﻿using System;
-using System.CommandLine;
 using System.IO;
 using System.IO.Abstractions;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.DataAccess.Poco;
 using SJP.Schematic.Tool.Commands;
+using Spectre.Console;
 
 namespace SJP.Schematic.Tool.Handlers;
 
 internal sealed class GeneratePocoCommandHandler : DatabaseCommandHandler
 {
-    private readonly IConsole _console;
+    private readonly IAnsiConsole _console;
 
-    public GeneratePocoCommandHandler(IConsole console, FileInfo filePath)
+    public GeneratePocoCommandHandler(IAnsiConsole console, FileInfo filePath)
         : base(filePath)
     {
         _console = console ?? throw new ArgumentNullException(nameof(console));
@@ -31,7 +31,7 @@ internal sealed class GeneratePocoCommandHandler : DatabaseCommandHandler
 
         await generator.GenerateAsync(projectPath.FullName, baseNamespace, cancellationToken).ConfigureAwait(false);
 
-        _console.Out.Write("Project generated at: " + projectPath.FullName);
+        _console.Write("Project generated at: " + projectPath.FullName);
         return ErrorCode.Success;
     }
 }

@@ -1,20 +1,20 @@
-﻿using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
-using System.IO;
-using System.Threading;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using SJP.Schematic.Tool.Handlers;
+using Spectre.Console;
+using Spectre.Console.Cli;
 
 namespace SJP.Schematic.Tool.Commands;
 
-internal sealed class LintCommand : Command
+internal sealed class LintCommand : AsyncCommand<LintCommand.Settings>
 {
-    public LintCommand()
-        : base("lint", "Provides a lint report for potential schema issues.")
+    public sealed class Settings : CommonSettings
     {
-        Handler = CommandHandler.Create<IConsole, FileInfo, CancellationToken>(static (console, config, cancellationToken) =>
-        {
-            var handler = new LintCommandHandler(console, config);
-            return handler.HandleCommandAsync(cancellationToken);
-        });
+    }
+
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
+    {
+        var handler = new LintCommandHandler(AnsiConsole.Console, settings.ConfigFile!);
+        return await handler.HandleCommandAsync(CancellationToken.None).ConfigureAwait(false);
     }
 }

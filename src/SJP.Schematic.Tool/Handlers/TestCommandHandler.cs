@@ -1,16 +1,16 @@
 ﻿using System;
-using System.CommandLine;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Spectre.Console;
 
 namespace SJP.Schematic.Tool.Handlers;
 
 internal sealed class TestCommandHandler : DatabaseCommandHandler
 {
-    private readonly IConsole _console;
+    private readonly IAnsiConsole _console;
 
-    public TestCommandHandler(IConsole console, FileInfo filePath)
+    public TestCommandHandler(IAnsiConsole console, FileInfo filePath)
         : base(filePath)
     {
         _console = console ?? throw new ArgumentNullException(nameof(console));
@@ -27,9 +27,7 @@ internal sealed class TestCommandHandler : DatabaseCommandHandler
 
             _ = await factory.OpenConnectionAsync(cts.Token).ConfigureAwait(false);
 
-            _console.SetTerminalForegroundGreen();
-            _console.Out.Write("Successfully connected to the database.");
-            _console.ResetTerminalForegroundColor();
+            _console.MarkupLine("[green]Successfully connected to the database.[/green]");
 
             return ErrorCode.Success;
         }
@@ -39,18 +37,14 @@ internal sealed class TestCommandHandler : DatabaseCommandHandler
             cancellationToken.ThrowIfCancellationRequested();
 
             // only handling when timed out, not when user interrupts
-            _console.SetTerminalForegroundRed();
-            _console.Error.Write("Database connection request timed out.");
-            _console.ResetTerminalForegroundColor();
+            _console.MarkupLine("[red]Database connection request timed out.[/red]");
 
             return ErrorCode.Error;
         }
         catch (Exception ex)
         {
-            _console.SetTerminalForegroundRed();
-            _console.Error.WriteLine("Failed to connect to the database.");
-            _console.Error.Write("    " + ex.Message);
-            _console.ResetTerminalForegroundColor();
+            _console.MarkupLine("[red]Failed to connect to the database.[/red]");
+            _console.MarkupLine("    [red]" + ex.Message + "[/red]");
 
             return ErrorCode.Error;
         }

@@ -1,68 +1,56 @@
 ﻿using System;
-using System.CommandLine;
-using System.CommandLine.Builder;
-using System.CommandLine.Help;
-using System.CommandLine.Invocation;
-using System.CommandLine.Parsing;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Oracle.ManagedDataAccess.Client;
 using SJP.Schematic.Tool.Commands;
+using Spectre.Console;
+using Spectre.Console.Cli;
 
 namespace SJP.Schematic.Tool;
 
 internal static class Program
 {
-    private const string TitleText = @"   _____      __                         __  _
-  / ___/_____/ /_  ___  ____ ___  ____ _/ /_(_)____
-  \__ \/ ___/ __ \/ _ \/ __ `__ \/ __ `/ __/ / ___/
- ___/ / /__/ / / /  __/ / / / / / /_/ / /_/ / /__
-/____/\___/_/ /_/\___/_/ /_/ /_/\__,_/\__/_/\___/
-
-The helpful database schema querying tool.
-
-";
-
     public static Task<int> Main(string[] args)
     {
-        var root = new RootCommand();
+        var app = new CommandApp();
 
-        var configFileOption = new Option<FileInfo>(
-            "--config",
-            getDefaultValue: static () => new FileInfo(
-                Path.Combine(Directory.GetCurrentDirectory(),
-                "schematic.config.json"
-            )),
-            description: "A path to a configuration file used to retrieve options such as connection strings."
-        ).ExistingOnly();
-        root.AddGlobalOption(configFileOption);
-
-        root.AddCommand(new OrmCommand());
-        root.AddCommand(new LintCommand());
-        root.AddCommand(new ReportCommand());
-        root.AddCommand(new TestCommand());
-
-        var builder = new CommandLineBuilder(root);
-        builder.UseHelp(ctx =>
+        app.Configure(config =>
         {
-            ctx.HelpBuilder.CustomizeLayout(_ =>
-                HelpBuilder.Default.GetLayout().Skip(1).Prepend(hctx => hctx.Output.Write(TitleText)));
-        });
-        builder.UseVersionOption();
-        builder.UseParseErrorReporting();
-        builder.CancelOnProcessTermination();
-        builder.UseExceptionHandler(HandleException);
+            config.SetApplicationName("schematic");
+            config.SetApplicationVersion(GetVersion());
 
-        var parser = builder.Build();
-        return parser.InvokeAsync(args);
+            config.AddBranch<OrmCommand.Settings>("orm", orm =>
+            {
+                orm.SetDescription("Generate ORM projects to interact with a database.");
+                orm.AddCommand<GenerateEfCoreCommand>("efcore");
+                orm.AddCommand<GenerateOrmLiteCommand>("ormlite");
+                orm.AddCommand<GeneratePocoCommand>("poco");
+            });
+            config.AddCommand<LintCommand>("lint");
+            config.AddCommand<ReportCommand>("report");
+            config.AddCommand<TestCommand>("test");
+
+            config.PropagateExceptions();
+            config.ValidateExamples();
+            config.SetExceptionHandler((ex, resolver) =>
+            {
+                AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
+            });
+        });
+
+        return app.RunAsync(args);
     }
 
-    private static void HandleException(Exception exception, InvocationContext context)
+    private static string GetVersion()
     {
-        context.Console.ResetTerminalForegroundColor();
-        context.Console.SetTerminalForegroundRed();
+        var assembly = Assembly.GetEntryAssembly()!;
+        var assemblyVersion = assembly.GetName().Version!;
+        return $"v{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}";
+    }
+
+    private static void HandleException(Exception exception)
+    {
+        AnsiConsole.Foreground = ConsoleColor.Red;
 
         if (exception is TargetInvocationException tie &&
             tie.InnerException is not null)
@@ -78,32 +66,30 @@ The helpful database schema querying tool.
 
         if (exception is OperationCanceledException)
         {
-            context.Console.Error.WriteLine("...canceled.");
+            AnsiConsole.WriteLine("...canceled.");
         }
         // don't know why, but oracle wraps cancellation in its own exception
         else if (exception is OracleException oex && oex.Number == 1013)
         {
-            context.Console.Error.WriteLine("...canceled.");
+            AnsiConsole.WriteLine("...canceled.");
         }
         else if (exception is CommandException command)
         {
-            context.Console.Error.WriteLine($"The '{context.ParseResult.CommandResult.Command.Name}' command failed:");
-            context.Console.Error.WriteLine($"    {command.Message}");
+            AnsiConsole.WriteLine($"The command failed:");
+            AnsiConsole.WriteLine($"    {command.Message}");
 
             if (command.InnerException != null)
             {
-                context.Console.Error.WriteLine();
-                context.Console.Error.WriteLine(command.InnerException.ToString());
+                AnsiConsole.WriteLine();
+                AnsiConsole.WriteLine(command.InnerException.ToString());
             }
         }
         else
         {
-            context.Console.Error.WriteLine("An unhandled exception has occurred: ");
-            context.Console.Error.WriteLine(exception.ToString());
+            AnsiConsole.WriteLine("An unhandled exception has occurred: ");
+            AnsiConsole.WriteLine(exception.ToString());
         }
 
-        context.Console.ResetTerminalForegroundColor();
-
-        context.ExitCode = 1;
+        AnsiConsole.ResetColors();
     }
 }

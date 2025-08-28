@@ -8,12 +8,12 @@
     <PackAsTool>true</PackAsTool>
     <PackageId>dotnet-schematic</PackageId>
     <ToolCommandName>dotnet-schematic</ToolCommandName>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	<Nullable>enable</Nullable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.CommandLine" />
-    <PackageReference Include="System.CommandLine.NamingConventionBinder" />
+    <PackageReference Include="Spectre.Console.Cli" />
   </ItemGroup>
 
   <ItemGroup>

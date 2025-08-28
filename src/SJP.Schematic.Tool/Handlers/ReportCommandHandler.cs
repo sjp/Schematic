@@ -1,20 +1,19 @@
 ﻿using System;
-using System.CommandLine;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Reporting;
+using Spectre.Console;
 
 namespace SJP.Schematic.Tool.Handlers;
 
 internal sealed class ReportCommandHandler : DatabaseCommandHandler
 {
-    private readonly IConsole _console;
+    private readonly IAnsiConsole _console;
 
-    public ReportCommandHandler(IConsole console, FileInfo filePath)
+    public ReportCommandHandler(IAnsiConsole console, FileInfo filePath)
         : base(filePath)
     {
         _console = console ?? throw new ArgumentNullException(nameof(console));
@@ -31,7 +30,7 @@ internal sealed class ReportCommandHandler : DatabaseCommandHandler
         var reportGenerator = new ReportGenerator(connection, snapshotDb, outputPath);
         await reportGenerator.GenerateAsync(cancellationToken).ConfigureAwait(false);
 
-        _console.Out.Write("Report generated to: " + outputPath.FullName);
+        _console.Write("Report generated to: " + outputPath.FullName);
         return ErrorCode.Success;
     }
 

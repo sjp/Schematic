@@ -1,19 +1,19 @@
 ﻿using System;
-using System.CommandLine;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint;
+using Spectre.Console;
 
 namespace SJP.Schematic.Tool.Handlers;
 
 internal sealed class LintCommandHandler : DatabaseCommandHandler
 {
-    private readonly IConsole _console;
+    private readonly IAnsiConsole _console;
 
-    public LintCommandHandler(IConsole console, FileInfo filePath)
+    public LintCommandHandler(IAnsiConsole console, FileInfo filePath)
         : base(filePath)
     {
         _console = console ?? throw new ArgumentNullException(nameof(console));
@@ -57,19 +57,19 @@ internal sealed class LintCommandHandler : DatabaseCommandHandler
 
             if (hasDisplayedResults)
             {
-                _console.Out.WriteLine();
-                _console.Out.WriteLine();
+                _console.WriteLine();
+                _console.WriteLine();
             }
             hasDisplayedResults = true;
 
-            _console.Out.WriteLine(underline);
-            _console.Out.WriteLine(ruleTitle);
-            _console.Out.WriteLine(underline);
-            _console.Out.WriteLine();
+            _console.WriteLine(underline);
+            _console.WriteLine(ruleTitle);
+            _console.WriteLine(underline);
+            _console.WriteLine();
 
             foreach (var message in ruleGroup)
             {
-                _console.Out.WriteLine(" * " + message.Message);
+                _console.WriteLine(" * " + message.Message);
             }
         }
 

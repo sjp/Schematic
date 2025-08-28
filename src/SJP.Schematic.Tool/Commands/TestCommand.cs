@@ -1,28 +1,26 @@
-﻿using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
-using System.IO;
+﻿using System.ComponentModel;
 using System.Threading;
+using System.Threading.Tasks;
 using SJP.Schematic.Tool.Handlers;
+using Spectre.Console;
+using Spectre.Console.Cli;
 
 namespace SJP.Schematic.Tool.Commands;
 
-internal sealed class TestCommand : Command
+[Description("Test a database connection to see whether it is available.")]
+internal sealed class TestCommand : AsyncCommand<TestCommand.Settings>
 {
-    public TestCommand()
-        : base("test", "Test a database connection to see whether it is available.")
+    public sealed class Settings : CommonSettings
     {
-        var timeoutOption = new Option<int>(
-            "--timeout",
-            getDefaultValue: static () => 10,
-            description: "A timeout (in seconds) to wait for."
-        );
+        [CommandOption("-t|--timeout")]
+        [Description("A timeout (in seconds) to wait for.")]
+        [DefaultValue(10)]
+        public int Timeout { get; init; }
+    }
 
-        AddOption(timeoutOption);
-
-        Handler = CommandHandler.Create<FileInfo, IConsole, int, CancellationToken>(static (config, console, timeout, cancellationToken) =>
-        {
-            var handler = new TestCommandHandler(console, config);
-            return handler.HandleCommandAsync(timeout, cancellationToken);
-        });
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
+    {
+        var handler = new TestCommandHandler(AnsiConsole.Console, settings.ConfigFile!);
+        return await handler.HandleCommandAsync(settings.Timeout, CancellationToken.None).ConfigureAwait(false);
     }
 }

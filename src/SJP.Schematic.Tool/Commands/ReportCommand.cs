@@ -1,29 +1,25 @@
-﻿using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
+﻿using System.ComponentModel;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using SJP.Schematic.Tool.Handlers;
+using Spectre.Console;
+using Spectre.Console.Cli;
 
 namespace SJP.Schematic.Tool.Commands;
 
-internal sealed class ReportCommand : Command
+internal sealed class ReportCommand : AsyncCommand<ReportCommand.Settings>
 {
-    public ReportCommand()
-        : base("report", "Creates a detailed graphical report on database schema and relationships.")
+    public sealed class Settings : CommonSettings
     {
-        var outputOption = new Option<DirectoryInfo>(
-            "--output",
-            description: "The directory to save the generated report."
-        )
-        {
-            IsRequired = true
-        };
-        AddOption(outputOption);
+        [CommandOption("--output <DIRECTORY>")]
+        [Description("The directory to save the generated report.")]
+        public DirectoryInfo? OutputDirectory { get; init; }
+    }
 
-        Handler = CommandHandler.Create<FileInfo, IConsole, DirectoryInfo, CancellationToken>(static (config, console, output, cancellationToken) =>
-        {
-            var handler = new ReportCommandHandler(console, config);
-            return handler.HandleCommandAsync(output, cancellationToken);
-        });
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
+    {
+        var handler = new ReportCommandHandler(AnsiConsole.Console, settings.ConfigFile!);
+        return await handler.HandleCommandAsync(settings.OutputDirectory!, CancellationToken.None).ConfigureAwait(false);
     }
 }
