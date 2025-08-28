@@ -468,7 +468,7 @@ internal static class RelationalDatabaseCommentProviderTests
     }
 
     [Test]
-    public static async Task GetSeqeuenceComments_WhenGivenMatchingSequenceName_ReturnsSequenceCommentFromCtor()
+    public static async Task GetSequenceComments_WhenGivenMatchingSequenceName_ReturnsSequenceCommentFromCtor()
     {
         var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
         var identifierResolver = new VerbatimIdentifierResolutionStrategy();

@@ -26,7 +26,7 @@ internal sealed class ReportCommandHandler : DatabaseCommandHandler
         var connection = GetSchematicConnection();
         var database = await connection.Dialect.GetRelationalDatabaseAsync(connection, cancellationToken).ConfigureAwait(false);
 
-        var snapshotDb = await RelationalDatabase.SnapshotAsync(database, new VerbatimIdentifierResolutionStrategy(), cancellationToken).ConfigureAwait(false);
+        var snapshotDb = await database.SnapshotAsync(cancellationToken).ConfigureAwait(false);
 
         var reportGenerator = new ReportGenerator(connection, snapshotDb, outputPath);
         await reportGenerator.GenerateAsync(cancellationToken).ConfigureAwait(false);

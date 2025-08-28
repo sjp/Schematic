@@ -233,47 +233,4 @@ public class RelationalDatabase : IRelationalDatabase
 
         return GetResolvedObject(Routines, routineName);
     }
-
-    /// <summary>
-    /// Snapshots a relational database. Preserves the same behaviour, but enables querying in-memory, avoiding further database calls.
-    /// </summary>
-    /// <param name="database">A relational database.</param>
-    /// <param name="identifierResolver">An identifier resolver to use when an object cannot be found using the given name.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A relational database with the same data as <paramref name="database"/>, but serialized into an in-memory copy.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="database"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
-    public static Task<IRelationalDatabase> SnapshotAsync(IRelationalDatabase database, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(database);
-        ArgumentNullException.ThrowIfNull(identifierResolver);
-
-        return SnapshotAsyncCore(database, identifierResolver, cancellationToken);
-    }
-
-    private static async Task<IRelationalDatabase> SnapshotAsyncCore(IRelationalDatabase database, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken)
-    {
-        var (
-            tables,
-            views,
-            sequences,
-            synonyms,
-            routines
-        ) = await TaskUtilities.WhenAll(
-            database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).AsTask(),
-            database.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask(),
-            database.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).AsTask(),
-            database.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).AsTask(),
-            database.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).AsTask()
-        ).ConfigureAwait(false);
-
-        return new RelationalDatabase(
-            database.IdentifierDefaults,
-            identifierResolver,
-            tables,
-            views,
-            sequences,
-            synonyms,
-            routines
-        );
-    }
 }
