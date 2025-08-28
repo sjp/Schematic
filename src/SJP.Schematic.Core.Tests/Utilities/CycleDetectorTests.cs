@@ -151,11 +151,11 @@ internal static class CycleDetectorTests
         var cycleTableNames = result.SelectMany(c => c.Select(t => t.LocalName)).ToList();
         var expectedCycle = new[] { "a", "b", "c" };
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result, Has.Exactly(1).Items);
             Assert.That(cycleTableNames, Has.Exactly(3).Items);
             Assert.That(cycleTableNames, Is.EquivalentTo(expectedCycle));
-        });
+        }
     }
 }

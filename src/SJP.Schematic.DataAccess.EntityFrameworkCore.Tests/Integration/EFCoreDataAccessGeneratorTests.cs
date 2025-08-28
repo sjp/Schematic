@@ -63,7 +63,7 @@ internal sealed class EFCoreDataAccessGeneratorTests : SqliteTest
         var generator = new EFCoreDataAccessGenerator(mockFs, Database, new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults), nameTranslator);
         await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(mockFs.FileExists(projectPath), Is.True);
             Assert.That(mockFs.FileExists(expectedAppContextPath), Is.True);
@@ -71,7 +71,7 @@ internal sealed class EFCoreDataAccessGeneratorTests : SqliteTest
             Assert.That(mockFs.Directory.Exists(viewsDir), Is.True);
             Assert.That(mockFs.FileExists(expectedTable1Path), Is.True);
             Assert.That(mockFs.FileExists(expectedView1Path), Is.True);
-        });
+        }
     }
 
     [Test, Ignore("Skipping to improve unit test perf")]

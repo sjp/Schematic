@@ -181,11 +181,11 @@ internal static class SqliteDatabaseIndexTests
 
         var index = new SqliteDatabaseIndex(indexName, false, columns, includedColumns, Option<string>.Some(filterDefinition));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(index.FilterDefinition, OptionIs.Some);
             Assert.That(index.FilterDefinition.UnwrapSome(), Is.EqualTo(filterDefinition));
-        });
+        }
     }
 
     [TestCase("test_index", "Index: test_index")]

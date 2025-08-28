@@ -28,11 +28,11 @@ internal static class IdentifierComparerTests
         var identifier = new Identifier(name);
         var otherIdentifier = new Identifier(name);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(comparer.Equals(null, null), Is.True);
             Assert.That(comparer.Equals(identifier, otherIdentifier), Is.True);
-        });
+        }
     }
 
     [Test]
@@ -45,12 +45,12 @@ internal static class IdentifierComparerTests
         var identifier = new Identifier(name);
         var otherIdentifier = new Identifier(otherName);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(comparer.Equals(identifier, null), Is.False);
             Assert.That(comparer.Equals(null, identifier), Is.False);
             Assert.That(comparer.Equals(identifier, otherIdentifier), Is.False);
-        });
+        }
     }
 
     [Test]

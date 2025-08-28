@@ -31,11 +31,11 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var table = await GetTableAsync("table_test_table_5").ConfigureAwait(false);
         var uk = table.UniqueKeys.Single();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(uk.Columns, Has.Exactly(1).Items);
             Assert.That(uk.Columns.Single().Name.LocalName, Is.EqualTo("TEST_COLUMN"));
-        });
+        }
     }
 
     [Test]
@@ -44,11 +44,11 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var table = await GetTableAsync("table_test_table_6").ConfigureAwait(false);
         var uk = table.UniqueKeys.Single();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(uk.Columns, Has.Exactly(1).Items);
             Assert.That(uk.Columns.Single().Name.LocalName, Is.EqualTo("TEST_COLUMN"));
-        });
+        }
     }
 
     [Test]
@@ -70,11 +70,11 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var ukColumns = uk.Columns.ToList();
         var ukColumnNames = ukColumns.ConvertAll(c => c.Name.LocalName);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(ukColumns, Has.Exactly(3).Items);
             Assert.That(ukColumnNames, Is.EqualTo(expectedColumnNames));
-        });
+        }
     }
 
     [Test]

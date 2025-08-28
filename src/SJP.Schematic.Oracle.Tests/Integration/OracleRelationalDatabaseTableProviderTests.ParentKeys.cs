@@ -22,11 +22,11 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
         var foreignKey = table.ParentKeys.Single();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(foreignKey.ChildKey.Name.UnwrapSome().LocalName, Is.EqualTo("FK_TEST_TABLE_16"));
             Assert.That(foreignKey.ParentKey.Name.UnwrapSome().LocalName, Is.EqualTo("PK_TEST_TABLE_15"));
-        });
+        }
     }
 
     [Test]
@@ -35,11 +35,11 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
         var foreignKey = table.ParentKeys.Single();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(foreignKey.ChildKey.KeyType, Is.EqualTo(DatabaseKeyType.Foreign));
             Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Primary));
-        });
+        }
     }
 
     [Test]
@@ -48,11 +48,11 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
         var foreignKey = table.ParentKeys.Single();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(foreignKey.ChildTable.LocalName, Is.EqualTo("TABLE_TEST_TABLE_16"));
             Assert.That(foreignKey.ParentTable.LocalName, Is.EqualTo("TABLE_TEST_TABLE_15"));
-        });
+        }
     }
 
     [Test]
@@ -67,11 +67,11 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var expectedChildColumns = new[] { "FIRST_NAME_CHILD" };
         var expectedParentColumns = new[] { "FIRST_NAME_PARENT" };
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(childColumns, Is.EqualTo(expectedChildColumns));
             Assert.That(parentColumns, Is.EqualTo(expectedParentColumns));
-        });
+        }
     }
 
     [Test]
@@ -140,11 +140,11 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
         var foreignKey = table.ParentKeys.Single();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(foreignKey.ChildKey.Name.UnwrapSome().LocalName, Is.EqualTo("FK_TEST_TABLE_17"));
             Assert.That(foreignKey.ParentKey.Name.UnwrapSome().LocalName, Is.EqualTo("UK_TEST_TABLE_15"));
-        });
+        }
     }
 
     [Test]
@@ -153,11 +153,11 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
         var foreignKey = table.ParentKeys.Single();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(foreignKey.ChildKey.KeyType, Is.EqualTo(DatabaseKeyType.Foreign));
             Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
-        });
+        }
     }
 
     [Test]
@@ -166,11 +166,11 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
         var foreignKey = table.ParentKeys.Single();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(foreignKey.ChildTable.LocalName, Is.EqualTo("TABLE_TEST_TABLE_17"));
             Assert.That(foreignKey.ParentTable.LocalName, Is.EqualTo("TABLE_TEST_TABLE_15"));
-        });
+        }
     }
 
     [Test]
@@ -185,11 +185,11 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var expectedChildColumns = new[] { "LAST_NAME_CHILD", "MIDDLE_NAME_CHILD" };
         var expectedParentColumns = new[] { "LAST_NAME_PARENT", "MIDDLE_NAME_PARENT" };
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(childColumns, Is.EqualTo(expectedChildColumns));
             Assert.That(parentColumns, Is.EqualTo(expectedParentColumns));
-        });
+        }
     }
 
     [Test]

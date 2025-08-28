@@ -38,11 +38,11 @@ internal static class IdentifierTests
         const string schema = "schema";
         var identifier = new Identifier(schema, localName);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(identifier.LocalName, Is.EqualTo(localName));
             Assert.That(identifier.Schema, Is.EqualTo(schema));
-        });
+        }
     }
 
     [Test, Combinatorial]
@@ -63,12 +63,12 @@ internal static class IdentifierTests
         const string database = "database";
         var identifier = new Identifier(database, schema, localName);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(identifier.LocalName, Is.EqualTo(localName));
             Assert.That(identifier.Schema, Is.EqualTo(schema));
             Assert.That(identifier.Database, Is.EqualTo(database));
-        });
+        }
     }
 
     [Test]
@@ -91,13 +91,13 @@ internal static class IdentifierTests
         const string server = "server";
         var identifier = new Identifier(server, database, schema, localName);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(identifier.LocalName, Is.EqualTo(localName));
             Assert.That(identifier.Schema, Is.EqualTo(schema));
             Assert.That(identifier.Database, Is.EqualTo(database));
             Assert.That(identifier.Server, Is.EqualTo(server));
-        });
+        }
     }
 
     [Test]
@@ -181,12 +181,12 @@ internal static class IdentifierTests
         object identifier = new Identifier(name, name);
         object otherIdentifier = new Identifier(otherName, name);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(identifier, Is.Not.EqualTo(null));
             Assert.That(identifier, Is.Not.EqualTo(1));
             Assert.That(identifier, Is.Not.EqualTo(otherIdentifier));
-        });
+        }
     }
 
     [Test]
@@ -194,13 +194,13 @@ internal static class IdentifierTests
     {
         var identifier = new Identifier("test");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(identifier.Server, Is.Null);
             Assert.That(identifier.Database, Is.Null);
             Assert.That(identifier.Schema, Is.Null);
             Assert.That(identifier.LocalName, Is.Not.Null);
-        });
+        }
     }
 
     [Test]
@@ -208,13 +208,13 @@ internal static class IdentifierTests
     {
         var identifier = Identifier.CreateQualifiedIdentifier("a", "b", "c", "d");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(identifier.Server, Is.EqualTo("a"));
             Assert.That(identifier.Database, Is.EqualTo("b"));
             Assert.That(identifier.Schema, Is.EqualTo("c"));
             Assert.That(identifier.LocalName, Is.EqualTo("d"));
-        });
+        }
     }
 
     [Test]
@@ -222,13 +222,13 @@ internal static class IdentifierTests
     {
         var identifier = Identifier.CreateQualifiedIdentifier(null, "b", "c", "d");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(identifier.Server, Is.Null);
             Assert.That(identifier.Database, Is.EqualTo("b"));
             Assert.That(identifier.Schema, Is.EqualTo("c"));
             Assert.That(identifier.LocalName, Is.EqualTo("d"));
-        });
+        }
     }
 
     [Test]
@@ -236,13 +236,13 @@ internal static class IdentifierTests
     {
         var identifier = Identifier.CreateQualifiedIdentifier(null, null, "c", "d");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(identifier.Server, Is.Null);
             Assert.That(identifier.Database, Is.Null);
             Assert.That(identifier.Schema, Is.EqualTo("c"));
             Assert.That(identifier.LocalName, Is.EqualTo("d"));
-        });
+        }
     }
 
     [Test]
@@ -250,13 +250,13 @@ internal static class IdentifierTests
     {
         var identifier = Identifier.CreateQualifiedIdentifier(null, null, null, "d");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(identifier.Server, Is.Null);
             Assert.That(identifier.Database, Is.Null);
             Assert.That(identifier.Schema, Is.Null);
             Assert.That(identifier.LocalName, Is.EqualTo("d"));
-        });
+        }
     }
 
     [Test]
@@ -264,13 +264,13 @@ internal static class IdentifierTests
     {
         var identifier = Identifier.CreateQualifiedIdentifier("b", "c", "d");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(identifier.Server, Is.Null);
             Assert.That(identifier.Database, Is.EqualTo("b"));
             Assert.That(identifier.Schema, Is.EqualTo("c"));
             Assert.That(identifier.LocalName, Is.EqualTo("d"));
-        });
+        }
     }
 
     [Test]
@@ -278,13 +278,13 @@ internal static class IdentifierTests
     {
         var identifier = Identifier.CreateQualifiedIdentifier(null, "c", "d");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(identifier.Server, Is.Null);
             Assert.That(identifier.Database, Is.Null);
             Assert.That(identifier.Schema, Is.EqualTo("c"));
             Assert.That(identifier.LocalName, Is.EqualTo("d"));
-        });
+        }
     }
 
     [Test]
@@ -292,13 +292,13 @@ internal static class IdentifierTests
     {
         var identifier = Identifier.CreateQualifiedIdentifier(null, null, "d");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(identifier.Server, Is.Null);
             Assert.That(identifier.Database, Is.Null);
             Assert.That(identifier.Schema, Is.Null);
             Assert.That(identifier.LocalName, Is.EqualTo("d"));
-        });
+        }
     }
 
     [Test]
@@ -306,13 +306,13 @@ internal static class IdentifierTests
     {
         var identifier = Identifier.CreateQualifiedIdentifier("c", "d");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(identifier.Server, Is.Null);
             Assert.That(identifier.Database, Is.Null);
             Assert.That(identifier.Schema, Is.EqualTo("c"));
             Assert.That(identifier.LocalName, Is.EqualTo("d"));
-        });
+        }
     }
 
     [Test]
@@ -320,13 +320,13 @@ internal static class IdentifierTests
     {
         var identifier = Identifier.CreateQualifiedIdentifier(null, "d");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(identifier.Server, Is.Null);
             Assert.That(identifier.Database, Is.Null);
             Assert.That(identifier.Schema, Is.Null);
             Assert.That(identifier.LocalName, Is.EqualTo("d"));
-        });
+        }
     }
 
     [Test]
@@ -334,13 +334,13 @@ internal static class IdentifierTests
     {
         var identifier = Identifier.CreateQualifiedIdentifier("d");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(identifier.Server, Is.Null);
             Assert.That(identifier.Database, Is.Null);
             Assert.That(identifier.Schema, Is.Null);
             Assert.That(identifier.LocalName, Is.EqualTo("d"));
-        });
+        }
     }
 
     [TestCase(null, null, null, null)]
@@ -352,11 +352,11 @@ internal static class IdentifierTests
     [TestCase(null, null, "c", null)]
     public static void CreateQualifiedIdentifier_GivenInvalidArguments_ThrowsArgumentNullException(string serverName, string databaseName, string schemaName, string localName)
     {
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(() => Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName), Throws.ArgumentNullException);
             Assert.That(() => Identifier.CreateQualifiedIdentifier(null, null, null, null), Throws.ArgumentNullException);
-        });
+        }
     }
 
     [Test]

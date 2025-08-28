@@ -253,11 +253,11 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var indexInfos = await dbPragma.IndexInfoAsync("ix_test_index").ConfigureAwait(false);
         var indexInfo = indexInfos.Single();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(indexInfo, Is.Not.Null);
             Assert.That(indexInfo.name, Is.EqualTo("val")); // first column
-        });
+        }
     }
 
     [Test]
@@ -272,11 +272,11 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var indexList = await dbPragma.IndexListAsync("test_table").ConfigureAwait(false);
         var firstIndex = indexList.First();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(firstIndex, Is.Not.Null);
             Assert.That(firstIndex.name, Is.EqualTo("ix_test_index"));
-        });
+        }
     }
 
     [Test]
@@ -310,11 +310,11 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var indexXInfos = await dbPragma.IndexXInfoAsync("ix_test_index").ConfigureAwait(false);
         var indexXInfo = indexXInfos.First(info => info.cid >= 0);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(indexXInfo, Is.Not.Null);
             Assert.That(indexXInfo.name, Is.EqualTo("val")); // first column
-        });
+        }
     }
 
     [Test]

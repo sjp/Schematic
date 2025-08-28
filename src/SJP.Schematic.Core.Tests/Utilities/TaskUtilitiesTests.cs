@@ -18,11 +18,11 @@ internal static class TaskUtilitiesTests
             Task.FromResult("2")
         );
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(task1Result, Is.EqualTo(1));
             Assert.That(task2Result, Is.EqualTo("2"));
-        });
+        }
     }
 
     [Test]
@@ -38,12 +38,12 @@ internal static class TaskUtilitiesTests
             Task.FromResult(3)
         );
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(task1Result, Is.EqualTo(1));
             Assert.That(task2Result, Is.EqualTo("2"));
             Assert.That(task3Result, Is.EqualTo(3));
-        });
+        }
     }
 
     [Test]
@@ -61,13 +61,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult("4")
         );
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(task1Result, Is.EqualTo(1));
             Assert.That(task2Result, Is.EqualTo("2"));
             Assert.That(task3Result, Is.EqualTo(3));
             Assert.That(task4Result, Is.EqualTo("4"));
-        });
+        }
     }
 
     [Test]
@@ -87,14 +87,14 @@ internal static class TaskUtilitiesTests
             Task.FromResult(5)
         );
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(task1Result, Is.EqualTo(1));
             Assert.That(task2Result, Is.EqualTo("2"));
             Assert.That(task3Result, Is.EqualTo(3));
             Assert.That(task4Result, Is.EqualTo("4"));
             Assert.That(task5Result, Is.EqualTo(5));
-        });
+        }
     }
 
     [Test]
@@ -116,7 +116,7 @@ internal static class TaskUtilitiesTests
             Task.FromResult("6")
         );
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(task1Result, Is.EqualTo(1));
             Assert.That(task2Result, Is.EqualTo("2"));
@@ -124,7 +124,7 @@ internal static class TaskUtilitiesTests
             Assert.That(task4Result, Is.EqualTo("4"));
             Assert.That(task5Result, Is.EqualTo(5));
             Assert.That(task6Result, Is.EqualTo("6"));
-        });
+        }
     }
 
     [Test]
@@ -148,7 +148,7 @@ internal static class TaskUtilitiesTests
             Task.FromResult(7)
         );
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(task1Result, Is.EqualTo(1));
             Assert.That(task2Result, Is.EqualTo("2"));
@@ -157,7 +157,7 @@ internal static class TaskUtilitiesTests
             Assert.That(task5Result, Is.EqualTo(5));
             Assert.That(task6Result, Is.EqualTo("6"));
             Assert.That(task7Result, Is.EqualTo(7));
-        });
+        }
     }
 
     [Test]
@@ -183,7 +183,7 @@ internal static class TaskUtilitiesTests
             Task.FromResult("8")
         );
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(task1Result, Is.EqualTo(1));
             Assert.That(task2Result, Is.EqualTo("2"));
@@ -193,7 +193,7 @@ internal static class TaskUtilitiesTests
             Assert.That(task6Result, Is.EqualTo("6"));
             Assert.That(task7Result, Is.EqualTo(7));
             Assert.That(task8Result, Is.EqualTo("8"));
-        });
+        }
     }
 
     [Test]
@@ -221,7 +221,7 @@ internal static class TaskUtilitiesTests
             Task.FromResult(9)
         );
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(task1Result, Is.EqualTo(1));
             Assert.That(task2Result, Is.EqualTo("2"));
@@ -232,7 +232,7 @@ internal static class TaskUtilitiesTests
             Assert.That(task7Result, Is.EqualTo(7));
             Assert.That(task8Result, Is.EqualTo("8"));
             Assert.That(task9Result, Is.EqualTo(9));
-        });
+        }
     }
 
     [Test]
@@ -262,7 +262,7 @@ internal static class TaskUtilitiesTests
             Task.FromResult("10")
         );
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(task1Result, Is.EqualTo(1));
             Assert.That(task2Result, Is.EqualTo("2"));
@@ -274,7 +274,7 @@ internal static class TaskUtilitiesTests
             Assert.That(task8Result, Is.EqualTo("8"));
             Assert.That(task9Result, Is.EqualTo(9));
             Assert.That(task10Result, Is.EqualTo("10"));
-        });
+        }
     }
 
     [Test]
@@ -306,7 +306,7 @@ internal static class TaskUtilitiesTests
             Task.FromResult(11)
         );
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(task1Result, Is.EqualTo(1));
             Assert.That(task2Result, Is.EqualTo("2"));
@@ -319,7 +319,7 @@ internal static class TaskUtilitiesTests
             Assert.That(task9Result, Is.EqualTo(9));
             Assert.That(task10Result, Is.EqualTo("10"));
             Assert.That(task11Result, Is.EqualTo(11));
-        });
+        }
     }
 
     [Test]
@@ -353,7 +353,7 @@ internal static class TaskUtilitiesTests
             Task.FromResult("12")
         );
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(task1Result, Is.EqualTo(1));
             Assert.That(task2Result, Is.EqualTo("2"));
@@ -367,7 +367,7 @@ internal static class TaskUtilitiesTests
             Assert.That(task10Result, Is.EqualTo("10"));
             Assert.That(task11Result, Is.EqualTo(11));
             Assert.That(task12Result, Is.EqualTo("12"));
-        });
+        }
     }
 
     [Test]
@@ -403,7 +403,7 @@ internal static class TaskUtilitiesTests
             Task.FromResult(13)
         );
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(task1Result, Is.EqualTo(1));
             Assert.That(task2Result, Is.EqualTo("2"));
@@ -418,7 +418,7 @@ internal static class TaskUtilitiesTests
             Assert.That(task11Result, Is.EqualTo(11));
             Assert.That(task12Result, Is.EqualTo("12"));
             Assert.That(task13Result, Is.EqualTo(13));
-        });
+        }
     }
 
     [Test]
@@ -456,7 +456,7 @@ internal static class TaskUtilitiesTests
             Task.FromResult("14")
         );
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(task1Result, Is.EqualTo(1));
             Assert.That(task2Result, Is.EqualTo("2"));
@@ -472,7 +472,7 @@ internal static class TaskUtilitiesTests
             Assert.That(task12Result, Is.EqualTo("12"));
             Assert.That(task13Result, Is.EqualTo(13));
             Assert.That(task14Result, Is.EqualTo("14"));
-        });
+        }
     }
 
     [Test]
@@ -512,7 +512,7 @@ internal static class TaskUtilitiesTests
             Task.FromResult(15)
         );
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(task1Result, Is.EqualTo(1));
             Assert.That(task2Result, Is.EqualTo("2"));
@@ -529,7 +529,7 @@ internal static class TaskUtilitiesTests
             Assert.That(task13Result, Is.EqualTo(13));
             Assert.That(task14Result, Is.EqualTo("14"));
             Assert.That(task15Result, Is.EqualTo(15));
-        });
+        }
     }
 
     [Test]
@@ -571,7 +571,7 @@ internal static class TaskUtilitiesTests
             Task.FromResult("16")
         );
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(task1Result, Is.EqualTo(1));
             Assert.That(task2Result, Is.EqualTo("2"));
@@ -589,7 +589,7 @@ internal static class TaskUtilitiesTests
             Assert.That(task14Result, Is.EqualTo("14"));
             Assert.That(task15Result, Is.EqualTo(15));
             Assert.That(task16Result, Is.EqualTo("16"));
-        });
+        }
     }
 
     [Test]

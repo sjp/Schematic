@@ -24,11 +24,11 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
             .Select(c => c.DependentColumns.Single())
             .ToList();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(indexColumns, Has.Exactly(1).Items);
             Assert.That(indexColumns.Single().Name.LocalName, Is.EqualTo("test_column"));
-        });
+        }
     }
 
     [Test]
@@ -52,11 +52,11 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
             .Select(c => c.Name.LocalName)
             .ToList();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(indexColumns, Has.Exactly(3).Items);
             Assert.That(indexColumns, Is.EqualTo(expectedColumnNames));
-        });
+        }
     }
 
     [Test]
@@ -105,10 +105,10 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
         var index1 = table.Indexes.Single(i => i.Name.LocalName == "ix_test_table_38_1");
         var index2 = table.Indexes.Single(i => i.Name.LocalName == "ix_test_table_38_2");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(index1.FilterDefinition, OptionIs.None);
             Assert.That(index2.FilterDefinition.UnwrapSome(), Is.EqualTo("test_column_2 < 100 and test_column_2 > 3"));
-        });
+        }
     }
 }

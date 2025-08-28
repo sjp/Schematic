@@ -22,11 +22,11 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
         await Serializer.SerializeAsync(jsonOutputStream, comments).ConfigureAwait(false);
         var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(json, Is.Not.Null);
             Assert.That(json, Is.Not.Empty);
-        });
+        }
     }
 
     [Test]
@@ -59,12 +59,12 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
         await Serializer.SerializeAsync(jsonOutputStream2, importedComments).ConfigureAwait(false);
         var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(reExportedJson, Is.Not.Null);
             Assert.That(reExportedJson, Is.Not.Empty);
             Assert.That(reExportedJson, Is.EqualTo(json));
-        });
+        }
     }
 
     [Test]
@@ -97,12 +97,12 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
         await Serializer.SerializeAsync(jsonOutputStream2, importedComments).ConfigureAwait(false);
         var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(reExportedJson, Is.Not.Null);
             Assert.That(reExportedJson, Is.Not.Empty);
             Assert.That(reExportedJson, Is.EqualTo(json));
-        });
+        }
     }
 
     private static IRelationalDatabaseCommentProvider SampleComments { get; } =

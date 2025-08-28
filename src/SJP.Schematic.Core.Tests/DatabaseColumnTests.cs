@@ -129,11 +129,11 @@ internal static class DatabaseColumnTests
 
         var column = new DatabaseColumn(columnName, dbType, isNullable, defaultValue, autoIncrement);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(column.AutoIncrement.UnwrapSome().Increment, Is.EqualTo(increment));
             Assert.That(column.AutoIncrement.UnwrapSome().InitialValue, Is.EqualTo(initialValue));
-        });
+        }
     }
 
     [Test]

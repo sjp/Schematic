@@ -42,7 +42,7 @@ internal sealed class EfCoreSakilaDataAccessGeneratorTests : SakilaTest
         var generator = new EFCoreDataAccessGenerator(mockFs, Database, new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults), nameTranslator);
         await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(mockFs.FileExists(projectPath), Is.True);
             Assert.That(mockFs.FileExists(expectedAppContextPath), Is.True);
@@ -50,7 +50,7 @@ internal sealed class EfCoreSakilaDataAccessGeneratorTests : SakilaTest
             Assert.That(mockFs.Directory.Exists(viewsDir), Is.True);
             Assert.That(mockFs.FileExists(expectedTablePath), Is.True);
             Assert.That(mockFs.FileExists(expectedViewPath), Is.True);
-        });
+        }
     }
 
     [Test, Ignore("Skipping to improve unit test perf")]

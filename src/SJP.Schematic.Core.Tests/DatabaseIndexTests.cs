@@ -183,11 +183,11 @@ internal static class DatabaseIndexTests
 
         var index = new DatabaseIndex(indexName, false, columns, includedColumns, true, Option<string>.Some(filterDefinition));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(index.FilterDefinition, OptionIs.Some);
             Assert.That(index.FilterDefinition.UnwrapSome(), Is.EqualTo(filterDefinition));
-        });
+        }
     }
 
     [TestCase("test_index", "Index: test_index")]

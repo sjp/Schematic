@@ -62,11 +62,11 @@ end
         const TriggerQueryTiming timing = TriggerQueryTiming.After;
         const TriggerEvent events = TriggerEvent.Insert;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
             Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
-        });
+        }
     }
 
     [Test]
@@ -78,11 +78,11 @@ end
         const TriggerQueryTiming timing = TriggerQueryTiming.After;
         const TriggerEvent events = TriggerEvent.Update;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
             Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
-        });
+        }
     }
 
     [Test]
@@ -94,11 +94,11 @@ end
         const TriggerQueryTiming timing = TriggerQueryTiming.After;
         const TriggerEvent events = TriggerEvent.Delete;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
             Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
-        });
+        }
     }
 
     [Test]
@@ -110,11 +110,11 @@ end
         const TriggerQueryTiming timing = TriggerQueryTiming.After;
         const TriggerEvent events = TriggerEvent.Insert;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
             Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
-        });
+        }
     }
 
     [Test]
@@ -126,11 +126,11 @@ end
         const TriggerQueryTiming timing = TriggerQueryTiming.After;
         const TriggerEvent events = TriggerEvent.Update;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
             Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
-        });
+        }
     }
 
     [Test]
@@ -142,11 +142,11 @@ end
         const TriggerQueryTiming timing = TriggerQueryTiming.After;
         const TriggerEvent events = TriggerEvent.Delete;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
             Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
-        });
+        }
     }
 
     [Test]
@@ -158,11 +158,11 @@ end
         const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
         const TriggerEvent events = TriggerEvent.Insert;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
             Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
-        });
+        }
     }
 
     [Test]
@@ -174,11 +174,11 @@ end
         const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
         const TriggerEvent events = TriggerEvent.Update;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
             Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
-        });
+        }
     }
 
     [Test]
@@ -190,10 +190,10 @@ end
         const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
         const TriggerEvent events = TriggerEvent.Delete;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
             Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
-        });
+        }
     }
 }

@@ -314,7 +314,7 @@ internal static class RelationalDatabaseTableCommentsTests
 
         var propColumnComments = comments.ColumnComments;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(columnComments.Keys, Is.EqualTo(propColumnComments.Keys));
 
@@ -324,7 +324,7 @@ internal static class RelationalDatabaseTableCommentsTests
 
             Assert.That(columnComments["test_column_2"].UnwrapSome(), Is.EqualTo(propColumnComments["test_column_2"].UnwrapSome()));
             Assert.That(columnComments["test_column_3"].UnwrapSome(), Is.EqualTo(propColumnComments["test_column_3"].UnwrapSome()));
-        });
+        }
     }
 
     [Test]
@@ -408,7 +408,7 @@ internal static class RelationalDatabaseTableCommentsTests
 
         var propCheckComments = comments.CheckComments;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(checkComments.Keys, Is.EqualTo(propCheckComments.Keys));
 
@@ -418,7 +418,7 @@ internal static class RelationalDatabaseTableCommentsTests
 
             Assert.That(checkComments["test_check_2"].UnwrapSome(), Is.EqualTo(propCheckComments["test_check_2"].UnwrapSome()));
             Assert.That(checkComments["test_check_3"].UnwrapSome(), Is.EqualTo(propCheckComments["test_check_3"].UnwrapSome()));
-        });
+        }
     }
 
     [Test]
@@ -502,7 +502,7 @@ internal static class RelationalDatabaseTableCommentsTests
 
         var propUniqueKeyComments = comments.UniqueKeyComments;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(uniqueKeyComments.Keys, Is.EqualTo(propUniqueKeyComments.Keys));
 
@@ -512,7 +512,7 @@ internal static class RelationalDatabaseTableCommentsTests
 
             Assert.That(uniqueKeyComments["test_uk_2"].UnwrapSome(), Is.EqualTo(propUniqueKeyComments["test_uk_2"].UnwrapSome()));
             Assert.That(uniqueKeyComments["test_uk_3"].UnwrapSome(), Is.EqualTo(propUniqueKeyComments["test_uk_3"].UnwrapSome()));
-        });
+        }
     }
 
     [Test]
@@ -596,7 +596,7 @@ internal static class RelationalDatabaseTableCommentsTests
 
         var propForeignKeyComments = comments.ForeignKeyComments;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(foreignKeyComments.Keys, Is.EqualTo(propForeignKeyComments.Keys));
 
@@ -606,7 +606,7 @@ internal static class RelationalDatabaseTableCommentsTests
 
             Assert.That(foreignKeyComments["test_fk_2"].UnwrapSome(), Is.EqualTo(propForeignKeyComments["test_fk_2"].UnwrapSome()));
             Assert.That(foreignKeyComments["test_fk_3"].UnwrapSome(), Is.EqualTo(propForeignKeyComments["test_fk_3"].UnwrapSome()));
-        });
+        }
     }
 
     [Test]
@@ -690,7 +690,7 @@ internal static class RelationalDatabaseTableCommentsTests
 
         var propIndexComments = comments.IndexComments;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(indexComments.Keys, Is.EqualTo(propIndexComments.Keys));
 
@@ -700,7 +700,7 @@ internal static class RelationalDatabaseTableCommentsTests
 
             Assert.That(indexComments["test_ix_2"].UnwrapSome(), Is.EqualTo(propIndexComments["test_ix_2"].UnwrapSome()));
             Assert.That(indexComments["test_ix_3"].UnwrapSome(), Is.EqualTo(propIndexComments["test_ix_3"].UnwrapSome()));
-        });
+        }
     }
 
     [Test]
@@ -784,7 +784,7 @@ internal static class RelationalDatabaseTableCommentsTests
 
         var propTriggerComments = comments.TriggerComments;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(triggerComments.Keys, Is.EqualTo(propTriggerComments.Keys));
 
@@ -794,6 +794,6 @@ internal static class RelationalDatabaseTableCommentsTests
 
             Assert.That(triggerComments["test_trigger_2"].UnwrapSome(), Is.EqualTo(propTriggerComments["test_trigger_2"].UnwrapSome()));
             Assert.That(triggerComments["test_trigger_3"].UnwrapSome(), Is.EqualTo(propTriggerComments["test_trigger_3"].UnwrapSome()));
-        });
+        }
     }
 }

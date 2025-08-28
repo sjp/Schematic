@@ -22,11 +22,11 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         await Serializer.SerializeAsync(jsonOutputStream, db).ConfigureAwait(false);
         var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(json, Is.Not.Null);
             Assert.That(json, Is.Not.Empty);
-        });
+        }
     }
 
     [Test]
@@ -59,12 +59,12 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
         var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(reExportedJson, Is.Not.Null);
             Assert.That(reExportedJson, Is.Not.Empty);
             Assert.That(reExportedJson, Is.EqualTo(json));
-        });
+        }
     }
 
     [Test]
@@ -97,12 +97,12 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
         var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(reExportedJson, Is.Not.Null);
             Assert.That(reExportedJson, Is.Not.Empty);
             Assert.That(reExportedJson, Is.EqualTo(json));
-        });
+        }
     }
 
     // the above covers tables and views, but as the test database has no sequences, synonyms and routines we need to implement it
@@ -184,12 +184,12 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
         var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(reExportedJson, Is.Not.Null);
             Assert.That(reExportedJson, Is.Not.Empty);
             Assert.That(reExportedJson, Is.EqualTo(json));
-        });
+        }
     }
 
     [Test]
@@ -254,12 +254,12 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
         var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(reExportedJson, Is.Not.Null);
             Assert.That(reExportedJson, Is.Not.Empty);
             Assert.That(reExportedJson, Is.EqualTo(json));
-        });
+        }
     }
 
     [Test]
@@ -324,11 +324,11 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         await Serializer.SerializeAsync(jsonOutputStream2, importedDb).ConfigureAwait(false);
         var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(reExportedJson, Is.Not.Null);
             Assert.That(reExportedJson, Is.Not.Empty);
             Assert.That(reExportedJson, Is.EqualTo(json));
-        });
+        }
     }
 }

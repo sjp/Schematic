@@ -34,13 +34,13 @@ internal static class DictionaryExtensionsTests
         };
         var result = input.ToDictionary();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.ContainsKey("a"), Is.True);
             Assert.That(result.ContainsKey("b"), Is.True);
             Assert.That(result["a"], Is.EqualTo("A"));
             Assert.That(result["b"], Is.EqualTo("B"));
-        });
+        }
     }
 
     [Test]
@@ -76,13 +76,13 @@ internal static class DictionaryExtensionsTests
         };
         var result = input.ToDictionary(StringComparer.OrdinalIgnoreCase);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.ContainsKey("A"), Is.True);
             Assert.That(result.ContainsKey("B"), Is.True);
             Assert.That(result["A"], Is.EqualTo("A"));
             Assert.That(result["B"], Is.EqualTo("B"));
-        });
+        }
     }
 
     [Test]
@@ -111,13 +111,13 @@ internal static class DictionaryExtensionsTests
         };
         var result = input.ToReadOnlyDictionary();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.ContainsKey("a"), Is.True);
             Assert.That(result.ContainsKey("b"), Is.True);
             Assert.That(result["a"], Is.EqualTo("A"));
             Assert.That(result["b"], Is.EqualTo("B"));
-        });
+        }
     }
 
     [Test]
@@ -153,12 +153,12 @@ internal static class DictionaryExtensionsTests
         };
         var result = input.ToReadOnlyDictionary(StringComparer.OrdinalIgnoreCase);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.ContainsKey("A"), Is.True);
             Assert.That(result.ContainsKey("B"), Is.True);
             Assert.That(result["A"], Is.EqualTo("A"));
             Assert.That(result["B"], Is.EqualTo("B"));
-        });
+        }
     }
 }

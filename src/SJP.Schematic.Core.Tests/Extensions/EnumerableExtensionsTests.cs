@@ -140,7 +140,7 @@ internal static class EnumerableExtensionsTests
         var source = new[] { "a", "bb", "ccc", "ddd", "eeeee" };
         var grouping = source.GroupAsDictionary(x => x.Length);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(grouping, Has.Exactly(4).Items);
 
@@ -157,7 +157,7 @@ internal static class EnumerableExtensionsTests
 
             Assert.That(grouping, Does.ContainKey(5));
             Assert.That(grouping[5], Is.EquivalentTo(new[] { "eeeee" }));
-        });
+        }
     }
 
     [Test]
@@ -166,7 +166,7 @@ internal static class EnumerableExtensionsTests
         var source = new[] { "a", "bb", "ccc", "CCC", "eeeee" };
         var grouping = source.GroupAsDictionary(x => x, StringComparer.OrdinalIgnoreCase);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(grouping, Has.Exactly(4).Items);
 
@@ -181,7 +181,7 @@ internal static class EnumerableExtensionsTests
 
             Assert.That(grouping, Does.ContainKey("eeeee"));
             Assert.That(grouping["eeeee"], Is.EquivalentTo(new[] { "eeeee" }));
-        });
+        }
     }
 
     [Test]
@@ -190,7 +190,7 @@ internal static class EnumerableExtensionsTests
         var source = new[] { "a", "bb", "ccc", "CCC", "eeeee" };
         var grouping = source.GroupAsDictionary(x => x, null);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(grouping, Has.Exactly(5).Items);
 
@@ -208,6 +208,6 @@ internal static class EnumerableExtensionsTests
 
             Assert.That(grouping, Does.ContainKey("eeeee"));
             Assert.That(grouping["eeeee"], Is.EquivalentTo(new[] { "eeeee" }));
-        });
+        }
     }
 }

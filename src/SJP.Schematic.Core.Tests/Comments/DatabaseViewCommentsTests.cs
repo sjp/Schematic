@@ -105,7 +105,7 @@ internal static class DatabaseViewCommentsTests
 
         var propColumnComments = comments.ColumnComments;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(columnComments.Keys, Is.EqualTo(propColumnComments.Keys));
 
@@ -115,6 +115,6 @@ internal static class DatabaseViewCommentsTests
 
             Assert.That(columnComments["test_column_2"].UnwrapSome(), Is.EqualTo(propColumnComments["test_column_2"].UnwrapSome()));
             Assert.That(columnComments["test_column_3"].UnwrapSome(), Is.EqualTo(propColumnComments["test_column_3"].UnwrapSome()));
-        });
+        }
     }
 }

@@ -279,11 +279,11 @@ internal static class RelationalDatabaseTests
         var dbTable = await database.GetTable(testTableName).ToOption().ConfigureAwait(false);
         var tableName = dbTable.Match(t => t.Name.LocalName, string.Empty);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(dbTable, OptionIs.Some);
             Assert.That(tableName, Is.EqualTo(testTableName.LocalName));
-        });
+        }
     }
 
     [Test]
@@ -378,11 +378,11 @@ internal static class RelationalDatabaseTests
         var dbView = await database.GetView(testViewName).ToOption().ConfigureAwait(false);
         var viewName = dbView.Match(v => v.Name.LocalName, string.Empty);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(dbView, OptionIs.Some);
             Assert.That(viewName, Is.EqualTo(testViewName.LocalName));
-        });
+        }
     }
 
     [Test]
@@ -478,11 +478,11 @@ internal static class RelationalDatabaseTests
         var dbSequence = await database.GetSequence(testSequenceName).ToOption().ConfigureAwait(false);
         var sequenceName = dbSequence.Match(s => s.Name.LocalName, string.Empty);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(dbSequence, OptionIs.Some);
             Assert.That(sequenceName, Is.EqualTo(testSequenceName.LocalName));
-        });
+        }
     }
 
     [Test]
@@ -578,11 +578,11 @@ internal static class RelationalDatabaseTests
         var dbSynonym = await database.GetSynonym(testSynonymName).ToOption().ConfigureAwait(false);
         var synonymName = dbSynonym.Match(s => s.Name.LocalName, string.Empty);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(dbSynonym, OptionIs.Some);
             Assert.That(synonymName, Is.EqualTo(testSynonymName.LocalName));
-        });
+        }
     }
 
     [Test]
@@ -677,11 +677,11 @@ internal static class RelationalDatabaseTests
         var dbRoutine = await database.GetRoutine(testRoutineName).ToOption().ConfigureAwait(false);
         var routineName = dbRoutine.Match(r => r.Name.LocalName, string.Empty);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(dbRoutine, OptionIs.Some);
             Assert.That(routineName, Is.EqualTo(testRoutineName.LocalName));
-        });
+        }
     }
 
     [Test]

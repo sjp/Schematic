@@ -23,11 +23,11 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_16", StringComparison.Ordinal));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(foreignKey.ChildKey.Name.UnwrapSome().LocalName, Is.EqualTo("fk_test_table_16"));
             Assert.That(foreignKey.ParentKey.Name.UnwrapSome().LocalName, Is.EqualTo("pk_test_table_15"));
-        });
+        }
     }
 
     [Test]
@@ -36,11 +36,11 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_16", StringComparison.Ordinal));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(foreignKey.ChildKey.KeyType, Is.EqualTo(DatabaseKeyType.Foreign));
             Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Primary));
-        });
+        }
     }
 
     [Test]
@@ -49,11 +49,11 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_16", StringComparison.Ordinal));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(foreignKey.ChildTable.LocalName, Is.EqualTo("table_test_table_16"));
             Assert.That(foreignKey.ParentTable.LocalName, Is.EqualTo("table_test_table_15"));
-        });
+        }
     }
 
     [Test]
@@ -68,11 +68,11 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         var expectedChildColumns = new[] { "first_name_child" };
         var expectedParentColumns = new[] { "first_name_parent" };
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(childColumns, Is.EqualTo(expectedChildColumns));
             Assert.That(parentColumns, Is.EqualTo(expectedParentColumns));
-        });
+        }
     }
 
     [Test]
@@ -181,11 +181,11 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_17", StringComparison.Ordinal));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(foreignKey.ChildKey.Name.UnwrapSome().LocalName, Is.EqualTo("fk_test_table_17"));
             Assert.That(foreignKey.ParentKey.Name.UnwrapSome().LocalName, Is.EqualTo("uk_test_table_15"));
-        });
+        }
     }
 
     [Test]
@@ -194,11 +194,11 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_17", StringComparison.Ordinal));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(foreignKey.ChildKey.KeyType, Is.EqualTo(DatabaseKeyType.Foreign));
             Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
-        });
+        }
     }
 
     [Test]
@@ -207,11 +207,11 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_17", StringComparison.Ordinal));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(foreignKey.ChildTable.LocalName, Is.EqualTo("table_test_table_17"));
             Assert.That(foreignKey.ParentTable.LocalName, Is.EqualTo("table_test_table_15"));
-        });
+        }
     }
 
     [Test]
@@ -226,11 +226,11 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         var expectedChildColumns = new[] { "last_name_child", "middle_name_child" };
         var expectedParentColumns = new[] { "last_name_parent", "middle_name_parent" };
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(childColumns, Is.EqualTo(expectedChildColumns));
             Assert.That(parentColumns, Is.EqualTo(expectedParentColumns));
-        });
+        }
     }
 
     [Test]

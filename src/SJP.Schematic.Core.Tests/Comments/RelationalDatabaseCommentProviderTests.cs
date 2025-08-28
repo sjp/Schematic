@@ -298,11 +298,11 @@ internal static class RelationalDatabaseCommentProviderTests
         var dbTableComments = await commentProvider.GetTableComments(testTableName).ToOption().ConfigureAwait(false);
         var tableName = dbTableComments.Match(t => t.TableName.LocalName, string.Empty);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(dbTableComments, OptionIs.Some);
             Assert.That(tableName, Is.EqualTo(testTableName.LocalName));
-        });
+        }
     }
 
     [Test]
@@ -397,11 +397,11 @@ internal static class RelationalDatabaseCommentProviderTests
         var dbViewComments = await commentProvider.GetViewComments(testViewName).ToOption().ConfigureAwait(false);
         var viewName = dbViewComments.Match(v => v.ViewName.LocalName, string.Empty);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(dbViewComments, OptionIs.Some);
             Assert.That(viewName, Is.EqualTo(testViewName.LocalName));
-        });
+        }
     }
 
     [Test]
@@ -497,11 +497,11 @@ internal static class RelationalDatabaseCommentProviderTests
         var dbSequence = await commentProvider.GetSequenceComments(testSequenceName).ToOption().ConfigureAwait(false);
         var sequenceName = dbSequence.Match(s => s.SequenceName.LocalName, string.Empty);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(dbSequence, OptionIs.Some);
             Assert.That(sequenceName, Is.EqualTo(testSequenceName.LocalName));
-        });
+        }
     }
 
     [Test]
@@ -597,11 +597,11 @@ internal static class RelationalDatabaseCommentProviderTests
         var dbSynonym = await commentProvider.GetSynonymComments(testSynonymName).ToOption().ConfigureAwait(false);
         var synonymName = dbSynonym.Match(s => s.SynonymName.LocalName, string.Empty);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(dbSynonym, OptionIs.Some);
             Assert.That(synonymName, Is.EqualTo(testSynonymName.LocalName));
-        });
+        }
     }
 
     [Test]
@@ -696,11 +696,11 @@ internal static class RelationalDatabaseCommentProviderTests
         var dbRoutine = await commentProvider.GetRoutineComments(testRoutineName).ToOption().ConfigureAwait(false);
         var routineName = dbRoutine.Match(r => r.RoutineName.LocalName, string.Empty);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(dbRoutine, OptionIs.Some);
             Assert.That(routineName, Is.EqualTo(testRoutineName.LocalName));
-        });
+        }
     }
 
     [Test]
@@ -782,14 +782,14 @@ internal static class RelationalDatabaseCommentProviderTests
         var snapshotSynonymComments = await snapshot.GetAllSynonymComments().ToListAsync().ConfigureAwait(false);
         var snapshotRoutineComments = await snapshot.GetAllRoutineComments().ToListAsync().ConfigureAwait(false);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(snapshotTableComments, Is.EqualTo(tableComments));
             Assert.That(snapshotViewComments, Is.EqualTo(viewComments));
             Assert.That(snapshotSequenceComments, Is.EqualTo(sequenceComments));
             Assert.That(snapshotSynonymComments, Is.EqualTo(synonymComments));
             Assert.That(snapshotRoutineComments, Is.EqualTo(routineComments));
-        });
+        }
     }
 
     [Test]
@@ -840,7 +840,7 @@ internal static class RelationalDatabaseCommentProviderTests
         var snapshotSynonymComment = await snapshot.GetSynonymComments("test_synonym_name").ToOption().ConfigureAwait(false);
         var snapshotRoutineComment = await snapshot.GetRoutineComments("test_routine_name").ToOption().ConfigureAwait(false);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(snapshotTableComment, OptionIs.Some);
             Assert.That(snapshotTableComment.UnwrapSome().TableName.LocalName, Is.EqualTo("test_table_name"));
@@ -856,6 +856,6 @@ internal static class RelationalDatabaseCommentProviderTests
 
             Assert.That(snapshotRoutineComment, OptionIs.Some);
             Assert.That(snapshotRoutineComment.UnwrapSome().RoutineName.LocalName, Is.EqualTo("test_routine_name"));
-        });
+        }
     }
 }

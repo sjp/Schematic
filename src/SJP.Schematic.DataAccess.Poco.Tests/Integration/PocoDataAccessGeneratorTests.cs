@@ -74,7 +74,7 @@ select
         var generator = new PocoDataAccessGenerator(mockFs, Database, commentProvider, nameTranslator);
         await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(mockFs.FileExists(projectPath), Is.True);
             Assert.That(mockFs.Directory.Exists(tablesDir), Is.True);
@@ -82,7 +82,7 @@ select
             Assert.That(mockFs.FileExists(expectedTable1Path), Is.True);
             Assert.That(mockFs.FileExists(expectedView1Path), Is.True);
             Assert.That(mockFs.FileExists(expectedView2Path), Is.True);
-        });
+        }
     }
 
     [Test, Ignore("Skipping to improve unit test perf")]

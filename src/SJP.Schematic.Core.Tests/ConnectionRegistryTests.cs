@@ -48,11 +48,11 @@ internal static class ConnectionRegistryTests
         var connection = Mock.Of<IDbConnectionFactory>();
         var result = ConnectionRegistry.TryGetConnectionId(connection, out var connectionId);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result, Is.False);
             Assert.That(connectionId, Is.EqualTo(Guid.Empty));
-        });
+        }
     }
 
     [Test]
@@ -64,10 +64,10 @@ internal static class ConnectionRegistryTests
         ConnectionRegistry.RegisterConnection(connectionId, connection);
         var result = ConnectionRegistry.TryGetConnectionId(connection, out var retrievedConnectionId);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result, Is.True);
             Assert.That(retrievedConnectionId, Is.EqualTo(connectionId));
-        });
+        }
     }
 }

@@ -44,10 +44,10 @@ internal static class GraphvizExecutableFactoryTests
 
         using var graphviz = factory.GetExecutable();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(graphviz.DotPath, Does.StartWith(tempPath));
             Assert.That(graphviz.DotPath, Does.EndWith("dot.exe"));
-        });
+        }
     }
 }

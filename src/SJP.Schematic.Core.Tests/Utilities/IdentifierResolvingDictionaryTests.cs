@@ -158,11 +158,11 @@ internal static class IdentifierResolvingDictionaryTests
 
         var keyPresent = resolvingDictionary.TryGetValue("Z", out var value);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(keyPresent, Is.True);
             Assert.That(value, Is.EqualTo("b"));
-        });
+        }
     }
 
     [Test]
@@ -178,11 +178,11 @@ internal static class IdentifierResolvingDictionaryTests
 
         var keyPresent = resolvingDictionary.TryGetValue("B", out var value);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(keyPresent, Is.True);
             Assert.That(value, Is.EqualTo("b"));
-        });
+        }
     }
 
     [Test]
@@ -199,11 +199,11 @@ internal static class IdentifierResolvingDictionaryTests
 
         var keyPresent = resolvingDictionary.TryGetValue("B", out var value);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(keyPresent, Is.False);
             Assert.That(value, Is.Null);
-        });
+        }
     }
 
     [Test]

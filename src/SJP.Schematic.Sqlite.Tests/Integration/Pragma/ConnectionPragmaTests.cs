@@ -133,11 +133,11 @@ internal sealed class ConnectionPragmaTests : SqliteTest
         await connPragma.CaseSensitiveLikeAsync(true).ConfigureAwait(false);
         var sensitiveResult = await connection.ExecuteScalarAsync<int>(query, CancellationToken.None).ConfigureAwait(false);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(insensitiveResult, Is.EqualTo(expectedInsensitive));
             Assert.That(sensitiveResult, Is.EqualTo(expectedSensitive));
-        });
+        }
     }
 
     [Test]

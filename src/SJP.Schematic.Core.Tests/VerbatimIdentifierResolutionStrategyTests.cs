@@ -21,10 +21,10 @@ internal static class VerbatimIdentifierResolutionStrategyTests
 
         var results = resolver.GetResolutionOrder(input).ToList();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(results, Has.Exactly(1).Items);
             Assert.That(results[0], Is.EqualTo(input));
-        });
+        }
     }
 }

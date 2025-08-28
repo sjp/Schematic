@@ -56,12 +56,12 @@ internal static class RelationalDatabaseExtensionsTests
 
         var snapshot = await database.SnapshotAsync().ConfigureAwait(false);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(snapshot.IdentifierDefaults.Server, Is.EqualTo(identifierDefaults.Server));
             Assert.That(snapshot.IdentifierDefaults.Database, Is.EqualTo(identifierDefaults.Database));
             Assert.That(snapshot.IdentifierDefaults.Schema, Is.EqualTo(identifierDefaults.Schema));
-        });
+        }
     }
 
     [Test]
@@ -82,12 +82,12 @@ internal static class RelationalDatabaseExtensionsTests
 
         var snapshot = await database.SnapshotAsync(identifierResolver).ConfigureAwait(false);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(snapshot.IdentifierDefaults.Server, Is.EqualTo(identifierDefaults.Server));
             Assert.That(snapshot.IdentifierDefaults.Database, Is.EqualTo(identifierDefaults.Database));
             Assert.That(snapshot.IdentifierDefaults.Schema, Is.EqualTo(identifierDefaults.Schema));
-        });
+        }
     }
 
     [Test]
@@ -138,14 +138,14 @@ internal static class RelationalDatabaseExtensionsTests
         var snapshotSynonyms = await snapshot.GetAllSynonyms().ToListAsync().ConfigureAwait(false);
         var snapshotRoutines = await snapshot.GetAllRoutines().ToListAsync().ConfigureAwait(false);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(snapshotTables, Is.EqualTo(tables));
             Assert.That(snapshotViews, Is.EqualTo(views));
             Assert.That(snapshotSequences, Is.EqualTo(sequences));
             Assert.That(snapshotSynonyms, Is.EqualTo(synonyms));
             Assert.That(snapshotRoutines, Is.EqualTo(routines));
-        });
+        }
     }
 
     [Test]
@@ -196,14 +196,14 @@ internal static class RelationalDatabaseExtensionsTests
         var snapshotSynonyms = await snapshot.GetAllSynonyms().ToListAsync().ConfigureAwait(false);
         var snapshotRoutines = await snapshot.GetAllRoutines().ToListAsync().ConfigureAwait(false);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(snapshotTables, Is.EqualTo(tables));
             Assert.That(snapshotViews, Is.EqualTo(views));
             Assert.That(snapshotSequences, Is.EqualTo(sequences));
             Assert.That(snapshotSynonyms, Is.EqualTo(synonyms));
             Assert.That(snapshotRoutines, Is.EqualTo(routines));
-        });
+        }
     }
 
     [Test]
@@ -254,7 +254,7 @@ internal static class RelationalDatabaseExtensionsTests
         var snapshotSynonym = await snapshot.GetSynonym("test_synonym_name").ToOption().ConfigureAwait(false);
         var snapshotRoutine = await snapshot.GetRoutine("test_routine_name").ToOption().ConfigureAwait(false);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(snapshotTable, OptionIs.Some);
             Assert.That(snapshotTable.UnwrapSome().Name.LocalName, Is.EqualTo("test_table_name"));
@@ -270,7 +270,7 @@ internal static class RelationalDatabaseExtensionsTests
 
             Assert.That(snapshotRoutine, OptionIs.Some);
             Assert.That(snapshotRoutine.UnwrapSome().Name.LocalName, Is.EqualTo("test_routine_name"));
-        });
+        }
     }
 
     [Test]
@@ -321,7 +321,7 @@ internal static class RelationalDatabaseExtensionsTests
         var snapshotSynonym = await snapshot.GetSynonym("test_synonym_name").ToOption().ConfigureAwait(false);
         var snapshotRoutine = await snapshot.GetRoutine("test_routine_name").ToOption().ConfigureAwait(false);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(snapshotTable, OptionIs.Some);
             Assert.That(snapshotTable.UnwrapSome().Name.LocalName, Is.EqualTo("test_table_name"));
@@ -337,6 +337,6 @@ internal static class RelationalDatabaseExtensionsTests
 
             Assert.That(snapshotRoutine, OptionIs.Some);
             Assert.That(snapshotRoutine.UnwrapSome().Name.LocalName, Is.EqualTo("test_routine_name"));
-        });
+        }
     }
 }

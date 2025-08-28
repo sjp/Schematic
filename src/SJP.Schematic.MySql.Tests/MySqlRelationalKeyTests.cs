@@ -125,11 +125,11 @@ internal static class MySqlRelationalKeyTests
 
         var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(relationalKey.ChildKey.Name.UnwrapSome(), Is.EqualTo(keyName));
             Assert.That(relationalKey.ChildKey, Is.EqualTo(childKey));
-        });
+        }
     }
 
     [Test]
@@ -173,11 +173,11 @@ internal static class MySqlRelationalKeyTests
 
         var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(relationalKey.ParentKey.Name.UnwrapSome(), Is.EqualTo(keyName));
             Assert.That(relationalKey.ParentKey, Is.EqualTo(parentKey));
-        });
+        }
     }
 
     [Test]

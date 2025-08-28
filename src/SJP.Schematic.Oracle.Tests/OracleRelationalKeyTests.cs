@@ -105,11 +105,11 @@ internal static class OracleRelationalKeyTests
 
         var relationalKey = new OracleRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(relationalKey.ChildKey.Name.UnwrapSome(), Is.EqualTo(keyName));
             Assert.That(relationalKey.ChildKey, Is.EqualTo(childKey));
-        });
+        }
     }
 
     [Test]
@@ -151,11 +151,11 @@ internal static class OracleRelationalKeyTests
 
         var relationalKey = new OracleRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(relationalKey.ParentKey.Name.UnwrapSome(), Is.EqualTo(keyName));
             Assert.That(relationalKey.ParentKey, Is.EqualTo(parentKey));
-        });
+        }
     }
 
     [Test]

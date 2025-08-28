@@ -23,11 +23,11 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
             .Select(c => c.DependentColumns.Single())
             .ToList();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(indexColumns, Has.Exactly(1).Items);
             Assert.That(indexColumns.Single().Name.LocalName, Is.EqualTo("TEST_COLUMN"));
-        });
+        }
     }
 
     [Test]
@@ -51,11 +51,11 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
             .Select(c => c.Name.LocalName)
             .ToList();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(indexColumns, Has.Exactly(3).Items);
             Assert.That(indexColumns, Is.EqualTo(expectedColumnNames));
-        });
+        }
     }
 
     [Test]

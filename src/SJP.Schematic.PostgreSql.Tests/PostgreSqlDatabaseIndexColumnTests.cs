@@ -76,11 +76,11 @@ internal static class PostgreSqlDatabaseIndexColumnTests
         var column = Mock.Of<IDatabaseColumn>();
         var indexColumn = new PostgreSqlDatabaseIndexColumn(expression, column, IndexColumnOrder.Ascending);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(indexColumn.DependentColumns, Has.Exactly(1).Items);
             Assert.That(indexColumn.DependentColumns[0], Is.EqualTo(column));
-        });
+        }
     }
 
     [Test]

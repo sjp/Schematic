@@ -32,11 +32,11 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
         var uk = table.UniqueKeys.Single();
         var ukColumns = uk.Columns.ToList();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(ukColumns, Has.Exactly(1).Items);
             Assert.That(ukColumns.Single().Name.LocalName, Is.EqualTo("test_column"));
-        });
+        }
     }
 
     [Test]
@@ -46,11 +46,11 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
         var uk = table.UniqueKeys.Single();
         var ukColumns = uk.Columns.ToList();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(ukColumns, Has.Exactly(1).Items);
             Assert.That(ukColumns.Single().Name.LocalName, Is.EqualTo("test_column"));
-        });
+        }
     }
 
     [Test]
@@ -72,11 +72,11 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
         var ukColumns = uk.Columns.ToList();
         var ukColumnNames = ukColumns.ConvertAll(c => c.Name.LocalName);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(ukColumns, Has.Exactly(3).Items);
             Assert.That(ukColumnNames, Is.EqualTo(expectedColumnNames));
-        });
+        }
     }
 
     [Test]
