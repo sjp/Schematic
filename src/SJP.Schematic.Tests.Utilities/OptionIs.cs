@@ -24,7 +24,6 @@ public static class OptionIs
     /// </summary>
     public static class Not
     {
-#pragma warning disable S3218 // Inner class members should not shadow outer class "static" or type members
 
         /// <summary>
         /// A constraint which asserts that a result must be a some value. i.e. not none
@@ -37,6 +36,5 @@ public static class OptionIs
         /// </summary>
         /// <value>The none asserting constraint.</value>
         public static NoneConstraint Some => new();
-#pragma warning restore S3218 // Inner class members should not shadow outer class "static" or type members
     }
 }

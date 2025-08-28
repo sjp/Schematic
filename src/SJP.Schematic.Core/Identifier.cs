@@ -118,8 +118,8 @@ public sealed record Identifier : IComparable<Identifier>
 
         if (!localNamePresent)
             throw new ArgumentNullException(nameof(localName), "At least one component of an identifier must be provided.");
-        if (result is null)
-            result = new Identifier(localName!);
+
+        result ??= new Identifier(localName!);
 
         return result;
     }

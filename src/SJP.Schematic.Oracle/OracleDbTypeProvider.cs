@@ -272,7 +272,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
         "ROWID"
     };
 
-    private static readonly IReadOnlyDictionary<string, DataType> StringToDataTypeMap = new Dictionary<string, DataType>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, DataType> StringToDataTypeMap = new(StringComparer.OrdinalIgnoreCase)
     {
         ["BFILE"] = DataType.LargeBinary,
         ["BINARY_DOUBLE"] = DataType.Float,
@@ -306,7 +306,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
         ["XMLTYPE"] = DataType.Unicode
     };
 
-    private static readonly IReadOnlyDictionary<string, Type> StringToClrTypeMap = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, Type> StringToClrTypeMap = new(StringComparer.OrdinalIgnoreCase)
     {
         ["BFILE"] = typeof(byte[]),
         ["BINARY_DOUBLE"] = typeof(double),

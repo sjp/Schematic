@@ -42,8 +42,6 @@ public class DatabaseSequence : IDatabaseSequence
         if (increment == 0)
             throw new ArgumentException("A non-zero increment is required", nameof(increment));
         Increment = increment;
-
-#pragma warning disable S3928 // Parameter names used into ArgumentException constructors should match an existing one
         if (increment > 0)
         {
             minValue
@@ -64,7 +62,6 @@ public class DatabaseSequence : IDatabaseSequence
                 .Where(mv => mv > start)
                 .IfSome(static _ => throw new ArgumentException("When a maximum value and negative increment is provided, the maximum value must not be larger than the starting value.", nameof(maxValue)));
         }
-#pragma warning restore S3928 // Parameter names used into ArgumentException constructors should match an existing one
 
         if (cacheSize < 0)
             cacheSize = UnknownCacheSize;

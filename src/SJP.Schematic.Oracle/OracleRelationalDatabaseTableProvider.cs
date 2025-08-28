@@ -691,7 +691,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
             var events = TriggerEvent.None;
             var triggerEventPieces = triggerRow.TriggerEvent != null
-                ? triggerRow.TriggerEvent.Split(new[] { " OR " }, StringSplitOptions.RemoveEmptyEntries)
+                ? triggerRow.TriggerEvent.Split([" OR "], StringSplitOptions.RemoveEmptyEntries)
                 : [];
 
             foreach (var triggerEventPiece in triggerEventPieces)

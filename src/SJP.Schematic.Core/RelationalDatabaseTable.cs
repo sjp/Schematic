@@ -61,10 +61,8 @@ public class RelationalDatabaseTable : IRelationalDatabaseTable
 
         primaryKey.IfSome(static pk =>
         {
-#pragma warning disable S3928 // Parameter names used into ArgumentException constructors should match an existing one
             if (pk.KeyType != DatabaseKeyType.Primary)
                 throw new ArgumentException("The given primary key did not have a key type of '" + nameof(DatabaseKeyType.Primary) + "'", nameof(primaryKey));
-#pragma warning restore S3928 // Parameter names used into ArgumentException constructors should match an existing one
         });
 
         var anyNonUniqueKey = uniqueKeys.Any(static uk => uk.KeyType != DatabaseKeyType.Unique);

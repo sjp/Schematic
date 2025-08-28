@@ -44,7 +44,7 @@ internal sealed class TableConstraint
 
     public IReadOnlyList<string> ColumnTypes { get; }
 
-    private static readonly IReadOnlyDictionary<DatabaseKeyType, string> _keyTypeTitles = new Dictionary<DatabaseKeyType, string>
+    private static readonly Dictionary<DatabaseKeyType, string> _keyTypeTitles = new()
     {
         [DatabaseKeyType.Foreign] = "Foreign Key",
         [DatabaseKeyType.Unique] = "Unique Key",

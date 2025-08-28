@@ -135,7 +135,7 @@ public class MySqlDialect : DatabaseDialect
         ArgumentException.ThrowIfNullOrWhiteSpace(versionStr);
 
         var versionPieces = versionStr
-            .Split(new[] { '.', '-' }, StringSplitOptions.RemoveEmptyEntries)
+            .Split(['.', '-'], StringSplitOptions.RemoveEmptyEntries)
             .TakeWhile(piece => int.TryParse(piece, NumberStyles.Integer, CultureInfo.InvariantCulture, out _));
 
         var saferVersionStr = versionPieces.Join(".");

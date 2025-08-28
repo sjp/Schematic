@@ -177,7 +177,7 @@ public sealed class IdentifierComparer : IEqualityComparer<Identifier>, ICompare
     private readonly int _defaultServerHash;
     private readonly StringComparer _comparer;
 
-    private static readonly IReadOnlyDictionary<StringComparison, StringComparer> StringComparerLookup = new Dictionary<StringComparison, StringComparer>
+    private static readonly Dictionary<StringComparison, StringComparer> StringComparerLookup = new()
     {
         [StringComparison.CurrentCulture] = StringComparer.CurrentCulture,
         [StringComparison.CurrentCultureIgnoreCase] = StringComparer.CurrentCultureIgnoreCase,

@@ -146,7 +146,7 @@ public class OracleDialect : DatabaseDialect
 
         // only take the first 4 version numbers and try again
         var versionStr = version
-            .Split(new[] { '.' }, 5, StringSplitOptions.RemoveEmptyEntries)
+            .Split(['.'], 5, StringSplitOptions.RemoveEmptyEntries)
             .Take(4)
             .Join(".");
         return Version.TryParse(versionStr, out var v)
