@@ -34,6 +34,7 @@
     <PackageVersion Include="QuikGraph" Version="2.5.0" />
     <PackageVersion Include="RazorLight" Version="2.3.1" />
     <PackageVersion Include="Roslyn.System.IO.Abstractions.Analyzers" Version="12.2.19" />
+    <PackageVersion Include="Roslynator.Analyzers" Version="4.14.0" />
     <PackageVersion Include="ServiceStack.OrmLite" Version="8.8.0" />
     <PackageVersion Include="Spectre.Console.Cli" Version="0.50.0" />
     <PackageVersion Include="Superpower" Version="3.1.0" />
