@@ -183,7 +183,7 @@ internal static class IdentifierTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(identifier, Is.Not.EqualTo(null));
+            Assert.That(identifier, Is.Not.Null);
             Assert.That(identifier, Is.Not.EqualTo(1));
             Assert.That(identifier, Is.Not.EqualTo(otherIdentifier));
         }

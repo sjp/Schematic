@@ -200,7 +200,7 @@ internal sealed class PostgreSqlQueryViewCommentProviderTests : PostgreSqlTest
 
         var comments = await GetViewCommentsAsync("view_comment_view_1").ConfigureAwait(false);
 
-        Assert.That(comments.ColumnComments.Keys.OrderBy(x => x), Is.EqualTo(columnNames));
+        Assert.That(comments.ColumnComments.Keys.Order(), Is.EqualTo(columnNames));
     }
 
     [Test]
@@ -236,7 +236,7 @@ internal sealed class PostgreSqlQueryViewCommentProviderTests : PostgreSqlTest
         };
         var comments = await GetViewCommentsAsync("view_comment_view_2").ConfigureAwait(false);
 
-        Assert.That(comments.ColumnComments.Keys.OrderBy(x => x), Is.EqualTo(columnNames));
+        Assert.That(comments.ColumnComments.Keys.Order(), Is.EqualTo(columnNames));
     }
 
     [Test]

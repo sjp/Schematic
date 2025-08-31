@@ -415,11 +415,11 @@ public sealed class Table : ITemplateParameter
 
             var queryFlags = queryTiming.GetFlags()
                 .Select(static qt => TimingDescriptions[qt])
-                .OrderBy(static qt => qt)
+                .Order()
                 .ToList();
             var eventFlags = triggerEvent.GetFlags()
                 .Select(static te => EventDescriptions[te])
-                .OrderBy(static te => te)
+                .Order()
                 .ToList();
 
             QueryTiming = queryFlags.Join(", ");

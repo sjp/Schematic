@@ -29,8 +29,8 @@ public static class EnumerableStringExtensions
             group.Add(ns);
         }
 
-        return system.OrderBy(static n => n)
-            .Concat(nonSystem.OrderBy(static n => n))
+        return system.Order()
+            .Concat(nonSystem.Order())
             .ToList();
     }
 

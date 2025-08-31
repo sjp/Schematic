@@ -162,8 +162,8 @@ public class ForeignKeyIndexRule : Rule, ITableRule
         if (superSetList.Count > prefixSetList.Count)
             superSetList = superSetList.Take(prefixSetList.Count).ToList();
 
-        return prefixSetList.OrderBy(c => c)
-            .SequenceEqual(superSetList.OrderBy(c => c));
+        return prefixSetList.Order()
+            .SequenceEqual(superSetList.Order());
     }
 
     /// <summary>

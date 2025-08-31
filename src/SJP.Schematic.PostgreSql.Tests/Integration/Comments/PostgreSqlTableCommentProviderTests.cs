@@ -342,7 +342,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
         };
         var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
-        Assert.That(comments.ColumnComments.Keys.OrderBy(x => x), Is.EqualTo(columnNames));
+        Assert.That(comments.ColumnComments.Keys.Order(), Is.EqualTo(columnNames));
     }
 
     [Test]
@@ -388,7 +388,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
         };
         var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
-        Assert.That(comments.IndexComments.Keys.OrderBy(x => x), Is.EqualTo(indexNames));
+        Assert.That(comments.IndexComments.Keys.Order(), Is.EqualTo(indexNames));
     }
 
     [Test]
@@ -428,7 +428,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
         };
         var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
-        Assert.That(comments.TriggerComments.Keys.OrderBy(x => x), Is.EqualTo(triggerNames));
+        Assert.That(comments.TriggerComments.Keys.Order(), Is.EqualTo(triggerNames));
     }
 
     [Test]
@@ -468,7 +468,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
         };
         var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
-        Assert.That(comments.CheckComments.Keys.OrderBy(x => x), Is.EqualTo(checkNames));
+        Assert.That(comments.CheckComments.Keys.Order(), Is.EqualTo(checkNames));
     }
 
     [Test]
@@ -508,7 +508,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
         };
         var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
-        Assert.That(comments.UniqueKeyComments.Keys.OrderBy(x => x), Is.EqualTo(uniqueKeyNames));
+        Assert.That(comments.UniqueKeyComments.Keys.Order(), Is.EqualTo(uniqueKeyNames));
     }
 
     [Test]
@@ -548,7 +548,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
         };
         var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
-        Assert.That(comments.ForeignKeyComments.Keys.OrderBy(x => x), Is.EqualTo(foreignKeyNames));
+        Assert.That(comments.ForeignKeyComments.Keys.Order(), Is.EqualTo(foreignKeyNames));
     }
 
     [Test]

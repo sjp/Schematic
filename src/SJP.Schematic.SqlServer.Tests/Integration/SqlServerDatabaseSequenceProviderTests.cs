@@ -325,6 +325,6 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     {
         var sequence = await GetSequenceAsync("db_test_sequence_11").ConfigureAwait(false);
 
-        Assert.That(sequence.Cache, Is.EqualTo(0));
+        Assert.That(sequence.Cache, Is.Zero);
     }
 }

@@ -38,7 +38,7 @@ public class VersionResolvingDictionary<T> : IVersionedLookup<T>
     {
         ArgumentNullException.ThrowIfNull(version);
 
-        var versionKeys = _lookup.Keys.OrderBy(x => x).ToList();
+        var versionKeys = _lookup.Keys.Order().ToList();
         var firstVersion = versionKeys[0];
         if (version <= firstVersion)
             return _lookup[firstVersion];

@@ -34,7 +34,7 @@ public sealed class RgbColor : IEquatable<RgbColor>
         var g = green.ToString("X2", CultureInfo.InvariantCulture);
         var b = blue.ToString("X2", CultureInfo.InvariantCulture);
 
-        return string.Concat("#", r, g, b);
+        return $"#{r}{g}{b}";
     }
 
     /// <summary>

@@ -97,8 +97,8 @@ public class CycleDetector
         ArgumentNullException.ThrowIfNull(existingCycle);
         ArgumentNullException.ThrowIfNull(newCycle);
 
-        var orderedExisting = existingCycle.OrderBy(static name => name).Distinct().ToList();
-        var orderedNewCycle = newCycle.OrderBy(static name => name).Distinct().ToList();
+        var orderedExisting = existingCycle.Order().Distinct().ToList();
+        var orderedNewCycle = newCycle.Order().Distinct().ToList();
 
         return orderedExisting.SequenceEqual(orderedNewCycle);
     }

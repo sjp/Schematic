@@ -74,6 +74,7 @@ internal static class AutoIncrementTests
         const int increment = 9876;
         var a = new AutoIncrement(initialValue, increment);
 
+        // note: don't update this to Is.Not.Null to ensure the method is run correctly
         Assert.That(a, Is.Not.EqualTo(null));
     }
 
