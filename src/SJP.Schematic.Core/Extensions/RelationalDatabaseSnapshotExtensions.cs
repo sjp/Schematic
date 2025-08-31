@@ -73,6 +73,7 @@ public static class RelationalDatabaseSnapshotExtensions
     public static Task<IRelationalDatabase> SnapshotAsync(this IRelationalDatabase database, RelationalDatabaseSnapshotOptions snapshotOptions, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(database);
+        ArgumentNullException.ThrowIfNull(snapshotOptions);
         ArgumentNullException.ThrowIfNull(identifierResolver);
 
         return SnapshotAsyncCore(database, snapshotOptions, identifierResolver, cancellationToken);
