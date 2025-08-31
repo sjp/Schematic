@@ -11,7 +11,7 @@ namespace SJP.Schematic.Core.Extensions;
 /// <summary>
 /// Convenience extension methods used for working with <see cref="IRelationalDatabase"/> instances.
 /// </summary>
-public static class RelationalDatabaseCommentProviderExtensions
+public static class RelationalDatabaseCommentProviderSnapshotExtensions
 {
     /// <summary>
     /// Snapshots a relational database comment provider. Preserves the same behaviour, but enables querying in-memory, avoiding further database calls.

@@ -8,7 +8,7 @@ using SJP.Schematic.Tests.Utilities;
 namespace SJP.Schematic.Core.Tests.Extensions;
 
 [TestFixture]
-internal static class RelationalDatabaseExtensionsTests
+internal static class RelationalDatabaseSnapshotExtensionsTests
 {
     private static IRelationalDatabase EmptyDatabase => new RelationalDatabase(
         new IdentifierDefaults("test_server", "test_database", "test_schema"),
@@ -23,49 +23,49 @@ internal static class RelationalDatabaseExtensionsTests
     [Test]
     public static void SnapshotAsync_GivenNullDatabase_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseExtensions.SnapshotAsync(null), Throws.ArgumentNullException);
+        Assert.That(() => RelationalDatabaseSnapshotExtensions.SnapshotAsync(null), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void SnapshotAsync_WithSnapshotOptionsGivenNullDatabase_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseExtensions.SnapshotAsync(null, new RelationalDatabaseSnapshotOptions()), Throws.ArgumentNullException);
+        Assert.That(() => RelationalDatabaseSnapshotExtensions.SnapshotAsync(null, new RelationalDatabaseSnapshotOptions()), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void SnapshotAsync_WithSnapshotOptionsGivenNullOptions_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseExtensions.SnapshotAsync(EmptyDatabase, (RelationalDatabaseSnapshotOptions)null), Throws.ArgumentNullException);
+        Assert.That(() => RelationalDatabaseSnapshotExtensions.SnapshotAsync(EmptyDatabase, (RelationalDatabaseSnapshotOptions)null), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void SnapshotAsync_WithIdentifierResolverGivenNullDatabase_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseExtensions.SnapshotAsync(null, new VerbatimIdentifierResolutionStrategy()), Throws.ArgumentNullException);
+        Assert.That(() => RelationalDatabaseSnapshotExtensions.SnapshotAsync(null, new VerbatimIdentifierResolutionStrategy()), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void SnapshotAsync_WithNullIdentifierResolverGivenDatabase_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseExtensions.SnapshotAsync(EmptyDatabase, (IIdentifierResolutionStrategy)null), Throws.ArgumentNullException);
+        Assert.That(() => RelationalDatabaseSnapshotExtensions.SnapshotAsync(EmptyDatabase, (IIdentifierResolutionStrategy)null), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void SnapshotAsync_WithNullDatabaseForOptionsAndResolver_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseExtensions.SnapshotAsync(null, new RelationalDatabaseSnapshotOptions(), new VerbatimIdentifierResolutionStrategy()), Throws.ArgumentNullException);
+        Assert.That(() => RelationalDatabaseSnapshotExtensions.SnapshotAsync(null, new RelationalDatabaseSnapshotOptions(), new VerbatimIdentifierResolutionStrategy()), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void SnapshotAsync_WithNullOptionsForOptionsAndResolver_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseExtensions.SnapshotAsync(EmptyDatabase, null, new VerbatimIdentifierResolutionStrategy()), Throws.ArgumentNullException);
+        Assert.That(() => RelationalDatabaseSnapshotExtensions.SnapshotAsync(EmptyDatabase, null, new VerbatimIdentifierResolutionStrategy()), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void SnapshotAsync_WithNullResolversForOptionsAndResolver_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseExtensions.SnapshotAsync(EmptyDatabase, new RelationalDatabaseSnapshotOptions(), null), Throws.ArgumentNullException);
+        Assert.That(() => RelationalDatabaseSnapshotExtensions.SnapshotAsync(EmptyDatabase, new RelationalDatabaseSnapshotOptions(), null), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -599,7 +599,7 @@ internal static class RelationalDatabaseExtensionsTests
 
         // toggle tables
         var tableOpts = RelationalDatabaseSnapshotOptions.Empty with { IncludeTables = true };
-        var tableSnapshot = await RelationalDatabaseExtensions.SnapshotAsync(database, tableOpts).ConfigureAwait(false);
+        var tableSnapshot = await RelationalDatabaseSnapshotExtensions.SnapshotAsync(database, tableOpts).ConfigureAwait(false);
         var tableSnapshotTables = await tableSnapshot.GetAllTables().ToListAsync().ConfigureAwait(false);
         var tableSnapshotViews = await tableSnapshot.GetAllViews().ToListAsync().ConfigureAwait(false);
         var tableSnapshotSequences = await tableSnapshot.GetAllSequences().ToListAsync().ConfigureAwait(false);
@@ -617,7 +617,7 @@ internal static class RelationalDatabaseExtensionsTests
 
         // toggle views
         var viewOpts = RelationalDatabaseSnapshotOptions.Empty with { IncludeViews = true };
-        var viewSnapshot = await RelationalDatabaseExtensions.SnapshotAsync(database, viewOpts).ConfigureAwait(false);
+        var viewSnapshot = await RelationalDatabaseSnapshotExtensions.SnapshotAsync(database, viewOpts).ConfigureAwait(false);
         var viewSnapshotTables = await viewSnapshot.GetAllTables().ToListAsync().ConfigureAwait(false);
         var viewSnapshotViews = await viewSnapshot.GetAllViews().ToListAsync().ConfigureAwait(false);
         var viewSnapshotSequences = await viewSnapshot.GetAllSequences().ToListAsync().ConfigureAwait(false);
@@ -635,7 +635,7 @@ internal static class RelationalDatabaseExtensionsTests
 
         // toggle sequences
         var sequenceOpts = RelationalDatabaseSnapshotOptions.Empty with { IncludeSequences = true };
-        var sequenceSnapshot = await RelationalDatabaseExtensions.SnapshotAsync(database, sequenceOpts).ConfigureAwait(false);
+        var sequenceSnapshot = await RelationalDatabaseSnapshotExtensions.SnapshotAsync(database, sequenceOpts).ConfigureAwait(false);
         var sequenceSnapshotTables = await sequenceSnapshot.GetAllTables().ToListAsync().ConfigureAwait(false);
         var sequenceSnapshotViews = await sequenceSnapshot.GetAllViews().ToListAsync().ConfigureAwait(false);
         var sequenceSnapshotSequences = await sequenceSnapshot.GetAllSequences().ToListAsync().ConfigureAwait(false);
@@ -653,7 +653,7 @@ internal static class RelationalDatabaseExtensionsTests
 
         // toggle synonyms
         var synonymOpts = RelationalDatabaseSnapshotOptions.Empty with { IncludeSynonyms = true };
-        var synonymSnapshot = await RelationalDatabaseExtensions.SnapshotAsync(database, synonymOpts).ConfigureAwait(false);
+        var synonymSnapshot = await RelationalDatabaseSnapshotExtensions.SnapshotAsync(database, synonymOpts).ConfigureAwait(false);
         var synonymSnapshotTables = await synonymSnapshot.GetAllTables().ToListAsync().ConfigureAwait(false);
         var synonymSnapshotViews = await synonymSnapshot.GetAllViews().ToListAsync().ConfigureAwait(false);
         var synonymSnapshotSequences = await synonymSnapshot.GetAllSequences().ToListAsync().ConfigureAwait(false);
@@ -671,7 +671,7 @@ internal static class RelationalDatabaseExtensionsTests
 
         // toggle routines
         var routineOpts = RelationalDatabaseSnapshotOptions.Empty with { IncludeRoutines = true };
-        var routineSnapshot = await RelationalDatabaseExtensions.SnapshotAsync(database, routineOpts).ConfigureAwait(false);
+        var routineSnapshot = await RelationalDatabaseSnapshotExtensions.SnapshotAsync(database, routineOpts).ConfigureAwait(false);
         var routineSnapshotTables = await routineSnapshot.GetAllTables().ToListAsync().ConfigureAwait(false);
         var routineSnapshotViews = await routineSnapshot.GetAllViews().ToListAsync().ConfigureAwait(false);
         var routineSnapshotSequences = await routineSnapshot.GetAllSequences().ToListAsync().ConfigureAwait(false);
