@@ -84,7 +84,7 @@ internal static class GetTableColumns
         public string? CollationSchema { get; init; }
 
         /// <summary>
-        ///	Name of the collation of the column, null if default or the data type of the column is not collatable
+        /// Name of the collation of the column, null if default or the data type of the column is not collatable
         /// </summary>
         public string? CollationName { get; init; }
 
@@ -94,7 +94,7 @@ internal static class GetTableColumns
         public string? DomainCatalog { get; init; }
 
         /// <summary>
-        ///	If the column has a domain type, the name of the schema that the domain is defined in, else null.
+        /// If the column has a domain type, the name of the schema that the domain is defined in, else null.
         /// </summary>
         public string? DomainSchema { get; init; }
 
@@ -159,7 +159,7 @@ internal static class GetTableColumns
         public string? IdentityMaximum { get; init; }
 
         /// <summary>
-        /// 	If the column is an identity column, then the minimum value of the internal sequence, else <c>null</c>.
+        /// If the column is an identity column, then the minimum value of the internal sequence, else <c>null</c>.
         /// </summary>
         public string? IdentityMinimum { get; init; }
 

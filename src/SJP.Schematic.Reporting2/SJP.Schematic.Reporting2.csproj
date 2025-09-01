@@ -39,9 +39,9 @@
 
     <!-- File with mtime of last successful npm install -->
     <NpmInstallStampFile>$(UiContentDir)/node_modules/.install-stamp</NpmInstallStampFile>
-	<ViteBuildStampFile>$(UiContentDir)/node_modules/.vite-build-stamp</ViteBuildStampFile>
+    <ViteBuildStampFile>$(UiContentDir)/node_modules/.vite-build-stamp</ViteBuildStampFile>
 
-	<NpmExitCode></NpmExitCode>
+    <NpmExitCode></NpmExitCode>
     <NpmExpectedExitCode>1</NpmExpectedExitCode>
   </PropertyGroup>
 

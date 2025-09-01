@@ -84,7 +84,7 @@ internal static class GetViewColumns
         public string? CollationSchema { get; init; }
 
         /// <summary>
-        ///	Name of the collation of the column, null if default or the data type of the column is not collatable
+        /// Name of the collation of the column, null if default or the data type of the column is not collatable
         /// </summary>
         public string? CollationName { get; init; }
 
@@ -94,7 +94,7 @@ internal static class GetViewColumns
         public string? DomainCatalog { get; init; }
 
         /// <summary>
-        ///	If the column has a domain type, the name of the schema that the domain is defined in, else null.
+        /// If the column has a domain type, the name of the schema that the domain is defined in, else null.
         /// </summary>
         public string? DomainSchema { get; init; }
 

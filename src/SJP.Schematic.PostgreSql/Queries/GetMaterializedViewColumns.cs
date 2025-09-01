@@ -84,7 +84,7 @@ internal static class GetMaterializedViewColumns
         public string? CollationSchema { get; init; }
 
         /// <summary>
-        ///	Name of the collation of the column, null if default or the data type of the column is not collatable
+        /// Name of the collation of the column, null if default or the data type of the column is not collatable
         /// </summary>
         public string? CollationName { get; init; }
 
@@ -94,7 +94,7 @@ internal static class GetMaterializedViewColumns
         public string? DomainCatalog { get; init; }
 
         /// <summary>
-        ///	If the column has a domain type, the name of the schema that the domain is defined in, else null.
+        /// If the column has a domain type, the name of the schema that the domain is defined in, else null.
         /// </summary>
         public string? DomainSchema { get; init; }
 
@@ -155,37 +155,37 @@ SELECT
     END
     AS "{nameof(Result.DataType)}",
 
-    
+
 """ + PgCharMaxLength + $"""
 
     AS "{nameof(Result.CharacterMaximumLength)}",
 
-    
+
 """ + PgCharOctetLength + $"""
 
     AS "{nameof(Result.CharacterOctetLength)}",
 
-    
+
 """ + PgNumericPrecision + $"""
 
     AS "{nameof(Result.NumericPrecision)}",
 
-    
+
 """ + PgNumericPrecisionRadix + $"""
 
     AS "{nameof(Result.NumericPrecisionRadix)}",
 
-    
+
 """ + PgNumericScale + $"""
 
     AS "{nameof(Result.NumericScale)}",
 
-    
+
 """ + PgDatetimePrecision + $"""
 
     AS "{nameof(Result.DatetimePrecision)}",
 
-    
+
 """ + PgIntervalType + $"""
 
     AS "{nameof(Result.IntervalType)}",
