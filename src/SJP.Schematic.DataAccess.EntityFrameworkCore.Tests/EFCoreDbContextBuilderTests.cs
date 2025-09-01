@@ -78,7 +78,7 @@ internal static class EFCoreDbContextBuilderTests
 
         var result = dbContextBuilder.Generate(tables, views, sequences);
 
-        Assert.That(result, Is.EqualTo(ExpectedSequenceTestResult).Using(LineEndingInvariantStringComparer.Ordinal));
+        Assert.That(result, Is.EqualTo(ExpectedSequenceTestResult).IgnoreLineEndingFormat);
     }
 
     private const string ExpectedSequenceTestResult = """

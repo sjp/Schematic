@@ -36,7 +36,7 @@ internal static class OracleUnwrapperTests
     {
         _ = OracleUnwrapper.TryUnwrap(WrappedExample, out var unwrapped);
 
-        Assert.That(unwrapped, Is.EqualTo(ExpectedUnwrappedExample).Using(new LineEndingInvariantStringComparer()));
+        Assert.That(unwrapped, Is.EqualTo(ExpectedUnwrappedExample).IgnoreLineEndingFormat);
     }
 
     [Test]
@@ -68,7 +68,7 @@ internal static class OracleUnwrapperTests
     {
         var result = OracleUnwrapper.Unwrap(WrappedExample);
 
-        Assert.That(result, Is.EqualTo(ExpectedUnwrappedExample).Using(new LineEndingInvariantStringComparer()));
+        Assert.That(result, Is.EqualTo(ExpectedUnwrappedExample).IgnoreLineEndingFormat);
     }
 
     [Test]
@@ -90,7 +90,7 @@ internal static class OracleUnwrapperTests
     {
         var result = OracleUnwrapper.UnwrapUnsafe(WrappedExample);
 
-        Assert.That(result, Is.EqualTo(ExpectedUnwrappedExample).Using(new LineEndingInvariantStringComparer()));
+        Assert.That(result, Is.EqualTo(ExpectedUnwrappedExample).IgnoreLineEndingFormat);
     }
 
     [Test]

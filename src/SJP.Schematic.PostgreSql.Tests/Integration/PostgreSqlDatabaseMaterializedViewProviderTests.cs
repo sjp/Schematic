@@ -199,7 +199,7 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
             : @" SELECT matview_view_test_table_1.table_id AS test
    FROM matview_view_test_table_1;";
 
-        Assert.That(definition, Is.EqualTo(expected).Using(new LineEndingInvariantStringComparer()));
+        Assert.That(definition, Is.EqualTo(expected).IgnoreLineEndingFormat);
     }
 
     [Test]

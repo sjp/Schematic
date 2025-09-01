@@ -99,7 +99,7 @@ create table test_table_4 (
         var expected = TestAppContextOutput;
         var result = builder.Generate(tables, views, sequences);
 
-        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+        Assert.That(result, Is.EqualTo(expected).IgnoreLineEndingFormat);
     }
 
     private readonly string TestAppContextOutput = """

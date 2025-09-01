@@ -108,7 +108,7 @@ create table test_table_4 (
         var expected = TestTable1Output;
         var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
 
-        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+        Assert.That(result, Is.EqualTo(expected).IgnoreLineEndingFormat);
     }
 
     [Test]
@@ -121,7 +121,7 @@ create table test_table_4 (
         var expected = TestTable2Output;
         var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
 
-        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+        Assert.That(result, Is.EqualTo(expected).IgnoreLineEndingFormat);
     }
 
     [Test]
@@ -134,7 +134,7 @@ create table test_table_4 (
         var expected = TestTable4Output;
         var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
 
-        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+        Assert.That(result, Is.EqualTo(expected).IgnoreLineEndingFormat);
     }
 
     [Test]
@@ -160,7 +160,7 @@ create table test_table_4 (
         var result = generator.Generate(tables, table, comment);
 
         var expected = TestTable5Output;
-        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+        Assert.That(result, Is.EqualTo(expected).IgnoreLineEndingFormat);
     }
 
     [Test]
@@ -190,7 +190,7 @@ This is a second line for it.";
         var result = generator.Generate(tables, table, comment);
 
         var expected = TestTable5MultiLineOutput;
-        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+        Assert.That(result, Is.EqualTo(expected).IgnoreLineEndingFormat);
     }
 
     private const string TestNamespace = "OrmLiteTestNamespace";

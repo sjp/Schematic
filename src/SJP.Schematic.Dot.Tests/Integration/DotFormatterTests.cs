@@ -133,7 +133,7 @@ create table test_table_9 (
 
         var result = Formatter.RenderTables(tables);
 
-        Assert.That(result, Is.EqualTo(TestTable5Dot).Using(LineEndingInvariantStringComparer.Ordinal));
+        Assert.That(result, Is.EqualTo(TestTable5Dot).IgnoreLineEndingFormat);
     }
 
     [Test]
@@ -144,7 +144,7 @@ create table test_table_9 (
 
         var result = Formatter.RenderTables(tables);
 
-        Assert.That(result, Is.EqualTo(TestTable1Dot).Using(LineEndingInvariantStringComparer.Ordinal));
+        Assert.That(result, Is.EqualTo(TestTable1Dot).IgnoreLineEndingFormat);
     }
 
     [Test]
@@ -155,7 +155,7 @@ create table test_table_9 (
 
         var result = Formatter.RenderTables(tables);
 
-        Assert.That(result, Is.EqualTo(TestTable2Dot).Using(LineEndingInvariantStringComparer.Ordinal));
+        Assert.That(result, Is.EqualTo(TestTable2Dot).IgnoreLineEndingFormat);
     }
 
     [Test]
@@ -171,7 +171,7 @@ create table test_table_9 (
 
         var result = Formatter.RenderTables(tables);
 
-        Assert.That(result, Is.EqualTo(MultipleRelationshipsDot).Using(LineEndingInvariantStringComparer.Ordinal));
+        Assert.That(result, Is.EqualTo(MultipleRelationshipsDot).IgnoreLineEndingFormat);
     }
 
     private const string TestTable1Dot = """

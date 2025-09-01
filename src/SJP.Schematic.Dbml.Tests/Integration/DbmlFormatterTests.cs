@@ -128,7 +128,7 @@ create table test_table_9 (
 
         var result = Formatter.RenderTables(tables);
 
-        Assert.That(result, Is.EqualTo(TestTable5Dbml).Using(LineEndingInvariantStringComparer.Ordinal));
+        Assert.That(result, Is.EqualTo(TestTable5Dbml).IgnoreLineEndingFormat);
     }
 
     [Test]
@@ -139,7 +139,7 @@ create table test_table_9 (
 
         var result = Formatter.RenderTables(tables);
 
-        Assert.That(result, Is.EqualTo(TestTable1Dbml).Using(LineEndingInvariantStringComparer.Ordinal));
+        Assert.That(result, Is.EqualTo(TestTable1Dbml).IgnoreLineEndingFormat);
     }
 
     [Test]
@@ -150,7 +150,7 @@ create table test_table_9 (
 
         var result = Formatter.RenderTables(tables);
 
-        Assert.That(result, Is.EqualTo(TestTable2Dbml).Using(LineEndingInvariantStringComparer.Ordinal));
+        Assert.That(result, Is.EqualTo(TestTable2Dbml).IgnoreLineEndingFormat);
     }
 
     [Test]
@@ -166,7 +166,7 @@ create table test_table_9 (
 
         var result = Formatter.RenderTables(tables);
 
-        Assert.That(result, Is.EqualTo(MultipleRelationshipsDbml).Using(LineEndingInvariantStringComparer.Ordinal));
+        Assert.That(result, Is.EqualTo(MultipleRelationshipsDbml).IgnoreLineEndingFormat);
     }
 
     private const string TestTable1Dbml = """

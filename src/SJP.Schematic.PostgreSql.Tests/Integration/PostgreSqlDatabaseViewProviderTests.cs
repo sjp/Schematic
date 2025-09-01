@@ -236,7 +236,7 @@ internal sealed class PostgreSqlDatabaseViewProviderTests : PostgreSqlTest
             : @" SELECT view_test_table_1.table_id AS test
    FROM view_test_table_1;";
 
-        Assert.That(definition, Is.EqualTo(expected).Using(new LineEndingInvariantStringComparer()));
+        Assert.That(definition, Is.EqualTo(expected).IgnoreLineEndingFormat);
     }
 
     [Test]

@@ -52,7 +52,7 @@ internal sealed class PocoTableGeneratorTests : SqliteTest
         const string expected = TestTable1Output;
         var result = generator.Generate(tables, table, Option<IRelationalDatabaseTableComments>.None);
 
-        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+        Assert.That(result, Is.EqualTo(expected).IgnoreLineEndingFormat);
     }
 
     [Test]
@@ -78,7 +78,7 @@ internal sealed class PocoTableGeneratorTests : SqliteTest
         var result = generator.Generate(tables, table, comment);
 
         var expected = TestTable2Output;
-        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+        Assert.That(result, Is.EqualTo(expected).IgnoreLineEndingFormat);
     }
 
     [Test]
@@ -108,7 +108,7 @@ This is a second line for it.";
         var result = generator.Generate(tables, table, comment);
 
         var expected = TestTable2MultiLineOutput;
-        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+        Assert.That(result, Is.EqualTo(expected).IgnoreLineEndingFormat);
     }
 
     private const string TestNamespace = "PocoTestNamespace";

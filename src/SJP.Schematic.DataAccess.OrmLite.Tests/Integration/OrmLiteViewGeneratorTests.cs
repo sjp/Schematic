@@ -61,7 +61,7 @@ select
         var expected = TestView1Output;
         var result = generator.Generate(view, Option<IDatabaseViewComments>.None);
 
-        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+        Assert.That(result, Is.EqualTo(expected).IgnoreLineEndingFormat);
     }
 
     [Test]
@@ -73,7 +73,7 @@ select
         var expected = TestView2Output;
         var result = generator.Generate(view, Option<IDatabaseViewComments>.None);
 
-        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+        Assert.That(result, Is.EqualTo(expected).IgnoreLineEndingFormat);
     }
 
     [Test]
@@ -92,7 +92,7 @@ select
         var result = generator.Generate(view, comment);
 
         var expected = TestView3Output;
-        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+        Assert.That(result, Is.EqualTo(expected).IgnoreLineEndingFormat);
     }
 
     [Test]
@@ -115,7 +115,7 @@ This is a second line for it.";
         var result = generator.Generate(view, comment);
 
         var expected = TestView3MultiLineOutput;
-        Assert.That(result, Is.EqualTo(expected).Using(LineEndingInvariantStringComparer.Ordinal));
+        Assert.That(result, Is.EqualTo(expected).IgnoreLineEndingFormat);
     }
 
     private const string TestNamespace = "OrmLiteTestNamespace";
