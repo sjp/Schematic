@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Text.Json" />
     <ProjectReference Include="..\SJP.Schematic.Core\SJP.Schematic.Core.csproj" />
   </ItemGroup>
 
