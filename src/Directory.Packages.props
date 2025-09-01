@@ -28,7 +28,7 @@
     <PackageVersion Include="NUnit" Version="4.4.0" />
     <PackageVersion Include="NUnit.Analyzers" Version="4.9.2" />
     <PackageVersion Include="NUnit3TestAdapter" Version="5.0.0" />
-    <PackageVersion Include="Oracle.ManagedDataAccess.Core" Version="23.8.0" />
+    <PackageVersion Include="Oracle.ManagedDataAccess.Core" Version="23.9.1" />
     <PackageVersion Include="Polly" Version="8.6.1" />
     <PackageVersion Include="Polly.Contrib.WaitAndRetry" Version="1.1.1" />
     <PackageVersion Include="QuikGraph" Version="2.5.0" />
