@@ -243,31 +243,31 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
 
     private static readonly IEnumerable<Identifier> FixedLengthTypes = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
     {
-        new Identifier("sys", "char"),
-        new Identifier("sys", "nchar"),
-        new Identifier("sys", "binary")
+        new("sys", "char"),
+        new("sys", "nchar"),
+        new("sys", "binary")
     };
 
     private static readonly IEnumerable<Identifier> TypeNamesWithNoLengthAnnotation = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
     {
-        new Identifier("sys", "bigint"),
-        new Identifier("sys", "bit"),
-        new Identifier("sys", "date"),
-        new Identifier("sys", "datetime"),
-        new Identifier("sys", "image"),
-        new Identifier("sys", "int"),
-        new Identifier("sys", "money"),
-        new Identifier("sys", "ntext"),
-        new Identifier("sys", "rowversion"),
-        new Identifier("sys", "smalldatetime"),
-        new Identifier("sys", "smallint"),
-        new Identifier("sys", "smallmoney"),
-        new Identifier("sys", "sql_variant"),
-        new Identifier("sys", "text"),
-        new Identifier("sys", "timestamp"),
-        new Identifier("sys", "tinyint"),
-        new Identifier("sys", "uniqueidentifier"),
-        new Identifier("sys", "xml")
+        new("sys", "bigint"),
+        new("sys", "bit"),
+        new("sys", "date"),
+        new("sys", "datetime"),
+        new("sys", "image"),
+        new("sys", "int"),
+        new("sys", "money"),
+        new("sys", "ntext"),
+        new("sys", "rowversion"),
+        new("sys", "smalldatetime"),
+        new("sys", "smallint"),
+        new("sys", "smallmoney"),
+        new("sys", "sql_variant"),
+        new("sys", "text"),
+        new("sys", "timestamp"),
+        new("sys", "tinyint"),
+        new("sys", "uniqueidentifier"),
+        new("sys", "xml")
     };
 
     private static readonly IReadOnlyDictionary<Identifier, DataType> StringToDataTypeMap = new Dictionary<Identifier, DataType>(IdentifierComparer.OrdinalIgnoreCase)

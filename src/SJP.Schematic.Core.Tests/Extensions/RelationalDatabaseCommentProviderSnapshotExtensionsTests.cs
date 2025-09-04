@@ -36,7 +36,7 @@ internal static class RelationalDatabaseCommentProviderSnapshotExtensionsTests
     [Test]
     public static void SnapshotAsync_GivenDatabaseCommentProviderWithNullSnapshotOptions_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseCommentProviderSnapshotExtensions.SnapshotAsync(EmptyCommentProvider, (RelationalDatabaseCommentProviderSnapshotOptions)null), Throws.ArgumentNullException);
+        Assert.That(() => EmptyCommentProvider.SnapshotAsync((RelationalDatabaseCommentProviderSnapshotOptions)null), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -48,7 +48,7 @@ internal static class RelationalDatabaseCommentProviderSnapshotExtensionsTests
     [Test]
     public static void SnapshotAsync_GivenDatabaseCommentProviderWithNullResolver_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseCommentProviderSnapshotExtensions.SnapshotAsync(EmptyCommentProvider, (IIdentifierResolutionStrategy)null), Throws.ArgumentNullException);
+        Assert.That(() => EmptyCommentProvider.SnapshotAsync((IIdentifierResolutionStrategy)null), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -60,13 +60,13 @@ internal static class RelationalDatabaseCommentProviderSnapshotExtensionsTests
     [Test]
     public static void SnapshotAsync_GivenDatabaseCommentProviderWithResolverWithNullSnapshotOptions_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseCommentProviderSnapshotExtensions.SnapshotAsync(EmptyCommentProvider, null, new VerbatimIdentifierResolutionStrategy()), Throws.ArgumentNullException);
+        Assert.That(() => EmptyCommentProvider.SnapshotAsync(null, new VerbatimIdentifierResolutionStrategy()), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void SnapshotAsync_GivenNullDatabaseCommentProviderWithNullResolverForOptions_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseCommentProviderSnapshotExtensions.SnapshotAsync(EmptyCommentProvider, new RelationalDatabaseCommentProviderSnapshotOptions(), null), Throws.ArgumentNullException);
+        Assert.That(() => EmptyCommentProvider.SnapshotAsync(new RelationalDatabaseCommentProviderSnapshotOptions(), null), Throws.ArgumentNullException);
     }
 
     [Test]

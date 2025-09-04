@@ -23,6 +23,11 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore;
 /// <seealso cref="DatabaseTableGenerator" />
 public class EFCoreViewGenerator : DatabaseViewGenerator
 {
+    private static readonly string[] DefaultNamespaces = [
+        "System.ComponentModel.DataAnnotations",
+        "System.ComponentModel.DataAnnotations.Schema"
+    ];
+
     /// <summary>
     /// Initializes a new instance of the <see cref="EFCoreViewGenerator"/> class.
     /// </summary>
@@ -60,11 +65,7 @@ public class EFCoreViewGenerator : DatabaseViewGenerator
             ? Namespace + "." + schemaNamespace
             : Namespace;
 
-        var namespaces = new[]
-            {
-                "System.ComponentModel.DataAnnotations",
-                "System.ComponentModel.DataAnnotations.Schema"
-            }
+        var namespaces = DefaultNamespaces
             .Union(
                 view.Columns
                     .Select(static c => c.Type.ClrType.Namespace)

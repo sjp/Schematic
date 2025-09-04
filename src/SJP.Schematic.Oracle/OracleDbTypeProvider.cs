@@ -194,9 +194,8 @@ public class OracleDbTypeProvider : IDbTypeProvider
     {
         ArgumentNullException.ThrowIfNull(typeName);
 
-        return StringToDataTypeMap.ContainsKey(typeName.LocalName)
-            ? StringToDataTypeMap[typeName.LocalName]
-            : DataType.Unknown;
+        return StringToDataTypeMap.TryGetValue(typeName.LocalName, out var value)
+            ? value : DataType.Unknown;
     }
 
     /// <summary>
@@ -209,9 +208,8 @@ public class OracleDbTypeProvider : IDbTypeProvider
     {
         ArgumentNullException.ThrowIfNull(typeName);
 
-        return StringToClrTypeMap.ContainsKey(typeName.LocalName)
-            ? StringToClrTypeMap[typeName.LocalName]
-            : typeof(object);
+        return StringToClrTypeMap.TryGetValue(typeName.LocalName, out var value)
+            ? value : typeof(object);
     }
 
     /// <summary>

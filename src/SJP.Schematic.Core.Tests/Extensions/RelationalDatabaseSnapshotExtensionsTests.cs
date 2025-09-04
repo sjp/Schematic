@@ -35,7 +35,7 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
     [Test]
     public static void SnapshotAsync_WithSnapshotOptionsGivenNullOptions_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseSnapshotExtensions.SnapshotAsync(EmptyDatabase, (RelationalDatabaseSnapshotOptions)null), Throws.ArgumentNullException);
+        Assert.That(() => EmptyDatabase.SnapshotAsync((RelationalDatabaseSnapshotOptions)null), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -47,7 +47,7 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
     [Test]
     public static void SnapshotAsync_WithNullIdentifierResolverGivenDatabase_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseSnapshotExtensions.SnapshotAsync(EmptyDatabase, (IIdentifierResolutionStrategy)null), Throws.ArgumentNullException);
+        Assert.That(() => EmptyDatabase.SnapshotAsync((IIdentifierResolutionStrategy)null), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -59,13 +59,13 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
     [Test]
     public static void SnapshotAsync_WithNullOptionsForOptionsAndResolver_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseSnapshotExtensions.SnapshotAsync(EmptyDatabase, null, new VerbatimIdentifierResolutionStrategy()), Throws.ArgumentNullException);
+        Assert.That(() => EmptyDatabase.SnapshotAsync(null, new VerbatimIdentifierResolutionStrategy()), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void SnapshotAsync_WithNullResolversForOptionsAndResolver_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseSnapshotExtensions.SnapshotAsync(EmptyDatabase, new RelationalDatabaseSnapshotOptions(), null), Throws.ArgumentNullException);
+        Assert.That(() => EmptyDatabase.SnapshotAsync(new RelationalDatabaseSnapshotOptions(), null), Throws.ArgumentNullException);
     }
 
     [Test]
