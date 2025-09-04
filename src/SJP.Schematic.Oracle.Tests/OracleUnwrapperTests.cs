@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using NUnit.Framework;
-using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Oracle.Tests;
 
