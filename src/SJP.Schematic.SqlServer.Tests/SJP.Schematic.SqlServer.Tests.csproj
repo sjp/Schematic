@@ -3,7 +3,6 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <EnableNUnitRunner>true</EnableNUnitRunner>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
 
