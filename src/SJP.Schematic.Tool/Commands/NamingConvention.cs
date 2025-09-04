@@ -1,6 +1,6 @@
 ﻿namespace SJP.Schematic.Tool.Commands;
 
-internal enum NamingConvention
+public enum NamingConvention
 {
     Pascal,
     Verbatim,

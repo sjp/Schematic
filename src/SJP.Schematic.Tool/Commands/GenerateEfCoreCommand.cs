@@ -1,5 +1,9 @@
-﻿using System.Threading;
+﻿using System;
+using System.IO.Abstractions;
+using System.Threading;
 using System.Threading.Tasks;
+using SJP.Schematic.Core.Utilities;
+using SJP.Schematic.DataAccess.EntityFrameworkCore;
 using SJP.Schematic.Tool.Handlers;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -12,9 +16,41 @@ internal sealed class GenerateEfCoreCommand : AsyncCommand<GenerateEfCoreCommand
     {
     }
 
+    private readonly IFileSystem _fileSystem;
+    private readonly IAnsiConsole _console;
+    private readonly IDatabaseCommandDependencyProviderFactory _dependencyProviderFactory;
+
+    public GenerateEfCoreCommand(
+        IFileSystem fileSystem,
+        IAnsiConsole console,
+        IDatabaseCommandDependencyProviderFactory dependencyProviderFactory)
+    {
+        ArgumentNullException.ThrowIfNull(fileSystem);
+        ArgumentNullException.ThrowIfNull(console);
+        ArgumentNullException.ThrowIfNull(dependencyProviderFactory);
+
+        _fileSystem = fileSystem;
+        _console = console;
+        _dependencyProviderFactory = dependencyProviderFactory;
+    }
+
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        var handler = new GenerateEfCoreCommandHandler(AnsiConsole.Console, settings.ConfigFile!);
-        return await handler.HandleCommandAsync(settings.ProjectPath!, settings.BaseNamespace!, settings.NamingConvention, CancellationToken.None).ConfigureAwait(false);
+        var cancellationToken = CancellationToken.None;
+
+        var dependencyProvider = _dependencyProviderFactory.GetDbDependencies(settings.ConfigFile!.FullName);
+        var connection = dependencyProvider.GetSchematicConnection();
+        var nameTranslator = dependencyProvider.GetNameTranslator(settings.NamingConvention);
+
+        var (database, commentProvider) = await TaskUtilities.WhenAll(
+            connection.Dialect.GetRelationalDatabaseAsync(connection, cancellationToken),
+            connection.Dialect.GetRelationalDatabaseCommentProviderAsync(connection, cancellationToken)
+        ).ConfigureAwait(false);
+
+        var generator = new EFCoreDataAccessGenerator(_fileSystem, database, commentProvider, nameTranslator);
+        await generator.GenerateAsync(settings.ProjectPath!.FullName, settings.BaseNamespace!, cancellationToken).ConfigureAwait(false);
+
+        _console.MarkupLine("[green]Project generated at: " + settings.ProjectPath.FullName + "[/]");
+        return ErrorCode.Success;
     }
 }

@@ -1,10 +1,12 @@
-﻿using System;
+﻿using System.IO.Abstractions;
 using System.Reflection;
 using System.Threading.Tasks;
-using Oracle.ManagedDataAccess.Client;
+using Microsoft.Extensions.DependencyInjection;
 using SJP.Schematic.Tool.Commands;
+using SJP.Schematic.Tool.Handlers;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using Spectre.Console.Cli.Extensions.DependencyInjection;
 
 namespace SJP.Schematic.Tool;
 
@@ -12,7 +14,13 @@ internal static class Program
 {
     public static Task<int> Main(string[] args)
     {
-        var app = new CommandApp();
+        var services = new ServiceCollection();
+        services.AddSingleton<IFileSystem, FileSystem>();
+        services.AddSingleton<IDatabaseCommandDependencyProvider, DatabaseCommandDependencyProvider>();
+        services.AddSingleton<IDatabaseCommandDependencyProviderFactory, DatabaseCommandDependencyProviderFactory>();
+        var registrar = new DependencyInjectionRegistrar(services);
+
+        var app = new CommandApp(registrar);
 
         app.Configure(config =>
         {
@@ -32,7 +40,7 @@ internal static class Program
 
             config.PropagateExceptions();
             config.ValidateExamples();
-            config.SetExceptionHandler((ex, resolver) =>
+            config.SetExceptionHandler((ex, _) =>
             {
                 AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
             });
@@ -46,50 +54,5 @@ internal static class Program
         var assembly = Assembly.GetEntryAssembly()!;
         var assemblyVersion = assembly.GetName().Version!;
         return $"v{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}";
-    }
-
-    private static void HandleException(Exception exception)
-    {
-        AnsiConsole.Foreground = ConsoleColor.Red;
-
-        if (exception is TargetInvocationException tie &&
-            tie.InnerException is not null)
-        {
-            exception = tie.InnerException;
-        }
-
-        // take the first if present
-        if (exception is AggregateException ae && ae.InnerExceptions.Count > 0)
-        {
-            exception = ae.InnerExceptions[0];
-        }
-
-        if (exception is OperationCanceledException)
-        {
-            AnsiConsole.WriteLine("...canceled.");
-        }
-        // don't know why, but oracle wraps cancellation in its own exception
-        else if (exception is OracleException oex && oex.Number == 1013)
-        {
-            AnsiConsole.WriteLine("...canceled.");
-        }
-        else if (exception is CommandException command)
-        {
-            AnsiConsole.WriteLine($"The command failed:");
-            AnsiConsole.WriteLine($"    {command.Message}");
-
-            if (command.InnerException != null)
-            {
-                AnsiConsole.WriteLine();
-                AnsiConsole.WriteLine(command.InnerException.ToString());
-            }
-        }
-        else
-        {
-            AnsiConsole.WriteLine("An unhandled exception has occurred: ");
-            AnsiConsole.WriteLine(exception.ToString());
-        }
-
-        AnsiConsole.ResetColors();
     }
 }

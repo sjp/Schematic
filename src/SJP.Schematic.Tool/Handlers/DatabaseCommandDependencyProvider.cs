@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using Microsoft.Extensions.Configuration;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -8,17 +7,16 @@ using SJP.Schematic.Tool.Commands;
 
 namespace SJP.Schematic.Tool.Handlers;
 
-internal abstract class DatabaseCommandHandler
+public class DatabaseCommandDependencyProvider : IDatabaseCommandDependencyProvider
 {
-    protected DatabaseCommandHandler(FileInfo filePath)
+    public DatabaseCommandDependencyProvider(IConfiguration configuration)
     {
-        if (!filePath.Exists)
-            throw new FileNotFoundException($"Expected a configuration file at '{filePath}', but could not find one.");
+        ArgumentNullException.ThrowIfNull(configuration);
 
-        Configuration = GetConfig(filePath.FullName);
+        Configuration = configuration;
     }
 
-    protected IConfiguration Configuration { get; }
+    public IConfiguration Configuration { get; }
 
     protected static IConfiguration GetConfig(string filePath)
     {
@@ -46,7 +44,7 @@ internal abstract class DatabaseCommandHandler
         };
     }
 
-    protected IDbConnectionFactory GetConnectionFactory()
+    public IDbConnectionFactory GetConnectionFactory()
     {
         var dialect = Configuration.GetValue<string>("Dialect");
         if (dialect.IsNullOrWhiteSpace())
@@ -65,7 +63,7 @@ internal abstract class DatabaseCommandHandler
         };
     }
 
-    protected ISchematicConnection GetSchematicConnection()
+    public ISchematicConnection GetSchematicConnection()
     {
         var connectionFactory = GetConnectionFactory();
         var dialect = GetDialect();
@@ -73,7 +71,7 @@ internal abstract class DatabaseCommandHandler
         return new SchematicConnection(connectionFactory, dialect);
     }
 
-    protected string GetConnectionString()
+    public string GetConnectionString()
     {
         var connectionString = Configuration.GetConnectionString("Schematic");
         if (connectionString.IsNullOrWhiteSpace())
@@ -82,7 +80,7 @@ internal abstract class DatabaseCommandHandler
         return connectionString;
     }
 
-    protected static INameTranslator GetNameTranslator(NamingConvention convention)
+    public INameTranslator GetNameTranslator(NamingConvention convention)
     {
         return convention switch
         {
