@@ -18,7 +18,7 @@ jobs:
         env:
           ACCEPT_EULA: 'Y'
           SA_PASSWORD: Schematic0123!
-          MSSQL_TOOLS_PATH: ${{ matrix.tag != '2017-latest' && '/opt/mssql-tools18/bin/sqlcmd' || '/opt/mssql-tools/bin/sqlcmd' }}
+          MSSQL_TOOLS_PATH: '/opt/mssql-tools18/bin/sqlcmd'
         options: >-
           --health-cmd "${MSSQL_TOOLS_PATH} -C -U sa -P \"${SA_PASSWORD}\" -Q \"SELECT 1\""
           --health-interval 10s
