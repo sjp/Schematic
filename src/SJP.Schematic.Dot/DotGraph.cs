@@ -89,7 +89,7 @@ internal sealed class DotGraph
         if (Nodes.Any())
         {
             var nodeIndent = GetIndentForLevel(level);
-            var orderedNodes = Nodes.OrderBy(static n => n.Identifier.ToString());
+            var orderedNodes = Nodes.OrderBy(static n => n.Identifier.ToString(), StringComparer.Ordinal);
 
             foreach (var node in orderedNodes)
             {

@@ -59,8 +59,8 @@ public class PostgreSqlViewCommentProvider : IDatabaseViewCommentProvider
 
         var viewComments = queryViews
             .Concat(materializedViews)
-            .OrderBy(static v => v.ViewName.Schema)
-            .ThenBy(static v => v.ViewName.LocalName);
+            .OrderBy(static v => v.ViewName.Schema, StringComparer.Ordinal)
+            .ThenBy(static v => v.ViewName.LocalName, StringComparer.Ordinal);
 
         foreach (var comment in viewComments)
             yield return comment;

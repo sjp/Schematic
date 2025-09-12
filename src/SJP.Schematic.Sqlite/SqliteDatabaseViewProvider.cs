@@ -85,14 +85,15 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
             var viewNames = await DbConnection.QueryEnumerableAsync<GetAllViewNames.Result>(sql, cancellationToken)
                 .Where(static result => !IsReservedViewName(result.ViewName))
                 .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.ViewName))
-                .ToListAsync(cancellationToken);
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(false);
 
             qualifiedViewNames.AddRange(viewNames);
         }
 
         var orderedViewNames = qualifiedViewNames
-            .OrderBy(static v => v.Schema)
-            .ThenBy(static v => v.LocalName);
+            .OrderBy(static v => v.Schema, StringComparer.Ordinal)
+            .ThenBy(static v => v.LocalName, StringComparer.Ordinal);
 
         foreach (var viewName in orderedViewNames)
             yield return await LoadViewAsyncCore(viewName, cancellationToken).ConfigureAwait(false);

@@ -60,7 +60,7 @@ public class NoSurrogatePrimaryKeyRule : Rule, ITableRule
                         .Distinct(StringComparer.Ordinal)
                         .ToList();
 
-                    var areAllColumnsFks = pk.Columns.All(c => fkColumns.Contains(c.Name.LocalName));
+                    var areAllColumnsFks = pk.Columns.All(c => fkColumns.Contains(c.Name.LocalName, StringComparer.Ordinal));
                     return areAllColumnsFks
                         ? []
                         : [BuildMessage(table.Name)];

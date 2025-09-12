@@ -217,7 +217,7 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
             };
             var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
-            var isNullable = !notNullableColumnNames.Contains(row.ColumnName);
+            var isNullable = !notNullableColumnNames.Contains(row.ColumnName, StringComparer.Ordinal);
             var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
             var defaultValue = !row.DefaultValue.IsNullOrWhiteSpace()
                 ? Option<string>.Some(row.DefaultValue)

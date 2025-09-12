@@ -50,7 +50,7 @@ public class MySqlConnectionFactory : IDbConnectionFactory
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task containing an object representing a database connection when completed.</returns>
     public async Task<DbConnection> OpenConnectionAsync(CancellationToken cancellationToken = default)
-        => await DataSource.OpenConnectionAsync(cancellationToken);
+        => await DataSource.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
     /// <summary>
     /// Determines whether connections retrieved from this factory should be disposed.

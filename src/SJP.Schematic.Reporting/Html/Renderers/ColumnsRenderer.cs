@@ -46,7 +46,7 @@ internal sealed class ColumnsRenderer : ITemplateRenderer
 
         var orderedColumns = tableColumnViewModels
             .Concat(viewColumnViewModels)
-            .OrderBy(static c => c.Name)
+            .OrderBy(static c => c.Name, StringComparer.Ordinal)
             .ThenBy(static c => c.Ordinal)
             .ToList();
 

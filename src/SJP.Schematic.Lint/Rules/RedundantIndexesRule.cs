@@ -108,8 +108,8 @@ public class RedundantIndexesRule : Rule, ITableRule
         // is not equivalent, even if it may have the same sorting behaviour
         if (index.IncludedColumns.Count > 0)
         {
-            var indexIncludedColumns = index.IncludedColumns.Select(c => c.Name.LocalName).ToHashSet();
-            var otherIndexIncludedColumns = otherIndex.IncludedColumns.Select(c => c.Name.LocalName).ToHashSet();
+            var indexIncludedColumns = index.IncludedColumns.Select(c => c.Name.LocalName).ToHashSet(StringComparer.Ordinal);
+            var otherIndexIncludedColumns = otherIndex.IncludedColumns.Select(c => c.Name.LocalName).ToHashSet(StringComparer.Ordinal);
             var includedColumnSubset = indexIncludedColumns.IsSubsetOf(otherIndexIncludedColumns);
             if (!includedColumnSubset)
                 return false;

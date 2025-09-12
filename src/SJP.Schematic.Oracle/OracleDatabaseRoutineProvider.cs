@@ -58,8 +58,8 @@ public class OracleDatabaseRoutineProvider : IDatabaseRoutineProvider
 
         var routines = simpleRoutines
             .Concat(packages)
-            .OrderBy(static r => r.Name.Schema)
-            .ThenBy(static r => r.Name.LocalName);
+            .OrderBy(static r => r.Name.Schema, StringComparer.Ordinal)
+            .ThenBy(static r => r.Name.LocalName, StringComparer.Ordinal);
 
         foreach (var routine in routines)
             yield return routine;

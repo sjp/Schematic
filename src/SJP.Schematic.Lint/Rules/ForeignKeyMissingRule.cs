@@ -70,7 +70,7 @@ public class ForeignKeyMissingRule : Rule, ITableRule
                 continue;
 
             // now check whether the column name is already part of an FK
-            if (foreignKeyColumnNames.Contains(columnName))
+            if (foreignKeyColumnNames.Contains(columnName, StringComparer.Ordinal))
                 continue;
 
             var message = BuildMessage(columnName, table.Name, targetTableName);

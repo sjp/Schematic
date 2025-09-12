@@ -29,8 +29,8 @@ public static class EnumerableStringExtensions
             group.Add(ns);
         }
 
-        return system.Order()
-            .Concat(nonSystem.Order())
+        return system.Order(StringComparer.Ordinal)
+            .Concat(nonSystem.Order(StringComparer.Ordinal))
             .ToList();
     }
 

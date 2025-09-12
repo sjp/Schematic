@@ -49,7 +49,8 @@ public class DotSvgRenderer : IDotSvgRenderer
             {
                 FileName = _dotPath,
                 Arguments = $"-Tsvg \"{tmpInputFilePath}\" -o \"{tmpOutputFilePath}\"",
-                RedirectStandardError = true
+                RedirectStandardError = true,
+                UseShellExecute = false,
             };
             using (var process = new Process { StartInfo = startInfo })
             {
@@ -105,7 +106,8 @@ public class DotSvgRenderer : IDotSvgRenderer
             {
                 FileName = _dotPath,
                 Arguments = $"-Tsvg \"{tmpInputFilePath}\" -o \"{tmpOutputFilePath}\"",
-                RedirectStandardError = true
+                RedirectStandardError = true,
+                UseShellExecute = false,
             };
             using (var process = new Process { StartInfo = startInfo })
             {

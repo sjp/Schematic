@@ -59,8 +59,8 @@ public class OracleViewCommentProvider : IDatabaseViewCommentProvider
 
         var comments = queryViewComments
             .Concat(materializedViewComments)
-            .OrderBy(static v => v.ViewName.Schema)
-            .ThenBy(static v => v.ViewName.LocalName);
+            .OrderBy(static v => v.ViewName.Schema, StringComparer.Ordinal)
+            .ThenBy(static v => v.ViewName.LocalName, StringComparer.Ordinal);
 
         foreach (var comment in comments)
             yield return comment;
