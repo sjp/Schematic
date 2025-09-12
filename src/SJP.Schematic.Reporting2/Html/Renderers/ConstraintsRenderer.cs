@@ -48,19 +48,19 @@ internal sealed class ConstraintsRenderer : ITemplateRenderer
 
         var primaryKeyViewModels = primaryKeys
             .Select(pk => mapper.MapPrimaryKey(pk.TableName, pk.PrimaryKey))
-            .OrderBy(static pk => pk.TableName)
+            .OrderBy(static pk => pk.TableName, StringComparer.Ordinal)
             .ToList();
         var uniqueKeyViewModels = uniqueKeys
             .Select(uk => mapper.MapUniqueKey(uk.TableName, uk.UniqueKey))
-            .OrderBy(static uk => uk.TableName)
+            .OrderBy(static uk => uk.TableName, StringComparer.Ordinal)
             .ToList();
         var foreignKeyViewModels = foreignKeys
             .Select(mapper.MapForeignKey)
-            .OrderBy(static fk => fk.TableName)
+            .OrderBy(static fk => fk.TableName, StringComparer.Ordinal)
             .ToList();
         var checkConstraintViewModels = checkConstraints
             .Select(ck => mapper.MapCheckConstraint(ck.TableName, ck.Check))
-            .OrderBy(static ck => ck.TableName)
+            .OrderBy(static ck => ck.TableName, StringComparer.Ordinal)
             .ToList();
 
         var templateParameter = new Constraints(

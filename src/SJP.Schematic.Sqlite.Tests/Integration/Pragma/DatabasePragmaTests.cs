@@ -13,7 +13,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
 {
     private static IDbConnectionFactory CreateConnectionFactory()
     {
-        var id = Guid.NewGuid().ToString().Replace("-", "_", StringComparison.Ordinal);
+        var id = Guid.NewGuid().ToString().Replace('-', '_');
         var connectionString = $"Data Source=InMemory_{id};Mode=Memory;Cache=Shared";
 
         return new CachingConnectionFactory(new SqliteConnectionFactory(connectionString));

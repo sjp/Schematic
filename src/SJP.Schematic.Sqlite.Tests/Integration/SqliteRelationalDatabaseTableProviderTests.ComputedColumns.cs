@@ -33,7 +33,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
         var columns = table.Columns;
         var columnNames = columns.Where(c => c.IsComputed).Select(c => c.Name.LocalName).ToList();
 
-        var equalNames = columnNames.SequenceEqual(expectedColumnNames);
+        var equalNames = columnNames.SequenceEqual(expectedColumnNames, System.StringComparer.Ordinal);
         Assert.That(equalNames, Is.True);
     }
 
@@ -45,7 +45,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
         var columns = table.Columns;
         var columnNames = columns.Select(c => c.Name.LocalName).ToList();
 
-        var equalNames = columnNames.SequenceEqual(expectedColumnNames);
+        var equalNames = columnNames.SequenceEqual(expectedColumnNames, System.StringComparer.Ordinal);
         Assert.That(equalNames, Is.True);
     }
 
@@ -65,7 +65,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
             .SelectMany(x => x)
             .ToList();
 
-        var equalDefinitions = definitions.SequenceEqual(expectedDefinitions);
+        var equalDefinitions = definitions.SequenceEqual(expectedDefinitions, System.StringComparer.Ordinal);
         Assert.That(equalDefinitions, Is.True);
     }
 }

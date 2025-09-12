@@ -224,7 +224,7 @@ public class DotFormatter : IDotFormatter
         }
 
         var recordNodes = tableNodes.Values
-            .OrderBy(static node => node.Identifier.ToString())
+            .OrderBy(static node => node.Identifier.ToString(), StringComparer.Ordinal)
             .ToList();
 
         var graphName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()

@@ -37,7 +37,7 @@ public class DatabaseViewCommentsMapper
 
     private static IReadOnlyDictionary<string, string?> AsDtoCommentLookup(IReadOnlyDictionary<Identifier, Option<string>> coreCommentLookup)
     {
-        var result = new Dictionary<string, string?>();
+        var result = new Dictionary<string, string?>(System.StringComparer.Ordinal);
 
         foreach (var kv in coreCommentLookup)
         {

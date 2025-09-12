@@ -145,18 +145,18 @@ internal static class EnumerableExtensionsTests
             Assert.That(grouping, Has.Exactly(4).Items);
 
             Assert.That(grouping, Does.ContainKey(1));
-            Assert.That(grouping[1], Is.EquivalentTo(new[] { "a" }));
+            Assert.That(grouping[1], Is.EquivalentTo(["a"]));
 
             Assert.That(grouping, Does.ContainKey(2));
-            Assert.That(grouping[2], Is.EquivalentTo(new[] { "bb" }));
+            Assert.That(grouping[2], Is.EquivalentTo(["bb"]));
 
             Assert.That(grouping, Does.ContainKey(3));
-            Assert.That(grouping[3], Is.EquivalentTo(new[] { "ccc", "ddd" }));
+            Assert.That(grouping[3], Is.EquivalentTo(["ccc", "ddd"]));
 
             Assert.That(grouping, Does.Not.ContainKey(4));
 
             Assert.That(grouping, Does.ContainKey(5));
-            Assert.That(grouping[5], Is.EquivalentTo(new[] { "eeeee" }));
+            Assert.That(grouping[5], Is.EquivalentTo(["eeeee"]));
         }
     }
 
@@ -171,16 +171,16 @@ internal static class EnumerableExtensionsTests
             Assert.That(grouping, Has.Exactly(4).Items);
 
             Assert.That(grouping, Does.ContainKey("a"));
-            Assert.That(grouping["a"], Is.EquivalentTo(new[] { "a" }));
+            Assert.That(grouping["a"], Is.EquivalentTo(["a"]));
 
             Assert.That(grouping, Does.ContainKey("bb"));
-            Assert.That(grouping["bb"], Is.EquivalentTo(new[] { "bb" }));
+            Assert.That(grouping["bb"], Is.EquivalentTo(["bb"]));
 
             Assert.That(grouping, Does.ContainKey("ccc"));
-            Assert.That(grouping["ccc"], Is.EquivalentTo(new[] { "ccc", "CCC" }));
+            Assert.That(grouping["ccc"], Is.EquivalentTo(["ccc", "CCC"]));
 
             Assert.That(grouping, Does.ContainKey("eeeee"));
-            Assert.That(grouping["eeeee"], Is.EquivalentTo(new[] { "eeeee" }));
+            Assert.That(grouping["eeeee"], Is.EquivalentTo(["eeeee"]));
         }
     }
 
@@ -195,19 +195,19 @@ internal static class EnumerableExtensionsTests
             Assert.That(grouping, Has.Exactly(5).Items);
 
             Assert.That(grouping, Does.ContainKey("a"));
-            Assert.That(grouping["a"], Is.EquivalentTo(new[] { "a" }));
+            Assert.That(grouping["a"], Is.EquivalentTo(["a"]));
 
             Assert.That(grouping, Does.ContainKey("bb"));
-            Assert.That(grouping["bb"], Is.EquivalentTo(new[] { "bb" }));
+            Assert.That(grouping["bb"], Is.EquivalentTo(["bb"]));
 
             Assert.That(grouping, Does.ContainKey("ccc"));
-            Assert.That(grouping["ccc"], Is.EquivalentTo(new[] { "ccc" }));
+            Assert.That(grouping["ccc"], Is.EquivalentTo(["ccc"]));
 
             Assert.That(grouping, Does.ContainKey("CCC"));
-            Assert.That(grouping["CCC"], Is.EquivalentTo(new[] { "CCC" }));
+            Assert.That(grouping["CCC"], Is.EquivalentTo(["CCC"]));
 
             Assert.That(grouping, Does.ContainKey("eeeee"));
-            Assert.That(grouping["eeeee"], Is.EquivalentTo(new[] { "eeeee" }));
+            Assert.That(grouping["eeeee"], Is.EquivalentTo(["eeeee"]));
         }
     }
 }

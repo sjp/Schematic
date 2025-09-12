@@ -288,7 +288,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             var includedCols = indexInfo.Value
                 .Where(row => row.IsIncludedColumn && columnLookup.ContainsKey(row.ColumnName))
                 .OrderBy(static row => row.KeyOrdinal)
-                .ThenBy(static row => row.ColumnName) // matches SSMS behaviour
+                .ThenBy(static row => row.ColumnName, StringComparer.Ordinal) // matches SSMS behaviour
                 .Select(row => columnLookup[row.ColumnName])
                 .ToList();
 

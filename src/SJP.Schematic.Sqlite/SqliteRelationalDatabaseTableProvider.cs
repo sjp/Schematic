@@ -108,8 +108,8 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         }
 
         var tableNames = qualifiedTableNames
-            .OrderBy(static name => name.Schema)
-            .ThenBy(static name => name.LocalName);
+            .OrderBy(static name => name.Schema, StringComparer.Ordinal)
+            .ThenBy(static name => name.LocalName, StringComparer.Ordinal);
 
         var queryCache = CreateQueryCache();
         foreach (var tableName in tableNames)
@@ -388,7 +388,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
             var includedColumns = indexInfo
                 .Where(i => !i.key && i.cid >= 0 && i.name != null && columnLookup.ContainsKey(i.name))
-                .OrderBy(static i => i.name)
+                .OrderBy(static i => i.name, StringComparer.Ordinal)
                 .Select(i => columnLookup[i.name!])
                 .ToList();
 

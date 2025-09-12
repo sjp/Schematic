@@ -55,8 +55,8 @@ public class PostgreSqlDatabaseViewProvider : IDatabaseViewProvider
 
         var views = queryViews
             .Concat(materializedViews)
-            .OrderBy(static v => v.Name.Schema)
-            .ThenBy(static v => v.Name.LocalName);
+            .OrderBy(static v => v.Name.Schema, StringComparer.Ordinal)
+            .ThenBy(static v => v.Name.LocalName, StringComparer.Ordinal);
 
         foreach (var view in views)
             yield return view;

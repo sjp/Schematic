@@ -46,8 +46,8 @@ internal sealed class IndexesRenderer : ITemplateRenderer
         }
 
         var indexes = allIndexes
-            .OrderBy(static i => i.TableName)
-            .ThenBy(static i => i.Name)
+            .OrderBy(static i => i.TableName, StringComparer.Ordinal)
+            .ThenBy(static i => i.Name, StringComparer.Ordinal)
             .ToList();
 
         var templateParameter = new Indexes(indexes);

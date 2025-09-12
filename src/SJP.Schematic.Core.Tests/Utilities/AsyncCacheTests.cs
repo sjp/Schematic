@@ -17,7 +17,7 @@ internal static class AsyncCacheTests
     [Test]
     public static void GetByKeyAsync_GivenNullKey_ThrowsArgumentNullException()
     {
-        var cache = new AsyncCache<object, object, object>((object _, object __, CancellationToken ___) => Task.FromResult(new object()));
+        var cache = new AsyncCache<object, object, object>((_, __, ___) => Task.FromResult(new object()));
 
         Assert.That(() => cache.GetByKeyAsync(null, new object()), Throws.ArgumentNullException);
     }
@@ -25,7 +25,7 @@ internal static class AsyncCacheTests
     [Test]
     public static void GetByKeyAsync_GivenNullCache_ThrowsArgumentNullException()
     {
-        var cache = new AsyncCache<object, object, object>((object _, object __, CancellationToken ___) => Task.FromResult(new object()));
+        var cache = new AsyncCache<object, object, object>((_, __, ___) => Task.FromResult(new object()));
 
         Assert.That(() => cache.GetByKeyAsync(new object(), null), Throws.ArgumentNullException);
     }
@@ -34,7 +34,7 @@ internal static class AsyncCacheTests
     public static async Task GetByKeyAsync_WhenCalledTwiceWithSameKey_InvokesFactoryOnlyOnce()
     {
         var counter = 0;
-        var cache = new AsyncCache<string, string, string>((string _, string __, CancellationToken ___) =>
+        var cache = new AsyncCache<string, string, string>((_, __, ___) =>
         {
             counter++;
             return Task.FromResult(string.Empty);

@@ -129,7 +129,7 @@ public class SqlServerDependencyProvider : IDependencyProvider
     private static string GetIdentifierValue(TSqlParserToken token)
     {
         if (!IsIdentifier(token))
-            throw new ArgumentException($"Expected a token of type {TSqlTokenType.Identifier} or {TSqlTokenType.QuotedIdentifier}. Received {token.TokenType}.", nameof(token));
+            throw new ArgumentException($"Expected a token of type {nameof(TSqlTokenType.Identifier)} or {nameof(TSqlTokenType.QuotedIdentifier)}. Received {token.TokenType}.", nameof(token));
 
         if (token.TokenType == TSqlTokenType.QuotedIdentifier)
         {

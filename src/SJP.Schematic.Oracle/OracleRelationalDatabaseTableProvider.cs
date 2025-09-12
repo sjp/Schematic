@@ -483,7 +483,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         foreach (var checkRow in checks)
         {
             var definition = checkRow.Definition;
-            if (definition == null || columnNotNullConstraints.Contains(definition))
+            if (definition == null || columnNotNullConstraints.Contains(definition, StringComparer.Ordinal))
                 continue;
 
             var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);

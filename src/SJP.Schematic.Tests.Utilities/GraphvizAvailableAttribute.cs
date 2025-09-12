@@ -30,7 +30,7 @@ public sealed class GraphvizAvailableAttribute : NUnitAttribute, IApplyToTest
         test.Properties.Set(PropertyNames.SkipReason, reason);
     }
 
-    private static bool IsWindows { get; } = RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
+    private static bool IsWindows { get; } = OperatingSystem.IsWindows();
 
     private static bool HasSystemDot => _hasSystemDot.Value;
 
@@ -45,6 +45,7 @@ public sealed class GraphvizAvailableAttribute : NUnitAttribute, IApplyToTest
             WindowStyle = ProcessWindowStyle.Hidden,
             RedirectStandardError = true,
             RedirectStandardOutput = true,
+            UseShellExecute = false,
         };
 
         try

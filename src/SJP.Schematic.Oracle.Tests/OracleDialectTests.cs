@@ -94,7 +94,7 @@ internal static class OracleDialectTests
     [Test]
     public static void QuoteIdentifier_GivenNameNullCharacter_ThrowsArgumentException()
     {
-        var input = new string(new[] { 't', 'e', '\0', 's', 't' });
+        var input = new string(['t', 'e', '\0', 's', 't']);
 
         var dialect = new OracleDialect();
 

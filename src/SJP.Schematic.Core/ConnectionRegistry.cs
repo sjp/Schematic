@@ -24,12 +24,13 @@ public static class ConnectionRegistry
 
         ConnectionFactoryLookup.AddOrUpdate(
             connectionId,
-            new WeakReference<IDbConnectionFactory>(connectionFactory),
-            (_, reference) =>
+            (_, connFactory) => new WeakReference<IDbConnectionFactory>(connFactory),
+            (_, reference, connFactory) =>
             {
-                reference.SetTarget(connectionFactory);
+                reference.SetTarget(connFactory);
                 return reference;
-            });
+            },
+            connectionFactory);
         ConnectionIdLookup.AddOrUpdate(connectionFactory, connectionId.ToString());
     }
 

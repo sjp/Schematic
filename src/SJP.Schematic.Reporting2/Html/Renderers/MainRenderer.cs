@@ -140,7 +140,7 @@ internal sealed class MainRenderer : ITemplateRenderer
             .Distinct(StringComparer.Ordinal)
             .Where(static s => s != null)
             .Select(static s => s!)
-            .Order()
+            .Order(StringComparer.Ordinal)
             .ToList();
 
         var templateParameter = new Main(
