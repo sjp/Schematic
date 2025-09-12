@@ -18,5 +18,5 @@ public enum TriggerQueryTiming
     /// <summary>
     /// Occurs instead of a SQL statement when a statement would modify a table.
     /// </summary>
-    InsteadOf
+    InsteadOf,
 }

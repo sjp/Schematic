@@ -24,7 +24,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="connection">A schematic connection.</param>
     /// <param name="identifierDefaults">Database identifier defaults.</param>
     /// <param name="identifierResolver">An identifier resolver.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <see langword="null" />.</exception>
     public OracleRelationalDatabaseTableProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -101,7 +101,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="tableName">A database table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database table in the 'some' state if found; otherwise 'none'.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -117,7 +117,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="tableName">A table name that will be resolved.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A table name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected Task<Option<Identifier>> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -138,7 +138,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="tableName">A table name that will be resolved.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A table name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected OptionAsync<Identifier> GetResolvedTableNameStrict(Identifier tableName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -160,7 +160,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="queryCache">The query cache.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A table, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> is <see langword="null" />.</exception>
     protected OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -213,7 +213,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A primary key, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
     protected Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -262,7 +262,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of indexes.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
     protected Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -324,7 +324,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of unique keys.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
     protected Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -359,7 +359,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                     .OrderBy(static row => row.ColumnPosition)
                     .Select(row => columnLookup[row.ColumnName!])
                     .ToList(),
-                IsEnabled = string.Equals(g.Key.EnabledStatus, Constants.Enabled, StringComparison.Ordinal)
+                IsEnabled = string.Equals(g.Key.EnabledStatus, Constants.Enabled, StringComparison.Ordinal),
             })
             .ToList();
         if (constraintColumns.Empty())
@@ -376,7 +376,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of child keys.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
     protected Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -450,7 +450,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of check constraints.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -503,7 +503,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of foreign keys.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
     protected Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -592,7 +592,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="tableName">A table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An ordered collection of columns.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -626,7 +626,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 MaxLength = row.DataLength,
                 NumericPrecision = row.Precision > 0 || row.Scale > 0
                     ? Option<INumericPrecision>.Some(new NumericPrecision(row.Precision, row.Scale))
-                    : Option<INumericPrecision>.None
+                    : Option<INumericPrecision>.None,
             };
             var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
@@ -656,7 +656,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="tableName">A table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of triggers.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(Identifier tableName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -720,7 +720,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="columnNames">The column names for the given table.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of not-null constrained column names.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="columnNames"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="columnNames"/> are <see langword="null" />.</exception>
     protected Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsync(Identifier tableName, IEnumerable<string> columnNames, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -757,7 +757,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// </summary>
     /// <param name="columnName">A column name.</param>
     /// <returns>A <c>NOT NULL</c> constraint definition for the given column.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <see langword="null" />, empty or whitespace.</exception>
     protected static string GenerateNotNullDefinition(string columnName)
     {
         if (columnName.IsNullOrWhiteSpace())
@@ -776,7 +776,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         ["RESTRICT"] = ReferentialAction.Restrict,
         ["CASCADE"] = ReferentialAction.Cascade,
         ["SET NULL"] = ReferentialAction.SetNull,
-        ["SET DEFAULT"] = ReferentialAction.SetDefault
+        ["SET DEFAULT"] = ReferentialAction.SetDefault,
     };
 
     /// <summary>
@@ -790,7 +790,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         ["AFTER STATEMENT"] = TriggerQueryTiming.After,
         ["AFTER EACH ROW"] = TriggerQueryTiming.After,
         ["INSTEAD OF"] = TriggerQueryTiming.InsteadOf,
-        ["COMPOUND"] = TriggerQueryTiming.InsteadOf
+        ["COMPOUND"] = TriggerQueryTiming.InsteadOf,
     };
 
     /// <summary>
@@ -798,7 +798,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// </summary>
     /// <param name="tableName">A table name to qualify.</param>
     /// <returns>A table name that is at least as qualified as its input.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected Identifier QualifyTableName(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -872,7 +872,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <param name="primaryKeyLoader">A primary key cache.</param>
         /// <param name="uniqueKeyLoader">A unique key cache.</param>
         /// <param name="foreignKeyLoader">A foreign key cache.</param>
-        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/> or <paramref name="foreignKeyLoader"/> are <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/> or <paramref name="foreignKeyLoader"/> are <see langword="null" />.</exception>
         public OracleTableQueryCache(
             AsyncCache<Identifier, Option<Identifier>, OracleTableQueryCache> tableNameLoader,
             AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, OracleTableQueryCache> columnLoader,
@@ -894,7 +894,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <param name="tableName">A table name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A table name, if matched in the database.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
         public Task<Option<Identifier>> GetTableNameAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);
@@ -908,7 +908,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <param name="tableName">A table name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A collection of columns.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
         public Task<IReadOnlyList<IDatabaseColumn>> GetColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);
@@ -922,7 +922,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <param name="tableName">A table name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A primary key, if available.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
         public Task<Option<IDatabaseKey>> GetPrimaryKeyAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);
@@ -936,7 +936,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <param name="tableName">A table name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A collection of unique keys.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
         public Task<IReadOnlyCollection<IDatabaseKey>> GetUniqueKeysAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);
@@ -950,7 +950,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <param name="tableName">A table name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A collection of foreign keys.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
         public Task<IReadOnlyCollection<IDatabaseRelationalKey>> GetForeignKeysAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);

@@ -23,7 +23,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : IRelationalDatabaseTabl
     /// <param name="connection">A schematic connection.</param>
     /// <param name="identifierDefaults">Database identifier defaults.</param>
     /// <param name="identifierResolver">A database identifier resolver.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <see langword="null" />.</exception>
     public PostgreSqlRelationalDatabaseTableProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -92,7 +92,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : IRelationalDatabaseTabl
     /// <param name="tableName">A database table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database table in the 'some' state if found; otherwise 'none'.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -110,7 +110,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : IRelationalDatabaseTabl
         {
             [new Version(10, 0)] = () => new PostgreSqlRelationalDatabaseTableProviderBase(Connection, IdentifierDefaults, IdentifierResolver),
             [new Version(11, 0)] = () => new Versions.V11.PostgreSqlRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver),
-            [new Version(12, 0)] = () => new Versions.V12.PostgreSqlRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver)
+            [new Version(12, 0)] = () => new Versions.V12.PostgreSqlRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver),
         };
         var versionLookup = new VersionResolvingFactory<IRelationalDatabaseTableProvider>(factories);
         var result = versionLookup.GetValue(version);

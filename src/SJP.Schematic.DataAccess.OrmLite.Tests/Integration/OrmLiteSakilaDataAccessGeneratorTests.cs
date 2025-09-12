@@ -70,7 +70,7 @@ internal sealed class OrmLiteSakilaDataAccessGeneratorTests : SakilaTest
             CreateNoWindow = true,
             FileName = "dotnet",
             WindowStyle = ProcessWindowStyle.Hidden,
-            WorkingDirectory = projectDir
+            WorkingDirectory = projectDir,
         };
 
         using var process = new Process { StartInfo = startInfo };

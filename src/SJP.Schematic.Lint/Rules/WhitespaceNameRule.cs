@@ -32,7 +32,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// <param name="tables">A set of database tables.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" />.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tables);
@@ -46,7 +46,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// <param name="views">A set of database views.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="views"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="views"/> is <see langword="null" />.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(views);
@@ -60,7 +60,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// <param name="sequences">A set of database sequences.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequences"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequences"/> is <see langword="null" />.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseSequences(IEnumerable<IDatabaseSequence> sequences, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(sequences);
@@ -74,7 +74,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// <param name="synonyms">A set of database synonyms.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="synonyms"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="synonyms"/> is <see langword="null" />.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseSynonyms(IEnumerable<IDatabaseSynonym> synonyms, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(synonyms);
@@ -88,7 +88,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// <param name="routines">A set of database routines.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="routines"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="routines"/> is <see langword="null" />.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseRoutines(IEnumerable<IDatabaseRoutine> routines, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(routines);
@@ -101,7 +101,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
     protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -133,7 +133,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// </summary>
     /// <param name="view">A set of database views.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="view"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="view"/> is <see langword="null" />.</exception>
     protected IEnumerable<IRuleMessage> AnalyseView(IDatabaseView view)
     {
         ArgumentNullException.ThrowIfNull(view);
@@ -165,7 +165,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// </summary>
     /// <param name="sequence">A database sequence.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequence"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequence"/> is <see langword="null" />.</exception>
     protected IEnumerable<IRuleMessage> AnalyseSequence(IDatabaseSequence sequence)
     {
         ArgumentNullException.ThrowIfNull(sequence);
@@ -187,7 +187,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// </summary>
     /// <param name="synonym">A database synonym.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="synonym"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="synonym"/> is <see langword="null" />.</exception>
     protected IEnumerable<IRuleMessage> AnalyseSynonym(IDatabaseSynonym synonym)
     {
         ArgumentNullException.ThrowIfNull(synonym);
@@ -209,7 +209,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// </summary>
     /// <param name="routine">A database routine.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="routine"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="routine"/> is <see langword="null" />.</exception>
     protected IEnumerable<IRuleMessage> AnalyseRoutine(IDatabaseRoutine routine)
     {
         ArgumentNullException.ThrowIfNull(routine);
@@ -230,8 +230,8 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// Determines whether text has whitespace in any part of the text.
     /// </summary>
     /// <param name="input">A string of text representing an object name.</param>
-    /// <returns><c>true</c> if whitespace is present in <paramref name="input"/>; otherwise, <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="input"/> is <c>null</c>.</exception>
+    /// <returns><see langword="true" /> if whitespace is present in <paramref name="input"/>; otherwise, <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="input"/> is <see langword="null" />.</exception>
     private static bool HasWhiteSpace(string input)
     {
         ArgumentNullException.ThrowIfNull(input);
@@ -244,7 +244,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// </summary>
     /// <param name="tableName">The name of the table.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected virtual IRuleMessage BuildTableMessage(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -259,7 +259,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// <param name="tableName">The name of the table.</param>
     /// <param name="columnName">The name of the column.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>, or <paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />, or <paramref name="columnName"/> is <see langword="null" />, empty or whitespace.</exception>
     protected virtual IRuleMessage BuildTableColumnMessage(Identifier tableName, string columnName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -274,7 +274,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// </summary>
     /// <param name="viewName">The name of the view.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected virtual IRuleMessage BuildViewMessage(Identifier viewName)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -289,7 +289,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// <param name="viewName">The name of the view.</param>
     /// <param name="columnName">The name of the column.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>, or <paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />, or <paramref name="columnName"/> is <see langword="null" />, empty or whitespace.</exception>
     protected virtual IRuleMessage BuildViewColumnMessage(Identifier viewName, string columnName)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -304,7 +304,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// </summary>
     /// <param name="sequenceName">The name of the sequence.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     protected virtual IRuleMessage BuildSequenceMessage(Identifier sequenceName)
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
@@ -318,7 +318,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// </summary>
     /// <param name="synonymName">The name of the synonym.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <see langword="null" />.</exception>
     protected virtual IRuleMessage BuildSynonymMessage(Identifier synonymName)
     {
         ArgumentNullException.ThrowIfNull(synonymName);
@@ -332,7 +332,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// </summary>
     /// <param name="routineName">The name of the routine.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <see langword="null" />.</exception>
     protected virtual IRuleMessage BuildRoutineMessage(Identifier routineName)
     {
         ArgumentNullException.ThrowIfNull(routineName);

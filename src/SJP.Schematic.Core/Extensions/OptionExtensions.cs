@@ -17,7 +17,7 @@ public static class OptionExtensions
     /// </summary>
     /// <param name="input">The source collection to reduce.</param>
     /// <returns>The <see cref="Option{A}"/> instance in the <paramref name="input"/> collection in the 'some' state, otherwise an <see cref="Option{A}"/> instance in the 'none' state when no 'some' options exist.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="input"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="input"/> is <see langword="null" />.</exception>
     public static Option<T> FirstSome<T>(this IEnumerable<Option<T>> input)
     {
         ArgumentNullException.ThrowIfNull(input);
@@ -31,7 +31,7 @@ public static class OptionExtensions
     /// <param name="input">The source collection to reduce.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The <see cref="OptionAsync{A}"/> instance in the <paramref name="input"/> collection in the 'some' state, otherwise an <see cref="OptionAsync{A}"/> instance in the 'none' state when no 'some' options exist.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="input"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="input"/> is <see langword="null" />.</exception>
     public static OptionAsync<T> FirstSome<T>(this IEnumerable<OptionAsync<T>> input, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(input);

@@ -22,7 +22,7 @@ public class PostgreSqlSequenceCommentProvider : IDatabaseSequenceCommentProvide
     /// <param name="connection">A database connection factory.</param>
     /// <param name="identifierDefaults">Database identifier defaults.</param>
     /// <param name="identifierResolver">An identifier resolver.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <see langword="null" />.</exception>
     public PostgreSqlSequenceCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -75,7 +75,7 @@ public class PostgreSqlSequenceCommentProvider : IDatabaseSequenceCommentProvide
     /// <param name="sequenceName">A sequence name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A sequence name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     protected OptionAsync<Identifier> GetResolvedSequenceName(Identifier sequenceName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
@@ -95,7 +95,7 @@ public class PostgreSqlSequenceCommentProvider : IDatabaseSequenceCommentProvide
     /// <param name="sequenceName">A sequence name that will be resolved.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A sequence name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     protected OptionAsync<Identifier> GetResolvedSequenceNameStrict(Identifier sequenceName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
@@ -116,7 +116,7 @@ public class PostgreSqlSequenceCommentProvider : IDatabaseSequenceCommentProvide
     /// <param name="sequenceName">The name of a database sequence.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An <see cref="OptionAsync{A}" /> instance which holds the value of the sequence's comments, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseSequenceComments> GetSequenceComments(Identifier sequenceName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
@@ -131,7 +131,7 @@ public class PostgreSqlSequenceCommentProvider : IDatabaseSequenceCommentProvide
     /// <param name="sequenceName">The name of a database sequence.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An <see cref="OptionAsync{A}" /> instance which holds the value of the sequence's comments, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     protected OptionAsync<IDatabaseSequenceComments> LoadSequenceComments(Identifier sequenceName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
@@ -159,7 +159,7 @@ public class PostgreSqlSequenceCommentProvider : IDatabaseSequenceCommentProvide
     /// </summary>
     /// <param name="sequenceName">A view name.</param>
     /// <returns>A sequence name is at least as qualified as the given sequence name.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     protected Identifier QualifySequenceName(Identifier sequenceName)
     {
         ArgumentNullException.ThrowIfNull(sequenceName);

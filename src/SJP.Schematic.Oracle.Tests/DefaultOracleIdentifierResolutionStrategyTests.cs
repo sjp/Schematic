@@ -99,7 +99,7 @@ internal static class DefaultOracleIdentifierResolutionStrategyTests
         var expectedResults = new[]
         {
             new Identifier("A", "B", "C", "D"),
-            input
+            input,
         };
         var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
@@ -126,7 +126,7 @@ internal static class DefaultOracleIdentifierResolutionStrategyTests
         var expectedResults = new[]
         {
             new Identifier("A", "B", "C", "D"),
-            input
+            input,
         };
         var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
@@ -155,7 +155,7 @@ internal static class DefaultOracleIdentifierResolutionStrategyTests
             new Identifier("A", "B", "C", "D"),
             new Identifier("A", "B", "C", "d"),
             new Identifier("A", "B", "c", "D"),
-            input
+            input,
         };
         var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 

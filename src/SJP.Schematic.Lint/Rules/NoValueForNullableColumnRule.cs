@@ -22,7 +22,7 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     /// </summary>
     /// <param name="connection">A database connection.</param>
     /// <param name="level">The reporting level.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
     public NoValueForNullableColumnRule(ISchematicConnection connection, RuleLevel level)
         : base(RuleId, RuleTitle, level)
     {
@@ -55,7 +55,7 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     /// <param name="tables">A set of database tables.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" />.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tables);
@@ -79,7 +79,7 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     /// <param name="table">A database table.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
     protected Task<IEnumerable<IRuleMessage>> AnalyseTableAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -117,8 +117,8 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns><c>true</c> if the table has any rows; otherwise <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
+    /// <returns><see langword="true" /> if the table has any rows; otherwise <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
     protected Task<bool> TableHasRowsAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -138,8 +138,8 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     /// <param name="table">A database table.</param>
     /// <param name="column">A column from the table provided by <paramref name="table"/>.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns><c>true</c> if the column has any non-null values; otherwise <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="column"/> is <c>null</c>.</exception>
+    /// <returns><see langword="true" /> if the column has any non-null values; otherwise <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="column"/> is <see langword="null" />.</exception>
     protected Task<bool> NullableColumnHasValueAsync(IRelationalDatabaseTable table, IDatabaseColumn column,
         CancellationToken cancellationToken)
     {
@@ -161,7 +161,7 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     /// <param name="tableName">The name of the table.</param>
     /// <param name="columnName">A name of the nullable column.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>. Also thrown when <paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />. Also thrown when <paramref name="columnName"/> is <see langword="null" />, empty or whitespace.</exception>
     protected virtual IRuleMessage BuildMessage(Identifier tableName, string columnName)
     {
         ArgumentNullException.ThrowIfNull(tableName);

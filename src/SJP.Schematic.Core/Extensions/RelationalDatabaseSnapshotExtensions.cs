@@ -19,7 +19,7 @@ public static class RelationalDatabaseSnapshotExtensions
     /// <param name="database">A relational database.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A relational database with the same data as <paramref name="database"/>, but serialized into an in-memory copy.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="database"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="database"/> is <see langword="null" />.</exception>
     public static Task<IRelationalDatabase> SnapshotAsync(this IRelationalDatabase database, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(database);
@@ -35,7 +35,7 @@ public static class RelationalDatabaseSnapshotExtensions
     /// <param name="snapshotOptions">Options that are used to configure which database objects should be snapshotted.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A relational database with the same data as <paramref name="database"/>, but serialized into an in-memory copy.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="database"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="database"/> is <see langword="null" />.</exception>
     public static Task<IRelationalDatabase> SnapshotAsync(this IRelationalDatabase database, RelationalDatabaseSnapshotOptions snapshotOptions, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(database);
@@ -52,7 +52,7 @@ public static class RelationalDatabaseSnapshotExtensions
     /// <param name="identifierResolver">An identifier resolver to use when an object cannot be found using the given name.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A relational database with the same data as <paramref name="database"/>, but serialized into an in-memory copy.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="database"/> is <c>null</c> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="database"/> is <see langword="null" /> or <paramref name="identifierResolver"/> is <see langword="null" />.</exception>
     public static Task<IRelationalDatabase> SnapshotAsync(this IRelationalDatabase database, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(database);
@@ -69,7 +69,7 @@ public static class RelationalDatabaseSnapshotExtensions
     /// <param name="identifierResolver">An identifier resolver to use when an object cannot be found using the given name.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A relational database with the same data as <paramref name="database"/>, but serialized into an in-memory copy.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="database"/> or <paramref name="snapshotOptions"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="database"/> or <paramref name="snapshotOptions"/> or <paramref name="identifierResolver"/> is <see langword="null" />.</exception>
     public static Task<IRelationalDatabase> SnapshotAsync(this IRelationalDatabase database, RelationalDatabaseSnapshotOptions snapshotOptions, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(database);

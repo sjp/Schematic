@@ -16,7 +16,7 @@ public class DotSvgRenderer : IDotSvgRenderer
     /// Initializes a new instance of the <see cref="DotSvgRenderer"/> class.
     /// </summary>
     /// <param name="dotExecutablePath">The dot executable path.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="dotExecutablePath"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="dotExecutablePath"/> is <see langword="null" />, empty or whitespace.</exception>
     public DotSvgRenderer(string dotExecutablePath)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(dotExecutablePath);
@@ -29,7 +29,7 @@ public class DotSvgRenderer : IDotSvgRenderer
     /// </summary>
     /// <param name="dot">A dot graph in string form.</param>
     /// <returns>A rendered SVG image as a string.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="dot"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="dot"/> is <see langword="null" />, empty or whitespace.</exception>
     /// <exception cref="GraphvizException">Thrown when the Graphviz process exited unsuccessfully.</exception>
     public string RenderToSvg(string dot)
     {
@@ -81,7 +81,7 @@ public class DotSvgRenderer : IDotSvgRenderer
     /// <param name="dot">A dot graph in string form.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A rendered SVG image as a string.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="dot"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="dot"/> is <see langword="null" />, empty or whitespace.</exception>
     /// <exception cref="GraphvizException">Thrown when the Graphviz process exited unsuccessfully.</exception>
     public Task<string> RenderToSvgAsync(string dot, CancellationToken cancellationToken = default)
     {

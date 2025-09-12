@@ -22,5 +22,5 @@ public enum ReportTemplate
     Sequences,
     Synonyms,
     Routines,
-    Triggers
+    Triggers,
 }

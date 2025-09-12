@@ -30,8 +30,8 @@ public class DatabaseMaterializedView : DatabaseView
     /// <summary>
     /// Determines whether this view is materialized or pre-computed.
     /// </summary>
-    /// <value><c>true</c> if this view is materialized; otherwise, <c>false</c>.</value>
-    /// <remarks>Always <c>true</c> unless overridden.</remarks>
+    /// <value><see langword="true" /> if this view is materialized; otherwise, <see langword="false" />.</value>
+    /// <remarks>Always <see langword="true" /> unless overridden.</remarks>
     public override bool IsMaterialized { get; } = true;
 
     /// <summary>

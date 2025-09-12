@@ -32,7 +32,7 @@ public class RedundantIndexesRule : Rule, ITableRule
     /// <param name="tables">A set of database tables.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" />.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tables);
@@ -47,7 +47,7 @@ public class RedundantIndexesRule : Rule, ITableRule
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
     protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -79,8 +79,8 @@ public class RedundantIndexesRule : Rule, ITableRule
     /// </summary>
     /// <param name="index">The index that is tested for being redundant.</param>
     /// <param name="otherIndex">An index that is being compared against for <paramref name="index"/>. <paramref name="index"/> is redundant if <paramref name="otherIndex"/> has at least the equivalent behaviour (if not more).</param>
-    /// <returns><c>true</c> if <paramref name="index"/> is redundant; <c>false</c> otherwise.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="index"/> is <c>null</c>; or <paramref name="otherIndex"/> is <c>null</c>.</exception>
+    /// <returns><see langword="true" /> if <paramref name="index"/> is redundant; <see langword="false" /> otherwise.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="index"/> is <see langword="null" />; or <paramref name="otherIndex"/> is <see langword="null" />.</exception>
     private static bool IsIndexRedundant(IDatabaseIndex index, IDatabaseIndex otherIndex)
     {
         ArgumentNullException.ThrowIfNull(index);
@@ -130,8 +130,8 @@ public class RedundantIndexesRule : Rule, ITableRule
     /// <typeparam name="T">A set of database objects.</typeparam>
     /// <param name="prefixSet">The set to test whether it is a prefix.</param>
     /// <param name="superSet">The alternate set.</param>
-    /// <returns><c>true</c> if <paramref name="prefixSet"/> is a prefix of <paramref name="superSet"/>; otherwise, <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="prefixSet"/> or <paramref name="superSet"/> is <c>null</c>.</exception>
+    /// <returns><see langword="true" /> if <paramref name="prefixSet"/> is a prefix of <paramref name="superSet"/>; otherwise, <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="prefixSet"/> or <paramref name="superSet"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException"><paramref name="prefixSet"/> or <paramref name="superSet"/> is empty.</exception>
     private static bool IsPrefixOf<T>(IEnumerable<T> prefixSet, IEnumerable<T> superSet)
     {
@@ -162,7 +162,7 @@ public class RedundantIndexesRule : Rule, ITableRule
     /// <param name="redundantIndex">The index that is redundant.</param>
     /// <param name="otherIndex">The other index that is either equivalent or a superset of <paramref name="redundantIndex"/>.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>; or <paramref name="redundantIndex"/> is <c>null</c>; or <paramref name="otherIndex"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />; or <paramref name="redundantIndex"/> is <see langword="null" />; or <paramref name="otherIndex"/> is <see langword="null" />.</exception>
     protected virtual IRuleMessage BuildMessage(Identifier tableName, IDatabaseIndex redundantIndex, IDatabaseIndex otherIndex)
     {
         ArgumentNullException.ThrowIfNull(tableName);

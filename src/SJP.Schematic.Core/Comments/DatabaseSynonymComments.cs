@@ -14,7 +14,7 @@ public class DatabaseSynonymComments : IDatabaseSynonymComments
     /// </summary>
     /// <param name="synonymName">A synonym name.</param>
     /// <param name="comment">The comment for the synonym.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <see langword="null" />.</exception>
     public DatabaseSynonymComments(Identifier synonymName, Option<string> comment)
     {
         SynonymName = synonymName ?? throw new ArgumentNullException(nameof(synonymName));

@@ -22,7 +22,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// </summary>
     /// <param name="connection">A database connection.</param>
     /// <param name="schemaName">A schema  name.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>. If <paramref name="schemaName"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />. If <paramref name="schemaName"/> is <see langword="null" />, empty or whitespace.</exception>
     public DatabasePragma(ISchematicConnection connection, string schemaName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(schemaName);
@@ -206,13 +206,13 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// Queries the ability of the pager to spill dirty cache pages to the database file in the middle of a transaction.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if the dirty cache pages are able to be spilled, otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if the dirty cache pages are able to be spilled, otherwise <see langword="false" />.</returns>
     public Task<bool> CacheSpillAsync(CancellationToken cancellationToken = default) => DbConnection.ExecuteScalarAsync<bool>(CacheSpillReadQuery, cancellationToken);
 
     /// <summary>
     /// Sets the ability of the pager to spill dirty cache pages to the database file in the middle of a transaction.
     /// </summary>
-    /// <param name="enable">if set to <c>true</c> dirty cache pages are able to be spilled.</param>
+    /// <param name="enable">if set to <see langword="true" /> dirty cache pages are able to be spilled.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     public Task CacheSpillAsync(bool enable, CancellationToken cancellationToken = default) => DbConnection.ExecuteAsync(CacheSpillSetQuery(enable), cancellationToken);
@@ -226,7 +226,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <summary>
     /// Creates a query to set the cache spill pragma.
     /// </summary>
-    /// <param name="enable">if set to <c>true</c> dirty cache pages are able to be spilled.</param>
+    /// <param name="enable">if set to <see langword="true" /> dirty cache pages are able to be spilled.</param>
     /// <returns>A SQL query.</returns>
     protected string CacheSpillSetQuery(bool enable) => PragmaPrefix + "cache_spill = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
@@ -262,7 +262,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <param name="tableName">Name of the table.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of foreign key violation information.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
     public Task<IEnumerable<pragma_foreign_key_check>> ForeignKeyCheckTableAsync(Identifier tableName, CancellationToken cancellationToken = default)
     {
@@ -278,7 +278,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// </summary>
     /// <param name="tableName">A table name.</param>
     /// <returns>A SQL query.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
     protected string ForeignKeyCheckTableQuery(Identifier tableName)
     {
@@ -295,7 +295,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <param name="tableName">A table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of foreign key definitions.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
     public Task<IEnumerable<pragma_foreign_key_list>> ForeignKeyListAsync(Identifier tableName, CancellationToken cancellationToken = default)
     {
@@ -311,7 +311,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// </summary>
     /// <param name="tableName">A table name.</param>
     /// <returns>A SQL query.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
     protected string ForeignKeyListQuery(Identifier tableName)
     {
@@ -368,7 +368,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// </summary>
     /// <param name="indexName">An index name.</param>
     /// <returns>A SQL query.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="indexName"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="indexName"/> is <see langword="null" />, empty or whitespace.</exception>
     protected string IndexInfoQuery(string indexName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(indexName);
@@ -382,7 +382,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <param name="tableName">A table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>One element for each index associated with the given table.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
     public Task<IEnumerable<pragma_index_list>> IndexListAsync(Identifier tableName, CancellationToken cancellationToken = default)
     {
@@ -398,7 +398,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// </summary>
     /// <param name="tableName">A table name.</param>
     /// <returns>A SQL query.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
     protected string IndexListQuery(Identifier tableName)
     {
@@ -415,7 +415,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <param name="indexName">An index name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>One element for each column in the named index, not just key columns.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="indexName"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="indexName"/> is <see langword="null" />, empty or whitespace.</exception>
     public Task<IEnumerable<pragma_index_xinfo>> IndexXInfoAsync(string indexName, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(indexName);
@@ -428,7 +428,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// </summary>
     /// <param name="indexName">An index name.</param>
     /// <returns>A SQL query.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="indexName"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="indexName"/> is <see langword="null" />, empty or whitespace.</exception>
     protected string IndexXInfoQuery(string indexName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(indexName);
@@ -775,7 +775,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// Determines whether a given value is a power of two.
     /// </summary>
     /// <param name="value">A number.</param>
-    /// <returns><c>true</c> if <paramref name="value"/> is a power of two; otherwise, <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if <paramref name="value"/> is a power of two; otherwise, <see langword="false" />.</returns>
     protected static bool IsPowerOfTwo(ulong value) => value != 0 && (value & (value - 1)) == 0;
 
     /// <summary>
@@ -929,7 +929,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <param name="tableName">A table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of column information, one element for each column in the table.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
     public Task<IEnumerable<pragma_table_info>> TableInfoAsync(Identifier tableName, CancellationToken cancellationToken = default)
     {
@@ -945,7 +945,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// </summary>
     /// <param name="tableName">A table name.</param>
     /// <returns>A SQL query.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException">Thrown when the given table name's does not match the current schema.</exception>
     protected string TableInfoQuery(Identifier tableName)
     {
@@ -974,8 +974,8 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// </summary>
     /// <param name="tableName">A table or view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>Information relevant to the given table or view. Will be <c>null</c> if the table or view does not exist.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <returns>Information relevant to the given table or view. Will be <see langword="null" /> if the table or view does not exist.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     public Task<IEnumerable<pragma_table_list>> TableListAsync(Identifier tableName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -988,7 +988,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// </summary>
     /// <param name="tableName">A table name.</param>
     /// <returns>A SQL query.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected string TableListTableQuery(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -1004,7 +1004,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <param name="tableName">A table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of column information, one element for each column or hidden column in the table.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
     public Task<IEnumerable<pragma_table_xinfo>> TableXInfoAsync(Identifier tableName, CancellationToken cancellationToken = default)
     {
@@ -1020,7 +1020,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// </summary>
     /// <param name="tableName">A table name.</param>
     /// <returns>A SQL query.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException">Thrown when the given table name's does not match the current schema.</exception>
     protected string TableXInfoQuery(Identifier tableName)
     {

@@ -14,7 +14,7 @@ public class VerbatimIdentifierResolutionStrategy : IIdentifierResolutionStrateg
     /// </summary>
     /// <param name="identifier">A database identifier.</param>
     /// <returns>A set of identifiers to query with.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <see langword="null" />.</exception>
     public IEnumerable<Identifier> GetResolutionOrder(Identifier identifier)
     {
         ArgumentNullException.ThrowIfNull(identifier);

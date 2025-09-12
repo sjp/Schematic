@@ -29,7 +29,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="connection">A schematic connection.</param>
     /// <param name="pragma">A pragma for the given database connection.</param>
     /// <param name="identifierDefaults">Database identifier defaults.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="pragma"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="pragma"/> are <see langword="null" />.</exception>
     public SqliteRelationalDatabaseTableProvider(ISchematicConnection connection, ISqliteConnectionPragma pragma, IIdentifierDefaults identifierDefaults)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -122,7 +122,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="tableName">A database table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database table in the 'some' state if found; otherwise 'none'.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -163,7 +163,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="tableName">A table name that will be resolved.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A table name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected OptionAsync<Identifier> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -226,7 +226,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="tableName">A table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A table, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, CancellationToken cancellationToken)
         => LoadTable(tableName, CreateQueryCache(), cancellationToken);
 
@@ -237,7 +237,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="queryCache">The query cache.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A table, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> is <see langword="null" />.</exception>
     protected OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -280,7 +280,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A primary key, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
     protected Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -335,7 +335,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of indexes.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
     protected Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -433,7 +433,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of unique keys.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
     protected Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -508,7 +508,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of child keys.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
     protected Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -568,7 +568,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// </summary>
     /// <param name="parsedTable">Parsed table information.</param>
     /// <returns>A collection of check constraints.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="parsedTable"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="parsedTable"/> is <see langword="null" />.</exception>
     protected IReadOnlyCollection<IDatabaseCheckConstraint> LoadChecks(ParsedTableData parsedTable)
     {
         ArgumentNullException.ThrowIfNull(parsedTable);
@@ -601,7 +601,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of foreign keys.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
     protected Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -631,7 +631,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             ForeignKeyId = row.id,
             ParentTableName = row.table,
             OnDelete = row.on_delete,
-            OnUpdate = row.on_update
+            OnUpdate = row.on_update,
         }).ToList();
         if (foreignKeys.Empty())
             return [];
@@ -715,7 +715,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="queryCache">A query cache.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An ordered collection of columns.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> is <see langword="null" />.</exception>
     protected Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -846,7 +846,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="tableName">A table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of triggers.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(Identifier tableName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -915,7 +915,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="tableName">A table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>Parsed table data.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected Task<ParsedTableData> GetParsedTableDefinitionAsync(Identifier tableName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -957,7 +957,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// </summary>
     /// <param name="schema">A schema name.</param>
     /// <returns>A database pragma.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="schema"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="schema"/> is <see langword="null" />, empty or whitespace.</exception>
     protected ISqliteDatabasePragma GetDatabasePragma(string schema)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(schema);
@@ -969,8 +969,8 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// Determines whether a table's name is a SQLite reserved table name.
     /// </summary>
     /// <param name="tableName">A table name.</param>
-    /// <returns><c>true</c> if the table name is a reserved table name; otherwise, <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <returns><see langword="true" /> if the table name is a reserved table name; otherwise, <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected static bool IsReservedTableName(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -983,7 +983,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// </summary>
     /// <param name="tableName">A table name to qualify.</param>
     /// <returns>A table name that is at least as qualified as its input.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected Identifier QualifyTableName(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -997,7 +997,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// </summary>
     /// <param name="pragmaUpdateAction">An update action from SQLite.</param>
     /// <returns>A referential action.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="pragmaUpdateAction"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="pragmaUpdateAction"/> is <see langword="null" />, empty or whitespace.</exception>
     protected static ReferentialAction GetReferentialAction(string pragmaUpdateAction)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(pragmaUpdateAction);
@@ -1021,7 +1021,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         ["RESTRICT"] = ReferentialAction.Restrict,
         ["SET NULL"] = ReferentialAction.SetNull,
         ["SET DEFAULT"] = ReferentialAction.SetDefault,
-        ["CASCADE"] = ReferentialAction.Cascade
+        ["CASCADE"] = ReferentialAction.Cascade,
     };
 
     private static readonly SqliteTypeAffinityParser AffinityParser = new();
@@ -1055,7 +1055,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <param name="primaryKeyLoader">A primary key cache.</param>
         /// <param name="uniqueKeyLoader">A unique key cache.</param>
         /// <param name="foreignKeyLoader">A foreign key cache.</param>
-        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="parsedTableLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/> or <paramref name="foreignKeyLoader"/> are <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="parsedTableLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/> or <paramref name="foreignKeyLoader"/> are <see langword="null" />.</exception>
         public SqliteTableQueryCache(
             AsyncCache<Identifier, ParsedTableData, SqliteTableQueryCache> parsedTableLoader,
             AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqliteTableQueryCache> columnLoader,
@@ -1077,7 +1077,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <param name="tableName">A table name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The parsed definition of a table.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
         public Task<ParsedTableData> GetParsedTableAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);
@@ -1091,7 +1091,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <param name="tableName">A table name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A collection of columns.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
         public Task<IReadOnlyList<IDatabaseColumn>> GetColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);
@@ -1105,7 +1105,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <param name="tableName">A table name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A primary key, if available.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
         public Task<Option<IDatabaseKey>> GetPrimaryKeyAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);
@@ -1119,7 +1119,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <param name="tableName">A table name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A collection of unique keys.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
         public Task<IReadOnlyCollection<IDatabaseKey>> GetUniqueKeysAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);
@@ -1133,7 +1133,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <param name="tableName">A table name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A collection of foreign keys.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
         public Task<IReadOnlyCollection<IDatabaseRelationalKey>> GetForeignKeysAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);

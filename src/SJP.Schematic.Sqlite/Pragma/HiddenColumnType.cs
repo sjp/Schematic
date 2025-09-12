@@ -24,5 +24,5 @@ public enum HiddenColumnType
     /// <summary>
     /// The column is a generated column, whose value is generated as the row is inserted.
     /// </summary>
-    StoredGeneratedColumn = 3
+    StoredGeneratedColumn = 3,
 }

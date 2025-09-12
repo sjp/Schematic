@@ -61,7 +61,7 @@ internal sealed class NoValueForNullableColumnRuleTests : SqliteTest
 
         var tables = new[]
         {
-            await database.GetTable("table_without_nullable_columns_1").UnwrapSomeAsync().ConfigureAwait(false)
+            await database.GetTable("table_without_nullable_columns_1").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
         var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
@@ -77,7 +77,7 @@ internal sealed class NoValueForNullableColumnRuleTests : SqliteTest
 
         var tables = new[]
         {
-            await database.GetTable("table_for_nullable_columns_1").UnwrapSomeAsync().ConfigureAwait(false)
+            await database.GetTable("table_for_nullable_columns_1").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
         var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
@@ -93,7 +93,7 @@ internal sealed class NoValueForNullableColumnRuleTests : SqliteTest
 
         var tables = new[]
         {
-            await database.GetTable("table_for_nullable_columns_2").UnwrapSomeAsync().ConfigureAwait(false)
+            await database.GetTable("table_for_nullable_columns_2").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
         var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);

@@ -17,35 +17,35 @@ public static class CharExtensions
     /// Indicates whether the specified Unicode character is categorized as a decimal digit.
     /// </summary>
     /// <param name="c">The Unicode character to evaluate.</param>
-    /// <returns><c>true</c> if the specified <paramref name="c"/> is a decimal digit; otherwise, <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if the specified <paramref name="c"/> is a decimal digit; otherwise, <see langword="false" />.</returns>
     public static bool IsDigit(this char c) => char.IsDigit(c);
 
     /// <summary>
     /// Indicates whether a Unicode character is categorized as a Unicode letter.
     /// </summary>
     /// <param name="c">The Unicode character to evaluate.</param>
-    /// <returns><c>true</c> if the specified <paramref name="c"/> is a letter; otherwise, <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if the specified <paramref name="c"/> is a letter; otherwise, <see langword="false" />.</returns>
     public static bool IsLetter(this char c) => char.IsLetter(c);
 
     /// <summary>
     /// Indicates whether a Unicode character is categorized as a letter or a decimal digit.
     /// </summary>
     /// <param name="c">The Unicode character to evaluate.</param>
-    /// <returns><c>true</c> if <paramref name="c"/> is a letter or a decimal digit; otherwise, <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if <paramref name="c"/> is a letter or a decimal digit; otherwise, <see langword="false" />.</returns>
     public static bool IsLetterOrDigit(this char c) => char.IsLetterOrDigit(c);
 
     /// <summary>
     /// Indicates whether the specified Unicode character is categorized as a punctuation mark.
     /// </summary>
     /// <param name="c">The Unicode character to evaluate.</param>
-    /// <returns><c>true</c> if <paramref name="c"/> is a punctuation mark; otherwise, <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if <paramref name="c"/> is a punctuation mark; otherwise, <see langword="false" />.</returns>
     public static bool IsPunctuation(this char c) => char.IsPunctuation(c);
 
     /// <summary>
     /// Indicates whether the specified Unicode character is categorized as white space.
     /// </summary>
     /// <param name="c">The Unicode character to evaluate.</param>
-    /// <returns><c>true</c> if <paramref name="c"/> is white space; otherwise, <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if <paramref name="c"/> is white space; otherwise, <see langword="false" />.</returns>
     public static bool IsWhiteSpace(this char c) => char.IsWhiteSpace(c);
 
     /// <summary>

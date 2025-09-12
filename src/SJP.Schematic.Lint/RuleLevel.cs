@@ -18,5 +18,5 @@ public enum RuleLevel
     /// <summary>
     /// Indicates a more severe issue with a database object.
     /// </summary>
-    Error
+    Error,
 }

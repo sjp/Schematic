@@ -26,7 +26,7 @@ public class DatabaseIndexColumnMapper
         {
             Expression = source.Expression!,
             DependentColumns = columnMapper.MapList(source.DependentColumns),
-            Order = source.Order
+            Order = source.Order,
         };
     }
 }

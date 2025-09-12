@@ -30,14 +30,14 @@ internal static class EnumerableStringExtensionsTests
             "System.Data",
             "System.Collections.Generic",
             "System.Linq",
-            "System"
+            "System",
         };
         var expected = new[]
         {
             "System",
             "System.Collections.Generic",
             "System.Data",
-            "System.Linq"
+            "System.Linq",
         };
 
         var result = input.OrderNamespaces();
@@ -53,14 +53,14 @@ internal static class EnumerableStringExtensionsTests
             "Test.Data",
             "Test.Collections.Generic",
             "Test.Linq",
-            "Test"
+            "Test",
         };
         var expected = new[]
         {
             "Test",
             "Test.Collections.Generic",
             "Test.Data",
-            "Test.Linq"
+            "Test.Linq",
         };
 
         var result = input.OrderNamespaces();
@@ -76,14 +76,14 @@ internal static class EnumerableStringExtensionsTests
             "Test.Data",
             "System.Collections.Generic",
             "Test.Linq",
-            "System"
+            "System",
         };
         var expected = new[]
         {
             "System",
             "System.Collections.Generic",
             "Test.Data",
-            "Test.Linq"
+            "Test.Linq",
         };
 
         var result = input.OrderNamespaces();
@@ -99,7 +99,7 @@ internal static class EnumerableStringExtensionsTests
             "System",
             "System.Collections.Generic",
             "System.Data",
-            "System.Linq"
+            "System.Linq",
         };
 
         var result = input.OrderNamespaces();

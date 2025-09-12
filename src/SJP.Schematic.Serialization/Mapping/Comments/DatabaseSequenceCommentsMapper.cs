@@ -28,7 +28,7 @@ public class DatabaseSequenceCommentsMapper
         return new Dto.Comments.DatabaseSequenceComments
         {
             SequenceName = identifierMapper.Map(source.SequenceName),
-            Comment = optionMapper.Map(source.Comment)
+            Comment = optionMapper.Map(source.Comment),
         };
     }
 }

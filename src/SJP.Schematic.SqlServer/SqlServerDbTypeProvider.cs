@@ -19,7 +19,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
     /// </summary>
     /// <param name="typeMetadata">Column type metadata.</param>
     /// <returns>A column data type.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <see langword="null" />.</exception>
     public IDbType CreateColumnType(ColumnTypeMetadata typeMetadata)
     {
         ArgumentNullException.ThrowIfNull(typeMetadata);
@@ -50,7 +50,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
     /// </summary>
     /// <param name="otherType">An data type to compare with.</param>
     /// <returns>The closest matching column data type.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="otherType"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="otherType"/> is <see langword="null" />.</exception>
     public IDbType GetComparableColumnType(IDbType otherType)
     {
         ArgumentNullException.ThrowIfNull(otherType);
@@ -63,7 +63,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
             IsFixedLength = otherType.IsFixedLength,
             MaxLength = otherType.MaxLength,
             NumericPrecision = otherType.NumericPrecision,
-            TypeName = null // ignoring so we get a default name generated
+            TypeName = null, // ignoring so we get a default name generated
         };
 
         return CreateColumnType(typeMetadata);
@@ -73,8 +73,8 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
     /// Determines whether the data type is required to be of fixed length.
     /// </summary>
     /// <param name="typeName">The type name.</param>
-    /// <returns><c>true</c> if the data type must be a fixed length.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <c>null</c>.</exception>
+    /// <returns><see langword="true" /> if the data type must be a fixed length.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
     protected static bool GetIsFixedLength(Identifier typeName)
     {
         ArgumentNullException.ThrowIfNull(typeName);
@@ -87,7 +87,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
     /// </summary>
     /// <param name="typeMetadata">Column type metadata.</param>
     /// <returns>A type name.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when a data type was unable to be parsed.</exception>
     protected static Identifier GetDefaultTypeName(ColumnTypeMetadata typeMetadata)
     {
@@ -123,7 +123,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
     /// </summary>
     /// <param name="typeMetadata">Column type metadata.</param>
     /// <returns>A formatted type name, sufficient for printing or use within queries.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException">Thrown when the type name is missing.</exception>
     protected static string GetFormattedTypeName(ColumnTypeMetadata typeMetadata)
     {
@@ -179,7 +179,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
     /// </summary>
     /// <param name="typeName">A type name.</param>
     /// <returns>A data type definition.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
     protected static DataType GetDataType(Identifier typeName)
     {
         ArgumentNullException.ThrowIfNull(typeName);
@@ -194,7 +194,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
     /// </summary>
     /// <param name="typeName">A type name.</param>
     /// <returns>A CLR type.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
     protected static Type GetClrType(Identifier typeName)
     {
         ArgumentNullException.ThrowIfNull(typeName);
@@ -209,7 +209,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
     /// </summary>
     /// <param name="identifier">An identifier component.</param>
     /// <returns>A quoted identifier component.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <see langword="null" />, empty or whitespace.</exception>
     protected static string QuoteIdentifier(string identifier)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(identifier);
@@ -222,7 +222,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
     /// </summary>
     /// <param name="name">A type name.</param>
     /// <returns>A quoted type name.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
     protected static string QuoteName(Identifier name)
     {
         ArgumentNullException.ThrowIfNull(name);
@@ -245,7 +245,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
     {
         new("sys", "char"),
         new("sys", "nchar"),
-        new("sys", "binary")
+        new("sys", "binary"),
     };
 
     private static readonly IEnumerable<Identifier> TypeNamesWithNoLengthAnnotation = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
@@ -267,7 +267,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
         new("sys", "timestamp"),
         new("sys", "tinyint"),
         new("sys", "uniqueidentifier"),
-        new("sys", "xml")
+        new("sys", "xml"),
     };
 
     private static readonly IReadOnlyDictionary<Identifier, DataType> StringToDataTypeMap = new Dictionary<Identifier, DataType>(IdentifierComparer.OrdinalIgnoreCase)
@@ -302,7 +302,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
         [new Identifier("sys", "uniqueidentifier")] = DataType.Unknown,
         [new Identifier("sys", "varbinary")] = DataType.Binary,
         [new Identifier("sys", "varchar")] = DataType.String,
-        [new Identifier("sys", "xml")] = DataType.Unicode
+        [new Identifier("sys", "xml")] = DataType.Unicode,
     };
 
     private static readonly IReadOnlyDictionary<Identifier, Type> StringToClrTypeMap = new Dictionary<Identifier, Type>(IdentifierComparer.OrdinalIgnoreCase)
@@ -337,6 +337,6 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
         [new Identifier("sys", "uniqueidentifier")] = typeof(Guid),
         [new Identifier("sys", "varbinary")] = typeof(byte[]),
         [new Identifier("sys", "varchar")] = typeof(string),
-        [new Identifier("sys", "xml")] = typeof(string)
+        [new Identifier("sys", "xml")] = typeof(string),
     };
 }

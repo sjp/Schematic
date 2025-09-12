@@ -20,7 +20,7 @@ public class DatabaseView : IDatabaseView
     /// <param name="viewName">The view name.</param>
     /// <param name="definition">The view definition.</param>
     /// <param name="columns">An ordered collection of columns defined by the view definition.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>, or <paramref name="definition"/> is <c>null</c>, empty, or whitespace, or <paramref name="columns"/> is <c>null</c> or contains <c>null</c> values.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />, or <paramref name="definition"/> is <see langword="null" />, empty, or whitespace, or <paramref name="columns"/> is <see langword="null" /> or contains <see langword="null" /> values.</exception>
     public DatabaseView(
         Identifier viewName,
         string definition,
@@ -57,8 +57,8 @@ public class DatabaseView : IDatabaseView
     /// <summary>
     /// Determines whether this view is materialized or pre-computed.
     /// </summary>
-    /// <value><c>true</c> if this view is materialized; otherwise, <c>false</c>.</value>
-    /// <remarks>Always <c>false</c> unless overridden.</remarks>
+    /// <value><see langword="true" /> if this view is materialized; otherwise, <see langword="false" />.</value>
+    /// <remarks>Always <see langword="false" /> unless overridden.</remarks>
     public virtual bool IsMaterialized { get; }
 
     /// <summary>

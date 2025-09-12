@@ -24,7 +24,7 @@ public class DatabaseIndex : IDatabaseIndex
     /// <param name="includedColumns">Columns included when <paramref name="columns"/> have been searched.</param>
     /// <param name="isEnabled">Whether the index is enabled.</param>
     /// <param name="filterDefinition">The definition, if present, for the subset of rows the index applies to</param>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>. Alternatively if <paramref name="columns"/> or <paramref name="includedColumns"/> are <c>null</c> or contain <c>null</c> values.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />. Alternatively if <paramref name="columns"/> or <paramref name="includedColumns"/> are <see langword="null" /> or contain <see langword="null" /> values.</exception>
     public DatabaseIndex(Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns, IReadOnlyCollection<IDatabaseColumn> includedColumns, bool isEnabled, Option<string> filterDefinition)
     {
         ArgumentNullException.ThrowIfNull(name);
@@ -50,7 +50,7 @@ public class DatabaseIndex : IDatabaseIndex
     /// <summary>
     /// Indicates whether covered index columns must be unique across the index column set.
     /// </summary>
-    /// <value><c>true</c> if the index column set must have unique values; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true" /> if the index column set must have unique values; otherwise, <see langword="false" />.</value>
     public bool IsUnique { get; }
 
     /// <summary>
@@ -68,7 +68,7 @@ public class DatabaseIndex : IDatabaseIndex
     /// <summary>
     /// Indicates whether the index is enabled.
     /// </summary>
-    /// <value><c>true</c> if this index is enabled; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true" /> if this index is enabled; otherwise, <see langword="false" />.</value>
     public bool IsEnabled { get; }
 
     /// <summary>

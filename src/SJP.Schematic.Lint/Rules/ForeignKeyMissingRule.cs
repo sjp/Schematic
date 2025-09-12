@@ -29,7 +29,7 @@ public class ForeignKeyMissingRule : Rule, ITableRule
     /// <param name="tables">A set of database tables.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" />.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tables);
@@ -44,7 +44,7 @@ public class ForeignKeyMissingRule : Rule, ITableRule
     /// <param name="table">A database table.</param>
     /// <param name="tableNames">Other table names in the database.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="tableNames"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="tableNames"/> is <see langword="null" />.</exception>
     protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table, IEnumerable<Identifier> tableNames)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -85,7 +85,7 @@ public class ForeignKeyMissingRule : Rule, ITableRule
     /// </summary>
     /// <param name="columnName">The name of the column that can imply a table name.</param>
     /// <returns>The implied table name if found, otherwise the value of <paramref name="columnName"/>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <see langword="null" />, empty or whitespace.</exception>
     protected static string GetImpliedTableName(string columnName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
@@ -108,7 +108,7 @@ public class ForeignKeyMissingRule : Rule, ITableRule
     /// <param name="tableName">The name of the table.</param>
     /// <param name="targetTableName">The implied target table.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="targetTableName"/> is <c>null</c>. Also thrown when <paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="targetTableName"/> is <see langword="null" />. Also thrown when <paramref name="columnName"/> is <see langword="null" />, empty or whitespace.</exception>
     protected virtual IRuleMessage BuildMessage(string columnName, Identifier tableName, Identifier targetTableName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(columnName);

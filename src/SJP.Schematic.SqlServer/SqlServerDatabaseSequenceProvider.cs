@@ -20,7 +20,7 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// </summary>
     /// <param name="connection">A database connection.</param>
     /// <param name="identifierDefaults">Identifier defaults for the associated database.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> is <see langword="null" />.</exception>
     public SqlServerDatabaseSequenceProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -68,7 +68,7 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// <param name="sequenceName">A database sequence name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database sequence in the 'some' state if found; otherwise 'none'.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
@@ -83,7 +83,7 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// <param name="sequenceName">A sequence name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A sequence name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     protected OptionAsync<Identifier> GetResolvedSequenceName(Identifier sequenceName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
@@ -104,7 +104,7 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// <param name="sequenceName">A database sequence name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database sequence in the 'some' state if found; otherwise 'none'.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     protected OptionAsync<IDatabaseSequence> LoadSequence(Identifier sequenceName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
@@ -138,7 +138,7 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// </summary>
     /// <param name="sequenceName">A view name.</param>
     /// <returns>A sequence name is at least as qualified as the given sequence name.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     protected Identifier QualifySequenceName(Identifier sequenceName)
     {
         ArgumentNullException.ThrowIfNull(sequenceName);

@@ -16,7 +16,7 @@ public class SqliteDbTypeProvider : IDbTypeProvider
     /// </summary>
     /// <param name="typeMetadata">Column type metadata.</param>
     /// <returns>A column data type.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <see langword="null" />.</exception>
     public IDbType CreateColumnType(ColumnTypeMetadata typeMetadata)
     {
         ArgumentNullException.ThrowIfNull(typeMetadata);
@@ -38,7 +38,7 @@ public class SqliteDbTypeProvider : IDbTypeProvider
     /// </summary>
     /// <param name="otherType">An data type to compare with.</param>
     /// <returns>The closest matching column data type.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="otherType"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="otherType"/> is <see langword="null" />.</exception>
     public IDbType GetComparableColumnType(IDbType otherType)
     {
         ArgumentNullException.ThrowIfNull(otherType);
@@ -47,7 +47,7 @@ public class SqliteDbTypeProvider : IDbTypeProvider
         var typeMetadata = new ColumnTypeMetadata
         {
             Collation = otherType.Collation,
-            DataType = otherType.DataType
+            DataType = otherType.DataType,
         };
 
         return CreateColumnType(typeMetadata);

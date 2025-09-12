@@ -82,13 +82,13 @@ public interface ISqliteDatabasePragma
     /// Queries the ability of the pager to spill dirty cache pages to the database file in the middle of a transaction.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if the dirty cache pages are able to be spilled, otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if the dirty cache pages are able to be spilled, otherwise <see langword="false" />.</returns>
     Task<bool> CacheSpillAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Sets the ability of the pager to spill dirty cache pages to the database file in the middle of a transaction.
     /// </summary>
-    /// <param name="enable">if set to <c>true</c> dirty cache pages are able to be spilled.</param>
+    /// <param name="enable">if set to <see langword="true" /> dirty cache pages are able to be spilled.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     Task CacheSpillAsync(bool enable, CancellationToken cancellationToken = default);

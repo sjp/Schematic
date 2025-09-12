@@ -20,7 +20,7 @@ internal abstract class ColumnConstraint
         ForeignKey,
         Check,
         Nullable,
-        GeneratedAlways
+        GeneratedAlways,
     }
 
     protected ColumnConstraint(ColumnConstraintType constraintType)

@@ -27,12 +27,12 @@ public sealed record pragma_table_list
     public required int ncol { get; init; }
 
     /// <summary>
-    /// Whether the table is a <c>WITHOUT ROWID</c> table (<c>false</c> if it is not).
+    /// Whether the table is a <c>WITHOUT ROWID</c> table (<see langword="false" /> if it is not).
     /// </summary>
     public required bool wr { get; init; }
 
     /// <summary>
-    /// Whether if the table is a STRICT table (<c>false</c> if it is not).
+    /// Whether if the table is a STRICT table (<see langword="false" /> if it is not).
     /// </summary>
     public required bool strict { get; init; }
 }

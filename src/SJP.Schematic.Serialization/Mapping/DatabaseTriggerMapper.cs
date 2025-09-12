@@ -30,7 +30,7 @@ public class DatabaseTriggerMapper
             Definition = source.Definition,
             QueryTiming = source.QueryTiming,
             TriggerEvent = source.TriggerEvent,
-            IsEnabled = source.IsEnabled
+            IsEnabled = source.IsEnabled,
         };
     }
 }

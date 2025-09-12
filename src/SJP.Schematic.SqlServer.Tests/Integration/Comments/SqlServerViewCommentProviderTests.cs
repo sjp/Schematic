@@ -65,7 +65,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                 Comment = comment,
                 SchemaName = schemaName,
                 ViewName = viewName,
-                ColumnName = columnName
+                ColumnName = columnName,
             },
             CancellationToken.None
         );
@@ -271,7 +271,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         var columnNames = new[]
         {
             new Identifier("test_column_1"),
-            new Identifier("test_column_2")
+            new Identifier("test_column_2"),
         };
         var comments = await GetViewCommentsAsync("view_comment_view_2").ConfigureAwait(false);
 
@@ -284,7 +284,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         var expectedNoneStates = new[]
         {
             true,
-            false
+            false,
         };
         var comments = await GetViewCommentsAsync("view_comment_view_2").ConfigureAwait(false);
 
@@ -292,7 +292,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         var noneStates = new[]
         {
             columnComments["test_column_1"].IsNone,
-            columnComments["test_column_2"].IsNone
+            columnComments["test_column_2"].IsNone,
         };
 
         Assert.That(noneStates, Is.EqualTo(expectedNoneStates));

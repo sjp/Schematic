@@ -41,7 +41,7 @@ public sealed class IdentifierComparer : IEqualityComparer<Identifier>, ICompare
     /// <param name="defaultServer">The default server to use when missing in an <see cref="Identifier"/>.</param>
     /// <param name="defaultDatabase">The default database to use when missing in an <see cref="Identifier"/>.</param>
     /// <param name="defaultSchema">The default schema to use when missing in an <see cref="Identifier"/>.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="comparer"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="comparer"/> is <see langword="null" />.</exception>
     public IdentifierComparer(StringComparer comparer, string? defaultServer = null, string? defaultDatabase = null, string? defaultSchema = null) // can't use IComparer or IEqualityComparer because we need both
     {
         _comparer = comparer ?? throw new ArgumentNullException(nameof(comparer));
@@ -184,6 +184,6 @@ public sealed class IdentifierComparer : IEqualityComparer<Identifier>, ICompare
         [StringComparison.Ordinal] = StringComparer.Ordinal,
         [StringComparison.OrdinalIgnoreCase] = StringComparer.OrdinalIgnoreCase,
         [StringComparison.InvariantCulture] = StringComparer.InvariantCulture,
-        [StringComparison.InvariantCultureIgnoreCase] = StringComparer.InvariantCultureIgnoreCase
+        [StringComparison.InvariantCultureIgnoreCase] = StringComparer.InvariantCultureIgnoreCase,
     };
 }

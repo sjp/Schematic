@@ -29,7 +29,7 @@ public interface IDbType
     /// <summary>
     /// Gets a value indicating whether this data type has fixed length.
     /// </summary>
-    /// <value><c>true</c> if this instance has a fixed length; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true" /> if this instance has a fixed length; otherwise, <see langword="false" />.</value>
     bool IsFixedLength { get; }
 
     /// <summary>

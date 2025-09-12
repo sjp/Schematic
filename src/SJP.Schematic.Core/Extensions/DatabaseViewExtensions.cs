@@ -14,7 +14,7 @@ public static class DatabaseViewExtensions
     /// </summary>
     /// <param name="view">A database view.</param>
     /// <returns>A lookup keyed by column names, whose values are the associated columns.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="view"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="view"/> is <see langword="null" />.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(this IDatabaseView view)
     {
         ArgumentNullException.ThrowIfNull(view);
@@ -37,7 +37,7 @@ public static class DatabaseViewExtensions
     /// <param name="view">A database view.</param>
     /// <param name="identifierResolver">An identifier resolver.</param>
     /// <returns>A lookup keyed by column names, whose values are the associated columns.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="view"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="view"/> or <paramref name="identifierResolver"/> is <see langword="null" />.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(this IDatabaseView view, IIdentifierResolutionStrategy identifierResolver)
     {
         ArgumentNullException.ThrowIfNull(view);

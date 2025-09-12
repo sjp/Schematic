@@ -22,7 +22,7 @@ public class SqliteDialect : DatabaseDialect
     /// <param name="connection">A database connection.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A set of identifier defaults.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
     public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(connection);
@@ -44,7 +44,7 @@ public class SqliteDialect : DatabaseDialect
     /// <param name="connection">A database connection.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A descriptive version.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
     public override Task<string> GetDatabaseDisplayVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(connection);
@@ -64,7 +64,7 @@ public class SqliteDialect : DatabaseDialect
     /// <param name="connection">A database connection.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A version.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
     public override Task<Version> GetDatabaseVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(connection);
@@ -86,7 +86,7 @@ public class SqliteDialect : DatabaseDialect
     /// <param name="connection">A database connection.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A relational database.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
     public override Task<IRelationalDatabase> GetRelationalDatabaseAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(connection);
@@ -106,7 +106,7 @@ public class SqliteDialect : DatabaseDialect
     /// <param name="connection">A database connection.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A comment provider.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
     public override async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
     {
         var identifierDefaults = await GetIdentifierDefaultsAsyncCore().ConfigureAwait(false);
@@ -123,8 +123,8 @@ public class SqliteDialect : DatabaseDialect
     /// Determines whether the given text is a reserved keyword.
     /// </summary>
     /// <param name="text">A piece of text.</param>
-    /// <returns><c>true</c> if the given text is a reserved keyword; otherwise, <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="text"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <returns><see langword="true" /> if the given text is a reserved keyword; otherwise, <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="text"/> is <see langword="null" />, empty or whitespace.</exception>
     public override bool IsReservedKeyword(string text)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(text);
@@ -258,7 +258,7 @@ public class SqliteDialect : DatabaseDialect
         "WHEN",
         "WHERE",
         "WITH",
-        "WITHOUT"
+        "WITHOUT",
     };
 
     /// <summary>
@@ -266,7 +266,7 @@ public class SqliteDialect : DatabaseDialect
     /// </summary>
     /// <param name="name">An object name.</param>
     /// <returns>A quoted name.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
     public override string QuoteName(Identifier name)
     {
         ArgumentNullException.ThrowIfNull(name);

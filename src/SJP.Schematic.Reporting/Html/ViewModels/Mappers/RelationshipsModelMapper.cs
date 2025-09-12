@@ -30,7 +30,7 @@ internal sealed class RelationshipsModelMapper
         var diagrams = new[]
         {
             new Relationships.Diagram("Compact", compactDot, true),
-            new Relationships.Diagram("Large", largeDot, false)
+            new Relationships.Diagram("Large", largeDot, false),
         };
 
         return new Relationships(diagrams);

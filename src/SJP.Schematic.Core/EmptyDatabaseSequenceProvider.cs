@@ -23,7 +23,7 @@ public sealed class EmptyDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// <param name="sequenceName">A database sequence name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database sequence in the 'none' state.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(sequenceName);

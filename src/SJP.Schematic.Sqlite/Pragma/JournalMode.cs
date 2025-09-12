@@ -40,5 +40,5 @@ public enum JournalMode
     /// <summary>
     /// The <c>OFF</c> journaling mode disables the rollback journal completely.
     /// </summary>
-    Off
+    Off,
 }

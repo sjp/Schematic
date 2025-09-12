@@ -18,7 +18,7 @@ public abstract class DatabaseDialect : IDatabaseDialect
     /// </summary>
     /// <param name="name">An object name.</param>
     /// <returns>A quoted name.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
     public virtual string QuoteName(Identifier name)
     {
         ArgumentNullException.ThrowIfNull(name);
@@ -42,7 +42,7 @@ public abstract class DatabaseDialect : IDatabaseDialect
     /// </summary>
     /// <param name="identifier">An identifier.</param>
     /// <returns>A quoted identifier.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <see langword="null" />.</exception>
     public virtual string QuoteIdentifier(string identifier)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(identifier);
@@ -54,7 +54,7 @@ public abstract class DatabaseDialect : IDatabaseDialect
     /// Determines whether the given text is a reserved keyword.
     /// </summary>
     /// <param name="text">A piece of text.</param>
-    /// <returns><c>true</c> if the given text is a reserved keyword; otherwise, <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if the given text is a reserved keyword; otherwise, <see langword="false" />.</returns>
     public abstract bool IsReservedKeyword(string text);
 
     /// <summary>

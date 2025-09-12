@@ -12,7 +12,7 @@ public sealed class GraphvizSystemExecutable : IGraphvizExecutable
     /// Initializes a new instance of the <see cref="GraphvizSystemExecutable"/> class.
     /// </summary>
     /// <param name="dotExecutablePath">A dot executable path.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="dotExecutablePath"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="dotExecutablePath"/> is <see langword="null" />, empty or whitespace.</exception>
     public GraphvizSystemExecutable(string dotExecutablePath)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(dotExecutablePath);

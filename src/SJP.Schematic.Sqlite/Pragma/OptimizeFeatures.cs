@@ -31,5 +31,5 @@ public enum OptimizeFeatures
     /// <summary>
     /// Not yet implemented. Create indexes that might have been helpful to recent queries.
     /// </summary>
-    CreateIndexes = 1 << 3
+    CreateIndexes = 1 << 3,
 }

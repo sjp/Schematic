@@ -124,12 +124,12 @@ internal static class GetViewColumns
         public string? DtdIdentifier { get; init; }
 
         /// <summary>
-        /// A schema name for a sequence used to generate values. The column must be created from a serial keyword, otherwise the result will be <c>null</c>.
+        /// A schema name for a sequence used to generate values. The column must be created from a serial keyword, otherwise the result will be <see langword="null" />.
         /// </summary>
         public string? SerialSequenceSchemaName { get; init; }
 
         /// <summary>
-        /// A local name for a sequence used to generate values. This column be created from a serial keyword, otherwise the result will be <c>null</c>.
+        /// A local name for a sequence used to generate values. This column be created from a serial keyword, otherwise the result will be <see langword="null" />.
         /// </summary>
         public string? SerialSequenceLocalName { get; init; }
     }

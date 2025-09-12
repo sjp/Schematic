@@ -30,7 +30,7 @@ public class DisabledObjectsRule : Rule, ITableRule
     /// <param name="tables">A set of database tables.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" />.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tables);
@@ -43,7 +43,7 @@ public class DisabledObjectsRule : Rule, ITableRule
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
     protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -102,7 +102,7 @@ public class DisabledObjectsRule : Rule, ITableRule
     /// <param name="tableName">The name of the table.</param>
     /// <param name="foreignKeyName">The name of the foreign key, if available.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected virtual IRuleMessage BuildDisabledForeignKeyMessage(Identifier tableName, Option<Identifier> foreignKeyName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -122,7 +122,7 @@ public class DisabledObjectsRule : Rule, ITableRule
     /// <param name="tableName">The name of the table.</param>
     /// <param name="primaryKeyName">The name of the primary key, if available.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected virtual IRuleMessage BuildDisabledPrimaryKeyMessage(Identifier tableName, Option<Identifier> primaryKeyName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -142,7 +142,7 @@ public class DisabledObjectsRule : Rule, ITableRule
     /// <param name="tableName">The name of the table.</param>
     /// <param name="uniqueKeyName">The name of the unique key, if available.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected virtual IRuleMessage BuildDisabledUniqueKeyMessage(Identifier tableName, Option<Identifier> uniqueKeyName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -162,7 +162,7 @@ public class DisabledObjectsRule : Rule, ITableRule
     /// <param name="tableName">The name of the table.</param>
     /// <param name="checkName">The name of the check constraint, if available.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected virtual IRuleMessage BuildDisabledCheckConstraintMessage(Identifier tableName, Option<Identifier> checkName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -182,7 +182,7 @@ public class DisabledObjectsRule : Rule, ITableRule
     /// <param name="tableName">The name of the table.</param>
     /// <param name="indexName">The name of the index, if available.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected virtual IRuleMessage BuildDisabledIndexMessage(Identifier tableName, string? indexName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -201,7 +201,7 @@ public class DisabledObjectsRule : Rule, ITableRule
     /// <param name="tableName">The name of the table.</param>
     /// <param name="triggerName">The name of the trigger, if available.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected virtual IRuleMessage BuildDisabledTriggerMessage(Identifier tableName, string? triggerName)
     {
         ArgumentNullException.ThrowIfNull(tableName);

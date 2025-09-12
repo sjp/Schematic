@@ -33,7 +33,7 @@ public class DatabaseKeyMapper
             Name = identifierMapper.Map(source.Name),
             KeyType = source.KeyType,
             Columns = columnMapper.MapList(source.Columns),
-            IsEnabled = source.IsEnabled
+            IsEnabled = source.IsEnabled,
         };
     }
 

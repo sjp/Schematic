@@ -45,7 +45,7 @@ public static class StringBuilderCache
     /// </summary>
     /// <param name="builder">The <see cref="StringBuilder"/> instance.</param>
     /// <returns>The <see cref="string"/> contents of the <see cref="StringBuilder"/> instance.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="builder"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="builder"/> is <see langword="null" />.</exception>
     public static string GetStringAndRelease(this StringBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);

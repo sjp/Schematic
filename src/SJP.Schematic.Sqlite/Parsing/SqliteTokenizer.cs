@@ -324,6 +324,6 @@ public class SqliteTokenizer : Tokenizer<SqliteToken>
         new SqliteKeyword("when", SqliteToken.When),
         new SqliteKeyword("where", SqliteToken.Where),
         new SqliteKeyword("with", SqliteToken.With),
-        new SqliteKeyword("without", SqliteToken.Without)
+        new SqliteKeyword("without", SqliteToken.Without),
     ];
 }

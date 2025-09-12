@@ -23,7 +23,7 @@ public class PostgreSqlDatabaseIndex : IDatabaseIndex
     /// <param name="isUnique">Determines whether the index is unique, if <see langword="true"/>, the index is unique.</param>
     /// <param name="columns">The columns.</param>
     /// <param name="filterDefinition">The definition, if present, for the subset of rows the index applies to</param>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>. Alternatively if <paramref name="columns"/> is <c>null</c>, empty or has a <c>null</c> value.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />. Alternatively if <paramref name="columns"/> is <see langword="null" />, empty or has a <see langword="null" /> value.</exception>
     public PostgreSqlDatabaseIndex(Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns, Option<string> filterDefinition)
         : this(name, isUnique, columns, [], filterDefinition)
     {
@@ -37,7 +37,7 @@ public class PostgreSqlDatabaseIndex : IDatabaseIndex
     /// <param name="columns">The columns.</param>
     /// <param name="includedColumns">Columns included when the index is searched.</param>
     /// <param name="filterDefinition">The definition, if present, for the subset of rows the index applies to</param>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>. Alternatively if <paramref name="columns"/> or <paramref name="includedColumns"/> are <c>null</c>, empty or has a <c>null</c> value.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />. Alternatively if <paramref name="columns"/> or <paramref name="includedColumns"/> are <see langword="null" />, empty or has a <see langword="null" /> value.</exception>
     public PostgreSqlDatabaseIndex(Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns, IReadOnlyCollection<IDatabaseColumn> includedColumns, Option<string> filterDefinition)
     {
         ArgumentNullException.ThrowIfNull(name);
@@ -62,7 +62,7 @@ public class PostgreSqlDatabaseIndex : IDatabaseIndex
     /// <summary>
     /// Indicates whether covered index columns must be unique across the index column set.
     /// </summary>
-    /// <value><c>true</c> if the index column set must have unique values; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true" /> if the index column set must have unique values; otherwise, <see langword="false" />.</value>
     public bool IsUnique { get; }
 
     /// <summary>
@@ -80,7 +80,7 @@ public class PostgreSqlDatabaseIndex : IDatabaseIndex
     /// <summary>
     /// Indicates whether this instance is enabled.
     /// </summary>
-    /// <value>Always <c>true</c>.</value>
+    /// <value>Always <see langword="true" />.</value>
     public bool IsEnabled { get; } = true;
 
     /// <summary>

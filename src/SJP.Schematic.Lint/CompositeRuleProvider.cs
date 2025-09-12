@@ -16,7 +16,7 @@ public class CompositeRuleProvider : IRuleProvider
     /// Initializes a new instance of the <see cref="CompositeRuleProvider"/> class.
     /// </summary>
     /// <param name="ruleProviders">Rule providers.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="ruleProviders"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="ruleProviders"/> is <see langword="null" />.</exception>
     public CompositeRuleProvider(IEnumerable<IRuleProvider> ruleProviders)
     {
         RuleProviders = ruleProviders ?? throw new ArgumentNullException(nameof(ruleProviders));
@@ -34,7 +34,7 @@ public class CompositeRuleProvider : IRuleProvider
     /// <param name="connection">A schematic connection.</param>
     /// <param name="level">The level used for reporting.</param>
     /// <returns>Rules used for analyzing database objects.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException"><paramref name="level"/> does not have a valid enum value.</exception>
     public IEnumerable<IRule> GetRules(ISchematicConnection connection, RuleLevel level)
     {

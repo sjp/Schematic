@@ -258,13 +258,13 @@ internal static class RelationalDatabaseTableCommentsTests
         {
             new Identifier("test_column_1"),
             new Identifier("test_column_2"),
-            new Identifier("test_column_3")
+            new Identifier("test_column_3"),
         };
         var columnComments = new Dictionary<Identifier, Option<string>>
         {
             [columnNames[0]] = Option<string>.None,
             [columnNames[1]] = Option<string>.None,
-            [columnNames[2]] = Option<string>.None
+            [columnNames[2]] = Option<string>.None,
         };
 
         var comments = new RelationalDatabaseTableComments(
@@ -291,13 +291,13 @@ internal static class RelationalDatabaseTableCommentsTests
         {
             new Identifier("test_column_1"),
             new Identifier("test_column_2"),
-            new Identifier("test_column_3")
+            new Identifier("test_column_3"),
         };
         var columnComments = new Dictionary<Identifier, Option<string>>
         {
             [columnNames[0]] = Option<string>.None,
             [columnNames[1]] = Option<string>.Some("test comment for second column"),
-            [columnNames[2]] = Option<string>.Some("test comment for third column")
+            [columnNames[2]] = Option<string>.Some("test comment for third column"),
         };
 
         var comments = new RelationalDatabaseTableComments(
@@ -352,13 +352,13 @@ internal static class RelationalDatabaseTableCommentsTests
         {
             new Identifier("test_check_1"),
             new Identifier("test_check_2"),
-            new Identifier("test_check_3")
+            new Identifier("test_check_3"),
         };
         var checkComments = new Dictionary<Identifier, Option<string>>
         {
             [checkNames[0]] = Option<string>.None,
             [checkNames[1]] = Option<string>.None,
-            [checkNames[2]] = Option<string>.None
+            [checkNames[2]] = Option<string>.None,
         };
 
         var comments = new RelationalDatabaseTableComments(
@@ -385,13 +385,13 @@ internal static class RelationalDatabaseTableCommentsTests
         {
             new Identifier("test_check_1"),
             new Identifier("test_check_2"),
-            new Identifier("test_check_3")
+            new Identifier("test_check_3"),
         };
         var checkComments = new Dictionary<Identifier, Option<string>>
         {
             [checkNames[0]] = Option<string>.None,
             [checkNames[1]] = Option<string>.Some("test comment for second check"),
-            [checkNames[2]] = Option<string>.Some("test comment for third check")
+            [checkNames[2]] = Option<string>.Some("test comment for third check"),
         };
 
         var comments = new RelationalDatabaseTableComments(
@@ -446,13 +446,13 @@ internal static class RelationalDatabaseTableCommentsTests
         {
             new Identifier("test_uk_1"),
             new Identifier("test_uk_2"),
-            new Identifier("test_uk_3")
+            new Identifier("test_uk_3"),
         };
         var uniqueKeyComments = new Dictionary<Identifier, Option<string>>
         {
             [uniqueKeyNames[0]] = Option<string>.None,
             [uniqueKeyNames[1]] = Option<string>.None,
-            [uniqueKeyNames[2]] = Option<string>.None
+            [uniqueKeyNames[2]] = Option<string>.None,
         };
 
         var comments = new RelationalDatabaseTableComments(
@@ -479,13 +479,13 @@ internal static class RelationalDatabaseTableCommentsTests
         {
             new Identifier("test_uk_1"),
             new Identifier("test_uk_2"),
-            new Identifier("test_uk_3")
+            new Identifier("test_uk_3"),
         };
         var uniqueKeyComments = new Dictionary<Identifier, Option<string>>
         {
             [uniqueKeyNames[0]] = Option<string>.None,
             [uniqueKeyNames[1]] = Option<string>.Some("test comment for second uk"),
-            [uniqueKeyNames[2]] = Option<string>.Some("test comment for third uk")
+            [uniqueKeyNames[2]] = Option<string>.Some("test comment for third uk"),
         };
 
         var comments = new RelationalDatabaseTableComments(
@@ -540,13 +540,13 @@ internal static class RelationalDatabaseTableCommentsTests
         {
             new Identifier("test_fk_1"),
             new Identifier("test_fk_2"),
-            new Identifier("test_fk_3")
+            new Identifier("test_fk_3"),
         };
         var foreignKeyComments = new Dictionary<Identifier, Option<string>>
         {
             [foreignKeyNames[0]] = Option<string>.None,
             [foreignKeyNames[1]] = Option<string>.None,
-            [foreignKeyNames[2]] = Option<string>.None
+            [foreignKeyNames[2]] = Option<string>.None,
         };
 
         var comments = new RelationalDatabaseTableComments(
@@ -573,13 +573,13 @@ internal static class RelationalDatabaseTableCommentsTests
         {
             new Identifier("test_fk_1"),
             new Identifier("test_fk_2"),
-            new Identifier("test_fk_3")
+            new Identifier("test_fk_3"),
         };
         var foreignKeyComments = new Dictionary<Identifier, Option<string>>
         {
             [foreignKeyNames[0]] = Option<string>.None,
             [foreignKeyNames[1]] = Option<string>.Some("test comment for second fk"),
-            [foreignKeyNames[2]] = Option<string>.Some("test comment for third fk")
+            [foreignKeyNames[2]] = Option<string>.Some("test comment for third fk"),
         };
 
         var comments = new RelationalDatabaseTableComments(
@@ -634,13 +634,13 @@ internal static class RelationalDatabaseTableCommentsTests
         {
             new Identifier("test_ix_1"),
             new Identifier("test_ix_2"),
-            new Identifier("test_ix_3")
+            new Identifier("test_ix_3"),
         };
         var indexComments = new Dictionary<Identifier, Option<string>>
         {
             [indexNames[0]] = Option<string>.None,
             [indexNames[1]] = Option<string>.None,
-            [indexNames[2]] = Option<string>.None
+            [indexNames[2]] = Option<string>.None,
         };
 
         var comments = new RelationalDatabaseTableComments(
@@ -667,13 +667,13 @@ internal static class RelationalDatabaseTableCommentsTests
         {
             new Identifier("test_ix_1"),
             new Identifier("test_ix_2"),
-            new Identifier("test_ix_3")
+            new Identifier("test_ix_3"),
         };
         var indexComments = new Dictionary<Identifier, Option<string>>
         {
             [indexNames[0]] = Option<string>.None,
             [indexNames[1]] = Option<string>.Some("test comment for second index"),
-            [indexNames[2]] = Option<string>.Some("test comment for third index")
+            [indexNames[2]] = Option<string>.Some("test comment for third index"),
         };
 
         var comments = new RelationalDatabaseTableComments(
@@ -728,13 +728,13 @@ internal static class RelationalDatabaseTableCommentsTests
         {
             new Identifier("test_trigger_1"),
             new Identifier("test_trigger_2"),
-            new Identifier("test_trigger_3")
+            new Identifier("test_trigger_3"),
         };
         var triggerComments = new Dictionary<Identifier, Option<string>>
         {
             [triggerNames[0]] = Option<string>.None,
             [triggerNames[1]] = Option<string>.None,
-            [triggerNames[2]] = Option<string>.None
+            [triggerNames[2]] = Option<string>.None,
         };
 
         var comments = new RelationalDatabaseTableComments(
@@ -761,13 +761,13 @@ internal static class RelationalDatabaseTableCommentsTests
         {
             new Identifier("test_trigger_1"),
             new Identifier("test_trigger_2"),
-            new Identifier("test_trigger_3")
+            new Identifier("test_trigger_3"),
         };
         var triggerComments = new Dictionary<Identifier, Option<string>>
         {
             [triggerNames[0]] = Option<string>.None,
             [triggerNames[1]] = Option<string>.Some("test comment for second trigger"),
-            [triggerNames[2]] = Option<string>.Some("test comment for third trigger")
+            [triggerNames[2]] = Option<string>.Some("test comment for third trigger"),
         };
 
         var comments = new RelationalDatabaseTableComments(

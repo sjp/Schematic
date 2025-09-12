@@ -18,5 +18,5 @@ public enum DatabaseKeyType
     /// <summary>
     /// Foreign key.
     /// </summary>
-    Foreign
+    Foreign,
 }

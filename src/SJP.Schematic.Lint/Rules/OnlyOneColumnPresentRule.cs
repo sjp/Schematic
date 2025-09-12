@@ -28,7 +28,7 @@ public class OnlyOneColumnPresentRule : Rule, ITableRule
     /// <param name="tables">A set of database tables.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" />.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tables);
@@ -41,7 +41,7 @@ public class OnlyOneColumnPresentRule : Rule, ITableRule
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
     protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -60,7 +60,7 @@ public class OnlyOneColumnPresentRule : Rule, ITableRule
     /// <param name="tableName">The name of the table.</param>
     /// <param name="columnCount">The number of columns in the table.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected virtual IRuleMessage BuildMessage(Identifier tableName, int columnCount)
     {
         ArgumentNullException.ThrowIfNull(tableName);

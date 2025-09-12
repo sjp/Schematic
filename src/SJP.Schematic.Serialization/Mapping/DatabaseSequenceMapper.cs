@@ -37,7 +37,7 @@ public class DatabaseSequenceMapper
             MinValue = decimalMapper.Map(source.MinValue),
             MaxValue = decimalMapper.Map(source.MaxValue),
             Cycle = source.Cycle,
-            Cache = source.Cache
+            Cache = source.Cache,
         };
     }
 }

@@ -56,7 +56,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
         {
             "(test_column_1 * test_column_1)",
             "(test_column_1 * test_column_1 * test_column_1)",
-            "(test_column_1 * test_column_1 * test_column_1 * test_column_1)"
+            "(test_column_1 * test_column_1 * test_column_1 * test_column_1)",
         };
         var table = await GetTableAsync("table_test_table_37").ConfigureAwait(false);
         var columns = table.Columns;

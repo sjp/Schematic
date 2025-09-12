@@ -25,7 +25,7 @@ public class EFCoreViewGenerator : DatabaseViewGenerator
 {
     private static readonly string[] DefaultNamespaces = [
         "System.ComponentModel.DataAnnotations",
-        "System.ComponentModel.DataAnnotations.Schema"
+        "System.ComponentModel.DataAnnotations.Schema",
     ];
 
     /// <summary>
@@ -34,7 +34,7 @@ public class EFCoreViewGenerator : DatabaseViewGenerator
     /// <param name="fileSystem">A file system.</param>
     /// <param name="nameTranslator">The name translator.</param>
     /// <param name="baseNamespace">The base namespace.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="baseNamespace"/> is <c>null</c>, empty, or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="baseNamespace"/> is <see langword="null" />, empty, or whitespace.</exception>
     public EFCoreViewGenerator(IFileSystem fileSystem, INameTranslator nameTranslator, string baseNamespace)
         : base(fileSystem, nameTranslator)
     {
@@ -55,7 +55,7 @@ public class EFCoreViewGenerator : DatabaseViewGenerator
     /// <param name="view">A database view.</param>
     /// <param name="comment">Comment information for the given view.</param>
     /// <returns>A string containing source code to interact with the view.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="view"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="view"/> is <see langword="null" />.</exception>
     public override string Generate(IDatabaseView view, Option<IDatabaseViewComments> comment)
     {
         ArgumentNullException.ThrowIfNull(view);
@@ -163,7 +163,7 @@ public class EFCoreViewGenerator : DatabaseViewGenerator
                 [
                     XmlText("A mapping class to query the "),
                     XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(viewName.LocalName))),
-                    XmlText(" view.")
+                    XmlText(" view."),
                 ])
             );
     }
@@ -180,7 +180,7 @@ public class EFCoreViewGenerator : DatabaseViewGenerator
                 [
                     XmlText("The "),
                     XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(columnName.LocalName))),
-                    XmlText(" column.")
+                    XmlText(" column."),
                 ])
             );
     }
@@ -215,7 +215,7 @@ public class EFCoreViewGenerator : DatabaseViewGenerator
                     Attribute(
                         SyntaxUtilities.AttributeName(nameof(ColumnAttribute)),
                         AttributeArgumentList(
-                            SeparatedList(columnAttributeArgs)))))
+                            SeparatedList(columnAttributeArgs))))),
         ];
     }
 }

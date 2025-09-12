@@ -22,7 +22,7 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="connection">A database connection.</param>
     /// <param name="identifierDefaults">Identifier defaults for the associated database.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <see langword="null" />.</exception>
     public SqlServerDatabaseViewProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -72,7 +72,7 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A database view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database view in the 'some' state if found; otherwise 'none'.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -87,7 +87,7 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A view name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected OptionAsync<Identifier> GetResolvedViewName(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -108,7 +108,7 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A view definition, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -141,7 +141,7 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A string representing the definition of a view.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected Task<string?> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -158,8 +158,8 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="viewName">A view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if the view is indexed; otherwise <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <returns><see langword="true" /> if the view is indexed; otherwise <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected Task<bool> LoadIndexExistsAsync(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -177,7 +177,7 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An ordered collection of columns.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -201,7 +201,7 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
                         ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
                         : Option<Identifier>.None,
                     MaxLength = row.MaxLength,
-                    NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
+                    NumericPrecision = new NumericPrecision(row.Precision, row.Scale),
                 };
                 var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
@@ -226,7 +226,7 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="viewName">A view name.</param>
     /// <returns>A view name is at least as qualified as the given view name.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected Identifier QualifyViewName(Identifier viewName)
     {
         ArgumentNullException.ThrowIfNull(viewName);

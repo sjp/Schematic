@@ -21,7 +21,7 @@ public class OracleDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <param name="connection">A database connection factory.</param>
     /// <param name="identifierDefaults">Database identifier defaults.</param>
     /// <param name="identifierResolver">An identifier resolver.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <see langword="null" />.</exception>
     public OracleDatabaseRoutineProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
     {
         ArgumentNullException.ThrowIfNull(connection);
@@ -71,7 +71,7 @@ public class OracleDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <param name="routineName">A database routine name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database routine in the 'some' state if found; otherwise 'none'.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(routineName);

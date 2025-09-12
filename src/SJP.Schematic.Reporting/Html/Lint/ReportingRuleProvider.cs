@@ -18,7 +18,7 @@ public sealed class ReportingRuleProvider : IRuleProvider
     /// <param name="connection">A schematic connection.</param>
     /// <param name="level">The level used for reporting.</param>
     /// <returns>Rules used for analyzing database objects.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException"><paramref name="level"/> does not have a valid enum value.</exception>
     public IEnumerable<IRule> GetRules(ISchematicConnection connection, RuleLevel level)
     {

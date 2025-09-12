@@ -17,7 +17,7 @@ public static class TaskUtilities
     /// <param name="task1">A <see cref="Task"/> that produces a value of type <typeparamref name="T1"/>.</param>
     /// <param name="task2">A <see cref="Task"/> that produces a value of type <typeparamref name="T2"/>.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/> is <see langword="null" />.</exception>
     public static Task<(T1, T2)> WhenAll<T1, T2>(Task<T1> task1, Task<T2> task2)
     {
         ArgumentNullException.ThrowIfNull(task1);
@@ -52,7 +52,7 @@ public static class TaskUtilities
     /// <param name="task2">A <see cref="Task"/> that produces a value of type <typeparamref name="T2"/>.</param>
     /// <param name="task3">A <see cref="Task"/> that produces a value of type <typeparamref name="T3"/>.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/> is <see langword="null" />.</exception>
     public static Task<(T1, T2, T3)> WhenAll<T1, T2, T3>(Task<T1> task1, Task<T2> task2, Task<T3> task3)
     {
         ArgumentNullException.ThrowIfNull(task1);
@@ -92,7 +92,7 @@ public static class TaskUtilities
     /// <param name="task3">A <see cref="Task"/> that produces a value of type <typeparamref name="T3"/>.</param>
     /// <param name="task4">A <see cref="Task"/> that produces a value of type <typeparamref name="T4"/>.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/> is <see langword="null" />.</exception>
     public static Task<(T1, T2, T3, T4)> WhenAll<T1, T2, T3, T4>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4)
     {
         ArgumentNullException.ThrowIfNull(task1);
@@ -137,7 +137,7 @@ public static class TaskUtilities
     /// <param name="task4">A <see cref="Task"/> that produces a value of type <typeparamref name="T4"/>.</param>
     /// <param name="task5">A <see cref="Task"/> that produces a value of type <typeparamref name="T5"/>.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/> is <see langword="null" />.</exception>
     public static Task<(T1, T2, T3, T4, T5)> WhenAll<T1, T2, T3, T4, T5>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5)
     {
         ArgumentNullException.ThrowIfNull(task1);
@@ -187,7 +187,7 @@ public static class TaskUtilities
     /// <param name="task5">A <see cref="Task"/> that produces a value of type <typeparamref name="T5"/>.</param>
     /// <param name="task6">A <see cref="Task"/> that produces a value of type <typeparamref name="T6"/>.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/> is <see langword="null" />.</exception>
     public static Task<(T1, T2, T3, T4, T5, T6)> WhenAll<T1, T2, T3, T4, T5, T6>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6)
     {
         ArgumentNullException.ThrowIfNull(task1);
@@ -242,7 +242,7 @@ public static class TaskUtilities
     /// <param name="task6">A <see cref="Task"/> that produces a value of type <typeparamref name="T6"/>.</param>
     /// <param name="task7">A <see cref="Task"/> that produces a value of type <typeparamref name="T7"/>.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/> is <see langword="null" />.</exception>
     public static Task<(T1, T2, T3, T4, T5, T6, T7)> WhenAll<T1, T2, T3, T4, T5, T6, T7>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7)
     {
         ArgumentNullException.ThrowIfNull(task1);
@@ -302,7 +302,7 @@ public static class TaskUtilities
     /// <param name="task7">A <see cref="Task"/> that produces a value of type <typeparamref name="T7"/>.</param>
     /// <param name="task8">A <see cref="Task"/> that produces a value of type <typeparamref name="T8"/>.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/> is <see langword="null" />.</exception>
     public static Task<(T1, T2, T3, T4, T5, T6, T7, T8)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8)
     {
         ArgumentNullException.ThrowIfNull(task1);
@@ -367,7 +367,7 @@ public static class TaskUtilities
     /// <param name="task8">A <see cref="Task"/> that produces a value of type <typeparamref name="T8"/>.</param>
     /// <param name="task9">A <see cref="Task"/> that produces a value of type <typeparamref name="T9"/>.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/> is <see langword="null" />.</exception>
     public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9)
     {
         ArgumentNullException.ThrowIfNull(task1);
@@ -437,7 +437,7 @@ public static class TaskUtilities
     /// <param name="task9">A <see cref="Task"/> that produces a value of type <typeparamref name="T9"/>.</param>
     /// <param name="task10">A <see cref="Task"/> that produces a value of type <typeparamref name="T10"/>.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/> is <see langword="null" />.</exception>
     public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10)
     {
         ArgumentNullException.ThrowIfNull(task1);
@@ -512,7 +512,7 @@ public static class TaskUtilities
     /// <param name="task10">A <see cref="Task"/> that produces a value of type <typeparamref name="T10"/>.</param>
     /// <param name="task11">A <see cref="Task"/> that produces a value of type <typeparamref name="T11"/>.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/> is <see langword="null" />.</exception>
     public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11)
     {
         ArgumentNullException.ThrowIfNull(task1);
@@ -592,7 +592,7 @@ public static class TaskUtilities
     /// <param name="task11">A <see cref="Task"/> that produces a value of type <typeparamref name="T11"/>.</param>
     /// <param name="task12">A <see cref="Task"/> that produces a value of type <typeparamref name="T12"/>.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/>, <paramref name="task12"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/>, <paramref name="task12"/> is <see langword="null" />.</exception>
     public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12)
     {
         ArgumentNullException.ThrowIfNull(task1);
@@ -677,7 +677,7 @@ public static class TaskUtilities
     /// <param name="task12">A <see cref="Task"/> that produces a value of type <typeparamref name="T12"/>.</param>
     /// <param name="task13">A <see cref="Task"/> that produces a value of type <typeparamref name="T13"/>.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/>, <paramref name="task12"/>, <paramref name="task13"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/>, <paramref name="task12"/>, <paramref name="task13"/> is <see langword="null" />.</exception>
     public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12, Task<T13> task13)
     {
         ArgumentNullException.ThrowIfNull(task1);
@@ -767,7 +767,7 @@ public static class TaskUtilities
     /// <param name="task13">A <see cref="Task"/> that produces a value of type <typeparamref name="T13"/>.</param>
     /// <param name="task14">A <see cref="Task"/> that produces a value of type <typeparamref name="T14"/>.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/>, <paramref name="task12"/>, <paramref name="task13"/>, <paramref name="task14"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/>, <paramref name="task12"/>, <paramref name="task13"/>, <paramref name="task14"/> is <see langword="null" />.</exception>
     public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12, Task<T13> task13, Task<T14> task14)
     {
         ArgumentNullException.ThrowIfNull(task1);
@@ -862,7 +862,7 @@ public static class TaskUtilities
     /// <param name="task14">A <see cref="Task"/> that produces a value of type <typeparamref name="T14"/>.</param>
     /// <param name="task15">A <see cref="Task"/> that produces a value of type <typeparamref name="T15"/>.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/>, <paramref name="task12"/>, <paramref name="task13"/>, <paramref name="task14"/>, <paramref name="task15"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/>, <paramref name="task12"/>, <paramref name="task13"/>, <paramref name="task14"/>, <paramref name="task15"/> is <see langword="null" />.</exception>
     public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12, Task<T13> task13, Task<T14> task14, Task<T15> task15)
     {
         ArgumentNullException.ThrowIfNull(task1);
@@ -962,7 +962,7 @@ public static class TaskUtilities
     /// <param name="task15">A <see cref="Task"/> that produces a value of type <typeparamref name="T15"/>.</param>
     /// <param name="task16">A <see cref="Task"/> that produces a value of type <typeparamref name="T16"/>.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/>, <paramref name="task12"/>, <paramref name="task13"/>, <paramref name="task14"/>, <paramref name="task15"/>, <paramref name="task16"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/>, <paramref name="task12"/>, <paramref name="task13"/>, <paramref name="task14"/>, <paramref name="task15"/>, <paramref name="task16"/> is <see langword="null" />.</exception>
     public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12, Task<T13> task13, Task<T14> task14, Task<T15> task15, Task<T16> task16)
     {
         ArgumentNullException.ThrowIfNull(task1);

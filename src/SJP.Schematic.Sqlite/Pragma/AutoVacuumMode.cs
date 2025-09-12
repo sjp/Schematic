@@ -19,5 +19,5 @@ public enum AutoVacuumMode
     /// Auto vacuum is performed only when the <c>incremental_vacuum</c> pragma is invoked.
     /// </summary>
     /// <seealso cref="ISqliteDatabasePragma.IncrementalVacuumAsync(ulong, System.Threading.CancellationToken)"/>
-    Incremental = 2
+    Incremental = 2,
 }

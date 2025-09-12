@@ -21,8 +21,8 @@ public class DatabaseTrigger : IDatabaseTrigger
     /// <param name="definition">The definition.</param>
     /// <param name="queryTiming">The query timing.</param>
     /// <param name="events">The events.</param>
-    /// <param name="isEnabled">if set to <c>true</c> [is enabled].</param>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>, or <paramref name="definition"/> is <c>null, empty, or whitespace</c>.</exception>
+    /// <param name="isEnabled">if set to <see langword="true" /> [is enabled].</param>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />, or <paramref name="definition"/> is <c>null, empty, or whitespace</c>.</exception>
     /// <exception cref="ArgumentException">If invalid enum values are provided for <paramref name="queryTiming"/> or <paramref name="events"/>. Additionally this will be thrown when provided a <paramref name="events"/> value of <see cref="TriggerEvent.None"/>.</exception>
     public DatabaseTrigger(Identifier name, string definition, TriggerQueryTiming queryTiming, TriggerEvent events, bool isEnabled)
     {
@@ -70,7 +70,7 @@ public class DatabaseTrigger : IDatabaseTrigger
     /// <summary>
     /// Indicates whether the trigger is enabled.
     /// </summary>
-    /// <value><c>true</c> if this trigger is enabled; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true" /> if this trigger is enabled; otherwise, <see langword="false" />.</value>
     public bool IsEnabled { get; }
 
     /// <summary>

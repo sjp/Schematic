@@ -11,7 +11,7 @@ internal sealed class JsonThemeReader
     /// </summary>
     /// <param name="json">A JSON theme definition.</param>
     /// <param name="theme">The resulting theme when parsed, the default theme otherwise.</param>
-    /// <returns><c>true</c> if a theme was parsed successfully, <c>false</c> otherwise.</returns>
+    /// <returns><see langword="true" /> if a theme was parsed successfully, <see langword="false" /> otherwise.</returns>
     public bool TryReadFromJson(string json, out IGraphTheme theme)
     {
         try
@@ -82,7 +82,7 @@ internal sealed class JsonThemeReader
             HighlightedFooterBorderColor = dto.HighlightedFooterBorderColor ?? defaultTheme.HighlightedFooterBorderColor,
             HighlightedPrimaryKeyHeaderBorderColor = dto.HighlightedPrimaryKeyHeaderBorderColor ?? defaultTheme.HighlightedPrimaryKeyHeaderBorderColor,
             HighlightedUniqueKeyHeaderBorderColor = dto.HighlightedUniqueKeyHeaderBorderColor ?? defaultTheme.HighlightedUniqueKeyHeaderBorderColor,
-            HighlightedForeignKeyHeaderBorderColor = dto.HighlightedForeignKeyHeaderBorderColor ?? defaultTheme.HighlightedForeignKeyHeaderBorderColor
+            HighlightedForeignKeyHeaderBorderColor = dto.HighlightedForeignKeyHeaderBorderColor ?? defaultTheme.HighlightedForeignKeyHeaderBorderColor,
         };
     }
 
@@ -91,7 +91,7 @@ internal sealed class JsonThemeReader
         var settings = new JsonSerializerOptions
         {
             WriteIndented = true,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         };
         settings.Converters.Add(new JsonStringEnumConverter());
         settings.Converters.Add(new RgbColorConverter());

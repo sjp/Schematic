@@ -14,7 +14,7 @@ public class DatabaseRoutineComments : IDatabaseRoutineComments
     /// </summary>
     /// <param name="routineName">A routine name.</param>
     /// <param name="comment">The comment for the routine, if available.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <see langword="null" />.</exception>
     public DatabaseRoutineComments(Identifier routineName, Option<string> comment)
     {
         RoutineName = routineName ?? throw new ArgumentNullException(nameof(routineName));

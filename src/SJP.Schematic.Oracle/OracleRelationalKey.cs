@@ -28,7 +28,7 @@ public class OracleRelationalKey : IDatabaseRelationalKey
     /// Alternatively if the child key is not a foreign key this will also be thrown.
     /// Furthermore, if the parent key is not a unique or primary key, this will also be thrown.
     /// </exception>
-    /// <exception cref="ArgumentNullException"><paramref name="parentTableName"/> or <paramref name="childTableName"/> or <paramref name="parentKey"/> or <paramref name="childKey"/> is <c>null</c></exception>
+    /// <exception cref="ArgumentNullException"><paramref name="parentTableName"/> or <paramref name="childTableName"/> or <paramref name="parentKey"/> or <paramref name="childKey"/> is <see langword="null" /></exception>
     public OracleRelationalKey(Identifier childTableName, IDatabaseKey childKey, Identifier parentTableName, IDatabaseKey parentKey, ReferentialAction deleteAction)
     {
         if (!deleteAction.IsValid())

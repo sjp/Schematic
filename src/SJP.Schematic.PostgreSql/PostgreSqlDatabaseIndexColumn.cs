@@ -22,7 +22,7 @@ public class PostgreSqlDatabaseIndexColumn : IDatabaseIndexColumn
     /// </summary>
     /// <param name="expression">An expression that represents the index column.</param>
     /// <param name="order">The sorting order applied to the index column.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="expression"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="expression"/> is <see langword="null" />, empty or whitespace.</exception>
     /// <exception cref="ArgumentException"><paramref name="order"/> is an invalid enum value.</exception>
     public PostgreSqlDatabaseIndexColumn(string expression, IndexColumnOrder order)
     {
@@ -41,7 +41,7 @@ public class PostgreSqlDatabaseIndexColumn : IDatabaseIndexColumn
     /// <param name="expression">An expression that represents the index column.</param>
     /// <param name="column">A database column the index is dependent on.</param>
     /// <param name="order">The sorting order applied to the index column.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="column"/> is <c>null</c>. Alternatively if <paramref name="expression"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="column"/> is <see langword="null" />. Alternatively if <paramref name="expression"/> is <see langword="null" />, empty or whitespace.</exception>
     /// <exception cref="ArgumentException"><paramref name="order"/> is an invalid enum value.</exception>
     public PostgreSqlDatabaseIndexColumn(string expression, IDatabaseColumn column, IndexColumnOrder order)
     {

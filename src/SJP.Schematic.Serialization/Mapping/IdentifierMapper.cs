@@ -25,7 +25,7 @@ public class IdentifierMapper
                 Server = ident.Server,
                 Database = ident.Database,
                 Schema = ident.Schema,
-                LocalName = ident.LocalName
+                LocalName = ident.LocalName,
             },
             static () => default!
         );
@@ -40,7 +40,7 @@ public class IdentifierMapper
             Server = source.Server,
             Database = source.Database,
             Schema = source.Schema,
-            LocalName = source.LocalName
+            LocalName = source.LocalName,
         };
     }
 

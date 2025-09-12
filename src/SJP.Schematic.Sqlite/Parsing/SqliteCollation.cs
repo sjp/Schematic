@@ -23,5 +23,5 @@ public enum SqliteCollation
     /// <summary>
     /// The same as <see cref="Binary"/> but with trailing whitespace ignored.
     /// </summary>
-    Rtrim
+    Rtrim,
 }

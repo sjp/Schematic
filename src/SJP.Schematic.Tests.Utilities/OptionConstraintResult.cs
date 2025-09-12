@@ -12,8 +12,8 @@ public sealed class OptionConstraintResult : ConstraintResult
     /// Initializes a new instance of the <see cref="OptionConstraintResult"/> class.
     /// </summary>
     /// <param name="constraint">The constraint.</param>
-    /// <param name="expectedSome">if set to <c>true</c>, a some value is expected, otherwise a none value is expected.</param>
-    /// <param name="success">if set to <c>true</c> indicates whether the assertion was successful.</param>
+    /// <param name="expectedSome">if set to <see langword="true" />, a some value is expected, otherwise a none value is expected.</param>
+    /// <param name="success">if set to <see langword="true" /> indicates whether the assertion was successful.</param>
     public OptionConstraintResult(IConstraint constraint, bool expectedSome, bool success)
         : base(constraint, success, success)
     {

@@ -26,7 +26,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="connection">A database connection.</param>
     /// <param name="pragma">A connection pragma for the SQLite connection.</param>
     /// <param name="identifierDefaults">Identifier defaults for the associated database.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="pragma"/> or <paramref name="identifierDefaults"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="pragma"/> or <paramref name="identifierDefaults"/> are <see langword="null" />.</exception>
     public SqliteDatabaseViewProvider(ISchematicConnection connection, ISqliteConnectionPragma pragma, IIdentifierDefaults identifierDefaults)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -105,7 +105,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A database view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database view in the 'some' state if found; otherwise 'none'.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -143,7 +143,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A view name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected OptionAsync<Identifier> GetResolvedViewName(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -203,7 +203,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A view definition, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -229,7 +229,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A string representing the definition of a view.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected Task<string?> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -249,7 +249,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An ordered collection of columns.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(ISqliteDatabasePragma pragma, Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(pragma);
@@ -308,7 +308,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="columnName">A column name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The runtime type name of a column value.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> or <paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> or <paramref name="columnName"/> is <see langword="null" />, empty or whitespace.</exception>
     protected Task<string?> GetTypeofColumnAsync(Identifier viewName, Identifier columnName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -323,7 +323,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="viewName">A view name.</param>
     /// <returns>A view name is at least as qualified as the given view name.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected Identifier QualifyViewName(Identifier viewName)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -337,7 +337,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="schema">A schema name.</param>
     /// <returns>A database pragma.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="schema"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="schema"/> is <see langword="null" />, empty or whitespace.</exception>
     protected ISqliteDatabasePragma GetDatabasePragma(string schema)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(schema);
@@ -350,8 +350,8 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// Determines whether a given view name is a reserved name.
     /// </summary>
     /// <param name="viewName">A view name.</param>
-    /// <returns><c>true</c> if the given view name is reserved; otherwise, <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <returns><see langword="true" /> if the given view name is reserved; otherwise, <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected static bool IsReservedViewName(Identifier viewName)
     {
         ArgumentNullException.ThrowIfNull(viewName);

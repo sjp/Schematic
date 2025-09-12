@@ -23,7 +23,7 @@ public class PostgreSqlDatabaseTrigger : IDatabaseTrigger
     /// <param name="queryTiming">A trigger query timing.</param>
     /// <param name="events">Table events that cause the trigger to fire.</param>
     /// <param name="isEnabled">If <see langword="true"/>, determines that the trigger is currently enabled.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>. Alternatively if <paramref name="definition"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />. Alternatively if <paramref name="definition"/> is <see langword="null" />, empty or whitespace.</exception>
     /// <exception cref="ArgumentException"><paramref name="queryTiming"/> or <paramref name="events"/> is an invalid enum or has invalid values.</exception>
     public PostgreSqlDatabaseTrigger(Identifier name, string definition, TriggerQueryTiming queryTiming, TriggerEvent events, bool isEnabled)
     {
@@ -69,7 +69,7 @@ public class PostgreSqlDatabaseTrigger : IDatabaseTrigger
     /// <summary>
     /// Indicates whether this trigger is enabled.
     /// </summary>
-    /// <value><c>true</c> if this trigger is enabled; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true" /> if this trigger is enabled; otherwise, <see langword="false" />.</value>
     public bool IsEnabled { get; }
 
     /// <summary>

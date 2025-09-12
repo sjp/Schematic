@@ -28,7 +28,7 @@ public class DatabaseSynonymCommentsMapper
         return new Dto.Comments.DatabaseSynonymComments
         {
             SynonymName = identifierMapper.Map(source.SynonymName),
-            Comment = optionMapper.Map(source.Comment)
+            Comment = optionMapper.Map(source.Comment),
         };
     }
 }

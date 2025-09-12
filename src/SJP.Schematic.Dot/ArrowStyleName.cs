@@ -20,5 +20,5 @@ internal enum ArrowStyleName
     Obox,
     Open,
     HalfOpen,
-    Vee
+    Vee,
 }

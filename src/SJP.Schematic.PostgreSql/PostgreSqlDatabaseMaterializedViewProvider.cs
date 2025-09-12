@@ -23,7 +23,7 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
     /// <param name="connection">A database connection.</param>
     /// <param name="identifierDefaults">Identifier defaults for the associated database.</param>
     /// <param name="identifierResolver">An identifier resolver that enables non-strict name resolution.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <see langword="null" />.</exception>
     public PostgreSqlDatabaseMaterializedViewProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -80,7 +80,7 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A materialized view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A materialized view in the 'some' state if found; otherwise 'none'.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -95,7 +95,7 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A materialized view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A materialized view name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected OptionAsync<Identifier> GetResolvedViewName(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -115,7 +115,7 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A materialized view name that will be resolved.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A materialized view name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected OptionAsync<Identifier> GetResolvedViewNameStrict(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -136,7 +136,7 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A view definition, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -162,7 +162,7 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A string representing the definition of a view.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected Task<string?> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -180,7 +180,7 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A materialized view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An ordered collection of columns.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -206,7 +206,7 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
                     //TODO -- need to fix max length as it's different for char-like objects and numeric
                     //MaxLength = row.,
                     // TODO: numeric_precision has a base, can be either binary or decimal, need to use the correct one
-                    NumericPrecision = new NumericPrecision(row.NumericPrecision, row.NumericScale)
+                    NumericPrecision = new NumericPrecision(row.NumericPrecision, row.NumericScale),
                 };
 
                 var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
@@ -227,7 +227,7 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="viewName">A view name.</param>
     /// <returns>A view name is at least as qualified as the given view name.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected Identifier QualifyViewName(Identifier viewName)
     {
         ArgumentNullException.ThrowIfNull(viewName);

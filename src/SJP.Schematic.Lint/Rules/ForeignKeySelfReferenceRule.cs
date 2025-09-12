@@ -22,7 +22,7 @@ public class ForeignKeySelfReferenceRule : Rule, ITableRule
     /// </summary>
     /// <param name="connection">A database connection.</param>
     /// <param name="level">The reporting level.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
     public ForeignKeySelfReferenceRule(ISchematicConnection connection, RuleLevel level)
         : base(RuleId, RuleTitle, level)
     {
@@ -55,7 +55,7 @@ public class ForeignKeySelfReferenceRule : Rule, ITableRule
     /// <param name="tables">A set of database tables.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" />.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tables);
@@ -79,7 +79,7 @@ public class ForeignKeySelfReferenceRule : Rule, ITableRule
     /// <param name="table">A database table.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
     protected Task<IEnumerable<IRuleMessage>> AnalyseTableAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -175,7 +175,7 @@ where {whereFilterClauses}
     /// <param name="primaryKey">The primary key for the table.</param>
     /// <param name="foreignKey">The self-referencing foreign key.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/>, <paramref name="primaryKey"/> or <paramref name="foreignKey"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/>, <paramref name="primaryKey"/> or <paramref name="foreignKey"/> is <see langword="null" />.</exception>
     protected virtual IRuleMessage BuildMessage(Identifier tableName, IDatabaseKey primaryKey, IDatabaseKey foreignKey)
     {
         ArgumentNullException.ThrowIfNull(tableName);

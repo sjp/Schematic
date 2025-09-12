@@ -30,7 +30,7 @@ internal static class DictionaryExtensionsTests
         var input = new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["a"] = "A",
-            ["b"] = "B"
+            ["b"] = "B",
         };
         var result = input.ToDictionary();
 
@@ -72,7 +72,7 @@ internal static class DictionaryExtensionsTests
         var input = new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["a"] = "A",
-            ["b"] = "B"
+            ["b"] = "B",
         };
         var result = input.ToDictionary(StringComparer.OrdinalIgnoreCase);
 
@@ -107,7 +107,7 @@ internal static class DictionaryExtensionsTests
         var input = new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["a"] = "A",
-            ["b"] = "B"
+            ["b"] = "B",
         };
         var result = input.ToReadOnlyDictionary();
 
@@ -149,7 +149,7 @@ internal static class DictionaryExtensionsTests
         var input = new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["a"] = "A",
-            ["b"] = "B"
+            ["b"] = "B",
         };
         var result = input.ToReadOnlyDictionary(StringComparer.OrdinalIgnoreCase);
 

@@ -338,7 +338,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
         {
             new Identifier("test_column_1"),
             new Identifier("test_column_2"),
-            new Identifier("test_column_3")
+            new Identifier("test_column_3"),
         };
         var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
@@ -352,7 +352,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
         {
             true,
             false,
-            true
+            true,
         };
         var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
@@ -384,7 +384,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
         var indexNames = new[]
         {
             new Identifier("table_comment_table_3_ix_1"),
-            new Identifier("table_comment_table_3_ix_2")
+            new Identifier("table_comment_table_3_ix_2"),
         };
         var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
@@ -424,7 +424,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
         var triggerNames = new[]
         {
             new Identifier("table_comment_table_3_trigger_1"),
-            new Identifier("table_comment_table_3_trigger_2")
+            new Identifier("table_comment_table_3_trigger_2"),
         };
         var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
@@ -464,7 +464,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
         var checkNames = new[]
         {
             new Identifier("table_comment_table_3_ck_1"),
-            new Identifier("table_comment_table_3_ck_2")
+            new Identifier("table_comment_table_3_ck_2"),
         };
         var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
@@ -504,7 +504,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
         var uniqueKeyNames = new[]
         {
             new Identifier("table_comment_table_3_uk_1"),
-            new Identifier("table_comment_table_3_uk_2")
+            new Identifier("table_comment_table_3_uk_2"),
         };
         var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 
@@ -544,7 +544,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
         var foreignKeyNames = new[]
         {
             new Identifier("table_comment_table_3_fk_1"),
-            new Identifier("table_comment_table_3_fk_2")
+            new Identifier("table_comment_table_3_fk_2"),
         };
         var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
 

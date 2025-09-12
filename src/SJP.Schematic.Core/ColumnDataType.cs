@@ -17,12 +17,12 @@ public class ColumnDataType : IDbType
     /// <param name="dataType">The data type.</param>
     /// <param name="definition">The type definition in string form.</param>
     /// <param name="clrType">The .NET data type that the column maps to.</param>
-    /// <param name="isFixedLength">Whether the type is a fixed length, <c>true</c> if fixed length; otherwise <c>false</c>.</param>
+    /// <param name="isFixedLength">Whether the type is a fixed length, <see langword="true" /> if fixed length; otherwise <see langword="false" />.</param>
     /// <param name="maxLength">The maximum length the column can store.</param>
     /// <param name="numericPrecision">The numeric precision.</param>
     /// <param name="collation">The collation.</param>
     /// <exception cref="ArgumentException"><paramref name="dataType"/> is not a valid enum.</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <c>null</c>, empty or whitespace. Alternatively if <paramref name="typeName"/> or <paramref name="clrType"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <see langword="null" />, empty or whitespace. Alternatively if <paramref name="typeName"/> or <paramref name="clrType"/> is <see langword="null" />.</exception>
     public ColumnDataType(
         Identifier typeName,
         DataType dataType,
@@ -70,7 +70,7 @@ public class ColumnDataType : IDbType
     /// <summary>
     /// Gets a value indicating whether this data type has fixed length.
     /// </summary>
-    /// <value><c>true</c> if this instance has a fixed length; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true" /> if this instance has a fixed length; otherwise, <see langword="false" />.</value>
     public bool IsFixedLength { get; }
 
     /// <summary>

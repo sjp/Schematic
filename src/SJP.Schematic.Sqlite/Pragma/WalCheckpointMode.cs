@@ -23,5 +23,5 @@ public enum WalCheckpointMode
     /// <summary>
     /// This mode works the same way as <see cref="Restart"/> with the addition that the WAL file is truncated to zero bytes upon successful completion.
     /// </summary>
-    Truncate
+    Truncate,
 }

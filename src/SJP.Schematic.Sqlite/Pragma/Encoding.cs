@@ -23,5 +23,5 @@ public enum Encoding
     /// <summary>
     /// Big endian UTF-16
     /// </summary>
-    Utf16be
+    Utf16be,
 }

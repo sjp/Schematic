@@ -20,7 +20,7 @@ public class PostgreSqlDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="connection">A schematic connection.</param>
     /// <param name="identifierDefaults">Database identifier defaults.</param>
     /// <param name="identifierResolver">An identifier resolver.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <see langword="null" />.</exception>
     public PostgreSqlDatabaseViewProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
     {
         ArgumentNullException.ThrowIfNull(connection);
@@ -68,7 +68,7 @@ public class PostgreSqlDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A database view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database view in the 'some' state if found; otherwise 'none'.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(viewName);

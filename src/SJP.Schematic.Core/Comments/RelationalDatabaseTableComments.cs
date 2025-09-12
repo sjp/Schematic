@@ -22,7 +22,7 @@ public class RelationalDatabaseTableComments : IRelationalDatabaseTableComments
     /// <param name="foreignKeyComments">The foreign key comments.</param>
     /// <param name="indexComments">The index comments.</param>
     /// <param name="triggerComments">The trigger comments.</param>
-    /// <exception cref="ArgumentNullException">Any of <paramref name="tableName"/>, <paramref name="columnComments"/>, <paramref name="checkComments"/>, <paramref name="uniqueKeyComments"/>, <paramref name="foreignKeyComments"/>, <paramref name="indexComments"/> or <paramref name="triggerComments"/> are <c>null</c></exception>
+    /// <exception cref="ArgumentNullException">Any of <paramref name="tableName"/>, <paramref name="columnComments"/>, <paramref name="checkComments"/>, <paramref name="uniqueKeyComments"/>, <paramref name="foreignKeyComments"/>, <paramref name="indexComments"/> or <paramref name="triggerComments"/> are <see langword="null" /></exception>
     public RelationalDatabaseTableComments(
         Identifier tableName,
         Option<string> comment,

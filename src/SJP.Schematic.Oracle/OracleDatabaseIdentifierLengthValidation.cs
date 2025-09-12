@@ -33,7 +33,7 @@ public class OracleDatabaseIdentifierLengthValidation : IOracleDatabaseIdentifie
     /// Determines whether an identifier is valid for use in an Oracle database.
     /// </summary>
     /// <param name="identifier">An identifier.</param>
-    /// <returns><c>true</c> if the identifier is valid for use in an Oracle database; otherwise, <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if the identifier is valid for use in an Oracle database; otherwise, <see langword="false" />.</returns>
     /// <exception cref="ArgumentNullException">identifier</exception>
     public bool IsValidIdentifier(Identifier identifier)
     {

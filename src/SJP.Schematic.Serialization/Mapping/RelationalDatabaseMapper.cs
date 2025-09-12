@@ -78,7 +78,7 @@ public class RelationalDatabaseMapper
             Views = dtoViews,
             Sequences = dtoSequences,
             Synonyms = dtoSynonyms,
-            Routines = dtoRoutines
+            Routines = dtoRoutines,
         };
     }
 }

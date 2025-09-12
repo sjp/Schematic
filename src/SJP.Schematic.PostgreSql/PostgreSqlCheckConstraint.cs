@@ -19,7 +19,7 @@ public class PostgreSqlCheckConstraint : IDatabaseCheckConstraint
     /// </summary>
     /// <param name="checkName">The name of the check constraint, if available.</param>
     /// <param name="definition">The constraint definition.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <see langword="null" />, empty or whitespace.</exception>
     public PostgreSqlCheckConstraint(Identifier checkName, string definition)
     {
         ArgumentNullException.ThrowIfNull(checkName);
@@ -42,9 +42,9 @@ public class PostgreSqlCheckConstraint : IDatabaseCheckConstraint
     public string Definition { get; }
 
     /// <summary>
-    /// Indicates whether the constraint is enabled. Always <c>true</c>.
+    /// Indicates whether the constraint is enabled. Always <see langword="true" />.
     /// </summary>
-    /// <value>Always <c>true</c>.</value>
+    /// <value>Always <see langword="true" />.</value>
     public bool IsEnabled { get; } = true;
 
     /// <summary>

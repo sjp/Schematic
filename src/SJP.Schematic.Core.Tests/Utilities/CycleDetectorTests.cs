@@ -50,7 +50,7 @@ internal static class CycleDetectorTests
                 parentKey,
                 ReferentialAction.NoAction,
                 ReferentialAction.NoAction
-            )
+            ),
         ]);
 
         var tableBMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
@@ -64,7 +64,7 @@ internal static class CycleDetectorTests
                 parentKey,
                 ReferentialAction.NoAction,
                 ReferentialAction.NoAction
-            )
+            ),
         ]);
 
         var tableCMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
@@ -75,7 +75,7 @@ internal static class CycleDetectorTests
         {
             tableAMock.Object,
             tableBMock.Object,
-            tableCMock.Object
+            tableCMock.Object,
         };
 
         var result = cycleDetector.GetCyclePaths(tables);
@@ -108,7 +108,7 @@ internal static class CycleDetectorTests
                 parentKey,
                 ReferentialAction.NoAction,
                 ReferentialAction.NoAction
-            )
+            ),
         ]);
 
         var tableBMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
@@ -122,7 +122,7 @@ internal static class CycleDetectorTests
                 parentKey,
                 ReferentialAction.NoAction,
                 ReferentialAction.NoAction
-            )
+            ),
         ]);
 
         var tableCMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
@@ -136,14 +136,14 @@ internal static class CycleDetectorTests
                 parentKey,
                 ReferentialAction.NoAction,
                 ReferentialAction.NoAction
-            )
+            ),
         ]);
 
         var tables = new[]
         {
             tableAMock.Object,
             tableBMock.Object,
-            tableCMock.Object
+            tableCMock.Object,
         };
 
         var result = cycleDetector.GetCyclePaths(tables);

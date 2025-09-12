@@ -14,7 +14,7 @@ public class DatabaseSynonymMapper
         return new Dto.DatabaseSynonym
         {
             SynonymName = identifierMapper.Map(source.Name),
-            Target = identifierMapper.Map(source.Target)
+            Target = identifierMapper.Map(source.Target),
         };
     }
 

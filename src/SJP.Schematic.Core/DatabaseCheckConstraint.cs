@@ -19,7 +19,7 @@ public class DatabaseCheckConstraint : IDatabaseCheckConstraint
     /// <param name="checkName">The name of the check constraint, if available.</param>
     /// <param name="definition">The constraint definition.</param>
     /// <param name="isEnabled">Whether the constraint is enabled.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <see langword="null" />, empty or whitespace.</exception>
     public DatabaseCheckConstraint(Option<Identifier> checkName, string definition, bool isEnabled)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(definition);
@@ -44,7 +44,7 @@ public class DatabaseCheckConstraint : IDatabaseCheckConstraint
     /// <summary>
     /// Indicates whether the constraint is enabled.
     /// </summary>
-    /// <value><c>true</c> if the constraint is enabled; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true" /> if the constraint is enabled; otherwise, <see langword="false" />.</value>
     public bool IsEnabled { get; }
 
     /// <summary>

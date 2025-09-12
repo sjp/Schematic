@@ -22,7 +22,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     /// <param name="connection">A database connection factory.</param>
     /// <param name="identifierDefaults">Database identifier defaults.</param>
     /// <param name="identifierResolver">Database identifier resolver.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <see langword="null" />.</exception>
     public OracleDatabasePackageProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -67,7 +67,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     /// <param name="packageName">A database package name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database package in the 'some' state if found; otherwise 'none'.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="packageName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="packageName"/> is <see langword="null" />.</exception>
     public OptionAsync<IOracleDatabasePackage> GetPackage(Identifier packageName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(packageName);
@@ -82,7 +82,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     /// <param name="packageName">A package name that will be resolved.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A package name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="packageName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="packageName"/> is <see langword="null" />.</exception>
     protected OptionAsync<Identifier> GetResolvedPackageName(Identifier packageName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(packageName);
@@ -102,7 +102,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     /// <param name="packageName">A package name that will be resolved.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A package name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="packageName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="packageName"/> is <see langword="null" />.</exception>
     protected OptionAsync<Identifier> GetResolvedPackageNameStrict(Identifier packageName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(packageName);
@@ -123,7 +123,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     /// <param name="packageName">A package name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database package, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="packageName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="packageName"/> is <see langword="null" />.</exception>
     protected OptionAsync<IOracleDatabasePackage> LoadPackage(Identifier packageName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(packageName);
@@ -199,7 +199,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     /// </summary>
     /// <param name="packageName">A package name to qualify.</param>
     /// <returns>A package name that is at least as qualified as its input.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="packageName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="packageName"/> is <see langword="null" />.</exception>
     protected Identifier QualifyPackageName(Identifier packageName)
     {
         ArgumentNullException.ThrowIfNull(packageName);

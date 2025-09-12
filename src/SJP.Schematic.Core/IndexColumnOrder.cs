@@ -13,5 +13,5 @@ public enum IndexColumnOrder
     /// <summary>
     /// Descending order.
     /// </summary>
-    Descending
+    Descending,
 }

@@ -23,7 +23,7 @@ public sealed class EmptyDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A database view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database view in the 'none' state.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(viewName);

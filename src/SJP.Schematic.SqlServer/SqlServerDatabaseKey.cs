@@ -23,8 +23,8 @@ public class SqlServerDatabaseKey : IDatabaseKey
     /// <param name="name">A key constraint name.</param>
     /// <param name="keyType">The key type.</param>
     /// <param name="columns">The columns comprised by the key.</param>
-    /// <param name="isEnabled">if set to <c>true</c> [is enabled].</param>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>. Alternatively if <paramref name="columns"/> is <c>null</c>, empty or contains a <c>null</c> value.</exception>
+    /// <param name="isEnabled">if set to <see langword="true" /> [is enabled].</param>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />. Alternatively if <paramref name="columns"/> is <see langword="null" />, empty or contains a <see langword="null" /> value.</exception>
     /// <exception cref="ArgumentException"><paramref name="keyType"/> is an invalid enum value.</exception>
     public SqlServerDatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, bool isEnabled)
     {
@@ -62,7 +62,7 @@ public class SqlServerDatabaseKey : IDatabaseKey
     /// <summary>
     /// Indicates whether this key constraint is enabled.
     /// </summary>
-    /// <value><c>true</c> if this key constraint is enabled; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true" /> if this key constraint is enabled; otherwise, <see langword="false" />.</value>
     public bool IsEnabled { get; }
 
     /// <summary>

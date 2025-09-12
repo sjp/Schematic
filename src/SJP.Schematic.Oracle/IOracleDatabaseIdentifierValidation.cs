@@ -11,6 +11,6 @@ public interface IOracleDatabaseIdentifierValidation
     /// Determines whether an identifier is valid for use in an Oracle database.
     /// </summary>
     /// <param name="identifier">An identifier.</param>
-    /// <returns><c>true</c> if the identifier is valid for use in an Oracle database; otherwise, <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if the identifier is valid for use in an Oracle database; otherwise, <see langword="false" />.</returns>
     bool IsValidIdentifier(Identifier identifier);
 }

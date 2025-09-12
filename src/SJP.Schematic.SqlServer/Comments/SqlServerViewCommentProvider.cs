@@ -22,7 +22,7 @@ public class SqlServerViewCommentProvider : IDatabaseViewCommentProvider
     /// </summary>
     /// <param name="connection">A database connection factory.</param>
     /// <param name="identifierDefaults">Database identifier defaults.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <see langword="null" />.</exception>
     public SqlServerViewCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -66,7 +66,7 @@ public class SqlServerViewCommentProvider : IDatabaseViewCommentProvider
     /// <param name="viewName">A view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A view name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected OptionAsync<Identifier> GetResolvedViewName(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -87,7 +87,7 @@ public class SqlServerViewCommentProvider : IDatabaseViewCommentProvider
     /// <param name="viewName">The name of a database view.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An <see cref="T:LanguageExt.OptionAsync`1" /> instance which holds the value of the view's comments, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -102,7 +102,7 @@ public class SqlServerViewCommentProvider : IDatabaseViewCommentProvider
     /// <param name="viewName">A view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>Comments for a view, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected OptionAsync<IDatabaseViewComments> LoadViewComments(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -120,7 +120,7 @@ public class SqlServerViewCommentProvider : IDatabaseViewCommentProvider
             {
                 SchemaName = viewName.Schema!,
                 ViewName = viewName.LocalName,
-                CommentProperty = CommentProperty
+                CommentProperty = CommentProperty,
             },
             cancellationToken
         ).ConfigureAwait(false);
@@ -129,7 +129,7 @@ public class SqlServerViewCommentProvider : IDatabaseViewCommentProvider
         {
             ObjectName = r.ObjectName,
             ObjectType = r.ObjectType,
-            Comment = r.Comment
+            Comment = r.Comment,
         }).ToList();
 
         var viewComment = GetFirstCommentByType(commentData, Constants.View);
@@ -168,7 +168,7 @@ public class SqlServerViewCommentProvider : IDatabaseViewCommentProvider
     /// </summary>
     /// <param name="viewName">A view name.</param>
     /// <returns>A view name is at least as qualified as the given view name.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected Identifier QualifyViewName(Identifier viewName)
     {
         ArgumentNullException.ThrowIfNull(viewName);

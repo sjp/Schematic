@@ -30,7 +30,7 @@ public class ForeignKeyIsPrimaryKeyRule : Rule, ITableRule
     /// <param name="tables">A set of database tables.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" />.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tables);
@@ -43,7 +43,7 @@ public class ForeignKeyIsPrimaryKeyRule : Rule, ITableRule
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
     protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -81,7 +81,7 @@ public class ForeignKeyIsPrimaryKeyRule : Rule, ITableRule
     /// <param name="foreignKeyName">The name of the foreign key constraint, if available.</param>
     /// <param name="childTableName">The name of the child table.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="childTableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="childTableName"/> is <see langword="null" />.</exception>
     protected virtual IRuleMessage BuildMessage(Option<Identifier> foreignKeyName, Identifier childTableName)
     {
         ArgumentNullException.ThrowIfNull(childTableName);

@@ -18,5 +18,5 @@ public enum SecureDeleteMode
     /// <summary>
     /// Will overwrite deleted content with zeros only if doing so does not increase the amount of I/O.
     /// </summary>
-    Fast
+    Fast,
 }

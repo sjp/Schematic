@@ -44,7 +44,7 @@ public sealed class GraphvizAvailableAttribute : NUnitAttribute, IApplyToTest
             FileName = "dot",
             WindowStyle = ProcessWindowStyle.Hidden,
             RedirectStandardError = true,
-            RedirectStandardOutput = true
+            RedirectStandardOutput = true,
         };
 
         try

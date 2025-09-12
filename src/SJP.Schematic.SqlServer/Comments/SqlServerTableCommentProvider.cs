@@ -22,7 +22,7 @@ public class SqlServerTableCommentProvider : IRelationalDatabaseTableCommentProv
     /// </summary>
     /// <param name="connection">A database connection factory.</param>
     /// <param name="identifierDefaults">Database identifier defaults.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <see langword="null" />.</exception>
     public SqlServerTableCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -66,7 +66,7 @@ public class SqlServerTableCommentProvider : IRelationalDatabaseTableCommentProv
     /// <param name="tableName">A table name that will be resolved.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A table name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected OptionAsync<Identifier> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -87,7 +87,7 @@ public class SqlServerTableCommentProvider : IRelationalDatabaseTableCommentProv
     /// <param name="tableName">A table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>Comments for the given database table, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     public OptionAsync<IRelationalDatabaseTableComments> GetTableComments(Identifier tableName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -102,7 +102,7 @@ public class SqlServerTableCommentProvider : IRelationalDatabaseTableCommentProv
     /// <param name="tableName">A table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>Comments for a table, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected OptionAsync<IRelationalDatabaseTableComments> LoadTableComments(Identifier tableName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -120,7 +120,7 @@ public class SqlServerTableCommentProvider : IRelationalDatabaseTableCommentProv
             {
                 SchemaName = tableName.Schema!,
                 TableName = tableName.LocalName,
-                CommentProperty = CommentProperty
+                CommentProperty = CommentProperty,
             },
             cancellationToken
         ).ConfigureAwait(false);
@@ -129,7 +129,7 @@ public class SqlServerTableCommentProvider : IRelationalDatabaseTableCommentProv
         {
             ObjectName = r.ObjectName,
             ObjectType = r.ObjectType,
-            Comment = r.Comment
+            Comment = r.Comment,
         }).ToList();
 
         var tableComment = GetFirstCommentByType(commentData, Constants.Table);
@@ -185,7 +185,7 @@ public class SqlServerTableCommentProvider : IRelationalDatabaseTableCommentProv
     /// </summary>
     /// <param name="tableName">A table name to qualify.</param>
     /// <returns>A table name that is at least as qualified as its input.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected Identifier QualifyTableName(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);

@@ -30,7 +30,7 @@ public sealed class TopologicalSortingAlgorithm<TVertex, TEdge> : AlgorithmBase<
     /// </summary>
     /// <param name="graph">The graph.</param>
     /// <param name="vertices">The vertices for the graph.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="vertices"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="vertices"/> is <see langword="null" />.</exception>
     public TopologicalSortingAlgorithm(IVertexListGraph<TVertex, TEdge> graph, IList<TVertex> vertices)
         : base(graph)
     {

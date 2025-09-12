@@ -17,7 +17,7 @@ public class VersionResolvingFactory<T> : IVersionedLookup<T>
     /// Initializes a new instance of the <see cref="VersionResolvingFactory{T}"/> class.
     /// </summary>
     /// <param name="lookup">A lookup where the version keys are the minimum supported version for the associated values.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="lookup"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="lookup"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException"><paramref name="lookup"/> is empty.</exception>
     public VersionResolvingFactory(IReadOnlyDictionary<Version, Func<T>> lookup)
     {
@@ -33,7 +33,7 @@ public class VersionResolvingFactory<T> : IVersionedLookup<T>
     /// </summary>
     /// <param name="version">A version.</param>
     /// <returns>An object of type <typeparamref name="T" />.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="version"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="version"/> is <see langword="null" />.</exception>
     public T GetValue(Version version)
     {
         ArgumentNullException.ThrowIfNull(version);

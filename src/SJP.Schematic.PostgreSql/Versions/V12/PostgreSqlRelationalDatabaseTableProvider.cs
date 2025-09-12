@@ -23,7 +23,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : V11.PostgreSqlRelationa
     /// <param name="connection">A schematic connection.</param>
     /// <param name="identifierDefaults">Database identifier defaults.</param>
     /// <param name="identifierResolver">A database identifier resolver.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <see langword="null" />.</exception>
     public PostgreSqlRelationalDatabaseTableProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         : base(connection, identifierDefaults, identifierResolver)
     {
@@ -35,7 +35,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : V11.PostgreSqlRelationa
     /// <param name="tableName">A table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An ordered collection of columns.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected override Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -63,7 +63,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : V11.PostgreSqlRelationa
                         : CreatePrecisionFromBase(row.NumericPrecision, row.NumericPrecisionRadix),
                     NumericPrecision = row.NumericPrecisionRadix > 0
                         ? Option<INumericPrecision>.Some(CreatePrecisionWithScaleFromBase(row.NumericPrecision, row.NumericScale, row.NumericPrecisionRadix))
-                        : Option<INumericPrecision>.None
+                        : Option<INumericPrecision>.None,
                 };
 
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);

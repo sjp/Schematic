@@ -23,6 +23,6 @@ public interface IDatabaseView : IDatabaseQueryable
     /// <summary>
     /// Determines whether this view is materialized or pre-computed.
     /// </summary>
-    /// <value><c>true</c> if this view is materialized; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true" /> if this view is materialized; otherwise, <see langword="false" />.</value>
     bool IsMaterialized { get; }
 }

@@ -34,7 +34,7 @@ public static class SyntaxUtilities
             AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
                 .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
             AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
-                .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
         })
     );
 
@@ -59,7 +59,7 @@ public static class SyntaxUtilities
     /// </summary>
     /// <param name="comment">A comment.</param>
     /// <returns>Syntax nodes that represent the comment.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="comment"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="comment"/> is <see langword="null" />.</exception>
     public static SyntaxTriviaList BuildCommentTrivia(string comment)
     {
         ArgumentNullException.ThrowIfNull(comment);
@@ -84,7 +84,7 @@ public static class SyntaxUtilities
     /// </summary>
     /// <param name="commentNodes">Comment nodes.</param>
     /// <returns>Syntax nodes that represent the comment.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="commentNodes"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="commentNodes"/> is <see langword="null" />.</exception>
     public static SyntaxTriviaList BuildCommentTrivia(IEnumerable<XmlNodeSyntax> commentNodes)
     {
         ArgumentNullException.ThrowIfNull(commentNodes);
@@ -108,7 +108,7 @@ public static class SyntaxUtilities
     /// <param name="commentNodes">Comment nodes representing method documentation.</param>
     /// <param name="paramNodes">Nodes presenting parameter documentation.</param>
     /// <returns>Syntax nodes that represent the comment.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="commentNodes"/> or <paramref name="paramNodes"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="commentNodes"/> or <paramref name="paramNodes"/> are <see langword="null" />.</exception>
     public static SyntaxTriviaList BuildCommentTriviaWithParams(IEnumerable<XmlNodeSyntax> commentNodes, IReadOnlyDictionary<string, IEnumerable<XmlNodeSyntax>> paramNodes)
     {
         ArgumentNullException.ThrowIfNull(commentNodes);
@@ -128,7 +128,7 @@ public static class SyntaxUtilities
                 var nodes = new List<XmlNodeSyntax>
                 {
                     XmlText(XmlNewline),
-                    XmlParamElement(kv.Key, kv.Value.ToArray())
+                    XmlParamElement(kv.Key, kv.Value.ToArray()),
                 };
                 if (i != lastParamIndex)
                     nodes.Add(XmlText(XmlNewline));
@@ -167,7 +167,7 @@ public static class SyntaxUtilities
         [nameof(Object)] = PredefinedType(Token(SyntaxKind.ObjectKeyword)),
         [nameof(Int16)] = PredefinedType(Token(SyntaxKind.ShortKeyword)),
         [nameof(UInt16)] = PredefinedType(Token(SyntaxKind.UShortKeyword)),
-        [nameof(String)] = PredefinedType(Token(SyntaxKind.StringKeyword))
+        [nameof(String)] = PredefinedType(Token(SyntaxKind.StringKeyword)),
     };
 
     private static IReadOnlyCollection<string> GetLines(string comment)

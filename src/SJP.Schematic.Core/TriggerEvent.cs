@@ -26,5 +26,5 @@ public enum TriggerEvent
     /// <summary>
     /// An <c>DELETE</c> operation on a table.
     /// </summary>
-    Delete = 1 << 2
+    Delete = 1 << 2,
 }

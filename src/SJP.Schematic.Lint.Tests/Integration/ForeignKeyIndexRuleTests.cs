@@ -54,7 +54,7 @@ create table not_indexed_child_table_1 (
         var tables = new[]
         {
             await database.GetTable("no_index_parent_table_1").UnwrapSomeAsync().ConfigureAwait(false),
-            await database.GetTable("indexed_child_table_1").UnwrapSomeAsync().ConfigureAwait(false)
+            await database.GetTable("indexed_child_table_1").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
         var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
@@ -71,7 +71,7 @@ create table not_indexed_child_table_1 (
         var tables = new[]
         {
             await database.GetTable("no_index_parent_table_1").UnwrapSomeAsync().ConfigureAwait(false),
-            await database.GetTable("not_indexed_child_table_1").UnwrapSomeAsync().ConfigureAwait(false)
+            await database.GetTable("not_indexed_child_table_1").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
         var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);

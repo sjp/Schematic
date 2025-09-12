@@ -99,7 +99,7 @@ internal static class DefaultPostgreSqlIdentifierResolutionStrategyTests
         var expectedResults = new[]
         {
             new Identifier("a", "b", "c", "d"),
-            input
+            input,
         };
         var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
@@ -126,7 +126,7 @@ internal static class DefaultPostgreSqlIdentifierResolutionStrategyTests
         var expectedResults = new[]
         {
             new Identifier("a", "b", "c", "d"),
-            input
+            input,
         };
         var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
@@ -155,7 +155,7 @@ internal static class DefaultPostgreSqlIdentifierResolutionStrategyTests
             new Identifier("a", "b", "c", "d"),
             new Identifier("a", "b", "c", "D"),
             new Identifier("a", "b", "C", "d"),
-            input
+            input,
         };
         var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 

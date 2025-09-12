@@ -42,7 +42,7 @@ public class DbTypeMapper
             IsFixedLength = source.IsFixedLength,
             MaxLength = source.MaxLength,
             NumericPrecision = numericPrecisionMapper.Map(source.NumericPrecision),
-            Collation = collationMapper.Map(source.Collation)
+            Collation = collationMapper.Map(source.Collation),
         };
     }
 }

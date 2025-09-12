@@ -5,5 +5,5 @@ internal enum GraphRatio
     Fill,
     Compress,
     Expand,
-    Auto
+    Auto,
 }

@@ -20,7 +20,7 @@ public class SqlServerConnectionFactory : IDbConnectionFactory
     /// Initializes a new instance of the <see cref="SqlServerConnectionFactory"/> class.
     /// </summary>
     /// <param name="connectionString">The connection string.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionString"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionString"/> is <see langword="null" />, empty or whitespace.</exception>
     public SqlServerConnectionFactory(string connectionString)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
@@ -72,7 +72,7 @@ public class SqlServerConnectionFactory : IDbConnectionFactory
     /// <summary>
     /// Determines whether connections retrieved from this factory should be disposed.
     /// </summary>
-    /// <value>Always <c>true</c>.</value>
+    /// <value>Always <see langword="true" />.</value>
     public bool DisposeConnection { get; } = true;
 
     /// <summary>

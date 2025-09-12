@@ -23,7 +23,7 @@ public sealed class EmptyDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <param name="routineName">A database routine name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database routine in the 'none' state.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(routineName);

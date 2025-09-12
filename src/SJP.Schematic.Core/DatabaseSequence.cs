@@ -24,7 +24,7 @@ public class DatabaseSequence : IDatabaseSequence
     /// <param name="maxValue">The maximum value of the sequence.</param>
     /// <param name="cycle">Determines whether the sequence can cycle back to its starting values.</param>
     /// <param name="cacheSize">Size of the sequence cache.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException">Invalid combinations of values for <paramref name="minValue"/> and <paramref name="maxValue"/>.</exception>
     public DatabaseSequence(
         Identifier sequenceName,
@@ -86,7 +86,7 @@ public class DatabaseSequence : IDatabaseSequence
     /// <summary>
     /// Determines whether the values in the sequence can cycle. When cycling is configured, a sequence can generate duplicate values.
     /// </summary>
-    /// <value><c>true</c> if the sequence can cycle; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true" /> if the sequence can cycle; otherwise, <see langword="false" />.</value>
     public bool Cycle { get; }
 
     /// <summary>

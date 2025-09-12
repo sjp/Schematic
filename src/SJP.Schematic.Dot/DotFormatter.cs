@@ -126,7 +126,7 @@ public class DotFormatter : IDotFormatter
                 IsReducedColumnSet = options.IsReducedColumnSet,
                 ShowColumnDataType = options.ShowColumnDataType,
                 IsHighlighted = table.Name == options.HighlightedTable,
-                ShowRowCounts = options.ShowRowCounts
+                ShowRowCounts = options.ShowRowCounts,
             };
 
             var tableConstraints = new List<TableConstraint>();
@@ -248,18 +248,18 @@ public class DotFormatter : IDotFormatter
     private static readonly IEnumerable<GraphAttribute> _globalGraphAttrs =
     [
         GraphAttribute.RankDirection(RankDirection.RL),
-        GraphAttribute.Ratio(GraphRatio.Compress)
+        GraphAttribute.Ratio(GraphRatio.Compress),
     ];
 
     private static readonly IEnumerable<NodeAttribute> _globalNodeAttrs =
     [
         NodeAttribute.FontFace(FontFace.Courier),
-        NodeAttribute.EmptyNodeShape()
+        NodeAttribute.EmptyNodeShape(),
     ];
 
     private static readonly IEnumerable<EdgeAttribute> _globalEdgeAttrs =
     [
-        EdgeAttribute.ArrowHead(ArrowStyleName.Open)
+        EdgeAttribute.ArrowHead(ArrowStyleName.Open),
     ];
 
     private static readonly IReadOnlyDictionary<Identifier, ulong> EmptyRowCounts = new Dictionary<Identifier, ulong>();

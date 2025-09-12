@@ -14,7 +14,7 @@ internal static class RelationalDatabaseTableExtensionsTests
         var checks = new[]
         {
             new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), "test_definition_1", true),
-            new DatabaseCheckConstraint(Option<Identifier>.None, "test_definition_2", true)
+            new DatabaseCheckConstraint(Option<Identifier>.None, "test_definition_2", true),
         };
 
         var testColumnType = new ColumnDataType(
@@ -30,35 +30,35 @@ internal static class RelationalDatabaseTableExtensionsTests
         var columns = new[]
         {
             new DatabaseColumn("test_column_1", testColumnType, false, Option<string>.None, Option<IAutoIncrement>.None),
-            new DatabaseColumn("test_column_2", testColumnType, false, Option<string>.None, Option<IAutoIncrement>.None)
+            new DatabaseColumn("test_column_2", testColumnType, false, Option<string>.None, Option<IAutoIncrement>.None),
         };
 
         var indexColumns = columns.Select(c => new DatabaseIndexColumn("test", c, IndexColumnOrder.Ascending)).ToList();
         var indexes = new[]
         {
             new DatabaseIndex("test_index_1", true, indexColumns, [], false, Option<string>.None),
-            new DatabaseIndex("test_index_2", true, indexColumns, [], false, Option<string>.None)
+            new DatabaseIndex("test_index_2", true, indexColumns, [], false, Option<string>.None),
         };
 
         var childKeys = new[]
         {
             new DatabaseKey(Option<Identifier>.None, DatabaseKeyType.Foreign, columns, true),
-            new DatabaseKey(Option<Identifier>.Some("test_fk_2"), DatabaseKeyType.Foreign, columns, true)
+            new DatabaseKey(Option<Identifier>.Some("test_fk_2"), DatabaseKeyType.Foreign, columns, true),
         };
         var uniqueKeys = new[]
         {
             new DatabaseKey(Option<Identifier>.None, DatabaseKeyType.Unique, columns, true),
-            new DatabaseKey(Option<Identifier>.Some("test_uk_2"), DatabaseKeyType.Unique, columns, true)
+            new DatabaseKey(Option<Identifier>.Some("test_uk_2"), DatabaseKeyType.Unique, columns, true),
         };
         var parentKeys = new[]
         {
             new DatabaseRelationalKey("child_table", childKeys[0], "parent_table", uniqueKeys[0], ReferentialAction.Cascade, ReferentialAction.Cascade),
-            new DatabaseRelationalKey("child_table", childKeys[1], "parent_table", uniqueKeys[1], ReferentialAction.Cascade, ReferentialAction.Cascade)
+            new DatabaseRelationalKey("child_table", childKeys[1], "parent_table", uniqueKeys[1], ReferentialAction.Cascade, ReferentialAction.Cascade),
         };
         var triggers = new[]
         {
             new DatabaseTrigger("test_trigger_1", "test_definition", TriggerQueryTiming.After, TriggerEvent.Delete, true),
-            new DatabaseTrigger("test_trigger_2", "test_definition", TriggerQueryTiming.After, TriggerEvent.Delete, true)
+            new DatabaseTrigger("test_trigger_2", "test_definition", TriggerQueryTiming.After, TriggerEvent.Delete, true),
         };
 
         var tableMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);

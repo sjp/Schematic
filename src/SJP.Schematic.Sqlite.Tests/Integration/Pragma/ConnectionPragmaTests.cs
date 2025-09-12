@@ -37,7 +37,7 @@ internal sealed class ConnectionPragmaTests : SqliteTest
 
         var dbPragmas = await connPragma.DatabasePragmasAsync().ConfigureAwait(false);
         var dbPragmaNames = dbPragmas.Select(d => d.SchemaName).ToList();
-        var onlyExpectedPresent = dbPragmaNames.All(name => expectedSchemas.Contains(name));
+        var onlyExpectedPresent = dbPragmaNames.TrueForAll(name => expectedSchemas.Contains(name));
 
         Assert.That(onlyExpectedPresent, Is.True);
     }
@@ -52,7 +52,7 @@ internal sealed class ConnectionPragmaTests : SqliteTest
 
         var dbLists = await connPragma.DatabaseListAsync().ConfigureAwait(false);
         var dbNames = dbLists.Select(d => d.name).ToList();
-        var onlyExpectedPresent = dbNames.All(name => expectedSchemas.Contains(name));
+        var onlyExpectedPresent = dbNames.TrueForAll(name => expectedSchemas.Contains(name));
 
         Assert.That(onlyExpectedPresent, Is.True);
     }

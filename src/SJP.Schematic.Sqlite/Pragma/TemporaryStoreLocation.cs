@@ -18,5 +18,5 @@ public enum TemporaryStoreLocation
     /// <summary>
     /// Temporary data is held in memory.
     /// </summary>
-    Memory
+    Memory,
 }

@@ -16,7 +16,7 @@ public class DatabaseViewComments : IDatabaseViewComments
     /// <param name="viewName">A view name.</param>
     /// <param name="comment">The comment for the view, if available.</param>
     /// <param name="columnComments">The view's column's comments.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> or <paramref name="columnComments"/> is <c>null</c></exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> or <paramref name="columnComments"/> is <see langword="null" /></exception>
     public DatabaseViewComments(
         Identifier viewName,
         Option<string> comment,

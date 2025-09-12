@@ -34,7 +34,7 @@ public class DatabaseRelationalKeyMapper
             ParentTable = identifierMapper.Map(source.ParentTable),
             ParentKey = databaseKeyMapper.Map(source.ParentKey),
             DeleteAction = source.DeleteAction,
-            UpdateAction = source.UpdateAction
+            UpdateAction = source.UpdateAction,
         };
     }
 }

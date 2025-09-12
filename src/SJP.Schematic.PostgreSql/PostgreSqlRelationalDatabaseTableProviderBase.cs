@@ -25,7 +25,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     /// <param name="connection">A schematic connection.</param>
     /// <param name="identifierDefaults">Database identifier defaults.</param>
     /// <param name="identifierResolver">An identifier resolver.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <see langword="null" />.</exception>
     public PostgreSqlRelationalDatabaseTableProviderBase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -102,7 +102,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     /// <param name="tableName">A database table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database table in the 'some' state if found; otherwise 'none'.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -118,7 +118,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     /// <param name="tableName">A table name that will be resolved.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A table name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected Task<Option<Identifier>> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -139,7 +139,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     /// <param name="tableName">A table name that will be resolved.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A table name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected OptionAsync<Identifier> GetResolvedTableNameStrict(Identifier tableName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -161,7 +161,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     /// <param name="queryCache">The query cache.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A table, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> is <see langword="null" />.</exception>
     protected OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -214,7 +214,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A primary key, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
     protected Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -262,7 +262,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of indexes.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
     protected virtual Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -288,7 +288,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                 row.IndexName,
                 row.IsUnique,
                 row.IsPrimary,
-                row.FilterDefinition
+                row.FilterDefinition,
             })
             .ToList();
         if (indexColumns.Empty())
@@ -316,7 +316,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                     Expression = row.IndexColumnExpression,
                     Column = row.IndexColumnExpression != null && columnLookup.ContainsKey(row.IndexColumnExpression)
                         ? columnLookup[row.IndexColumnExpression]
-                        : null
+                        : null,
                 })
                 .Select(row =>
                 {
@@ -344,7 +344,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of unique keys.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
     protected Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -398,7 +398,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of child keys.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
     protected Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -427,7 +427,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             row.ParentKeyName,
             row.ParentKeyType,
             row.DeleteAction,
-            row.UpdateAction
+            row.UpdateAction,
         }).ToList();
         if (groupedChildKeys.Empty())
             return [];
@@ -516,7 +516,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of foreign keys.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
     protected Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -544,7 +544,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             row.ParentKeyName,
             KeyType = row.ParentKeyType,
             row.DeleteAction,
-            row.UpdateAction
+            row.UpdateAction,
         }).ToList();
         if (foreignKeys.Empty())
             return [];
@@ -608,7 +608,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     /// <param name="tableName">A table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An ordered collection of columns.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected virtual Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -636,7 +636,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                         : CreatePrecisionFromBase(row.NumericPrecision, row.NumericPrecisionRadix),
                     NumericPrecision = row.NumericPrecisionRadix > 0
                         ? Option<INumericPrecision>.Some(CreatePrecisionWithScaleFromBase(row.NumericPrecision, row.NumericScale, row.NumericPrecisionRadix))
-                        : Option<INumericPrecision>.None
+                        : Option<INumericPrecision>.None,
                 };
 
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
@@ -670,7 +670,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     /// <param name="tableName">A table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of triggers.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(Identifier tableName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -694,7 +694,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             row.TriggerName,
             row.Definition,
             row.Timing,
-            row.EnabledFlag
+            row.EnabledFlag,
         }).ToList();
         if (triggers.Empty())
             return [];
@@ -732,7 +732,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     /// </summary>
     /// <param name="columns">Columns to create a lookup from.</param>
     /// <returns>A dictionary whose keys are column names, and the values are the columns associated with those names.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="columns"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="columns"/> is <see langword="null" />.</exception>
     protected static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(IReadOnlyCollection<IDatabaseColumn> columns)
     {
         ArgumentNullException.ThrowIfNull(columns);
@@ -814,7 +814,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         ["r"] = ReferentialAction.Restrict,
         ["c"] = ReferentialAction.Cascade,
         ["n"] = ReferentialAction.SetNull,
-        ["d"] = ReferentialAction.SetDefault
+        ["d"] = ReferentialAction.SetDefault,
     };
 
     /// <summary>
@@ -822,7 +822,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     /// </summary>
     /// <param name="tableName">A table name to qualify.</param>
     /// <returns>A table name that is at least as qualified as its input.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected Identifier QualifyTableName(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -896,7 +896,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         /// <param name="primaryKeyLoader">A primary key cache.</param>
         /// <param name="uniqueKeyLoader">A unique key cache.</param>
         /// <param name="foreignKeyLoader">A foreign key cache.</param>
-        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/> or <paramref name="foreignKeyLoader"/> are <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/> or <paramref name="foreignKeyLoader"/> are <see langword="null" />.</exception>
         public PostgreSqlTableQueryCache(
             AsyncCache<Identifier, Option<Identifier>, PostgreSqlTableQueryCache> tableNameLoader,
             AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, PostgreSqlTableQueryCache> columnLoader,
@@ -918,7 +918,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         /// <param name="tableName">A table name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A table name, if matched in the database.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
         public Task<Option<Identifier>> GetTableNameAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);
@@ -932,7 +932,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         /// <param name="tableName">A table name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A collection of columns.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
         public Task<IReadOnlyList<IDatabaseColumn>> GetColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);
@@ -946,7 +946,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         /// <param name="tableName">A table name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A primary key, if available.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
         public Task<Option<IDatabaseKey>> GetPrimaryKeyAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);
@@ -960,7 +960,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         /// <param name="tableName">A table name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A collection of unique keys.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
         public Task<IReadOnlyCollection<IDatabaseKey>> GetUniqueKeysAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);
@@ -974,7 +974,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         /// <param name="tableName">A table name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A collection of foreign keys.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
         public Task<IReadOnlyCollection<IDatabaseRelationalKey>> GetForeignKeysAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);

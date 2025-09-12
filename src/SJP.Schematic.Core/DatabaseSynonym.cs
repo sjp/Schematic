@@ -18,7 +18,7 @@ public class DatabaseSynonym : IDatabaseSynonym
     /// </summary>
     /// <param name="synonymName">The synonym name.</param>
     /// <param name="targetName">The target of the synonym alias.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> or <paramref name="targetName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> or <paramref name="targetName"/> is <see langword="null" />.</exception>
     public DatabaseSynonym(Identifier synonymName, Identifier targetName)
     {
         Name = synonymName ?? throw new ArgumentNullException(nameof(synonymName));

@@ -70,13 +70,13 @@ internal static class DatabaseViewCommentsTests
         {
             new Identifier("test_column_1"),
             new Identifier("test_column_2"),
-            new Identifier("test_column_3")
+            new Identifier("test_column_3"),
         };
         var columnComments = new Dictionary<Identifier, Option<string>>
         {
             [columnNames[0]] = Option<string>.None,
             [columnNames[1]] = Option<string>.None,
-            [columnNames[2]] = Option<string>.None
+            [columnNames[2]] = Option<string>.None,
         };
 
         var comments = new DatabaseViewComments("test_view", Option<string>.None, columnComments);
@@ -92,13 +92,13 @@ internal static class DatabaseViewCommentsTests
         {
             new Identifier("test_column_1"),
             new Identifier("test_column_2"),
-            new Identifier("test_column_3")
+            new Identifier("test_column_3"),
         };
         var columnComments = new Dictionary<Identifier, Option<string>>
         {
             [columnNames[0]] = Option<string>.None,
             [columnNames[1]] = Option<string>.Some("test comment for second column"),
-            [columnNames[2]] = Option<string>.Some("test comment for third column")
+            [columnNames[2]] = Option<string>.Some("test comment for third column"),
         };
 
         var comments = new DatabaseViewComments("test_view", Option<string>.None, columnComments);

@@ -6,27 +6,27 @@
 public sealed record RelationalDatabaseSnapshotOptions
 {
     /// <summary>
-    /// Indicates whether tables should be exported. The default is <c>true</c>.
+    /// Indicates whether tables should be exported. The default is <see langword="true" />.
     /// </summary>
     public bool IncludeTables { get; init; } = true;
 
     /// <summary>
-    /// Indicates whether views should be exported. The default is <c>true</c>.
+    /// Indicates whether views should be exported. The default is <see langword="true" />.
     /// </summary>
     public bool IncludeViews { get; init; } = true;
 
     /// <summary>
-    /// Indicates whether sequences should be exported. The default is <c>true</c>.
+    /// Indicates whether sequences should be exported. The default is <see langword="true" />.
     /// </summary>
     public bool IncludeSequences { get; init; } = true;
 
     /// <summary>
-    /// Indicates whether synonyms should be exported. The default is <c>true</c>.
+    /// Indicates whether synonyms should be exported. The default is <see langword="true" />.
     /// </summary>
     public bool IncludeSynonyms { get; init; } = true;
 
     /// <summary>
-    /// Indicates whether routines should be exported. The default is <c>true</c>.
+    /// Indicates whether routines should be exported. The default is <see langword="true" />.
     /// </summary>
     public bool IncludeRoutines { get; init; } = true;
 

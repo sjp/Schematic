@@ -19,7 +19,7 @@ public class SqliteCheckConstraint : IDatabaseCheckConstraint
     /// </summary>
     /// <param name="checkName">A check constraint name, if available.</param>
     /// <param name="definition">The constraint definition.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <see langword="null" />, empty or whitespace.</exception>
     public SqliteCheckConstraint(Option<Identifier> checkName, string definition)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(definition);
@@ -43,7 +43,7 @@ public class SqliteCheckConstraint : IDatabaseCheckConstraint
     /// <summary>
     /// Indicates whether this constraint is enabled.
     /// </summary>
-    /// <value>Always <c>true</c>.</value>
+    /// <value>Always <see langword="true" />.</value>
     public bool IsEnabled { get; } = true;
 
     /// <summary>

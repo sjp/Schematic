@@ -6,27 +6,27 @@
 public sealed record RelationalDatabaseCommentProviderSnapshotOptions
 {
     /// <summary>
-    /// Indicates whether table comments should be exported. The default is <c>true</c>.
+    /// Indicates whether table comments should be exported. The default is <see langword="true" />.
     /// </summary>
     public bool IncludeTableComments { get; init; } = true;
 
     /// <summary>
-    /// Indicates whether view comments should be exported. The default is <c>true</c>.
+    /// Indicates whether view comments should be exported. The default is <see langword="true" />.
     /// </summary>
     public bool IncludeViewComments { get; init; } = true;
 
     /// <summary>
-    /// Indicates whether routine comments should be exported. The default is <c>true</c>.
+    /// Indicates whether routine comments should be exported. The default is <see langword="true" />.
     /// </summary>
     public bool IncludeRoutineComments { get; init; } = true;
 
     /// <summary>
-    /// Indicates whether sequence comments should be exported. The default is <c>true</c>.
+    /// Indicates whether sequence comments should be exported. The default is <see langword="true" />.
     /// </summary>
     public bool IncludeSequenceComments { get; init; } = true;
 
     /// <summary>
-    /// Indicates whether synonym comments should be exported. The default is <c>true</c>.
+    /// Indicates whether synonym comments should be exported. The default is <see langword="true" />.
     /// </summary>
     public bool IncludeSynonymComments { get; init; } = true;
 

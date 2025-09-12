@@ -207,7 +207,7 @@ internal sealed class PostgreSqlViewCommentProviderTests : PostgreSqlTest
         {
             new Identifier("test_column_1"),
             new Identifier("test_column_2"),
-            new Identifier("test_column_3")
+            new Identifier("test_column_3"),
         };
 
         var comments = await GetViewCommentsAsync("wrapper_view_comment_view_1").ConfigureAwait(false);
@@ -244,7 +244,7 @@ internal sealed class PostgreSqlViewCommentProviderTests : PostgreSqlTest
         {
             new Identifier("test_column_1"),
             new Identifier("test_column_2"),
-            new Identifier("test_column_3")
+            new Identifier("test_column_3"),
         };
         var comments = await GetViewCommentsAsync("wrapper_view_comment_view_2").ConfigureAwait(false);
 
@@ -258,7 +258,7 @@ internal sealed class PostgreSqlViewCommentProviderTests : PostgreSqlTest
         {
             true,
             false,
-            true
+            true,
         };
         var comments = await GetViewCommentsAsync("wrapper_view_comment_view_2").ConfigureAwait(false);
 
@@ -267,7 +267,7 @@ internal sealed class PostgreSqlViewCommentProviderTests : PostgreSqlTest
         {
             columnComments["test_column_1"].IsNone,
             columnComments["test_column_2"].IsNone,
-            columnComments["test_column_3"].IsNone
+            columnComments["test_column_3"].IsNone,
         };
 
         Assert.That(noneStates, Is.EqualTo(expectedNoneStates));
@@ -401,7 +401,7 @@ internal sealed class PostgreSqlViewCommentProviderTests : PostgreSqlTest
         {
             new Identifier("test_column_1"),
             new Identifier("test_column_2"),
-            new Identifier("test_column_3")
+            new Identifier("test_column_3"),
         };
 
         var comments = await GetViewCommentsAsync("wrapper_view_comment_matview_1").ConfigureAwait(false);
@@ -438,7 +438,7 @@ internal sealed class PostgreSqlViewCommentProviderTests : PostgreSqlTest
         {
             new Identifier("test_column_1"),
             new Identifier("test_column_2"),
-            new Identifier("test_column_3")
+            new Identifier("test_column_3"),
         };
         var comments = await GetViewCommentsAsync("wrapper_view_comment_matview_2").ConfigureAwait(false);
 
@@ -452,7 +452,7 @@ internal sealed class PostgreSqlViewCommentProviderTests : PostgreSqlTest
         {
             true,
             false,
-            true
+            true,
         };
         var comments = await GetViewCommentsAsync("wrapper_view_comment_matview_2").ConfigureAwait(false);
 
@@ -461,7 +461,7 @@ internal sealed class PostgreSqlViewCommentProviderTests : PostgreSqlTest
         {
             columnComments["test_column_1"].IsNone,
             columnComments["test_column_2"].IsNone,
-            columnComments["test_column_3"].IsNone
+            columnComments["test_column_3"].IsNone,
         };
 
         Assert.That(noneStates, Is.EqualTo(expectedNoneStates));

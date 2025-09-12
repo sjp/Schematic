@@ -53,7 +53,7 @@ public class RelationalDatabaseTableMapper
             ChildKeys = relationalKeyMapper.MapList(source.ChildKeys),
             Indexes = indexMapper.MapList(source.Indexes),
             Checks = checkMapper.MapList(source.Checks),
-            Triggers = triggerMapper.MapList(source.Triggers)
+            Triggers = triggerMapper.MapList(source.Triggers),
         };
     }
 }

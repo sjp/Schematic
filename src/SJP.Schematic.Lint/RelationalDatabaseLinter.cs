@@ -18,7 +18,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
     /// Initializes a new instance of the <see cref="RelationalDatabaseLinter"/> class.
     /// </summary>
     /// <param name="rules">A set of database linting rules.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="rules"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="rules"/> is <see langword="null" />.</exception>
     public RelationalDatabaseLinter(IEnumerable<IRule> rules)
     {
         Rules = rules ?? throw new ArgumentNullException(nameof(rules));
@@ -42,7 +42,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
     /// <param name="database">A relational database. Analysis will be performed on objects retrieved from the database.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="database"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="database"/> is <see langword="null" />.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseDatabase(IRelationalDatabase database, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(database);
@@ -94,7 +94,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
     /// <param name="tables">A set of database tables.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" />.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tables);
@@ -117,7 +117,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
     /// <param name="views">A set of database views.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="views"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="views"/> is <see langword="null" />.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(views);
@@ -140,7 +140,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
     /// <param name="sequences">A set of database sequences.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequences"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequences"/> is <see langword="null" />.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseSequences(IEnumerable<IDatabaseSequence> sequences, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(sequences);
@@ -163,7 +163,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
     /// <param name="synonyms">A set of database synonyms.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="synonyms"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="synonyms"/> is <see langword="null" />.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseSynonyms(IEnumerable<IDatabaseSynonym> synonyms, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(synonyms);
@@ -186,7 +186,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
     /// <param name="routines">A set of database routines.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="routines"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="routines"/> is <see langword="null" />.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseRoutines(IEnumerable<IDatabaseRoutine> routines, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(routines);

@@ -18,5 +18,5 @@ public enum SqliteGeneratedColumnType
     /// <summary>
     /// The value of a STORED column is computed when the row is written.
     /// </summary>
-    Stored
+    Stored,
 }

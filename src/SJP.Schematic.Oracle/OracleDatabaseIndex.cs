@@ -22,7 +22,7 @@ public class OracleDatabaseIndex : IDatabaseIndex
     /// <param name="name">An index name.</param>
     /// <param name="isUnique">Determines whether the index is unique, if <see langword="true"/>, the index is unique.</param>
     /// <param name="columns">The columns.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>. Alternatively if <paramref name="columns"/> is <c>null</c>, empty or has a <c>null</c> value.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />. Alternatively if <paramref name="columns"/> is <see langword="null" />, empty or has a <see langword="null" /> value.</exception>
     public OracleDatabaseIndex(Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns)
     {
         ArgumentNullException.ThrowIfNull(name);
@@ -43,7 +43,7 @@ public class OracleDatabaseIndex : IDatabaseIndex
     /// <summary>
     /// Indicates whether covered index columns must be unique across the index column set.
     /// </summary>
-    /// <value><c>true</c> if the index column set must have unique values; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true" /> if the index column set must have unique values; otherwise, <see langword="false" />.</value>
     public bool IsUnique { get; }
 
     /// <summary>
@@ -61,7 +61,7 @@ public class OracleDatabaseIndex : IDatabaseIndex
     /// <summary>
     /// Indicates whether this instance is enabled.
     /// </summary>
-    /// <value>Always <c>true</c>.</value>
+    /// <value>Always <see langword="true" />.</value>
     public bool IsEnabled { get; } = true;
 
     /// <summary>

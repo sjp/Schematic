@@ -195,7 +195,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
         {
             new Identifier("test_column_1"),
             new Identifier("test_column_2"),
-            new Identifier("test_column_3")
+            new Identifier("test_column_3"),
         };
 
         var comments = await GetViewCommentsAsync("matview_comment_matview_1").ConfigureAwait(false);
@@ -232,7 +232,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
         {
             new Identifier("test_column_1"),
             new Identifier("test_column_2"),
-            new Identifier("test_column_3")
+            new Identifier("test_column_3"),
         };
         var comments = await GetViewCommentsAsync("matview_comment_matview_2").ConfigureAwait(false);
 
@@ -246,7 +246,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
         {
             true,
             false,
-            true
+            true,
         };
         var comments = await GetViewCommentsAsync("matview_comment_matview_2").ConfigureAwait(false);
 
@@ -255,7 +255,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
         {
             columnComments["test_column_1"].IsNone,
             columnComments["test_column_2"].IsNone,
-            columnComments["test_column_3"].IsNone
+            columnComments["test_column_3"].IsNone,
         };
 
         Assert.That(noneStates, Is.EqualTo(expectedNoneStates));

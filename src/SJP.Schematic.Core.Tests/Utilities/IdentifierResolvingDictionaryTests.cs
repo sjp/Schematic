@@ -29,7 +29,7 @@ internal static class IdentifierResolvingDictionaryTests
         var dictionary = new Dictionary<Identifier, string>
         {
             ["B"] = "b",
-            ["C"] = "c"
+            ["C"] = "c",
         };
         var resolver = new FakeIdentifierResolver();
         var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
@@ -43,7 +43,7 @@ internal static class IdentifierResolvingDictionaryTests
         var dictionary = new Dictionary<Identifier, string>
         {
             ["B"] = "b",
-            ["C"] = "c"
+            ["C"] = "c",
         };
         var resolver = new FakeIdentifierResolver();
         var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
@@ -57,7 +57,7 @@ internal static class IdentifierResolvingDictionaryTests
         var dictionary = new Dictionary<Identifier, string>
         {
             ["B"] = "b",
-            ["C"] = "c"
+            ["C"] = "c",
         };
         var resolver = new FakeIdentifierResolver();
         var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
@@ -71,7 +71,7 @@ internal static class IdentifierResolvingDictionaryTests
         var dictionary = new Dictionary<Identifier, string>
         {
             ["B"] = "b",
-            ["C"] = "c"
+            ["C"] = "c",
         };
         var resolver = new FakeIdentifierResolver();
         var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
@@ -95,7 +95,7 @@ internal static class IdentifierResolvingDictionaryTests
         var dictionary = new Dictionary<Identifier, string>
         {
             ["B"] = "b",
-            ["C"] = "c"
+            ["C"] = "c",
         };
         var resolver = new FakeIdentifierResolver();
         var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
@@ -110,7 +110,7 @@ internal static class IdentifierResolvingDictionaryTests
         var dictionary = new Dictionary<Identifier, string>
         {
             ["B"] = "b",
-            ["C"] = "c"
+            ["C"] = "c",
         };
         var resolver = new FakeIdentifierResolver();
         var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
@@ -126,7 +126,7 @@ internal static class IdentifierResolvingDictionaryTests
         {
             ["X"] = "x",
             ["Y"] = "y",
-            ["Z"] = "z"
+            ["Z"] = "z",
         };
         var resolver = new FakeIdentifierResolver();
         var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
@@ -151,7 +151,7 @@ internal static class IdentifierResolvingDictionaryTests
         var dictionary = new Dictionary<Identifier, string>
         {
             ["B"] = "b",
-            ["C"] = "c"
+            ["C"] = "c",
         };
         var resolver = new FakeIdentifierResolver();
         var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
@@ -171,7 +171,7 @@ internal static class IdentifierResolvingDictionaryTests
         var dictionary = new Dictionary<Identifier, string>
         {
             ["B"] = "b",
-            ["C"] = "c"
+            ["C"] = "c",
         };
         var resolver = new FakeIdentifierResolver();
         var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
@@ -192,7 +192,7 @@ internal static class IdentifierResolvingDictionaryTests
         {
             ["X"] = "x",
             ["Y"] = "y",
-            ["Z"] = "z"
+            ["Z"] = "z",
         };
         var resolver = new FakeIdentifierResolver();
         var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
@@ -222,7 +222,7 @@ internal static class IdentifierResolvingDictionaryTests
         var dictionary = new Dictionary<Identifier, string>
         {
             ["B"] = "b",
-            ["C"] = "c"
+            ["C"] = "c",
         };
         var resolver = new FakeIdentifierResolver();
         var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
@@ -237,7 +237,7 @@ internal static class IdentifierResolvingDictionaryTests
         var dictionary = new Dictionary<Identifier, string>
         {
             ["B"] = "b",
-            ["C"] = "c"
+            ["C"] = "c",
         };
         var resolver = new FakeIdentifierResolver();
         var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
@@ -253,7 +253,7 @@ internal static class IdentifierResolvingDictionaryTests
         {
             ["X"] = "x",
             ["Y"] = "y",
-            ["Z"] = "z"
+            ["Z"] = "z",
         };
         var resolver = new FakeIdentifierResolver();
         var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
@@ -271,7 +271,7 @@ internal static class IdentifierResolvingDictionaryTests
             new Identifier("B"),
             new Identifier("C"),
             new Identifier("D"),
-            new Identifier("E")
+            new Identifier("E"),
         ];
     }
 }

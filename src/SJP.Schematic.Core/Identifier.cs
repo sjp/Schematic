@@ -16,7 +16,7 @@ public sealed record Identifier : IComparable<Identifier>
     /// Creates an identifier that only contains an object's local name.
     /// </summary>
     /// <param name="localName">An object name.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="localName"/> is <c>null</c>, empty, or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="localName"/> is <see langword="null" />, empty, or whitespace.</exception>
     public Identifier(string localName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(localName);
@@ -29,7 +29,7 @@ public sealed record Identifier : IComparable<Identifier>
     /// </summary>
     /// <param name="schema">The name of a schema.</param>
     /// <param name="localName">An object name.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="schema"/> or <paramref name="localName"/> is <c>null</c>, empty, or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="schema"/> or <paramref name="localName"/> is <see langword="null" />, empty, or whitespace.</exception>
     public Identifier(string schema, string localName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(schema);
@@ -45,7 +45,7 @@ public sealed record Identifier : IComparable<Identifier>
     /// <param name="database">The name of a database.</param>
     /// <param name="schema">The name of a schema.</param>
     /// <param name="localName">An object name.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="database"/> or <paramref name="schema"/> or <paramref name="localName"/> is <c>null</c>, empty, or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="database"/> or <paramref name="schema"/> or <paramref name="localName"/> is <see langword="null" />, empty, or whitespace.</exception>
     public Identifier(string database, string schema, string localName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(database);
@@ -64,7 +64,7 @@ public sealed record Identifier : IComparable<Identifier>
     /// <param name="database">The name of a database.</param>
     /// <param name="schema">The name of a schema.</param>
     /// <param name="localName">An object name.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="server"/> or <paramref name="database"/> or <paramref name="schema"/> or <paramref name="localName"/> is <c>null</c>, empty, or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="server"/> or <paramref name="database"/> or <paramref name="schema"/> or <paramref name="localName"/> is <see langword="null" />, empty, or whitespace.</exception>
     public Identifier(string server, string database, string schema, string localName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(server);
@@ -86,7 +86,7 @@ public sealed record Identifier : IComparable<Identifier>
     /// <param name="schema">The name of a schema.</param>
     /// <param name="localName">An object name.</param>
     /// <exception cref="ArgumentNullException">Thrown when a parent component name is specified, but not one of its children.</exception>
-    /// <remarks>This enables easy creation of identifiers when only a subset may be known in advance. For example, if only a schema and local name exists, the server and database name can be omitted (by providing <c>null</c>) arguments.</remarks>
+    /// <remarks>This enables easy creation of identifiers when only a subset may be known in advance. For example, if only a schema and local name exists, the server and database name can be omitted (by providing <see langword="null" />) arguments.</remarks>
     public static Identifier CreateQualifiedIdentifier(string? server, string? database, string? schema, string? localName)
     {
         var serverPresent = !server.IsNullOrWhiteSpace();
@@ -131,7 +131,7 @@ public sealed record Identifier : IComparable<Identifier>
     /// <param name="schema">The name of a schema.</param>
     /// <param name="localName">An object name.</param>
     /// <exception cref="ArgumentNullException">Thrown when a parent component name is specified, but not one of its children.</exception>
-    /// <remarks>This enables easy creation of identifiers when only a subset may be known in advance. For example, if only a schema and local name exists, the server and database name can be omitted (by providing <c>null</c>) arguments.</remarks>
+    /// <remarks>This enables easy creation of identifiers when only a subset may be known in advance. For example, if only a schema and local name exists, the server and database name can be omitted (by providing <see langword="null" />) arguments.</remarks>
     public static Identifier CreateQualifiedIdentifier(string? database, string? schema, string? localName) => CreateQualifiedIdentifier(null, database, schema, localName);
 
     /// <summary>
@@ -140,14 +140,14 @@ public sealed record Identifier : IComparable<Identifier>
     /// <param name="schema">The name of a schema.</param>
     /// <param name="localName">An object name.</param>
     /// <exception cref="ArgumentNullException">Thrown when a parent component name is specified, but not one of its children.</exception>
-    /// <remarks>This enables easy creation of identifiers when only a subset may be known in advance. For example, if only a schema and local name exists, the server and database name can be omitted (by providing <c>null</c>) arguments.</remarks>
+    /// <remarks>This enables easy creation of identifiers when only a subset may be known in advance. For example, if only a schema and local name exists, the server and database name can be omitted (by providing <see langword="null" />) arguments.</remarks>
     public static Identifier CreateQualifiedIdentifier(string? schema, string? localName) => CreateQualifiedIdentifier(null, null, schema, localName);
 
     /// <summary>
     /// Creates an identifier that creates the most qualified name given its input.
     /// </summary>
     /// <param name="localName">An object name.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="localName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="localName"/> is <see langword="null" />.</exception>
     public static Identifier CreateQualifiedIdentifier(string? localName) => CreateQualifiedIdentifier(null, null, null, localName);
 
     /// <summary>
@@ -193,7 +193,7 @@ public sealed record Identifier : IComparable<Identifier>
     /// </summary>
     /// <param name="a">A database identifier.</param>
     /// <param name="b">Another database identifier.</param>
-    /// <returns><c>true</c> if <paramref name="a"/> follows <paramref name="b"/> when both are sorted; otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if <paramref name="a"/> follows <paramref name="b"/> when both are sorted; otherwise <see langword="false" />.</returns>
     public static bool operator >(Identifier a, Identifier b) => IdentifierComparer.Ordinal.Compare(a, b) > 0;
 
     /// <summary>
@@ -201,7 +201,7 @@ public sealed record Identifier : IComparable<Identifier>
     /// </summary>
     /// <param name="a">A database identifier.</param>
     /// <param name="b">Another database identifier.</param>
-    /// <returns><c>true</c> if <paramref name="a"/> precedes <paramref name="b"/> when both are sorted; otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if <paramref name="a"/> precedes <paramref name="b"/> when both are sorted; otherwise <see langword="false" />.</returns>
     public static bool operator <(Identifier a, Identifier b) => IdentifierComparer.Ordinal.Compare(a, b) < 0;
 
     /// <summary>
@@ -209,7 +209,7 @@ public sealed record Identifier : IComparable<Identifier>
     /// </summary>
     /// <param name="a">A database identifier.</param>
     /// <param name="b">Another database identifier.</param>
-    /// <returns><c>true</c> if <paramref name="a"/> follows or is equal to <paramref name="b"/> when both are sorted; otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if <paramref name="a"/> follows or is equal to <paramref name="b"/> when both are sorted; otherwise <see langword="false" />.</returns>
     public static bool operator >=(Identifier a, Identifier b) => IdentifierComparer.Ordinal.Compare(a, b) >= 0;
 
     /// <summary>
@@ -217,7 +217,7 @@ public sealed record Identifier : IComparable<Identifier>
     /// </summary>
     /// <param name="a">A database identifier.</param>
     /// <param name="b">Another database identifier.</param>
-    /// <returns><c>true</c> if <paramref name="a"/> precedes or is equal to <paramref name="b"/> when both are sorted; otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if <paramref name="a"/> precedes or is equal to <paramref name="b"/> when both are sorted; otherwise <see langword="false" />.</returns>
     public static bool operator <=(Identifier a, Identifier b) => IdentifierComparer.Ordinal.Compare(a, b) <= 0;
 
     /// <summary>

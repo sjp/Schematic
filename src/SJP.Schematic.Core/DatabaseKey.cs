@@ -21,7 +21,7 @@ public class DatabaseKey : IDatabaseKey
     /// <param name="keyType">The key constraint type.</param>
     /// <param name="columns">The columns covered by the key.</param>
     /// <param name="isEnabled">Whether the constraint is enabled.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="columns"/> is <c>null</c> or contains <c>null</c> values.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="columns"/> is <see langword="null" /> or contains <see langword="null" /> values.</exception>
     /// <exception cref="ArgumentException"><paramref name="keyType"/> is an invalid enum value.</exception>
     public DatabaseKey(Option<Identifier> name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, bool isEnabled)
     {
@@ -57,7 +57,7 @@ public class DatabaseKey : IDatabaseKey
     /// <summary>
     /// Indicates whether this database key is enabled.
     /// </summary>
-    /// <value><c>true</c> if this object is enabled; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true" /> if this object is enabled; otherwise, <see langword="false" />.</value>
     public bool IsEnabled { get; }
 
     /// <summary>

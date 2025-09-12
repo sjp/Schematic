@@ -700,5 +700,5 @@ internal enum OracleToken
     Within,
 
     [Token(Category = "keyword", Example = "writetext")]
-    WriteText
+    WriteText,
 }

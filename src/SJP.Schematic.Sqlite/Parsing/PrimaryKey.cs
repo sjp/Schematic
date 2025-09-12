@@ -26,7 +26,7 @@ public class PrimaryKey
     /// </summary>
     /// <param name="constraintName">A name for the primary key, if available.</param>
     /// <param name="columns">A collection of columns that comprise the primary key.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="columns"/> is <c>null</c> or empty.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="columns"/> is <see langword="null" /> or empty.</exception>
     public PrimaryKey(Option<string> constraintName, IEnumerable<IndexedColumn> columns)
     {
         if (columns.NullOrEmpty())

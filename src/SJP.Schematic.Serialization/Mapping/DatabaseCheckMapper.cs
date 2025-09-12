@@ -25,7 +25,7 @@ public class DatabaseCheckMapper
         {
             CheckName = identifierMapper.Map(source.Name),
             Definition = source.Definition,
-            IsEnabled = source.IsEnabled
+            IsEnabled = source.IsEnabled,
         };
     }
 }

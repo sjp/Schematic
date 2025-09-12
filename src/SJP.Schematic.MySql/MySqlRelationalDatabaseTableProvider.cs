@@ -24,7 +24,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     /// </summary>
     /// <param name="connection">A database connection.</param>
     /// <param name="identifierDefaults">Identifier defaults for the given database.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <see langword="null" />.</exception>
     public MySqlRelationalDatabaseTableProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -94,7 +94,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     /// <param name="tableName">A database table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database table in the 'some' state if found; otherwise 'none'.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -110,7 +110,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     /// <param name="tableName">A table name that will be resolved.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A table name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected Task<Option<Identifier>> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -134,7 +134,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     /// <param name="queryCache">The query cache.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A table, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> is <see langword="null" />.</exception>
     protected OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -187,7 +187,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A primary key, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
     protected Task<Option<IDatabaseKey>> LoadPrimaryKeyAsync(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -230,7 +230,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of indexes.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
     protected Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -288,7 +288,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of unique keys.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
     protected Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsync(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -338,7 +338,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of child keys.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
     protected Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsync(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -367,7 +367,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             row.ParentKeyName,
             row.ParentKeyType,
             row.DeleteAction,
-            row.UpdateAction
+            row.UpdateAction,
         }).ToList();
         if (groupedChildKeys.Empty())
             return [];
@@ -426,7 +426,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     /// <param name="tableName">A table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of check constraints.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -462,7 +462,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of foreign keys.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
     protected Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsync(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -552,7 +552,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     /// <param name="tableName">A table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An ordered collection of columns.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -576,7 +576,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
                     ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
                     : Option<Identifier>.None,
                     MaxLength = row.CharacterMaxLength,
-                    NumericPrecision = new NumericPrecision(row.Precision, row.Scale)
+                    NumericPrecision = new NumericPrecision(row.Precision, row.Scale),
                 };
                 var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
@@ -608,7 +608,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     /// <param name="tableName">A table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of triggers.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(Identifier tableName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -631,7 +631,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         {
             row.TriggerName,
             row.Definition,
-            row.Timing
+            row.Timing,
         }).ToList();
         if (triggers.Empty())
             return [];
@@ -668,7 +668,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     /// </summary>
     /// <param name="tableName">A table name to qualify.</param>
     /// <returns>A table name that is at least as qualified as its input.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected Identifier QualifyTableName(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -687,7 +687,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         ["RESTRICT"] = ReferentialAction.Restrict,
         ["CASCADE"] = ReferentialAction.Cascade,
         ["SET NULL"] = ReferentialAction.SetNull,
-        ["SET DEFAULT"] = ReferentialAction.SetDefault
+        ["SET DEFAULT"] = ReferentialAction.SetDefault,
     };
 
     private static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(IReadOnlyCollection<IDatabaseColumn> columns)
@@ -761,7 +761,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         /// <param name="primaryKeyLoader">A primary key cache.</param>
         /// <param name="uniqueKeyLoader">A unique key cache.</param>
         /// <param name="foreignKeyLoader">A foreign key cache.</param>
-        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/> or <paramref name="foreignKeyLoader"/> are <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/> or <paramref name="foreignKeyLoader"/> are <see langword="null" />.</exception>
         public MySqlTableQueryCache(
             AsyncCache<Identifier, Option<Identifier>, MySqlTableQueryCache> tableNameLoader,
             AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, MySqlTableQueryCache> columnLoader,
@@ -783,7 +783,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         /// <param name="tableName">A table name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A table name, if matched in the database.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
         public Task<Option<Identifier>> GetTableNameAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);
@@ -797,7 +797,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         /// <param name="tableName">A table name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A collection of columns.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
         public Task<IReadOnlyList<IDatabaseColumn>> GetColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);
@@ -811,7 +811,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         /// <param name="tableName">A table name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A primary key, if available.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
         public Task<Option<IDatabaseKey>> GetPrimaryKeyAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);
@@ -825,7 +825,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         /// <param name="tableName">A table name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A collection of unique keys.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
         public Task<IReadOnlyCollection<IDatabaseKey>> GetUniqueKeysAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);
@@ -839,7 +839,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         /// <param name="tableName">A table name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A collection of foreign keys.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
         public Task<IReadOnlyCollection<IDatabaseRelationalKey>> GetForeignKeysAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);

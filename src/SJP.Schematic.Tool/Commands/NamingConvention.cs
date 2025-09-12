@@ -5,5 +5,5 @@ public enum NamingConvention
     Pascal,
     Verbatim,
     Camel,
-    Snake
+    Snake,
 }

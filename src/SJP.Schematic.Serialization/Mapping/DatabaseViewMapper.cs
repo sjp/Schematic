@@ -33,7 +33,7 @@ public class DatabaseViewMapper
             ViewName = viewName,
             Columns = columns,
             Definition = source.Definition,
-            IsMaterialized = source.IsMaterialized
+            IsMaterialized = source.IsMaterialized,
         };
     }
 }

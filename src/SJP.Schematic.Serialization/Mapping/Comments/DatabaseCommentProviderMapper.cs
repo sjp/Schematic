@@ -80,7 +80,7 @@ public class DatabaseCommentProviderMapper
             ViewComments = dtoViewComments,
             SequenceComments = dtoSequenceComments,
             SynonymComments = dtoSynonymComments,
-            RoutineComments = dtoRoutineComments
+            RoutineComments = dtoRoutineComments,
         };
     }
 }

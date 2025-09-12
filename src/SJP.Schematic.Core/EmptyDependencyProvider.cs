@@ -15,7 +15,7 @@ public sealed class EmptyDependencyProvider : IDependencyProvider
     /// <param name="objectName">The name of an object defined by an expression (e.g. a computed column definition).</param>
     /// <param name="expression">A SQL expression that may contain dependent object names.</param>
     /// <returns>An empty collection of <see cref="Identifier"/>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <see langword="null" />.</exception>
     public IReadOnlyCollection<Identifier> GetDependencies(Identifier objectName, string expression)
     {
         ArgumentNullException.ThrowIfNull(objectName);

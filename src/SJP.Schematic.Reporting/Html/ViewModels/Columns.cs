@@ -78,7 +78,7 @@ public sealed class Columns : ITemplateParameter
         {
             None, // not intended to be used
             Table,
-            View
+            View,
         }
     }
 

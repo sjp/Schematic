@@ -116,27 +116,27 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
                     Option<string>.Some("a primary key comment"),
                     new Dictionary<Identifier, Option<string>>
                     {
-                        ["table_column_1"] = Option<string>.Some("table column comment")
+                        ["table_column_1"] = Option<string>.Some("table column comment"),
                     },
                     new Dictionary<Identifier, Option<string>>
                     {
-                        ["table_check_1"] = Option<string>.Some("table check comment")
+                        ["table_check_1"] = Option<string>.Some("table check comment"),
                     },
                     new Dictionary<Identifier, Option<string>>
                     {
-                        ["table_unique_key_1"] = Option<string>.Some("table unique key comment")
+                        ["table_unique_key_1"] = Option<string>.Some("table unique key comment"),
                     },
                     new Dictionary<Identifier, Option<string>>
                     {
-                        ["table_foreign_key_1"] = Option<string>.Some("table foreign key comment")
+                        ["table_foreign_key_1"] = Option<string>.Some("table foreign key comment"),
                     },
                     new Dictionary<Identifier, Option<string>>
                     {
-                        ["table_index_1"] = Option<string>.Some("table index comment")
+                        ["table_index_1"] = Option<string>.Some("table index comment"),
                     },
                     new Dictionary<Identifier, Option<string>>
                     {
-                        ["table_trigger_1"] = Option<string>.Some("table trigger comment")
+                        ["table_trigger_1"] = Option<string>.Some("table trigger comment"),
                     }
                 ),
                 new RelationalDatabaseTableComments(
@@ -149,7 +149,7 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
                     new Dictionary<Identifier, Option<string>>(),
                     new Dictionary<Identifier, Option<string>>(),
                     new Dictionary<Identifier, Option<string>>()
-                )
+                ),
             ],
             [
                 new DatabaseViewComments(
@@ -157,14 +157,14 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
                     Option<string>.Some("a view comment"),
                     new Dictionary<Identifier, Option<string>>
                     {
-                        ["view_column_1"] = Option<string>.Some("view column comment")
+                        ["view_column_1"] = Option<string>.Some("view column comment"),
                     }
                 ),
                 new DatabaseViewComments(
                     "test_view_2",
                     Option<string>.None,
                     new Dictionary<Identifier, Option<string>>()
-                )
+                ),
             ],
             [
                 new DatabaseSequenceComments(
@@ -174,7 +174,7 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
                 new DatabaseSequenceComments(
                     "test_sequence_2",
                     Option<string>.None
-                )
+                ),
             ],
             [
                 new DatabaseSynonymComments(
@@ -184,7 +184,7 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
                 new DatabaseSynonymComments(
                     "test_synonym_2",
                     Option<string>.None
-                )
+                ),
             ],
             [
                 new DatabaseRoutineComments(
@@ -194,7 +194,7 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
                 new DatabaseRoutineComments(
                     "test_routine_2",
                     Option<string>.None
-                )
+                ),
             ]
         );
 }

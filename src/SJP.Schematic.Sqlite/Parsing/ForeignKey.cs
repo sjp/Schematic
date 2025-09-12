@@ -31,7 +31,7 @@ public class ForeignKey
     /// <param name="columnNames">The column names comprising this foreign key.</param>
     /// <param name="parentTable">The parent table that the foreign key refers to.</param>
     /// <param name="parentColumnNames">The column names in the parent table that the foreign key refers to. Should be a single column name.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="parentTable"/> is <c>null</c>. Alternatively if either <paramref name="columnNames"/> or <paramref name="parentColumnNames"/> are <c>null</c>, empty, or contains a <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="parentTable"/> is <see langword="null" />. Alternatively if either <paramref name="columnNames"/> or <paramref name="parentColumnNames"/> are <see langword="null" />, empty, or contains a <see langword="null" />.</exception>
     /// <exception cref="ArgumentException">Thrown when <paramref name="columnNames"/> and <paramref name="parentColumnNames"/> have a different number of elements.</exception>
     public ForeignKey(Option<string> constraintName, IReadOnlyCollection<string> columnNames, Identifier parentTable, IReadOnlyCollection<string> parentColumnNames)
     {

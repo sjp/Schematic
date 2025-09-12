@@ -22,7 +22,7 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
     /// </summary>
     /// <param name="connection">A database connection factory.</param>
     /// <param name="identifierDefaults">Database identifier defaults.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <see langword="null" />.</exception>
     public SqlServerSequenceCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -66,7 +66,7 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
     /// <param name="sequenceName">A sequence name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A sequence name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     protected OptionAsync<Identifier> GetResolvedSequenceName(Identifier sequenceName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
@@ -87,7 +87,7 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
     /// <param name="sequenceName">The name of a database sequence.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An <see cref="OptionAsync{A}" /> instance which holds the value of the sequence's comments, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseSequenceComments> GetSequenceComments(Identifier sequenceName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
@@ -102,7 +102,7 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
     /// <param name="sequenceName">The name of a database sequence.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An <see cref="OptionAsync{A}" /> instance which holds the value of the sequence's comments, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     protected OptionAsync<IDatabaseSequenceComments> LoadSequenceComments(Identifier sequenceName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
@@ -120,7 +120,7 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
             {
                 SchemaName = sequenceName.Schema!,
                 SequenceName = sequenceName.LocalName,
-                CommentProperty = CommentProperty
+                CommentProperty = CommentProperty,
             },
             cancellationToken
         ).ConfigureAwait(false);
@@ -129,7 +129,7 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
         {
             ObjectName = r.ObjectName,
             ObjectType = r.ObjectType,
-            Comment = r.Comment
+            Comment = r.Comment,
         }).ToList();
 
         var sequenceComment = GetFirstCommentByType(commentData, Constants.Sequence);
@@ -153,7 +153,7 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
     /// </summary>
     /// <param name="sequenceName">A view name.</param>
     /// <returns>A sequence name is at least as qualified as the given sequence name.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     protected Identifier QualifySequenceName(Identifier sequenceName)
     {
         ArgumentNullException.ThrowIfNull(sequenceName);

@@ -22,7 +22,7 @@ public class RelationalDatabase : IRelationalDatabase
     /// <param name="sequences">A collection of database sequences.</param>
     /// <param name="synonyms">A collection of database synonyms.</param>
     /// <param name="routines">A collection of database routines.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <see langword="null" />.</exception>
     public RelationalDatabase(
         IIdentifierDefaults identifierDefaults,
         IIdentifierResolutionStrategy identifierResolver,
@@ -89,7 +89,7 @@ public class RelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="objectName">The name or candidate name of a database object.</param>
     /// <returns>A qualified database object name.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <see langword="null" />.</exception>
     protected Identifier QualifyObjectName(Identifier objectName)
     {
         ArgumentNullException.ThrowIfNull(objectName);
@@ -105,7 +105,7 @@ public class RelationalDatabase : IRelationalDatabase
     /// <param name="objects">Database objects.</param>
     /// <param name="objectName">The name of the database object to retrieve.</param>
     /// <returns>An option type with a database object, if available, otherwise an option type in the none state.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <see langword="null" />.</exception>
     protected OptionAsync<T> GetResolvedObject<T>(IReadOnlyCollection<T> objects, Identifier objectName) where T : IDatabaseEntity
     {
         ArgumentNullException.ThrowIfNull(objectName);
@@ -140,7 +140,7 @@ public class RelationalDatabase : IRelationalDatabase
     /// <param name="tableName">The name of the table to retrieve.</param>
     /// <param name="cancellationToken">A cancellation token. Unused.</param>
     /// <returns>An option type with a database table, if available, otherwise an option type in the none state.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -161,7 +161,7 @@ public class RelationalDatabase : IRelationalDatabase
     /// <param name="viewName">The name of the view to retrieve.</param>
     /// <param name="cancellationToken">A cancellation token. Unused.</param>
     /// <returns>An option type with a database view, if available, otherwise an option type in the none state.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -182,7 +182,7 @@ public class RelationalDatabase : IRelationalDatabase
     /// <param name="sequenceName">The name of the sequence to retrieve.</param>
     /// <param name="cancellationToken">A cancellation token. Unused.</param>
     /// <returns>An option type with a database sequence, if available, otherwise an option type in the none state.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
@@ -203,7 +203,7 @@ public class RelationalDatabase : IRelationalDatabase
     /// <param name="synonymName">The name of the synonym to retrieve.</param>
     /// <param name="cancellationToken">A cancellation token. Unused.</param>
     /// <returns>An option type with a database synonym, if available, otherwise an option type in the none state.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(synonymName);
@@ -224,7 +224,7 @@ public class RelationalDatabase : IRelationalDatabase
     /// <param name="routineName">The name of the routine to retrieve.</param>
     /// <param name="cancellationToken">A cancellation token. Unused.</param>
     /// <returns>An option type with a database routine, if available, otherwise an option type in the none state.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(routineName);

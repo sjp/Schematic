@@ -82,7 +82,7 @@ create table no_cycle_table_2 (
         var tables = new[]
         {
             await database.GetTable("no_cycle_table_1").UnwrapSomeAsync().ConfigureAwait(false),
-            await database.GetTable("no_cycle_table_2").UnwrapSomeAsync().ConfigureAwait(false)
+            await database.GetTable("no_cycle_table_2").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
         var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
@@ -101,7 +101,7 @@ create table no_cycle_table_2 (
             await database.GetTable("cycle_table_1").UnwrapSomeAsync().ConfigureAwait(false),
             await database.GetTable("cycle_table_2").UnwrapSomeAsync().ConfigureAwait(false),
             await database.GetTable("cycle_table_3").UnwrapSomeAsync().ConfigureAwait(false),
-            await database.GetTable("cycle_table_4").UnwrapSomeAsync().ConfigureAwait(false)
+            await database.GetTable("cycle_table_4").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
         var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);

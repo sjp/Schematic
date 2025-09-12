@@ -381,6 +381,6 @@ internal sealed class OracleTokenizer : Tokenizer<OracleToken>
         new OracleKeyword("while", OracleToken.While),
         new OracleKeyword("with", OracleToken.With),
         new OracleKeyword("within", OracleToken.Within),
-        new OracleKeyword("writetext", OracleToken.WriteText)
+        new OracleKeyword("writetext", OracleToken.WriteText),
     ];
 }

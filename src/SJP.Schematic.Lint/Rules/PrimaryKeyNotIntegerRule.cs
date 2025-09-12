@@ -28,7 +28,7 @@ public class PrimaryKeyNotIntegerRule : Rule, ITableRule
     /// <param name="tables">A set of database tables.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" />.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tables);
@@ -41,7 +41,7 @@ public class PrimaryKeyNotIntegerRule : Rule, ITableRule
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
     protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -55,8 +55,8 @@ public class PrimaryKeyNotIntegerRule : Rule, ITableRule
     /// Determines whether a column stores integer data.
     /// </summary>
     /// <param name="column">The column.</param>
-    /// <returns><c>true</c> if the column stores integer data; otherwise <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="column"/> is <c>null</c>.</exception>
+    /// <returns><see langword="true" /> if the column stores integer data; otherwise <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="column"/> is <see langword="null" />.</exception>
     protected static bool ColumnIsInteger(IDatabaseColumn column)
     {
         ArgumentNullException.ThrowIfNull(column);
@@ -70,7 +70,7 @@ public class PrimaryKeyNotIntegerRule : Rule, ITableRule
     /// </summary>
     /// <param name="tableName">The name of the table.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected virtual IRuleMessage BuildMessage(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);

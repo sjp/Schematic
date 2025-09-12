@@ -23,7 +23,7 @@ public sealed class EmptyDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// <param name="synonymName">A database synonym name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database synonym in the 'none' state.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(synonymName);

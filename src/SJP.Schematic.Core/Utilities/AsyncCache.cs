@@ -19,7 +19,7 @@ public class AsyncCache<TKey, TValue, TCache>
     /// Initializes a new instance of the <see cref="AsyncCache{TKey, TValue, TCache}"/> class.
     /// </summary>
     /// <param name="factory">A value factory.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="factory"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="factory"/> is <see langword="null" />.</exception>
     public AsyncCache(Func<TKey, TCache, CancellationToken, Task<TValue>> factory)
     {
         _query = factory ?? throw new ArgumentNullException(nameof(factory));
@@ -32,7 +32,7 @@ public class AsyncCache<TKey, TValue, TCache>
     /// <param name="cache">A cache container, used to enable access to other cached results.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that will contain the value of the key once completed.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="key"/> or <paramref name="cache"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="key"/> or <paramref name="cache"/> is <see langword="null" />.</exception>
     /// <remarks>This method guarantees that the factory method is only called once.</remarks>
     public Task<TValue> GetByKeyAsync(TKey key, TCache cache, CancellationToken cancellationToken = default)
     {

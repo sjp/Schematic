@@ -96,7 +96,7 @@ create table table_with_self_referencing_columns_1 (
 
         var tables = new[]
         {
-            await database.GetTable("table_without_self_referencing_columns_1").UnwrapSomeAsync().ConfigureAwait(false)
+            await database.GetTable("table_without_self_referencing_columns_1").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
         var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
@@ -113,7 +113,7 @@ create table table_with_self_referencing_columns_1 (
         var tables = new[]
         {
             await database.GetTable("table_without_self_referencing_columns_2_parent").UnwrapSomeAsync().ConfigureAwait(false),
-            await database.GetTable("table_without_self_referencing_columns_2").UnwrapSomeAsync().ConfigureAwait(false)
+            await database.GetTable("table_without_self_referencing_columns_2").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
         var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
@@ -129,7 +129,7 @@ create table table_with_self_referencing_columns_1 (
 
         var tables = new[]
         {
-            await database.GetTable("table_without_self_referencing_columns_3").UnwrapSomeAsync().ConfigureAwait(false)
+            await database.GetTable("table_without_self_referencing_columns_3").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
         var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
@@ -145,7 +145,7 @@ create table table_with_self_referencing_columns_1 (
 
         var tables = new[]
         {
-            await database.GetTable("table_with_self_referencing_columns_1").UnwrapSomeAsync().ConfigureAwait(false)
+            await database.GetTable("table_with_self_referencing_columns_1").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
         var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);

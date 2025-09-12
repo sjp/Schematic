@@ -56,7 +56,7 @@ internal sealed class EFCoreDataAccessGeneratorTests : SqliteTest
             [tempDir.DirectoryPath + Path.PathSeparator] = new MockDirectoryData(),
             [expectedAppContextPath] = new MockFileData(Array.Empty<byte>()),
             [expectedTable1Path] = new MockFileData(Array.Empty<byte>()),
-            [expectedView1Path] = new MockFileData(Array.Empty<byte>())
+            [expectedView1Path] = new MockFileData(Array.Empty<byte>()),
         });
 
         var nameTranslator = new PascalCaseNameTranslator();
@@ -128,7 +128,7 @@ internal sealed class EFCoreDataAccessGeneratorTests : SqliteTest
             CreateNoWindow = true,
             FileName = "dotnet",
             WindowStyle = ProcessWindowStyle.Hidden,
-            WorkingDirectory = projectDir
+            WorkingDirectory = projectDir,
         };
 
         using var process = new Process { StartInfo = startInfo };

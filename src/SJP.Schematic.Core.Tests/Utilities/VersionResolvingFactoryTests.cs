@@ -27,7 +27,7 @@ internal static class VersionResolvingFactoryTests
         var dictionary = new Dictionary<Version, Func<int>>
         {
             [new Version(1, 0)] = () => 1,
-            [new Version(1, 1)] = () => 2
+            [new Version(1, 1)] = () => 2,
         };
         var versionDictionary = new VersionResolvingFactory<int>(dictionary);
 
@@ -40,7 +40,7 @@ internal static class VersionResolvingFactoryTests
         var dictionary = new Dictionary<Version, Func<int>>
         {
             [new Version(1, 0)] = () => 1,
-            [new Version(1, 1)] = () => 2
+            [new Version(1, 1)] = () => 2,
         };
         var versionDictionary = new VersionResolvingFactory<int>(dictionary);
 
@@ -55,7 +55,7 @@ internal static class VersionResolvingFactoryTests
         var dictionary = new Dictionary<Version, Func<int>>
         {
             [new Version(1, 0)] = () => 1,
-            [new Version(1, 1)] = () => 2
+            [new Version(1, 1)] = () => 2,
         };
         var versionDictionary = new VersionResolvingFactory<int>(dictionary);
 
@@ -71,7 +71,7 @@ internal static class VersionResolvingFactoryTests
         {
             [new Version(1, 0)] = () => 1,
             [new Version(1, 1)] = () => 2,
-            [new Version(2, 0)] = () => 3
+            [new Version(2, 0)] = () => 3,
         };
         var versionDictionary = new VersionResolvingFactory<int>(dictionary);
 
@@ -87,7 +87,7 @@ internal static class VersionResolvingFactoryTests
         {
             [new Version(1, 0)] = () => 1,
             [new Version(1, 1)] = () => 2,
-            [new Version(2, 0)] = () => 3
+            [new Version(2, 0)] = () => 3,
         };
         var versionDictionary = new VersionResolvingFactory<int>(dictionary);
 

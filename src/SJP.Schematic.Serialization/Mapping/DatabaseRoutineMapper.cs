@@ -24,7 +24,7 @@ public class DatabaseRoutineMapper
         return new Dto.DatabaseRoutine
         {
             RoutineName = identifierMapper.Map(source.Name),
-            Definition = source.Definition
+            Definition = source.Definition,
         };
     }
 }

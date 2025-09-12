@@ -58,7 +58,7 @@ public sealed class RgbColor : IEquatable<RgbColor>
     /// Determines whether the specified <see cref="object" />, is equal to this instance.
     /// </summary>
     /// <param name="obj">The <see cref="object" /> to compare with this instance.</param>
-    /// <returns><c>true</c> if the specified <see cref="object" /> is equal to this instance; otherwise, <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if the specified <see cref="object" /> is equal to this instance; otherwise, <see langword="false" />.</returns>
     [EditorBrowsable(EditorBrowsableState.Never)]
     public override bool Equals(object? obj)
     {
@@ -74,7 +74,7 @@ public sealed class RgbColor : IEquatable<RgbColor>
     /// Indicates whether the current <see cref="RgbColor"/> is equal to another <see cref="RgbColor"/>.
     /// </summary>
     /// <param name="other">An <see cref="RgbColor"/> to compare with this color.</param>
-    /// <returns><c>true</c> if the current color is equal to the <paramref name="other">other</paramref> parameter; otherwise, <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if the current color is equal to the <paramref name="other">other</paramref> parameter; otherwise, <see langword="false" />.</returns>
     public bool Equals(RgbColor? other)
     {
         if (other == null)

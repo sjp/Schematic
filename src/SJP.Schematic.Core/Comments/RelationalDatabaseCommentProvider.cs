@@ -120,7 +120,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// <param name="routineName">The name of a database routine.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>Database routine comments in the 'some' state if found; otherwise 'none'.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseRoutineComments> GetRoutineComments(Identifier routineName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(routineName);
@@ -147,7 +147,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// <param name="sequenceName">The name of a database sequence.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>Database sequence comments in the 'some' state if found; otherwise 'none'.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseSequenceComments> GetSequenceComments(Identifier sequenceName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
@@ -174,7 +174,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// <param name="synonymName">The name of a database synonym.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>Database synonym comments in the 'some' state if found; otherwise 'none'.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseSynonymComments> GetSynonymComments(Identifier synonymName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(synonymName);
@@ -201,7 +201,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// <param name="tableName">The name of a database table.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>Database table comments in the 'some' state if found; otherwise 'none'.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     public OptionAsync<IRelationalDatabaseTableComments> GetTableComments(Identifier tableName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -228,7 +228,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// <param name="viewName">The name of a database view.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>Database view comments in the 'some' state if found; otherwise 'none'.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -254,7 +254,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// </summary>
     /// <param name="objectName">The name or candidate name of a database object.</param>
     /// <returns>A qualified database object name.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <see langword="null" />.</exception>
     protected Identifier QualifyObjectName(Identifier objectName)
     {
         ArgumentNullException.ThrowIfNull(objectName);

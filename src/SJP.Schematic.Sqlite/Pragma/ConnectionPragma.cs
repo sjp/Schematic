@@ -21,7 +21,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Initializes a new instance of the <see cref="ConnectionPragma"/> class.
     /// </summary>
     /// <param name="connection">A database connection.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
     public ConnectionPragma(ISchematicConnection connection)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -91,13 +91,13 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Queries the automatic indexing capability.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if automatic indexing is enabled; otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if automatic indexing is enabled; otherwise <see langword="false" />.</returns>
     public Task<bool> AutomaticIndexAsync(CancellationToken cancellationToken = default) => DbConnection.ExecuteScalarAsync<bool>(AutomaticIndexReadQuery, cancellationToken);
 
     /// <summary>
     /// Sets the automatic indexing capability.
     /// </summary>
-    /// <param name="enable">if set to <c>true</c> enables automatic indexing.</param>
+    /// <param name="enable">if set to <see langword="true" /> enables automatic indexing.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     public Task AutomaticIndexAsync(bool enable, CancellationToken cancellationToken = default) => DbConnection.ExecuteAsync(AutomaticIndexSetQuery(enable), cancellationToken);
@@ -111,7 +111,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <summary>
     /// Creates a query that sets the automatic index pragma.
     /// </summary>
-    /// <param name="enable">if set to <c>true</c> enables automatic indexing.</param>
+    /// <param name="enable">if set to <see langword="true" /> enables automatic indexing.</param>
     /// <returns>A SQL query.</returns>
     protected string AutomaticIndexSetQuery(bool enable) => PragmaPrefix + "automatic_index = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
@@ -170,7 +170,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Retrieves whether cell size checking is enabled. When enabled, database corruption is detected earlier and is less likely to "spread". However, there is a small performance hit for doing the extra checks and so cell size checking is turned off by default.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if cell size checking is enabled; otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if cell size checking is enabled; otherwise <see langword="false" />.</returns>
     public Task<bool> CellSizeCheckAsync(CancellationToken cancellationToken = default) => DbConnection.ExecuteScalarAsync<bool>(CellSizeCheckReadQuery, cancellationToken);
 
     /// <summary>
@@ -198,13 +198,13 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Query or change the fullfsync flag for checkpoint operations.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if the fullfsync flag is enabled; otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if the fullfsync flag is enabled; otherwise <see langword="false" />.</returns>
     public Task<bool> CheckpointFullFsyncAsync(CancellationToken cancellationToken = default) => DbConnection.ExecuteScalarAsync<bool>(CheckpointFullFsyncReadQuery, cancellationToken);
 
     /// <summary>
     /// Change the fullfsync flag for checkpoint operations.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, the flag must be enabled.</param>
+    /// <param name="enable">If <see langword="true" />, the flag must be enabled.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     public Task CheckpointFullFsyncAsync(bool enable, CancellationToken cancellationToken = default) => DbConnection.ExecuteAsync(CheckpointFullFsyncSetQuery(enable), cancellationToken);
@@ -218,7 +218,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <summary>
     /// Creates a query that sets the checkpoint fullfsync pragma.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, the flag must be enabled.</param>
+    /// <param name="enable">If <see langword="true" />, the flag must be enabled.</param>
     /// <returns>A SQL query.</returns>
     protected string CheckpointFullFsyncSetQuery(bool enable) => PragmaPrefix + "checkpoint_fullfsync = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
@@ -278,13 +278,13 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Queries whether <c>defer_foreign_keys</c> <c>PRAGMA</c> is on. When enabled, enforcement of all foreign key constraints is delayed until the outermost transaction is committed.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if deferring of foreign key constraints is enabled; otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if deferring of foreign key constraints is enabled; otherwise <see langword="false" />.</returns>
     public Task<bool> DeferForeignKeysAsync(CancellationToken cancellationToken = default) => DbConnection.ExecuteScalarAsync<bool>(DeferForeignKeysReadQuery, cancellationToken);
 
     /// <summary>
     /// Sets the <c>defer_foreign_keys</c> <c>PRAGMA</c>. When enabled, enforcement of all foreign key constraints is delayed until the outermost transaction is committed.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, enabled deferring of foreign key enforcement.</param>
+    /// <param name="enable">If <see langword="true" />, enabled deferring of foreign key enforcement.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     public Task DeferForeignKeysAsync(bool enable, CancellationToken cancellationToken = default) => DbConnection.ExecuteAsync(DeferForeignKeysSetQuery(enable), cancellationToken);
@@ -298,7 +298,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <summary>
     /// Creates a query that sets the defer foreign keys pragma.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, enabled deferring of foreign key enforcement.</param>
+    /// <param name="enable">If <see langword="true" />, enabled deferring of foreign key enforcement.</param>
     /// <returns>A SQL query.</returns>
     protected string DeferForeignKeysSetQuery(bool enable) => PragmaPrefix + "defer_foreign_keys = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
@@ -350,13 +350,13 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Queries whether foreign key constraints are enforced.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if foreign key constraints are enforced; otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if foreign key constraints are enforced; otherwise <see langword="false" />.</returns>
     public Task<bool> ForeignKeysAsync(CancellationToken cancellationToken = default) => DbConnection.ExecuteScalarAsync<bool>(ForeignKeysReadQuery, cancellationToken);
 
     /// <summary>
     /// Enables or disables enforcement of foreign key constraints.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, foreign key constraints should be enforced.</param>
+    /// <param name="enable">If <see langword="true" />, foreign key constraints should be enforced.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     public Task ForeignKeysAsync(bool enable, CancellationToken cancellationToken = default) => DbConnection.ExecuteAsync(ForeignKeysSetQuery(enable), cancellationToken);
@@ -370,7 +370,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <summary>
     /// Creates a query that sets the foreign keys pragma.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, foreign key constraints should be enforced.</param>
+    /// <param name="enable">If <see langword="true" />, foreign key constraints should be enforced.</param>
     /// <returns>A SQL query.</returns>
     protected string ForeignKeysSetQuery(bool enable) => PragmaPrefix + "foreign_keys = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
@@ -378,13 +378,13 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Query the fullfsync flag.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if the fullfsync flag is enabled; otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if the fullfsync flag is enabled; otherwise <see langword="false" />.</returns>
     public Task<bool> FullFsyncAsync(CancellationToken cancellationToken = default) => DbConnection.ExecuteScalarAsync<bool>(FullFsyncReadQuery, cancellationToken);
 
     /// <summary>
     /// Change the fullfsync flag.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, sets the fullfsync flag to <c>true</c>.</param>
+    /// <param name="enable">If <see langword="true" />, sets the fullfsync flag to <see langword="true" />.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     public Task FullFsyncAsync(bool enable, CancellationToken cancellationToken = default) => DbConnection.ExecuteAsync(FullFsyncSetQuery(enable), cancellationToken);
@@ -398,7 +398,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <summary>
     /// Creates a query that sets the fullfsync pragma.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, sets the fullfsync flag to <c>true</c>.</param>
+    /// <param name="enable">If <see langword="true" />, sets the fullfsync flag to <see langword="true" />.</param>
     /// <returns>A SQL query.</returns>
     protected string FullFsyncSetQuery(bool enable) => PragmaPrefix + "fullfsync = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
@@ -418,7 +418,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <summary>
     /// Enables or disables the enforcement of <c>CHECK</c> constraints.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, disables enforcement of <c>CHECK</c> constraints.</param>
+    /// <param name="enable">If <see langword="true" />, disables enforcement of <c>CHECK</c> constraints.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     public Task IgnoreCheckConstraintsAsync(bool enable, CancellationToken cancellationToken = default) => DbConnection.ExecuteAsync(IgnoreCheckConstraintsSetQuery(enable), cancellationToken);
@@ -426,7 +426,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <summary>
     /// Creates a query that sets the ignore check constraints pragma.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, disables enforcement of <c>CHECK</c> constraints.</param>
+    /// <param name="enable">If <see langword="true" />, disables enforcement of <c>CHECK</c> constraints.</param>
     /// <returns>A SQL query.</returns>
     protected string IgnoreCheckConstraintsSetQuery(bool enable) => PragmaPrefix + "ignore_check_constraints = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
@@ -434,13 +434,13 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Queries the value of the <c>legacy_alter_table</c> flag.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if the <c>ALTER TABLE</c> behaviour works as it did in v3.24.0 and earlier.</returns>
+    /// <returns><see langword="true" /> if the <c>ALTER TABLE</c> behaviour works as it did in v3.24.0 and earlier.</returns>
     public Task<bool> LegacyAlterTableAsync(CancellationToken cancellationToken = default) => DbConnection.ExecuteScalarAsync<bool>(LegacyAlterTableReadQuery, cancellationToken);
 
     /// <summary>
     /// Sets the value of the <c>legacy_alter_table</c> flag.
     /// </summary>
-    /// <param name="enable">If set to <c>true</c> the <c>ALTER TABLE</c> behaviour will work as it did in v3.24.0 and earlier.</param>
+    /// <param name="enable">If set to <see langword="true" /> the <c>ALTER TABLE</c> behaviour will work as it did in v3.24.0 and earlier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     public Task LegacyAlterTableAsync(bool enable, CancellationToken cancellationToken = default) => DbConnection.ExecuteAsync(LegacyAlterTableSetQuery(enable), cancellationToken);
@@ -454,7 +454,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <summary>
     /// Creates a query that sets the legacy alter table pragma.
     /// </summary>
-    /// <param name="enable">If set to <c>true</c> the <c>ALTER TABLE</c> behaviour will work as it did in v3.24.0 and earlier.</param>
+    /// <param name="enable">If set to <see langword="true" /> the <c>ALTER TABLE</c> behaviour will work as it did in v3.24.0 and earlier.</param>
     /// <returns>A SQL query.</returns>
     protected string LegacyAlterTableSetQuery(bool enable) => PragmaPrefix + "legacy_alter_table = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
@@ -510,13 +510,13 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Determines whether the database can only be queried and not mutated.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if the database is read-only; otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if the database is read-only; otherwise <see langword="false" />.</returns>
     public Task<bool> QueryOnlyAsync(CancellationToken cancellationToken = default) => DbConnection.ExecuteScalarAsync<bool>(QueryOnlyReadQuery, cancellationToken);
 
     /// <summary>
     /// Prevent all changes to database files when enabled, ensuring only queries are enabled.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, only read-only queries may be run.</param>
+    /// <param name="enable">If <see langword="true" />, only read-only queries may be run.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     public Task QueryOnlyAsync(bool enable, CancellationToken cancellationToken = default) => DbConnection.ExecuteAsync(QueryOnlySetQuery(enable), cancellationToken);
@@ -530,7 +530,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <summary>
     /// Creates a query that sets the query only pragma.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, only read-only queries may be run.</param>
+    /// <param name="enable">If <see langword="true" />, only read-only queries may be run.</param>
     /// <returns>A SQL query.</returns>
     protected string QueryOnlySetQuery(bool enable) => PragmaPrefix + "query_only = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
@@ -538,13 +538,13 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Query the <c>READ UNCOMMITTED</c> transaction isolation level. The default isolation level for SQLite is <c>SERIALIZABLE</c>.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if the isolation level is <c>READ UNCOMMITTED</c>.</returns>
+    /// <returns><see langword="true" /> if the isolation level is <c>READ UNCOMMITTED</c>.</returns>
     public Task<bool> ReadUncommittedAsync(CancellationToken cancellationToken = default) => DbConnection.ExecuteScalarAsync<bool>(ReadUncommittedReadQuery, cancellationToken);
 
     /// <summary>
     /// Set the <c>READ UNCOMMITTED</c> transaction isolation level. The default isolation level for SQLite is <c>SERIALIZABLE</c>.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, sets the isolation level to <c>READ UNCOMMITTED</c>.</param>
+    /// <param name="enable">If <see langword="true" />, sets the isolation level to <c>READ UNCOMMITTED</c>.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     public Task ReadUncommittedAsync(bool enable, CancellationToken cancellationToken = default) => DbConnection.ExecuteAsync(ReadUncommittedSetQuery(enable), cancellationToken);
@@ -558,7 +558,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <summary>
     /// Creates a query that sets the read uncommitted pragma.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, sets the isolation level to <c>READ UNCOMMITTED</c>.</param>
+    /// <param name="enable">If <see langword="true" />, sets the isolation level to <c>READ UNCOMMITTED</c>.</param>
     /// <returns>A SQL query.</returns>
     protected string ReadUncommittedSetQuery(bool enable) => PragmaPrefix + "read_uncommitted = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
@@ -566,13 +566,13 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Query the recursive trigger capability.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if recursive triggers are enabled; otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if recursive triggers are enabled; otherwise <see langword="false" />.</returns>
     public Task<bool> RecursiveTriggersAsync(CancellationToken cancellationToken = default) => DbConnection.ExecuteScalarAsync<bool>(RecursiveTriggersReadQuery, cancellationToken);
 
     /// <summary>
     /// Set, or clear the recursive trigger capability.
     /// </summary>
-    /// <param name="enable">If set to <c>true</c> recursive triggers are enabled.</param>
+    /// <param name="enable">If set to <see langword="true" /> recursive triggers are enabled.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     public Task RecursiveTriggersAsync(bool enable, CancellationToken cancellationToken = default) => DbConnection.ExecuteAsync(RecursiveTriggersSetQuery(enable), cancellationToken);
@@ -586,7 +586,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <summary>
     /// Creates a query that sets the recursive triggers pragma.
     /// </summary>
-    /// <param name="enable">If set to <c>true</c> recursive triggers are enabled.</param>
+    /// <param name="enable">If set to <see langword="true" /> recursive triggers are enabled.</param>
     /// <returns>A SQL query.</returns>
     protected string RecursiveTriggersSetQuery(bool enable) => PragmaPrefix + "recursive_triggers = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
@@ -594,13 +594,13 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Queries whether statements missing an <c>ORDER BY</c> emit results in reverse order.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>If <c>true</c>, unordered <c>SELECT</c> queries are returned in reverse order; otherwise <c>false</c>.</returns>
+    /// <returns>If <see langword="true" />, unordered <c>SELECT</c> queries are returned in reverse order; otherwise <see langword="false" />.</returns>
     public Task<bool> ReverseUnorderedSelectsAsync(CancellationToken cancellationToken = default) => DbConnection.ExecuteScalarAsync<bool>(ReverseUnorderedSelectsReadQuery, cancellationToken);
 
     /// <summary>
     /// Sets whether statements missing an <c>ORDER BY</c> emit results in reverse order.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, unordered <c>SELECT</c> queries are returned in reverse order.</param>
+    /// <param name="enable">If <see langword="true" />, unordered <c>SELECT</c> queries are returned in reverse order.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns> A task indicating the completion of this query.</returns>
     public Task ReverseUnorderedSelectsAsync(bool enable, CancellationToken cancellationToken = default) => DbConnection.ExecuteAsync(ReverseUnorderedSelectsSetQuery(enable), cancellationToken);
@@ -614,7 +614,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <summary>
     /// Creates a query that sets the reverse unordered selects pragma.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, unordered <c>SELECT</c> queries are returned in reverse order.</param>
+    /// <param name="enable">If <see langword="true" />, unordered <c>SELECT</c> queries are returned in reverse order.</param>
     /// <returns>A SQL query.</returns>
     protected string ReverseUnorderedSelectsSetQuery(bool enable) => PragmaPrefix + "reverse_unordered_selects = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
@@ -776,13 +776,13 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// Queries whether the <c>sqlite_master</c> table can be changed using ordinary <c>UPDATE</c>, <c>INSERT</c>, and <c>DELETE</c> statements.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if the <c>sqlite_master</c> is able to be modified directly; otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if the <c>sqlite_master</c> is able to be modified directly; otherwise <see langword="false" />.</returns>
     public Task<bool> WritableSchemaAsync(CancellationToken cancellationToken = default) => DbConnection.ExecuteScalarAsync<bool>(WritableSchemaReadQuery, cancellationToken);
 
     /// <summary>
     /// Sets whether the <c>sqlite_master</c> table can be changed using ordinary <c>UPDATE</c>, <c>INSERT</c>, and <c>DELETE</c> statements.
     /// </summary>
-    /// <param name="enable">If <c>true</c> enables the <c>sqlite_master</c> to be modified directly.</param>
+    /// <param name="enable">If <see langword="true" /> enables the <c>sqlite_master</c> to be modified directly.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     public Task WritableSchemaAsync(bool enable, CancellationToken cancellationToken = default) => DbConnection.ExecuteAsync(WritableSchemaSetQuery(enable), cancellationToken);
@@ -796,7 +796,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <summary>
     /// Creates a query that sets the writable schema pragma.
     /// </summary>
-    /// <param name="enable">If <c>true</c> enables the <c>sqlite_master</c> to be modified directly.</param>
+    /// <param name="enable">If <see langword="true" /> enables the <c>sqlite_master</c> to be modified directly.</param>
     /// <returns>A SQL query.</returns>
     protected string WritableSchemaSetQuery(bool enable) => PragmaPrefix + "writable_schema = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
@@ -805,7 +805,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
         [Encoding.Utf8] = "UTF-8",
         [Encoding.Utf16] = "UTF-16",
         [Encoding.Utf16le] = "UTF-16le",
-        [Encoding.Utf16be] = "UTF-16be"
+        [Encoding.Utf16be] = "UTF-16be",
     };
 
     private static readonly IReadOnlyDictionary<string, Encoding> NameEncodingMapping = new Dictionary<string, Encoding>(StringComparer.Ordinal)
@@ -813,6 +813,6 @@ public class ConnectionPragma : ISqliteConnectionPragma
         ["UTF-8"] = Encoding.Utf8,
         ["UTF-16"] = Encoding.Utf16,
         ["UTF-16le"] = Encoding.Utf16le,
-        ["UTF-16be"] = Encoding.Utf16be
+        ["UTF-16be"] = Encoding.Utf16be,
     };
 }

@@ -28,7 +28,7 @@ public class PocoTableGenerator : DatabaseTableGenerator
     /// <param name="fileSystem">A file system.</param>
     /// <param name="nameTranslator">The name translator.</param>
     /// <param name="baseNamespace">The base namespace.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="baseNamespace"/> is <c>null</c>, empty, or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="baseNamespace"/> is <see langword="null" />, empty, or whitespace.</exception>
     public PocoTableGenerator(IFileSystem fileSystem, INameTranslator nameTranslator, string baseNamespace)
         : base(fileSystem, nameTranslator)
     {
@@ -50,7 +50,7 @@ public class PocoTableGenerator : DatabaseTableGenerator
     /// <param name="table">A database table.</param>
     /// <param name="comment">Comment information for the given table.</param>
     /// <returns>A string containing source code to interact with the table.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tables"/> or <paramref name="table"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tables"/> or <paramref name="table"/> is <see langword="null" />.</exception>
     public override string Generate(IReadOnlyCollection<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
     {
         ArgumentNullException.ThrowIfNull(tables);
@@ -154,7 +154,7 @@ public class PocoTableGenerator : DatabaseTableGenerator
                 [
                     XmlText("A mapping class to query the "),
                     XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(tableName.LocalName))),
-                    XmlText(" table.")
+                    XmlText(" table."),
                 ])
             );
     }
@@ -171,7 +171,7 @@ public class PocoTableGenerator : DatabaseTableGenerator
                 [
                     XmlText("The "),
                     XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(columnName.LocalName))),
-                    XmlText(" column.")
+                    XmlText(" column."),
                 ])
             );
     }

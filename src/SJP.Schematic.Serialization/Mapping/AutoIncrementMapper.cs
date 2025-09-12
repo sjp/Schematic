@@ -21,7 +21,7 @@ public class AutoIncrementMapper
             static incr => new Dto.AutoIncrement
             {
                 Increment = incr.Increment,
-                InitialValue = incr.InitialValue
+                InitialValue = incr.InitialValue,
             },
             static () => (Dto.AutoIncrement?)null
         );

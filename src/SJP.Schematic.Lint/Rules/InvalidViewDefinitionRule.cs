@@ -20,7 +20,7 @@ public class InvalidViewDefinitionRule : Rule, IViewRule
     /// </summary>
     /// <param name="connection">A database connection.</param>
     /// <param name="level">The reporting level.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
     public InvalidViewDefinitionRule(ISchematicConnection connection, RuleLevel level)
         : base(RuleId, RuleTitle, level)
     {
@@ -39,7 +39,7 @@ public class InvalidViewDefinitionRule : Rule, IViewRule
     /// <param name="views">A set of database views.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="views"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="views"/> is <see langword="null" />.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(views);
@@ -63,7 +63,7 @@ public class InvalidViewDefinitionRule : Rule, IViewRule
     /// <param name="view">A database view.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="view"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="view"/> is <see langword="null" />.</exception>
     protected Task<IEnumerable<IRuleMessage>> AnalyseViewAsync(IDatabaseView view, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(view);
@@ -94,7 +94,7 @@ public class InvalidViewDefinitionRule : Rule, IViewRule
     /// </summary>
     /// <param name="viewName">The name of the view.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected virtual IRuleMessage BuildMessage(Identifier viewName)
     {
         ArgumentNullException.ThrowIfNull(viewName);

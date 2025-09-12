@@ -30,7 +30,7 @@ internal static class ParsingExtensions
         {
             kinds.Select(k => k?.ToString() ?? string.Empty)
                 .Where(static k => k.Length > 0)
-                .Join(", ")
+                .Join(", "),
         };
 
         return input =>

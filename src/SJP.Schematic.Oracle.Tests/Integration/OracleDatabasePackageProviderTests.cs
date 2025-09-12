@@ -171,7 +171,7 @@ END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
         const string expectedPackageName = "DB_TEST_PACKAGE_1";
 
         var packages = await GetAllPackages().ConfigureAwait(false);
-        var containsTestPackage = packages.Any(s => string.Equals(s.Name.LocalName, expectedPackageName, StringComparison.Ordinal));
+        var containsTestPackage = packages.Exists(s => string.Equals(s.Name.LocalName, expectedPackageName, StringComparison.Ordinal));
 
         Assert.That(containsTestPackage, Is.True);
     }

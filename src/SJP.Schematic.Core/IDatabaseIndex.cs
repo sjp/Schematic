@@ -30,7 +30,7 @@ public interface IDatabaseIndex : IDatabaseOptional
     /// <summary>
     /// Indicates whether covered index columns must be unique across the index column set.
     /// </summary>
-    /// <value><c>true</c> if the index column set must have unique values; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true" /> if the index column set must have unique values; otherwise, <see langword="false" />.</value>
     bool IsUnique { get; }
 
     /// <summary>

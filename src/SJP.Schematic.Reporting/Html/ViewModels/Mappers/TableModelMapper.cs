@@ -47,8 +47,8 @@ internal sealed class TableModelMapper
             var qualifiedColumnName = table.Name.ToVisibleName() + "." + columnName;
 
             var isPrimaryKey = primaryKey.Match(pk => pk.Columns.Any(c => string.Equals(c.Name.LocalName, columnName, StringComparison.Ordinal)), static () => false);
-            var isUniqueKey = uniqueKeys.Any(uk => uk.Columns.Any(ukc => string.Equals(ukc.Name.LocalName, columnName, StringComparison.Ordinal)));
-            var isParentKey = parentKeys.Any(fk => fk.ChildKey.Columns.Any(fkc => string.Equals(fkc.Name.LocalName, columnName, StringComparison.Ordinal)));
+            var isUniqueKey = uniqueKeys.Exists(uk => uk.Columns.Any(ukc => string.Equals(ukc.Name.LocalName, columnName, StringComparison.Ordinal)));
+            var isParentKey = parentKeys.Exists(fk => fk.ChildKey.Columns.Any(fkc => string.Equals(fkc.Name.LocalName, columnName, StringComparison.Ordinal)));
 
             var matchingParentKeys = parentKeys.Where(fk => fk.ChildKey.Columns.Any(fkc => string.Equals(fkc.Name.LocalName, columnName, StringComparison.Ordinal))).ToList();
             var columnParentKeys = new List<Table.ParentKey>();
@@ -179,7 +179,7 @@ internal sealed class TableModelMapper
         var diagrams = new[]
         {
             new Table.Diagram(table.Name, "One Degree", oneDegreeDot, true),
-            new Table.Diagram(table.Name, "Two Degrees", twoDegreeDot, false)
+            new Table.Diagram(table.Name, "Two Degrees", twoDegreeDot, false),
         };
 
         if (!RowCounts.TryGetValue(table.Name, out var rowCount))

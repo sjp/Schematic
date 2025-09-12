@@ -244,19 +244,19 @@ public enum SqliteToken
     Or,
 
     /// <summary>
-    /// The <c>true</c> keyword.
+    /// The <see langword="true" /> keyword.
     /// </summary>
     [Token(Category = "keyword", Example = "true")]
     True,
 
     /// <summary>
-    /// The <c>false</c> keyword.
+    /// The <see langword="false" /> keyword.
     /// </summary>
     [Token(Category = "keyword", Example = "false")]
     False,
 
     /// <summary>
-    /// The <c>null</c> keyword.
+    /// The <see langword="null" /> keyword.
     /// </summary>
     [Token(Category = "keyword", Example = "null")]
     Null,
@@ -979,5 +979,5 @@ public enum SqliteToken
     /// The <c>without</c> keyword.
     /// </summary>
     [Token(Category = "keyword", Example = "without")]
-    Without
+    Without,
 }

@@ -50,7 +50,7 @@ public class DatabaseColumnMapper
             Type = dbTypeMapper.Map(source.Type),
             IsNullable = source.IsNullable,
             DefaultValue = optionalMapper.Map(source.DefaultValue),
-            AutoIncrement = autoIncrMapper.Map(source.AutoIncrement)
+            AutoIncrement = autoIncrMapper.Map(source.AutoIncrement),
         };
     }
 
@@ -67,7 +67,7 @@ public class DatabaseColumnMapper
             IsNullable = source.IsNullable,
             DefaultValue = optionalMapper.Map(source.DefaultValue),
             Definition = optionalMapper.Map(source.Definition),
-            IsComputed = source.IsComputed
+            IsComputed = source.IsComputed,
         };
     }
 }

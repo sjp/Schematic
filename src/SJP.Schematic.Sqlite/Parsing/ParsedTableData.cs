@@ -19,7 +19,7 @@ public sealed class ParsedTableData
     /// <param name="uniqueKeys">Parsed unique keys.</param>
     /// <param name="parentKeys">Parsed parent keys.</param>
     /// <param name="checks">Parsed check constraints.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <c>null</c>, empty or whitespace. Alternatively if <paramref name="columns"/> is <c>null</c> or empty. Alternatively if <paramref name="uniqueKeys"/>, <paramref name="checks"/> or <paramref name="parentKeys"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <see langword="null" />, empty or whitespace. Alternatively if <paramref name="columns"/> is <see langword="null" /> or empty. Alternatively if <paramref name="uniqueKeys"/>, <paramref name="checks"/> or <paramref name="parentKeys"/> are <see langword="null" />.</exception>
     public ParsedTableData(
         string definition,
         IReadOnlyCollection<Column> columns,

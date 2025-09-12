@@ -17,7 +17,7 @@ public sealed record pragma_index_xinfo
     public required int cid { get; init; }
 
     /// <summary>
-    /// The name of the column being indexed, or <c>NULL</c> if the index-column is the rowid of the table being indexed or an expression.
+    /// The name of the column being indexed, or <see langword="null" /> if the index-column is the rowid of the table being indexed or an expression.
     /// </summary>
     public required string? name { get; init; }
 

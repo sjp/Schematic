@@ -25,7 +25,7 @@ public sealed class RuleProviderBuilder : IRuleProviderBuilder
     /// Initializes a new instance of the <see cref="RuleProviderBuilder"/> class.
     /// </summary>
     /// <param name="ruleProviders">Rule providers.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="ruleProviders"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="ruleProviders"/> is <see langword="null" />.</exception>
     private RuleProviderBuilder(IEnumerable<IRuleProvider> ruleProviders)
     {
         _ruleProviders = ruleProviders ?? throw new ArgumentNullException(nameof(ruleProviders));
@@ -36,7 +36,7 @@ public sealed class RuleProviderBuilder : IRuleProviderBuilder
     /// </summary>
     /// <param name="ruleProvider">A rule provider.</param>
     /// <returns>A rule provider builder that now also builds rules from <paramref name="ruleProvider"/>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="ruleProvider"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="ruleProvider"/> is <see langword="null" />.</exception>
     public IRuleProviderBuilder AddRuleProvider(IRuleProvider ruleProvider)
     {
         ArgumentNullException.ThrowIfNull(ruleProvider);

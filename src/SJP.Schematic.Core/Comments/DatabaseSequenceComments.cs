@@ -14,7 +14,7 @@ public class DatabaseSequenceComments : IDatabaseSequenceComments
     /// </summary>
     /// <param name="sequenceName">The name of the sequence.</param>
     /// <param name="comment">The comment, if available.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     public DatabaseSequenceComments(Identifier sequenceName, Option<string> comment)
     {
         SequenceName = sequenceName ?? throw new ArgumentNullException(nameof(sequenceName));

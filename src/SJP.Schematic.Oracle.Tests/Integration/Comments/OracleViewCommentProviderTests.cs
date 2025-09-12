@@ -193,7 +193,7 @@ internal sealed class OracleViewCommentProviderTests : OracleTest
         {
             new Identifier("TEST_COLUMN_1"),
             new Identifier("TEST_COLUMN_2"),
-            new Identifier("TEST_COLUMN_3")
+            new Identifier("TEST_COLUMN_3"),
         };
 
         var comments = await GetViewCommentsAsync("WRAPPER_VIEW_COMMENT_VIEW_1").ConfigureAwait(false);
@@ -230,7 +230,7 @@ internal sealed class OracleViewCommentProviderTests : OracleTest
         {
             new Identifier("TEST_COLUMN_1"),
             new Identifier("TEST_COLUMN_2"),
-            new Identifier("TEST_COLUMN_3")
+            new Identifier("TEST_COLUMN_3"),
         };
         var comments = await GetViewCommentsAsync("WRAPPER_VIEW_COMMENT_VIEW_2").ConfigureAwait(false);
 
@@ -244,7 +244,7 @@ internal sealed class OracleViewCommentProviderTests : OracleTest
         {
             true,
             false,
-            true
+            true,
         };
         var comments = await GetViewCommentsAsync("WRAPPER_VIEW_COMMENT_VIEW_2").ConfigureAwait(false);
 
@@ -253,7 +253,7 @@ internal sealed class OracleViewCommentProviderTests : OracleTest
         {
             columnComments["TEST_COLUMN_1"].IsNone,
             columnComments["TEST_COLUMN_2"].IsNone,
-            columnComments["TEST_COLUMN_3"].IsNone
+            columnComments["TEST_COLUMN_3"].IsNone,
         };
 
         Assert.That(noneStates, Is.EqualTo(expectedNoneStates));
@@ -379,7 +379,7 @@ internal sealed class OracleViewCommentProviderTests : OracleTest
         {
             new Identifier("TEST_COLUMN_1"),
             new Identifier("TEST_COLUMN_2"),
-            new Identifier("TEST_COLUMN_3")
+            new Identifier("TEST_COLUMN_3"),
         };
 
         var comments = await GetViewCommentsAsync("WRAPPER_VIEW_COMMENT_MVIEW_1").ConfigureAwait(false);
@@ -416,7 +416,7 @@ internal sealed class OracleViewCommentProviderTests : OracleTest
         {
             new Identifier("TEST_COLUMN_1"),
             new Identifier("TEST_COLUMN_2"),
-            new Identifier("TEST_COLUMN_3")
+            new Identifier("TEST_COLUMN_3"),
         };
         var comments = await GetViewCommentsAsync("WRAPPER_VIEW_COMMENT_MVIEW_2").ConfigureAwait(false);
 
@@ -430,7 +430,7 @@ internal sealed class OracleViewCommentProviderTests : OracleTest
         {
             true,
             false,
-            true
+            true,
         };
         var comments = await GetViewCommentsAsync("WRAPPER_VIEW_COMMENT_MVIEW_2").ConfigureAwait(false);
 
@@ -439,7 +439,7 @@ internal sealed class OracleViewCommentProviderTests : OracleTest
         {
             columnComments["TEST_COLUMN_1"].IsNone,
             columnComments["TEST_COLUMN_2"].IsNone,
-            columnComments["TEST_COLUMN_3"].IsNone
+            columnComments["TEST_COLUMN_3"].IsNone,
         };
 
         Assert.That(noneStates, Is.EqualTo(expectedNoneStates));

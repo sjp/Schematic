@@ -23,7 +23,7 @@ public class PostgreSqlQueryViewCommentProvider : IDatabaseViewCommentProvider
     /// <param name="connection">A schematic connection.</param>
     /// <param name="identifierDefaults">Database identifier defaults.</param>
     /// <param name="identifierResolver">An identifier resolver.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <see langword="null" />.</exception>
     public PostgreSqlQueryViewCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -68,7 +68,7 @@ public class PostgreSqlQueryViewCommentProvider : IDatabaseViewCommentProvider
     /// <param name="viewName">A view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A view name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected OptionAsync<Identifier> GetResolvedViewName(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -88,7 +88,7 @@ public class PostgreSqlQueryViewCommentProvider : IDatabaseViewCommentProvider
     /// <param name="viewName">A view name that will be resolved.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A view name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected OptionAsync<Identifier> GetResolvedViewNameStrict(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -109,7 +109,7 @@ public class PostgreSqlQueryViewCommentProvider : IDatabaseViewCommentProvider
     /// <param name="viewName">The name of a database view.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An <see cref="T:LanguageExt.OptionAsync`1" /> instance which holds the value of the view's comments, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -124,7 +124,7 @@ public class PostgreSqlQueryViewCommentProvider : IDatabaseViewCommentProvider
     /// <param name="viewName">A view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>Comments for a view, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected OptionAsync<IDatabaseViewComments> LoadViewComments(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -146,7 +146,7 @@ public class PostgreSqlQueryViewCommentProvider : IDatabaseViewCommentProvider
         {
             ObjectName = r.ObjectName,
             Comment = r.Comment,
-            ObjectType = r.ObjectType
+            ObjectType = r.ObjectType,
         }).ToList();
 
         var viewComment = GetFirstCommentByType(commentData, Constants.View);
@@ -186,7 +186,7 @@ public class PostgreSqlQueryViewCommentProvider : IDatabaseViewCommentProvider
     /// </summary>
     /// <param name="viewName">A view name.</param>
     /// <returns>A view name is at least as qualified as the given view name.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected Identifier QualifyViewName(Identifier viewName)
     {
         ArgumentNullException.ThrowIfNull(viewName);

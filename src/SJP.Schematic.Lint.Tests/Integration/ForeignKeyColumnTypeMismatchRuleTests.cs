@@ -59,7 +59,7 @@ create table child_table_with_text_key_column_1 (
         var tables = new[]
         {
             await database.GetTable("parent_table_with_int_key_column_1").UnwrapSomeAsync().ConfigureAwait(false),
-            await database.GetTable("child_table_with_int_key_column_1").UnwrapSomeAsync().ConfigureAwait(false)
+            await database.GetTable("child_table_with_int_key_column_1").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
         var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
@@ -76,7 +76,7 @@ create table child_table_with_text_key_column_1 (
         var tables = new[]
         {
             await database.GetTable("parent_table_with_int_key_column_1").UnwrapSomeAsync().ConfigureAwait(false),
-            await database.GetTable("child_table_with_text_key_column_1").UnwrapSomeAsync().ConfigureAwait(false)
+            await database.GetTable("child_table_with_text_key_column_1").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
         var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);

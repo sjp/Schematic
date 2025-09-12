@@ -14,7 +14,7 @@ public static class RelationalDatabaseTableExtensions
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <returns>A lookup keyed by check constraint names, whose values are the associated check constraints.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> GetCheckLookup(this IRelationalDatabaseTable table)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -36,7 +36,7 @@ public static class RelationalDatabaseTableExtensions
     /// <param name="table">A database table.</param>
     /// <param name="identifierResolver">An identifier resolver.</param>
     /// <returns>A lookup keyed by check constraint names, whose values are the associated check constraints.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <see langword="null" />.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseCheckConstraint> GetCheckLookup(this IRelationalDatabaseTable table, IIdentifierResolutionStrategy identifierResolver)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -51,7 +51,7 @@ public static class RelationalDatabaseTableExtensions
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <returns>A lookup keyed by column names, whose values are the associated columns.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(this IRelationalDatabaseTable table)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -74,7 +74,7 @@ public static class RelationalDatabaseTableExtensions
     /// <param name="table">A database table.</param>
     /// <param name="identifierResolver">An identifier resolver.</param>
     /// <returns>A lookup keyed by column names, whose values are the associated columns.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <see langword="null" />.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(this IRelationalDatabaseTable table, IIdentifierResolutionStrategy identifierResolver)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -89,7 +89,7 @@ public static class RelationalDatabaseTableExtensions
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <returns>A lookup keyed by index names, whose values are the associated indexes.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseIndex> GetIndexLookup(this IRelationalDatabaseTable table)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -112,7 +112,7 @@ public static class RelationalDatabaseTableExtensions
     /// <param name="table">A database table.</param>
     /// <param name="identifierResolver">An identifier resolver.</param>
     /// <returns>A lookup keyed by index names, whose values are the associated indexes.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <see langword="null" />.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseIndex> GetIndexLookup(this IRelationalDatabaseTable table, IIdentifierResolutionStrategy identifierResolver)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -127,7 +127,7 @@ public static class RelationalDatabaseTableExtensions
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <returns>A lookup keyed by foreign key names, whose values are the associated foreign keys.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> GetParentKeyLookup(this IRelationalDatabaseTable table)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -149,7 +149,7 @@ public static class RelationalDatabaseTableExtensions
     /// <param name="table">A database table.</param>
     /// <param name="identifierResolver">An identifier resolver.</param>
     /// <returns>A lookup keyed by foreign key names, whose values are the associated foreign keys.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <see langword="null" />.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> GetParentKeyLookup(this IRelationalDatabaseTable table, IIdentifierResolutionStrategy identifierResolver)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -164,7 +164,7 @@ public static class RelationalDatabaseTableExtensions
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <returns>A lookup keyed by trigger names, whose values are the associated triggers.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseTrigger> GetTriggerLookup(this IRelationalDatabaseTable table)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -187,7 +187,7 @@ public static class RelationalDatabaseTableExtensions
     /// <param name="table">A database table.</param>
     /// <param name="identifierResolver">An identifier resolver.</param>
     /// <returns>A lookup keyed by trigger names, whose values are the associated triggers.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <see langword="null" />.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseTrigger> GetTriggerLookup(this IRelationalDatabaseTable table, IIdentifierResolutionStrategy identifierResolver)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -202,7 +202,7 @@ public static class RelationalDatabaseTableExtensions
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <returns>A lookup keyed by unique key names, whose values are the associated unique keys.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseKey> GetUniqueKeyLookup(this IRelationalDatabaseTable table)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -224,7 +224,7 @@ public static class RelationalDatabaseTableExtensions
     /// <param name="table">A database table.</param>
     /// <param name="identifierResolver">An identifier resolver.</param>
     /// <returns>A lookup keyed by unique key names, whose values are the associated unique keys.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <see langword="null" />.</exception>
     public static IReadOnlyDictionary<Identifier, IDatabaseKey> GetUniqueKeyLookup(this IRelationalDatabaseTable table, IIdentifierResolutionStrategy identifierResolver)
     {
         ArgumentNullException.ThrowIfNull(table);

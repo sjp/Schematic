@@ -17,7 +17,7 @@ public static class ConnectionRegistry
     /// </summary>
     /// <param name="connectionId">The connection identifier.</param>
     /// <param name="connectionFactory">A database connection factory.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <see langword="null" />.</exception>
     public static void RegisterConnection(Guid connectionId, IDbConnectionFactory connectionFactory)
     {
         ArgumentNullException.ThrowIfNull(connectionFactory);
@@ -38,8 +38,8 @@ public static class ConnectionRegistry
     /// </summary>
     /// <param name="connectionFactory">A database connection factory.</param>
     /// <param name="connectionId">The connection identifier.</param>
-    /// <returns><c>true</c> if the connection has been registered and a connection identifier has been found; otherwise <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>.</exception>
+    /// <returns><see langword="true" /> if the connection has been registered and a connection identifier has been found; otherwise <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <see langword="null" />.</exception>
     public static bool TryGetConnectionId(IDbConnectionFactory connectionFactory, out Guid connectionId)
     {
         ArgumentNullException.ThrowIfNull(connectionFactory);

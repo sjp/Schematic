@@ -84,7 +84,7 @@ internal sealed class RedundantIndexesRuleTests
                 "index_a_dupe",
                 [
                     new DatabaseIndexColumn("column_a", CreateColumn("column_a"), IndexColumnOrder.Ascending),
-                    new DatabaseIndexColumn("column_b", CreateColumn("column_b"), IndexColumnOrder.Ascending)
+                    new DatabaseIndexColumn("column_b", CreateColumn("column_b"), IndexColumnOrder.Ascending),
                 ],
                 []),
         };
@@ -107,14 +107,14 @@ internal sealed class RedundantIndexesRuleTests
                 "index_a",
                 [
                     new DatabaseIndexColumn("column_a", CreateColumn("column_a"), IndexColumnOrder.Ascending),
-                    new DatabaseIndexColumn("column_b", CreateColumn("column_b"), IndexColumnOrder.Ascending)
+                    new DatabaseIndexColumn("column_b", CreateColumn("column_b"), IndexColumnOrder.Ascending),
                 ],
                 []),
             CreateIndex(
                 "index_a_dupe",
                 [
                     new DatabaseIndexColumn("column_a", CreateColumn("column_a"), IndexColumnOrder.Ascending),
-                    new DatabaseIndexColumn("column_b", CreateColumn("column_b"), IndexColumnOrder.Descending) // key change, this ordering is important
+                    new DatabaseIndexColumn("column_b", CreateColumn("column_b"), IndexColumnOrder.Descending), // key change, this ordering is important
                 ],
                 []),
         };

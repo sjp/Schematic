@@ -46,7 +46,7 @@ public class IndexMapper
             Columns = indexColumns,
             IncludedColumns = includedColumns,
             IsEnabled = source.IsEnabled,
-            IsUnique = source.IsUnique
+            IsUnique = source.IsUnique,
         };
     }
 }

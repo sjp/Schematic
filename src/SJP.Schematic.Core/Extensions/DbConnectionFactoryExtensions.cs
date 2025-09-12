@@ -12,7 +12,7 @@ public static class DbConnectionFactoryExtensions
     /// </summary>
     /// <param name="connectionFactory">A connection factory to be cached.</param>
     /// <returns>A <see cref="CachingConnectionFactory"/> instance that caches connections created from the given connection factory.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <see langword="null" />.</exception>
     public static IDbConnectionFactory AsCachingFactory(this IDbConnectionFactory connectionFactory)
     {
         ArgumentNullException.ThrowIfNull(connectionFactory);

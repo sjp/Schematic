@@ -8,6 +8,6 @@ public interface IDatabaseOptional
     /// <summary>
     /// Indicates whether this instance is enabled.
     /// </summary>
-    /// <value><c>true</c> if this object is enabled; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true" /> if this object is enabled; otherwise, <see langword="false" />.</value>
     bool IsEnabled { get; }
 }

@@ -49,7 +49,7 @@ internal static class ForeignKeyIndexRuleTests
             [
                 GetColumn("a"),
                 GetColumn("b"),
-                GetColumn("c")
+                GetColumn("c"),
             ],
             null,
             [],
@@ -61,7 +61,7 @@ internal static class ForeignKeyIndexRuleTests
                     new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, [GetColumn("b")], true),
                     ReferentialAction.Cascade,
                     ReferentialAction.Cascade
-                )
+                ),
             ],
             [],
             [
@@ -72,7 +72,7 @@ internal static class ForeignKeyIndexRuleTests
                     [],
                     true,
                     Option<string>.None
-                )
+                ),
             ],
             [],
             []
@@ -94,7 +94,7 @@ internal static class ForeignKeyIndexRuleTests
             [
                 GetColumn("a"),
                 GetColumn("b"),
-                GetColumn("c")
+                GetColumn("c"),
             ],
             null,
             [],
@@ -106,7 +106,7 @@ internal static class ForeignKeyIndexRuleTests
                     new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, [GetColumn("b")], true),
                     ReferentialAction.Cascade,
                     ReferentialAction.Cascade
-                )
+                ),
             ],
             [],
             [
@@ -117,7 +117,7 @@ internal static class ForeignKeyIndexRuleTests
                     [],
                     true,
                     Option<string>.None
-                )
+                ),
             ],
             [],
             []
@@ -139,7 +139,7 @@ internal static class ForeignKeyIndexRuleTests
             [
                 GetColumn("a"),
                 GetColumn("b"),
-                GetColumn("c")
+                GetColumn("c"),
             ],
             null,
             [],
@@ -151,7 +151,7 @@ internal static class ForeignKeyIndexRuleTests
                     new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, [GetColumn("b"), GetColumn("c")], true),
                     ReferentialAction.Cascade,
                     ReferentialAction.Cascade
-                )
+                ),
             ],
             [],
             [
@@ -162,7 +162,7 @@ internal static class ForeignKeyIndexRuleTests
                     [GetColumn("c")],
                     true,
                     Option<string>.None
-                )
+                ),
             ],
             [],
             []
@@ -184,7 +184,7 @@ internal static class ForeignKeyIndexRuleTests
             [
                 GetColumn("a"),
                 GetColumn("b"),
-                GetColumn("c")
+                GetColumn("c"),
             ],
             null,
             [],
@@ -196,7 +196,7 @@ internal static class ForeignKeyIndexRuleTests
                     new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, [GetColumn("b"), GetColumn("c")], true),
                     ReferentialAction.Cascade,
                     ReferentialAction.Cascade
-                )
+                ),
             ],
             [],
             [
@@ -207,7 +207,7 @@ internal static class ForeignKeyIndexRuleTests
                     [GetColumn("a")],
                     true,
                     Option<string>.None
-                )
+                ),
             ],
             [],
             []
@@ -229,7 +229,7 @@ internal static class ForeignKeyIndexRuleTests
             [
                 GetColumn("a"),
                 GetColumn("b"),
-                GetColumn("c")
+                GetColumn("c"),
             ],
             null,
             [],
@@ -241,7 +241,7 @@ internal static class ForeignKeyIndexRuleTests
                     new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, [GetColumn("b"), GetColumn("c")], true),
                     ReferentialAction.Cascade,
                     ReferentialAction.Cascade
-                )
+                ),
             ],
             [],
             [
@@ -252,7 +252,7 @@ internal static class ForeignKeyIndexRuleTests
                     [GetColumn("a"), GetColumn("c")],
                     true,
                     Option<string>.None
-                )
+                ),
             ],
             [],
             []
@@ -274,7 +274,7 @@ internal static class ForeignKeyIndexRuleTests
             [
                 GetColumn("a"),
                 GetColumn("b"),
-                GetColumn("c")
+                GetColumn("c"),
             ],
             null,
             [],
@@ -286,7 +286,7 @@ internal static class ForeignKeyIndexRuleTests
                     new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, [GetColumn("b"), GetColumn("c")], true),
                     ReferentialAction.Cascade,
                     ReferentialAction.Cascade
-                )
+                ),
             ],
             [],
             [
@@ -297,7 +297,7 @@ internal static class ForeignKeyIndexRuleTests
                     [GetColumn("c")],
                     true,
                     Option<string>.None
-                )
+                ),
             ],
             [],
             []

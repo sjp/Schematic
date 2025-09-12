@@ -5,5 +5,5 @@ internal enum RankDirection
     RB,
     LR,
     BT,
-    RL
+    RL,
 }

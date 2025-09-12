@@ -66,7 +66,7 @@ select
             [tempDir.DirectoryPath + Path.PathSeparator] = new MockDirectoryData(),
             [expectedTable1Path] = new MockFileData(Array.Empty<byte>()),
             [expectedView1Path] = new MockFileData(Array.Empty<byte>()),
-            [expectedView2Path] = new MockFileData(Array.Empty<byte>())
+            [expectedView2Path] = new MockFileData(Array.Empty<byte>()),
         });
 
         var nameTranslator = new PascalCaseNameTranslator();
@@ -139,7 +139,7 @@ select
             CreateNoWindow = true,
             FileName = "dotnet",
             WindowStyle = ProcessWindowStyle.Hidden,
-            WorkingDirectory = projectDir
+            WorkingDirectory = projectDir,
         };
 
         using var process = new Process { StartInfo = startInfo };

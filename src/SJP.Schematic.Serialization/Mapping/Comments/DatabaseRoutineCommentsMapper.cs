@@ -28,7 +28,7 @@ public class DatabaseRoutineCommentsMapper
         return new Dto.Comments.DatabaseRoutineComments
         {
             RoutineName = identifierMapper.Map(source.RoutineName),
-            Comment = optionMapper.Map(source.Comment)
+            Comment = optionMapper.Map(source.Comment),
         };
     }
 }

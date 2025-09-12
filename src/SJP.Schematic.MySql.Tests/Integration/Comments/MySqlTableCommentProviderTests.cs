@@ -267,7 +267,7 @@ CREATE TABLE table_comment_table_2
         {
             new Identifier("test_column_1"),
             new Identifier("test_column_2"),
-            new Identifier("test_column_3")
+            new Identifier("test_column_3"),
         };
         var comments = await GetTableCommentsAsync("table_comment_table_2").ConfigureAwait(false);
 
@@ -284,7 +284,7 @@ CREATE TABLE table_comment_table_2
         {
             true,
             false,
-            true
+            true,
         };
         var comments = await GetTableCommentsAsync("table_comment_table_2").ConfigureAwait(false);
 
@@ -316,7 +316,7 @@ CREATE TABLE table_comment_table_2
         var indexNames = new[]
         {
             new Identifier("table_comment_table_2_ix_1"),
-            new Identifier("table_comment_table_2_ix_2")
+            new Identifier("table_comment_table_2_ix_2"),
         };
         var comments = await GetTableCommentsAsync("table_comment_table_2").ConfigureAwait(false);
 

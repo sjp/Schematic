@@ -33,7 +33,7 @@ public class SqliteTableParsingException : SchematicException
     /// Initializes a new instance of the <see cref="SqliteTableParsingException"/> class.
     /// </summary>
     /// <param name="message">The error message that explains the reason for the exception.</param>
-    /// <param name="innerException">The exception that is the cause of the current exception, or <c>null</c> if no inner exception is specified.</param>
+    /// <param name="innerException">The exception that is the cause of the current exception, or <see langword="null" /> if no inner exception is specified.</param>
     [ExcludeFromCodeCoverage]
     public SqliteTableParsingException(string message, Exception innerException) : base(message, innerException)
     {

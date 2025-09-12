@@ -19,7 +19,7 @@ public class DbmlFormatter : IDbmlFormatter
     /// </summary>
     /// <param name="tables">A collection of database tables.</param>
     /// <returns>A string, in DBML format.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" />.</exception>
     public string RenderTables(IEnumerable<IRelationalDatabaseTable> tables)
     {
         ArgumentNullException.ThrowIfNull(tables);
@@ -213,7 +213,7 @@ public class DbmlFormatter : IDbmlFormatter
         if (uniqueIndexes.Count == 0)
             return false;
 
-        return uniqueIndexes.Any(i =>
+        return uniqueIndexes.Exists(i =>
         {
             var indexColumnExpressions = i.Columns
                 .Select(static ic => ic.DependentColumns.Select(dc => dc.Name.LocalName).FirstOrDefault() ?? ic.Expression)

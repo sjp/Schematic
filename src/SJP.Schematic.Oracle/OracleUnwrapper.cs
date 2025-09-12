@@ -22,7 +22,7 @@ public static class OracleUnwrapper
     /// </summary>
     /// <param name="input">A potentially wrapped routine definition.</param>
     /// <param name="unwrapped">If successful, the unwrapped routine definition.</param>
-    /// <returns><c>true</c> if unwrapping was successful, <c>false</c> otherwise.</returns>
+    /// <returns><see langword="true" /> if unwrapping was successful, <see langword="false" /> otherwise.</returns>
     public static bool TryUnwrap(string input, [NotNullWhen(true)] out string? unwrapped)
     {
         if (input == null || !TryGetPayload(input, out var payload))
@@ -60,7 +60,7 @@ public static class OracleUnwrapper
     /// </summary>
     /// <param name="input">A wrapped routine definition.</param>
     /// <returns>An unwrapped routine definition.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="input"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="input"/> is <see langword="null" />.</exception>
     /// <exception cref="InvalidDataException">Thrown when the data is not able to be unwrapped successfully. This is likely because the data is not wrapped or because it is not valid.</exception>
     public static string UnwrapUnsafe(string input)
     {
@@ -87,9 +87,9 @@ public static class OracleUnwrapper
     /// Determines whether the given input is a valid wrapped routine definition.
     /// </summary>
     /// <param name="input">A potentially wrapped routine definition.</param>
-    /// <returns><c>true</c> if the input appears to be a valid wrapped routine definition.</returns>
+    /// <returns><see langword="true" /> if the input appears to be a valid wrapped routine definition.</returns>
     /// <remarks>This does not guarantee that unwrapping is successful, only that the input appears to be correct. For example, the obfuscated input may not pass a checksum.</remarks>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="input"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="input"/> is <see langword="null" />.</exception>
     public static bool IsWrappedDefinition(string input)
     {
         ArgumentNullException.ThrowIfNull(input);
@@ -329,7 +329,7 @@ public static class OracleUnwrapper
         0x72, 0xE7, 0xB2, 0x54, 0xB7, 0x2A, 0xC7, 0x73, 0x90, 0x66, 0x20, 0x0E, 0x51, 0xED, 0xF8, 0x7C,
         0x8F, 0x2E, 0xF4, 0x12, 0xC6, 0x2B, 0x83, 0xCD, 0xAC, 0xCB, 0x3B, 0xC4, 0x4E, 0xC0, 0x69, 0x36,
         0x62, 0x02, 0xAE, 0x88, 0xFC, 0xAA, 0x42, 0x08, 0xA6, 0x45, 0x57, 0xD3, 0x9A, 0xBD, 0xE1, 0x23,
-        0x8D, 0x92, 0x4A, 0x11, 0x89, 0x74, 0x6B, 0x91, 0xFB, 0xFE, 0xC9, 0x01, 0xEA, 0x1B, 0xF7, 0xCE
+        0x8D, 0x92, 0x4A, 0x11, 0x89, 0x74, 0x6B, 0x91, 0xFB, 0xFE, 0xC9, 0x01, 0xEA, 0x1B, 0xF7, 0xCE,
     ];
 
     private const char CarriageReturn = '\r';

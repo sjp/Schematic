@@ -135,7 +135,7 @@ public class ReportGenerator
             new SynonymsRenderer(Database.IdentifierDefaults, TemplateFormatter, synonyms, synonymTargets, ExportDirectory),
             new RoutinesRenderer(Database.IdentifierDefaults, TemplateFormatter, routines, ExportDirectory),
             new TableOrderingRenderer(Connection.Dialect, tables, ExportDirectory),
-            new DbmlRenderer(tables, ExportDirectory)
+            new DbmlRenderer(tables, ExportDirectory),
         ];
     }
 }

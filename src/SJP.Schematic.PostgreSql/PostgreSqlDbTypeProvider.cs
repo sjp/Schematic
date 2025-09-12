@@ -19,7 +19,7 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
     /// </summary>
     /// <param name="typeMetadata">Column type metadata.</param>
     /// <returns>A column data type.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <see langword="null" />.</exception>
     public IDbType CreateColumnType(ColumnTypeMetadata typeMetadata)
     {
         ArgumentNullException.ThrowIfNull(typeMetadata);
@@ -50,7 +50,7 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
     /// </summary>
     /// <param name="otherType">An data type to compare with.</param>
     /// <returns>The closest matching column data type.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="otherType"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="otherType"/> is <see langword="null" />.</exception>
     public IDbType GetComparableColumnType(IDbType otherType)
     {
         ArgumentNullException.ThrowIfNull(otherType);
@@ -63,7 +63,7 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
             IsFixedLength = otherType.IsFixedLength,
             MaxLength = otherType.MaxLength,
             NumericPrecision = otherType.NumericPrecision,
-            TypeName = null // ignoring so we get a default name generated
+            TypeName = null, // ignoring so we get a default name generated
         };
 
         return CreateColumnType(typeMetadata);
@@ -73,8 +73,8 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
     /// Gets the length of the is fixed.
     /// </summary>
     /// <param name="typeName">Name of the type.</param>
-    /// <returns><c>true</c> if the type has a fixed length, otherwise <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <returns><see langword="true" /> if the type has a fixed length, otherwise <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />, empty or whitespace.</exception>
     protected static bool GetIsFixedLength(Identifier typeName)
     {
         ArgumentNullException.ThrowIfNull(typeName);
@@ -87,7 +87,7 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
     /// </summary>
     /// <param name="typeMetadata">The type metadata.</param>
     /// <returns>A type name for the given type metadata.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when a type is unknown or failed to be parsed.</exception>
     protected static Identifier GetDefaultTypeName(ColumnTypeMetadata typeMetadata)
     {
@@ -123,7 +123,7 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
     /// </summary>
     /// <param name="typeMetadata">The type metadata.</param>
     /// <returns>A string representing a type name.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException">Thrown when a type name is missing.</exception>
     protected static string GetFormattedTypeName(ColumnTypeMetadata typeMetadata)
     {
@@ -175,7 +175,7 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
     /// </summary>
     /// <param name="typeName">Name of the type.</param>
     /// <returns>A general data type class.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />, empty or whitespace.</exception>
     protected static DataType GetDataType(Identifier typeName)
     {
         ArgumentNullException.ThrowIfNull(typeName);
@@ -190,7 +190,7 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
     /// </summary>
     /// <param name="typeName">A type name.</param>
     /// <returns>A CLR type for the associated database type.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />, empty or whitespace.</exception>
     protected static Type GetClrType(Identifier typeName)
     {
         ArgumentNullException.ThrowIfNull(typeName);
@@ -205,7 +205,7 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
     /// </summary>
     /// <param name="identifier">An identifier component.</param>
     /// <returns>A quoted identifier component.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <see langword="null" />, empty or whitespace.</exception>
     protected static string QuoteIdentifier(string identifier)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(identifier);
@@ -218,7 +218,7 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
     /// </summary>
     /// <param name="name">A type name.</param>
     /// <returns>A quoted type name.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
     protected static string QuoteName(Identifier name)
     {
         ArgumentNullException.ThrowIfNull(name);
@@ -285,7 +285,7 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
         new("pg_catalog", "tsvector"),
         new("pg_catalog", "txid_snapshot"),
         new("pg_catalog", "uuid"),
-        new("pg_catalog", "xml")
+        new("pg_catalog", "xml"),
     };
 
     private static readonly IReadOnlyDictionary<Identifier, DataType> StringToDataTypeMap = new Dictionary<Identifier, DataType>(IdentifierComparer.Ordinal)
@@ -346,7 +346,7 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
         [new Identifier("pg_catalog", "tsquery")] = DataType.Unknown,
         [new Identifier("pg_catalog", "tsvector")] = DataType.Unknown,
         [new Identifier("pg_catalog", "txid_snapshot")] = DataType.Unknown,
-        [new Identifier("pg_catalog", "uuid")] = DataType.Unknown
+        [new Identifier("pg_catalog", "uuid")] = DataType.Unknown,
     };
 
     private static readonly IReadOnlyDictionary<Identifier, Type> StringToClrTypeMap = new Dictionary<Identifier, Type>(IdentifierComparer.Ordinal)
@@ -407,6 +407,6 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
         [new Identifier("pg_catalog", "tsquery")] = typeof(object),
         [new Identifier("pg_catalog", "tsvector")] = typeof(object),
         [new Identifier("pg_catalog", "txid_snapshot")] = typeof(object),
-        [new Identifier("pg_catalog", "uuid")] = typeof(object)
+        [new Identifier("pg_catalog", "uuid")] = typeof(object),
     };
 }

@@ -18,7 +18,7 @@ public abstract class DatabaseViewGenerator : IDatabaseViewGenerator
     /// </summary>
     /// <param name="fileSystem">A file system to generate paths for.</param>
     /// <param name="nameTranslator">A name translator.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="nameTranslator"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="nameTranslator"/> is <see langword="null" />.</exception>
     protected DatabaseViewGenerator(IFileSystem fileSystem, INameTranslator nameTranslator)
     {
         FileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
@@ -51,7 +51,7 @@ public abstract class DatabaseViewGenerator : IDatabaseViewGenerator
     /// <param name="baseDirectory">The base directory.</param>
     /// <param name="objectName">The name of the database object.</param>
     /// <returns>A file path.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="baseDirectory"/> or <paramref name="objectName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="baseDirectory"/> or <paramref name="objectName"/> is <see langword="null" />.</exception>
     public virtual IFileInfo GetFilePath(IDirectoryInfo baseDirectory, Identifier objectName)
     {
         ArgumentNullException.ThrowIfNull(baseDirectory);

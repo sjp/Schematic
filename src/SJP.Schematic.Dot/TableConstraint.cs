@@ -48,6 +48,6 @@ internal sealed class TableConstraint
     {
         [DatabaseKeyType.Foreign] = "Foreign Key",
         [DatabaseKeyType.Unique] = "Unique Key",
-        [DatabaseKeyType.Primary] = "Primary Key"
+        [DatabaseKeyType.Primary] = "Primary Key",
     };
 }

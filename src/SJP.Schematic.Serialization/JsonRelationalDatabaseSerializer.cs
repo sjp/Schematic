@@ -37,7 +37,7 @@ public class JsonRelationalDatabaseSerializer : IRelationalDatabaseSerializer
         var settings = new JsonSerializerOptions
         {
             WriteIndented = true,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         };
         settings.Converters.Add(new JsonStringEnumConverter());
 

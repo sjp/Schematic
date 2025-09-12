@@ -13,5 +13,5 @@ public enum LockingMode
     /// <summary>
     /// In <c>EXCLUSIVE</c> locking-mode, the database connection never releases file-locks.
     /// </summary>
-    Exclusive
+    Exclusive,
 }

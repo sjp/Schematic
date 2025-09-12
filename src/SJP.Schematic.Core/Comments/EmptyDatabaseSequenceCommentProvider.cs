@@ -25,7 +25,7 @@ public sealed class EmptyDatabaseSequenceCommentProvider : IDatabaseSequenceComm
     /// <param name="sequenceName">The name of a database sequence.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An <see cref="OptionAsync{A}" /> instance which is always none.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseSequenceComments> GetSequenceComments(Identifier sequenceName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(sequenceName);

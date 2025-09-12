@@ -15,7 +15,7 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
     /// Initializes a new instance of the <see cref="EmptyRelationalDatabase"/> class.
     /// </summary>
     /// <param name="identifierDefaults">Database identifier defaults.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/> is <see langword="null" />.</exception>
     public EmptyRelationalDatabase(IIdentifierDefaults identifierDefaults)
     {
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
@@ -38,7 +38,7 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
     /// <param name="tableName">A database table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database table in the 'none' state.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     public OptionAsync<IRelationalDatabaseTable> GetTable(Identifier tableName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -60,7 +60,7 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
     /// <param name="viewName">A database view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database view in the 'none' state.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -82,7 +82,7 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
     /// <param name="sequenceName">A database sequence name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database sequence in the 'none' state.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
@@ -104,7 +104,7 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
     /// <param name="synonymName">A database synonym name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database synonym in the 'none' state.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(synonymName);
@@ -126,7 +126,7 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
     /// <param name="routineName">A database routine name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database routine in the 'none' state.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(routineName);

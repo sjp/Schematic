@@ -31,5 +31,5 @@ public enum FunctionOptions
     /// <summary>
     /// The innocuous flag means that the function is unlikely to cause problems even if misused.
     /// </summary>
-    Innocuous = 1 << 25 // 0x000200000
+    Innocuous = 1 << 25, // 0x000200000
 }

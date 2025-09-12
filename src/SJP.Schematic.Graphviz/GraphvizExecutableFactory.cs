@@ -22,7 +22,7 @@ public sealed class GraphvizExecutableFactory
     /// Initializes a new instance of the <see cref="GraphvizExecutableFactory"/> class.
     /// </summary>
     /// <param name="configuration">A configuration provider.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="configuration"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="configuration"/> is <see langword="null" />.</exception>
     public GraphvizExecutableFactory(IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);

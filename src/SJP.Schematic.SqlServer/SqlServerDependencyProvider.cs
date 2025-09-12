@@ -34,7 +34,7 @@ public class SqlServerDependencyProvider : IDependencyProvider
     /// <param name="objectName">The name of an object defined by an expression (e.g. a computed column definition).</param>
     /// <param name="expression">A SQL expression that may contain dependent object names.</param>
     /// <returns>A collection of identifiers found in the expression.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <c>null</c>. Alternatively, if <paramref name="expression"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <see langword="null" />. Alternatively, if <paramref name="expression"/> is <see langword="null" />, empty or whitespace.</exception>
     /// <exception cref="ArgumentException">Thrown when <paramref name="expression"/> could not be parsed as a valid SQL expression.</exception>
     /// <remarks>This will also return unqualified identifiers, which may cause ambiguity between object names and column names. Additionally it may return other identifiers, such as aliases or type names.</remarks>
     public IReadOnlyCollection<Identifier> GetDependencies(Identifier objectName, string expression)
@@ -111,7 +111,7 @@ public class SqlServerDependencyProvider : IDependencyProvider
                 { Count: 2 } => Identifier.CreateQualifiedIdentifier(pieces[0], pieces[1]),
                 { Count: 3 } => Identifier.CreateQualifiedIdentifier(pieces[0], pieces[1], pieces[2]),
                 { Count: 4 } => Identifier.CreateQualifiedIdentifier(pieces[0], pieces[1], pieces[2], pieces[3]),
-                _ => null
+                _ => null,
             };
 
             return qualifiedIdentifier != null;

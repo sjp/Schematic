@@ -115,7 +115,7 @@ SELECT * from client.FunctionName('test')
             new Identifier("FIRST_COL"),
             new Identifier("SECOND_COL"),
             new Identifier("FIRST_TABLE"),
-            new Identifier("client", "FunctionName")
+            new Identifier("client", "FunctionName"),
         };
 
         Assert.That(dependencies, Is.EqualTo(expectedNames));
@@ -140,7 +140,7 @@ SELECT FIRST_COL, SECOND_COL from client.FunctionName('test')
             new Identifier("FIRST_COL"),
             new Identifier("SECOND_COL"),
             new Identifier("FIRST_TABLE"),
-            new Identifier("client", "FunctionName")
+            new Identifier("client", "FunctionName"),
         };
 
         Assert.That(dependencies, Is.EqualTo(expectedNames));

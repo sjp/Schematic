@@ -73,7 +73,7 @@ create table NoForeignKeyChildWithoutKey (
         var tables = new[]
         {
             await database.GetTable("no_foreign_key_parent_1").UnwrapSomeAsync().ConfigureAwait(false),
-            await database.GetTable("no_foreign_key_child_with_key").UnwrapSomeAsync().ConfigureAwait(false)
+            await database.GetTable("no_foreign_key_child_with_key").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
         var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
@@ -90,7 +90,7 @@ create table NoForeignKeyChildWithoutKey (
         var tables = new[]
         {
             await database.GetTable("NoForeignKeyChildWithKey").UnwrapSomeAsync().ConfigureAwait(false),
-            await database.GetTable("NoForeignKeyParent1").UnwrapSomeAsync().ConfigureAwait(false)
+            await database.GetTable("NoForeignKeyParent1").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
         var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
@@ -107,7 +107,7 @@ create table NoForeignKeyChildWithoutKey (
         var tables = new[]
         {
             await database.GetTable("no_foreign_key_parent_1").UnwrapSomeAsync().ConfigureAwait(false),
-            await database.GetTable("no_foreign_key_child_without_key").UnwrapSomeAsync().ConfigureAwait(false)
+            await database.GetTable("no_foreign_key_child_without_key").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
         var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
@@ -124,7 +124,7 @@ create table NoForeignKeyChildWithoutKey (
         var tables = new[]
         {
             await database.GetTable("NoForeignKeyChildWithoutKey").UnwrapSomeAsync().ConfigureAwait(false),
-            await database.GetTable("NoForeignKeyParent1").UnwrapSomeAsync().ConfigureAwait(false)
+            await database.GetTable("NoForeignKeyParent1").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
         var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);

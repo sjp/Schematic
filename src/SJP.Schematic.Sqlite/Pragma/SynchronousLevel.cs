@@ -23,5 +23,5 @@ public enum SynchronousLevel
     /// <summary>
     /// Like <see cref="Full"/>, with the addition that the directory containing a rollback journal is synced after that journal is unlinked to commit a transaction in <c>DELETE</c> mode.
     /// </summary>
-    Extra
+    Extra,
 }

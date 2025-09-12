@@ -20,7 +20,7 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// </summary>
     /// <param name="connection">A database connection.</param>
     /// <param name="identifierDefaults">Database identifier defaults.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <see langword="null" />.</exception>
     public SqlServerDatabaseSynonymProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -69,7 +69,7 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// <param name="synonymName">A database synonym name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database synonym in the 'some' state if found; otherwise 'none'.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseSynonym> GetSynonym(Identifier synonymName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(synonymName);
@@ -84,7 +84,7 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// <param name="synonymName">A synonym name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A synonym name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <see langword="null" />.</exception>
     protected OptionAsync<Identifier> GetResolvedSynonymName(Identifier synonymName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(synonymName);
@@ -105,7 +105,7 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// <param name="synonymName">A synonym name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A synonym definition, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <see langword="null" />.</exception>
     protected OptionAsync<IDatabaseSynonym> LoadSynonym(Identifier synonymName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(synonymName);
@@ -138,7 +138,7 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// </summary>
     /// <param name="synonymName">A synonym name to qualify.</param>
     /// <returns>A synonym name that is at least as qualified as its input.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <see langword="null" />.</exception>
     protected Identifier QualifySynonymName(Identifier synonymName)
     {
         ArgumentNullException.ThrowIfNull(synonymName);
@@ -152,7 +152,7 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// </summary>
     /// <param name="targetName">A synonym's target name to qualify.</param>
     /// <returns>A synonym target name that is at least as qualified as its input.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="targetName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="targetName"/> is <see langword="null" />.</exception>
     protected Identifier QualifySynonymTargetName(Identifier targetName)
     {
         ArgumentNullException.ThrowIfNull(targetName);

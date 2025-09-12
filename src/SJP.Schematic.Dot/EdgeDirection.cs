@@ -5,5 +5,5 @@ internal enum EdgeDirection
     Forward,
     Back,
     Both,
-    None
+    None,
 }

@@ -32,7 +32,7 @@ public interface IDbConnectionFactory
     /// <summary>
     /// Determines whether connections retrieved from this factory should be disposed.
     /// </summary>
-    /// <value><c>true</c> if connection instances should be disposed; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true" /> if connection instances should be disposed; otherwise, <see langword="false" />.</value>
     bool DisposeConnection { get; }
 
     /// <summary>

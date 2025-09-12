@@ -22,7 +22,7 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
     /// </summary>
     /// <param name="connection">A database connection factory.</param>
     /// <param name="identifierDefaults">Database identifier defaults.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <see langword="null" />.</exception>
     public SqlServerSynonymCommentProvider(IDbConnectionFactory connection, IIdentifierDefaults identifierDefaults)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -66,7 +66,7 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
     /// <param name="synonymName">A synonym name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A synonym name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <see langword="null" />.</exception>
     protected OptionAsync<Identifier> GetResolvedSynonymName(Identifier synonymName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(synonymName);
@@ -87,7 +87,7 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
     /// <param name="synonymName">A synonym name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A comments object result in the some state, if found, none otherwise.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseSynonymComments> GetSynonymComments(Identifier synonymName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(synonymName);
@@ -102,7 +102,7 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
     /// <param name="synonymName">A synonym name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A comments object result in the some state, if found, none otherwise.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <see langword="null" />.</exception>
     protected OptionAsync<IDatabaseSynonymComments> LoadSynonymComments(Identifier synonymName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(synonymName);
@@ -120,7 +120,7 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
             {
                 SchemaName = synonymName.Schema!,
                 SynonymName = synonymName.LocalName,
-                CommentProperty = CommentProperty
+                CommentProperty = CommentProperty,
             },
             cancellationToken
         ).ConfigureAwait(false);
@@ -129,7 +129,7 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
         {
             ObjectName = r.ObjectName,
             ObjectType = r.ObjectType,
-            Comment = r.Comment
+            Comment = r.Comment,
         }).ToList();
 
         var synonymComment = GetFirstCommentByType(commentData, Constants.Synonym);
@@ -153,7 +153,7 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
     /// </summary>
     /// <param name="synonymName">A synonym name to qualify.</param>
     /// <returns>A synonym name that is at least as qualified as its input.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <see langword="null" />.</exception>
     protected Identifier QualifySynonymName(Identifier synonymName)
     {
         ArgumentNullException.ThrowIfNull(synonymName);

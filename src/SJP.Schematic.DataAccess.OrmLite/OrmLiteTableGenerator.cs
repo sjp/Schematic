@@ -29,7 +29,7 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
     /// <param name="fileSystem">A file system.</param>
     /// <param name="nameTranslator">The name translator.</param>
     /// <param name="baseNamespace">The base namespace.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="baseNamespace"/> is <c>null</c>, empty, or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="baseNamespace"/> is <see langword="null" />, empty, or whitespace.</exception>
     public OrmLiteTableGenerator(IFileSystem fileSystem, INameTranslator nameTranslator, string baseNamespace)
         : base(fileSystem, nameTranslator)
     {
@@ -51,7 +51,7 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
     /// <param name="table">A database table.</param>
     /// <param name="comment">Comment information for the given table.</param>
     /// <returns>A string containing source code to interact with the table.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tables"/> or <paramref name="table"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tables"/> or <paramref name="table"/> is <see langword="null" />.</exception>
     public override string Generate(IReadOnlyCollection<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
     {
         ArgumentNullException.ThrowIfNull(tables);
@@ -160,7 +160,7 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
                 [
                     XmlText("A mapping class to query the "),
                     XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(tableName.LocalName))),
-                    XmlText(" table.")
+                    XmlText(" table."),
                 ])
             );
     }
@@ -177,7 +177,7 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
                 [
                     XmlText("The "),
                     XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(columnName.LocalName))),
-                    XmlText(" column.")
+                    XmlText(" column."),
                 ])
             );
     }
@@ -411,7 +411,7 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
 
             var fkAttributeArgs = new List<AttributeArgumentSyntax>
             {
-                AttributeArgument(TypeOfExpression(ParseTypeName(parentClassName)))
+                AttributeArgument(TypeOfExpression(ParseTypeName(parentClassName))),
             };
 
             relationalKey.ChildKey.Name.IfSome(fkName =>
@@ -486,8 +486,8 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <param name="column">A column in the given table.</param>
-    /// <returns><c>true</c> if the column is a primary key column; otherwise, <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c> or <paramref name="column"/> is <c>null</c>.</exception>
+    /// <returns><see langword="true" /> if the column is a primary key column; otherwise, <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" /> or <paramref name="column"/> is <see langword="null" />.</exception>
     protected static bool ColumnIsPrimaryKey(IRelationalDatabaseTable table, IDatabaseColumn column)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -504,8 +504,8 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <param name="column">A column in the given table.</param>
-    /// <returns><c>true</c> if the column is a foreign key column; otherwise, <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c> or <paramref name="column"/> is <c>null</c>.</exception>
+    /// <returns><see langword="true" /> if the column is a foreign key column; otherwise, <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" /> or <paramref name="column"/> is <see langword="null" />.</exception>
     protected static bool ColumnIsForeignKey(IRelationalDatabaseTable table, IDatabaseColumn column)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -537,8 +537,8 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <param name="column">A column within the given table.</param>
-    /// <returns>A relational key, if available, otherwise <c>null</c>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="column"/> are <c>null</c>.</exception>
+    /// <returns>A relational key, if available, otherwise <see langword="null" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="column"/> are <see langword="null" />.</exception>
     protected static IDatabaseRelationalKey? ColumnRelationalKey(IRelationalDatabaseTable table, IDatabaseColumn column)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -570,8 +570,8 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <param name="column">A column in the given table.</param>
-    /// <returns><c>true</c> if the column is a non-unique index column; otherwise, <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c> or <paramref name="column"/> is <c>null</c>.</exception>
+    /// <returns><see langword="true" /> if the column is a non-unique index column; otherwise, <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" /> or <paramref name="column"/> is <see langword="null" />.</exception>
     protected static bool ColumnIsNonUniqueIndex(IRelationalDatabaseTable table, IDatabaseColumn column)
     {
         ArgumentNullException.ThrowIfNull(column);
@@ -604,8 +604,8 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <param name="column">A column in the given table.</param>
-    /// <returns><c>true</c> if the column is a unique index column; otherwise, <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c> or <paramref name="column"/> is <c>null</c>.</exception>
+    /// <returns><see langword="true" /> if the column is a unique index column; otherwise, <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" /> or <paramref name="column"/> is <see langword="null" />.</exception>
     protected static bool ColumnIsUniqueIndex(IRelationalDatabaseTable table, IDatabaseColumn column)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -639,8 +639,8 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <param name="column">A column in the given table.</param>
-    /// <returns><c>true</c> if the column is a unique key column; otherwise, <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c> or <paramref name="column"/> is <c>null</c>.</exception>
+    /// <returns><see langword="true" /> if the column is a unique key column; otherwise, <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" /> or <paramref name="column"/> is <see langword="null" />.</exception>
     protected static bool ColumnIsUniqueKey(IRelationalDatabaseTable table, IDatabaseColumn column)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -670,6 +670,6 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
         [ReferentialAction.Restrict] = "RESTRICT",
         [ReferentialAction.Cascade] = "CASCADE",
         [ReferentialAction.SetDefault] = "SET DEFAULT",
-        [ReferentialAction.SetNull] = "SET NULL"
+        [ReferentialAction.SetNull] = "SET NULL",
     };
 }

@@ -102,7 +102,7 @@ internal sealed class AssetExporter
         ".otf.woff2",
         ".ttf.woff2",
         ".css.gz",
-        ".js.gz"
+        ".js.gz",
     };
 
     private static readonly IFileProvider _fileProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly(), Assembly.GetExecutingAssembly().GetName().Name + ".assets");

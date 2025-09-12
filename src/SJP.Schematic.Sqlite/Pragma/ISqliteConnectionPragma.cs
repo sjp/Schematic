@@ -30,13 +30,13 @@ public interface ISqliteConnectionPragma
     /// Queries the automatic indexing capability.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if automatic indexing is enabled; otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if automatic indexing is enabled; otherwise <see langword="false" />.</returns>
     Task<bool> AutomaticIndexAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Sets the automatic indexing capability.
     /// </summary>
-    /// <param name="enable">if set to <c>true</c> enables automatic indexing.</param>
+    /// <param name="enable">if set to <see langword="true" /> enables automatic indexing.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     Task AutomaticIndexAsync(bool enable, CancellationToken cancellationToken = default);
@@ -68,7 +68,7 @@ public interface ISqliteConnectionPragma
     /// Retrieves whether cell size checking is enabled. When enabled, database corruption is detected earlier and is less likely to "spread". However, there is a small performance hit for doing the extra checks and so cell size checking is turned off by default.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if cell size checking is enabled; otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if cell size checking is enabled; otherwise <see langword="false" />.</returns>
     Task<bool> CellSizeCheckAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -83,13 +83,13 @@ public interface ISqliteConnectionPragma
     /// Query or change the fullfsync flag for checkpoint operations.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if the fullfsync flag is enabled; otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if the fullfsync flag is enabled; otherwise <see langword="false" />.</returns>
     Task<bool> CheckpointFullFsyncAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Change the fullfsync flag for checkpoint operations.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, the flag must be enabled.</param>
+    /// <param name="enable">If <see langword="true" />, the flag must be enabled.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     Task CheckpointFullFsyncAsync(bool enable, CancellationToken cancellationToken = default);
@@ -133,13 +133,13 @@ public interface ISqliteConnectionPragma
     /// Queries whether <c>defer_foreign_keys</c> <c>PRAGMA</c> is on. When enabled, enforcement of all foreign key constraints is delayed until the outermost transaction is committed.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if deferring of foreign key constraints is enabled; otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if deferring of foreign key constraints is enabled; otherwise <see langword="false" />.</returns>
     Task<bool> DeferForeignKeysAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Sets the <c>defer_foreign_keys</c> <c>PRAGMA</c>. When enabled, enforcement of all foreign key constraints is delayed until the outermost transaction is committed.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, enabled deferring of foreign key enforcement.</param>
+    /// <param name="enable">If <see langword="true" />, enabled deferring of foreign key enforcement.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     Task DeferForeignKeysAsync(bool enable, CancellationToken cancellationToken = default);
@@ -163,13 +163,13 @@ public interface ISqliteConnectionPragma
     /// Queries whether foreign key constraints are enforced.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if foreign key constraints are enforced; otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if foreign key constraints are enforced; otherwise <see langword="false" />.</returns>
     Task<bool> ForeignKeysAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Enables or disables enforcement of foreign key constraints.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, foreign key constraints should be enforced.</param>
+    /// <param name="enable">If <see langword="true" />, foreign key constraints should be enforced.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     Task ForeignKeysAsync(bool enable, CancellationToken cancellationToken = default);
@@ -178,13 +178,13 @@ public interface ISqliteConnectionPragma
     /// Query the fullfsync flag.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if the fullfsync flag is enabled; otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if the fullfsync flag is enabled; otherwise <see langword="false" />.</returns>
     Task<bool> FullFsyncAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Change the fullfsync flag.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, sets the fullfsync flag to <c>true</c>.</param>
+    /// <param name="enable">If <see langword="true" />, sets the fullfsync flag to <see langword="true" />.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     Task FullFsyncAsync(bool enable, CancellationToken cancellationToken = default);
@@ -199,7 +199,7 @@ public interface ISqliteConnectionPragma
     /// <summary>
     /// Enables or disables the enforcement of <c>CHECK</c> constraints.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, disables enforcement of <c>CHECK</c> constraints.</param>
+    /// <param name="enable">If <see langword="true" />, disables enforcement of <c>CHECK</c> constraints.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     Task IgnoreCheckConstraintsAsync(bool enable, CancellationToken cancellationToken = default);
@@ -208,13 +208,13 @@ public interface ISqliteConnectionPragma
     /// Queries the value of the <c>legacy_alter_table</c> flag.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if the <c>ALTER TABLE</c> behaviour works as it did in v3.24.0 and earlier.</returns>
+    /// <returns><see langword="true" /> if the <c>ALTER TABLE</c> behaviour works as it did in v3.24.0 and earlier.</returns>
     Task<bool> LegacyAlterTableAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Sets the value of the <c>legacy_alter_table</c> flag.
     /// </summary>
-    /// <param name="enable">If set to <c>true</c> the <c>ALTER TABLE</c> behaviour will work as it did in v3.24.0 and earlier.</param>
+    /// <param name="enable">If set to <see langword="true" /> the <c>ALTER TABLE</c> behaviour will work as it did in v3.24.0 and earlier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     Task LegacyAlterTableAsync(bool enable, CancellationToken cancellationToken = default);
@@ -244,13 +244,13 @@ public interface ISqliteConnectionPragma
     /// Determines whether the database can only be queried and not mutated.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if the database is read-only; otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if the database is read-only; otherwise <see langword="false" />.</returns>
     Task<bool> QueryOnlyAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Prevent all changes to database files when enabled, ensuring only queries are enabled.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, only read-only queries may be run.</param>
+    /// <param name="enable">If <see langword="true" />, only read-only queries may be run.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     Task QueryOnlyAsync(bool enable, CancellationToken cancellationToken = default);
@@ -259,13 +259,13 @@ public interface ISqliteConnectionPragma
     /// Query the <c>READ UNCOMMITTED</c> transaction isolation level. The default isolation level for SQLite is <c>SERIALIZABLE</c>.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if the isolation level is <c>READ UNCOMMITTED</c>.</returns>
+    /// <returns><see langword="true" /> if the isolation level is <c>READ UNCOMMITTED</c>.</returns>
     Task<bool> ReadUncommittedAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Set the <c>READ UNCOMMITTED</c> transaction isolation level. The default isolation level for SQLite is <c>SERIALIZABLE</c>.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, sets the isolation level to <c>READ UNCOMMITTED</c>.</param>
+    /// <param name="enable">If <see langword="true" />, sets the isolation level to <c>READ UNCOMMITTED</c>.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     Task ReadUncommittedAsync(bool enable, CancellationToken cancellationToken = default);
@@ -274,13 +274,13 @@ public interface ISqliteConnectionPragma
     /// Query the recursive trigger capability.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if recursive triggers are enabled; otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if recursive triggers are enabled; otherwise <see langword="false" />.</returns>
     Task<bool> RecursiveTriggersAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Set, or clear the recursive trigger capability.
     /// </summary>
-    /// <param name="enable">If set to <c>true</c> recursive triggers are enabled.</param>
+    /// <param name="enable">If set to <see langword="true" /> recursive triggers are enabled.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     Task RecursiveTriggersAsync(bool enable, CancellationToken cancellationToken = default);
@@ -289,13 +289,13 @@ public interface ISqliteConnectionPragma
     /// Queries whether statements missing an <c>ORDER BY</c> emit results in reverse order.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>If <c>true</c>, unordered <c>SELECT</c> queries are returned in reverse order; otherwise <c>false</c>.</returns>
+    /// <returns>If <see langword="true" />, unordered <c>SELECT</c> queries are returned in reverse order; otherwise <see langword="false" />.</returns>
     Task<bool> ReverseUnorderedSelectsAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Sets whether statements missing an <c>ORDER BY</c> emit results in reverse order.
     /// </summary>
-    /// <param name="enable">If <c>true</c>, unordered <c>SELECT</c> queries are returned in reverse order.</param>
+    /// <param name="enable">If <see langword="true" />, unordered <c>SELECT</c> queries are returned in reverse order.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     Task ReverseUnorderedSelectsAsync(bool enable, CancellationToken cancellationToken = default);
@@ -378,13 +378,13 @@ public interface ISqliteConnectionPragma
     /// Queries whether the <c>sqlite_master</c> table can be changed using ordinary <c>UPDATE</c>, <c>INSERT</c>, and <c>DELETE</c> statements.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><c>true</c> if the <c>sqlite_master</c> is able to be modified directly; otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if the <c>sqlite_master</c> is able to be modified directly; otherwise <see langword="false" />.</returns>
     Task<bool> WritableSchemaAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Sets whether the <c>sqlite_master</c> table can be changed using ordinary <c>UPDATE</c>, <c>INSERT</c>, and <c>DELETE</c> statements.
     /// </summary>
-    /// <param name="enable">If <c>true</c> enables the <c>sqlite_master</c> to be modified directly.</param>
+    /// <param name="enable">If <see langword="true" /> enables the <c>sqlite_master</c> to be modified directly.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task indicating the completion of this query.</returns>
     Task WritableSchemaAsync(bool enable, CancellationToken cancellationToken = default);

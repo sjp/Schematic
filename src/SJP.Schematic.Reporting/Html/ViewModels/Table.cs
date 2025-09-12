@@ -332,7 +332,7 @@ public sealed class Table : ITemplateParameter
             [ReferentialAction.Restrict] = "RESTRICT",
             [ReferentialAction.Cascade] = "CASCADE",
             [ReferentialAction.SetDefault] = "SET DEFAULT",
-            [ReferentialAction.SetNull] = "SET NULL"
+            [ReferentialAction.SetNull] = "SET NULL",
         };
     }
 
@@ -440,14 +440,14 @@ public sealed class Table : ITemplateParameter
         {
             [TriggerQueryTiming.After] = "AFTER",
             [TriggerQueryTiming.Before] = "BEFORE",
-            [TriggerQueryTiming.InsteadOf] = "INSTEAD OF"
+            [TriggerQueryTiming.InsteadOf] = "INSTEAD OF",
         };
 
         private static readonly IReadOnlyDictionary<TriggerEvent, string> EventDescriptions = new Dictionary<TriggerEvent, string>
         {
             [TriggerEvent.Delete] = "DELETE",
             [TriggerEvent.Insert] = "INSERT",
-            [TriggerEvent.Update] = "UPDATE"
+            [TriggerEvent.Update] = "UPDATE",
         };
     }
 

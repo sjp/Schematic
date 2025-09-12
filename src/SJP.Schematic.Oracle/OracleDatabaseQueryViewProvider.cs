@@ -23,7 +23,7 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
     /// <param name="connection">A schematic connection.</param>
     /// <param name="identifierDefaults">Database identifier defaults.</param>
     /// <param name="identifierResolver">An identifier resolver.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <see langword="null" />.</exception>
     public OracleDatabaseQueryViewProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -80,7 +80,7 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A database view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database view in the 'some' state if found; otherwise 'none'.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -95,7 +95,7 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A view name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected OptionAsync<Identifier> GetResolvedViewName(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -115,7 +115,7 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A view name that will be resolved.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A view name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected OptionAsync<Identifier> GetResolvedViewNameStrict(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -136,7 +136,7 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A view definition, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -162,7 +162,7 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A string representing the definition of a view.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected Task<string?> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -180,7 +180,7 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An ordered collection of columns.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -214,7 +214,7 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
                 MaxLength = row.DataLength,
                 NumericPrecision = row.Precision > 0 || row.Scale > 0
                     ? Option<INumericPrecision>.Some(new NumericPrecision(row.Precision, row.Scale))
-                    : Option<INumericPrecision>.None
+                    : Option<INumericPrecision>.None,
             };
             var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
@@ -239,7 +239,7 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
     /// <param name="columnNames">The column names for the given view.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of not-null constrained column names.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> or <paramref name="columnNames"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> or <paramref name="columnNames"/> are <see langword="null" />.</exception>
     protected Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsync(Identifier viewName, IEnumerable<string> columnNames, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -276,7 +276,7 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="columnName">A column name.</param>
     /// <returns>A <c>NOT NULL</c> constraint definition for the given column.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <see langword="null" />, empty or whitespace.</exception>
     protected static string GenerateNotNullDefinition(string columnName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
@@ -289,7 +289,7 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="viewName">A view name.</param>
     /// <returns>A view name is at least as qualified as the given view name.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     protected Identifier QualifyViewName(Identifier viewName)
     {
         ArgumentNullException.ThrowIfNull(viewName);

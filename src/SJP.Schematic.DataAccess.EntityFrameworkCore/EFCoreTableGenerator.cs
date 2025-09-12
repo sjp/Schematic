@@ -32,7 +32,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
     /// <param name="fileSystem">A file system.</param>
     /// <param name="nameTranslator">The name translator.</param>
     /// <param name="baseNamespace">The base namespace.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="baseNamespace"/> is <c>null</c>, empty, or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="baseNamespace"/> is <see langword="null" />, empty, or whitespace.</exception>
     public EFCoreTableGenerator(IFileSystem fileSystem, INameTranslator nameTranslator, string baseNamespace)
         : base(fileSystem, nameTranslator)
     {
@@ -70,7 +70,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
     /// <param name="table">A database table.</param>
     /// <param name="comment">Comment information for the given table.</param>
     /// <returns>A string containing source code to interact with the table.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tables"/> or <paramref name="table"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tables"/> or <paramref name="table"/> is <see langword="null" />.</exception>
     public override string Generate(IReadOnlyCollection<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
     {
         ArgumentNullException.ThrowIfNull(tables);
@@ -89,7 +89,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
             [
                 "System.Collections.Generic",
                 "System.ComponentModel.DataAnnotations",
-                "System.ComponentModel.DataAnnotations.Schema"
+                "System.ComponentModel.DataAnnotations.Schema",
             ], StringComparer.Ordinal)
             .Distinct(StringComparer.Ordinal)
             .OrderNamespaces()
@@ -301,7 +301,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
                 [
                     XmlText("A mapping class to query the "),
                     XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(tableName.LocalName))),
-                    XmlText(" table.")
+                    XmlText(" table."),
                 ])
             );
     }
@@ -318,7 +318,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
                 [
                     XmlText("The "),
                     XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(columnName.LocalName))),
-                    XmlText(" column.")
+                    XmlText(" column."),
                 ])
             );
     }
@@ -351,7 +351,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
                         XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(relationalKey.ChildTable.LocalName))),
                         XmlText(" to "),
                         XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(relationalKey.ParentTable.LocalName))),
-                        XmlText(".")
+                        XmlText("."),
                     ]);
                 }
             );
@@ -375,7 +375,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
             XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(relationalKey.ParentTable.LocalName))),
             XmlText(" to "),
             XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(relationalKey.ChildTable.LocalName))),
-            XmlText(".")
+            XmlText("."),
         ]);
     }
 
@@ -393,7 +393,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
                 AttributeArgument(
                     LiteralExpression(
                         SyntaxKind.StringLiteralExpression,
-                        Literal(table.Name.LocalName)))
+                        Literal(table.Name.LocalName))),
             };
 
             var schemaName = table.Name.Schema;
@@ -529,7 +529,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
         if (uniqueIndexes.Count == 0)
             return false;
 
-        return uniqueIndexes.Any(i =>
+        return uniqueIndexes.Exists(i =>
         {
             var indexColumnExpressions = i.Columns
                 .Select(ic => ic.DependentColumns.Select(dc => dc.Name.LocalName).FirstOrDefault() ?? ic.Expression)

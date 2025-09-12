@@ -26,7 +26,7 @@ public class EFCoreDbContextBuilder
     /// </summary>
     /// <param name="nameTranslator">A name translator.</param>
     /// <param name="baseNamespace">The base namespace.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="nameTranslator"/> is <c>null</c>, or <paramref name="baseNamespace"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="nameTranslator"/> is <see langword="null" />, or <paramref name="baseNamespace"/> is <see langword="null" />, empty or whitespace.</exception>
     public EFCoreDbContextBuilder(INameTranslator nameTranslator, string baseNamespace)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(baseNamespace);
@@ -54,7 +54,7 @@ public class EFCoreDbContextBuilder
     /// <param name="views">A collection of views in the database.</param>
     /// <param name="sequences">A collection of sequences in the database.</param>
     /// <returns>A string of source code that represents a <see cref="DbContext"/> definition.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tables"/>, <paramref name="views"/>, or <paramref name="sequences"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tables"/>, <paramref name="views"/>, or <paramref name="sequences"/> is <see langword="null" />.</exception>
     public string Generate(IEnumerable<IRelationalDatabaseTable> tables, IEnumerable<IDatabaseView> views, IEnumerable<IDatabaseSequence> sequences)
     {
         ArgumentNullException.ThrowIfNull(tables);
@@ -86,7 +86,7 @@ public class EFCoreDbContextBuilder
     private static readonly IEnumerable<string> Namespaces = new[]
         {
             SystemNamespace,
-            EfCoreNamespace
+            EfCoreNamespace,
         }
         .OrderNamespaces()
         .ToList();
@@ -191,7 +191,7 @@ public class EFCoreDbContextBuilder
         [
             XmlText("Accesses the "),
             XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(targetName))),
-            XmlText(" " + objectType + ".")
+            XmlText(" " + objectType + "."),
         ]);
     }
 
@@ -633,7 +633,7 @@ public class EFCoreDbContextBuilder
             Argument(
                 LiteralExpression(
                     SyntaxKind.StringLiteralExpression,
-                    Literal(view.Name.LocalName)))
+                    Literal(view.Name.LocalName))),
         };
         if (!view.Name.Schema.IsNullOrWhiteSpace())
         {
@@ -663,7 +663,7 @@ public class EFCoreDbContextBuilder
             Argument(
                 LiteralExpression(
                     SyntaxKind.StringLiteralExpression,
-                    Literal(sequence.Name.LocalName)))
+                    Literal(sequence.Name.LocalName))),
         };
         if (!sequence.Name.Schema.IsNullOrWhiteSpace())
         {

@@ -21,7 +21,7 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// </summary>
     /// <param name="connection">A database connection.</param>
     /// <param name="identifierDefaults">Identifier defaults for the associated database.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> are <see langword="null" />.</exception>
     public MySqlDatabaseRoutineProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -69,7 +69,7 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <param name="routineName">A database routine name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database routine in the 'some' state if found; otherwise 'none'.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseRoutine> GetRoutine(Identifier routineName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(routineName);
@@ -84,7 +84,7 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <param name="routineName">A routine name that will be resolved.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A routine name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <see langword="null" />.</exception>
     protected OptionAsync<Identifier> GetResolvedRoutineName(Identifier routineName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(routineName);
@@ -105,7 +105,7 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <param name="routineName">A routine name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database routine, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <see langword="null" />.</exception>
     protected OptionAsync<IDatabaseRoutine> LoadRoutine(Identifier routineName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(routineName);
@@ -127,7 +127,7 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <param name="routineName">A routine name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A routine definition.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <see langword="null" />.</exception>
     protected Task<string?> LoadDefinitionAsync(Identifier routineName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(routineName);
@@ -149,7 +149,7 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// </summary>
     /// <param name="routineName">A routine name to qualify.</param>
     /// <returns>A routine name that is at least as qualified as its input.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <see langword="null" />.</exception>
     protected Identifier QualifyRoutineName(Identifier routineName)
     {
         ArgumentNullException.ThrowIfNull(routineName);

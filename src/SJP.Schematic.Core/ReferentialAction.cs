@@ -29,5 +29,5 @@ public enum ReferentialAction
     /// <summary>
     /// Set a default value on the constrained rows so that the constraint is not violated after the action completes.
     /// </summary>
-    SetDefault
+    SetDefault,
 }

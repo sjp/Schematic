@@ -51,7 +51,7 @@ internal sealed class RedundantIndexesRuleTests : SqliteTest
 
         var tables = new[]
         {
-            await database.GetTable("valid_table_1").UnwrapSomeAsync().ConfigureAwait(false)
+            await database.GetTable("valid_table_1").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
         var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
@@ -67,7 +67,7 @@ internal sealed class RedundantIndexesRuleTests : SqliteTest
 
         var tables = new[]
         {
-            await database.GetTable("valid_table_2").UnwrapSomeAsync().ConfigureAwait(false)
+            await database.GetTable("valid_table_2").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
         var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
@@ -83,7 +83,7 @@ internal sealed class RedundantIndexesRuleTests : SqliteTest
 
         var tables = new[]
         {
-            await database.GetTable("valid_table_3").UnwrapSomeAsync().ConfigureAwait(false)
+            await database.GetTable("valid_table_3").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
         var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);

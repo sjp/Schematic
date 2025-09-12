@@ -23,7 +23,7 @@ public class MySqlDatabaseKey : IDatabaseKey
     /// <param name="name">The key constraint name.</param>
     /// <param name="keyType">Type of the key constraint.</param>
     /// <param name="columns">A collection of table columns.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="columns"/> is <c>null</c>. Alternatively, if <paramref name="columns"/> is empty or has <c>null</c> values.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="columns"/> is <see langword="null" />. Alternatively, if <paramref name="columns"/> is empty or has <see langword="null" /> values.</exception>
     /// <exception cref="ArgumentException"><paramref name="keyType"/> is not a valid enum.</exception>
     public MySqlDatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns)
     {
@@ -57,9 +57,9 @@ public class MySqlDatabaseKey : IDatabaseKey
     public IReadOnlyCollection<IDatabaseColumn> Columns { get; }
 
     /// <summary>
-    /// Indicates whether this instance is enabled. Always <c>true</c>.
+    /// Indicates whether this instance is enabled. Always <see langword="true" />.
     /// </summary>
-    /// <value>Always <c>true</c>.</value>
+    /// <value>Always <see langword="true" />.</value>
     public bool IsEnabled { get; } = true;
 
     /// <summary>

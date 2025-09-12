@@ -214,7 +214,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
         {
             new Identifier("TEST_COLUMN_1"),
             new Identifier("TEST_COLUMN_2"),
-            new Identifier("TEST_COLUMN_3")
+            new Identifier("TEST_COLUMN_3"),
         };
         var comments = await GetTableCommentsAsync("TABLE_COMMENT_TABLE_2").ConfigureAwait(false);
 
@@ -228,7 +228,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
         {
             true,
             false,
-            true
+            true,
         };
         var comments = await GetTableCommentsAsync("TABLE_COMMENT_TABLE_2").ConfigureAwait(false);
 

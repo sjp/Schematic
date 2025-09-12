@@ -161,7 +161,7 @@ create table test_table_9 (
             await GetTable("test_table_6").ConfigureAwait(false),
             await GetTable("test_table_7").ConfigureAwait(false),
             await GetTable("test_table_8").ConfigureAwait(false),
-            await GetTable("test_table_9").ConfigureAwait(false)
+            await GetTable("test_table_9").ConfigureAwait(false),
         };
 
         var result = Formatter.RenderTables(tables);

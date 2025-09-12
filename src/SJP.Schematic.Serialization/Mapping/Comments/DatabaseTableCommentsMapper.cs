@@ -44,7 +44,7 @@ public class DatabaseTableCommentsMapper
             UniqueKeyComments = AsDtoCommentLookup(source.UniqueKeyComments),
             ForeignKeyComments = AsDtoCommentLookup(source.ForeignKeyComments),
             IndexComments = AsDtoCommentLookup(source.IndexComments),
-            TriggerComments = AsDtoCommentLookup(source.TriggerComments)
+            TriggerComments = AsDtoCommentLookup(source.TriggerComments),
         };
     }
 

@@ -324,7 +324,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
         {
             "table_test_table_34",
             "table_test_table_35",
-            "table_test_table_36"
+            "table_test_table_36",
         };
 
         var table = await GetTableAsync("table_test_table_35").ConfigureAwait(false);

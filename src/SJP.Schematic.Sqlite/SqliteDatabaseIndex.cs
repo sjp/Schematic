@@ -21,11 +21,11 @@ public class SqliteDatabaseIndex : IDatabaseIndex
     /// Initializes a new instance of the <see cref="SqliteDatabaseIndex"/> class.
     /// </summary>
     /// <param name="name">The index name.</param>
-    /// <param name="isUnique">If set to <c>true</c>, the index is unique.</param>
+    /// <param name="isUnique">If set to <see langword="true" />, the index is unique.</param>
     /// <param name="columns">The index key columns.</param>
     /// <param name="includedColumns">The index's included columns, available once the key columns are searched.</param>
     /// <param name="filterDefinition">The definition, if present, for the subset of rows the index applies to</param>
-    /// <exception cref="ArgumentNullException"><paramref name="columns"/>, <paramref name="includedColumns"/> or <paramref name="name"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="columns"/>, <paramref name="includedColumns"/> or <paramref name="name"/> is <see langword="null" />.</exception>
     public SqliteDatabaseIndex(Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseColumn> includedColumns, Option<string> filterDefinition)
     {
         ArgumentNullException.ThrowIfNull(name);
@@ -52,7 +52,7 @@ public class SqliteDatabaseIndex : IDatabaseIndex
     /// <summary>
     /// Indicates whether covered index columns must be unique across the index column set.
     /// </summary>
-    /// <value><c>true</c> if the index column set must have unique values; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true" /> if the index column set must have unique values; otherwise, <see langword="false" />.</value>
     public bool IsUnique { get; }
 
     /// <summary>
@@ -70,7 +70,7 @@ public class SqliteDatabaseIndex : IDatabaseIndex
     /// <summary>
     /// Indicates whether this instance is enabled.
     /// </summary>
-    /// <value>Always <c>true</c>.</value>
+    /// <value>Always <see langword="true" />.</value>
     public bool IsEnabled { get; } = true;
 
     /// <summary>

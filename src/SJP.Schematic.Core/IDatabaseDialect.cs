@@ -28,7 +28,7 @@ public interface IDatabaseDialect
     /// Determines whether the given text is a reserved keyword.
     /// </summary>
     /// <param name="text">A piece of text.</param>
-    /// <returns><c>true</c> if the given text is a reserved keyword; otherwise, <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if the given text is a reserved keyword; otherwise, <see langword="false" />.</returns>
     bool IsReservedKeyword(string text);
 
     /// <summary>

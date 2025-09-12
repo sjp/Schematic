@@ -175,7 +175,7 @@ public sealed class Constraints : ITemplateParameter
             [ReferentialAction.Restrict] = "RESTRICT",
             [ReferentialAction.Cascade] = "CASCADE",
             [ReferentialAction.SetDefault] = "SET DEFAULT",
-            [ReferentialAction.SetNull] = "SET NULL"
+            [ReferentialAction.SetNull] = "SET NULL",
         };
     }
 

@@ -23,7 +23,7 @@ public class PostgreSqlDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// <param name="connection">A schematic connection.</param>
     /// <param name="identifierDefaults">Database identifier defaults.</param>
     /// <param name="identifierResolver">An identifier resolver.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> are <see langword="null" />.</exception>
     public PostgreSqlDatabaseSequenceProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -86,7 +86,7 @@ public class PostgreSqlDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// <param name="sequenceName">A database sequence name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database sequence in the 'some' state if found; otherwise 'none'.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
@@ -102,7 +102,7 @@ public class PostgreSqlDatabaseSequenceProvider : IDatabaseSequenceProvider
 
         var factories = new Dictionary<Version, Func<IDatabaseSequenceProvider>>
         {
-            [new Version(10, 0)] = () => new PostgreSqlDatabaseSequenceProviderBase(DbConnection, IdentifierDefaults, IdentifierResolver)
+            [new Version(10, 0)] = () => new PostgreSqlDatabaseSequenceProviderBase(DbConnection, IdentifierDefaults, IdentifierResolver),
         };
         var versionLookup = new VersionResolvingFactory<IDatabaseSequenceProvider>(factories);
         var result = versionLookup.GetValue(version);

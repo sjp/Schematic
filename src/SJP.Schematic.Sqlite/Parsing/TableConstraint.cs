@@ -16,7 +16,7 @@ internal abstract class TableConstraint
         PrimaryKey,
         UniqueKey,
         ForeignKey,
-        Check
+        Check,
     }
 
     protected TableConstraint(TableConstraintType constraintType)

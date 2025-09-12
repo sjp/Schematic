@@ -31,7 +31,7 @@ public class DatabaseViewCommentsMapper
         {
             ViewName = identifierMapper.Map(source.ViewName),
             Comment = optionMapper.Map(source.Comment),
-            ColumnComments = AsDtoCommentLookup(source.ColumnComments)
+            ColumnComments = AsDtoCommentLookup(source.ColumnComments),
         };
     }
 

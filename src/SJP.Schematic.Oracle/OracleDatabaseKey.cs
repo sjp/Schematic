@@ -24,7 +24,7 @@ public class OracleDatabaseKey : IDatabaseKey
     /// <param name="keyType">Type of the key constraint.</param>
     /// <param name="columns">A collection of table columns.</param>
     /// <param name="isEnabled">If true, the constraint is currently enabled.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="columns"/> is <c>null</c>. Alternatively, if <paramref name="columns"/> is empty or has <c>null</c> values.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="columns"/> is <see langword="null" />. Alternatively, if <paramref name="columns"/> is empty or has <see langword="null" /> values.</exception>
     /// <exception cref="ArgumentException"><paramref name="keyType"/> is not a valid enum.</exception>
     public OracleDatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, bool isEnabled)
     {
@@ -61,7 +61,7 @@ public class OracleDatabaseKey : IDatabaseKey
     /// <summary>
     /// Indicates whether this database key is enabled.
     /// </summary>
-    /// <value><c>true</c> if this constraint is enabled; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true" /> if this constraint is enabled; otherwise, <see langword="false" />.</value>
     public bool IsEnabled { get; }
 
     /// <summary>

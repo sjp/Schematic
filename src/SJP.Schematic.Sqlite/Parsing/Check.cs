@@ -17,7 +17,7 @@ public class Check
     /// </summary>
     /// <param name="constraintName">A parsed constraint name.</param>
     /// <param name="definition">The check definition.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <c>null</c>, or has no tokens.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <see langword="null" />, or has no tokens.</exception>
     public Check(Option<string> constraintName, IEnumerable<Token<SqliteToken>> definition)
     {
         if (definition.NullOrEmpty())

@@ -30,7 +30,7 @@ public class RelationalDatabaseTable : IRelationalDatabaseTable
     /// <param name="triggers">The triggers.</param>
     /// <exception cref="ArgumentNullException">
     /// <paramref name="tableName"/> or <paramref name="columns"/> or <paramref name="uniqueKeys"/> or <paramref name="parentKeys"/> or <paramref name="childKeys"/> or <paramref name="indexes"/> or <paramref name="checks"/> or <paramref name="triggers"/>.
-    /// If a given collection contains a <c>null</c> value, an <see cref="ArgumentNullException"/> will also be thrown.
+    /// If a given collection contains a <see langword="null" /> value, an <see cref="ArgumentNullException"/> will also be thrown.
     /// </exception>
     /// <exception cref="ArgumentException">When given key with mismatching key types, e.g. primary key or unique keys.</exception>
     public RelationalDatabaseTable(

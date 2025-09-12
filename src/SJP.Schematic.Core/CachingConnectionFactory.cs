@@ -21,7 +21,7 @@ public sealed class CachingConnectionFactory : IDbConnectionFactory
     /// Initializes a new instance of the <see cref="CachingConnectionFactory"/> class.
     /// </summary>
     /// <param name="connectionFactory">A connection factory.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <see langword="null" />.</exception>
     public CachingConnectionFactory(IDbConnectionFactory connectionFactory)
     {
         _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
@@ -78,7 +78,7 @@ public sealed class CachingConnectionFactory : IDbConnectionFactory
     /// <summary>
     /// Indicates whether the resulting connection should automatically be disposed.
     /// </summary>
-    /// <value>Always <c>false</c>.</value>
+    /// <value>Always <see langword="false" />.</value>
     /// <remarks>Not intended to be used directly, used for internals.</remarks>
     public bool DisposeConnection { get; }
 

@@ -17,7 +17,7 @@ public interface IDatabaseSequence : IDatabaseEntity
     /// <summary>
     /// Determines whether the values in the sequence can cycle. When cycling is configured, a sequence can generate duplicate values.
     /// </summary>
-    /// <value><c>true</c> if the sequence can cycle; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true" /> if the sequence can cycle; otherwise, <see langword="false" />.</value>
     bool Cycle { get; }
 
     /// <summary>

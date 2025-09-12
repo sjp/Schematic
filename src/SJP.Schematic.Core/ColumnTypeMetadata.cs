@@ -23,7 +23,7 @@ public class ColumnTypeMetadata
     /// <summary>
     /// Gets or sets a value indicating whether the column type has a fixed length.
     /// </summary>
-    /// <value><c>true</c> if this type has fixed length; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true" /> if this type has fixed length; otherwise, <see langword="false" />.</value>
     public bool IsFixedLength { get; set; }
 
     /// <summary>

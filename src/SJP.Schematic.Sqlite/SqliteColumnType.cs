@@ -73,7 +73,7 @@ public class SqliteColumnType : IDbType
     /// <summary>
     /// Gets a value indicating whether this data type has fixed length.
     /// </summary>
-    /// <value><c>true</c> if this instance has a fixed length; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true" /> if this instance has a fixed length; otherwise, <see langword="false" />.</value>
     public bool IsFixedLength { get; }
 
     /// <summary>
@@ -106,7 +106,7 @@ public class SqliteColumnType : IDbType
         [SqliteTypeAffinity.Integer] = DataType.BigInteger,
         [SqliteTypeAffinity.Numeric] = DataType.Numeric,
         [SqliteTypeAffinity.Real] = DataType.Float,
-        [SqliteTypeAffinity.Text] = DataType.UnicodeText
+        [SqliteTypeAffinity.Text] = DataType.UnicodeText,
     };
 
     private readonly IReadOnlyDictionary<SqliteTypeAffinity, Type> _affinityClrTypeMap = new Dictionary<SqliteTypeAffinity, Type>
@@ -115,6 +115,6 @@ public class SqliteColumnType : IDbType
         [SqliteTypeAffinity.Integer] = typeof(long),
         [SqliteTypeAffinity.Numeric] = typeof(decimal),
         [SqliteTypeAffinity.Real] = typeof(double),
-        [SqliteTypeAffinity.Text] = typeof(string)
+        [SqliteTypeAffinity.Text] = typeof(string),
     };
 }

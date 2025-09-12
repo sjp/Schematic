@@ -23,7 +23,7 @@ public enum DataType
     Binary,
 
     /// <summary>
-    /// A boolean data type, intended to store only <c>true</c> or <c>false</c> data.
+    /// A boolean data type, intended to store only <see langword="true" /> or <see langword="false" /> data.
     /// </summary>
     Boolean,
 
@@ -95,5 +95,5 @@ public enum DataType
     /// <summary>
     /// Stores data that are unique identifiers, e.g. <see cref="Guid"/> values.
     /// </summary>
-    UniqueIdentifier
+    UniqueIdentifier,
 }

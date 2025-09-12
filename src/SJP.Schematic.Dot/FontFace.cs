@@ -4,5 +4,5 @@ internal enum FontFace
 {
     Times,
     Courier,
-    Helvetica
+    Helvetica,
 }

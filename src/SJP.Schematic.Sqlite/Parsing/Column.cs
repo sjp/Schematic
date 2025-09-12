@@ -16,13 +16,13 @@ public class Column
     /// </summary>
     /// <param name="columnName">The column name.</param>
     /// <param name="typeDefinition">The type definition.</param>
-    /// <param name="nullable">If set to <c>true</c> indicates the column is nullable.</param>
-    /// <param name="autoIncrement">If set to <c>true</c> the column automatically increments.</param>
+    /// <param name="nullable">If set to <see langword="true" /> indicates the column is nullable.</param>
+    /// <param name="autoIncrement">If set to <see langword="true" /> the column automatically increments.</param>
     /// <param name="collation">The column collation.</param>
     /// <param name="defaultValue">The default value.</param>
     /// <param name="computedDefinition">The computed definition.</param>
     /// <param name="computedColumnType">The computed column type.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <see langword="null" />, empty or whitespace.</exception>
     /// <exception cref="ArgumentException"><paramref name="collation"/> or <paramref name="computedColumnType"/> are invalid enum values.</exception>
     public Column(
         string columnName,
@@ -66,13 +66,13 @@ public class Column
     /// <summary>
     /// Gets a value indicating whether this <see cref="Column"/> is nullable.
     /// </summary>
-    /// <value><c>true</c> if nullable; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true" /> if nullable; otherwise, <see langword="false" />.</value>
     public bool Nullable { get; }
 
     /// <summary>
     /// Gets a value indicating whether this <see cref="Column"/> has an automatic increment applied to it.
     /// </summary>
-    /// <value><c>true</c> if this instance is automatically incrementing; otherwise, <c>false</c>.</value>
+    /// <value><see langword="true" /> if this instance is automatically incrementing; otherwise, <see langword="false" />.</value>
     public bool IsAutoIncrement { get; }
 
     /// <summary>

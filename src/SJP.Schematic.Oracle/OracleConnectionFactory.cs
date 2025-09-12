@@ -19,7 +19,7 @@ public class OracleConnectionFactory : IDbConnectionFactory
     /// Initializes a new instance of the <see cref="OracleConnectionFactory"/> class.
     /// </summary>
     /// <param name="connectionString">The connection string.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionString"/> is <c>null</c>, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionString"/> is <see langword="null" />, empty or whitespace.</exception>
     public OracleConnectionFactory(string connectionString)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
@@ -71,7 +71,7 @@ public class OracleConnectionFactory : IDbConnectionFactory
     /// <summary>
     /// Determines whether connections retrieved from this factory should be disposed.
     /// </summary>
-    /// <value>Always <c>true</c>.</value>
+    /// <value>Always <see langword="true" />.</value>
     public bool DisposeConnection { get; } = true;
 
     /// <summary>

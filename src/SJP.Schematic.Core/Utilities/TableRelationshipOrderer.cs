@@ -15,7 +15,7 @@ public class TableRelationshipOrderer
     /// </summary>
     /// <param name="tables">The tables.</param>
     /// <returns>An ordered set of tables, where the tables at the head of the collection should be deleted from before tables at the tail of the collection.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" />.</exception>
     public IReadOnlyCollection<Identifier> GetDeletionOrder(IEnumerable<IRelationalDatabaseTable> tables)
     {
         ArgumentNullException.ThrowIfNull(tables);
@@ -42,7 +42,7 @@ public class TableRelationshipOrderer
     /// </summary>
     /// <param name="tables">The tables.</param>
     /// <returns>An ordered set of tables, where the tables at the head of the collection should be inserted into before tables at the tail of the collection.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" />.</exception>
     public IReadOnlyCollection<Identifier> GetInsertionOrder(IEnumerable<IRelationalDatabaseTable> tables)
     {
         ArgumentNullException.ThrowIfNull(tables);

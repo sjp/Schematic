@@ -21,7 +21,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : PostgreSqlRelationalDat
     /// <param name="connection">A schematic connection.</param>
     /// <param name="identifierDefaults">Database identifier defaults.</param>
     /// <param name="identifierResolver">A database identifier resolver.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <see langword="null" />.</exception>
     public PostgreSqlRelationalDatabaseTableProvider(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, IIdentifierResolutionStrategy identifierResolver)
         : base(connection, identifierDefaults, identifierResolver)
     {
@@ -34,7 +34,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : PostgreSqlRelationalDat
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of indexes.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
     protected override Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsync(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -61,7 +61,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : PostgreSqlRelationalDat
                 row.IsUnique,
                 row.IsPrimary,
                 row.FilterDefinition,
-                row.KeyColumnCount
+                row.KeyColumnCount,
             })
             .ToList();
         if (indexColumns.Empty())
@@ -89,7 +89,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : PostgreSqlRelationalDat
                     Expression = row.IndexColumnExpression,
                     Column = row.IndexColumnExpression != null && columnLookup.ContainsKey(row.IndexColumnExpression)
                         ? columnLookup[row.IndexColumnExpression]
-                        : null
+                        : null,
                 })
                 .Select(row =>
                 {

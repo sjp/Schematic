@@ -22,7 +22,7 @@ public class IdentifierDefaultsMapper
         {
             Server = source.Server,
             Database = source.Database,
-            Schema = source.Schema
+            Schema = source.Schema,
         };
     }
 }

@@ -13,7 +13,7 @@ public class SnakeCaseNameTranslator : NameTranslator
     /// Return a namespace name for a schema qualified object name.
     /// </summary>
     /// <param name="objectName">An optionally qualified object name.</param>
-    /// <returns><c>null</c> if <paramref name="objectName"/> does not contain a schema name or should not be used.</returns>
+    /// <returns><see langword="null" /> if <paramref name="objectName"/> does not contain a schema name or should not be used.</returns>
     public override string? SchemaToNamespace(Identifier objectName)
     {
         ArgumentNullException.ThrowIfNull(objectName);

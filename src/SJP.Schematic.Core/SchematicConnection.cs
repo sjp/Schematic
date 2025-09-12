@@ -13,7 +13,7 @@ public class SchematicConnection : ISchematicConnection
     /// </summary>
     /// <param name="connectionFactory">A database connection factory.</param>
     /// <param name="dialect">The dialect used for <paramref name="connectionFactory"/>.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> or <paramref name="dialect"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> or <paramref name="dialect"/> is <see langword="null" />.</exception>
     public SchematicConnection(IDbConnectionFactory connectionFactory, IDatabaseDialect dialect)
         : this(Guid.NewGuid(), connectionFactory, dialect)
     {
@@ -26,7 +26,7 @@ public class SchematicConnection : ISchematicConnection
     /// <param name="connectionFactory">A database connection factory.</param>
     /// <param name="dialect">The dialect used for <paramref name="connectionFactory"/>.</param>
     /// <exception cref="ArgumentException">An empty connection ID was provided.</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> or <paramref name="dialect"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> or <paramref name="dialect"/> is <see langword="null" />.</exception>
     public SchematicConnection(Guid connectionId, IDbConnectionFactory connectionFactory, IDatabaseDialect dialect)
     {
         if (connectionId == Guid.Empty)

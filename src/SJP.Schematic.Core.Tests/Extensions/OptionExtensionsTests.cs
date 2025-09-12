@@ -24,7 +24,7 @@ internal static class OptionExtensionsTests
             Option<string>.None,
             Option<string>.None,
             Option<string>.None,
-            Option<string>.None
+            Option<string>.None,
         };
         var result = input.FirstSome();
 
@@ -40,7 +40,7 @@ internal static class OptionExtensionsTests
             Option<string>.None,
             Option<string>.Some("test_1"),
             Option<string>.Some("test_2"),
-            Option<string>.None
+            Option<string>.None,
         };
         var result = input.FirstSome();
         var unwrapped = result.UnwrapSome();
@@ -62,7 +62,7 @@ internal static class OptionExtensionsTests
             OptionAsync<string>.None,
             OptionAsync<string>.None,
             OptionAsync<string>.None,
-            OptionAsync<string>.None
+            OptionAsync<string>.None,
         };
         var result = input.FirstSome();
         var resultIsNone = await result.IsNone.ConfigureAwait(false);
@@ -79,7 +79,7 @@ internal static class OptionExtensionsTests
             OptionAsync<string>.None,
             OptionAsync<string>.Some("test_1"),
             OptionAsync<string>.Some("test_2"),
-            OptionAsync<string>.None
+            OptionAsync<string>.None,
         };
         var result = input.FirstSome();
         var unwrapped = await result.UnwrapSomeAsync().ConfigureAwait(false);

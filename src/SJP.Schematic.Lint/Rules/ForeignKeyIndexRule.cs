@@ -31,7 +31,7 @@ public class ForeignKeyIndexRule : Rule, ITableRule
     /// <param name="tables">A set of database tables.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" />.</exception>
     public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tables);
@@ -44,7 +44,7 @@ public class ForeignKeyIndexRule : Rule, ITableRule
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
     protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -76,8 +76,8 @@ public class ForeignKeyIndexRule : Rule, ITableRule
     /// </summary>
     /// <param name="columns">A set of columns.</param>
     /// <param name="indexColumns">The index columns.</param>
-    /// <returns><c>true</c> if <paramref name="columns"/> is covered by <paramref name="indexColumns"/>; otherwise <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="columns"/> or <paramref name="indexColumns"/> is <c>null</c>.</exception>
+    /// <returns><see langword="true" /> if <paramref name="columns"/> is covered by <paramref name="indexColumns"/>; otherwise <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="columns"/> or <paramref name="indexColumns"/> is <see langword="null" />.</exception>
     protected static bool ColumnsHaveIndex(IEnumerable<IDatabaseColumn> columns, IEnumerable<IDatabaseIndexColumn> indexColumns)
     {
         ArgumentNullException.ThrowIfNull(columns);
@@ -103,8 +103,8 @@ public class ForeignKeyIndexRule : Rule, ITableRule
     /// <param name="columns">A set of columns.</param>
     /// <param name="indexColumns">The index columns.</param>
     /// <param name="indexIncludedColumns">The index columns.</param>
-    /// <returns><c>true</c> if <paramref name="columns"/> is covered by <paramref name="indexColumns"/>; otherwise <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="columns"/> or <paramref name="indexColumns"/> or <paramref name="indexIncludedColumns"/> is <c>null</c>.</exception>
+    /// <returns><see langword="true" /> if <paramref name="columns"/> is covered by <paramref name="indexColumns"/>; otherwise <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="columns"/> or <paramref name="indexColumns"/> or <paramref name="indexIncludedColumns"/> is <see langword="null" />.</exception>
     protected static bool ColumnsHaveIndexWithIncludedColumns(IEnumerable<IDatabaseColumn> columns, IEnumerable<IDatabaseIndexColumn> indexColumns, IEnumerable<IDatabaseColumn> indexIncludedColumns)
     {
         ArgumentNullException.ThrowIfNull(columns);
@@ -140,8 +140,8 @@ public class ForeignKeyIndexRule : Rule, ITableRule
     /// <typeparam name="T">A set of database objects.</typeparam>
     /// <param name="prefixSet">The set to test whether it is a prefix.</param>
     /// <param name="otherSet">The alternate set.</param>
-    /// <returns><c>true</c> if <paramref name="prefixSet"/> is a prefix of <paramref name="otherSet"/>; otherwise, <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="prefixSet"/> or <paramref name="otherSet"/> is <c>null</c>.</exception>
+    /// <returns><see langword="true" /> if <paramref name="prefixSet"/> is a prefix of <paramref name="otherSet"/>; otherwise, <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="prefixSet"/> or <paramref name="otherSet"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException"><paramref name="prefixSet"/> or <paramref name="otherSet"/> is empty.</exception>
     protected static bool IsPrefixOf<T>(IEnumerable<T> prefixSet, IEnumerable<T> otherSet)
     {
@@ -173,7 +173,7 @@ public class ForeignKeyIndexRule : Rule, ITableRule
     /// <param name="tableName">The name of the table.</param>
     /// <param name="columnNames">The names of the columns in the foreign key.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="columnNames"/> is <c>null</c>. Also when <paramref name="columnNames"/> is empty.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="columnNames"/> is <see langword="null" />. Also when <paramref name="columnNames"/> is empty.</exception>
     protected virtual IRuleMessage BuildMessage(Option<Identifier> foreignKeyName, Identifier tableName, IEnumerable<string> columnNames)
     {
         ArgumentNullException.ThrowIfNull(tableName);

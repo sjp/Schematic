@@ -16,7 +16,7 @@ public abstract class NameTranslator : INameTranslator
     /// Return a namespace name for a schema qualified object name.
     /// </summary>
     /// <param name="objectName">An optionally qualified object name.</param>
-    /// <returns><c>null</c> if <paramref name="objectName"/> does not contain a schema name or should not be used.</returns>
+    /// <returns><see langword="null" /> if <paramref name="objectName"/> does not contain a schema name or should not be used.</returns>
     public abstract string? SchemaToNamespace(Identifier objectName);
 
     /// <summary>
@@ -45,8 +45,8 @@ public abstract class NameTranslator : INameTranslator
     /// Determines whether a given string is a valid identifier.
     /// </summary>
     /// <param name="identifier">A string to test.</param>
-    /// <returns><c>true</c> if <paramref name="identifier"/> is a valid identifier; otherwise, <c>false</c>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <c>null</c>, empty or whitespace</exception>
+    /// <returns><see langword="true" /> if <paramref name="identifier"/> is a valid identifier; otherwise, <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <see langword="null" />, empty or whitespace</exception>
     protected static bool IsValidIdentifier(string identifier)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(identifier);
@@ -73,7 +73,7 @@ public abstract class NameTranslator : INameTranslator
     /// </summary>
     /// <param name="objectName">An object name.</param>
     /// <returns>A valid identifier.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <c>null</c>, empty or whitespace</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <see langword="null" />, empty or whitespace</exception>
     protected static string CreateValidIdentifier(string objectName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(objectName);
@@ -97,7 +97,7 @@ public abstract class NameTranslator : INameTranslator
     /// <param name="className">The name of the containing class.</param>
     /// <param name="columnName">The name of the column the property maps to.</param>
     /// <returns>A valid identifier.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="className"/> or <paramref name="columnName"/> are <c>null</c>, empty or whitespace.
+    /// <exception cref="ArgumentNullException"><paramref name="className"/> or <paramref name="columnName"/> are <see langword="null" />, empty or whitespace.
     /// </exception>
     protected static string CreateValidIdentifier(string className, string columnName)
     {
@@ -141,7 +141,7 @@ public abstract class NameTranslator : INameTranslator
         UnicodeCategory.ConnectorPunctuation,
 
         // formatting character
-        UnicodeCategory.Format
+        UnicodeCategory.Format,
     ];
 
     private static readonly IEnumerable<string> Keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -223,6 +223,6 @@ public abstract class NameTranslator : INameTranslator
         "virtual",
         "void",
         "volatile",
-        "while"
+        "while",
     };
 }
