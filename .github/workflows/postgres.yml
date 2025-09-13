@@ -1,5 +1,8 @@
 name: postgres
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: [ master ]

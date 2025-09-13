@@ -1,4 +1,8 @@
 name: sql-server
+
+permissions:
+  contents: read
+
 on:
   push:
     branches: [ master ]

@@ -1,5 +1,8 @@
 name: oracle-free
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: [ master ]
