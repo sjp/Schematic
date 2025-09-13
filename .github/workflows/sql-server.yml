@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tag: [2019-latest, 2022-latest, latest]
+        tag: [2019-latest, 2022-latest, 2025-latest, latest]
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:${{ matrix.tag }}
