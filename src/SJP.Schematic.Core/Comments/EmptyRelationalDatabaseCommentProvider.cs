@@ -82,7 +82,7 @@ public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabase
     /// </summary>
     /// <param name="routineName">The name of a database routine.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>An <see cref="OptionAsync{A}" /> instance which is always none.</returns>
+    /// <returns>An <see cref="OptionAsync{IDatabaseRoutineComments}" /> instance which is always none.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseRoutineComments> GetRoutineComments(Identifier routineName, CancellationToken cancellationToken = default)
     {
@@ -96,7 +96,7 @@ public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabase
     /// </summary>
     /// <param name="sequenceName">The name of a database sequence.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>An <see cref="OptionAsync{A}" /> instance which is always none.</returns>
+    /// <returns>An <see cref="OptionAsync{IDatabaseSequenceComments}" /> instance which is always none.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseSequenceComments> GetSequenceComments(Identifier sequenceName, CancellationToken cancellationToken = default)
     {
@@ -110,7 +110,7 @@ public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabase
     /// </summary>
     /// <param name="synonymName">The name of a database synonym.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>An <see cref="OptionAsync{A}" /> instance which is always none.</returns>
+    /// <returns>An <see cref="OptionAsync{IDatabaseSynonymComments}" /> instance which is always none.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseSynonymComments> GetSynonymComments(Identifier synonymName, CancellationToken cancellationToken = default)
     {
@@ -124,7 +124,7 @@ public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabase
     /// </summary>
     /// <param name="tableName">The name of a database table.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>An <see cref="OptionAsync{A}" /> instance which is always none.</returns>
+    /// <returns>An <see cref="OptionAsync{IRelationalDatabaseTableComments}" /> instance which is always none.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     public OptionAsync<IRelationalDatabaseTableComments> GetTableComments(Identifier tableName, CancellationToken cancellationToken = default)
     {
@@ -138,7 +138,7 @@ public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabase
     /// </summary>
     /// <param name="viewName">The name of a database view.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>An <see cref="OptionAsync{A}" /> instance which is always none.</returns>
+    /// <returns>An <see cref="OptionAsync{IDatabaseViewComments}" /> instance which is always none.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default)
     {

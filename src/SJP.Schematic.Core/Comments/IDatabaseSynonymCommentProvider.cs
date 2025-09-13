@@ -15,7 +15,7 @@ public interface IDatabaseSynonymCommentProvider
     /// </summary>
     /// <param name="synonymName">The name of a database synonym.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>An <see cref="OptionAsync{A}"/> instance which holds the value of the synonym's comments, if available.</returns>
+    /// <returns>An <see cref="OptionAsync{IDatabaseSynonymComments}"/> instance which holds the value of the synonym's comments, if available.</returns>
     OptionAsync<IDatabaseSynonymComments> GetSynonymComments(Identifier synonymName, CancellationToken cancellationToken = default);
 
     /// <summary>

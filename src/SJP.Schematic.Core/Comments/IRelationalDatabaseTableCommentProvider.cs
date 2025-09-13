@@ -15,7 +15,7 @@ public interface IRelationalDatabaseTableCommentProvider
     /// </summary>
     /// <param name="tableName">The name of a database table.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>An <see cref="OptionAsync{A}"/> instance which holds the value of the table's comments, if available.</returns>
+    /// <returns>An <see cref="OptionAsync{IRelationalDatabaseTableComments}"/> instance which holds the value of the table's comments, if available.</returns>
     OptionAsync<IRelationalDatabaseTableComments> GetTableComments(Identifier tableName, CancellationToken cancellationToken = default);
 
     /// <summary>

@@ -24,7 +24,7 @@ public sealed class EmptyRelationalDatabaseTableCommentProvider : IRelationalDat
     /// </summary>
     /// <param name="tableName">The name of a database table.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>An <see cref="OptionAsync{A}" /> instance which is always none.</returns>
+    /// <returns>An <see cref="OptionAsync{IRelationalDatabaseTableComments}" /> instance which is always none.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     public OptionAsync<IRelationalDatabaseTableComments> GetTableComments(Identifier tableName, CancellationToken cancellationToken = default)
     {

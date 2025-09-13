@@ -91,7 +91,7 @@ public class PostgreSqlDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// </summary>
     /// <param name="sequenceName">The name of a database sequence.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>An <see cref="OptionAsync{A}" /> instance which holds the value of the sequence's comments, if available.</returns>
+    /// <returns>An <see cref="OptionAsync{IDatabaseSequenceComments}" /> instance which holds the value of the sequence's comments, if available.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseSequenceComments> GetSequenceComments(Identifier sequenceName, CancellationToken cancellationToken = default)
     {

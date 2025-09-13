@@ -24,7 +24,7 @@ public sealed class EmptyDatabaseRoutineCommentProvider : IDatabaseRoutineCommen
     /// </summary>
     /// <param name="routineName">The name of a database routine.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>An <see cref="OptionAsync{A}" /> instance which is always none.</returns>
+    /// <returns>An <see cref="OptionAsync{IDatabaseRoutineComments}" /> instance which is always none.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseRoutineComments> GetRoutineComments(Identifier routineName, CancellationToken cancellationToken = default)
     {

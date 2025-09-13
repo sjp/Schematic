@@ -24,7 +24,7 @@ public sealed class EmptyDatabaseSynonymCommentProvider : IDatabaseSynonymCommen
     /// </summary>
     /// <param name="synonymName">The name of a database synonym.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>An <see cref="OptionAsync{A}" /> instance which is always none.</returns>
+    /// <returns>An <see cref="OptionAsync{IDatabaseSynonymComments}" /> instance which is always none.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseSynonymComments> GetSynonymComments(Identifier synonymName, CancellationToken cancellationToken = default)
     {

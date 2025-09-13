@@ -15,7 +15,7 @@ public interface IDatabaseViewCommentProvider
     /// </summary>
     /// <param name="viewName">The name of a database view.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>An <see cref="OptionAsync{A}"/> instance which holds the value of the view's comments, if available.</returns>
+    /// <returns>An <see cref="OptionAsync{IDatabaseViewComments}"/> instance which holds the value of the view's comments, if available.</returns>
     OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default);
 
     /// <summary>

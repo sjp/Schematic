@@ -13,10 +13,10 @@ namespace SJP.Schematic.Core.Extensions;
 public static class OptionExtensions
 {
     /// <summary>
-    /// Returns the first <see cref="Option{A}"/> instance that is in the <see cref="Option{A}.IsSome"/> state.
+    /// Returns the first <see cref="Option{T}"/> instance that is in the <see cref="Option{T}.IsSome"/> state.
     /// </summary>
     /// <param name="input">The source collection to reduce.</param>
-    /// <returns>The <see cref="Option{A}"/> instance in the <paramref name="input"/> collection in the 'some' state, otherwise an <see cref="Option{A}"/> instance in the 'none' state when no 'some' options exist.</returns>
+    /// <returns>The <see cref="Option{T}"/> instance in the <paramref name="input"/> collection in the 'some' state, otherwise an <see cref="Option{T}"/> instance in the 'none' state when no 'some' options exist.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="input"/> is <see langword="null" />.</exception>
     public static Option<T> FirstSome<T>(this IEnumerable<Option<T>> input)
     {
@@ -26,11 +26,11 @@ public static class OptionExtensions
     }
 
     /// <summary>
-    /// Returns the first <see cref="OptionAsync{A}"/> instance that is in the <see cref="OptionAsync{A}.IsSome"/> state.
+    /// Returns the first <see cref="OptionAsync{T}"/> instance that is in the <see cref="OptionAsync{T}.IsSome"/> state.
     /// </summary>
     /// <param name="input">The source collection to reduce.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The <see cref="OptionAsync{A}"/> instance in the <paramref name="input"/> collection in the 'some' state, otherwise an <see cref="OptionAsync{A}"/> instance in the 'none' state when no 'some' options exist.</returns>
+    /// <returns>The <see cref="OptionAsync{T}"/> instance in the <paramref name="input"/> collection in the 'some' state, otherwise an <see cref="OptionAsync{T}"/> instance in the 'none' state when no 'some' options exist.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="input"/> is <see langword="null" />.</exception>
     public static OptionAsync<T> FirstSome<T>(this IEnumerable<OptionAsync<T>> input, CancellationToken cancellationToken = default)
     {

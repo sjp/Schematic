@@ -15,7 +15,7 @@ public interface IDatabaseRoutineCommentProvider
     /// </summary>
     /// <param name="routineName">The name of a database routine.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>An <see cref="OptionAsync{A}"/> instance which holds the value of the routine's comments, if available.</returns>
+    /// <returns>An <see cref="OptionAsync{IDatabaseRoutineComments}"/> instance which holds the value of the routine's comments, if available.</returns>
     OptionAsync<IDatabaseRoutineComments> GetRoutineComments(Identifier routineName, CancellationToken cancellationToken = default);
 
     /// <summary>

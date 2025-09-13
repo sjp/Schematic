@@ -24,7 +24,7 @@ public sealed class EmptyDatabaseViewCommentProvider : IDatabaseViewCommentProvi
     /// </summary>
     /// <param name="viewName">The name of a database view.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>An <see cref="OptionAsync{A}" /> instance which is always none.</returns>
+    /// <returns>An <see cref="OptionAsync{IDatabaseViewComments}" /> instance which is always none.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default)
     {

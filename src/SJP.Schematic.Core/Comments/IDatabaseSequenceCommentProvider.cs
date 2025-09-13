@@ -15,7 +15,7 @@ public interface IDatabaseSequenceCommentProvider
     /// </summary>
     /// <param name="sequenceName">The name of a database sequence.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>An <see cref="OptionAsync{A}"/> instance which holds the value of the sequence's comments, if available.</returns>
+    /// <returns>An <see cref="OptionAsync{IDatabaseSequenceComments}"/> instance which holds the value of the sequence's comments, if available.</returns>
     OptionAsync<IDatabaseSequenceComments> GetSequenceComments(Identifier sequenceName, CancellationToken cancellationToken = default);
 
     /// <summary>
