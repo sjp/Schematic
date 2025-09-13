@@ -68,7 +68,7 @@ public static class TaskUtilities
 
     private static async Task<(T1, T2, T3)> WhenAllCore<T1, T2, T3>(Task<T1> task1, Task<T2> task2, Task<T3> task3)
     {
-        var tasks = new Task[] { task1, task2 };
+        var tasks = new Task[] { task1, task2, task3 };
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
 
@@ -110,7 +110,7 @@ public static class TaskUtilities
 
     private static async Task<(T1, T2, T3, T4)> WhenAllCore<T1, T2, T3, T4>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4)
     {
-        var tasks = new Task[] { task1, task2 };
+        var tasks = new Task[] { task1, task2, task3, task4 };
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
 
@@ -157,7 +157,7 @@ public static class TaskUtilities
 
     private static async Task<(T1, T2, T3, T4, T5)> WhenAllCore<T1, T2, T3, T4, T5>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5)
     {
-        var tasks = new Task[] { task1, task2 };
+        var tasks = new Task[] { task1, task2, task3, task4, task5 };
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
 
@@ -209,7 +209,7 @@ public static class TaskUtilities
 
     private static async Task<(T1, T2, T3, T4, T5, T6)> WhenAllCore<T1, T2, T3, T4, T5, T6>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6)
     {
-        var tasks = new Task[] { task1, task2 };
+        var tasks = new Task[] { task1, task2, task3, task4, task5, task6 };
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
 
@@ -266,7 +266,7 @@ public static class TaskUtilities
 
     private static async Task<(T1, T2, T3, T4, T5, T6, T7)> WhenAllCore<T1, T2, T3, T4, T5, T6, T7>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7)
     {
-        var tasks = new Task[] { task1, task2 };
+        var tasks = new Task[] { task1, task2, task3, task4, task5, task6, task7 };
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
 
@@ -328,7 +328,7 @@ public static class TaskUtilities
 
     private static async Task<(T1, T2, T3, T4, T5, T6, T7, T8)> WhenAllCore<T1, T2, T3, T4, T5, T6, T7, T8>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8)
     {
-        var tasks = new Task[] { task1, task2 };
+        var tasks = new Task[] { task1, task2, task3, task4, task5, task6, task7, task8 };
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
 
@@ -395,7 +395,7 @@ public static class TaskUtilities
 
     private static async Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9)> WhenAllCore<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9)
     {
-        var tasks = new Task[] { task1, task2 };
+        var tasks = new Task[] { task1, task2, task3, task4, task5, task6, task7, task8, task9 };
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
 
@@ -467,7 +467,7 @@ public static class TaskUtilities
 
     private static async Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)> WhenAllCore<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10)
     {
-        var tasks = new Task[] { task1, task2 };
+        var tasks = new Task[] { task1, task2, task3, task4, task5, task6, task7, task8, task9, task10 };
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
 
@@ -544,7 +544,7 @@ public static class TaskUtilities
 
     private static async Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)> WhenAllCore<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11)
     {
-        var tasks = new Task[] { task1, task2 };
+        var tasks = new Task[] { task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11 };
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
 
@@ -626,7 +626,7 @@ public static class TaskUtilities
 
     private static async Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)> WhenAllCore<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12)
     {
-        var tasks = new Task[] { task1, task2 };
+        var tasks = new Task[] { task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11, task12 };
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
 
@@ -713,7 +713,7 @@ public static class TaskUtilities
 
     private static async Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)> WhenAllCore<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12, Task<T13> task13)
     {
-        var tasks = new Task[] { task1, task2 };
+        var tasks = new Task[] { task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11, task12, task13 };
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
 
@@ -805,7 +805,7 @@ public static class TaskUtilities
 
     private static async Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)> WhenAllCore<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12, Task<T13> task13, Task<T14> task14)
     {
-        var tasks = new Task[] { task1, task2 };
+        var tasks = new Task[] { task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11, task12, task13, task14 };
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
 
@@ -902,7 +902,7 @@ public static class TaskUtilities
 
     private static async Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)> WhenAllCore<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12, Task<T13> task13, Task<T14> task14, Task<T15> task15)
     {
-        var tasks = new Task[] { task1, task2 };
+        var tasks = new Task[] { task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11, task12, task13, task14, task15 };
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
 
@@ -1004,7 +1004,7 @@ public static class TaskUtilities
 
     private static async Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)> WhenAllCore<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12, Task<T13> task13, Task<T14> task14, Task<T15> task15, Task<T16> task16)
     {
-        var tasks = new Task[] { task1, task2 };
+        var tasks = new Task[] { task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11, task12, task13, task14, task15, task16 };
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
 
