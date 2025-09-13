@@ -31,7 +31,7 @@ internal abstract class SqlServerTest
 
     protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
-    protected IDatabaseDialect Dialect => Connection.Dialect;
+    protected ISqlServerDialect Dialect => Connection.Dialect as ISqlServerDialect;
 
     protected IIdentifierDefaults IdentifierDefaults => _defaults.Value;
 

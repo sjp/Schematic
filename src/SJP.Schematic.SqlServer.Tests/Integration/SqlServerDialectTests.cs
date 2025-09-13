@@ -22,4 +22,18 @@ internal sealed class SqlServerDialectTests : SqlServerTest
 
         Assert.That(version, Is.Not.Null);
     }
+
+    [Test]
+    public async Task GetCompatibilityLevel_WhenInvoked_ReturnsNonZeroValue()
+    {
+        var compatibilityLevel = await Dialect.GetCompatibilityLevel(Connection).ConfigureAwait(false);
+
+        using (Assert.EnterMultipleScope())
+        {
+            // assertions are assuming that we have something at least SQL Server 2008, but not a specific version
+            Assert.That(compatibilityLevel, Is.Not.Null);
+            Assert.That(compatibilityLevel.Value, Is.GreaterThan(100));
+            Assert.That(compatibilityLevel.SqlServerVersion, Is.GreaterThan(SqlServerCompatibilityLevel.SqlServer2008));
+        }
+    }
 }

@@ -15,7 +15,7 @@ namespace SJP.Schematic.SqlServer;
 /// A database dialect specific to SQL Server.
 /// </summary>
 /// <seealso cref="DatabaseDialect" />
-public class SqlServerDialect : DatabaseDialect
+public class SqlServerDialect : DatabaseDialect, ISqlServerDialect
 {
     /// <summary>
     /// Retrieves the set of identifier defaults for the given database connection.
@@ -129,6 +129,26 @@ public class SqlServerDialect : DatabaseDialect
         ArgumentException.ThrowIfNullOrWhiteSpace(text);
 
         return Keywords.Contains(text, StringComparer.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Retrieve the assigned compatibility level for a given database.
+    /// </summary>
+    /// <param name="connection">A connection to a SQL Server database.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A representation of the compatibility level assigned to the database.</returns>
+    /// <exception cref="ArgumentNullException">When <paramref name="connection"/> is <see langword="null" /></exception>
+    public Task<CompatibilityLevel> GetCompatibilityLevel(ISchematicConnection connection, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(connection);
+
+        return GetCompatibilityLevelCore(connection, cancellationToken);
+    }
+
+    private static async Task<CompatibilityLevel> GetCompatibilityLevelCore(ISchematicConnection connection, CancellationToken cancellationToken)
+    {
+        var dbResult = await connection.DbConnection.QuerySingleAsync<GetCompatibilityLevel.Result>(Queries.GetCompatibilityLevel.Sql, cancellationToken).ConfigureAwait(false);
+        return new CompatibilityLevel(dbResult.CompatibilityLevel);
     }
 
     // https://docs.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql
