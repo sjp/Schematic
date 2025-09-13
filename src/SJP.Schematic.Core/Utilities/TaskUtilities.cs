@@ -12,20 +12,19 @@ public static class TaskUtilities
     /// Creates a task that will complete when all of the provided <see cref="Task"/> objects have completed.
     /// The evaluated results are available in a tuple.
     /// </summary>
-    /// <typeparam name="T1">The type of the result produced by the <see cref="Task"/> for <paramref name="task1"/>.</typeparam>
-    /// <typeparam name="T2">The type of the result produced by the <see cref="Task"/> for <paramref name="task2"/>.</typeparam>
-    /// <param name="task1">A <see cref="Task"/> that produces a value of type <typeparamref name="T1"/>.</param>
-    /// <param name="task2">A <see cref="Task"/> that produces a value of type <typeparamref name="T2"/>.</param>
+    /// <typeparam name="T1">The type of the result produced by the first task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T2">The type of the result produced by the second task in <paramref name="tasks"/>.</typeparam>
+    /// <param name="tasks">A tuple of <see cref="Task"/> objects.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/> is <see langword="null" />.</exception>
-    public static Task<(T1, T2)> WhenAll<T1, T2>(Task<T1> task1, Task<T2> task2)
+    /// <exception cref="ArgumentNullException">One of the tasks in the <paramref name="tasks"/> tuple is <see langword="null" />.</exception>
+    public static Task<(T1, T2)> WhenAll<T1, T2>(this (Task<T1> task1, Task<T2> task2) tasks)
     {
-        ArgumentNullException.ThrowIfNull(task1);
-        ArgumentNullException.ThrowIfNull(task2);
+        ArgumentNullException.ThrowIfNull(tasks.task1);
+        ArgumentNullException.ThrowIfNull(tasks.task2);
 
         return WhenAllCore(
-            task1,
-            task2
+            tasks.task1,
+            tasks.task2
         );
     }
 
@@ -45,24 +44,22 @@ public static class TaskUtilities
     /// Creates a task that will complete when all of the provided <see cref="Task"/> objects have completed.
     /// The evaluated results are available in a tuple.
     /// </summary>
-    /// <typeparam name="T1">The type of the result produced by the <see cref="Task"/> for <paramref name="task1"/>.</typeparam>
-    /// <typeparam name="T2">The type of the result produced by the <see cref="Task"/> for <paramref name="task2"/>.</typeparam>
-    /// <typeparam name="T3">The type of the result produced by the <see cref="Task"/> for <paramref name="task3"/>.</typeparam>
-    /// <param name="task1">A <see cref="Task"/> that produces a value of type <typeparamref name="T1"/>.</param>
-    /// <param name="task2">A <see cref="Task"/> that produces a value of type <typeparamref name="T2"/>.</param>
-    /// <param name="task3">A <see cref="Task"/> that produces a value of type <typeparamref name="T3"/>.</param>
+    /// <typeparam name="T1">The type of the result produced by the first task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T2">The type of the result produced by the second task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T3">The type of the result produced by the third task in <paramref name="tasks"/>.</typeparam>
+    /// <param name="tasks">A tuple of <see cref="Task"/> objects.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/> is <see langword="null" />.</exception>
-    public static Task<(T1, T2, T3)> WhenAll<T1, T2, T3>(Task<T1> task1, Task<T2> task2, Task<T3> task3)
+    /// <exception cref="ArgumentNullException">One of the tasks in the <paramref name="tasks"/> tuple is <see langword="null" />.</exception>
+    public static Task<(T1, T2, T3)> WhenAll<T1, T2, T3>(this (Task<T1> task1, Task<T2> task2, Task<T3> task3) tasks)
     {
-        ArgumentNullException.ThrowIfNull(task1);
-        ArgumentNullException.ThrowIfNull(task2);
-        ArgumentNullException.ThrowIfNull(task3);
+        ArgumentNullException.ThrowIfNull(tasks.task1);
+        ArgumentNullException.ThrowIfNull(tasks.task2);
+        ArgumentNullException.ThrowIfNull(tasks.task3);
 
         return WhenAllCore(
-            task1,
-            task2,
-            task3
+            tasks.task1,
+            tasks.task2,
+            tasks.task3
         );
     }
 
@@ -83,28 +80,25 @@ public static class TaskUtilities
     /// Creates a task that will complete when all of the provided <see cref="Task"/> objects have completed.
     /// The evaluated results are available in a tuple.
     /// </summary>
-    /// <typeparam name="T1">The type of the result produced by the <see cref="Task"/> for <paramref name="task1"/>.</typeparam>
-    /// <typeparam name="T2">The type of the result produced by the <see cref="Task"/> for <paramref name="task2"/>.</typeparam>
-    /// <typeparam name="T3">The type of the result produced by the <see cref="Task"/> for <paramref name="task3"/>.</typeparam>
-    /// <typeparam name="T4">The type of the result produced by the <see cref="Task"/> for <paramref name="task4"/>.</typeparam>
-    /// <param name="task1">A <see cref="Task"/> that produces a value of type <typeparamref name="T1"/>.</param>
-    /// <param name="task2">A <see cref="Task"/> that produces a value of type <typeparamref name="T2"/>.</param>
-    /// <param name="task3">A <see cref="Task"/> that produces a value of type <typeparamref name="T3"/>.</param>
-    /// <param name="task4">A <see cref="Task"/> that produces a value of type <typeparamref name="T4"/>.</param>
+    /// <typeparam name="T1">The type of the result produced by the first task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T2">The type of the result produced by the second task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T3">The type of the result produced by the third task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T4">The type of the result produced by the fourth task in <paramref name="tasks"/>.</typeparam>
+    /// <param name="tasks">A tuple of <see cref="Task"/> objects.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/> is <see langword="null" />.</exception>
-    public static Task<(T1, T2, T3, T4)> WhenAll<T1, T2, T3, T4>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4)
+    /// <exception cref="ArgumentNullException">One of the tasks in the <paramref name="tasks"/> tuple is <see langword="null" />.</exception>
+    public static Task<(T1, T2, T3, T4)> WhenAll<T1, T2, T3, T4>(this (Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4) tasks)
     {
-        ArgumentNullException.ThrowIfNull(task1);
-        ArgumentNullException.ThrowIfNull(task2);
-        ArgumentNullException.ThrowIfNull(task3);
-        ArgumentNullException.ThrowIfNull(task4);
+        ArgumentNullException.ThrowIfNull(tasks.task1);
+        ArgumentNullException.ThrowIfNull(tasks.task2);
+        ArgumentNullException.ThrowIfNull(tasks.task3);
+        ArgumentNullException.ThrowIfNull(tasks.task4);
 
         return WhenAllCore(
-            task1,
-            task2,
-            task3,
-            task4
+            tasks.task1,
+            tasks.task2,
+            tasks.task3,
+            tasks.task4
         );
     }
 
@@ -126,32 +120,28 @@ public static class TaskUtilities
     /// Creates a task that will complete when all of the provided <see cref="Task"/> objects have completed.
     /// The evaluated results are available in a tuple.
     /// </summary>
-    /// <typeparam name="T1">The type of the result produced by the <see cref="Task"/> for <paramref name="task1"/>.</typeparam>
-    /// <typeparam name="T2">The type of the result produced by the <see cref="Task"/> for <paramref name="task2"/>.</typeparam>
-    /// <typeparam name="T3">The type of the result produced by the <see cref="Task"/> for <paramref name="task3"/>.</typeparam>
-    /// <typeparam name="T4">The type of the result produced by the <see cref="Task"/> for <paramref name="task4"/>.</typeparam>
-    /// <typeparam name="T5">The type of the result produced by the <see cref="Task"/> for <paramref name="task5"/>.</typeparam>
-    /// <param name="task1">A <see cref="Task"/> that produces a value of type <typeparamref name="T1"/>.</param>
-    /// <param name="task2">A <see cref="Task"/> that produces a value of type <typeparamref name="T2"/>.</param>
-    /// <param name="task3">A <see cref="Task"/> that produces a value of type <typeparamref name="T3"/>.</param>
-    /// <param name="task4">A <see cref="Task"/> that produces a value of type <typeparamref name="T4"/>.</param>
-    /// <param name="task5">A <see cref="Task"/> that produces a value of type <typeparamref name="T5"/>.</param>
+    /// <typeparam name="T1">The type of the result produced by the first task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T2">The type of the result produced by the second task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T3">The type of the result produced by the third task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T4">The type of the result produced by the fourth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T5">The type of the result produced by the fifth task in <paramref name="tasks"/>.</typeparam>
+    /// <param name="tasks">A tuple of <see cref="Task"/> objects.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/> is <see langword="null" />.</exception>
-    public static Task<(T1, T2, T3, T4, T5)> WhenAll<T1, T2, T3, T4, T5>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5)
+    /// <exception cref="ArgumentNullException">One of the tasks in the <paramref name="tasks"/> tuple is <see langword="null" />.</exception>
+    public static Task<(T1, T2, T3, T4, T5)> WhenAll<T1, T2, T3, T4, T5>(this (Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5) tasks)
     {
-        ArgumentNullException.ThrowIfNull(task1);
-        ArgumentNullException.ThrowIfNull(task2);
-        ArgumentNullException.ThrowIfNull(task3);
-        ArgumentNullException.ThrowIfNull(task4);
-        ArgumentNullException.ThrowIfNull(task5);
+        ArgumentNullException.ThrowIfNull(tasks.task1);
+        ArgumentNullException.ThrowIfNull(tasks.task2);
+        ArgumentNullException.ThrowIfNull(tasks.task3);
+        ArgumentNullException.ThrowIfNull(tasks.task4);
+        ArgumentNullException.ThrowIfNull(tasks.task5);
 
         return WhenAllCore(
-            task1,
-            task2,
-            task3,
-            task4,
-            task5
+            tasks.task1,
+            tasks.task2,
+            tasks.task3,
+            tasks.task4,
+            tasks.task5
         );
     }
 
@@ -174,36 +164,31 @@ public static class TaskUtilities
     /// Creates a task that will complete when all of the provided <see cref="Task"/> objects have completed.
     /// The evaluated results are available in a tuple.
     /// </summary>
-    /// <typeparam name="T1">The type of the result produced by the <see cref="Task"/> for <paramref name="task1"/>.</typeparam>
-    /// <typeparam name="T2">The type of the result produced by the <see cref="Task"/> for <paramref name="task2"/>.</typeparam>
-    /// <typeparam name="T3">The type of the result produced by the <see cref="Task"/> for <paramref name="task3"/>.</typeparam>
-    /// <typeparam name="T4">The type of the result produced by the <see cref="Task"/> for <paramref name="task4"/>.</typeparam>
-    /// <typeparam name="T5">The type of the result produced by the <see cref="Task"/> for <paramref name="task5"/>.</typeparam>
-    /// <typeparam name="T6">The type of the result produced by the <see cref="Task"/> for <paramref name="task6"/>.</typeparam>
-    /// <param name="task1">A <see cref="Task"/> that produces a value of type <typeparamref name="T1"/>.</param>
-    /// <param name="task2">A <see cref="Task"/> that produces a value of type <typeparamref name="T2"/>.</param>
-    /// <param name="task3">A <see cref="Task"/> that produces a value of type <typeparamref name="T3"/>.</param>
-    /// <param name="task4">A <see cref="Task"/> that produces a value of type <typeparamref name="T4"/>.</param>
-    /// <param name="task5">A <see cref="Task"/> that produces a value of type <typeparamref name="T5"/>.</param>
-    /// <param name="task6">A <see cref="Task"/> that produces a value of type <typeparamref name="T6"/>.</param>
+    /// <typeparam name="T1">The type of the result produced by the first task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T2">The type of the result produced by the second task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T3">The type of the result produced by the third task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T4">The type of the result produced by the fourth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T5">The type of the result produced by the fifth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T6">The type of the result produced by the sixth task in <paramref name="tasks"/>.</typeparam>
+    /// <param name="tasks">A tuple of <see cref="Task"/> objects.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/> is <see langword="null" />.</exception>
-    public static Task<(T1, T2, T3, T4, T5, T6)> WhenAll<T1, T2, T3, T4, T5, T6>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6)
+    /// <exception cref="ArgumentNullException">One of the tasks in the <paramref name="tasks"/> tuple is <see langword="null" />.</exception>
+    public static Task<(T1, T2, T3, T4, T5, T6)> WhenAll<T1, T2, T3, T4, T5, T6>(this (Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6) tasks)
     {
-        ArgumentNullException.ThrowIfNull(task1);
-        ArgumentNullException.ThrowIfNull(task2);
-        ArgumentNullException.ThrowIfNull(task3);
-        ArgumentNullException.ThrowIfNull(task4);
-        ArgumentNullException.ThrowIfNull(task5);
-        ArgumentNullException.ThrowIfNull(task6);
+        ArgumentNullException.ThrowIfNull(tasks.task1);
+        ArgumentNullException.ThrowIfNull(tasks.task2);
+        ArgumentNullException.ThrowIfNull(tasks.task3);
+        ArgumentNullException.ThrowIfNull(tasks.task4);
+        ArgumentNullException.ThrowIfNull(tasks.task5);
+        ArgumentNullException.ThrowIfNull(tasks.task6);
 
         return WhenAllCore(
-            task1,
-            task2,
-            task3,
-            task4,
-            task5,
-            task6
+            tasks.task1,
+            tasks.task2,
+            tasks.task3,
+            tasks.task4,
+            tasks.task5,
+            tasks.task6
         );
     }
 
@@ -227,40 +212,34 @@ public static class TaskUtilities
     /// Creates a task that will complete when all of the provided <see cref="Task"/> objects have completed.
     /// The evaluated results are available in a tuple.
     /// </summary>
-    /// <typeparam name="T1">The type of the result produced by the <see cref="Task"/> for <paramref name="task1"/>.</typeparam>
-    /// <typeparam name="T2">The type of the result produced by the <see cref="Task"/> for <paramref name="task2"/>.</typeparam>
-    /// <typeparam name="T3">The type of the result produced by the <see cref="Task"/> for <paramref name="task3"/>.</typeparam>
-    /// <typeparam name="T4">The type of the result produced by the <see cref="Task"/> for <paramref name="task4"/>.</typeparam>
-    /// <typeparam name="T5">The type of the result produced by the <see cref="Task"/> for <paramref name="task5"/>.</typeparam>
-    /// <typeparam name="T6">The type of the result produced by the <see cref="Task"/> for <paramref name="task6"/>.</typeparam>
-    /// <typeparam name="T7">The type of the result produced by the <see cref="Task"/> for <paramref name="task7"/>.</typeparam>
-    /// <param name="task1">A <see cref="Task"/> that produces a value of type <typeparamref name="T1"/>.</param>
-    /// <param name="task2">A <see cref="Task"/> that produces a value of type <typeparamref name="T2"/>.</param>
-    /// <param name="task3">A <see cref="Task"/> that produces a value of type <typeparamref name="T3"/>.</param>
-    /// <param name="task4">A <see cref="Task"/> that produces a value of type <typeparamref name="T4"/>.</param>
-    /// <param name="task5">A <see cref="Task"/> that produces a value of type <typeparamref name="T5"/>.</param>
-    /// <param name="task6">A <see cref="Task"/> that produces a value of type <typeparamref name="T6"/>.</param>
-    /// <param name="task7">A <see cref="Task"/> that produces a value of type <typeparamref name="T7"/>.</param>
+    /// <typeparam name="T1">The type of the result produced by the first task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T2">The type of the result produced by the second task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T3">The type of the result produced by the third task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T4">The type of the result produced by the fourth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T5">The type of the result produced by the fifth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T6">The type of the result produced by the sixth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T7">The type of the result produced by the seventh task in <paramref name="tasks"/>.</typeparam>
+    /// <param name="tasks">A tuple of <see cref="Task"/> objects.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/> is <see langword="null" />.</exception>
-    public static Task<(T1, T2, T3, T4, T5, T6, T7)> WhenAll<T1, T2, T3, T4, T5, T6, T7>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7)
+    /// <exception cref="ArgumentNullException">One of the tasks in the <paramref name="tasks"/> tuple is <see langword="null" />.</exception>
+    public static Task<(T1, T2, T3, T4, T5, T6, T7)> WhenAll<T1, T2, T3, T4, T5, T6, T7>(this (Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7) tasks)
     {
-        ArgumentNullException.ThrowIfNull(task1);
-        ArgumentNullException.ThrowIfNull(task2);
-        ArgumentNullException.ThrowIfNull(task3);
-        ArgumentNullException.ThrowIfNull(task4);
-        ArgumentNullException.ThrowIfNull(task5);
-        ArgumentNullException.ThrowIfNull(task6);
-        ArgumentNullException.ThrowIfNull(task7);
+        ArgumentNullException.ThrowIfNull(tasks.task1);
+        ArgumentNullException.ThrowIfNull(tasks.task2);
+        ArgumentNullException.ThrowIfNull(tasks.task3);
+        ArgumentNullException.ThrowIfNull(tasks.task4);
+        ArgumentNullException.ThrowIfNull(tasks.task5);
+        ArgumentNullException.ThrowIfNull(tasks.task6);
+        ArgumentNullException.ThrowIfNull(tasks.task7);
 
         return WhenAllCore(
-            task1,
-            task2,
-            task3,
-            task4,
-            task5,
-            task6,
-            task7
+            tasks.task1,
+            tasks.task2,
+            tasks.task3,
+            tasks.task4,
+            tasks.task5,
+            tasks.task6,
+            tasks.task7
         );
     }
 
@@ -285,44 +264,37 @@ public static class TaskUtilities
     /// Creates a task that will complete when all of the provided <see cref="Task"/> objects have completed.
     /// The evaluated results are available in a tuple.
     /// </summary>
-    /// <typeparam name="T1">The type of the result produced by the <see cref="Task"/> for <paramref name="task1"/>.</typeparam>
-    /// <typeparam name="T2">The type of the result produced by the <see cref="Task"/> for <paramref name="task2"/>.</typeparam>
-    /// <typeparam name="T3">The type of the result produced by the <see cref="Task"/> for <paramref name="task3"/>.</typeparam>
-    /// <typeparam name="T4">The type of the result produced by the <see cref="Task"/> for <paramref name="task4"/>.</typeparam>
-    /// <typeparam name="T5">The type of the result produced by the <see cref="Task"/> for <paramref name="task5"/>.</typeparam>
-    /// <typeparam name="T6">The type of the result produced by the <see cref="Task"/> for <paramref name="task6"/>.</typeparam>
-    /// <typeparam name="T7">The type of the result produced by the <see cref="Task"/> for <paramref name="task7"/>.</typeparam>
-    /// <typeparam name="T8">The type of the result produced by the <see cref="Task"/> for <paramref name="task8"/>.</typeparam>
-    /// <param name="task1">A <see cref="Task"/> that produces a value of type <typeparamref name="T1"/>.</param>
-    /// <param name="task2">A <see cref="Task"/> that produces a value of type <typeparamref name="T2"/>.</param>
-    /// <param name="task3">A <see cref="Task"/> that produces a value of type <typeparamref name="T3"/>.</param>
-    /// <param name="task4">A <see cref="Task"/> that produces a value of type <typeparamref name="T4"/>.</param>
-    /// <param name="task5">A <see cref="Task"/> that produces a value of type <typeparamref name="T5"/>.</param>
-    /// <param name="task6">A <see cref="Task"/> that produces a value of type <typeparamref name="T6"/>.</param>
-    /// <param name="task7">A <see cref="Task"/> that produces a value of type <typeparamref name="T7"/>.</param>
-    /// <param name="task8">A <see cref="Task"/> that produces a value of type <typeparamref name="T8"/>.</param>
+    /// <typeparam name="T1">The type of the result produced by the first task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T2">The type of the result produced by the second task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T3">The type of the result produced by the third task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T4">The type of the result produced by the fourth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T5">The type of the result produced by the fifth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T6">The type of the result produced by the sixth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T7">The type of the result produced by the seventh task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T8">The type of the result produced by the eighth task in <paramref name="tasks"/>.</typeparam>
+    /// <param name="tasks">A tuple of <see cref="Task"/> objects.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/> is <see langword="null" />.</exception>
-    public static Task<(T1, T2, T3, T4, T5, T6, T7, T8)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8)
+    /// <exception cref="ArgumentNullException">One of the tasks in the <paramref name="tasks"/> tuple is <see langword="null" />.</exception>
+    public static Task<(T1, T2, T3, T4, T5, T6, T7, T8)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8>(this (Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8) tasks)
     {
-        ArgumentNullException.ThrowIfNull(task1);
-        ArgumentNullException.ThrowIfNull(task2);
-        ArgumentNullException.ThrowIfNull(task3);
-        ArgumentNullException.ThrowIfNull(task4);
-        ArgumentNullException.ThrowIfNull(task5);
-        ArgumentNullException.ThrowIfNull(task6);
-        ArgumentNullException.ThrowIfNull(task7);
-        ArgumentNullException.ThrowIfNull(task8);
+        ArgumentNullException.ThrowIfNull(tasks.task1);
+        ArgumentNullException.ThrowIfNull(tasks.task2);
+        ArgumentNullException.ThrowIfNull(tasks.task3);
+        ArgumentNullException.ThrowIfNull(tasks.task4);
+        ArgumentNullException.ThrowIfNull(tasks.task5);
+        ArgumentNullException.ThrowIfNull(tasks.task6);
+        ArgumentNullException.ThrowIfNull(tasks.task7);
+        ArgumentNullException.ThrowIfNull(tasks.task8);
 
         return WhenAllCore(
-            task1,
-            task2,
-            task3,
-            task4,
-            task5,
-            task6,
-            task7,
-            task8
+            tasks.task1,
+            tasks.task2,
+            tasks.task3,
+            tasks.task4,
+            tasks.task5,
+            tasks.task6,
+            tasks.task7,
+            tasks.task8
         );
     }
 
@@ -348,48 +320,40 @@ public static class TaskUtilities
     /// Creates a task that will complete when all of the provided <see cref="Task"/> objects have completed.
     /// The evaluated results are available in a tuple.
     /// </summary>
-    /// <typeparam name="T1">The type of the result produced by the <see cref="Task"/> for <paramref name="task1"/>.</typeparam>
-    /// <typeparam name="T2">The type of the result produced by the <see cref="Task"/> for <paramref name="task2"/>.</typeparam>
-    /// <typeparam name="T3">The type of the result produced by the <see cref="Task"/> for <paramref name="task3"/>.</typeparam>
-    /// <typeparam name="T4">The type of the result produced by the <see cref="Task"/> for <paramref name="task4"/>.</typeparam>
-    /// <typeparam name="T5">The type of the result produced by the <see cref="Task"/> for <paramref name="task5"/>.</typeparam>
-    /// <typeparam name="T6">The type of the result produced by the <see cref="Task"/> for <paramref name="task6"/>.</typeparam>
-    /// <typeparam name="T7">The type of the result produced by the <see cref="Task"/> for <paramref name="task7"/>.</typeparam>
-    /// <typeparam name="T8">The type of the result produced by the <see cref="Task"/> for <paramref name="task8"/>.</typeparam>
-    /// <typeparam name="T9">The type of the result produced by the <see cref="Task"/> for <paramref name="task9"/>.</typeparam>
-    /// <param name="task1">A <see cref="Task"/> that produces a value of type <typeparamref name="T1"/>.</param>
-    /// <param name="task2">A <see cref="Task"/> that produces a value of type <typeparamref name="T2"/>.</param>
-    /// <param name="task3">A <see cref="Task"/> that produces a value of type <typeparamref name="T3"/>.</param>
-    /// <param name="task4">A <see cref="Task"/> that produces a value of type <typeparamref name="T4"/>.</param>
-    /// <param name="task5">A <see cref="Task"/> that produces a value of type <typeparamref name="T5"/>.</param>
-    /// <param name="task6">A <see cref="Task"/> that produces a value of type <typeparamref name="T6"/>.</param>
-    /// <param name="task7">A <see cref="Task"/> that produces a value of type <typeparamref name="T7"/>.</param>
-    /// <param name="task8">A <see cref="Task"/> that produces a value of type <typeparamref name="T8"/>.</param>
-    /// <param name="task9">A <see cref="Task"/> that produces a value of type <typeparamref name="T9"/>.</param>
+    /// <typeparam name="T1">The type of the result produced by the first task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T2">The type of the result produced by the second task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T3">The type of the result produced by the third task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T4">The type of the result produced by the fourth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T5">The type of the result produced by the fifth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T6">The type of the result produced by the sixth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T7">The type of the result produced by the seventh task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T8">The type of the result produced by the eighth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T9">The type of the result produced by the ninth task in <paramref name="tasks"/>.</typeparam>
+    /// <param name="tasks">A tuple of <see cref="Task"/> objects.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/> is <see langword="null" />.</exception>
-    public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9)
+    /// <exception cref="ArgumentNullException">One of the tasks in the <paramref name="tasks"/> tuple is <see langword="null" />.</exception>
+    public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9>(this (Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9) tasks)
     {
-        ArgumentNullException.ThrowIfNull(task1);
-        ArgumentNullException.ThrowIfNull(task2);
-        ArgumentNullException.ThrowIfNull(task3);
-        ArgumentNullException.ThrowIfNull(task4);
-        ArgumentNullException.ThrowIfNull(task5);
-        ArgumentNullException.ThrowIfNull(task6);
-        ArgumentNullException.ThrowIfNull(task7);
-        ArgumentNullException.ThrowIfNull(task8);
-        ArgumentNullException.ThrowIfNull(task9);
+        ArgumentNullException.ThrowIfNull(tasks.task1);
+        ArgumentNullException.ThrowIfNull(tasks.task2);
+        ArgumentNullException.ThrowIfNull(tasks.task3);
+        ArgumentNullException.ThrowIfNull(tasks.task4);
+        ArgumentNullException.ThrowIfNull(tasks.task5);
+        ArgumentNullException.ThrowIfNull(tasks.task6);
+        ArgumentNullException.ThrowIfNull(tasks.task7);
+        ArgumentNullException.ThrowIfNull(tasks.task8);
+        ArgumentNullException.ThrowIfNull(tasks.task9);
 
         return WhenAllCore(
-            task1,
-            task2,
-            task3,
-            task4,
-            task5,
-            task6,
-            task7,
-            task8,
-            task9
+            tasks.task1,
+            tasks.task2,
+            tasks.task3,
+            tasks.task4,
+            tasks.task5,
+            tasks.task6,
+            tasks.task7,
+            tasks.task8,
+            tasks.task9
         );
     }
 
@@ -416,52 +380,43 @@ public static class TaskUtilities
     /// Creates a task that will complete when all of the provided <see cref="Task"/> objects have completed.
     /// The evaluated results are available in a tuple.
     /// </summary>
-    /// <typeparam name="T1">The type of the result produced by the <see cref="Task"/> for <paramref name="task1"/>.</typeparam>
-    /// <typeparam name="T2">The type of the result produced by the <see cref="Task"/> for <paramref name="task2"/>.</typeparam>
-    /// <typeparam name="T3">The type of the result produced by the <see cref="Task"/> for <paramref name="task3"/>.</typeparam>
-    /// <typeparam name="T4">The type of the result produced by the <see cref="Task"/> for <paramref name="task4"/>.</typeparam>
-    /// <typeparam name="T5">The type of the result produced by the <see cref="Task"/> for <paramref name="task5"/>.</typeparam>
-    /// <typeparam name="T6">The type of the result produced by the <see cref="Task"/> for <paramref name="task6"/>.</typeparam>
-    /// <typeparam name="T7">The type of the result produced by the <see cref="Task"/> for <paramref name="task7"/>.</typeparam>
-    /// <typeparam name="T8">The type of the result produced by the <see cref="Task"/> for <paramref name="task8"/>.</typeparam>
-    /// <typeparam name="T9">The type of the result produced by the <see cref="Task"/> for <paramref name="task9"/>.</typeparam>
-    /// <typeparam name="T10">The type of the result produced by the <see cref="Task"/> for <paramref name="task10"/>.</typeparam>
-    /// <param name="task1">A <see cref="Task"/> that produces a value of type <typeparamref name="T1"/>.</param>
-    /// <param name="task2">A <see cref="Task"/> that produces a value of type <typeparamref name="T2"/>.</param>
-    /// <param name="task3">A <see cref="Task"/> that produces a value of type <typeparamref name="T3"/>.</param>
-    /// <param name="task4">A <see cref="Task"/> that produces a value of type <typeparamref name="T4"/>.</param>
-    /// <param name="task5">A <see cref="Task"/> that produces a value of type <typeparamref name="T5"/>.</param>
-    /// <param name="task6">A <see cref="Task"/> that produces a value of type <typeparamref name="T6"/>.</param>
-    /// <param name="task7">A <see cref="Task"/> that produces a value of type <typeparamref name="T7"/>.</param>
-    /// <param name="task8">A <see cref="Task"/> that produces a value of type <typeparamref name="T8"/>.</param>
-    /// <param name="task9">A <see cref="Task"/> that produces a value of type <typeparamref name="T9"/>.</param>
-    /// <param name="task10">A <see cref="Task"/> that produces a value of type <typeparamref name="T10"/>.</param>
+    /// <typeparam name="T1">The type of the result produced by the first task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T2">The type of the result produced by the second task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T3">The type of the result produced by the third task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T4">The type of the result produced by the fourth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T5">The type of the result produced by the fifth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T6">The type of the result produced by the sixth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T7">The type of the result produced by the seventh task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T8">The type of the result produced by the eighth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T9">The type of the result produced by the ninth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T10">The type of the result produced by the tenth task in <paramref name="tasks"/>.</typeparam>
+    /// <param name="tasks">A tuple of <see cref="Task"/> objects.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/> is <see langword="null" />.</exception>
-    public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10)
+    /// <exception cref="ArgumentNullException">One of the tasks in the <paramref name="tasks"/> tuple is <see langword="null" />.</exception>
+    public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(this (Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10) tasks)
     {
-        ArgumentNullException.ThrowIfNull(task1);
-        ArgumentNullException.ThrowIfNull(task2);
-        ArgumentNullException.ThrowIfNull(task3);
-        ArgumentNullException.ThrowIfNull(task4);
-        ArgumentNullException.ThrowIfNull(task5);
-        ArgumentNullException.ThrowIfNull(task6);
-        ArgumentNullException.ThrowIfNull(task7);
-        ArgumentNullException.ThrowIfNull(task8);
-        ArgumentNullException.ThrowIfNull(task9);
-        ArgumentNullException.ThrowIfNull(task10);
+        ArgumentNullException.ThrowIfNull(tasks.task1);
+        ArgumentNullException.ThrowIfNull(tasks.task2);
+        ArgumentNullException.ThrowIfNull(tasks.task3);
+        ArgumentNullException.ThrowIfNull(tasks.task4);
+        ArgumentNullException.ThrowIfNull(tasks.task5);
+        ArgumentNullException.ThrowIfNull(tasks.task6);
+        ArgumentNullException.ThrowIfNull(tasks.task7);
+        ArgumentNullException.ThrowIfNull(tasks.task8);
+        ArgumentNullException.ThrowIfNull(tasks.task9);
+        ArgumentNullException.ThrowIfNull(tasks.task10);
 
         return WhenAllCore(
-            task1,
-            task2,
-            task3,
-            task4,
-            task5,
-            task6,
-            task7,
-            task8,
-            task9,
-            task10
+            tasks.task1,
+            tasks.task2,
+            tasks.task3,
+            tasks.task4,
+            tasks.task5,
+            tasks.task6,
+            tasks.task7,
+            tasks.task8,
+            tasks.task9,
+            tasks.task10
         );
     }
 
@@ -489,56 +444,46 @@ public static class TaskUtilities
     /// Creates a task that will complete when all of the provided <see cref="Task"/> objects have completed.
     /// The evaluated results are available in a tuple.
     /// </summary>
-    /// <typeparam name="T1">The type of the result produced by the <see cref="Task"/> for <paramref name="task1"/>.</typeparam>
-    /// <typeparam name="T2">The type of the result produced by the <see cref="Task"/> for <paramref name="task2"/>.</typeparam>
-    /// <typeparam name="T3">The type of the result produced by the <see cref="Task"/> for <paramref name="task3"/>.</typeparam>
-    /// <typeparam name="T4">The type of the result produced by the <see cref="Task"/> for <paramref name="task4"/>.</typeparam>
-    /// <typeparam name="T5">The type of the result produced by the <see cref="Task"/> for <paramref name="task5"/>.</typeparam>
-    /// <typeparam name="T6">The type of the result produced by the <see cref="Task"/> for <paramref name="task6"/>.</typeparam>
-    /// <typeparam name="T7">The type of the result produced by the <see cref="Task"/> for <paramref name="task7"/>.</typeparam>
-    /// <typeparam name="T8">The type of the result produced by the <see cref="Task"/> for <paramref name="task8"/>.</typeparam>
-    /// <typeparam name="T9">The type of the result produced by the <see cref="Task"/> for <paramref name="task9"/>.</typeparam>
-    /// <typeparam name="T10">The type of the result produced by the <see cref="Task"/> for <paramref name="task10"/>.</typeparam>
-    /// <typeparam name="T11">The type of the result produced by the <see cref="Task"/> for <paramref name="task11"/>.</typeparam>
-    /// <param name="task1">A <see cref="Task"/> that produces a value of type <typeparamref name="T1"/>.</param>
-    /// <param name="task2">A <see cref="Task"/> that produces a value of type <typeparamref name="T2"/>.</param>
-    /// <param name="task3">A <see cref="Task"/> that produces a value of type <typeparamref name="T3"/>.</param>
-    /// <param name="task4">A <see cref="Task"/> that produces a value of type <typeparamref name="T4"/>.</param>
-    /// <param name="task5">A <see cref="Task"/> that produces a value of type <typeparamref name="T5"/>.</param>
-    /// <param name="task6">A <see cref="Task"/> that produces a value of type <typeparamref name="T6"/>.</param>
-    /// <param name="task7">A <see cref="Task"/> that produces a value of type <typeparamref name="T7"/>.</param>
-    /// <param name="task8">A <see cref="Task"/> that produces a value of type <typeparamref name="T8"/>.</param>
-    /// <param name="task9">A <see cref="Task"/> that produces a value of type <typeparamref name="T9"/>.</param>
-    /// <param name="task10">A <see cref="Task"/> that produces a value of type <typeparamref name="T10"/>.</param>
-    /// <param name="task11">A <see cref="Task"/> that produces a value of type <typeparamref name="T11"/>.</param>
+    /// <typeparam name="T1">The type of the result produced by the first task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T2">The type of the result produced by the second task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T3">The type of the result produced by the third task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T4">The type of the result produced by the fourth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T5">The type of the result produced by the fifth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T6">The type of the result produced by the sixth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T7">The type of the result produced by the seventh task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T8">The type of the result produced by the eighth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T9">The type of the result produced by the ninth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T10">The type of the result produced by the tenth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T11">The type of the result produced by the eleventh task in <paramref name="tasks"/>.</typeparam>
+    /// <param name="tasks">A tuple of <see cref="Task"/> objects.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/> is <see langword="null" />.</exception>
-    public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11)
+    /// <exception cref="ArgumentNullException">One of the tasks in the <paramref name="tasks"/> tuple is <see langword="null" />.</exception>
+    public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(this (Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11) tasks)
     {
-        ArgumentNullException.ThrowIfNull(task1);
-        ArgumentNullException.ThrowIfNull(task2);
-        ArgumentNullException.ThrowIfNull(task3);
-        ArgumentNullException.ThrowIfNull(task4);
-        ArgumentNullException.ThrowIfNull(task5);
-        ArgumentNullException.ThrowIfNull(task6);
-        ArgumentNullException.ThrowIfNull(task7);
-        ArgumentNullException.ThrowIfNull(task8);
-        ArgumentNullException.ThrowIfNull(task9);
-        ArgumentNullException.ThrowIfNull(task10);
-        ArgumentNullException.ThrowIfNull(task11);
+        ArgumentNullException.ThrowIfNull(tasks.task1);
+        ArgumentNullException.ThrowIfNull(tasks.task2);
+        ArgumentNullException.ThrowIfNull(tasks.task3);
+        ArgumentNullException.ThrowIfNull(tasks.task4);
+        ArgumentNullException.ThrowIfNull(tasks.task5);
+        ArgumentNullException.ThrowIfNull(tasks.task6);
+        ArgumentNullException.ThrowIfNull(tasks.task7);
+        ArgumentNullException.ThrowIfNull(tasks.task8);
+        ArgumentNullException.ThrowIfNull(tasks.task9);
+        ArgumentNullException.ThrowIfNull(tasks.task10);
+        ArgumentNullException.ThrowIfNull(tasks.task11);
 
         return WhenAllCore(
-            task1,
-            task2,
-            task3,
-            task4,
-            task5,
-            task6,
-            task7,
-            task8,
-            task9,
-            task10,
-            task11
+            tasks.task1,
+            tasks.task2,
+            tasks.task3,
+            tasks.task4,
+            tasks.task5,
+            tasks.task6,
+            tasks.task7,
+            tasks.task8,
+            tasks.task9,
+            tasks.task10,
+            tasks.task11
         );
     }
 
@@ -567,60 +512,49 @@ public static class TaskUtilities
     /// Creates a task that will complete when all of the provided <see cref="Task"/> objects have completed.
     /// The evaluated results are available in a tuple.
     /// </summary>
-    /// <typeparam name="T1">The type of the result produced by the <see cref="Task"/> for <paramref name="task1"/>.</typeparam>
-    /// <typeparam name="T2">The type of the result produced by the <see cref="Task"/> for <paramref name="task2"/>.</typeparam>
-    /// <typeparam name="T3">The type of the result produced by the <see cref="Task"/> for <paramref name="task3"/>.</typeparam>
-    /// <typeparam name="T4">The type of the result produced by the <see cref="Task"/> for <paramref name="task4"/>.</typeparam>
-    /// <typeparam name="T5">The type of the result produced by the <see cref="Task"/> for <paramref name="task5"/>.</typeparam>
-    /// <typeparam name="T6">The type of the result produced by the <see cref="Task"/> for <paramref name="task6"/>.</typeparam>
-    /// <typeparam name="T7">The type of the result produced by the <see cref="Task"/> for <paramref name="task7"/>.</typeparam>
-    /// <typeparam name="T8">The type of the result produced by the <see cref="Task"/> for <paramref name="task8"/>.</typeparam>
-    /// <typeparam name="T9">The type of the result produced by the <see cref="Task"/> for <paramref name="task9"/>.</typeparam>
-    /// <typeparam name="T10">The type of the result produced by the <see cref="Task"/> for <paramref name="task10"/>.</typeparam>
-    /// <typeparam name="T11">The type of the result produced by the <see cref="Task"/> for <paramref name="task11"/>.</typeparam>
-    /// <typeparam name="T12">The type of the result produced by the <see cref="Task"/> for <paramref name="task12"/>.</typeparam>
-    /// <param name="task1">A <see cref="Task"/> that produces a value of type <typeparamref name="T1"/>.</param>
-    /// <param name="task2">A <see cref="Task"/> that produces a value of type <typeparamref name="T2"/>.</param>
-    /// <param name="task3">A <see cref="Task"/> that produces a value of type <typeparamref name="T3"/>.</param>
-    /// <param name="task4">A <see cref="Task"/> that produces a value of type <typeparamref name="T4"/>.</param>
-    /// <param name="task5">A <see cref="Task"/> that produces a value of type <typeparamref name="T5"/>.</param>
-    /// <param name="task6">A <see cref="Task"/> that produces a value of type <typeparamref name="T6"/>.</param>
-    /// <param name="task7">A <see cref="Task"/> that produces a value of type <typeparamref name="T7"/>.</param>
-    /// <param name="task8">A <see cref="Task"/> that produces a value of type <typeparamref name="T8"/>.</param>
-    /// <param name="task9">A <see cref="Task"/> that produces a value of type <typeparamref name="T9"/>.</param>
-    /// <param name="task10">A <see cref="Task"/> that produces a value of type <typeparamref name="T10"/>.</param>
-    /// <param name="task11">A <see cref="Task"/> that produces a value of type <typeparamref name="T11"/>.</param>
-    /// <param name="task12">A <see cref="Task"/> that produces a value of type <typeparamref name="T12"/>.</param>
+    /// <typeparam name="T1">The type of the result produced by the first task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T2">The type of the result produced by the second task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T3">The type of the result produced by the third task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T4">The type of the result produced by the fourth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T5">The type of the result produced by the fifth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T6">The type of the result produced by the sixth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T7">The type of the result produced by the seventh task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T8">The type of the result produced by the eighth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T9">The type of the result produced by the ninth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T10">The type of the result produced by the tenth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T11">The type of the result produced by the eleventh task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T12">The type of the result produced by the twelfth task in <paramref name="tasks"/>.</typeparam>
+    /// <param name="tasks">A tuple of <see cref="Task"/> objects.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/>, <paramref name="task12"/> is <see langword="null" />.</exception>
-    public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12)
+    /// <exception cref="ArgumentNullException">One of the tasks in the <paramref name="tasks"/> tuple is <see langword="null" />.</exception>
+    public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(this (Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12) tasks)
     {
-        ArgumentNullException.ThrowIfNull(task1);
-        ArgumentNullException.ThrowIfNull(task2);
-        ArgumentNullException.ThrowIfNull(task3);
-        ArgumentNullException.ThrowIfNull(task4);
-        ArgumentNullException.ThrowIfNull(task5);
-        ArgumentNullException.ThrowIfNull(task6);
-        ArgumentNullException.ThrowIfNull(task7);
-        ArgumentNullException.ThrowIfNull(task8);
-        ArgumentNullException.ThrowIfNull(task9);
-        ArgumentNullException.ThrowIfNull(task10);
-        ArgumentNullException.ThrowIfNull(task11);
-        ArgumentNullException.ThrowIfNull(task12);
+        ArgumentNullException.ThrowIfNull(tasks.task1);
+        ArgumentNullException.ThrowIfNull(tasks.task2);
+        ArgumentNullException.ThrowIfNull(tasks.task3);
+        ArgumentNullException.ThrowIfNull(tasks.task4);
+        ArgumentNullException.ThrowIfNull(tasks.task5);
+        ArgumentNullException.ThrowIfNull(tasks.task6);
+        ArgumentNullException.ThrowIfNull(tasks.task7);
+        ArgumentNullException.ThrowIfNull(tasks.task8);
+        ArgumentNullException.ThrowIfNull(tasks.task9);
+        ArgumentNullException.ThrowIfNull(tasks.task10);
+        ArgumentNullException.ThrowIfNull(tasks.task11);
+        ArgumentNullException.ThrowIfNull(tasks.task12);
 
         return WhenAllCore(
-            task1,
-            task2,
-            task3,
-            task4,
-            task5,
-            task6,
-            task7,
-            task8,
-            task9,
-            task10,
-            task11,
-            task12
+            tasks.task1,
+            tasks.task2,
+            tasks.task3,
+            tasks.task4,
+            tasks.task5,
+            tasks.task6,
+            tasks.task7,
+            tasks.task8,
+            tasks.task9,
+            tasks.task10,
+            tasks.task11,
+            tasks.task12
         );
     }
 
@@ -650,64 +584,52 @@ public static class TaskUtilities
     /// Creates a task that will complete when all of the provided <see cref="Task"/> objects have completed.
     /// The evaluated results are available in a tuple.
     /// </summary>
-    /// <typeparam name="T1">The type of the result produced by the <see cref="Task"/> for <paramref name="task1"/>.</typeparam>
-    /// <typeparam name="T2">The type of the result produced by the <see cref="Task"/> for <paramref name="task2"/>.</typeparam>
-    /// <typeparam name="T3">The type of the result produced by the <see cref="Task"/> for <paramref name="task3"/>.</typeparam>
-    /// <typeparam name="T4">The type of the result produced by the <see cref="Task"/> for <paramref name="task4"/>.</typeparam>
-    /// <typeparam name="T5">The type of the result produced by the <see cref="Task"/> for <paramref name="task5"/>.</typeparam>
-    /// <typeparam name="T6">The type of the result produced by the <see cref="Task"/> for <paramref name="task6"/>.</typeparam>
-    /// <typeparam name="T7">The type of the result produced by the <see cref="Task"/> for <paramref name="task7"/>.</typeparam>
-    /// <typeparam name="T8">The type of the result produced by the <see cref="Task"/> for <paramref name="task8"/>.</typeparam>
-    /// <typeparam name="T9">The type of the result produced by the <see cref="Task"/> for <paramref name="task9"/>.</typeparam>
-    /// <typeparam name="T10">The type of the result produced by the <see cref="Task"/> for <paramref name="task10"/>.</typeparam>
-    /// <typeparam name="T11">The type of the result produced by the <see cref="Task"/> for <paramref name="task11"/>.</typeparam>
-    /// <typeparam name="T12">The type of the result produced by the <see cref="Task"/> for <paramref name="task12"/>.</typeparam>
-    /// <typeparam name="T13">The type of the result produced by the <see cref="Task"/> for <paramref name="task13"/>.</typeparam>
-    /// <param name="task1">A <see cref="Task"/> that produces a value of type <typeparamref name="T1"/>.</param>
-    /// <param name="task2">A <see cref="Task"/> that produces a value of type <typeparamref name="T2"/>.</param>
-    /// <param name="task3">A <see cref="Task"/> that produces a value of type <typeparamref name="T3"/>.</param>
-    /// <param name="task4">A <see cref="Task"/> that produces a value of type <typeparamref name="T4"/>.</param>
-    /// <param name="task5">A <see cref="Task"/> that produces a value of type <typeparamref name="T5"/>.</param>
-    /// <param name="task6">A <see cref="Task"/> that produces a value of type <typeparamref name="T6"/>.</param>
-    /// <param name="task7">A <see cref="Task"/> that produces a value of type <typeparamref name="T7"/>.</param>
-    /// <param name="task8">A <see cref="Task"/> that produces a value of type <typeparamref name="T8"/>.</param>
-    /// <param name="task9">A <see cref="Task"/> that produces a value of type <typeparamref name="T9"/>.</param>
-    /// <param name="task10">A <see cref="Task"/> that produces a value of type <typeparamref name="T10"/>.</param>
-    /// <param name="task11">A <see cref="Task"/> that produces a value of type <typeparamref name="T11"/>.</param>
-    /// <param name="task12">A <see cref="Task"/> that produces a value of type <typeparamref name="T12"/>.</param>
-    /// <param name="task13">A <see cref="Task"/> that produces a value of type <typeparamref name="T13"/>.</param>
+    /// <typeparam name="T1">The type of the result produced by the first task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T2">The type of the result produced by the second task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T3">The type of the result produced by the third task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T4">The type of the result produced by the fourth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T5">The type of the result produced by the fifth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T6">The type of the result produced by the sixth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T7">The type of the result produced by the seventh task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T8">The type of the result produced by the eighth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T9">The type of the result produced by the ninth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T10">The type of the result produced by the tenth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T11">The type of the result produced by the eleventh task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T12">The type of the result produced by the twelfth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T13">The type of the result produced by the thirteenth task in <paramref name="tasks"/>.</typeparam>
+    /// <param name="tasks">A tuple of <see cref="Task"/> objects.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/>, <paramref name="task12"/>, <paramref name="task13"/> is <see langword="null" />.</exception>
-    public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12, Task<T13> task13)
+    /// <exception cref="ArgumentNullException">One of the tasks in the <paramref name="tasks"/> tuple is <see langword="null" />.</exception>
+    public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(this (Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12, Task<T13> task13) tasks)
     {
-        ArgumentNullException.ThrowIfNull(task1);
-        ArgumentNullException.ThrowIfNull(task2);
-        ArgumentNullException.ThrowIfNull(task3);
-        ArgumentNullException.ThrowIfNull(task4);
-        ArgumentNullException.ThrowIfNull(task5);
-        ArgumentNullException.ThrowIfNull(task6);
-        ArgumentNullException.ThrowIfNull(task7);
-        ArgumentNullException.ThrowIfNull(task8);
-        ArgumentNullException.ThrowIfNull(task9);
-        ArgumentNullException.ThrowIfNull(task10);
-        ArgumentNullException.ThrowIfNull(task11);
-        ArgumentNullException.ThrowIfNull(task12);
-        ArgumentNullException.ThrowIfNull(task13);
+        ArgumentNullException.ThrowIfNull(tasks.task1);
+        ArgumentNullException.ThrowIfNull(tasks.task2);
+        ArgumentNullException.ThrowIfNull(tasks.task3);
+        ArgumentNullException.ThrowIfNull(tasks.task4);
+        ArgumentNullException.ThrowIfNull(tasks.task5);
+        ArgumentNullException.ThrowIfNull(tasks.task6);
+        ArgumentNullException.ThrowIfNull(tasks.task7);
+        ArgumentNullException.ThrowIfNull(tasks.task8);
+        ArgumentNullException.ThrowIfNull(tasks.task9);
+        ArgumentNullException.ThrowIfNull(tasks.task10);
+        ArgumentNullException.ThrowIfNull(tasks.task11);
+        ArgumentNullException.ThrowIfNull(tasks.task12);
+        ArgumentNullException.ThrowIfNull(tasks.task13);
 
         return WhenAllCore(
-            task1,
-            task2,
-            task3,
-            task4,
-            task5,
-            task6,
-            task7,
-            task8,
-            task9,
-            task10,
-            task11,
-            task12,
-            task13
+            tasks.task1,
+            tasks.task2,
+            tasks.task3,
+            tasks.task4,
+            tasks.task5,
+            tasks.task6,
+            tasks.task7,
+            tasks.task8,
+            tasks.task9,
+            tasks.task10,
+            tasks.task11,
+            tasks.task12,
+            tasks.task13
         );
     }
 
@@ -738,68 +660,55 @@ public static class TaskUtilities
     /// Creates a task that will complete when all of the provided <see cref="Task"/> objects have completed.
     /// The evaluated results are available in a tuple.
     /// </summary>
-    /// <typeparam name="T1">The type of the result produced by the <see cref="Task"/> for <paramref name="task1"/>.</typeparam>
-    /// <typeparam name="T2">The type of the result produced by the <see cref="Task"/> for <paramref name="task2"/>.</typeparam>
-    /// <typeparam name="T3">The type of the result produced by the <see cref="Task"/> for <paramref name="task3"/>.</typeparam>
-    /// <typeparam name="T4">The type of the result produced by the <see cref="Task"/> for <paramref name="task4"/>.</typeparam>
-    /// <typeparam name="T5">The type of the result produced by the <see cref="Task"/> for <paramref name="task5"/>.</typeparam>
-    /// <typeparam name="T6">The type of the result produced by the <see cref="Task"/> for <paramref name="task6"/>.</typeparam>
-    /// <typeparam name="T7">The type of the result produced by the <see cref="Task"/> for <paramref name="task7"/>.</typeparam>
-    /// <typeparam name="T8">The type of the result produced by the <see cref="Task"/> for <paramref name="task8"/>.</typeparam>
-    /// <typeparam name="T9">The type of the result produced by the <see cref="Task"/> for <paramref name="task9"/>.</typeparam>
-    /// <typeparam name="T10">The type of the result produced by the <see cref="Task"/> for <paramref name="task10"/>.</typeparam>
-    /// <typeparam name="T11">The type of the result produced by the <see cref="Task"/> for <paramref name="task11"/>.</typeparam>
-    /// <typeparam name="T12">The type of the result produced by the <see cref="Task"/> for <paramref name="task12"/>.</typeparam>
-    /// <typeparam name="T13">The type of the result produced by the <see cref="Task"/> for <paramref name="task13"/>.</typeparam>
-    /// <typeparam name="T14">The type of the result produced by the <see cref="Task"/> for <paramref name="task14"/>.</typeparam>
-    /// <param name="task1">A <see cref="Task"/> that produces a value of type <typeparamref name="T1"/>.</param>
-    /// <param name="task2">A <see cref="Task"/> that produces a value of type <typeparamref name="T2"/>.</param>
-    /// <param name="task3">A <see cref="Task"/> that produces a value of type <typeparamref name="T3"/>.</param>
-    /// <param name="task4">A <see cref="Task"/> that produces a value of type <typeparamref name="T4"/>.</param>
-    /// <param name="task5">A <see cref="Task"/> that produces a value of type <typeparamref name="T5"/>.</param>
-    /// <param name="task6">A <see cref="Task"/> that produces a value of type <typeparamref name="T6"/>.</param>
-    /// <param name="task7">A <see cref="Task"/> that produces a value of type <typeparamref name="T7"/>.</param>
-    /// <param name="task8">A <see cref="Task"/> that produces a value of type <typeparamref name="T8"/>.</param>
-    /// <param name="task9">A <see cref="Task"/> that produces a value of type <typeparamref name="T9"/>.</param>
-    /// <param name="task10">A <see cref="Task"/> that produces a value of type <typeparamref name="T10"/>.</param>
-    /// <param name="task11">A <see cref="Task"/> that produces a value of type <typeparamref name="T11"/>.</param>
-    /// <param name="task12">A <see cref="Task"/> that produces a value of type <typeparamref name="T12"/>.</param>
-    /// <param name="task13">A <see cref="Task"/> that produces a value of type <typeparamref name="T13"/>.</param>
-    /// <param name="task14">A <see cref="Task"/> that produces a value of type <typeparamref name="T14"/>.</param>
+    /// <typeparam name="T1">The type of the result produced by the first task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T2">The type of the result produced by the second task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T3">The type of the result produced by the third task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T4">The type of the result produced by the fourth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T5">The type of the result produced by the fifth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T6">The type of the result produced by the sixth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T7">The type of the result produced by the seventh task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T8">The type of the result produced by the eighth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T9">The type of the result produced by the ninth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T10">The type of the result produced by the tenth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T11">The type of the result produced by the eleventh task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T12">The type of the result produced by the twelfth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T13">The type of the result produced by the thirteenth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T14">The type of the result produced by the fourteenth task in <paramref name="tasks"/>.</typeparam>
+    /// <param name="tasks">A tuple of <see cref="Task"/> objects.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/>, <paramref name="task12"/>, <paramref name="task13"/>, <paramref name="task14"/> is <see langword="null" />.</exception>
-    public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12, Task<T13> task13, Task<T14> task14)
+    /// <exception cref="ArgumentNullException">One of the tasks in the <paramref name="tasks"/> tuple is <see langword="null" />.</exception>
+    public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(this (Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12, Task<T13> task13, Task<T14> task14) tasks)
     {
-        ArgumentNullException.ThrowIfNull(task1);
-        ArgumentNullException.ThrowIfNull(task2);
-        ArgumentNullException.ThrowIfNull(task3);
-        ArgumentNullException.ThrowIfNull(task4);
-        ArgumentNullException.ThrowIfNull(task5);
-        ArgumentNullException.ThrowIfNull(task6);
-        ArgumentNullException.ThrowIfNull(task7);
-        ArgumentNullException.ThrowIfNull(task8);
-        ArgumentNullException.ThrowIfNull(task9);
-        ArgumentNullException.ThrowIfNull(task10);
-        ArgumentNullException.ThrowIfNull(task11);
-        ArgumentNullException.ThrowIfNull(task12);
-        ArgumentNullException.ThrowIfNull(task13);
-        ArgumentNullException.ThrowIfNull(task14);
+        ArgumentNullException.ThrowIfNull(tasks.task1);
+        ArgumentNullException.ThrowIfNull(tasks.task2);
+        ArgumentNullException.ThrowIfNull(tasks.task3);
+        ArgumentNullException.ThrowIfNull(tasks.task4);
+        ArgumentNullException.ThrowIfNull(tasks.task5);
+        ArgumentNullException.ThrowIfNull(tasks.task6);
+        ArgumentNullException.ThrowIfNull(tasks.task7);
+        ArgumentNullException.ThrowIfNull(tasks.task8);
+        ArgumentNullException.ThrowIfNull(tasks.task9);
+        ArgumentNullException.ThrowIfNull(tasks.task10);
+        ArgumentNullException.ThrowIfNull(tasks.task11);
+        ArgumentNullException.ThrowIfNull(tasks.task12);
+        ArgumentNullException.ThrowIfNull(tasks.task13);
+        ArgumentNullException.ThrowIfNull(tasks.task14);
 
         return WhenAllCore(
-            task1,
-            task2,
-            task3,
-            task4,
-            task5,
-            task6,
-            task7,
-            task8,
-            task9,
-            task10,
-            task11,
-            task12,
-            task13,
-            task14
+            tasks.task1,
+            tasks.task2,
+            tasks.task3,
+            tasks.task4,
+            tasks.task5,
+            tasks.task6,
+            tasks.task7,
+            tasks.task8,
+            tasks.task9,
+            tasks.task10,
+            tasks.task11,
+            tasks.task12,
+            tasks.task13,
+            tasks.task14
         );
     }
 
@@ -831,72 +740,58 @@ public static class TaskUtilities
     /// Creates a task that will complete when all of the provided <see cref="Task"/> objects have completed.
     /// The evaluated results are available in a tuple.
     /// </summary>
-    /// <typeparam name="T1">The type of the result produced by the <see cref="Task"/> for <paramref name="task1"/>.</typeparam>
-    /// <typeparam name="T2">The type of the result produced by the <see cref="Task"/> for <paramref name="task2"/>.</typeparam>
-    /// <typeparam name="T3">The type of the result produced by the <see cref="Task"/> for <paramref name="task3"/>.</typeparam>
-    /// <typeparam name="T4">The type of the result produced by the <see cref="Task"/> for <paramref name="task4"/>.</typeparam>
-    /// <typeparam name="T5">The type of the result produced by the <see cref="Task"/> for <paramref name="task5"/>.</typeparam>
-    /// <typeparam name="T6">The type of the result produced by the <see cref="Task"/> for <paramref name="task6"/>.</typeparam>
-    /// <typeparam name="T7">The type of the result produced by the <see cref="Task"/> for <paramref name="task7"/>.</typeparam>
-    /// <typeparam name="T8">The type of the result produced by the <see cref="Task"/> for <paramref name="task8"/>.</typeparam>
-    /// <typeparam name="T9">The type of the result produced by the <see cref="Task"/> for <paramref name="task9"/>.</typeparam>
-    /// <typeparam name="T10">The type of the result produced by the <see cref="Task"/> for <paramref name="task10"/>.</typeparam>
-    /// <typeparam name="T11">The type of the result produced by the <see cref="Task"/> for <paramref name="task11"/>.</typeparam>
-    /// <typeparam name="T12">The type of the result produced by the <see cref="Task"/> for <paramref name="task12"/>.</typeparam>
-    /// <typeparam name="T13">The type of the result produced by the <see cref="Task"/> for <paramref name="task13"/>.</typeparam>
-    /// <typeparam name="T14">The type of the result produced by the <see cref="Task"/> for <paramref name="task14"/>.</typeparam>
-    /// <typeparam name="T15">The type of the result produced by the <see cref="Task"/> for <paramref name="task15"/>.</typeparam>
-    /// <param name="task1">A <see cref="Task"/> that produces a value of type <typeparamref name="T1"/>.</param>
-    /// <param name="task2">A <see cref="Task"/> that produces a value of type <typeparamref name="T2"/>.</param>
-    /// <param name="task3">A <see cref="Task"/> that produces a value of type <typeparamref name="T3"/>.</param>
-    /// <param name="task4">A <see cref="Task"/> that produces a value of type <typeparamref name="T4"/>.</param>
-    /// <param name="task5">A <see cref="Task"/> that produces a value of type <typeparamref name="T5"/>.</param>
-    /// <param name="task6">A <see cref="Task"/> that produces a value of type <typeparamref name="T6"/>.</param>
-    /// <param name="task7">A <see cref="Task"/> that produces a value of type <typeparamref name="T7"/>.</param>
-    /// <param name="task8">A <see cref="Task"/> that produces a value of type <typeparamref name="T8"/>.</param>
-    /// <param name="task9">A <see cref="Task"/> that produces a value of type <typeparamref name="T9"/>.</param>
-    /// <param name="task10">A <see cref="Task"/> that produces a value of type <typeparamref name="T10"/>.</param>
-    /// <param name="task11">A <see cref="Task"/> that produces a value of type <typeparamref name="T11"/>.</param>
-    /// <param name="task12">A <see cref="Task"/> that produces a value of type <typeparamref name="T12"/>.</param>
-    /// <param name="task13">A <see cref="Task"/> that produces a value of type <typeparamref name="T13"/>.</param>
-    /// <param name="task14">A <see cref="Task"/> that produces a value of type <typeparamref name="T14"/>.</param>
-    /// <param name="task15">A <see cref="Task"/> that produces a value of type <typeparamref name="T15"/>.</param>
+    /// <typeparam name="T1">The type of the result produced by the first task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T2">The type of the result produced by the second task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T3">The type of the result produced by the third task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T4">The type of the result produced by the fourth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T5">The type of the result produced by the fifth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T6">The type of the result produced by the sixth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T7">The type of the result produced by the seventh task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T8">The type of the result produced by the eighth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T9">The type of the result produced by the ninth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T10">The type of the result produced by the tenth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T11">The type of the result produced by the eleventh task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T12">The type of the result produced by the twelfth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T13">The type of the result produced by the thirteenth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T14">The type of the result produced by the fourteenth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T15">The type of the result produced by the fifteenth task in <paramref name="tasks"/>.</typeparam>
+    /// <param name="tasks">A tuple of <see cref="Task"/> objects.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/>, <paramref name="task12"/>, <paramref name="task13"/>, <paramref name="task14"/>, <paramref name="task15"/> is <see langword="null" />.</exception>
-    public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12, Task<T13> task13, Task<T14> task14, Task<T15> task15)
+    /// <exception cref="ArgumentNullException">One of the tasks in the <paramref name="tasks"/> tuple is <see langword="null" />.</exception>
+    public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(this (Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12, Task<T13> task13, Task<T14> task14, Task<T15> task15) tasks)
     {
-        ArgumentNullException.ThrowIfNull(task1);
-        ArgumentNullException.ThrowIfNull(task2);
-        ArgumentNullException.ThrowIfNull(task3);
-        ArgumentNullException.ThrowIfNull(task4);
-        ArgumentNullException.ThrowIfNull(task5);
-        ArgumentNullException.ThrowIfNull(task6);
-        ArgumentNullException.ThrowIfNull(task7);
-        ArgumentNullException.ThrowIfNull(task8);
-        ArgumentNullException.ThrowIfNull(task9);
-        ArgumentNullException.ThrowIfNull(task10);
-        ArgumentNullException.ThrowIfNull(task11);
-        ArgumentNullException.ThrowIfNull(task12);
-        ArgumentNullException.ThrowIfNull(task13);
-        ArgumentNullException.ThrowIfNull(task14);
-        ArgumentNullException.ThrowIfNull(task15);
+        ArgumentNullException.ThrowIfNull(tasks.task1);
+        ArgumentNullException.ThrowIfNull(tasks.task2);
+        ArgumentNullException.ThrowIfNull(tasks.task3);
+        ArgumentNullException.ThrowIfNull(tasks.task4);
+        ArgumentNullException.ThrowIfNull(tasks.task5);
+        ArgumentNullException.ThrowIfNull(tasks.task6);
+        ArgumentNullException.ThrowIfNull(tasks.task7);
+        ArgumentNullException.ThrowIfNull(tasks.task8);
+        ArgumentNullException.ThrowIfNull(tasks.task9);
+        ArgumentNullException.ThrowIfNull(tasks.task10);
+        ArgumentNullException.ThrowIfNull(tasks.task11);
+        ArgumentNullException.ThrowIfNull(tasks.task12);
+        ArgumentNullException.ThrowIfNull(tasks.task13);
+        ArgumentNullException.ThrowIfNull(tasks.task14);
+        ArgumentNullException.ThrowIfNull(tasks.task15);
 
         return WhenAllCore(
-            task1,
-            task2,
-            task3,
-            task4,
-            task5,
-            task6,
-            task7,
-            task8,
-            task9,
-            task10,
-            task11,
-            task12,
-            task13,
-            task14,
-            task15
+            tasks.task1,
+            tasks.task2,
+            tasks.task3,
+            tasks.task4,
+            tasks.task5,
+            tasks.task6,
+            tasks.task7,
+            tasks.task8,
+            tasks.task9,
+            tasks.task10,
+            tasks.task11,
+            tasks.task12,
+            tasks.task13,
+            tasks.task14,
+            tasks.task15
         );
     }
 
@@ -929,76 +824,61 @@ public static class TaskUtilities
     /// Creates a task that will complete when all of the provided <see cref="Task"/> objects have completed.
     /// The evaluated results are available in a tuple.
     /// </summary>
-    /// <typeparam name="T1">The type of the result produced by the <see cref="Task"/> for <paramref name="task1"/>.</typeparam>
-    /// <typeparam name="T2">The type of the result produced by the <see cref="Task"/> for <paramref name="task2"/>.</typeparam>
-    /// <typeparam name="T3">The type of the result produced by the <see cref="Task"/> for <paramref name="task3"/>.</typeparam>
-    /// <typeparam name="T4">The type of the result produced by the <see cref="Task"/> for <paramref name="task4"/>.</typeparam>
-    /// <typeparam name="T5">The type of the result produced by the <see cref="Task"/> for <paramref name="task5"/>.</typeparam>
-    /// <typeparam name="T6">The type of the result produced by the <see cref="Task"/> for <paramref name="task6"/>.</typeparam>
-    /// <typeparam name="T7">The type of the result produced by the <see cref="Task"/> for <paramref name="task7"/>.</typeparam>
-    /// <typeparam name="T8">The type of the result produced by the <see cref="Task"/> for <paramref name="task8"/>.</typeparam>
-    /// <typeparam name="T9">The type of the result produced by the <see cref="Task"/> for <paramref name="task9"/>.</typeparam>
-    /// <typeparam name="T10">The type of the result produced by the <see cref="Task"/> for <paramref name="task10"/>.</typeparam>
-    /// <typeparam name="T11">The type of the result produced by the <see cref="Task"/> for <paramref name="task11"/>.</typeparam>
-    /// <typeparam name="T12">The type of the result produced by the <see cref="Task"/> for <paramref name="task12"/>.</typeparam>
-    /// <typeparam name="T13">The type of the result produced by the <see cref="Task"/> for <paramref name="task13"/>.</typeparam>
-    /// <typeparam name="T14">The type of the result produced by the <see cref="Task"/> for <paramref name="task14"/>.</typeparam>
-    /// <typeparam name="T15">The type of the result produced by the <see cref="Task"/> for <paramref name="task15"/>.</typeparam>
-    /// <typeparam name="T16">The type of the result produced by the <see cref="Task"/> for <paramref name="task16"/>.</typeparam>
-    /// <param name="task1">A <see cref="Task"/> that produces a value of type <typeparamref name="T1"/>.</param>
-    /// <param name="task2">A <see cref="Task"/> that produces a value of type <typeparamref name="T2"/>.</param>
-    /// <param name="task3">A <see cref="Task"/> that produces a value of type <typeparamref name="T3"/>.</param>
-    /// <param name="task4">A <see cref="Task"/> that produces a value of type <typeparamref name="T4"/>.</param>
-    /// <param name="task5">A <see cref="Task"/> that produces a value of type <typeparamref name="T5"/>.</param>
-    /// <param name="task6">A <see cref="Task"/> that produces a value of type <typeparamref name="T6"/>.</param>
-    /// <param name="task7">A <see cref="Task"/> that produces a value of type <typeparamref name="T7"/>.</param>
-    /// <param name="task8">A <see cref="Task"/> that produces a value of type <typeparamref name="T8"/>.</param>
-    /// <param name="task9">A <see cref="Task"/> that produces a value of type <typeparamref name="T9"/>.</param>
-    /// <param name="task10">A <see cref="Task"/> that produces a value of type <typeparamref name="T10"/>.</param>
-    /// <param name="task11">A <see cref="Task"/> that produces a value of type <typeparamref name="T11"/>.</param>
-    /// <param name="task12">A <see cref="Task"/> that produces a value of type <typeparamref name="T12"/>.</param>
-    /// <param name="task13">A <see cref="Task"/> that produces a value of type <typeparamref name="T13"/>.</param>
-    /// <param name="task14">A <see cref="Task"/> that produces a value of type <typeparamref name="T14"/>.</param>
-    /// <param name="task15">A <see cref="Task"/> that produces a value of type <typeparamref name="T15"/>.</param>
-    /// <param name="task16">A <see cref="Task"/> that produces a value of type <typeparamref name="T16"/>.</param>
+    /// <typeparam name="T1">The type of the result produced by the first task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T2">The type of the result produced by the second task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T3">The type of the result produced by the third task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T4">The type of the result produced by the fourth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T5">The type of the result produced by the fifth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T6">The type of the result produced by the sixth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T7">The type of the result produced by the seventh task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T8">The type of the result produced by the eighth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T9">The type of the result produced by the ninth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T10">The type of the result produced by the tenth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T11">The type of the result produced by the eleventh task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T12">The type of the result produced by the twelfth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T13">The type of the result produced by the thirteenth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T14">The type of the result produced by the fourteenth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T15">The type of the result produced by the fifteenth task in <paramref name="tasks"/>.</typeparam>
+    /// <typeparam name="T16">The type of the result produced by the sixteenth task in <paramref name="tasks"/>.</typeparam>
+    /// <param name="tasks">A tuple of <see cref="Task"/> objects.</param>
     /// <returns>A tuple containing the resulting values from all of the completed <see cref="Task"/> operations.</returns>
-    /// <exception cref="ArgumentNullException">One of <paramref name="task1"/>, <paramref name="task2"/>, <paramref name="task3"/>, <paramref name="task4"/>, <paramref name="task5"/>, <paramref name="task6"/>, <paramref name="task7"/>, <paramref name="task8"/>, <paramref name="task9"/>, <paramref name="task10"/>, <paramref name="task11"/>, <paramref name="task12"/>, <paramref name="task13"/>, <paramref name="task14"/>, <paramref name="task15"/>, <paramref name="task16"/> is <see langword="null" />.</exception>
-    public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12, Task<T13> task13, Task<T14> task14, Task<T15> task15, Task<T16> task16)
+    /// <exception cref="ArgumentNullException">One of the tasks in the <paramref name="tasks"/> tuple is <see langword="null" />.</exception>
+    public static Task<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)> WhenAll<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(this (Task<T1> task1, Task<T2> task2, Task<T3> task3, Task<T4> task4, Task<T5> task5, Task<T6> task6, Task<T7> task7, Task<T8> task8, Task<T9> task9, Task<T10> task10, Task<T11> task11, Task<T12> task12, Task<T13> task13, Task<T14> task14, Task<T15> task15, Task<T16> task16) tasks)
     {
-        ArgumentNullException.ThrowIfNull(task1);
-        ArgumentNullException.ThrowIfNull(task2);
-        ArgumentNullException.ThrowIfNull(task3);
-        ArgumentNullException.ThrowIfNull(task4);
-        ArgumentNullException.ThrowIfNull(task5);
-        ArgumentNullException.ThrowIfNull(task6);
-        ArgumentNullException.ThrowIfNull(task7);
-        ArgumentNullException.ThrowIfNull(task8);
-        ArgumentNullException.ThrowIfNull(task9);
-        ArgumentNullException.ThrowIfNull(task10);
-        ArgumentNullException.ThrowIfNull(task11);
-        ArgumentNullException.ThrowIfNull(task12);
-        ArgumentNullException.ThrowIfNull(task13);
-        ArgumentNullException.ThrowIfNull(task14);
-        ArgumentNullException.ThrowIfNull(task15);
-        ArgumentNullException.ThrowIfNull(task16);
+        ArgumentNullException.ThrowIfNull(tasks.task1);
+        ArgumentNullException.ThrowIfNull(tasks.task2);
+        ArgumentNullException.ThrowIfNull(tasks.task3);
+        ArgumentNullException.ThrowIfNull(tasks.task4);
+        ArgumentNullException.ThrowIfNull(tasks.task5);
+        ArgumentNullException.ThrowIfNull(tasks.task6);
+        ArgumentNullException.ThrowIfNull(tasks.task7);
+        ArgumentNullException.ThrowIfNull(tasks.task8);
+        ArgumentNullException.ThrowIfNull(tasks.task9);
+        ArgumentNullException.ThrowIfNull(tasks.task10);
+        ArgumentNullException.ThrowIfNull(tasks.task11);
+        ArgumentNullException.ThrowIfNull(tasks.task12);
+        ArgumentNullException.ThrowIfNull(tasks.task13);
+        ArgumentNullException.ThrowIfNull(tasks.task14);
+        ArgumentNullException.ThrowIfNull(tasks.task15);
+        ArgumentNullException.ThrowIfNull(tasks.task16);
 
         return WhenAllCore(
-            task1,
-            task2,
-            task3,
-            task4,
-            task5,
-            task6,
-            task7,
-            task8,
-            task9,
-            task10,
-            task11,
-            task12,
-            task13,
-            task14,
-            task15,
-            task16
+            tasks.task1,
+            tasks.task2,
+            tasks.task3,
+            tasks.task4,
+            tasks.task5,
+            tasks.task6,
+            tasks.task7,
+            tasks.task8,
+            tasks.task9,
+            tasks.task10,
+            tasks.task11,
+            tasks.task12,
+            tasks.task13,
+            tasks.task14,
+            tasks.task15,
+            tasks.task16
         );
     }
 

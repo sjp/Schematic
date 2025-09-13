@@ -42,10 +42,10 @@ internal sealed class GeneratePocoCommand : AsyncCommand<GeneratePocoCommand.Set
         var connection = dependencyProvider.GetSchematicConnection();
         var nameTranslator = dependencyProvider.GetNameTranslator(settings.NamingConvention);
 
-        var (database, commentProvider) = await TaskUtilities.WhenAll(
+        var (database, commentProvider) = await (
             connection.Dialect.GetRelationalDatabaseAsync(connection, cancellationToken),
             connection.Dialect.GetRelationalDatabaseCommentProviderAsync(connection, cancellationToken)
-        ).ConfigureAwait(false);
+        ).WhenAll().ConfigureAwait(false);
 
         var generator = new PocoDataAccessGenerator(_fileSystem, database, commentProvider, nameTranslator);
         await generator.GenerateAsync(settings.ProjectPath!.FullName, settings.BaseNamespace!, cancellationToken).ConfigureAwait(false);

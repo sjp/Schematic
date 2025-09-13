@@ -45,7 +45,7 @@ public class RelationalDatabaseMapper
             dtoSequences,
             dtoSynonyms,
             dtoRoutines
-        ) = await TaskUtilities.WhenAll(
+        ) = await (
             source.GetAllTables(cancellationToken)
                 .Select(t => tableMapper.Map<IRelationalDatabaseTable, Dto.RelationalDatabaseTable>(t))
                 .ToListAsync(cancellationToken)
@@ -66,7 +66,7 @@ public class RelationalDatabaseMapper
                 .Select(r => routineMapper.Map<IDatabaseRoutine, Dto.DatabaseRoutine>(r))
                 .ToListAsync(cancellationToken)
                 .AsTask()
-        );
+        ).WhenAll().ConfigureAwait(false);
 
         var identifierDefaultsMapper = MapperRegistry.GetMapper<IIdentifierDefaults, Dto.IdentifierDefaults>();
         var dtoIdentifierDefaults = identifierDefaultsMapper.Map<IIdentifierDefaults, Dto.IdentifierDefaults>(source.IdentifierDefaults);

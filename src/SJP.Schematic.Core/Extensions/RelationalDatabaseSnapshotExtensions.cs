@@ -103,13 +103,13 @@ public static class RelationalDatabaseSnapshotExtensions
             sequences,
             synonyms,
             routines
-        ) = await TaskUtilities.WhenAll(
+        ) = await (
             tablesTask,
             viewsTask,
             sequencesTask,
             synonymsTask,
             routinesTask
-        ).ConfigureAwait(false);
+        ).WhenAll().ConfigureAwait(false);
 
         return new RelationalDatabase(
             database.IdentifierDefaults,

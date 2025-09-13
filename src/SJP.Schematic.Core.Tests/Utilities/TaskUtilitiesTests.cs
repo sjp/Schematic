@@ -13,10 +13,10 @@ internal static class TaskUtilitiesTests
         var (
             task1Result,
             task2Result
-        ) = await TaskUtilities.WhenAll(
+        ) = await (
             Task.FromResult(1),
             Task.FromResult("2")
-        );
+        ).WhenAll();
 
         using (Assert.EnterMultipleScope())
         {
@@ -32,11 +32,11 @@ internal static class TaskUtilitiesTests
             task1Result,
             task2Result,
             task3Result
-        ) = await TaskUtilities.WhenAll(
+        ) = await (
             Task.FromResult(1),
             Task.FromResult("2"),
             Task.FromResult(3)
-        );
+        ).WhenAll();
 
         using (Assert.EnterMultipleScope())
         {
@@ -54,12 +54,12 @@ internal static class TaskUtilitiesTests
             task2Result,
             task3Result,
             task4Result
-        ) = await TaskUtilities.WhenAll(
+        ) = await (
             Task.FromResult(1),
             Task.FromResult("2"),
             Task.FromResult(3),
             Task.FromResult("4")
-        );
+        ).WhenAll();
 
         using (Assert.EnterMultipleScope())
         {
@@ -79,13 +79,13 @@ internal static class TaskUtilitiesTests
             task3Result,
             task4Result,
             task5Result
-        ) = await TaskUtilities.WhenAll(
+        ) = await (
             Task.FromResult(1),
             Task.FromResult("2"),
             Task.FromResult(3),
             Task.FromResult("4"),
             Task.FromResult(5)
-        );
+        ).WhenAll();
 
         using (Assert.EnterMultipleScope())
         {
@@ -107,14 +107,14 @@ internal static class TaskUtilitiesTests
             task4Result,
             task5Result,
             task6Result
-        ) = await TaskUtilities.WhenAll(
+        ) = await (
             Task.FromResult(1),
             Task.FromResult("2"),
             Task.FromResult(3),
             Task.FromResult("4"),
             Task.FromResult(5),
             Task.FromResult("6")
-        );
+        ).WhenAll();
 
         using (Assert.EnterMultipleScope())
         {
@@ -138,7 +138,7 @@ internal static class TaskUtilitiesTests
             task5Result,
             task6Result,
             task7Result
-        ) = await TaskUtilities.WhenAll(
+        ) = await (
             Task.FromResult(1),
             Task.FromResult("2"),
             Task.FromResult(3),
@@ -146,7 +146,7 @@ internal static class TaskUtilitiesTests
             Task.FromResult(5),
             Task.FromResult("6"),
             Task.FromResult(7)
-        );
+        ).WhenAll();
 
         using (Assert.EnterMultipleScope())
         {
@@ -172,7 +172,7 @@ internal static class TaskUtilitiesTests
             task6Result,
             task7Result,
             task8Result
-        ) = await TaskUtilities.WhenAll(
+        ) = await (
             Task.FromResult(1),
             Task.FromResult("2"),
             Task.FromResult(3),
@@ -181,7 +181,7 @@ internal static class TaskUtilitiesTests
             Task.FromResult("6"),
             Task.FromResult(7),
             Task.FromResult("8")
-        );
+        ).WhenAll();
 
         using (Assert.EnterMultipleScope())
         {
@@ -209,7 +209,7 @@ internal static class TaskUtilitiesTests
             task7Result,
             task8Result,
             task9Result
-        ) = await TaskUtilities.WhenAll(
+        ) = await (
             Task.FromResult(1),
             Task.FromResult("2"),
             Task.FromResult(3),
@@ -219,7 +219,7 @@ internal static class TaskUtilitiesTests
             Task.FromResult(7),
             Task.FromResult("8"),
             Task.FromResult(9)
-        );
+        ).WhenAll();
 
         using (Assert.EnterMultipleScope())
         {
@@ -249,7 +249,7 @@ internal static class TaskUtilitiesTests
             task8Result,
             task9Result,
             task10Result
-        ) = await TaskUtilities.WhenAll(
+        ) = await (
             Task.FromResult(1),
             Task.FromResult("2"),
             Task.FromResult(3),
@@ -260,7 +260,7 @@ internal static class TaskUtilitiesTests
             Task.FromResult("8"),
             Task.FromResult(9),
             Task.FromResult("10")
-        );
+        ).WhenAll();
 
         using (Assert.EnterMultipleScope())
         {
@@ -292,7 +292,7 @@ internal static class TaskUtilitiesTests
             task9Result,
             task10Result,
             task11Result
-        ) = await TaskUtilities.WhenAll(
+        ) = await (
             Task.FromResult(1),
             Task.FromResult("2"),
             Task.FromResult(3),
@@ -304,7 +304,7 @@ internal static class TaskUtilitiesTests
             Task.FromResult(9),
             Task.FromResult("10"),
             Task.FromResult(11)
-        );
+        ).WhenAll();
 
         using (Assert.EnterMultipleScope())
         {
@@ -338,7 +338,7 @@ internal static class TaskUtilitiesTests
             task10Result,
             task11Result,
             task12Result
-        ) = await TaskUtilities.WhenAll(
+        ) = await (
             Task.FromResult(1),
             Task.FromResult("2"),
             Task.FromResult(3),
@@ -351,7 +351,7 @@ internal static class TaskUtilitiesTests
             Task.FromResult("10"),
             Task.FromResult(11),
             Task.FromResult("12")
-        );
+        ).WhenAll();
 
         using (Assert.EnterMultipleScope())
         {
@@ -387,7 +387,7 @@ internal static class TaskUtilitiesTests
             task11Result,
             task12Result,
             task13Result
-        ) = await TaskUtilities.WhenAll(
+        ) = await (
             Task.FromResult(1),
             Task.FromResult("2"),
             Task.FromResult(3),
@@ -401,7 +401,7 @@ internal static class TaskUtilitiesTests
             Task.FromResult(11),
             Task.FromResult("12"),
             Task.FromResult(13)
-        );
+        ).WhenAll();
 
         using (Assert.EnterMultipleScope())
         {
@@ -439,7 +439,7 @@ internal static class TaskUtilitiesTests
             task12Result,
             task13Result,
             task14Result
-        ) = await TaskUtilities.WhenAll(
+        ) = await (
             Task.FromResult(1),
             Task.FromResult("2"),
             Task.FromResult(3),
@@ -454,7 +454,7 @@ internal static class TaskUtilitiesTests
             Task.FromResult("12"),
             Task.FromResult(13),
             Task.FromResult("14")
-        );
+        ).WhenAll();
 
         using (Assert.EnterMultipleScope())
         {
@@ -494,7 +494,7 @@ internal static class TaskUtilitiesTests
             task13Result,
             task14Result,
             task15Result
-        ) = await TaskUtilities.WhenAll(
+        ) = await (
             Task.FromResult(1),
             Task.FromResult("2"),
             Task.FromResult(3),
@@ -510,7 +510,7 @@ internal static class TaskUtilitiesTests
             Task.FromResult(13),
             Task.FromResult("14"),
             Task.FromResult(15)
-        );
+        ).WhenAll();
 
         using (Assert.EnterMultipleScope())
         {
@@ -552,7 +552,7 @@ internal static class TaskUtilitiesTests
             task14Result,
             task15Result,
             task16Result
-        ) = await TaskUtilities.WhenAll(
+        ) = await (
             Task.FromResult(1),
             Task.FromResult("2"),
             Task.FromResult(3),
@@ -569,7 +569,7 @@ internal static class TaskUtilitiesTests
             Task.FromResult("14"),
             Task.FromResult(15),
             Task.FromResult("16")
-        );
+        ).WhenAll();
 
         using (Assert.EnterMultipleScope())
         {
@@ -595,237 +595,237 @@ internal static class TaskUtilitiesTests
     [Test]
     public static void WhenAll2_GivenNullArg1_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             (Task<string>)null,
             Task.FromResult(2)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll2_GivenNullArg2_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             (Task<string>)null
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll3_GivenNullArg1_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             (Task<string>)null,
             Task.FromResult(2),
             Task.FromResult(3)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll3_GivenNullArg2_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             (Task<string>)null,
             Task.FromResult(3)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll3_GivenNullArg3_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             (Task<string>)null
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll4_GivenNullArg1_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             (Task<string>)null,
             Task.FromResult(2),
             Task.FromResult(3),
             Task.FromResult(4)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll4_GivenNullArg2_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             (Task<string>)null,
             Task.FromResult(3),
             Task.FromResult(4)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll4_GivenNullArg3_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             (Task<string>)null,
             Task.FromResult(4)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll4_GivenNullArg4_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
             (Task<string>)null
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll5_GivenNullArg1_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             (Task<string>)null,
             Task.FromResult(2),
             Task.FromResult(3),
             Task.FromResult(4),
             Task.FromResult(5)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll5_GivenNullArg2_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             (Task<string>)null,
             Task.FromResult(3),
             Task.FromResult(4),
             Task.FromResult(5)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll5_GivenNullArg3_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             (Task<string>)null,
             Task.FromResult(4),
             Task.FromResult(5)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll5_GivenNullArg4_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
             (Task<string>)null,
             Task.FromResult(5)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll5_GivenNullArg5_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
             Task.FromResult(4),
             (Task<string>)null
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll6_GivenNullArg1_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             (Task<string>)null,
             Task.FromResult(2),
             Task.FromResult(3),
             Task.FromResult(4),
             Task.FromResult(5),
             Task.FromResult(6)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll6_GivenNullArg2_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             (Task<string>)null,
             Task.FromResult(3),
             Task.FromResult(4),
             Task.FromResult(5),
             Task.FromResult(6)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll6_GivenNullArg3_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             (Task<string>)null,
             Task.FromResult(4),
             Task.FromResult(5),
             Task.FromResult(6)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll6_GivenNullArg4_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
             (Task<string>)null,
             Task.FromResult(5),
             Task.FromResult(6)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll6_GivenNullArg5_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
             Task.FromResult(4),
             (Task<string>)null,
             Task.FromResult(6)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll6_GivenNullArg6_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
             Task.FromResult(4),
             Task.FromResult(5),
             (Task<string>)null
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll7_GivenNullArg1_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             (Task<string>)null,
             Task.FromResult(2),
             Task.FromResult(3),
@@ -833,13 +833,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(5),
             Task.FromResult(6),
             Task.FromResult(7)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll7_GivenNullArg2_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             (Task<string>)null,
             Task.FromResult(3),
@@ -847,13 +847,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(5),
             Task.FromResult(6),
             Task.FromResult(7)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll7_GivenNullArg3_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             (Task<string>)null,
@@ -861,13 +861,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(5),
             Task.FromResult(6),
             Task.FromResult(7)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll7_GivenNullArg4_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -875,13 +875,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(5),
             Task.FromResult(6),
             Task.FromResult(7)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll7_GivenNullArg5_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -889,13 +889,13 @@ internal static class TaskUtilitiesTests
             (Task<string>)null,
             Task.FromResult(6),
             Task.FromResult(7)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll7_GivenNullArg6_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -903,13 +903,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(5),
             (Task<string>)null,
             Task.FromResult(7)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll7_GivenNullArg7_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -917,13 +917,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(5),
             Task.FromResult(6),
             (Task<string>)null
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll8_GivenNullArg1_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             (Task<string>)null,
             Task.FromResult(2),
             Task.FromResult(3),
@@ -932,13 +932,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(6),
             Task.FromResult(7),
             Task.FromResult(8)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll8_GivenNullArg2_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             (Task<string>)null,
             Task.FromResult(3),
@@ -947,13 +947,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(6),
             Task.FromResult(7),
             Task.FromResult(8)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll8_GivenNullArg3_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             (Task<string>)null,
@@ -962,13 +962,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(6),
             Task.FromResult(7),
             Task.FromResult(8)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll8_GivenNullArg4_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -977,13 +977,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(6),
             Task.FromResult(7),
             Task.FromResult(8)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll8_GivenNullArg5_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -992,13 +992,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(6),
             Task.FromResult(7),
             Task.FromResult(8)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll8_GivenNullArg6_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1007,13 +1007,13 @@ internal static class TaskUtilitiesTests
             (Task<string>)null,
             Task.FromResult(7),
             Task.FromResult(8)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll8_GivenNullArg7_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1022,13 +1022,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(6),
             (Task<string>)null,
             Task.FromResult(8)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll8_GivenNullArg8_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1037,13 +1037,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(6),
             Task.FromResult(7),
             (Task<string>)null
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll9_GivenNullArg1_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             (Task<string>)null,
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1053,13 +1053,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(7),
             Task.FromResult(8),
             Task.FromResult(9)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll9_GivenNullArg2_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             (Task<string>)null,
             Task.FromResult(3),
@@ -1069,13 +1069,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(7),
             Task.FromResult(8),
             Task.FromResult(9)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll9_GivenNullArg3_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             (Task<string>)null,
@@ -1085,13 +1085,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(7),
             Task.FromResult(8),
             Task.FromResult(9)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll9_GivenNullArg4_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1101,13 +1101,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(7),
             Task.FromResult(8),
             Task.FromResult(9)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll9_GivenNullArg5_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1117,13 +1117,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(7),
             Task.FromResult(8),
             Task.FromResult(9)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll9_GivenNullArg6_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1133,13 +1133,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(7),
             Task.FromResult(8),
             Task.FromResult(9)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll9_GivenNullArg7_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1149,13 +1149,13 @@ internal static class TaskUtilitiesTests
             (Task<string>)null,
             Task.FromResult(8),
             Task.FromResult(9)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll9_GivenNullArg8_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1165,13 +1165,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(7),
             (Task<string>)null,
             Task.FromResult(9)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll9_GivenNullArg9_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1181,13 +1181,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(7),
             Task.FromResult(8),
             (Task<string>)null
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll10_GivenNullArg1_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             (Task<string>)null,
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1198,13 +1198,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(8),
             Task.FromResult(9),
             Task.FromResult(10)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll10_GivenNullArg2_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             (Task<string>)null,
             Task.FromResult(3),
@@ -1215,13 +1215,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(8),
             Task.FromResult(9),
             Task.FromResult(10)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll10_GivenNullArg3_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             (Task<string>)null,
@@ -1232,13 +1232,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(8),
             Task.FromResult(9),
             Task.FromResult(10)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll10_GivenNullArg4_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1249,13 +1249,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(8),
             Task.FromResult(9),
             Task.FromResult(10)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll10_GivenNullArg5_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1266,13 +1266,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(8),
             Task.FromResult(9),
             Task.FromResult(10)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll10_GivenNullArg6_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1283,13 +1283,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(8),
             Task.FromResult(9),
             Task.FromResult(10)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll10_GivenNullArg7_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1300,13 +1300,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(8),
             Task.FromResult(9),
             Task.FromResult(10)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll10_GivenNullArg8_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1317,13 +1317,13 @@ internal static class TaskUtilitiesTests
             (Task<string>)null,
             Task.FromResult(9),
             Task.FromResult(10)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll10_GivenNullArg9_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1334,13 +1334,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(8),
             (Task<string>)null,
             Task.FromResult(10)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll10_GivenNullArg10_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1351,13 +1351,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(8),
             Task.FromResult(9),
             (Task<string>)null
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll11_GivenNullArg1_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             (Task<string>)null,
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1369,13 +1369,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(9),
             Task.FromResult(10),
             Task.FromResult(11)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll11_GivenNullArg2_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             (Task<string>)null,
             Task.FromResult(3),
@@ -1387,13 +1387,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(9),
             Task.FromResult(10),
             Task.FromResult(11)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll11_GivenNullArg3_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             (Task<string>)null,
@@ -1405,13 +1405,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(9),
             Task.FromResult(10),
             Task.FromResult(11)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll11_GivenNullArg4_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1423,13 +1423,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(9),
             Task.FromResult(10),
             Task.FromResult(11)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll11_GivenNullArg5_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1441,13 +1441,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(9),
             Task.FromResult(10),
             Task.FromResult(11)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll11_GivenNullArg6_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1459,13 +1459,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(9),
             Task.FromResult(10),
             Task.FromResult(11)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll11_GivenNullArg7_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1477,13 +1477,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(9),
             Task.FromResult(10),
             Task.FromResult(11)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll11_GivenNullArg8_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1495,13 +1495,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(9),
             Task.FromResult(10),
             Task.FromResult(11)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll11_GivenNullArg9_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1513,13 +1513,13 @@ internal static class TaskUtilitiesTests
             (Task<string>)null,
             Task.FromResult(10),
             Task.FromResult(11)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll11_GivenNullArg10_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1531,13 +1531,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(9),
             (Task<string>)null,
             Task.FromResult(11)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll11_GivenNullArg11_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1549,13 +1549,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(9),
             Task.FromResult(10),
             (Task<string>)null
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll12_GivenNullArg1_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             (Task<string>)null,
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1568,13 +1568,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(10),
             Task.FromResult(11),
             Task.FromResult(12)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll12_GivenNullArg2_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             (Task<string>)null,
             Task.FromResult(3),
@@ -1587,13 +1587,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(10),
             Task.FromResult(11),
             Task.FromResult(12)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll12_GivenNullArg3_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             (Task<string>)null,
@@ -1606,13 +1606,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(10),
             Task.FromResult(11),
             Task.FromResult(12)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll12_GivenNullArg4_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1625,13 +1625,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(10),
             Task.FromResult(11),
             Task.FromResult(12)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll12_GivenNullArg5_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1644,13 +1644,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(10),
             Task.FromResult(11),
             Task.FromResult(12)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll12_GivenNullArg6_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1663,13 +1663,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(10),
             Task.FromResult(11),
             Task.FromResult(12)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll12_GivenNullArg7_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1682,13 +1682,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(10),
             Task.FromResult(11),
             Task.FromResult(12)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll12_GivenNullArg8_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1701,13 +1701,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(10),
             Task.FromResult(11),
             Task.FromResult(12)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll12_GivenNullArg9_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1720,13 +1720,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(10),
             Task.FromResult(11),
             Task.FromResult(12)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll12_GivenNullArg10_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1739,13 +1739,13 @@ internal static class TaskUtilitiesTests
             (Task<string>)null,
             Task.FromResult(11),
             Task.FromResult(12)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll12_GivenNullArg11_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1758,13 +1758,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(10),
             (Task<string>)null,
             Task.FromResult(12)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll12_GivenNullArg12_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1777,13 +1777,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(10),
             Task.FromResult(11),
             (Task<string>)null
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll13_GivenNullArg1_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             (Task<string>)null,
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1797,13 +1797,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(11),
             Task.FromResult(12),
             Task.FromResult(13)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll13_GivenNullArg2_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             (Task<string>)null,
             Task.FromResult(3),
@@ -1817,13 +1817,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(11),
             Task.FromResult(12),
             Task.FromResult(13)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll13_GivenNullArg3_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             (Task<string>)null,
@@ -1837,13 +1837,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(11),
             Task.FromResult(12),
             Task.FromResult(13)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll13_GivenNullArg4_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1857,13 +1857,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(11),
             Task.FromResult(12),
             Task.FromResult(13)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll13_GivenNullArg5_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1877,13 +1877,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(11),
             Task.FromResult(12),
             Task.FromResult(13)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll13_GivenNullArg6_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1897,13 +1897,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(11),
             Task.FromResult(12),
             Task.FromResult(13)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll13_GivenNullArg7_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1917,13 +1917,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(11),
             Task.FromResult(12),
             Task.FromResult(13)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll13_GivenNullArg8_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1937,13 +1937,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(11),
             Task.FromResult(12),
             Task.FromResult(13)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll13_GivenNullArg9_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1957,13 +1957,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(11),
             Task.FromResult(12),
             Task.FromResult(13)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll13_GivenNullArg10_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1977,13 +1977,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(11),
             Task.FromResult(12),
             Task.FromResult(13)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll13_GivenNullArg11_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -1997,13 +1997,13 @@ internal static class TaskUtilitiesTests
             (Task<string>)null,
             Task.FromResult(12),
             Task.FromResult(13)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll13_GivenNullArg12_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2017,13 +2017,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(11),
             (Task<string>)null,
             Task.FromResult(13)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll13_GivenNullArg13_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2037,13 +2037,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(11),
             Task.FromResult(12),
             (Task<string>)null
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll14_GivenNullArg1_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             (Task<string>)null,
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2058,13 +2058,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(12),
             Task.FromResult(13),
             Task.FromResult(14)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll14_GivenNullArg2_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             (Task<string>)null,
             Task.FromResult(3),
@@ -2079,13 +2079,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(12),
             Task.FromResult(13),
             Task.FromResult(14)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll14_GivenNullArg3_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             (Task<string>)null,
@@ -2100,13 +2100,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(12),
             Task.FromResult(13),
             Task.FromResult(14)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll14_GivenNullArg4_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2121,13 +2121,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(12),
             Task.FromResult(13),
             Task.FromResult(14)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll14_GivenNullArg5_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2142,13 +2142,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(12),
             Task.FromResult(13),
             Task.FromResult(14)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll14_GivenNullArg6_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2163,13 +2163,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(12),
             Task.FromResult(13),
             Task.FromResult(14)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll14_GivenNullArg7_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2184,13 +2184,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(12),
             Task.FromResult(13),
             Task.FromResult(14)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll14_GivenNullArg8_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2205,13 +2205,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(12),
             Task.FromResult(13),
             Task.FromResult(14)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll14_GivenNullArg9_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2226,13 +2226,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(12),
             Task.FromResult(13),
             Task.FromResult(14)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll14_GivenNullArg10_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2247,13 +2247,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(12),
             Task.FromResult(13),
             Task.FromResult(14)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll14_GivenNullArg11_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2268,13 +2268,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(12),
             Task.FromResult(13),
             Task.FromResult(14)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll14_GivenNullArg12_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2289,13 +2289,13 @@ internal static class TaskUtilitiesTests
             (Task<string>)null,
             Task.FromResult(13),
             Task.FromResult(14)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll14_GivenNullArg13_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2310,13 +2310,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(12),
             (Task<string>)null,
             Task.FromResult(14)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll14_GivenNullArg14_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2331,13 +2331,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(12),
             Task.FromResult(13),
             (Task<string>)null
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll15_GivenNullArg1_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             (Task<string>)null,
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2353,13 +2353,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll15_GivenNullArg2_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             (Task<string>)null,
             Task.FromResult(3),
@@ -2375,13 +2375,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll15_GivenNullArg3_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             (Task<string>)null,
@@ -2397,13 +2397,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll15_GivenNullArg4_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2419,13 +2419,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll15_GivenNullArg5_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2441,13 +2441,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll15_GivenNullArg6_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2463,13 +2463,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll15_GivenNullArg7_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2485,13 +2485,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll15_GivenNullArg8_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2507,13 +2507,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll15_GivenNullArg9_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2529,13 +2529,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll15_GivenNullArg10_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2551,13 +2551,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll15_GivenNullArg11_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2573,13 +2573,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll15_GivenNullArg12_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2595,13 +2595,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll15_GivenNullArg13_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2617,13 +2617,13 @@ internal static class TaskUtilitiesTests
             (Task<string>)null,
             Task.FromResult(14),
             Task.FromResult(15)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll15_GivenNullArg14_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2639,13 +2639,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(13),
             (Task<string>)null,
             Task.FromResult(15)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll15_GivenNullArg15_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2661,13 +2661,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(13),
             Task.FromResult(14),
             (Task<string>)null
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll16_GivenNullArg1_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             (Task<string>)null,
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2684,13 +2684,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll16_GivenNullArg2_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             (Task<string>)null,
             Task.FromResult(3),
@@ -2707,13 +2707,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll16_GivenNullArg3_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             (Task<string>)null,
@@ -2730,13 +2730,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll16_GivenNullArg4_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2753,13 +2753,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll16_GivenNullArg5_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2776,13 +2776,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll16_GivenNullArg6_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2799,13 +2799,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll16_GivenNullArg7_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2822,13 +2822,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll16_GivenNullArg8_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2845,13 +2845,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll16_GivenNullArg9_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2868,13 +2868,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll16_GivenNullArg10_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2891,13 +2891,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll16_GivenNullArg11_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2914,13 +2914,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll16_GivenNullArg12_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2937,13 +2937,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll16_GivenNullArg13_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2960,13 +2960,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll16_GivenNullArg14_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -2983,13 +2983,13 @@ internal static class TaskUtilitiesTests
             (Task<string>)null,
             Task.FromResult(15),
             Task.FromResult(16)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll16_GivenNullArg15_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -3006,13 +3006,13 @@ internal static class TaskUtilitiesTests
             Task.FromResult(14),
             (Task<string>)null,
             Task.FromResult(16)
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 
     [Test]
     public static void WhenAll16_GivenNullArg16_ThrowsArgNullException()
     {
-        Assert.That(() => TaskUtilities.WhenAll(
+        Assert.That(() => (
             Task.FromResult(1),
             Task.FromResult(2),
             Task.FromResult(3),
@@ -3029,6 +3029,6 @@ internal static class TaskUtilitiesTests
             Task.FromResult(14),
             Task.FromResult(15),
             (Task<string>)null
-        ), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException);
     }
 }

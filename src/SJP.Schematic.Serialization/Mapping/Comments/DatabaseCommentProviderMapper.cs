@@ -47,7 +47,7 @@ public class DatabaseCommentProviderMapper
             dtoSequenceComments,
             dtoSynonymComments,
             dtoRoutineComments
-        ) = await TaskUtilities.WhenAll(
+        ) = await (
             source.GetAllTableComments(cancellationToken)
                 .Select(t => tableCommentMapper.Map<IRelationalDatabaseTableComments, DatabaseTableComments>(t))
                 .ToListAsync(cancellationToken)
@@ -68,7 +68,7 @@ public class DatabaseCommentProviderMapper
                 .Select(r => routineCommentMapper.Map<IDatabaseRoutineComments, Dto.Comments.DatabaseRoutineComments>(r))
                 .ToListAsync(cancellationToken)
                 .AsTask()
-        );
+        ).WhenAll().ConfigureAwait(false);
 
         var identifierDefaultsMapper = MapperRegistry.GetMapper<IIdentifierDefaults, Dto.IdentifierDefaults>();
         var dtoIdentifierDefaults = identifierDefaultsMapper.Map<IIdentifierDefaults, Dto.IdentifierDefaults>(source.IdentifierDefaults);

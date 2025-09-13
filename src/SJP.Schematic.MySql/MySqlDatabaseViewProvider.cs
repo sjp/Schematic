@@ -126,10 +126,10 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
 
     private async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var (columns, definition) = await TaskUtilities.WhenAll(
+        var (columns, definition) = await (
             LoadColumnsAsync(viewName, cancellationToken),
             LoadDefinitionAsync(viewName, cancellationToken)
-        ).ConfigureAwait(false);
+        ).WhenAll().ConfigureAwait(false);
 
         return new DatabaseView(viewName, definition, columns);
     }

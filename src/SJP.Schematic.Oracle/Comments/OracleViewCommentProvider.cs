@@ -52,10 +52,10 @@ public class OracleViewCommentProvider : IDatabaseViewCommentProvider
     /// <returns>A collection of view comments.</returns>
     public async IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var (queryViewComments, materializedViewComments) = await TaskUtilities.WhenAll(
+        var (queryViewComments, materializedViewComments) = await (
             QueryViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask(),
             MaterializedViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask()
-        ).ConfigureAwait(false);
+        ).WhenAll().ConfigureAwait(false);
 
         var comments = queryViewComments
             .Concat(materializedViewComments)

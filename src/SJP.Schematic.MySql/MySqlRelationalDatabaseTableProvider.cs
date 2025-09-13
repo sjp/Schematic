@@ -156,7 +156,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             uniqueKeys,
             parentKeys,
             childKeys
-        ) = await TaskUtilities.WhenAll(
+        ) = await (
             queryCache.GetColumnsAsync(tableName, cancellationToken),
             LoadChecksAsync(tableName, cancellationToken),
             LoadTriggersAsync(tableName, cancellationToken),
@@ -165,7 +165,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             queryCache.GetUniqueKeysAsync(tableName, cancellationToken),
             queryCache.GetForeignKeysAsync(tableName, cancellationToken),
             LoadChildKeysAsync(tableName, queryCache, cancellationToken)
-        ).ConfigureAwait(false);
+        ).WhenAll().ConfigureAwait(false);
 
         return new RelationalDatabaseTable(
             tableName,

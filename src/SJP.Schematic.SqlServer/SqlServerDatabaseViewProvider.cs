@@ -124,11 +124,11 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
             columns,
             definition,
             isMaterialized
-        ) = await TaskUtilities.WhenAll(
+        ) = await (
             LoadColumnsAsync(viewName, cancellationToken),
             LoadDefinitionAsync(viewName, cancellationToken),
             LoadIndexExistsAsync(viewName, cancellationToken)
-        ).ConfigureAwait(false);
+        ).WhenAll().ConfigureAwait(false);
 
         return isMaterialized
             ? new DatabaseMaterializedView(viewName, definition, columns)

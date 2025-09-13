@@ -51,10 +51,10 @@ public class OracleDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <returns>A collection of database routines.</returns>
     public async IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var (simpleRoutines, packages) = await TaskUtilities.WhenAll(
+        var (simpleRoutines, packages) = await (
             SimpleRoutineProvider.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).AsTask(),
             PackageProvider.GetAllPackages(cancellationToken).ToListAsync(cancellationToken).AsTask()
-        ).ConfigureAwait(false);
+        ).WhenAll().ConfigureAwait(false);
 
         var routines = simpleRoutines
             .Concat(packages)

@@ -51,10 +51,10 @@ public class OracleDatabaseViewProvider : IDatabaseViewProvider
     /// <returns>A collection of database views.</returns>
     public async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var (queryViews, materializedViews) = await TaskUtilities.WhenAll(
+        var (queryViews, materializedViews) = await (
             QueryViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask(),
             MaterializedViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask()
-        ).ConfigureAwait(false);
+        ).WhenAll().ConfigureAwait(false);
 
         var views = queryViews
             .Concat(materializedViews)
