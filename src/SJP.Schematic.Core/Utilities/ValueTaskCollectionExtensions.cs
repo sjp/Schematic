@@ -6,7 +6,7 @@ namespace SJP.Schematic.Core.Utilities;
 /// <summary>
 /// Convenience extension methods for working with <see cref="Task"/> objects.
 /// </summary>
-public static class TaskUtilities
+public static class ValueTaskCollectionExtensions
 {
     /// <summary>
     /// Creates a task that will complete when all of the provided <see cref="Task"/> objects have completed.

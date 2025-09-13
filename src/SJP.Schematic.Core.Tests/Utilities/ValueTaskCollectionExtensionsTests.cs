@@ -5,7 +5,7 @@ using SJP.Schematic.Core.Utilities;
 namespace SJP.Schematic.Core.Tests.Utilities;
 
 [TestFixture]
-internal static class TaskUtilitiesTests
+internal static class ValueTaskCollectionExtensionsTests
 {
     [Test]
     public static async Task WhenAll2_GivenArgs_ReturnsExpectedValues()
