@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Boxed.Mapping;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Utilities;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Serialization.Mapping;
 

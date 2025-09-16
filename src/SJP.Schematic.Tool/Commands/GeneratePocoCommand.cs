@@ -2,7 +2,7 @@
 using System.IO.Abstractions;
 using System.Threading;
 using System.Threading.Tasks;
-using SJP.Schematic.Core.Utilities;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.DataAccess.Poco;
 using SJP.Schematic.Tool.Handlers;
 using Spectre.Console;

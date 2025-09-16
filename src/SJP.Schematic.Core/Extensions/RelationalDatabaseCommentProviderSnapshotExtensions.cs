@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core.Comments;
-using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core.Extensions;
 

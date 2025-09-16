@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 using NUnit.Framework;
-using SJP.Schematic.Core.Utilities;
+using SJP.Schematic.Core.Extensions;
 
-namespace SJP.Schematic.Core.Tests.Utilities;
+namespace SJP.Schematic.Core.Tests.Extensions;
 
 [TestFixture]
 internal static class ValueTaskCollectionExtensionsTests

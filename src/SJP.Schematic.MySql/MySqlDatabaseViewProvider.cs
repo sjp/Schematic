@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.MySql.Queries;
 
 namespace SJP.Schematic.MySql;

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Boxed.Mapping;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
-using SJP.Schematic.Core.Utilities;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Serialization.Dto.Comments;
 
 namespace SJP.Schematic.Serialization.Mapping.Comments;

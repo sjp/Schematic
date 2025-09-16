@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace SJP.Schematic.Core.Utilities;
+namespace SJP.Schematic.Core.Extensions;
 
 /// <summary>
 /// Convenience extension methods for working with <see cref="Task"/> objects.
