@@ -11,14 +11,14 @@ on:
 
 jobs:
   docs:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
     - name: check out code
       uses: actions/checkout@v5
 
     - name: install docfx
-      run: choco install docfx -y
+      run: dotnet tool update -g docfx
 
     - name: build doc metadata
       working-directory: docs

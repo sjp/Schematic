@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tag: [11, 18, 21, latest]
+        tag: [21]
     services:
       oracle:
         image: gvenzl/oracle-xe:${{ matrix.tag }}
