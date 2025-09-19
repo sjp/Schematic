@@ -12,7 +12,7 @@ internal sealed class TableOrderingRenderer : ITemplateRenderer
 {
     public TableOrderingRenderer(
         IDatabaseDialect dialect,
-        IEnumerable<IRelationalDatabaseTable> tables,
+        IReadOnlyCollection<IRelationalDatabaseTable> tables,
         DirectoryInfo exportDirectory)
     {
         Tables = tables ?? throw new ArgumentNullException(nameof(tables));
@@ -22,7 +22,7 @@ internal sealed class TableOrderingRenderer : ITemplateRenderer
 
     private IDatabaseDialect Dialect { get; }
 
-    private IEnumerable<IRelationalDatabaseTable> Tables { get; }
+    private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
 
     private DirectoryInfo ExportDirectory { get; }
 

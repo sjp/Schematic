@@ -17,10 +17,10 @@ public class CycleDetector
     /// <param name="tables">The tables which may contain a cycle.</param>
     /// <returns>A set of cycles, each element contains the set of table names that form a cycle.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" />.</exception>
-    public IReadOnlyCollection<IReadOnlyCollection<Identifier>> GetCyclePaths(IEnumerable<IRelationalDatabaseTable> tables)
+    public IReadOnlyCollection<IReadOnlyCollection<Identifier>> GetCyclePaths(IReadOnlyCollection<IRelationalDatabaseTable> tables)
     {
         ArgumentNullException.ThrowIfNull(tables);
-        if (!tables.Any())
+        if (tables.Count == 0)
             return [];
 
         var graph = new AdjacencyGraph<Identifier, SEquatableEdge<Identifier>>();
@@ -62,11 +62,13 @@ public class CycleDetector
         }
     }
 
-    private static void OnCyclingEdgeFound(IEnumerable<IEdge<Identifier>> examinedEdges, ICollection<IReadOnlyCollection<Identifier>> cycles, SEquatableEdge<Identifier> e)
+    private static void OnCyclingEdgeFound(IReadOnlyCollection<IEdge<Identifier>> examinedEdges, ICollection<IReadOnlyCollection<Identifier>> cycles, SEquatableEdge<Identifier> e)
     {
-        var cycleNodes = new HashSet<Identifier>();
-        cycleNodes.Add(e.Source);
-        cycleNodes.Add(e.Target);
+        var cycleNodes = new HashSet<Identifier>
+        {
+            e.Source,
+            e.Target
+        };
 
         var examinedEdgesList = examinedEdges.ToList();
         var startIndex = examinedEdgesList.FindIndex(edge => edge.Source.Equals(e.Target));
