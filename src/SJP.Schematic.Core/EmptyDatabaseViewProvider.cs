@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 
 namespace SJP.Schematic.Core;
@@ -12,10 +13,19 @@ namespace SJP.Schematic.Core;
 /// <seealso cref="IDatabaseViewProvider" />
 public sealed class EmptyDatabaseViewProvider : IDatabaseViewProvider
 {
-    /// <summary>Gets all database views. This will always be an empty collection.</summary>
+    /// <summary>
+    /// Enumerates all database views. This will always be an empty collection.
+    /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database views.</returns>
     public IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseView>();
+
+    /// <summary>
+    /// Gets all database views. This will always be an empty collection.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>An empty collection of database views.</returns>
+    public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews2(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseView>>([]);
 
     /// <summary>
     /// Gets a database view. This will always be a 'none' result.

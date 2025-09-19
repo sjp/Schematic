@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 
 namespace SJP.Schematic.Core.Comments;
@@ -19,9 +20,16 @@ public interface IDatabaseRoutineCommentProvider
     OptionAsync<IDatabaseRoutineComments> GetRoutineComments(Identifier routineName, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Retrieves all database routine comments defined within a database.
+    /// Enumerates all database routine comments defined within a database.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of routine comments.</returns>
     IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Retrieves all database routine comments defined within a database.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of routine comments.</returns>
+    Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments2(CancellationToken cancellationToken = default);
 }

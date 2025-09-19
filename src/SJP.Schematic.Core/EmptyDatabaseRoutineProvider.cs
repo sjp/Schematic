@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 
 namespace SJP.Schematic.Core;
@@ -12,10 +13,19 @@ namespace SJP.Schematic.Core;
 /// <seealso cref="IDatabaseRoutineProvider" />
 public sealed class EmptyDatabaseRoutineProvider : IDatabaseRoutineProvider
 {
-    /// <summary>Gets all database routines. This will always be an empty collection.</summary>
+    /// <summary>
+    /// Enumerates all database routines. This will always be an empty collection.
+    /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database routines.</returns>
     public IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseRoutine>();
+
+    /// <summary>
+    /// Gets all database routines. This will always be an empty collection.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>An empty collection of database routines.</returns>
+    public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines2(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseRoutine>>([]);
 
     /// <summary>
     /// Gets a database routine. This will always be a 'none' result.

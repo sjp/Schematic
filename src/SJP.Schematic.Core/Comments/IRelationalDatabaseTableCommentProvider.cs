@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 
 namespace SJP.Schematic.Core.Comments;
@@ -19,9 +20,16 @@ public interface IRelationalDatabaseTableCommentProvider
     OptionAsync<IRelationalDatabaseTableComments> GetTableComments(Identifier tableName, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Retrieves all database table comments defined within a database.
+    /// Enumerates all database table comments defined within a database.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of table comments.</returns>
     IAsyncEnumerable<IRelationalDatabaseTableComments> GetAllTableComments(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Retrieves all database table comments defined within a database.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of table comments.</returns>
+    Task<IReadOnlyCollection<IRelationalDatabaseTableComments>> GetAllTableComments2(CancellationToken cancellationToken = default);
 }

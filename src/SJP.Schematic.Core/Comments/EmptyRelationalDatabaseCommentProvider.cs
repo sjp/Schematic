@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 
 namespace SJP.Schematic.Core.Comments;
@@ -28,7 +29,7 @@ public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabase
     public IIdentifierDefaults IdentifierDefaults { get; }
 
     /// <summary>
-    /// Retrieves all database routine comments defined within a database.
+    /// Enumerates all database routine comments defined within a database.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of routine comments.</returns>
@@ -38,7 +39,7 @@ public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabase
     }
 
     /// <summary>
-    /// Retrieves all database sequence comments defined within a database.
+    /// Enumerates all database sequence comments defined within a database.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of sequence comments.</returns>
@@ -48,7 +49,7 @@ public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabase
     }
 
     /// <summary>
-    /// Retrieves all database synonym comments defined within a database.
+    /// Enumerates all database synonym comments defined within a database.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of synonym comments.</returns>
@@ -58,7 +59,7 @@ public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabase
     }
 
     /// <summary>
-    /// Retrieves all database table comments defined within a database.
+    /// Enumerates all database table comments defined within a database.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of table comments.</returns>
@@ -68,13 +69,63 @@ public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabase
     }
 
     /// <summary>
-    /// Retrieves all database view comments defined within a database.
+    /// Enumerates all database view comments defined within a database.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of view comments.</returns>
     public IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments(CancellationToken cancellationToken = default)
     {
         return _viewCommentProvider.GetAllViewComments(cancellationToken);
+    }
+
+    /// <summary>
+    /// Retrieves all database routine comments defined within a database.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>An empty collection of routine comments.</returns>
+    public Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments2(CancellationToken cancellationToken = default)
+    {
+        return _routineCommentProvider.GetAllRoutineComments2(cancellationToken);
+    }
+
+    /// <summary>
+    /// Retrieves all database sequence comments defined within a database.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>An empty collection of sequence comments.</returns>
+    public Task<IReadOnlyCollection<IDatabaseSequenceComments>> GetAllSequenceComments2(CancellationToken cancellationToken = default)
+    {
+        return _sequenceCommentProvider.GetAllSequenceComments2(cancellationToken);
+    }
+
+    /// <summary>
+    /// Retrieves all database synonym comments defined within a database.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>An empty collection of synonym comments.</returns>
+    public Task<IReadOnlyCollection<IDatabaseSynonymComments>> GetAllSynonymComments2(CancellationToken cancellationToken = default)
+    {
+        return _synonymCommentProvider.GetAllSynonymComments2(cancellationToken);
+    }
+
+    /// <summary>
+    /// Retrieves all database table comments defined within a database.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>An empty collection of table comments.</returns>
+    public Task<IReadOnlyCollection<IRelationalDatabaseTableComments>> GetAllTableComments2(CancellationToken cancellationToken = default)
+    {
+        return _tableCommentProvider.GetAllTableComments2(cancellationToken);
+    }
+
+    /// <summary>
+    /// Retrieves all database view comments defined within a database.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>An empty collection of view comments.</returns>
+    public Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments2(CancellationToken cancellationToken = default)
+    {
+        return _viewCommentProvider.GetAllViewComments2(cancellationToken);
     }
 
     /// <summary>

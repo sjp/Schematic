@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 
 namespace SJP.Schematic.Core;
@@ -18,9 +19,16 @@ public interface IDatabaseViewProvider
     OptionAsync<IDatabaseView> GetView(Identifier viewName, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets all database views.
+    /// Enumerates all database views.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database views.</returns>
     IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets all database views.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database views.</returns>
+    Task<IReadOnlyCollection<IDatabaseView>> GetAllViews2(CancellationToken cancellationToken = default);
 }

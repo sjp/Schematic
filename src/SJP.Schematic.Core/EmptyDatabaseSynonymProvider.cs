@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 
 namespace SJP.Schematic.Core;
@@ -12,10 +13,19 @@ namespace SJP.Schematic.Core;
 /// <seealso cref="IDatabaseSynonymProvider" />
 public sealed class EmptyDatabaseSynonymProvider : IDatabaseSynonymProvider
 {
-    /// <summary>Gets all database synonyms. This will always be an empty collection.</summary>
+    /// <summary>
+    /// Enumerates all database synonyms. This will always be an empty collection.
+    /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database synonyms.</returns>
     public IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseSynonym>();
+
+    /// <summary>
+    /// Gets all database synonyms. This will always be an empty collection.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>An empty collection of database synonyms.</returns>
+    public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms2(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseSynonym>>([]);
 
     /// <summary>
     /// Gets a database synonym. This will always be a 'none' result.

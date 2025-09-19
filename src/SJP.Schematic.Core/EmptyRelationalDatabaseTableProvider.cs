@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 
 namespace SJP.Schematic.Core;
@@ -12,10 +13,19 @@ namespace SJP.Schematic.Core;
 /// <seealso cref="IRelationalDatabaseTableProvider" />
 public sealed class EmptyRelationalDatabaseTableProvider : IRelationalDatabaseTableProvider
 {
-    /// <summary>Gets all database tables. This will always be an empty collection.</summary>
+    /// <summary>
+    /// Enumerates all database tables. This will always be an empty collection.
+    /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database tables.</returns>
     public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IRelationalDatabaseTable>();
+
+    /// <summary>
+    /// Enumerates all database tables. This will always be an empty collection.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>An empty collection of database tables.</returns>
+    public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables2(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IRelationalDatabaseTable>>([]);
 
     /// <summary>
     /// Gets a database table. This will always be a 'none' result.

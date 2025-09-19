@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 
 namespace SJP.Schematic.Core.Comments;
@@ -13,11 +14,18 @@ namespace SJP.Schematic.Core.Comments;
 public sealed class EmptyDatabaseSynonymCommentProvider : IDatabaseSynonymCommentProvider
 {
     /// <summary>
-    /// Retrieves all database synonym comments defined within a database.
+    /// Enumerates all database synonym comments defined within a database.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of synonym comments.</returns>
     public IAsyncEnumerable<IDatabaseSynonymComments> GetAllSynonymComments(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseSynonymComments>();
+
+    /// <summary>
+    /// Retrieves all database synonym comments defined within a database.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>An empty collection of synonym comments.</returns>
+    public Task<IReadOnlyCollection<IDatabaseSynonymComments>> GetAllSynonymComments2(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseSynonymComments>>([]);
 
     /// <summary>
     /// Retrieves comments for a particular database synonym.

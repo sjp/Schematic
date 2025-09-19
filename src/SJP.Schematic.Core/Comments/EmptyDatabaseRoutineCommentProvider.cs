@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 
 namespace SJP.Schematic.Core.Comments;
@@ -13,11 +14,18 @@ namespace SJP.Schematic.Core.Comments;
 public sealed class EmptyDatabaseRoutineCommentProvider : IDatabaseRoutineCommentProvider
 {
     /// <summary>
-    /// Retrieves all database routine comments defined within a database.
+    /// Enumerates all database routine comments defined within a database.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of routine comments.</returns>
     public IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseRoutineComments>();
+
+    /// <summary>
+    /// Retrieves all database routine comments defined within a database.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>An empty collection of routine comments.</returns>
+    public Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments2(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseRoutineComments>>([]);
 
     /// <summary>
     /// Retrieves comments for a particular database routine.

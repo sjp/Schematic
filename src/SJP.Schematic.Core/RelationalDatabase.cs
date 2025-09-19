@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core.Extensions;
 
@@ -128,11 +129,18 @@ public class RelationalDatabase : IRelationalDatabase
     }
 
     /// <summary>
-    /// Retrieves all of the database tables.
+    /// Enumerates all of the database tables.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token. Unused.</param>
     /// <returns>A collection of database tables.</returns>
     public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default) => Tables.ToAsyncEnumerable();
+
+    /// <summary>
+    /// Retrieves all of the database tables.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token. Unused.</param>
+    /// <returns>A collection of database tables.</returns>
+    public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables2(CancellationToken cancellationToken = default) => Task.FromResult(Tables);
 
     /// <summary>
     /// Retrieves a database table by its name.
@@ -149,11 +157,18 @@ public class RelationalDatabase : IRelationalDatabase
     }
 
     /// <summary>
-    /// Retrieves all of the database views.
+    /// Enumerates all of the database views.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token. Unused.</param>
     /// <returns>A collection of database views.</returns>
     public IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default) => Views.ToAsyncEnumerable();
+
+    /// <summary>
+    /// Retrieves all of the database views.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token. Unused.</param>
+    /// <returns>A collection of database views.</returns>
+    public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews2(CancellationToken cancellationToken = default) => Task.FromResult(Views);
 
     /// <summary>
     /// Retrieves a database view by its name.
@@ -170,11 +185,18 @@ public class RelationalDatabase : IRelationalDatabase
     }
 
     /// <summary>
-    /// Retrieves all of the database sequences.
+    /// Enumerates all of the database sequences.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token. Unused.</param>
     /// <returns>A collection of database sequences.</returns>
     public IAsyncEnumerable<IDatabaseSequence> GetAllSequences(CancellationToken cancellationToken = default) => Sequences.ToAsyncEnumerable();
+
+    /// <summary>
+    /// Retrieves all of the database sequences.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token. Unused.</param>
+    /// <returns>A collection of database sequences.</returns>
+    public Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences2(CancellationToken cancellationToken = default) => Task.FromResult(Sequences);
 
     /// <summary>
     /// Retrieves a database sequence by its name.
@@ -191,11 +213,18 @@ public class RelationalDatabase : IRelationalDatabase
     }
 
     /// <summary>
-    /// Retrieves all of the database synonyms.
+    /// Enumerates all of the database synonyms.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token. Unused.</param>
     /// <returns>A collection of database synonyms.</returns>
     public IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default) => Synonyms.ToAsyncEnumerable();
+
+    /// <summary>
+    /// Retrieves all of the database synonyms.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token. Unused.</param>
+    /// <returns>A collection of database synonyms.</returns>
+    public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms2(CancellationToken cancellationToken = default) => Task.FromResult(Synonyms);
 
     /// <summary>
     /// Retrieves a database synonym by its name.
@@ -212,11 +241,18 @@ public class RelationalDatabase : IRelationalDatabase
     }
 
     /// <summary>
-    /// Retrieves all of the database routines.
+    /// Enumerates all of the database routines.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token. Unused.</param>
     /// <returns>A collection of database routines.</returns>
     public IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines(CancellationToken cancellationToken = default) => Routines.ToAsyncEnumerable();
+
+    /// <summary>
+    /// Retrieves all of the database routines.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token. Unused.</param>
+    /// <returns>A collection of database routines.</returns>
+    public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines2(CancellationToken cancellationToken = default) => Task.FromResult(Routines);
 
     /// <summary>
     /// Retrieves a database routine by its name.

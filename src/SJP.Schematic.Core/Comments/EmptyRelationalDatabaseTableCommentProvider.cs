@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 
 namespace SJP.Schematic.Core.Comments;
@@ -13,11 +14,18 @@ namespace SJP.Schematic.Core.Comments;
 public sealed class EmptyRelationalDatabaseTableCommentProvider : IRelationalDatabaseTableCommentProvider
 {
     /// <summary>
-    /// Retrieves all database table comments defined within a database.
+    /// Enumerates all database table comments defined within a database.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of table comments.</returns>
     public IAsyncEnumerable<IRelationalDatabaseTableComments> GetAllTableComments(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IRelationalDatabaseTableComments>();
+
+    /// <summary>
+    /// Retrieves all database table comments defined within a database.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>An empty collection of table comments.</returns>
+    public Task<IReadOnlyCollection<IRelationalDatabaseTableComments>> GetAllTableComments2(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IRelationalDatabaseTableComments>>([]);
 
     /// <summary>
     /// Retrieves comments for a particular database table.

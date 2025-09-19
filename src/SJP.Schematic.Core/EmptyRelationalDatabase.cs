@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 
 namespace SJP.Schematic.Core;
@@ -24,12 +25,24 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
     /// <inheritdoc />
     public IIdentifierDefaults IdentifierDefaults { get; }
 
-    /// <summary>Gets all database tables. This will always be an empty collection.</summary>
+    /// <summary>
+    /// Enumerates all database tables. This will always be an empty collection.
+    /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database tables.</returns>
     public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)
     {
         return TableProvider.GetAllTables(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets all database tables. This will always be an empty collection.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>An empty collection of database tables.</returns>
+    public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables2(CancellationToken cancellationToken = default)
+    {
+        return TableProvider.GetAllTables2(cancellationToken);
     }
 
     /// <summary>
@@ -46,12 +59,24 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
         return TableProvider.GetTable(tableName, cancellationToken);
     }
 
-    /// <summary>Gets all database views. This will always be an empty collection.</summary>
+    /// <summary>
+    /// Enumerates all database views. This will always be an empty collection.
+    /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database views.</returns>
     public IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default)
     {
         return ViewProvider.GetAllViews(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets all database views. This will always be an empty collection.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>An empty collection of database views.</returns>
+    public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews2(CancellationToken cancellationToken = default)
+    {
+        return ViewProvider.GetAllViews2(cancellationToken);
     }
 
     /// <summary>
@@ -68,12 +93,24 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
         return ViewProvider.GetView(viewName, cancellationToken);
     }
 
-    /// <summary>Gets all database sequences. This will always be an empty collection.</summary>
+    /// <summary>
+    /// Enumerates all database sequences. This will always be an empty collection.
+    /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database sequences.</returns>
     public IAsyncEnumerable<IDatabaseSequence> GetAllSequences(CancellationToken cancellationToken = default)
     {
         return SequenceProvider.GetAllSequences(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets all database sequences. This will always be an empty collection.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>An empty collection of database sequences.</returns>
+    public Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences2(CancellationToken cancellationToken = default)
+    {
+        return SequenceProvider.GetAllSequences2(cancellationToken);
     }
 
     /// <summary>
@@ -90,12 +127,24 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
         return SequenceProvider.GetSequence(sequenceName, cancellationToken);
     }
 
-    /// <summary>Gets all database synonyms. This will always be an empty collection.</summary>
+    /// <summary>
+    /// Enumerates all database synonyms. This will always be an empty collection.
+    /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database synonyms.</returns>
     public IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default)
     {
         return SynonymProvider.GetAllSynonyms(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets all database synonyms. This will always be an empty collection.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>An empty collection of database synonyms.</returns>
+    public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms2(CancellationToken cancellationToken = default)
+    {
+        return SynonymProvider.GetAllSynonyms2(cancellationToken);
     }
 
     /// <summary>
@@ -112,12 +161,24 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
         return SynonymProvider.GetSynonym(synonymName, cancellationToken);
     }
 
-    /// <summary>Gets all database routines. This will always be an empty collection.</summary>
+    /// <summary>
+    /// Enumerates all database routines. This will always be an empty collection.
+    /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database routines.</returns>
     public IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines(CancellationToken cancellationToken = default)
     {
         return RoutineProvider.GetAllRoutines(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets all database routines. This will always be an empty collection.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>An empty collection of database routines.</returns>
+    public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines2(CancellationToken cancellationToken = default)
+    {
+        return RoutineProvider.GetAllRoutines2(cancellationToken);
     }
 
     /// <summary>
