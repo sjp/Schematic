@@ -20,7 +20,7 @@ public class DbmlFormatter : IDbmlFormatter
     /// <param name="tables">A collection of database tables.</param>
     /// <returns>A string, in DBML format.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" />.</exception>
-    public string RenderTables(IEnumerable<IRelationalDatabaseTable> tables)
+    public string RenderTables(IReadOnlyCollection<IRelationalDatabaseTable> tables)
     {
         ArgumentNullException.ThrowIfNull(tables);
 

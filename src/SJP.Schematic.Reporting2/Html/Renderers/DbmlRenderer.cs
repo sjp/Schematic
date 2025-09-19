@@ -11,14 +11,14 @@ namespace SJP.Schematic.Reporting.Html.Renderers;
 internal sealed class DbmlRenderer : ITemplateRenderer
 {
     public DbmlRenderer(
-        IEnumerable<IRelationalDatabaseTable> tables,
+        IReadOnlyCollection<IRelationalDatabaseTable> tables,
         DirectoryInfo exportDirectory)
     {
         Tables = tables ?? throw new ArgumentNullException(nameof(tables));
         ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
     }
 
-    private IEnumerable<IRelationalDatabaseTable> Tables { get; }
+    private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
 
     private DirectoryInfo ExportDirectory { get; }
 

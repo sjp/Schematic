@@ -17,11 +17,11 @@ internal sealed class LintRenderer : ITemplateRenderer
         IRelationalDatabaseLinter linter,
         IIdentifierDefaults identifierDefaults,
         IHtmlFormatter formatter,
-        IEnumerable<IRelationalDatabaseTable> tables,
-        IEnumerable<IDatabaseView> views,
-        IEnumerable<IDatabaseSequence> sequences,
-        IEnumerable<IDatabaseSynonym> synonyms,
-        IEnumerable<IDatabaseRoutine> routines,
+        IReadOnlyCollection<IRelationalDatabaseTable> tables,
+        IReadOnlyCollection<IDatabaseView> views,
+        IReadOnlyCollection<IDatabaseSequence> sequences,
+        IReadOnlyCollection<IDatabaseSynonym> synonyms,
+        IReadOnlyCollection<IDatabaseRoutine> routines,
         DirectoryInfo exportDirectory
     )
     {
@@ -43,25 +43,33 @@ internal sealed class LintRenderer : ITemplateRenderer
 
     private IHtmlFormatter Formatter { get; }
 
-    private IEnumerable<IRelationalDatabaseTable> Tables { get; }
+    private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
 
-    private IEnumerable<IDatabaseView> Views { get; }
+    private IReadOnlyCollection<IDatabaseView> Views { get; }
 
-    private IEnumerable<IDatabaseSequence> Sequences { get; }
+    private IReadOnlyCollection<IDatabaseSequence> Sequences { get; }
 
-    private IEnumerable<IDatabaseSynonym> Synonyms { get; }
+    private IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; }
 
-    private IEnumerable<IDatabaseRoutine> Routines { get; }
+    private IReadOnlyCollection<IDatabaseRoutine> Routines { get; }
 
     private DirectoryInfo ExportDirectory { get; }
 
     public async Task RenderAsync(CancellationToken cancellationToken = default)
     {
-        var tableMessages = await Linter.AnalyseTables(Tables, cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-        var viewMessages = await Linter.AnalyseViews(Views, cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-        var sequenceMessages = await Linter.AnalyseSequences(Sequences, cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-        var synonymMessages = await Linter.AnalyseSynonyms(Synonyms, cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-        var routineMessages = await Linter.AnalyseRoutines(Routines, cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+        var (
+            tableMessages,
+            viewMessages,
+            sequenceMessages,
+            synonymMessages,
+            routineMessages
+        ) = await (
+            Linter.AnalyseTables(Tables, cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            Linter.AnalyseViews(Views, cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            Linter.AnalyseSequences(Sequences, cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            Linter.AnalyseSynonyms(Synonyms, cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            Linter.AnalyseRoutines(Routines, cancellationToken).ToListAsync(cancellationToken).AsTask()
+        ).WhenAll().ConfigureAwait(false);
 
         var messages = tableMessages
             .Concat(viewMessages)

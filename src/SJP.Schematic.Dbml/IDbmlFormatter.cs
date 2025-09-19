@@ -13,5 +13,5 @@ public interface IDbmlFormatter
     /// </summary>
     /// <param name="tables">A collection of database tables.</param>
     /// <returns>A string, in DBML format.</returns>
-    string RenderTables(IEnumerable<IRelationalDatabaseTable> tables);
+    string RenderTables(IReadOnlyCollection<IRelationalDatabaseTable> tables);
 }

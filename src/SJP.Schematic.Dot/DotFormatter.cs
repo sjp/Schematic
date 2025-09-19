@@ -35,7 +35,7 @@ public class DotFormatter : IDotFormatter
     /// <param name="tables">The tables.</param>
     /// <returns>A string containing a dot representation of the table relationship graph.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tables"/></exception>
-    public string RenderTables(IEnumerable<IRelationalDatabaseTable> tables)
+    public string RenderTables(IReadOnlyCollection<IRelationalDatabaseTable> tables)
     {
         ArgumentNullException.ThrowIfNull(tables);
 
@@ -49,7 +49,7 @@ public class DotFormatter : IDotFormatter
     /// <param name="options">Options to configure how the DOT graph is rendered.</param>
     /// <returns>A string containing a dot representation of the table relationship graph.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> or <paramref name="options"/></exception>
-    public string RenderTables(IEnumerable<IRelationalDatabaseTable> tables, DotRenderOptions options)
+    public string RenderTables(IReadOnlyCollection<IRelationalDatabaseTable> tables, DotRenderOptions options)
     {
         ArgumentNullException.ThrowIfNull(tables);
         ArgumentNullException.ThrowIfNull(options);
@@ -65,7 +65,7 @@ public class DotFormatter : IDotFormatter
     /// <param name="rowCounts">Row counts for each of the provided tables.</param>
     /// <returns>A string containing a dot representation of the table relationship graph.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> or <paramref name="rowCounts"/></exception>
-    public string RenderTables(IEnumerable<IRelationalDatabaseTable> tables, IReadOnlyDictionary<Identifier, ulong> rowCounts)
+    public string RenderTables(IReadOnlyCollection<IRelationalDatabaseTable> tables, IReadOnlyDictionary<Identifier, ulong> rowCounts)
     {
         ArgumentNullException.ThrowIfNull(tables);
         ArgumentNullException.ThrowIfNull(rowCounts);
@@ -81,7 +81,7 @@ public class DotFormatter : IDotFormatter
     /// <param name="options">Options to configure how the DOT graph is rendered.</param>
     /// <returns>A string containing a dot representation of the table relationship graph.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> or <paramref name="rowCounts"/> or <paramref name="options"/></exception>
-    public string RenderTables(IEnumerable<IRelationalDatabaseTable> tables, IReadOnlyDictionary<Identifier, ulong> rowCounts, DotRenderOptions options)
+    public string RenderTables(IReadOnlyCollection<IRelationalDatabaseTable> tables, IReadOnlyDictionary<Identifier, ulong> rowCounts, DotRenderOptions options)
     {
         ArgumentNullException.ThrowIfNull(tables);
         ArgumentNullException.ThrowIfNull(rowCounts);

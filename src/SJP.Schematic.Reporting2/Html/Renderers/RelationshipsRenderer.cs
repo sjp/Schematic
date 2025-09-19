@@ -17,7 +17,7 @@ internal sealed class RelationshipsRenderer : ITemplateRenderer
     public RelationshipsRenderer(
         IIdentifierDefaults identifierDefaults,
         IHtmlFormatter formatter,
-        IEnumerable<IRelationalDatabaseTable> tables,
+        IReadOnlyCollection<IRelationalDatabaseTable> tables,
         IReadOnlyDictionary<Identifier, ulong> rowCounts,
         DirectoryInfo exportDirectory)
     {
@@ -32,7 +32,7 @@ internal sealed class RelationshipsRenderer : ITemplateRenderer
 
     private IHtmlFormatter Formatter { get; }
 
-    private IEnumerable<IRelationalDatabaseTable> Tables { get; }
+    private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
 
     private IReadOnlyDictionary<Identifier, ulong> RowCounts { get; }
 

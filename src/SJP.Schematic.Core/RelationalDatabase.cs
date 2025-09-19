@@ -26,20 +26,20 @@ public class RelationalDatabase : IRelationalDatabase
     public RelationalDatabase(
         IIdentifierDefaults identifierDefaults,
         IIdentifierResolutionStrategy identifierResolver,
-        IEnumerable<IRelationalDatabaseTable> tables,
-        IEnumerable<IDatabaseView> views,
-        IEnumerable<IDatabaseSequence> sequences,
-        IEnumerable<IDatabaseSynonym> synonyms,
-        IEnumerable<IDatabaseRoutine> routines
+        IReadOnlyCollection<IRelationalDatabaseTable> tables,
+        IReadOnlyCollection<IDatabaseView> views,
+        IReadOnlyCollection<IDatabaseSequence> sequences,
+        IReadOnlyCollection<IDatabaseSynonym> synonyms,
+        IReadOnlyCollection<IDatabaseRoutine> routines
     )
     {
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
-        Tables = tables?.ToList() ?? throw new ArgumentNullException(nameof(tables));
-        Views = views?.ToList() ?? throw new ArgumentNullException(nameof(views));
-        Sequences = sequences?.ToList() ?? throw new ArgumentNullException(nameof(sequences));
-        Synonyms = synonyms?.ToList() ?? throw new ArgumentNullException(nameof(synonyms));
-        Routines = routines?.ToList() ?? throw new ArgumentNullException(nameof(routines));
+        Tables = tables ?? throw new ArgumentNullException(nameof(tables));
+        Views = views ?? throw new ArgumentNullException(nameof(views));
+        Sequences = sequences ?? throw new ArgumentNullException(nameof(sequences));
+        Synonyms = synonyms ?? throw new ArgumentNullException(nameof(synonyms));
+        Routines = routines ?? throw new ArgumentNullException(nameof(routines));
     }
 
     /// <summary>

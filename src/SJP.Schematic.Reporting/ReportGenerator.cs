@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint;
 using SJP.Schematic.Reporting.Html;
 using SJP.Schematic.Reporting.Html.Lint;
@@ -38,11 +39,19 @@ public class ReportGenerator
 
     public async Task GenerateAsync(CancellationToken cancellationToken = default)
     {
-        var tables = Database.GetAllTables(cancellationToken).ToEnumerable();
-        var views = Database.GetAllViews(cancellationToken).ToEnumerable();
-        var sequences = Database.GetAllSequences(cancellationToken).ToEnumerable();
-        var synonyms = Database.GetAllSynonyms(cancellationToken).ToEnumerable();
-        var routines = Database.GetAllRoutines(cancellationToken).ToEnumerable();
+        var (
+            tables,
+            views,
+            sequences,
+            synonyms,
+            routines
+        ) = await (
+            Database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            Database.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            Database.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            Database.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            Database.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).AsTask()
+        ).WhenAll().ConfigureAwait(false);
 
         var rowCounts = await GetRowCountsAsync(tables, cancellationToken).ConfigureAwait(false);
 
@@ -83,11 +92,11 @@ public class ReportGenerator
     }
 
     private IEnumerable<ITemplateRenderer> GetRenderers(
-        IEnumerable<IRelationalDatabaseTable> tables,
-        IEnumerable<IDatabaseView> views,
-        IEnumerable<IDatabaseSequence> sequences,
-        IEnumerable<IDatabaseSynonym> synonyms,
-        IEnumerable<IDatabaseRoutine> routines,
+        IReadOnlyCollection<IRelationalDatabaseTable> tables,
+        IReadOnlyCollection<IDatabaseView> views,
+        IReadOnlyCollection<IDatabaseSequence> sequences,
+        IReadOnlyCollection<IDatabaseSynonym> synonyms,
+        IReadOnlyCollection<IDatabaseRoutine> routines,
         IReadOnlyDictionary<Identifier, ulong> rowCounts,
         string databaseVersion
     )

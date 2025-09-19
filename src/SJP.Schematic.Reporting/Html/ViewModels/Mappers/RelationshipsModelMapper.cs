@@ -14,7 +14,7 @@ internal sealed class RelationshipsModelMapper
 
     private IIdentifierDefaults IdentifierDefaults { get; }
 
-    public Relationships Map(IEnumerable<IRelationalDatabaseTable> tables, IReadOnlyDictionary<Identifier, ulong> rowCounts)
+    public Relationships Map(IReadOnlyCollection<IRelationalDatabaseTable> tables, IReadOnlyDictionary<Identifier, ulong> rowCounts)
     {
         ArgumentNullException.ThrowIfNull(tables);
         ArgumentNullException.ThrowIfNull(rowCounts);

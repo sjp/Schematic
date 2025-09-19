@@ -20,7 +20,7 @@ internal sealed class RelationshipFinder
 
     private IReadOnlyDictionary<Identifier, IRelationalDatabaseTable> Tables { get; }
 
-    public IEnumerable<IRelationalDatabaseTable> GetTablesByDegrees(IRelationalDatabaseTable table, uint degrees)
+    public IReadOnlyCollection<IRelationalDatabaseTable> GetTablesByDegrees(IRelationalDatabaseTable table, uint degrees)
     {
         ArgumentNullException.ThrowIfNull(table);
 
