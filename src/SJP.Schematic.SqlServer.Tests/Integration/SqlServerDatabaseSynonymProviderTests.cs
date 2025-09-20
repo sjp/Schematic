@@ -180,7 +180,7 @@ internal sealed class SqlServerDatabaseSynonymProviderTests : SqlServerTest
         var synonyms = await SynonymProvider.GetAllSynonyms2().ConfigureAwait(false);
         var containsTestSynonym = synonyms.Any(s => string.Equals(s.Name.LocalName, "db_test_synonym_1", StringComparison.Ordinal));
 
-        Assert.That(containsTestSynonym, Is.Not.Empty);
+        Assert.That(containsTestSynonym, Is.True);
     }
 
     [Test]
