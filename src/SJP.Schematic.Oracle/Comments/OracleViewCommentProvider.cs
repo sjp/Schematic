@@ -75,8 +75,8 @@ public class OracleViewCommentProvider : IDatabaseViewCommentProvider
     public async Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments2(CancellationToken cancellationToken = default)
     {
         var (queryViewComments, materializedViewComments) = await (
-            QueryViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask(),
-            MaterializedViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask()
+            QueryViewCommentProvider.GetAllViewComments2(cancellationToken),
+            MaterializedViewCommentProvider.GetAllViewComments2(cancellationToken)
         ).WhenAll().ConfigureAwait(false);
 
         return queryViewComments

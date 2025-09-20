@@ -74,8 +74,8 @@ public class OracleDatabaseViewProvider : IDatabaseViewProvider
     public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews2(CancellationToken cancellationToken = default)
     {
         var (queryViews, materializedViews) = await (
-            QueryViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask(),
-            MaterializedViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask()
+            QueryViewProvider.GetAllViews2(cancellationToken),
+            MaterializedViewProvider.GetAllViews2(cancellationToken)
         ).WhenAll().ConfigureAwait(false);
 
         return queryViews

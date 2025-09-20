@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.PostgreSql;
 
@@ -51,8 +52,10 @@ public class PostgreSqlDatabaseViewProvider : IDatabaseViewProvider
     /// <returns>A collection of database views.</returns>
     public async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryViews = await QueryViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-        var materializedViews = await MaterializedViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+        var (queryViews, materializedViews) = await (
+            QueryViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            MaterializedViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask()
+        ).WhenAll().ConfigureAwait(false);
 
         var views = queryViews
             .Concat(materializedViews)
@@ -70,8 +73,10 @@ public class PostgreSqlDatabaseViewProvider : IDatabaseViewProvider
     /// <returns>A collection of database views.</returns>
     public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews2(CancellationToken cancellationToken = default)
     {
-        var queryViews = await QueryViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-        var materializedViews = await MaterializedViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+        var (queryViews, materializedViews) = await (
+            QueryViewProvider.GetAllViews2(cancellationToken),
+            MaterializedViewProvider.GetAllViews2(cancellationToken)
+        ).WhenAll().ConfigureAwait(false);
 
         return queryViews
             .Concat(materializedViews)
