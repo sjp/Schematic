@@ -161,7 +161,7 @@ public class RelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token. Unused.</param>
     /// <returns>A collection of database views.</returns>
-    public IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default) => Views.ToAsyncEnumerable();
+    public IAsyncEnumerable<IDatabaseView> EnumerateAllViews(CancellationToken cancellationToken = default) => Views.ToAsyncEnumerable();
 
     /// <summary>
     /// Retrieves all of the database views.

@@ -65,7 +65,7 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of materialized views.</returns>
-    public IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseView> EnumerateAllViews(CancellationToken cancellationToken = default)
     {
         return DbConnection.QueryEnumerableAsync<GetAllMaterializedViewNames.Result>(GetAllMaterializedViewNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))

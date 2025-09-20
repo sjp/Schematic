@@ -158,9 +158,9 @@ internal sealed class PostgreSqlDatabaseQueryViewProviderTests : PostgreSqlTest
     }
 
     [Test]
-    public async Task GetAllViews_WhenEnumerated_ContainsViews()
+    public async Task EnumerateAllViews_WhenEnumerated_ContainsViews()
     {
-        var hasViews = await ViewProvider.GetAllViews()
+        var hasViews = await ViewProvider.EnumerateAllViews()
             .AnyAsync()
             .ConfigureAwait(false);
 
@@ -168,10 +168,10 @@ internal sealed class PostgreSqlDatabaseQueryViewProviderTests : PostgreSqlTest
     }
 
     [Test]
-    public async Task GetAllViews_WhenEnumerated_ContainsTestView()
+    public async Task EnumerateAllViews_WhenEnumerated_ContainsTestView()
     {
         const string viewName = "query_db_test_view_1";
-        var containsTestView = await ViewProvider.GetAllViews()
+        var containsTestView = await ViewProvider.EnumerateAllViews()
             .AnyAsync(v => string.Equals(v.Name.LocalName, viewName, StringComparison.Ordinal))
             .ConfigureAwait(false);
 
@@ -179,10 +179,10 @@ internal sealed class PostgreSqlDatabaseQueryViewProviderTests : PostgreSqlTest
     }
 
     [Test]
-    public async Task GetAllViews_WhenEnumerated_DoesNotContainMaterializedView()
+    public async Task EnumerateAllViews_WhenEnumerated_DoesNotContainMaterializedView()
     {
         const string viewName = "query_view_test_matview_1";
-        var containsTestView = await ViewProvider.GetAllViews()
+        var containsTestView = await ViewProvider.EnumerateAllViews()
             .AnyAsync(v => string.Equals(v.Name.LocalName, viewName, StringComparison.Ordinal))
             .ConfigureAwait(false);
 

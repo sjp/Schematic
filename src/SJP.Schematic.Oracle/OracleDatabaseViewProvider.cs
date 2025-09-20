@@ -50,11 +50,11 @@ public class OracleDatabaseViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database views.</returns>
-    public async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<IDatabaseView> EnumerateAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var (queryViews, materializedViews) = await (
-            QueryViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask(),
-            MaterializedViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask()
+            QueryViewProvider.EnumerateAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            MaterializedViewProvider.EnumerateAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask()
         ).WhenAll().ConfigureAwait(false);
 
         var views = queryViews

@@ -24,7 +24,7 @@ public interface IDatabaseViewCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of view comments.</returns>
-    IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments(CancellationToken cancellationToken = default);
+    IAsyncEnumerable<IDatabaseViewComments> EnumerateAllViewComments(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves all database view comments defined within a database.

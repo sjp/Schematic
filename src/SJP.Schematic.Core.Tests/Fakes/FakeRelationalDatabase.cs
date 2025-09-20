@@ -57,7 +57,7 @@ internal class FakeRelationalDatabase : IRelationalDatabase
 
     public virtual IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default) => Tables.ToAsyncEnumerable();
 
-    public virtual IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default) => Views.ToAsyncEnumerable();
+    public virtual IAsyncEnumerable<IDatabaseView> EnumerateAllViews(CancellationToken cancellationToken = default) => Views.ToAsyncEnumerable();
 
     public virtual IAsyncEnumerable<IDatabaseRoutine> EnumerateAllRoutines(CancellationToken cancellationToken = default) => Routines.ToAsyncEnumerable();
 

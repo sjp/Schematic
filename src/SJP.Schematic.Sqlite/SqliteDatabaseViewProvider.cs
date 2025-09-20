@@ -69,7 +69,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database views.</returns>
-    public async IAsyncEnumerable<IDatabaseView> GetAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<IDatabaseView> EnumerateAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var dbNamesQuery = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
         var dbNames = dbNamesQuery

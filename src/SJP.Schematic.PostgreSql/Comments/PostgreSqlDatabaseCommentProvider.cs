@@ -92,9 +92,9 @@ public class PostgreSqlDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of view comments.</returns>
-    public IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseViewComments> EnumerateAllViewComments(CancellationToken cancellationToken = default)
     {
-        return _viewCommentProvider.GetAllViewComments(cancellationToken);
+        return _viewCommentProvider.EnumerateAllViewComments(cancellationToken);
     }
 
     /// <summary>

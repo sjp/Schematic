@@ -92,7 +92,7 @@ create table test_table_4 (
     {
         var builder = Builder;
         var tables = await Database.GetAllTables().ToListAsync().ConfigureAwait(false);
-        var views = await Database.GetAllViews().ToListAsync().ConfigureAwait(false);
+        var views = await Database.EnumerateAllViews().ToListAsync().ConfigureAwait(false);
         var sequences = await Database.EnumerateAllSequences().ToListAsync().ConfigureAwait(false);
 
         var expected = TestAppContextOutput;

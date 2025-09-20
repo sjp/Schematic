@@ -350,7 +350,7 @@ internal static class RelationalDatabaseTests
     }
 
     [Test]
-    public static async Task GetAllViews_WhenInvoked_ReturnsViewsFromCtor()
+    public static async Task EnumerateAllViews_WhenInvoked_ReturnsViewsFromCtor()
     {
         var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
         var identifierResolver = new VerbatimIdentifierResolutionStrategy();
@@ -374,7 +374,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbViews = await database.GetAllViews().ToListAsync().ConfigureAwait(false);
+        var dbViews = await database.EnumerateAllViews().ToListAsync().ConfigureAwait(false);
         var viewName = dbViews.Select(v => v.Name).Single();
 
         Assert.That(viewName, Is.EqualTo(testViewName));

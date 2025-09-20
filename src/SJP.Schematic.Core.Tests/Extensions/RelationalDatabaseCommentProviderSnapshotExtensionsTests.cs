@@ -112,7 +112,7 @@ internal static class RelationalDatabaseCommentProviderSnapshotExtensionsTests
 
         var snapshot = await commentProvider.SnapshotAsync().ConfigureAwait(false);
         var snapshotTableComments = await snapshot.GetAllTableComments().ToListAsync().ConfigureAwait(false);
-        var snapshotViewComments = await snapshot.GetAllViewComments().ToListAsync().ConfigureAwait(false);
+        var snapshotViewComments = await snapshot.EnumerateAllViewComments().ToListAsync().ConfigureAwait(false);
         var snapshotSequenceComments = await snapshot.EnumerateAllSequenceComments().ToListAsync().ConfigureAwait(false);
         var snapshotSynonymComments = await snapshot.EnumerateAllSynonymComments().ToListAsync().ConfigureAwait(false);
         var snapshotRoutineComments = await snapshot.EnumerateAllRoutineComments().ToListAsync().ConfigureAwait(false);
@@ -304,7 +304,7 @@ internal static class RelationalDatabaseCommentProviderSnapshotExtensionsTests
 
         var snapshot = await commentProvider.SnapshotAsync(identifierResolver).ConfigureAwait(false);
         var snapshotTableComments = await snapshot.GetAllTableComments().ToListAsync().ConfigureAwait(false);
-        var snapshotViewComments = await snapshot.GetAllViewComments().ToListAsync().ConfigureAwait(false);
+        var snapshotViewComments = await snapshot.EnumerateAllViewComments().ToListAsync().ConfigureAwait(false);
         var snapshotSequenceComments = await snapshot.EnumerateAllSequenceComments().ToListAsync().ConfigureAwait(false);
         var snapshotSynonymComments = await snapshot.EnumerateAllSynonymComments().ToListAsync().ConfigureAwait(false);
         var snapshotRoutineComments = await snapshot.EnumerateAllRoutineComments().ToListAsync().ConfigureAwait(false);
@@ -532,7 +532,7 @@ internal static class RelationalDatabaseCommentProviderSnapshotExtensionsTests
 
         var snapshot = await commentProvider.SnapshotAsync(new RelationalDatabaseCommentProviderSnapshotOptions()).ConfigureAwait(false);
         var snapshotTableComments = await snapshot.GetAllTableComments().ToListAsync().ConfigureAwait(false);
-        var snapshotViewComments = await snapshot.GetAllViewComments().ToListAsync().ConfigureAwait(false);
+        var snapshotViewComments = await snapshot.EnumerateAllViewComments().ToListAsync().ConfigureAwait(false);
         var snapshotSequenceComments = await snapshot.EnumerateAllSequenceComments().ToListAsync().ConfigureAwait(false);
         var snapshotSynonymComments = await snapshot.EnumerateAllSynonymComments().ToListAsync().ConfigureAwait(false);
         var snapshotRoutineComments = await snapshot.EnumerateAllRoutineComments().ToListAsync().ConfigureAwait(false);
@@ -550,7 +550,7 @@ internal static class RelationalDatabaseCommentProviderSnapshotExtensionsTests
         var tableOpts = RelationalDatabaseCommentProviderSnapshotOptions.Empty with { IncludeTableComments = true };
         var tableSnapshot = await commentProvider.SnapshotAsync(tableOpts).ConfigureAwait(false);
         var tableSnapshotTableComments = await tableSnapshot.GetAllTableComments().ToListAsync().ConfigureAwait(false);
-        var tableSnapshotViewComments = await tableSnapshot.GetAllViewComments().ToListAsync().ConfigureAwait(false);
+        var tableSnapshotViewComments = await tableSnapshot.EnumerateAllViewComments().ToListAsync().ConfigureAwait(false);
         var tableSnapshotSequenceComments = await tableSnapshot.EnumerateAllSequenceComments().ToListAsync().ConfigureAwait(false);
         var tableSnapshotSynonymComments = await tableSnapshot.EnumerateAllSynonymComments().ToListAsync().ConfigureAwait(false);
         var tableSnapshotRoutineComments = await tableSnapshot.EnumerateAllRoutineComments().ToListAsync().ConfigureAwait(false);
@@ -568,7 +568,7 @@ internal static class RelationalDatabaseCommentProviderSnapshotExtensionsTests
         var viewOpts = RelationalDatabaseCommentProviderSnapshotOptions.Empty with { IncludeViewComments = true };
         var viewSnapshot = await commentProvider.SnapshotAsync(viewOpts).ConfigureAwait(false);
         var viewSnapshotTableComments = await viewSnapshot.GetAllTableComments().ToListAsync().ConfigureAwait(false);
-        var viewSnapshotViewComments = await viewSnapshot.GetAllViewComments().ToListAsync().ConfigureAwait(false);
+        var viewSnapshotViewComments = await viewSnapshot.EnumerateAllViewComments().ToListAsync().ConfigureAwait(false);
         var viewSnapshotSequenceComments = await viewSnapshot.EnumerateAllSequenceComments().ToListAsync().ConfigureAwait(false);
         var viewSnapshotSynonymComments = await viewSnapshot.EnumerateAllSynonymComments().ToListAsync().ConfigureAwait(false);
         var viewSnapshotRoutineComments = await viewSnapshot.EnumerateAllRoutineComments().ToListAsync().ConfigureAwait(false);
@@ -586,7 +586,7 @@ internal static class RelationalDatabaseCommentProviderSnapshotExtensionsTests
         var sequenceOpts = RelationalDatabaseCommentProviderSnapshotOptions.Empty with { IncludeSequenceComments = true };
         var sequenceSnapshot = await commentProvider.SnapshotAsync(sequenceOpts).ConfigureAwait(false);
         var sequenceSnapshotTableComments = await sequenceSnapshot.GetAllTableComments().ToListAsync().ConfigureAwait(false);
-        var sequenceSnapshotViewComments = await sequenceSnapshot.GetAllViewComments().ToListAsync().ConfigureAwait(false);
+        var sequenceSnapshotViewComments = await sequenceSnapshot.EnumerateAllViewComments().ToListAsync().ConfigureAwait(false);
         var sequenceSnapshotSequenceComments = await sequenceSnapshot.EnumerateAllSequenceComments().ToListAsync().ConfigureAwait(false);
         var sequenceSnapshotSynonymComments = await sequenceSnapshot.EnumerateAllSynonymComments().ToListAsync().ConfigureAwait(false);
         var sequenceSnapshotRoutineComments = await sequenceSnapshot.EnumerateAllRoutineComments().ToListAsync().ConfigureAwait(false);
@@ -604,7 +604,7 @@ internal static class RelationalDatabaseCommentProviderSnapshotExtensionsTests
         var synonymOpts = RelationalDatabaseCommentProviderSnapshotOptions.Empty with { IncludeSynonymComments = true };
         var synonymSnapshot = await commentProvider.SnapshotAsync(synonymOpts).ConfigureAwait(false);
         var synonymSnapshotTableComments = await synonymSnapshot.GetAllTableComments().ToListAsync().ConfigureAwait(false);
-        var synonymSnapshotViewComments = await synonymSnapshot.GetAllViewComments().ToListAsync().ConfigureAwait(false);
+        var synonymSnapshotViewComments = await synonymSnapshot.EnumerateAllViewComments().ToListAsync().ConfigureAwait(false);
         var synonymSnapshotSequenceComments = await synonymSnapshot.EnumerateAllSequenceComments().ToListAsync().ConfigureAwait(false);
         var synonymSnapshotSynonymComments = await synonymSnapshot.EnumerateAllSynonymComments().ToListAsync().ConfigureAwait(false);
         var synonymSnapshotRoutineComments = await synonymSnapshot.EnumerateAllRoutineComments().ToListAsync().ConfigureAwait(false);
@@ -622,7 +622,7 @@ internal static class RelationalDatabaseCommentProviderSnapshotExtensionsTests
         var routineOpts = RelationalDatabaseCommentProviderSnapshotOptions.Empty with { IncludeRoutineComments = true };
         var routineSnapshot = await commentProvider.SnapshotAsync(routineOpts).ConfigureAwait(false);
         var routineSnapshotTableComments = await routineSnapshot.GetAllTableComments().ToListAsync().ConfigureAwait(false);
-        var routineSnapshotViewComments = await routineSnapshot.GetAllViewComments().ToListAsync().ConfigureAwait(false);
+        var routineSnapshotViewComments = await routineSnapshot.EnumerateAllViewComments().ToListAsync().ConfigureAwait(false);
         var routineSnapshotSequenceComments = await routineSnapshot.EnumerateAllSequenceComments().ToListAsync().ConfigureAwait(false);
         var routineSnapshotSynonymComments = await routineSnapshot.EnumerateAllSynonymComments().ToListAsync().ConfigureAwait(false);
         var routineSnapshotRoutineComments = await routineSnapshot.EnumerateAllRoutineComments().ToListAsync().ConfigureAwait(false);

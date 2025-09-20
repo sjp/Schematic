@@ -173,9 +173,9 @@ internal sealed class PostgreSqlViewCommentProviderTests : PostgreSqlTest
     }
 
     [Test]
-    public async Task GetAllViewComments_WhenEnumerated_ContainsViewComments()
+    public async Task EnumerateAllViewComments_WhenEnumerated_ContainsViewComments()
     {
-        var hasViewComments = await ViewCommentProvider.GetAllViewComments()
+        var hasViewComments = await ViewCommentProvider.EnumerateAllViewComments()
             .AnyAsync()
             .ConfigureAwait(false);
 
@@ -183,9 +183,9 @@ internal sealed class PostgreSqlViewCommentProviderTests : PostgreSqlTest
     }
 
     [Test]
-    public async Task GetAllViewComments_WhenEnumerated_ContainsTestViewComment()
+    public async Task EnumerateAllViewComments_WhenEnumerated_ContainsTestViewComment()
     {
-        var containsTestView = await ViewCommentProvider.GetAllViewComments()
+        var containsTestView = await ViewCommentProvider.EnumerateAllViewComments()
             .AnyAsync(v => string.Equals(v.ViewName.LocalName, "wrapper_view_comment_view_1", StringComparison.Ordinal))
             .ConfigureAwait(false);
 
@@ -394,9 +394,9 @@ internal sealed class PostgreSqlViewCommentProviderTests : PostgreSqlTest
     }
 
     [Test]
-    public async Task GetAllViewComments_WhenEnumerated_ContainsTestMatView()
+    public async Task EnumerateAllViewComments_WhenEnumerated_ContainsTestMatView()
     {
-        var containsTestView = await ViewCommentProvider.GetAllViewComments()
+        var containsTestView = await ViewCommentProvider.EnumerateAllViewComments()
             .AnyAsync(v => string.Equals(v.ViewName.LocalName, "wrapper_view_comment_matview_1", StringComparison.Ordinal))
             .ConfigureAwait(false);
 

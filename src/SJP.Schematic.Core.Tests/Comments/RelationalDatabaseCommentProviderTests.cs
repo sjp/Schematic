@@ -375,7 +375,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbViewComments = await commentProvider.GetAllViewComments().ToListAsync().ConfigureAwait(false);
+        var dbViewComments = await commentProvider.EnumerateAllViewComments().ToListAsync().ConfigureAwait(false);
         var viewName = dbViewComments.Select(v => v.ViewName).Single();
 
         Assert.That(viewName, Is.EqualTo(testViewName));

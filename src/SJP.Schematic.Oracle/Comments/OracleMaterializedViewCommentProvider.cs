@@ -54,7 +54,7 @@ public class OracleMaterializedViewCommentProvider : IDatabaseViewCommentProvide
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of materialized view comments.</returns>
-    public IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseViewComments> EnumerateAllViewComments(CancellationToken cancellationToken = default)
     {
         return Connection.QueryEnumerableAsync<GetAllMaterializedViewNames.Result>(GetAllMaterializedViewNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))

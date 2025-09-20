@@ -23,7 +23,7 @@ public interface IDatabaseViewProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database views.</returns>
-    IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default);
+    IAsyncEnumerable<IDatabaseView> EnumerateAllViews(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets all database views.

@@ -54,7 +54,7 @@ public class OracleQueryViewCommentProvider : IDatabaseViewCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of view comments.</returns>
-    public IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseViewComments> EnumerateAllViewComments(CancellationToken cancellationToken = default)
     {
         return Connection.QueryEnumerableAsync<GetAllViewNames.Result>(GetAllViewNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))

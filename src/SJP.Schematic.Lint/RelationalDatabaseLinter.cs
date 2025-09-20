@@ -59,7 +59,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
                 yield return message;
         }
 
-        var views = await database.GetAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+        var views = await database.EnumerateAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
         foreach (var viewRule in ViewRules)
         {
             await foreach (var message in viewRule.AnalyseViews(views, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))

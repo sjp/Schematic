@@ -50,7 +50,7 @@ public class RelationalDatabaseMapper
                 .Select(t => tableMapper.Map<IRelationalDatabaseTable, Dto.RelationalDatabaseTable>(t))
                 .ToListAsync(cancellationToken)
                 .AsTask(),
-            source.GetAllViews(cancellationToken)
+            source.EnumerateAllViews(cancellationToken)
                 .Select(v => viewMapper.Map<IDatabaseView, Dto.DatabaseView>(v))
                 .ToListAsync(cancellationToken)
                 .AsTask(),

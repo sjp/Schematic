@@ -18,7 +18,7 @@ public sealed class EmptyDatabaseViewCommentProvider : IDatabaseViewCommentProvi
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of view comments.</returns>
-    public IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseViewComments>();
+    public IAsyncEnumerable<IDatabaseViewComments> EnumerateAllViewComments(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseViewComments>();
 
     /// <summary>
     /// Retrieves all database view comments defined within a database.

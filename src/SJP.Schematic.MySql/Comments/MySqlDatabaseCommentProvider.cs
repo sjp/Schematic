@@ -88,9 +88,9 @@ public class MySqlDatabaseCommentProvider : IRelationalDatabaseCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of database view comments.</returns>
-    public IAsyncEnumerable<IDatabaseViewComments> GetAllViewComments(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseViewComments> EnumerateAllViewComments(CancellationToken cancellationToken = default)
     {
-        return ViewCommentProvider.GetAllViewComments(cancellationToken);
+        return ViewCommentProvider.EnumerateAllViewComments(cancellationToken);
     }
 
     /// <summary>

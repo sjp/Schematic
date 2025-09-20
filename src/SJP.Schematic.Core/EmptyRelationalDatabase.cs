@@ -64,9 +64,9 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database views.</returns>
-    public IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseView> EnumerateAllViews(CancellationToken cancellationToken = default)
     {
-        return ViewProvider.GetAllViews(cancellationToken);
+        return ViewProvider.EnumerateAllViews(cancellationToken);
     }
 
     /// <summary>

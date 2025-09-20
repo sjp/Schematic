@@ -57,7 +57,7 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database views.</returns>
-    public IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseView> EnumerateAllViews(CancellationToken cancellationToken = default)
     {
         var queryResult = DbConnection.QueryEnumerableAsync(
             GetAllViewNames.Sql,

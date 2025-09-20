@@ -65,7 +65,7 @@ public class PostgreSqlDatabaseQueryViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database views.</returns>
-    public IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseView> EnumerateAllViews(CancellationToken cancellationToken = default)
     {
         return DbConnection.QueryEnumerableAsync<GetAllViewNames.Result>(GetAllViewNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))

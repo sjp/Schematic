@@ -83,9 +83,9 @@ internal static class EmptyRelationalDatabaseTests
     }
 
     [Test]
-    public static async Task GetAllViews_WhenEnumerated_ContainsNoValues()
+    public static async Task EnumerateAllViews_WhenEnumerated_ContainsNoValues()
     {
-        var hasViews = await Database.GetAllViews()
+        var hasViews = await Database.EnumerateAllViews()
             .AnyAsync()
             .ConfigureAwait(false);
 

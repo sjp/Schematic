@@ -205,9 +205,9 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     }
 
     [Test]
-    public async Task GetAllViewComments_WhenEnumerated_ContainsViewComments()
+    public async Task EnumerateAllViewComments_WhenEnumerated_ContainsViewComments()
     {
-        var hasViewComments = await ViewCommentProvider.GetAllViewComments()
+        var hasViewComments = await ViewCommentProvider.EnumerateAllViewComments()
             .AnyAsync()
             .ConfigureAwait(false);
 
@@ -215,9 +215,9 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     }
 
     [Test]
-    public async Task GetAllViewComments_WhenEnumerated_ContainsTestViewComment()
+    public async Task EnumerateAllViewComments_WhenEnumerated_ContainsTestViewComment()
     {
-        var containsTestView = await ViewCommentProvider.GetAllViewComments()
+        var containsTestView = await ViewCommentProvider.EnumerateAllViewComments()
             .AnyAsync(t => string.Equals(t.ViewName.LocalName, "view_comment_view_1", StringComparison.Ordinal))
             .ConfigureAwait(false);
 

@@ -163,7 +163,7 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
 
         var snapshot = await database.SnapshotAsync(identifierResolver).ConfigureAwait(false);
         var snapshotTables = await snapshot.GetAllTables().ToListAsync().ConfigureAwait(false);
-        var snapshotViews = await snapshot.GetAllViews().ToListAsync().ConfigureAwait(false);
+        var snapshotViews = await snapshot.EnumerateAllViews().ToListAsync().ConfigureAwait(false);
         var snapshotSequences = await snapshot.EnumerateAllSequences().ToListAsync().ConfigureAwait(false);
         var snapshotSynonyms = await snapshot.EnumerateAllSynonyms().ToListAsync().ConfigureAwait(false);
         var snapshotRoutines = await snapshot.EnumerateAllRoutines().ToListAsync().ConfigureAwait(false);
@@ -288,7 +288,7 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
 
         var snapshot = await database.SnapshotAsync(identifierResolver).ConfigureAwait(false);
         var snapshotTables = await snapshot.GetAllTables().ToListAsync().ConfigureAwait(false);
-        var snapshotViews = await snapshot.GetAllViews().ToListAsync().ConfigureAwait(false);
+        var snapshotViews = await snapshot.EnumerateAllViews().ToListAsync().ConfigureAwait(false);
         var snapshotSequences = await snapshot.EnumerateAllSequences().ToListAsync().ConfigureAwait(false);
         var snapshotSynonyms = await snapshot.EnumerateAllSynonyms().ToListAsync().ConfigureAwait(false);
         var snapshotRoutines = await snapshot.EnumerateAllRoutines().ToListAsync().ConfigureAwait(false);
@@ -583,7 +583,7 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
 
         var snapshot = await database.SnapshotAsync(new RelationalDatabaseSnapshotOptions()).ConfigureAwait(false);
         var snapshotTables = await snapshot.GetAllTables().ToListAsync().ConfigureAwait(false);
-        var snapshotViews = await snapshot.GetAllViews().ToListAsync().ConfigureAwait(false);
+        var snapshotViews = await snapshot.EnumerateAllViews().ToListAsync().ConfigureAwait(false);
         var snapshotSequences = await snapshot.EnumerateAllSequences().ToListAsync().ConfigureAwait(false);
         var snapshotSynonyms = await snapshot.EnumerateAllSynonyms().ToListAsync().ConfigureAwait(false);
         var snapshotRoutines = await snapshot.EnumerateAllRoutines().ToListAsync().ConfigureAwait(false);
@@ -601,7 +601,7 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
         var tableOpts = RelationalDatabaseSnapshotOptions.Empty with { IncludeTables = true };
         var tableSnapshot = await database.SnapshotAsync(tableOpts).ConfigureAwait(false);
         var tableSnapshotTables = await tableSnapshot.GetAllTables().ToListAsync().ConfigureAwait(false);
-        var tableSnapshotViews = await tableSnapshot.GetAllViews().ToListAsync().ConfigureAwait(false);
+        var tableSnapshotViews = await tableSnapshot.EnumerateAllViews().ToListAsync().ConfigureAwait(false);
         var tableSnapshotSequences = await tableSnapshot.EnumerateAllSequences().ToListAsync().ConfigureAwait(false);
         var tableSnapshotSynonyms = await tableSnapshot.EnumerateAllSynonyms().ToListAsync().ConfigureAwait(false);
         var tableSnapshotRoutines = await tableSnapshot.EnumerateAllRoutines().ToListAsync().ConfigureAwait(false);
@@ -619,7 +619,7 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
         var viewOpts = RelationalDatabaseSnapshotOptions.Empty with { IncludeViews = true };
         var viewSnapshot = await database.SnapshotAsync(viewOpts).ConfigureAwait(false);
         var viewSnapshotTables = await viewSnapshot.GetAllTables().ToListAsync().ConfigureAwait(false);
-        var viewSnapshotViews = await viewSnapshot.GetAllViews().ToListAsync().ConfigureAwait(false);
+        var viewSnapshotViews = await viewSnapshot.EnumerateAllViews().ToListAsync().ConfigureAwait(false);
         var viewSnapshotSequences = await viewSnapshot.EnumerateAllSequences().ToListAsync().ConfigureAwait(false);
         var viewSnapshotSynonyms = await viewSnapshot.EnumerateAllSynonyms().ToListAsync().ConfigureAwait(false);
         var viewSnapshotRoutines = await viewSnapshot.EnumerateAllRoutines().ToListAsync().ConfigureAwait(false);
@@ -637,7 +637,7 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
         var sequenceOpts = RelationalDatabaseSnapshotOptions.Empty with { IncludeSequences = true };
         var sequenceSnapshot = await database.SnapshotAsync(sequenceOpts).ConfigureAwait(false);
         var sequenceSnapshotTables = await sequenceSnapshot.GetAllTables().ToListAsync().ConfigureAwait(false);
-        var sequenceSnapshotViews = await sequenceSnapshot.GetAllViews().ToListAsync().ConfigureAwait(false);
+        var sequenceSnapshotViews = await sequenceSnapshot.EnumerateAllViews().ToListAsync().ConfigureAwait(false);
         var sequenceSnapshotSequences = await sequenceSnapshot.EnumerateAllSequences().ToListAsync().ConfigureAwait(false);
         var sequenceSnapshotSynonyms = await sequenceSnapshot.EnumerateAllSynonyms().ToListAsync().ConfigureAwait(false);
         var sequenceSnapshotRoutines = await sequenceSnapshot.EnumerateAllRoutines().ToListAsync().ConfigureAwait(false);
@@ -655,7 +655,7 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
         var synonymOpts = RelationalDatabaseSnapshotOptions.Empty with { IncludeSynonyms = true };
         var synonymSnapshot = await database.SnapshotAsync(synonymOpts).ConfigureAwait(false);
         var synonymSnapshotTables = await synonymSnapshot.GetAllTables().ToListAsync().ConfigureAwait(false);
-        var synonymSnapshotViews = await synonymSnapshot.GetAllViews().ToListAsync().ConfigureAwait(false);
+        var synonymSnapshotViews = await synonymSnapshot.EnumerateAllViews().ToListAsync().ConfigureAwait(false);
         var synonymSnapshotSequences = await synonymSnapshot.EnumerateAllSequences().ToListAsync().ConfigureAwait(false);
         var synonymSnapshotSynonyms = await synonymSnapshot.EnumerateAllSynonyms().ToListAsync().ConfigureAwait(false);
         var synonymSnapshotRoutines = await synonymSnapshot.EnumerateAllRoutines().ToListAsync().ConfigureAwait(false);
@@ -673,7 +673,7 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
         var routineOpts = RelationalDatabaseSnapshotOptions.Empty with { IncludeRoutines = true };
         var routineSnapshot = await database.SnapshotAsync(routineOpts).ConfigureAwait(false);
         var routineSnapshotTables = await routineSnapshot.GetAllTables().ToListAsync().ConfigureAwait(false);
-        var routineSnapshotViews = await routineSnapshot.GetAllViews().ToListAsync().ConfigureAwait(false);
+        var routineSnapshotViews = await routineSnapshot.EnumerateAllViews().ToListAsync().ConfigureAwait(false);
         var routineSnapshotSequences = await routineSnapshot.EnumerateAllSequences().ToListAsync().ConfigureAwait(false);
         var routineSnapshotSynonyms = await routineSnapshot.EnumerateAllSynonyms().ToListAsync().ConfigureAwait(false);
         var routineSnapshotRoutines = await routineSnapshot.EnumerateAllRoutines().ToListAsync().ConfigureAwait(false);

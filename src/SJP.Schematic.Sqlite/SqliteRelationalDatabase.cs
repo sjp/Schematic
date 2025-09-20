@@ -93,9 +93,9 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database views.</returns>
-    public IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseView> EnumerateAllViews(CancellationToken cancellationToken = default)
     {
-        return _viewProvider.GetAllViews(cancellationToken);
+        return _viewProvider.EnumerateAllViews(cancellationToken);
     }
 
     /// <summary>

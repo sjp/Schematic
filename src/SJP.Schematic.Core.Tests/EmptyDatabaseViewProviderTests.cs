@@ -25,10 +25,10 @@ internal static class EmptyDatabaseViewProviderTests
     }
 
     [Test]
-    public static async Task GetAllViews_WhenEnumerated_ContainsNoValues()
+    public static async Task EnumerateAllViews_WhenEnumerated_ContainsNoValues()
     {
         var provider = new EmptyDatabaseViewProvider();
-        var hasViews = await provider.GetAllViews()
+        var hasViews = await provider.EnumerateAllViews()
             .AnyAsync()
             .ConfigureAwait(false);
 

@@ -149,9 +149,9 @@ internal sealed class OracleDatabaseViewProviderTests : OracleTest
     }
 
     [Test]
-    public async Task GetAllViews_WhenEnumerated_ContainsViews()
+    public async Task EnumerateAllViews_WhenEnumerated_ContainsViews()
     {
-        var hasViews = await ViewProvider.GetAllViews()
+        var hasViews = await ViewProvider.EnumerateAllViews()
             .AnyAsync()
             .ConfigureAwait(false);
 
@@ -159,10 +159,10 @@ internal sealed class OracleDatabaseViewProviderTests : OracleTest
     }
 
     [Test]
-    public async Task GetAllViews_WhenEnumerated_ContainsTestView()
+    public async Task EnumerateAllViews_WhenEnumerated_ContainsTestView()
     {
         const string viewName = "DB_TEST_VIEW_1";
-        var containsTestView = await ViewProvider.GetAllViews()
+        var containsTestView = await ViewProvider.EnumerateAllViews()
             .AnyAsync(v => string.Equals(v.Name.LocalName, viewName, StringComparison.Ordinal))
             .ConfigureAwait(false);
 
@@ -225,10 +225,10 @@ internal sealed class OracleDatabaseViewProviderTests : OracleTest
     }
 
     [Test]
-    public async Task GetAllViews_WhenEnumerated_ContainsTestMaterializedView()
+    public async Task EnumerateAllViews_WhenEnumerated_ContainsTestMaterializedView()
     {
         const string viewName = "VIEW_TEST_VIEW_2";
-        var containsTestView = await ViewProvider.GetAllViews()
+        var containsTestView = await ViewProvider.EnumerateAllViews()
             .AnyAsync(v => string.Equals(v.Name.LocalName, viewName, StringComparison.Ordinal))
             .ConfigureAwait(false);
 

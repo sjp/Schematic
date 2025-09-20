@@ -18,7 +18,7 @@ public sealed class EmptyDatabaseViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database views.</returns>
-    public IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseView>();
+    public IAsyncEnumerable<IDatabaseView> EnumerateAllViews(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseView>();
 
     /// <summary>
     /// Gets all database views. This will always be an empty collection.
