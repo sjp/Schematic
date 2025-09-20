@@ -80,7 +80,7 @@ public static class RelationalDatabaseSnapshotExtensions
     private static async Task<IRelationalDatabase> SnapshotAsyncCore(IRelationalDatabase database, RelationalDatabaseSnapshotOptions snapshotOptions, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken)
     {
         var tablesTask = snapshotOptions.IncludeTables
-            ? database.GetAllTables2(cancellationToken)
+            ? database.GetAllTables(cancellationToken)
             : Task.FromResult<IReadOnlyCollection<IRelationalDatabaseTable>>([]);
         var viewsTask = snapshotOptions.IncludeViews
             ? database.GetAllViews(cancellationToken)

@@ -52,9 +52,9 @@ public class OracleRelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database tables.</returns>
-    public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables2(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
     {
-        return _tableProvider.GetAllTables2(cancellationToken);
+        return _tableProvider.GetAllTables(cancellationToken);
     }
 
     /// <summary>

@@ -68,9 +68,9 @@ public class PostgreSqlDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database table comments, where available.</returns>
-    public Task<IReadOnlyCollection<IRelationalDatabaseTableComments>> GetAllTableComments2(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IRelationalDatabaseTableComments>> GetAllTableComments(CancellationToken cancellationToken = default)
     {
-        return _tableCommentProvider.GetAllTableComments2(cancellationToken);
+        return _tableCommentProvider.GetAllTableComments(cancellationToken);
     }
 
     /// <summary>

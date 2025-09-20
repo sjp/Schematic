@@ -46,7 +46,7 @@ public class ReportGenerator
             synonyms,
             routines
         ) = await (
-            Database.GetAllTables2(cancellationToken),
+            Database.GetAllTables(cancellationToken),
             Database.GetAllViews(cancellationToken),
             Database.GetAllSequences(cancellationToken),
             Database.GetAllSynonyms(cancellationToken),

@@ -433,17 +433,17 @@ end", CancellationToken.None).ConfigureAwait(false);
     }
 
     [Test]
-    public async Task GetAllTables2_WhenRetrieved_ContainsTables()
+    public async Task GetAllTables_WhenRetrieved_ContainsTables()
     {
-        var tables = await TableProvider.GetAllTables2().ConfigureAwait(false);
+        var tables = await TableProvider.GetAllTables().ConfigureAwait(false);
 
         Assert.That(tables, Is.Not.Empty);
     }
 
     [Test]
-    public async Task GetAllTables2_WhenRetrieved_ContainsTestTable()
+    public async Task GetAllTables_WhenRetrieved_ContainsTestTable()
     {
-        var tables = await TableProvider.GetAllTables2().ConfigureAwait(false);
+        var tables = await TableProvider.GetAllTables().ConfigureAwait(false);
         var containsTestTable = tables.Any(t => string.Equals(t.Name.LocalName, "db_test_table_1", StringComparison.Ordinal));
 
         Assert.That(containsTestTable, Is.True);

@@ -81,7 +81,7 @@ public static class RelationalDatabaseCommentProviderSnapshotExtensions
     private static async Task<IRelationalDatabaseCommentProvider> SnapshotAsyncCore(IRelationalDatabaseCommentProvider databaseComments, RelationalDatabaseCommentProviderSnapshotOptions snapshotOptions, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken)
     {
         var tableCommentsTask = snapshotOptions.IncludeTableComments
-            ? databaseComments.GetAllTableComments2(cancellationToken)
+            ? databaseComments.GetAllTableComments(cancellationToken)
             : Task.FromResult<IReadOnlyCollection<IRelationalDatabaseTableComments>>([]);
         var viewCommentsTask = snapshotOptions.IncludeViewComments
             ? databaseComments.GetAllViewComments(cancellationToken)

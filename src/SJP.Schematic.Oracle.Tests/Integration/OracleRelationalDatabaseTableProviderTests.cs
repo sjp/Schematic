@@ -14,16 +14,16 @@ namespace SJP.Schematic.Oracle.Tests.Integration;
 internal sealed partial class OracleRelationalDatabaseTableProviderTests : OracleTest
 {
     private IRelationalDatabaseTableProvider TableProvider => new OracleRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver);
-    private AsyncLazy<List<IRelationalDatabaseTable>> _tables;
-    private AsyncLazy<IReadOnlyCollection<IRelationalDatabaseTable>> _tables2;
-    private Task<List<IRelationalDatabaseTable>> GetAllTables() => _tables.Task;
-    private Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables2() => _tables2.Task;
+    private AsyncLazy<List<IRelationalDatabaseTable>> _enumerateTables;
+    private AsyncLazy<IReadOnlyCollection<IRelationalDatabaseTable>> _getAllTables;
+    private Task<List<IRelationalDatabaseTable>> EnumerateAllTables() => _enumerateTables.Task;
+    private Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables() => _getAllTables.Task;
 
     [OneTimeSetUp]
     public async Task Init()
     {
-        _tables = new AsyncLazy<List<IRelationalDatabaseTable>>(() => TableProvider.EnumerateAllTables().ToListAsync().AsTask());
-        _tables2 = new AsyncLazy<IReadOnlyCollection<IRelationalDatabaseTable>>(() => TableProvider.GetAllTables2());
+        _enumerateTables = new AsyncLazy<List<IRelationalDatabaseTable>>(() => TableProvider.EnumerateAllTables().ToListAsync().AsTask());
+        _getAllTables = new AsyncLazy<IReadOnlyCollection<IRelationalDatabaseTable>>(() => TableProvider.GetAllTables());
 
         await DbConnection.ExecuteAsync("create table db_test_table_1 ( title varchar2(200) )", CancellationToken.None).ConfigureAwait(false);
 
@@ -363,7 +363,7 @@ end;
     [Test]
     public async Task EnumerateAllTables_WhenEnumerated_ContainsTables()
     {
-        var tables = await GetAllTables().ConfigureAwait(false);
+        var tables = await EnumerateAllTables().ConfigureAwait(false);
 
         Assert.That(tables, Is.Not.Empty);
     }
@@ -372,25 +372,25 @@ end;
     public async Task EnumerateAllTables_WhenEnumerated_ContainsTestTable()
     {
         const string expectedTableName = "DB_TEST_TABLE_1";
-        var tables = await GetAllTables().ConfigureAwait(false);
+        var tables = await EnumerateAllTables().ConfigureAwait(false);
         var containsTestTable = tables.Exists(t => string.Equals(t.Name.LocalName, expectedTableName, StringComparison.Ordinal));
 
         Assert.That(containsTestTable, Is.True);
     }
 
     [Test]
-    public async Task GetAllTables2_WhenRetrieved_ContainsTables()
+    public async Task GetAllTables_WhenRetrieved_ContainsTables()
     {
-        var tables = await GetAllTables2().ConfigureAwait(false);
+        var tables = await GetAllTables().ConfigureAwait(false);
 
         Assert.That(tables, Is.Not.Empty);
     }
 
     [Test]
-    public async Task GetAllTables2_WhenRetrieved_ContainsTestTable()
+    public async Task GetAllTables_WhenRetrieved_ContainsTestTable()
     {
         const string expectedTableName = "DB_TEST_TABLE_1";
-        var tables = await GetAllTables2().ConfigureAwait(false);
+        var tables = await GetAllTables().ConfigureAwait(false);
         var containsTestTable = tables.Exists(t => string.Equals(t.Name.LocalName, expectedTableName, StringComparison.Ordinal));
 
         Assert.That(containsTestTable, Is.True);

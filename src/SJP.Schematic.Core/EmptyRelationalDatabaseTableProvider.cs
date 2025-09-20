@@ -25,7 +25,7 @@ public sealed class EmptyRelationalDatabaseTableProvider : IRelationalDatabaseTa
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database tables.</returns>
-    public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables2(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IRelationalDatabaseTable>>([]);
+    public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IRelationalDatabaseTable>>([]);
 
     /// <summary>
     /// Gets a database table. This will always be a 'none' result.

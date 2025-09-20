@@ -34,10 +34,10 @@ internal static class EmptyRelationalDatabaseTableProviderTests
     }
 
     [Test]
-    public static async Task GetAllTables2_WhenRetrieved_ContainsNoValues()
+    public static async Task GetAllTables_WhenRetrieved_ContainsNoValues()
     {
         var provider = new EmptyRelationalDatabaseTableProvider();
-        var tables = await provider.GetAllTables2().ConfigureAwait(false);
+        var tables = await provider.GetAllTables().ConfigureAwait(false);
 
         Assert.That(tables, Is.Empty);
     }

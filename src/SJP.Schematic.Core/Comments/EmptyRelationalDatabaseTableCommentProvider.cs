@@ -25,7 +25,7 @@ public sealed class EmptyRelationalDatabaseTableCommentProvider : IRelationalDat
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of table comments.</returns>
-    public Task<IReadOnlyCollection<IRelationalDatabaseTableComments>> GetAllTableComments2(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IRelationalDatabaseTableComments>>([]);
+    public Task<IReadOnlyCollection<IRelationalDatabaseTableComments>> GetAllTableComments(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IRelationalDatabaseTableComments>>([]);
 
     /// <summary>
     /// Retrieves comments for a particular database table.

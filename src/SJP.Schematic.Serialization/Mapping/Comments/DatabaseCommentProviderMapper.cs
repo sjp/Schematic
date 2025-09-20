@@ -42,7 +42,7 @@ public class DatabaseCommentProviderMapper
             synonymComments,
             routineComments
         ) = await (
-            source.GetAllTableComments2(cancellationToken),
+            source.GetAllTableComments(cancellationToken),
             source.GetAllViewComments(cancellationToken),
             source.GetAllSequenceComments(cancellationToken),
             source.GetAllSynonymComments(cancellationToken),

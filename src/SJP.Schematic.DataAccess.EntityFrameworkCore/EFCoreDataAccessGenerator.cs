@@ -105,8 +105,8 @@ public class EFCoreDataAccessGenerator : IDataAccessGenerator
             viewComments,
             sequences
         ) = await (
-            Database.GetAllTables2(cancellationToken),
-            CommentProvider.GetAllTableComments2(cancellationToken),
+            Database.GetAllTables(cancellationToken),
+            CommentProvider.GetAllTableComments(cancellationToken),
             Database.GetAllViews(cancellationToken),
             CommentProvider.GetAllViewComments(cancellationToken),
             Database.GetAllSequences(cancellationToken)

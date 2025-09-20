@@ -66,9 +66,9 @@ internal static class EmptyRelationalDatabaseTests
     }
 
     [Test]
-    public static async Task GetAllTables2_WhenRetrieved_ContainsNoValues()
+    public static async Task GetAllTables_WhenRetrieved_ContainsNoValues()
     {
-        var tables = await Database.GetAllTables2().ConfigureAwait(false);
+        var tables = await Database.GetAllTables().ConfigureAwait(false);
 
         Assert.That(tables, Is.Empty);
     }

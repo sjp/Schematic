@@ -252,7 +252,7 @@ internal static class RelationalDatabaseCommentProviderTests
     }
 
     [Test]
-    public static async Task GetAllTableComments2_WhenInvoked_ReturnsTableCommentsFromCtor()
+    public static async Task GetAllTableComments_WhenInvoked_ReturnsTableCommentsFromCtor()
     {
         var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
         var identifierResolver = new VerbatimIdentifierResolutionStrategy();
@@ -277,7 +277,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbTableComments = await commentProvider.GetAllTableComments2().ConfigureAwait(false);
+        var dbTableComments = await commentProvider.GetAllTableComments().ConfigureAwait(false);
         var tableName = dbTableComments.Select(t => t.TableName).Single();
 
         Assert.That(tableName, Is.EqualTo(testTableName));
