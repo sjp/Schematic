@@ -49,7 +49,7 @@ public class PostgreSqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
     /// <summary>
-    /// Retrieves all database routines.
+    /// Enumerates all database routines.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database routines.</returns>
@@ -59,6 +59,30 @@ public class PostgreSqlDatabaseRoutineProvider : IDatabaseRoutineProvider
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName)
             .SelectAwait(routineName => LoadRoutineAsyncCore(routineName, cancellationToken).ToValue());
+    }
+
+    /// <summary>
+    /// Retrieves all database routines.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database routines.</returns>
+    public async Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines2(CancellationToken cancellationToken = default)
+    {
+        var routineNames = await Connection.QueryEnumerableAsync<GetAllRoutineNames.Result>(GetAllRoutineNames.Sql, cancellationToken)
+            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
+            .Select(QualifyRoutineName)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        var routineTasks = routineNames
+            .Select(routineName => LoadRoutineAsyncCore(routineName, cancellationToken))
+            .ToArray();
+
+        await Task.WhenAll(routineTasks).ConfigureAwait(false);
+
+        return routineTasks
+            .Select(r => r.Result)
+            .ToArray();
     }
 
     /// <summary>

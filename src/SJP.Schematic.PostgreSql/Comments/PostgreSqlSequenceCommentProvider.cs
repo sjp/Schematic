@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
@@ -49,7 +50,7 @@ public class PostgreSqlSequenceCommentProvider : IDatabaseSequenceCommentProvide
     protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
     /// <summary>
-    /// Retrieves comments for all database sequences.
+    /// Enumerates comments for all database sequences.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database sequence comments.</returns>
@@ -67,6 +68,28 @@ public class PostgreSqlSequenceCommentProvider : IDatabaseSequenceCommentProvide
 
                 return new DatabaseSequenceComments(qualifiedName, sequenceComment);
             });
+    }
+
+    /// <summary>
+    /// Retrieves comments for all database sequences.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of database sequence comments.</returns>
+    public async Task<IReadOnlyCollection<IDatabaseSequenceComments>> GetAllSequenceComments2(CancellationToken cancellationToken = default)
+    {
+        return await Connection.QueryEnumerableAsync<GetAllSequenceComments.Result>(Queries.GetAllSequenceComments.Sql, cancellationToken)
+            .Select(commentData =>
+            {
+                var tmpIdentifier = Identifier.CreateQualifiedIdentifier(commentData.SchemaName, commentData.SequenceName);
+                var qualifiedName = QualifySequenceName(tmpIdentifier);
+
+                var sequenceComment = !commentData.Comment.IsNullOrWhiteSpace()
+                    ? Option<string>.Some(commentData.Comment)
+                    : Option<string>.None;
+
+                return new DatabaseSequenceComments(qualifiedName, sequenceComment);
+            })
+            .ToListAsync(cancellationToken);
     }
 
     /// <summary>

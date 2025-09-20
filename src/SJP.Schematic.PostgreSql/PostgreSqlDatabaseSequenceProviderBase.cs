@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -48,7 +49,7 @@ public class PostgreSqlDatabaseSequenceProviderBase : IDatabaseSequenceProvider
     protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
     /// <summary>
-    /// Gets all database sequences.
+    /// Enumerates all database sequences.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database sequences.</returns>
@@ -68,6 +69,31 @@ public class PostgreSqlDatabaseSequenceProviderBase : IDatabaseSequenceProvider
                     row.CacheSize
                 );
             });
+    }
+
+    /// <summary>
+    /// Gets all database sequences.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database sequences.</returns>
+    public async Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences2(CancellationToken cancellationToken = default)
+    {
+        return await Connection.QueryEnumerableAsync<GetAllSequenceDefinitions.Result>(GetAllSequenceDefinitions.Sql, cancellationToken)
+            .Select(row =>
+            {
+                var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.SequenceName));
+                return new DatabaseSequence(
+                    sequenceName,
+                    row.StartValue,
+                    row.Increment,
+                    Option<decimal>.Some(row.MinValue),
+                    Option<decimal>.Some(row.MaxValue),
+                    row.Cycle,
+                    row.CacheSize
+                );
+            })
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <summary>

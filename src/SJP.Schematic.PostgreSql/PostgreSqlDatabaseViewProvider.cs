@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 
@@ -44,7 +45,7 @@ public class PostgreSqlDatabaseViewProvider : IDatabaseViewProvider
     protected IDatabaseViewProvider MaterializedViewProvider { get; }
 
     /// <summary>
-    /// Gets all database views.
+    /// Enumerates all database views.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database views.</returns>
@@ -60,6 +61,23 @@ public class PostgreSqlDatabaseViewProvider : IDatabaseViewProvider
 
         foreach (var view in views)
             yield return view;
+    }
+
+    /// <summary>
+    /// Gets all database views.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database views.</returns>
+    public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews2(CancellationToken cancellationToken = default)
+    {
+        var queryViews = await QueryViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+        var materializedViews = await MaterializedViewProvider.GetAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+
+        return queryViews
+            .Concat(materializedViews)
+            .OrderBy(static v => v.Name.Schema, StringComparer.Ordinal)
+            .ThenBy(static v => v.Name.LocalName, StringComparer.Ordinal)
+            .ToList();
     }
 
     /// <summary>

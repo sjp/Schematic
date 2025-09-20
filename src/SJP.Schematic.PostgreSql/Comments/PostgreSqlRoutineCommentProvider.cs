@@ -50,7 +50,7 @@ public class PostgreSqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
     protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
     /// <summary>
-    /// Retrieves comments for all database routines.
+    /// Enumerates comments for all database routines.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database routine comments, where available.</returns>
@@ -60,6 +60,30 @@ public class PostgreSqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName)
             .SelectAwait(routineName => LoadRoutineCommentsAsyncCore(routineName, cancellationToken).ToValue());
+    }
+
+    /// <summary>
+    /// Retrieves comments for all database routines.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of database routine comments, where available.</returns>
+    public async Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments2(CancellationToken cancellationToken = default)
+    {
+        var routineNames = await Connection.QueryEnumerableAsync<GetAllRoutineNames.Result>(GetAllRoutineNames.Sql, cancellationToken)
+            .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
+            .Select(QualifyRoutineName)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        var routineCommentTasks =  routineNames
+            .Select(routineName => LoadRoutineCommentsAsyncCore(routineName, cancellationToken))
+            .ToArray();
+
+        await Task.WhenAll(routineCommentTasks).ConfigureAwait(false);
+
+        return routineCommentTasks
+            .Select(r => r.Result)
+            .ToArray();
     }
 
     /// <summary>

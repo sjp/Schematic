@@ -70,7 +70,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : IRelationalDatabaseTabl
     protected IDbTypeProvider TypeProvider => Dialect.TypeProvider;
 
     /// <summary>
-    /// Gets all database tables.
+    /// Enumerates all database tables.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database tables.</returns>
@@ -84,6 +84,20 @@ public class PostgreSqlRelationalDatabaseTableProvider : IRelationalDatabaseTabl
 
         await foreach (var table in tables.WithCancellation(cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
             yield return table;
+    }
+
+    /// <summary>
+    /// Gets all database tables.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database tables.</returns>
+    public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables2(CancellationToken cancellationToken = default)
+    {
+        var provider = await _tableProvider.ConfigureAwait(false);
+        return await provider.Match(
+            tp => tp.GetAllTables2(cancellationToken),
+            () => Task.FromResult<IReadOnlyCollection<IRelationalDatabaseTable>>([])
+        );
     }
 
     /// <summary>

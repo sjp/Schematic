@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
@@ -67,11 +68,30 @@ public class PostgreSqlViewCommentProvider : IDatabaseViewCommentProvider
     }
 
     /// <summary>
+    /// Retrieves all database view comments defined within a database.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of view comments.</returns>
+    public async Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments2(CancellationToken cancellationToken = default)
+    {
+        var (queryViews, materializedViews) = await (
+            QueryViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            MaterializedViewCommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask()
+        ).WhenAll().ConfigureAwait(false);
+
+        return queryViews
+            .Concat(materializedViews)
+            .OrderBy(static v => v.ViewName.Schema, StringComparer.Ordinal)
+            .ThenBy(static v => v.ViewName.LocalName, StringComparer.Ordinal)
+            .ToList();
+    }
+
+    /// <summary>
     /// Retrieves comments for a particular database view.
     /// </summary>
     /// <param name="viewName">The name of a database view.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>An <see cref="T:LanguageExt.OptionAsync`1" /> instance which holds the value of the view's comments, if available.</returns>
+    /// <returns>An <see cref="OptionAsync{IDatabaseViewComments}" /> instance which holds the value of the view's comments, if available.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default)
     {

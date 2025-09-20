@@ -64,7 +64,7 @@ public class PostgreSqlDatabaseSequenceProvider : IDatabaseSequenceProvider
     protected IDatabaseDialect Dialect => Connection.Dialect;
 
     /// <summary>
-    /// Gets all database sequences.
+    /// Enumerates all database sequences.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database sequences.</returns>
@@ -78,6 +78,20 @@ public class PostgreSqlDatabaseSequenceProvider : IDatabaseSequenceProvider
 
         await foreach (var sequence in sequences.ConfigureAwait(false).WithCancellation(cancellationToken))
             yield return sequence;
+    }
+
+    /// <summary>
+    /// Gets all database sequences.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database sequences.</returns>
+    public async Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences2(CancellationToken cancellationToken = default)
+    {
+        var provider = await _sequenceProvider.ConfigureAwait(false);
+        return await provider.Match(
+            sp => sp.GetAllSequences2(cancellationToken),
+            () => Task.FromResult<IReadOnlyCollection<IDatabaseSequence>>([])
+        );
     }
 
     /// <summary>

@@ -50,7 +50,7 @@ public class PostgreSqlQueryViewCommentProvider : IDatabaseViewCommentProvider
     protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
     /// <summary>
-    /// Retrieves all database view comments defined within a database.
+    /// Enumerates all database view comments defined within a database.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of view comments.</returns>
@@ -60,6 +60,30 @@ public class PostgreSqlQueryViewCommentProvider : IDatabaseViewCommentProvider
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName)
             .SelectAwait(viewName => LoadViewCommentsAsyncCore(viewName, cancellationToken).ToValue());
+    }
+
+    /// <summary>
+    /// Retrieves all database view comments defined within a database.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of view comments.</returns>
+    public async Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments2(CancellationToken cancellationToken = default)
+    {
+        var viewNames = await Connection.QueryEnumerableAsync<GetAllViewNames.Result>(GetAllViewNames.Sql, cancellationToken)
+            .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
+            .Select(QualifyViewName)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        var viewCommentTasks = viewNames
+            .Select(viewName => LoadViewCommentsAsyncCore(viewName, cancellationToken))
+            .ToArray();
+
+        await Task.WhenAll(viewCommentTasks).ConfigureAwait(false);
+
+        return viewCommentTasks
+            .Select(v => v.Result)
+            .ToArray();
     }
 
     /// <summary>
@@ -108,7 +132,7 @@ public class PostgreSqlQueryViewCommentProvider : IDatabaseViewCommentProvider
     /// </summary>
     /// <param name="viewName">The name of a database view.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>An <see cref="T:LanguageExt.OptionAsync`1" /> instance which holds the value of the view's comments, if available.</returns>
+    /// <returns>An <see cref="OptionAsync{IDatabaseViewComments}" /> instance which holds the value of the view's comments, if available.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     public OptionAsync<IDatabaseViewComments> GetViewComments(Identifier viewName, CancellationToken cancellationToken = default)
     {
