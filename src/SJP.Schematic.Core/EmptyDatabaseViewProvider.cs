@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core;
 
@@ -25,7 +26,7 @@ public sealed class EmptyDatabaseViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database views.</returns>
-    public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseView>>([]);
+    public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default) => Empty.Tasks.Views;
 
     /// <summary>
     /// Gets a database view. This will always be a 'none' result.

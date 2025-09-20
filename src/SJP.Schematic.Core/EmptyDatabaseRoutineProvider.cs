@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core;
 
@@ -25,7 +26,7 @@ public sealed class EmptyDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database routines.</returns>
-    public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseRoutine>>([]);
+    public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default) => Empty.Tasks.Routines;
 
     /// <summary>
     /// Gets a database routine. This will always be a 'none' result.

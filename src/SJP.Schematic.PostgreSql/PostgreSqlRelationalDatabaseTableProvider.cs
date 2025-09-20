@@ -96,7 +96,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : IRelationalDatabaseTabl
         var provider = await _tableProvider.ConfigureAwait(false);
         return await provider.Match(
             tp => tp.GetAllTables(cancellationToken),
-            () => Task.FromResult<IReadOnlyCollection<IRelationalDatabaseTable>>([])
+            () => Empty.Tasks.Tables
         );
     }
 

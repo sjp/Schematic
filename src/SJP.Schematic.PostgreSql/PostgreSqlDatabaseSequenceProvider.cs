@@ -90,7 +90,7 @@ public class PostgreSqlDatabaseSequenceProvider : IDatabaseSequenceProvider
         var provider = await _sequenceProvider.ConfigureAwait(false);
         return await provider.Match(
             sp => sp.GetAllSequences(cancellationToken),
-            () => Task.FromResult<IReadOnlyCollection<IDatabaseSequence>>([])
+            () => Empty.Tasks.Sequences
         );
     }
 

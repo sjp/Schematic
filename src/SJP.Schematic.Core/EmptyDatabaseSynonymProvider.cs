@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core;
 
@@ -25,7 +26,7 @@ public sealed class EmptyDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database synonyms.</returns>
-    public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseSynonym>>([]);
+    public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default) => Empty.Tasks.Synonyms;
 
     /// <summary>
     /// Gets a database synonym. This will always be a 'none' result.

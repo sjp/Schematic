@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core.Comments;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core.Extensions;
 
@@ -82,19 +83,19 @@ public static class RelationalDatabaseCommentProviderSnapshotExtensions
     {
         var tableCommentsTask = snapshotOptions.IncludeTableComments
             ? databaseComments.GetAllTableComments(cancellationToken)
-            : Task.FromResult<IReadOnlyCollection<IRelationalDatabaseTableComments>>([]);
+            : Empty.Tasks.TableComments;
         var viewCommentsTask = snapshotOptions.IncludeViewComments
             ? databaseComments.GetAllViewComments(cancellationToken)
-            : Task.FromResult<IReadOnlyCollection<IDatabaseViewComments>>([]);
+            : Empty.Tasks.ViewComments;
         var sequenceCommentsTask = snapshotOptions.IncludeSequenceComments
             ? databaseComments.GetAllSequenceComments(cancellationToken)
-            : Task.FromResult<IReadOnlyCollection<IDatabaseSequenceComments>>([]);
+            : Empty.Tasks.SequenceComments;
         var synonymCommentsTask = snapshotOptions.IncludeSynonymComments
             ? databaseComments.GetAllSynonymComments(cancellationToken)
-            : Task.FromResult<IReadOnlyCollection<IDatabaseSynonymComments>>([]);
+            : Empty.Tasks.SynonymComments;
         var routineCommentsTask = snapshotOptions.IncludeRoutineComments
             ? databaseComments.GetAllRoutineComments(cancellationToken)
-            : Task.FromResult<IReadOnlyCollection<IDatabaseRoutineComments>>([]);
+            : Empty.Tasks.RoutineComments;
 
         var (
             tableComments,

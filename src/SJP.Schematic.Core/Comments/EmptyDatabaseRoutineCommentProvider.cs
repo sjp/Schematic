@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core.Comments;
 
@@ -25,7 +26,7 @@ public sealed class EmptyDatabaseRoutineCommentProvider : IDatabaseRoutineCommen
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of routine comments.</returns>
-    public Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseRoutineComments>>([]);
+    public Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments(CancellationToken cancellationToken = default) => Empty.Tasks.RoutineComments;
 
     /// <summary>
     /// Retrieves comments for a particular database routine.

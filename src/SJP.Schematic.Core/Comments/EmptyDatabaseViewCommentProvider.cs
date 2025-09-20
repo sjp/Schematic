@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core.Comments;
 
@@ -25,7 +26,7 @@ public sealed class EmptyDatabaseViewCommentProvider : IDatabaseViewCommentProvi
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of view comments.</returns>
-    public Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseViewComments>>([]);
+    public Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default) => Empty.Tasks.ViewComments;
 
     /// <summary>
     /// Retrieves comments for a particular database view.

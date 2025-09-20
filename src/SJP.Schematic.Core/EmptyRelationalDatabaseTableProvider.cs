@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core;
 
@@ -25,7 +26,7 @@ public sealed class EmptyRelationalDatabaseTableProvider : IRelationalDatabaseTa
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database tables.</returns>
-    public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IRelationalDatabaseTable>>([]);
+    public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default) => Empty.Tasks.Tables;
 
     /// <summary>
     /// Gets a database table. This will always be a 'none' result.

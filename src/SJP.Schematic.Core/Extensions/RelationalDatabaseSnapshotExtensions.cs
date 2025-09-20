@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core.Extensions;
 
@@ -81,19 +82,19 @@ public static class RelationalDatabaseSnapshotExtensions
     {
         var tablesTask = snapshotOptions.IncludeTables
             ? database.GetAllTables(cancellationToken)
-            : Task.FromResult<IReadOnlyCollection<IRelationalDatabaseTable>>([]);
+            : Empty.Tasks.Tables;
         var viewsTask = snapshotOptions.IncludeViews
             ? database.GetAllViews(cancellationToken)
-            : Task.FromResult<IReadOnlyCollection<IDatabaseView>>([]);
+            : Empty.Tasks.Views;
         var sequencesTask = snapshotOptions.IncludeSequences
             ? database.GetAllSequences(cancellationToken)
-            : Task.FromResult<IReadOnlyCollection<IDatabaseSequence>>([]);
+            : Empty.Tasks.Sequences;
         var synonymsTask = snapshotOptions.IncludeSynonyms
             ? database.GetAllSynonyms(cancellationToken)
-            : Task.FromResult<IReadOnlyCollection<IDatabaseSynonym>>([]);
+            : Empty.Tasks.Synonyms;
         var routinesTask = snapshotOptions.IncludeRoutines
             ? database.GetAllRoutines(cancellationToken)
-            : Task.FromResult<IReadOnlyCollection<IDatabaseRoutine>>([]);
+            : Empty.Tasks.Routines;
 
         var (
             tables,

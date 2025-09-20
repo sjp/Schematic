@@ -88,7 +88,7 @@ public class ForeignKeySelfReferenceRule : Rule, ITableRule
 
         return table.PrimaryKey.Match(
             pk => AnalyseTableWithPrimaryKeyAsync(table, pk, cancellationToken),
-            () => Task.FromResult<IReadOnlyCollection<IRuleMessage>>([])
+            () => Empty.RuleMessages
         );
     }
 
