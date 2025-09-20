@@ -65,7 +65,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     protected IDatabaseDialect Dialect => Connection.Dialect;
 
     /// <summary>
-    /// Gets all database views.
+    /// Enumerates all database views.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database views.</returns>
@@ -97,6 +97,62 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
 
         foreach (var viewName in orderedViewNames)
             yield return await LoadViewAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Gets all database views.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database views.</returns>
+    public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews2(CancellationToken cancellationToken = default)
+    {
+        var dbNamesQuery = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
+        var dbNames = dbNamesQuery
+            .OrderBy(static d => d.seq)
+            .Select(static d => d.name)
+            .ToList();
+
+        var qualifiedViewNames = new List<Identifier>();
+
+        foreach (var dbName in dbNames)
+        {
+            var sql = GetAllViewNames.Sql(Dialect, dbName);
+            var viewNames = await DbConnection.QueryEnumerableAsync<GetAllViewNames.Result>(sql, cancellationToken)
+                .Where(static result => !IsReservedViewName(result.ViewName))
+                .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.ViewName))
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            qualifiedViewNames.AddRange(viewNames);
+        }
+
+        var qualifiedViewNameTasks = dbNames
+            .Select(dbName =>
+            {
+                var sql = GetAllViewNames.Sql(Dialect, dbName);
+                return DbConnection.QueryEnumerableAsync<GetAllViewNames.Result>(sql, cancellationToken)
+                    .Where(static result => !IsReservedViewName(result.ViewName))
+                    .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.ViewName))
+                    .ToListAsync(cancellationToken)
+                    .AsTask();
+            })
+            .ToArray();
+
+
+        var orderedViewNames = qualifiedViewNames
+            .OrderBy(static v => v.Schema, StringComparer.Ordinal)
+            .ThenBy(static v => v.LocalName, StringComparer.Ordinal)
+            .ToArray();
+
+        var viewTasks = orderedViewNames
+            .Select(viewName => LoadViewAsyncCore(viewName, cancellationToken))
+            .ToArray();
+
+        await Task.WhenAll(viewTasks).ConfigureAwait(false);
+
+        return viewTasks
+            .Select(v => v.Result)
+            .ToArray();
     }
 
     /// <summary>

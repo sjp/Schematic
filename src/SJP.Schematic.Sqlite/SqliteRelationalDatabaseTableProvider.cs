@@ -82,7 +82,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     );
 
     /// <summary>
-    /// Gets all database tables.
+    /// Enumerates all database tables.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database tables.</returns>
@@ -114,6 +114,55 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         var queryCache = CreateQueryCache();
         foreach (var tableName in tableNames)
             yield return await LoadTableAsyncCore(tableName, queryCache, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Gets all database tables.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database tables.</returns>
+    public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables2(CancellationToken cancellationToken = default)
+    {
+        var dbNamesQuery = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
+        var dbNames = dbNamesQuery
+            .OrderBy(static d => d.seq)
+            .Select(static d => d.name)
+            .ToList();
+
+        var qualifiedTableNameTasks = dbNames
+            .Select(dbName =>
+            {
+                var sql = GetAllTableNames.Sql(Dialect, dbName);
+                return DbConnection.QueryEnumerableAsync<GetAllTableNames.Result>(sql, cancellationToken)
+                    .Where(static result => !IsReservedTableName(result.TableName))
+                    .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.TableName))
+                    .ToListAsync(cancellationToken)
+                    .AsTask();
+            })
+            .ToArray();
+
+        await Task.WhenAll(qualifiedTableNameTasks).ConfigureAwait(false);
+
+        var qualifiedTableNames = qualifiedTableNameTasks
+            .SelectMany(t => t.Result)
+            .ToArray();
+
+        var tableNames = qualifiedTableNames
+            .OrderBy(static name => name.Schema, StringComparer.Ordinal)
+            .ThenBy(static name => name.LocalName, StringComparer.Ordinal)
+            .ToArray();
+
+        var queryCache = CreateQueryCache();
+
+        var tableTasks = tableNames
+            .Select(tableName => LoadTableAsyncCore(tableName, queryCache, cancellationToken))
+            .ToArray();
+
+        await Task.WhenAll(tableTasks).ConfigureAwait(false);
+
+        return tableTasks
+            .Select(t => t.Result)
+            .ToArray();
     }
 
     /// <summary>
