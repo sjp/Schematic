@@ -18,7 +18,7 @@ public sealed class EmptyDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database synonyms.</returns>
-    public IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseSynonym>();
+    public IAsyncEnumerable<IDatabaseSynonym> EnumerateAllSynonyms(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseSynonym>();
 
     /// <summary>
     /// Gets all database synonyms. This will always be an empty collection.

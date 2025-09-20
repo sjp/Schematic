@@ -53,7 +53,7 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database synonyms.</returns>
-    public IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseSynonym> EnumerateAllSynonyms(CancellationToken cancellationToken = default)
     {
         // collections created directly instead of via LoadSynonym() methods
         // the main reason is to avoid queries where possible, especially when

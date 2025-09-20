@@ -24,7 +24,7 @@ public interface IDatabaseSynonymCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of synonym comments.</returns>
-    IAsyncEnumerable<IDatabaseSynonymComments> GetAllSynonymComments(CancellationToken cancellationToken = default);
+    IAsyncEnumerable<IDatabaseSynonymComments> EnumerateAllSynonymComments(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves all database synonym comments defined within a database.

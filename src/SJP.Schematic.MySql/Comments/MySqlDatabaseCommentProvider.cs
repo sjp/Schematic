@@ -156,9 +156,9 @@ public class MySqlDatabaseCommentProvider : IRelationalDatabaseCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of database synonym comments.</returns>
-    public IAsyncEnumerable<IDatabaseSynonymComments> GetAllSynonymComments(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseSynonymComments> EnumerateAllSynonymComments(CancellationToken cancellationToken = default)
     {
-        return SynonymCommentProvider.GetAllSynonymComments(cancellationToken);
+        return SynonymCommentProvider.EnumerateAllSynonymComments(cancellationToken);
     }
 
     /// <summary>

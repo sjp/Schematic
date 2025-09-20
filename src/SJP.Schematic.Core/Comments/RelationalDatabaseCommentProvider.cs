@@ -99,7 +99,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of synonym comments.</returns>
-    public IAsyncEnumerable<IDatabaseSynonymComments> GetAllSynonymComments(CancellationToken cancellationToken = default) => SynonymComments.ToAsyncEnumerable();
+    public IAsyncEnumerable<IDatabaseSynonymComments> EnumerateAllSynonymComments(CancellationToken cancellationToken = default) => SynonymComments.ToAsyncEnumerable();
 
     /// <summary>
     /// Enumerates all database table comments defined within a database.

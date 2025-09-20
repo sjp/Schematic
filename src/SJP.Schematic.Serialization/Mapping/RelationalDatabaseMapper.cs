@@ -58,7 +58,7 @@ public class RelationalDatabaseMapper
                 .Select(s => sequenceMapper.Map<IDatabaseSequence, Dto.DatabaseSequence>(s))
                 .ToListAsync(cancellationToken)
                 .AsTask(),
-            source.GetAllSynonyms(cancellationToken)
+            source.EnumerateAllSynonyms(cancellationToken)
                 .Select(s => synonymMapper.Map<IDatabaseSynonym, Dto.DatabaseSynonym>(s))
                 .ToListAsync(cancellationToken)
                 .AsTask(),

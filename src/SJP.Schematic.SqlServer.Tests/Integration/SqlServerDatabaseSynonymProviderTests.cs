@@ -147,9 +147,9 @@ internal sealed class SqlServerDatabaseSynonymProviderTests : SqlServerTest
     }
 
     [Test]
-    public async Task GetAllSynonyms_WhenEnumerated_ContainsSynonyms()
+    public async Task EnumerateAllSynonyms_WhenEnumerated_ContainsSynonyms()
     {
-        var hasSynonyms = await SynonymProvider.GetAllSynonyms()
+        var hasSynonyms = await SynonymProvider.EnumerateAllSynonyms()
             .AnyAsync()
             .ConfigureAwait(false);
 
@@ -157,9 +157,9 @@ internal sealed class SqlServerDatabaseSynonymProviderTests : SqlServerTest
     }
 
     [Test]
-    public async Task GetAllSynonyms_WhenEnumerated_ContainsTestSynonym()
+    public async Task EnumerateAllSynonyms_WhenEnumerated_ContainsTestSynonym()
     {
-        var containsTestSynonym = await SynonymProvider.GetAllSynonyms()
+        var containsTestSynonym = await SynonymProvider.EnumerateAllSynonyms()
             .AnyAsync(s => string.Equals(s.Name.LocalName, "db_test_synonym_1", StringComparison.Ordinal))
             .ConfigureAwait(false);
 

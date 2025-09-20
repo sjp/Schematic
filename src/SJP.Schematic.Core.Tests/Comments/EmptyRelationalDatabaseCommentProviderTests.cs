@@ -106,10 +106,10 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     }
 
     [Test]
-    public static async Task GetAllSynonymComments_WhenInvoked_DoesNotEnumerateAnyValues()
+    public static async Task EnumerateAllSynonymComments_WhenInvoked_DoesNotEnumerateAnyValues()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
-        var hasComments = await provider.GetAllSynonymComments()
+        var hasComments = await provider.EnumerateAllSynonymComments()
             .AnyAsync()
             .ConfigureAwait(false);
 
@@ -180,7 +180,7 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     }
 
     [Test]
-    public static async Task GetAllRoutineComments_WhenInvoked_DoesNotEnumerateAnyValues()
+    public static async Task EnumerateAllRoutineComments_WhenInvoked_DoesNotEnumerateAnyValues()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
         var hasComments = await provider.EnumerateAllRoutineComments()

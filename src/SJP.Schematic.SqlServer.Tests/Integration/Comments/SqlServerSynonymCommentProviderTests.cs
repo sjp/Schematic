@@ -181,9 +181,9 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     }
 
     [Test]
-    public async Task GetAllSynonymComments_WhenEnumerated_ContainsSynonymComments()
+    public async Task EnumerateAllSynonymComments_WhenEnumerated_ContainsSynonymComments()
     {
-        var hasSynonymComments = await SynonymCommentProvider.GetAllSynonymComments()
+        var hasSynonymComments = await SynonymCommentProvider.EnumerateAllSynonymComments()
             .AnyAsync()
             .ConfigureAwait(false);
 
@@ -191,9 +191,9 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     }
 
     [Test]
-    public async Task GetAllSynonymComments_WhenEnumerated_ContainsTestSynonymComment()
+    public async Task EnumerateAllSynonymComments_WhenEnumerated_ContainsTestSynonymComment()
     {
-        var containsTestSynonym = await SynonymCommentProvider.GetAllSynonymComments()
+        var containsTestSynonym = await SynonymCommentProvider.EnumerateAllSynonymComments()
             .AnyAsync(t => string.Equals(t.SynonymName.LocalName, "synonym_comment_synonym_1", StringComparison.Ordinal))
             .ConfigureAwait(false);
 

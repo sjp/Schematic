@@ -220,7 +220,7 @@ internal static class RelationalDatabaseCommentProviderTests
     }
 
     [Test]
-    public static async Task GetAllTableComments_WhenInvoked_ReturnsTableCommentsFromCtor()
+    public static async Task EnumerateAllTableComments_WhenInvoked_ReturnsTableCommentsFromCtor()
     {
         var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
         var identifierResolver = new VerbatimIdentifierResolutionStrategy();
@@ -246,6 +246,38 @@ internal static class RelationalDatabaseCommentProviderTests
         );
 
         var dbTableComments = await commentProvider.GetAllTableComments().ToListAsync().ConfigureAwait(false);
+        var tableName = dbTableComments.Select(t => t.TableName).Single();
+
+        Assert.That(tableName, Is.EqualTo(testTableName));
+    }
+
+    [Test]
+    public static async Task GetAllTableComments2_WhenInvoked_ReturnsTableCommentsFromCtor()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+
+        var testTableName = Identifier.CreateQualifiedIdentifier("test_table_name");
+        var tableComment = new Mock<IRelationalDatabaseTableComments>(MockBehavior.Strict);
+        tableComment.Setup(t => t.TableName).Returns(testTableName);
+        var tableComments = new[] { tableComment.Object };
+
+        var viewComments = Array.Empty<IDatabaseViewComments>();
+        var sequenceComments = Array.Empty<IDatabaseSequenceComments>();
+        var synonymComments = Array.Empty<IDatabaseSynonymComments>();
+        var routineComments = Array.Empty<IDatabaseRoutineComments>();
+
+        var commentProvider = new RelationalDatabaseCommentProvider(
+            identifierDefaults,
+            identifierResolver,
+            tableComments,
+            viewComments,
+            sequenceComments,
+            synonymComments,
+            routineComments
+        );
+
+        var dbTableComments = await commentProvider.GetAllTableComments2().ConfigureAwait(false);
         var tableName = dbTableComments.Select(t => t.TableName).Single();
 
         Assert.That(tableName, Is.EqualTo(testTableName));
@@ -319,7 +351,7 @@ internal static class RelationalDatabaseCommentProviderTests
     }
 
     [Test]
-    public static async Task GetAllViewComments_WhenInvoked_ReturnsViewCommentsFromCtor()
+    public static async Task EnumerateAllViewComments_WhenInvoked_ReturnsViewCommentsFromCtor()
     {
         var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
         var identifierResolver = new VerbatimIdentifierResolutionStrategy();
@@ -344,6 +376,37 @@ internal static class RelationalDatabaseCommentProviderTests
         );
 
         var dbViewComments = await commentProvider.GetAllViewComments().ToListAsync().ConfigureAwait(false);
+        var viewName = dbViewComments.Select(v => v.ViewName).Single();
+
+        Assert.That(viewName, Is.EqualTo(testViewName));
+    }
+
+    [Test]
+    public static async Task GetAllViewComments2_WhenInvoked_ReturnsViewCommentsFromCtor()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+        var tableComments = Array.Empty<IRelationalDatabaseTableComments>();
+        var sequenceComments = Array.Empty<IDatabaseSequenceComments>();
+        var synonymComments = Array.Empty<IDatabaseSynonymComments>();
+        var routineComments = Array.Empty<IDatabaseRoutineComments>();
+
+        var testViewName = Identifier.CreateQualifiedIdentifier("test_view_name");
+        var viewComment = new Mock<IDatabaseViewComments>(MockBehavior.Strict);
+        viewComment.Setup(v => v.ViewName).Returns(testViewName);
+        var viewComments = new[] { viewComment.Object };
+
+        var commentProvider = new RelationalDatabaseCommentProvider(
+            identifierDefaults,
+            identifierResolver,
+            tableComments,
+            viewComments,
+            sequenceComments,
+            synonymComments,
+            routineComments
+        );
+
+        var dbViewComments = await commentProvider.GetAllViewComments2().ConfigureAwait(false);
         var viewName = dbViewComments.Select(v => v.ViewName).Single();
 
         Assert.That(viewName, Is.EqualTo(testViewName));
@@ -419,7 +482,7 @@ internal static class RelationalDatabaseCommentProviderTests
     }
 
     [Test]
-    public static async Task GetAllSequenceComments_WhenInvoked_ReturnsSequenceCommentsFromCtor()
+    public static async Task EnumerateAllSequenceComments_WhenInvoked_ReturnsSequenceCommentsFromCtor()
     {
         var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
         var identifierResolver = new VerbatimIdentifierResolutionStrategy();
@@ -444,6 +507,37 @@ internal static class RelationalDatabaseCommentProviderTests
         );
 
         var dbSequences = await commentProvider.GetAllSequenceComments().ToListAsync().ConfigureAwait(false);
+        var sequenceName = dbSequences.Select(s => s.SequenceName).Single();
+
+        Assert.That(sequenceName, Is.EqualTo(testSequenceName));
+    }
+
+    [Test]
+    public static async Task GetAllSequenceComments2_WhenInvoked_ReturnsSequenceCommentsFromCtor()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+        var tableComments = Array.Empty<IRelationalDatabaseTableComments>();
+        var viewComments = Array.Empty<IDatabaseViewComments>();
+        var synonymComments = Array.Empty<IDatabaseSynonymComments>();
+        var routineComments = Array.Empty<IDatabaseRoutineComments>();
+
+        var testSequenceName = Identifier.CreateQualifiedIdentifier("test_sequence_name");
+        var sequenceComment = new Mock<IDatabaseSequenceComments>(MockBehavior.Strict);
+        sequenceComment.Setup(s => s.SequenceName).Returns(testSequenceName);
+        var sequenceComments = new[] { sequenceComment.Object };
+
+        var commentProvider = new RelationalDatabaseCommentProvider(
+            identifierDefaults,
+            identifierResolver,
+            tableComments,
+            viewComments,
+            sequenceComments,
+            synonymComments,
+            routineComments
+        );
+
+        var dbSequences = await commentProvider.GetAllSequenceComments2().ConfigureAwait(false);
         var sequenceName = dbSequences.Select(s => s.SequenceName).Single();
 
         Assert.That(sequenceName, Is.EqualTo(testSequenceName));
@@ -519,7 +613,7 @@ internal static class RelationalDatabaseCommentProviderTests
     }
 
     [Test]
-    public static async Task GetAllSynonymComments_WhenInvoked_ReturnsSynonymCommentsFromCtor()
+    public static async Task EnumerateAllSynonymComments_WhenInvoked_ReturnsSynonymCommentsFromCtor()
     {
         var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
         var identifierResolver = new VerbatimIdentifierResolutionStrategy();
@@ -543,7 +637,38 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbSynonyms = await commentProvider.GetAllSynonymComments().ToListAsync().ConfigureAwait(false);
+        var dbSynonyms = await commentProvider.EnumerateAllSynonymComments().ToListAsync().ConfigureAwait(false);
+        var synonymName = dbSynonyms.Select(s => s.SynonymName).Single();
+
+        Assert.That(synonymName, Is.EqualTo(testSynonymName));
+    }
+
+    [Test]
+    public static async Task GetAllSynonymComments2_WhenInvoked_ReturnsSynonymCommentsFromCtor()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+        var tableComments = Array.Empty<IRelationalDatabaseTableComments>();
+        var viewComments = Array.Empty<IDatabaseViewComments>();
+        var sequenceComments = Array.Empty<IDatabaseSequenceComments>();
+        var routineComments = Array.Empty<IDatabaseRoutineComments>();
+
+        var testSynonymName = Identifier.CreateQualifiedIdentifier("test_synonym_name");
+        var synonymComment = new Mock<IDatabaseSynonymComments>(MockBehavior.Strict);
+        synonymComment.Setup(s => s.SynonymName).Returns(testSynonymName);
+        var synonymComments = new[] { synonymComment.Object };
+
+        var commentProvider = new RelationalDatabaseCommentProvider(
+            identifierDefaults,
+            identifierResolver,
+            tableComments,
+            viewComments,
+            sequenceComments,
+            synonymComments,
+            routineComments
+        );
+
+        var dbSynonyms = await commentProvider.GetAllSynonymComments2().ConfigureAwait(false);
         var synonymName = dbSynonyms.Select(s => s.SynonymName).Single();
 
         Assert.That(synonymName, Is.EqualTo(testSynonymName));
@@ -644,6 +769,37 @@ internal static class RelationalDatabaseCommentProviderTests
         );
 
         var dbRoutines = await commentProvider.EnumerateAllRoutineComments().ToListAsync().ConfigureAwait(false);
+        var routineName = dbRoutines.Select(r => r.RoutineName).Single();
+
+        Assert.That(routineName, Is.EqualTo(testRoutineName));
+    }
+
+    [Test]
+    public static async Task GetAllRoutineComments2_WhenInvoked_ReturnsRoutineCommentsFromCtor()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+        var tableComments = Array.Empty<IRelationalDatabaseTableComments>();
+        var viewComments = Array.Empty<IDatabaseViewComments>();
+        var sequenceComments = Array.Empty<IDatabaseSequenceComments>();
+        var synonymComments = Array.Empty<IDatabaseSynonymComments>();
+
+        var testRoutineName = Identifier.CreateQualifiedIdentifier("test_routine_name");
+        var routineComment = new Mock<IDatabaseRoutineComments>(MockBehavior.Strict);
+        routineComment.Setup(r => r.RoutineName).Returns(testRoutineName);
+        var routineComments = new[] { routineComment.Object };
+
+        var commentProvider = new RelationalDatabaseCommentProvider(
+            identifierDefaults,
+            identifierResolver,
+            tableComments,
+            viewComments,
+            sequenceComments,
+            synonymComments,
+            routineComments
+        );
+
+        var dbRoutines = await commentProvider.GetAllRoutineComments2().ConfigureAwait(false);
         var routineName = dbRoutines.Select(r => r.RoutineName).Single();
 
         Assert.That(routineName, Is.EqualTo(testRoutineName));

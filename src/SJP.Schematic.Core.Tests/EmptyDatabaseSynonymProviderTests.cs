@@ -25,10 +25,10 @@ internal static class EmptyDatabaseSynonymProviderTests
     }
 
     [Test]
-    public static async Task GetAllSynonyms_WhenEnumerated_ContainsNoValues()
+    public static async Task EnumerateAllSynonyms_WhenEnumerated_ContainsNoValues()
     {
         var provider = new EmptyDatabaseSynonymProvider();
-        var hasSynonyms = await provider.GetAllSynonyms().AnyAsync().ConfigureAwait(false);
+        var hasSynonyms = await provider.EnumerateAllSynonyms().AnyAsync().ConfigureAwait(false);
 
         Assert.That(hasSynonyms, Is.False);
     }

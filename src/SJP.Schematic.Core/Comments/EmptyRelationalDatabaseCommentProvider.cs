@@ -53,9 +53,9 @@ public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of synonym comments.</returns>
-    public IAsyncEnumerable<IDatabaseSynonymComments> GetAllSynonymComments(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseSynonymComments> EnumerateAllSynonymComments(CancellationToken cancellationToken = default)
     {
-        return _synonymCommentProvider.GetAllSynonymComments(cancellationToken);
+        return _synonymCommentProvider.EnumerateAllSynonymComments(cancellationToken);
     }
 
     /// <summary>

@@ -23,7 +23,7 @@ public interface IDatabaseSynonymProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database synonyms.</returns>
-    IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default);
+    IAsyncEnumerable<IDatabaseSynonym> EnumerateAllSynonyms(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets all database synonyms.

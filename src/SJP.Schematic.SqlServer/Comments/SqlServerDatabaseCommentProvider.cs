@@ -159,9 +159,9 @@ public class SqlServerDatabaseCommentProvider : IRelationalDatabaseCommentProvid
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database synonyms comments.</returns>
-    public IAsyncEnumerable<IDatabaseSynonymComments> GetAllSynonymComments(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseSynonymComments> EnumerateAllSynonymComments(CancellationToken cancellationToken = default)
     {
-        return _synonymCommentProvider.GetAllSynonymComments(cancellationToken);
+        return _synonymCommentProvider.EnumerateAllSynonymComments(cancellationToken);
     }
 
     /// <summary>

@@ -144,9 +144,9 @@ public class OracleRelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database synonyms.</returns>
-    public IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseSynonym> EnumerateAllSynonyms(CancellationToken cancellationToken = default)
     {
-        return _synonymProvider.GetAllSynonyms(cancellationToken);
+        return _synonymProvider.EnumerateAllSynonyms(cancellationToken);
     }
 
     /// <summary>

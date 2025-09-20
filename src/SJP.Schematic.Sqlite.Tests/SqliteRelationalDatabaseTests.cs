@@ -120,9 +120,9 @@ internal static class SqliteRelationalDatabaseTests
         }
 
         [Test]
-        public static async Task GetAllSynonyms_WhenEnumerated_ContainsNoValues()
+        public static async Task EnumerateAllSynonyms_WhenEnumerated_ContainsNoValues()
         {
-            var hasSynonyms = await Database.GetAllSynonyms()
+            var hasSynonyms = await Database.EnumerateAllSynonyms()
                 .AnyAsync()
                 .ConfigureAwait(false);
 

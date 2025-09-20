@@ -73,7 +73,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
                 yield return message;
         }
 
-        var synonyms = await database.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+        var synonyms = await database.EnumerateAllSynonyms(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
         foreach (var synonymRule in SynonymRules)
         {
             await foreach (var message in synonymRule.AnalyseSynonyms(synonyms, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))

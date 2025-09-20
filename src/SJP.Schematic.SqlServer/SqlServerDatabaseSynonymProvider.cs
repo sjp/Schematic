@@ -45,7 +45,7 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database synonyms.</returns>
-    public IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseSynonym> EnumerateAllSynonyms(CancellationToken cancellationToken = default)
     {
         return Connection.QueryEnumerableAsync<GetAllSynonymDefinitions.Result>(GetAllSynonymDefinitions.Sql, cancellationToken)
             .Select(row =>

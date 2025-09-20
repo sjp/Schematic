@@ -127,9 +127,9 @@ internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
     }
 
     [Test]
-    public async Task GetAllSynonyms_WhenEnumerated_ContainsSynonyms()
+    public async Task EnumerateAllSynonyms_WhenEnumerated_ContainsSynonyms()
     {
-        var hasSynonyms = await SynonymProvider.GetAllSynonyms()
+        var hasSynonyms = await SynonymProvider.EnumerateAllSynonyms()
             .AnyAsync()
             .ConfigureAwait(false);
 
@@ -137,10 +137,10 @@ internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
     }
 
     [Test]
-    public async Task GetAllSynonyms_WhenEnumerated_ContainsTestSynonym()
+    public async Task EnumerateAllSynonyms_WhenEnumerated_ContainsTestSynonym()
     {
         const string expectedSynonymName = "DB_TEST_SYNONYM_1";
-        var containsTestSynonym = await SynonymProvider.GetAllSynonyms()
+        var containsTestSynonym = await SynonymProvider.EnumerateAllSynonyms()
             .AnyAsync(s => string.Equals(s.Name.LocalName, expectedSynonymName, StringComparison.Ordinal))
             .ConfigureAwait(false);
 

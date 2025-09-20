@@ -82,6 +82,14 @@ internal static class MySqlRelationalDatabaseTests
 
             Assert.That(hasSequences, Is.False);
         }
+
+        [Test]
+        public static async Task GetAllSequences2_WhenRetrieved_ContainsNoValues()
+        {
+            var sequences = await Database.GetAllSequences2().ConfigureAwait(false);
+
+            Assert.That(sequences, Is.Empty);
+        }
     }
 
     // testing that the behaviour is equivalent to an empty synonym provider
@@ -104,9 +112,17 @@ internal static class MySqlRelationalDatabaseTests
         }
 
         [Test]
-        public static async Task GetAllSynonyms_WhenEnumerated_ContainsNoValues()
+        public static async Task EnumerateAllSynonyms_WhenEnumerated_ContainsNoValues()
         {
-            var synonyms = await Database.GetAllSynonyms().ToListAsync().ConfigureAwait(false);
+            var synonyms = await Database.EnumerateAllSynonyms().ToListAsync().ConfigureAwait(false);
+
+            Assert.That(synonyms, Is.Empty);
+        }
+
+        [Test]
+        public static async Task GetAllSynonyms2_WhenRetrieved_ContainsNoValues()
+        {
+            var synonyms = await Database.GetAllSynonyms2().ConfigureAwait(false);
 
             Assert.That(synonyms, Is.Empty);
         }

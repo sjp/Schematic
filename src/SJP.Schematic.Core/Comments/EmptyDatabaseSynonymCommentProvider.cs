@@ -18,7 +18,7 @@ public sealed class EmptyDatabaseSynonymCommentProvider : IDatabaseSynonymCommen
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of synonym comments.</returns>
-    public IAsyncEnumerable<IDatabaseSynonymComments> GetAllSynonymComments(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseSynonymComments>();
+    public IAsyncEnumerable<IDatabaseSynonymComments> EnumerateAllSynonymComments(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseSynonymComments>();
 
     /// <summary>
     /// Retrieves all database synonym comments defined within a database.

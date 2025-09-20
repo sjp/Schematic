@@ -143,9 +143,9 @@ public class PostgreSqlRelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database synonyms.</returns>
-    public IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseSynonym> EnumerateAllSynonyms(CancellationToken cancellationToken = default)
     {
-        return SynonymProvider.GetAllSynonyms(cancellationToken);
+        return SynonymProvider.EnumerateAllSynonyms(cancellationToken);
     }
 
     /// <summary>

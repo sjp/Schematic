@@ -26,10 +26,10 @@ internal static class EmptyDatabaseSynonymCommentProviderTests
     }
 
     [Test]
-    public static async Task GetAllSynonymComments_WhenInvoked_DoesNotEnumerateAnyValues()
+    public static async Task EnumerateAllSynonymComments_WhenInvoked_DoesNotEnumerateAnyValues()
     {
         var provider = new EmptyDatabaseSynonymCommentProvider();
-        var hasComments = await provider.GetAllSynonymComments()
+        var hasComments = await provider.EnumerateAllSynonymComments()
             .AnyAsync()
             .ConfigureAwait(false);
 
