@@ -75,15 +75,11 @@ public class OracleQueryViewCommentProvider : IDatabaseViewCommentProvider
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        var viewCommentTasks = viewNames
+        return await viewNames
             .Select(viewName => LoadViewCommentsAsyncCore(viewName, cancellationToken))
-            .ToArray();
-
-        await Task.WhenAll(viewCommentTasks).ConfigureAwait(false);
-
-        return viewCommentTasks
-            .Select(v => v.Result)
-            .ToArray();
+            .ToArray()
+            .WhenAll()
+            .ConfigureAwait(false);
     }
 
     /// <summary>

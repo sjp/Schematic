@@ -144,15 +144,11 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
             .ThenBy(static v => v.LocalName, StringComparer.Ordinal)
             .ToArray();
 
-        var viewTasks = orderedViewNames
+        return await orderedViewNames
             .Select(viewName => LoadViewAsyncCore(viewName, cancellationToken))
-            .ToArray();
-
-        await Task.WhenAll(viewTasks).ConfigureAwait(false);
-
-        return viewTasks
-            .Select(v => v.Result)
-            .ToArray();
+            .ToArray()
+            .WhenAll()
+            .ConfigureAwait(false);
     }
 
     /// <summary>

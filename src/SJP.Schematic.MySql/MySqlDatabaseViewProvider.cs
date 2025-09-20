@@ -90,15 +90,11 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        var viewTasks = viewNames
+        return await viewNames
             .Select(viewName => LoadViewAsyncCore(viewName, cancellationToken))
-            .ToArray();
-
-        await Task.WhenAll(viewTasks).ConfigureAwait(false);
-
-        return viewTasks
-            .Select(t => t.Result)
-            .ToArray();
+            .ToArray()
+            .WhenAll()
+            .ConfigureAwait(false);
     }
 
     /// <summary>

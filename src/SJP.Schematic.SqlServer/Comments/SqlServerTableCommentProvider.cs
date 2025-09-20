@@ -73,15 +73,11 @@ public class SqlServerTableCommentProvider : IRelationalDatabaseTableCommentProv
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        var tableCommentTasks = tableNames
+        return await tableNames
             .Select(tableName => LoadTableCommentsAsyncCore(tableName, cancellationToken))
-            .ToList();
-
-        await Task.WhenAll(tableCommentTasks).ConfigureAwait(false);
-
-        return tableCommentTasks
-            .Select(t => t.Result)
-            .ToArray();
+            .ToArray()
+            .WhenAll()
+            .ConfigureAwait(false);
     }
 
     /// <summary>

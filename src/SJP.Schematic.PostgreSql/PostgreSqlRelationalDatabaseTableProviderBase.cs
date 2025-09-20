@@ -111,15 +111,11 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        var tableTasks = tableNames
+        return await tableNames
             .Select(tableName => LoadTableAsyncCore(tableName, queryCache, cancellationToken))
-            .ToArray();
-
-        await Task.WhenAll(tableTasks).ConfigureAwait(false);
-
-        return tableTasks
-            .Select(t => t.Result)
-            .ToArray();
+            .ToArray()
+            .WhenAll()
+            .ConfigureAwait(false);
     }
 
     /// <summary>

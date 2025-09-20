@@ -75,15 +75,11 @@ public class PostgreSqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        var routineCommentTasks =  routineNames
+        return await routineNames
             .Select(routineName => LoadRoutineCommentsAsyncCore(routineName, cancellationToken))
-            .ToArray();
-
-        await Task.WhenAll(routineCommentTasks).ConfigureAwait(false);
-
-        return routineCommentTasks
-            .Select(r => r.Result)
-            .ToArray();
+            .ToArray()
+            .WhenAll()
+            .ConfigureAwait(false);
     }
 
     /// <summary>

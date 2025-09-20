@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
+using Nito.AsyncEx;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
@@ -75,15 +76,10 @@ public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        var routineCommentTasks = routineNames
+        return await routineNames
             .Select(routineName => LoadRoutineCommentsAsyncCore(routineName, cancellationToken))
-            .ToArray();
-
-        await Task.WhenAll(routineCommentTasks).ConfigureAwait(false);
-
-        return routineCommentTasks
-            .Select(rct => rct.Result)
-            .ToArray();
+            .WhenAll()
+            .ConfigureAwait(false);
     }
 
     /// <summary>

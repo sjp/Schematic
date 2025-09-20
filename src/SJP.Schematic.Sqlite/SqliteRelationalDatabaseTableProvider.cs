@@ -129,7 +129,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             .Select(static d => d.name)
             .ToList();
 
-        var qualifiedTableNameTasks = dbNames
+        var qualifiedTableNames = await dbNames
             .Select(dbName =>
             {
                 var sql = GetAllTableNames.Sql(Dialect, dbName);
@@ -139,30 +139,23 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                     .ToListAsync(cancellationToken)
                     .AsTask();
             })
-            .ToArray();
-
-        await Task.WhenAll(qualifiedTableNameTasks).ConfigureAwait(false);
-
-        var qualifiedTableNames = qualifiedTableNameTasks
-            .SelectMany(t => t.Result)
-            .ToArray();
+            .ToArray()
+            .WhenAll()
+            .ConfigureAwait(false);
 
         var tableNames = qualifiedTableNames
+            .SelectMany(tn => tn)
             .OrderBy(static name => name.Schema, StringComparer.Ordinal)
             .ThenBy(static name => name.LocalName, StringComparer.Ordinal)
             .ToArray();
 
         var queryCache = CreateQueryCache();
 
-        var tableTasks = tableNames
+        return await tableNames
             .Select(tableName => LoadTableAsyncCore(tableName, queryCache, cancellationToken))
-            .ToArray();
-
-        await Task.WhenAll(tableTasks).ConfigureAwait(false);
-
-        return tableTasks
-            .Select(t => t.Result)
-            .ToArray();
+            .ToArray()
+            .WhenAll()
+            .ConfigureAwait(false);
     }
 
     /// <summary>

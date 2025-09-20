@@ -80,15 +80,11 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        var routineTasks = routineNames
+        return await routineNames
             .Select(routineName => LoadRoutineAsyncCore(routineName, cancellationToken))
-            .ToArray();
-
-        await Task.WhenAll(routineTasks).ConfigureAwait(false);
-
-        return routineTasks
-            .Select(rt => rt.Result)
-            .ToArray();
+            .ToArray()
+            .WhenAll()
+            .ConfigureAwait(false);
     }
 
     /// <summary>

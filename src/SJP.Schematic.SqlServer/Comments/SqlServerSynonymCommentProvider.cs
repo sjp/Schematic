@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
+using Nito.AsyncEx;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
@@ -73,15 +74,11 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        var synonymCommentTasks = synonymNames
+        return await synonymNames
             .Select(synonymName => LoadSynonymCommentsAsyncCore(synonymName, cancellationToken))
-            .ToList();
-
-        await Task.WhenAll(synonymCommentTasks).ConfigureAwait(false);
-
-        return synonymCommentTasks
-            .Select(s => s.Result)
-            .ToArray();
+            .ToArray()
+            .WhenAll()
+            .ConfigureAwait(false);
     }
 
     /// <summary>

@@ -73,15 +73,11 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        var sequenceCommentTasks = sequenceNames
+        return await sequenceNames
             .Select(sequenceName => LoadSequenceCommentsAsyncCore(sequenceName, cancellationToken))
-            .ToArray();
-
-        await Task.WhenAll(sequenceCommentTasks).ConfigureAwait(false);
-
-        return sequenceCommentTasks
-            .Select(s => s.Result)
-            .ToArray();
+            .ToArray()
+            .WhenAll()
+            .ConfigureAwait(false);
     }
 
     /// <summary>

@@ -76,15 +76,11 @@ public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        var tableCommentTasks = tableNames
+        return await tableNames
             .Select(tableName => LoadTableCommentsAsyncCore(tableName, cancellationToken))
-            .ToArray();
-
-        await Task.WhenAll(tableCommentTasks).ConfigureAwait(false);
-
-        return tableCommentTasks
-            .Select(tc => tc.Result)
-            .ToArray();
+            .ToArray()
+            .WhenAll()
+            .ConfigureAwait(false);
     }
 
     /// <summary>

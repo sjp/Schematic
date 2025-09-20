@@ -74,15 +74,11 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        var routines = routineNames
+        return await routineNames
             .Select(routineName => LoadRoutineAsyncCore(routineName, cancellationToken))
-            .ToArray();
-
-        await Task.WhenAll(routines).ConfigureAwait(false);
-
-        return routines
-            .Select(r => r.Result)
-            .ToArray();
+            .ToArray()
+            .WhenAll()
+            .ConfigureAwait(false);
     }
 
     /// <summary>

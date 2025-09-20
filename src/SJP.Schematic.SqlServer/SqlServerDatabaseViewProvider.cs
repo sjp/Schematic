@@ -78,15 +78,11 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        var viewTasks = viewNames
+        return await viewNames
             .Select(viewName => LoadViewAsyncCore(viewName, cancellationToken))
-            .ToArray();
-
-        await Task.WhenAll(viewTasks).ConfigureAwait(false);
-
-        return viewTasks
-            .Select(v => v.Result)
-            .ToArray();
+            .ToArray()
+            .WhenAll()
+            .ConfigureAwait(false);
     }
 
     /// <summary>

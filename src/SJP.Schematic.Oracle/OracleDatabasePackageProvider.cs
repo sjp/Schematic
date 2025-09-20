@@ -74,15 +74,11 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        var packageTasks = packageNames
+        return await packageNames
             .Select(packageName => LoadPackageAsyncCore(packageName, cancellationToken))
-            .ToArray();
-
-        await Task.WhenAll(packageTasks).ConfigureAwait(false);
-
-        return packageTasks
-            .Select(p => p.Result)
-            .ToArray();
+            .ToArray()
+            .WhenAll()
+            .ConfigureAwait(false);
     }
 
     /// <summary>
