@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core.Comments;
@@ -82,20 +81,20 @@ public static class RelationalDatabaseCommentProviderSnapshotExtensions
     private static async Task<IRelationalDatabaseCommentProvider> SnapshotAsyncCore(IRelationalDatabaseCommentProvider databaseComments, RelationalDatabaseCommentProviderSnapshotOptions snapshotOptions, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken)
     {
         var tableCommentsTask = snapshotOptions.IncludeTableComments
-            ? databaseComments.GetAllTableComments(cancellationToken).ToListAsync(cancellationToken).AsTask()
-            : Task.FromResult<List<IRelationalDatabaseTableComments>>([]);
+            ? databaseComments.GetAllTableComments2(cancellationToken)
+            : Task.FromResult<IReadOnlyCollection<IRelationalDatabaseTableComments>>([]);
         var viewCommentsTask = snapshotOptions.IncludeViewComments
-            ? databaseComments.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask()
-            : Task.FromResult<List<IDatabaseViewComments>>([]);
+            ? databaseComments.GetAllViewComments2(cancellationToken)
+            : Task.FromResult<IReadOnlyCollection<IDatabaseViewComments>>([]);
         var sequenceCommentsTask = snapshotOptions.IncludeSequenceComments
-            ? databaseComments.GetAllSequenceComments(cancellationToken).ToListAsync(cancellationToken).AsTask()
-            : Task.FromResult<List<IDatabaseSequenceComments>>([]);
+            ? databaseComments.GetAllSequenceComments2(cancellationToken)
+            : Task.FromResult<IReadOnlyCollection<IDatabaseSequenceComments>>([]);
         var synonymCommentsTask = snapshotOptions.IncludeSynonymComments
-            ? databaseComments.GetAllSynonymComments(cancellationToken).ToListAsync(cancellationToken).AsTask()
-            : Task.FromResult<List<IDatabaseSynonymComments>>([]);
+            ? databaseComments.GetAllSynonymComments2(cancellationToken)
+            : Task.FromResult<IReadOnlyCollection<IDatabaseSynonymComments>>([]);
         var routineCommentsTask = snapshotOptions.IncludeRoutineComments
-            ? databaseComments.GetAllRoutineComments(cancellationToken).ToListAsync(cancellationToken).AsTask()
-            : Task.FromResult<List<IDatabaseRoutineComments>>([]);
+            ? databaseComments.GetAllRoutineComments2(cancellationToken)
+            : Task.FromResult<IReadOnlyCollection<IDatabaseRoutineComments>>([]);
 
         var (
             tableComments,

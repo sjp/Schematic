@@ -35,40 +35,41 @@ public class DatabaseCommentProviderMapper
 
     public async Task<DatabaseCommentProvider> MapAsync(IRelationalDatabaseCommentProvider source, CancellationToken cancellationToken)
     {
+        var (
+            tableComments,
+            viewComments,
+            sequenceComments,
+            synonymComments,
+            routineComments
+        ) = await (
+            source.GetAllTableComments2(cancellationToken),
+            source.GetAllViewComments2(cancellationToken),
+            source.GetAllSequenceComments2(cancellationToken),
+            source.GetAllSynonymComments2(cancellationToken),
+            source.GetAllRoutineComments2(cancellationToken)
+        ).WhenAll().ConfigureAwait(false);
+
         var tableCommentMapper = MapperRegistry.GetMapper<IRelationalDatabaseTableComments, DatabaseTableComments>();
         var viewCommentMapper = MapperRegistry.GetMapper<IDatabaseViewComments, Dto.Comments.DatabaseViewComments>();
         var sequenceCommentMapper = MapperRegistry.GetMapper<IDatabaseSequenceComments, Dto.Comments.DatabaseSequenceComments>();
         var synonymCommentMapper = MapperRegistry.GetMapper<IDatabaseSynonymComments, Dto.Comments.DatabaseSynonymComments>();
         var routineCommentMapper = MapperRegistry.GetMapper<IDatabaseRoutineComments, Dto.Comments.DatabaseRoutineComments>();
 
-        var (
-            dtoTableComments,
-            dtoViewComments,
-            dtoSequenceComments,
-            dtoSynonymComments,
-            dtoRoutineComments
-        ) = await (
-            source.GetAllTableComments(cancellationToken)
-                .Select(t => tableCommentMapper.Map<IRelationalDatabaseTableComments, DatabaseTableComments>(t))
-                .ToListAsync(cancellationToken)
-                .AsTask(),
-            source.GetAllViewComments(cancellationToken)
-                .Select(v => viewCommentMapper.Map<IDatabaseViewComments, Dto.Comments.DatabaseViewComments>(v))
-                .ToListAsync(cancellationToken)
-                .AsTask(),
-            source.GetAllSequenceComments(cancellationToken)
-                .Select(s => sequenceCommentMapper.Map<IDatabaseSequenceComments, Dto.Comments.DatabaseSequenceComments>(s))
-                .ToListAsync(cancellationToken)
-                .AsTask(),
-            source.GetAllSynonymComments(cancellationToken)
-                .Select(s => synonymCommentMapper.Map<IDatabaseSynonymComments, Dto.Comments.DatabaseSynonymComments>(s))
-                .ToListAsync(cancellationToken)
-                .AsTask(),
-            source.GetAllRoutineComments(cancellationToken)
-                .Select(r => routineCommentMapper.Map<IDatabaseRoutineComments, Dto.Comments.DatabaseRoutineComments>(r))
-                .ToListAsync(cancellationToken)
-                .AsTask()
-        ).WhenAll().ConfigureAwait(false);
+        var dtoTableComments = tableComments
+            .Select(t => tableCommentMapper.Map<IRelationalDatabaseTableComments, DatabaseTableComments>(t))
+            .ToList();
+        var dtoViewComments = viewComments
+            .Select(v => viewCommentMapper.Map<IDatabaseViewComments, Dto.Comments.DatabaseViewComments>(v))
+            .ToList();
+        var dtoSequenceComments = sequenceComments
+            .Select(s => sequenceCommentMapper.Map<IDatabaseSequenceComments, Dto.Comments.DatabaseSequenceComments>(s))
+            .ToList();
+        var dtoSynonymComments = synonymComments
+            .Select(s => synonymCommentMapper.Map<IDatabaseSynonymComments, Dto.Comments.DatabaseSynonymComments>(s))
+            .ToList();
+        var dtoRoutineComments = routineComments
+            .Select(r => routineCommentMapper.Map<IDatabaseRoutineComments, Dto.Comments.DatabaseRoutineComments>(r))
+            .ToList();
 
         var identifierDefaultsMapper = MapperRegistry.GetMapper<IIdentifierDefaults, Dto.IdentifierDefaults>();
         var dtoIdentifierDefaults = identifierDefaultsMapper.Map<IIdentifierDefaults, Dto.IdentifierDefaults>(source.IdentifierDefaults);

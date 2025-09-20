@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.DataAccess.Poco;
 
@@ -93,17 +93,24 @@ public class PocoDataAccessGenerator : IDataAccessGenerator
 
         await FileSystem.File.WriteAllTextAsync(projectPath, ProjectDefinition, cancellationToken).ConfigureAwait(false);
 
+        var (
+            tables,
+            tableComments,
+            views,
+            viewComments
+        ) = await (
+            Database.GetAllTables2(cancellationToken),
+            CommentProvider.GetAllTableComments2(cancellationToken),
+            Database.GetAllViews2(cancellationToken),
+            CommentProvider.GetAllViewComments2(cancellationToken)
+        ).WhenAll().ConfigureAwait(false);
+
         var tableGenerator = new PocoTableGenerator(FileSystem, NameTranslator, baseNamespace);
-        var viewGenerator = new PocoViewGenerator(FileSystem, NameTranslator, baseNamespace);
-
-        var tables = await Database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-        var comments = await CommentProvider.GetAllTableComments(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
         var tableCommentsLookup = new Dictionary<Identifier, IRelationalDatabaseTableComments>();
-        foreach (var comment in comments)
-            tableCommentsLookup[comment.TableName] = comment;
+        foreach (var tableComment in tableComments)
+            tableCommentsLookup[tableComment.TableName] = tableComment;
 
-        var views = await Database.GetAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-        var viewComments = await CommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+        var viewGenerator = new PocoViewGenerator(FileSystem, NameTranslator, baseNamespace);
         var viewCommentsLookup = new Dictionary<Identifier, IDatabaseViewComments>();
         foreach (var comment in viewComments)
             viewCommentsLookup[comment.ViewName] = comment;

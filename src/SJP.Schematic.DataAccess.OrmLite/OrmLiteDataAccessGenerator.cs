@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Abstractions;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.DataAccess.OrmLite;
 
@@ -94,16 +94,24 @@ public class OrmLiteDataAccessGenerator : IDataAccessGenerator
 
         await FileSystem.File.WriteAllTextAsync(projectPath, ProjectDefinition, cancellationToken).ConfigureAwait(false);
 
+        var (
+            tables,
+            tableComments,
+            views,
+            viewComments
+        ) = await (
+            Database.GetAllTables2(cancellationToken),
+            CommentProvider.GetAllTableComments2(cancellationToken),
+            Database.GetAllViews2(cancellationToken),
+            CommentProvider.GetAllViewComments2(cancellationToken)
+        ).WhenAll().ConfigureAwait(false);
+
         var tableGenerator = new OrmLiteTableGenerator(FileSystem, NameTranslator, baseNamespace);
-        var tables = await Database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-        var tableComments = await CommentProvider.GetAllTableComments(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
         var tableCommentsLookup = new Dictionary<Identifier, IRelationalDatabaseTableComments>();
         foreach (var comment in tableComments)
             tableCommentsLookup[comment.TableName] = comment;
 
         var viewGenerator = new OrmLiteViewGenerator(FileSystem, NameTranslator, baseNamespace);
-        var views = await Database.GetAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-        var viewComments = await CommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
         var viewCommentsLookup = new Dictionary<Identifier, IDatabaseViewComments>();
         foreach (var comment in viewComments)
             viewCommentsLookup[comment.ViewName] = comment;

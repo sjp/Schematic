@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -81,20 +80,20 @@ public static class RelationalDatabaseSnapshotExtensions
     private static async Task<IRelationalDatabase> SnapshotAsyncCore(IRelationalDatabase database, RelationalDatabaseSnapshotOptions snapshotOptions, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken)
     {
         var tablesTask = snapshotOptions.IncludeTables
-            ? database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).AsTask()
-            : Task.FromResult<List<IRelationalDatabaseTable>>([]);
+            ? database.GetAllTables2(cancellationToken)
+            : Task.FromResult<IReadOnlyCollection<IRelationalDatabaseTable>>([]);
         var viewsTask = snapshotOptions.IncludeViews
-            ? database.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask()
-            : Task.FromResult<List<IDatabaseView>>([]);
+            ? database.GetAllViews2(cancellationToken)
+            : Task.FromResult<IReadOnlyCollection<IDatabaseView>>([]);
         var sequencesTask = snapshotOptions.IncludeSequences
-            ? database.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).AsTask()
-            : Task.FromResult<List<IDatabaseSequence>>([]);
+            ? database.GetAllSequences2(cancellationToken)
+            : Task.FromResult<IReadOnlyCollection<IDatabaseSequence>>([]);
         var synonymsTask = snapshotOptions.IncludeSynonyms
-            ? database.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).AsTask()
-            : Task.FromResult<List<IDatabaseSynonym>>([]);
+            ? database.GetAllSynonyms2(cancellationToken)
+            : Task.FromResult<IReadOnlyCollection<IDatabaseSynonym>>([]);
         var routinesTask = snapshotOptions.IncludeRoutines
-            ? database.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).AsTask()
-            : Task.FromResult<List<IDatabaseRoutine>>([]);
+            ? database.GetAllRoutines2(cancellationToken)
+            : Task.FromResult<IReadOnlyCollection<IDatabaseRoutine>>([]);
 
         var (
             tables,

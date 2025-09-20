@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Abstractions;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore;
 
@@ -98,11 +98,19 @@ public class EFCoreDataAccessGenerator : IDataAccessGenerator
         var tableGenerator = new EFCoreTableGenerator(FileSystem, NameTranslator, baseNamespace);
         var viewGenerator = new EFCoreViewGenerator(FileSystem, NameTranslator, baseNamespace);
 
-        var tables = await Database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-        var tableComments = await CommentProvider.GetAllTableComments(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-        var views = await Database.GetAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-        var viewComments = await CommentProvider.GetAllViewComments(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-        var sequences = await Database.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+        var (
+            tables,
+            tableComments,
+            views,
+            viewComments,
+            sequences
+        ) = await (
+            Database.GetAllTables2(cancellationToken),
+            CommentProvider.GetAllTableComments2(cancellationToken),
+            Database.GetAllViews2(cancellationToken),
+            CommentProvider.GetAllViewComments2(cancellationToken),
+            Database.GetAllSequences2(cancellationToken)
+        ).WhenAll().ConfigureAwait(false);
 
         var tableCommentsLookup = new Dictionary<Identifier, IRelationalDatabaseTableComments>();
         foreach (var comment in tableComments)

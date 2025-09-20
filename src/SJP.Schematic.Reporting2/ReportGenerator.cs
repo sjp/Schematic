@@ -46,11 +46,11 @@ public class ReportGenerator
             synonyms,
             routines
         ) = await (
-            Database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).AsTask(),
-            Database.GetAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask(),
-            Database.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).AsTask(),
-            Database.GetAllSynonyms(cancellationToken).ToListAsync(cancellationToken).AsTask(),
-            Database.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).AsTask()
+            Database.GetAllTables2(cancellationToken),
+            Database.GetAllViews2(cancellationToken),
+            Database.GetAllSequences2(cancellationToken),
+            Database.GetAllSynonyms2(cancellationToken),
+            Database.GetAllRoutines2(cancellationToken)
         ).WhenAll().ConfigureAwait(false);
 
         var rowCounts = await GetRowCountsAsync(tables, cancellationToken).ConfigureAwait(false);
