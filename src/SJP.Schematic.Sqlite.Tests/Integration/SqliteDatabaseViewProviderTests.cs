@@ -71,6 +71,43 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     }
 
     [Test]
+    public async Task GetAllViews_WhenEnumerated_ContainsViews()
+    {
+        var hasViews = await ViewProvider.GetAllViews()
+            .AnyAsync()
+            .ConfigureAwait(false);
+
+        Assert.That(hasViews, Is.True);
+    }
+
+    [Test]
+    public async Task GetAllViews_WhenEnumerated_ContainsTestView()
+    {
+        var containsTestView = await ViewProvider.GetAllViews()
+            .AnyAsync(v => string.Equals(v.Name.LocalName, "db_test_view_1", StringComparison.Ordinal))
+            .ConfigureAwait(false);
+
+        Assert.That(containsTestView, Is.True);
+    }
+
+    [Test]
+    public async Task GetAllViews2_WhenRetrieved_ContainsViews()
+    {
+        var views = await ViewProvider.GetAllViews2().ConfigureAwait(false);
+
+        Assert.That(views, Is.Not.Empty);
+    }
+
+    [Test]
+    public async Task GetAllViews2_WhenRetrieved_ContainsTestView()
+    {
+        var views = await ViewProvider.GetAllViews2().ConfigureAwait(false);
+        var containsTestView = views.Any(t => string.Equals(t.Name.LocalName, "db_test_view_1", StringComparison.Ordinal));
+
+        Assert.That(containsTestView, Is.True);
+    }
+
+    [Test]
     public async Task GetView_WhenViewPresentGivenLocalNameOnly_ShouldBeQualifiedCorrectly()
     {
         var viewName = new Identifier("db_test_view_1");

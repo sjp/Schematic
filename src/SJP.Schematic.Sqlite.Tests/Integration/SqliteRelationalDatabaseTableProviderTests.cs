@@ -431,4 +431,21 @@ end", CancellationToken.None).ConfigureAwait(false);
 
         Assert.That(containsTestTable, Is.True);
     }
+
+    [Test]
+    public async Task GetAllTables2_WhenRetrieved_ContainsTables()
+    {
+        var tables = await TableProvider.GetAllTables2().ConfigureAwait(false);
+
+        Assert.That(tables, Is.Not.Empty);
+    }
+
+    [Test]
+    public async Task GetAllTables2_WhenRetrieved_ContainsTestTable()
+    {
+        var tables = await TableProvider.GetAllTables2().ConfigureAwait(false);
+        var containsTestTable = tables.Any(t => string.Equals(t.Name.LocalName, "db_test_table_1", StringComparison.Ordinal));
+
+        Assert.That(containsTestTable, Is.True);
+    }
 }

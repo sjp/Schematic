@@ -90,6 +90,14 @@ internal static class SqliteRelationalDatabaseTests
 
             Assert.That(hasSequences, Is.False);
         }
+
+        [Test]
+        public static async Task GetAllSequences2_WhenRetrieved_ContainsNoValues()
+        {
+            var sequences = await Database.GetAllSequences2().ConfigureAwait(false);
+
+            Assert.That(sequences, Is.Empty);
+        }
     }
 
     // testing that the behaviour is equivalent to an empty synonym provider
@@ -120,6 +128,14 @@ internal static class SqliteRelationalDatabaseTests
 
             Assert.That(hasSynonyms, Is.False);
         }
+
+        [Test]
+        public static async Task GetAllSynonyms2_WhenRetrieved_ContainsNoValues()
+        {
+            var synonyms = await Database.GetAllSynonyms2().ConfigureAwait(false);
+
+            Assert.That(synonyms, Is.Empty);
+        }
     }
 
     // testing that the behaviour is equivalent to an empty routines provider
@@ -149,6 +165,14 @@ internal static class SqliteRelationalDatabaseTests
                 .ConfigureAwait(false);
 
             Assert.That(hasRoutines, Is.False);
+        }
+
+        [Test]
+        public static async Task GetAllRoutines2_WhenRetrieved_ContainsNoValues()
+        {
+            var routiens = await Database.GetAllRoutines2().ConfigureAwait(false);
+
+            Assert.That(routiens, Is.Empty);
         }
     }
 
