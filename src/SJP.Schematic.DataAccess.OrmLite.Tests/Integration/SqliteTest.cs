@@ -8,7 +8,7 @@ namespace SJP.Schematic.DataAccess.OrmLite.Tests.Integration;
 
 internal static class Config
 {
-    public static IDbConnectionFactory ConnectionFactory { get; } = new CachingConnectionFactory(new SqliteConnectionFactory(ConnectionString));
+    public static IDbConnectionFactory ConnectionFactory { get; } = new SqliteConnectionFactory(ConnectionString);
 
     public static ISchematicConnection Connection { get; } = new SchematicConnection(
         ConnectionFactory,

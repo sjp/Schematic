@@ -1,5 +1,5 @@
 ﻿{
   "ConnectionStrings": {
-    "Dbml_TestDb": "Data Source=InMemory_d70e1098_bf44_4362_99da_5b34a1586561;Mode=Memory;Cache=Shared"
+    "Dbml_TestDb": "Data Source=file:InMemory_d70e1098_bf44_4362_99da_5b34a1586561?mode=memory&cache=shared&uri=true"
   }
 }
