@@ -15,12 +15,15 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
 {
     private IRelationalDatabaseTableProvider TableProvider => new OracleRelationalDatabaseTableProvider(Connection, IdentifierDefaults, IdentifierResolver);
     private AsyncLazy<List<IRelationalDatabaseTable>> _tables;
+    private AsyncLazy<IReadOnlyCollection<IRelationalDatabaseTable>> _tables2;
     private Task<List<IRelationalDatabaseTable>> GetAllTables() => _tables.Task;
+    private Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables2() => _tables2.Task;
 
     [OneTimeSetUp]
     public async Task Init()
     {
         _tables = new AsyncLazy<List<IRelationalDatabaseTable>>(() => TableProvider.GetAllTables().ToListAsync().AsTask());
+        _tables2 = new AsyncLazy<IReadOnlyCollection<IRelationalDatabaseTable>>(() => TableProvider.GetAllTables2());
 
         await DbConnection.ExecuteAsync("create table db_test_table_1 ( title varchar2(200) )", CancellationToken.None).ConfigureAwait(false);
 
@@ -370,6 +373,24 @@ end;
     {
         const string expectedTableName = "DB_TEST_TABLE_1";
         var tables = await GetAllTables().ConfigureAwait(false);
+        var containsTestTable = tables.Exists(t => string.Equals(t.Name.LocalName, expectedTableName, StringComparison.Ordinal));
+
+        Assert.That(containsTestTable, Is.True);
+    }
+
+    [Test]
+    public async Task GetAllTables2_WhenRetrieved_ContainsTables()
+    {
+        var tables = await GetAllTables2().ConfigureAwait(false);
+
+        Assert.That(tables, Is.Not.Empty);
+    }
+
+    [Test]
+    public async Task GetAllTables2_WhenRetrieved_ContainsTestTable()
+    {
+        const string expectedTableName = "DB_TEST_TABLE_1";
+        var tables = await GetAllTables2().ConfigureAwait(false);
         var containsTestTable = tables.Exists(t => string.Equals(t.Name.LocalName, expectedTableName, StringComparison.Ordinal));
 
         Assert.That(containsTestTable, Is.True);

@@ -49,7 +49,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
     /// <summary>
-    /// Retrieves all database packages.
+    /// Enumerates all database packages.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database packages.</returns>
@@ -59,6 +59,30 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.PackageName))
             .Select(QualifyPackageName)
             .SelectAwait(packageName => LoadPackageAsyncCore(packageName, cancellationToken).ToValue());
+    }
+
+    /// <summary>
+    /// Retrieves all database packages.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database packages.</returns>
+    public async Task<IReadOnlyCollection<IOracleDatabasePackage>> GetAllPackages2(CancellationToken cancellationToken = default)
+    {
+        var packageNames = await Connection.QueryEnumerableAsync<GetAllPackageNames.Result>(GetAllPackageNames.Sql, cancellationToken)
+            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.PackageName))
+            .Select(QualifyPackageName)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        var packageTasks = packageNames
+            .Select(packageName => LoadPackageAsyncCore(packageName, cancellationToken))
+            .ToArray();
+
+        await Task.WhenAll(packageTasks).ConfigureAwait(false);
+
+        return packageTasks
+            .Select(p => p.Result)
+            .ToArray();
     }
 
     /// <summary>

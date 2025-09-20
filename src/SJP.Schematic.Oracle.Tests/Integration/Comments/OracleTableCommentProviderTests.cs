@@ -167,6 +167,23 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
     }
 
     [Test]
+    public async Task GetAllTableComments2_WhenRetrieved_ContainsTableComments()
+    {
+        var tableComments = await TableCommentProvider.GetAllTableComments2().ConfigureAwait(false);
+
+        Assert.That(tableComments, Is.Not.Empty);
+    }
+
+    [Test]
+    public async Task GetAllTableComments2_WhenRetrieved_ContainsTestTableComment()
+    {
+        var tableComments = await TableCommentProvider.GetAllTableComments2().ConfigureAwait(false);
+        var containsTestTable = tableComments.Any(t => string.Equals(t.TableName.LocalName, "TABLE_COMMENT_TABLE_1", StringComparison.Ordinal));
+
+        Assert.That(containsTestTable, Is.True);
+    }
+
+    [Test]
     public async Task GetTableComments_WhenTableMissingComment_ReturnsNone()
     {
         var comments = await GetTableCommentsAsync("TABLE_COMMENT_TABLE_1").ConfigureAwait(false);

@@ -188,6 +188,24 @@ internal sealed class OracleDatabaseSequenceProviderTests : OracleTest
     }
 
     [Test]
+    public async Task GetAllSequences2_WhenRetrieved_ContainsSequences()
+    {
+        var sequences = await SequenceProvider.GetAllSequences2().ConfigureAwait(false);
+
+        Assert.That(sequences, Is.Not.Empty);
+    }
+
+    [Test]
+    public async Task GetAllSequences2_WhenRetrieved_ContainsTestSequence()
+    {
+        const string expectedSequenceName = "DB_TEST_SEQUENCE_1";
+        var sequences = await SequenceProvider.GetAllSequences2().ConfigureAwait(false);
+        var containsTestSequence = sequences.Any(s => string.Equals(s.Name.LocalName, expectedSequenceName, StringComparison.Ordinal));
+
+        Assert.That(containsTestSequence, Is.True);
+    }
+
+    [Test]
     public async Task Start_GivenDefaultSequence_ReturnsOne()
     {
         var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_1").ConfigureAwait(false);

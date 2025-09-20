@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 
@@ -11,11 +12,18 @@ namespace SJP.Schematic.Oracle;
 public interface IOracleDatabasePackageProvider
 {
     /// <summary>
-    /// Gets all database packages.
+    /// Enumerates all database packages.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database packages.</returns>
     IAsyncEnumerable<IOracleDatabasePackage> GetAllPackages(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets all database packages.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database packages.</returns>
+    Task<IReadOnlyCollection<IOracleDatabasePackage>> GetAllPackages2(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a database package.

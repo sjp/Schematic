@@ -177,12 +177,40 @@ internal sealed class OracleDatabaseQueryViewProviderTests : OracleTest
     }
 
     [Test]
+    public async Task GetAllViews2_WhenRetrieved_ContainsViews()
+    {
+        var views = await ViewProvider.GetAllViews2().ConfigureAwait(false);
+
+        Assert.That(views, Is.Not.Empty);
+    }
+
+    [Test]
+    public async Task GetAllViews2_WhenRetrieved_ContainsTestView()
+    {
+        const string viewName = "QUERY_DB_TEST_VIEW_1";
+        var views = await ViewProvider.GetAllViews2().ConfigureAwait(false);
+        var containsTestView = views.Any(v => string.Equals(v.Name.LocalName, viewName, StringComparison.Ordinal));
+
+        Assert.That(containsTestView, Is.True);
+    }
+
+    [Test]
     public async Task GetAllViews_WhenEnumerated_DoesNotContainMaterializedView()
     {
         const string viewName = "QUERY_VIEW_TEST_VIEW_2";
         var containsTestView = await ViewProvider.GetAllViews()
             .AnyAsync(v => string.Equals(v.Name.LocalName, viewName, StringComparison.Ordinal))
             .ConfigureAwait(false);
+
+        Assert.That(containsTestView, Is.False);
+    }
+
+    [Test]
+    public async Task GetAllViews2_WhenRetrieved_DoesNotContainMaterializedView()
+    {
+        const string viewName = "QUERY_VIEW_TEST_VIEW_2";
+        var views = await ViewProvider.GetAllViews2().ConfigureAwait(false);
+        var containsTestView = views.Any(v => string.Equals(v.Name.LocalName, viewName, StringComparison.Ordinal));
 
         Assert.That(containsTestView, Is.False);
     }

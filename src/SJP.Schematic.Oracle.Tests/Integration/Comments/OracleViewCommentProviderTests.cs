@@ -179,6 +179,23 @@ internal sealed class OracleViewCommentProviderTests : OracleTest
     }
 
     [Test]
+    public async Task GetAllViewComments2_WhenRetrieved_ContainsViewComments()
+    {
+        var viewComments = await ViewCommentProvider.GetAllViewComments2().ConfigureAwait(false);
+
+        Assert.That(viewComments, Is.Not.Empty);
+    }
+
+    [Test]
+    public async Task GetAllViewComments2_WhenRetrieved_ContainsTestViewComment()
+    {
+        var viewComments = await ViewCommentProvider.GetAllViewComments2().ConfigureAwait(false);
+        var containsTestView = viewComments.Any(v => string.Equals(v.ViewName.LocalName, "WRAPPER_VIEW_COMMENT_VIEW_1", StringComparison.Ordinal));
+
+        Assert.That(containsTestView, Is.True);
+    }
+
+    [Test]
     public async Task GetViewComments_WhenViewMissingComment_ReturnsNone()
     {
         var comments = await GetViewCommentsAsync("WRAPPER_VIEW_COMMENT_VIEW_1").ConfigureAwait(false);
@@ -357,6 +374,15 @@ internal sealed class OracleViewCommentProviderTests : OracleTest
         var containsTestView = await ViewCommentProvider.GetAllViewComments()
             .AnyAsync(v => string.Equals(v.ViewName.LocalName, "WRAPPER_VIEW_COMMENT_MVIEW_1", StringComparison.Ordinal))
             .ConfigureAwait(false);
+
+        Assert.That(containsTestView, Is.True);
+    }
+
+    [Test]
+    public async Task GetAllViewComments2_WhenRetrieved_ContainsTestMatViewComment()
+    {
+        var viewComments = await ViewCommentProvider.GetAllViewComments2().ConfigureAwait(false);
+        var containsTestView = viewComments.Any(v => string.Equals(v.ViewName.LocalName, "WRAPPER_VIEW_COMMENT_MVIEW_1", StringComparison.Ordinal));
 
         Assert.That(containsTestView, Is.True);
     }

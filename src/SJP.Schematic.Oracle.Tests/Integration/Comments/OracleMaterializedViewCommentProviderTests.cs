@@ -170,6 +170,23 @@ internal sealed class OracleMaterializedViewCommentProviderTests : OracleTest
     }
 
     [Test]
+    public async Task GetAllViewComments2_WhenRetrieved_ContainsViewComments()
+    {
+        var viewComments = await ViewCommentProvider.GetAllViewComments2().ConfigureAwait(false);
+
+        Assert.That(viewComments, Is.Not.Empty);
+    }
+
+    [Test]
+    public async Task GetAllViewComments2_WhenRetrieved_ContainsTestViewComment()
+    {
+        var viewComments = await ViewCommentProvider.GetAllViewComments2().ConfigureAwait(false);
+        var containsTestView = viewComments.Any(t => string.Equals(t.ViewName.LocalName, "MVIEW_COMMENT_MVIEW_1", StringComparison.Ordinal));
+
+        Assert.That(containsTestView, Is.True);
+    }
+
+    [Test]
     public async Task GetViewComments_WhenViewMissingComment_ReturnsDefaultComment()
     {
         var expectedComment = $"snapshot table for snapshot {IdentifierDefaults.Schema}.MVIEW_COMMENT_MVIEW_1";
