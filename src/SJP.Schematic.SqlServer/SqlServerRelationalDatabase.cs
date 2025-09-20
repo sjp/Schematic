@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 
@@ -38,13 +39,23 @@ public class SqlServerRelationalDatabase : IRelationalDatabase
     public IIdentifierDefaults IdentifierDefaults { get; }
 
     /// <summary>
-    /// Gets all database tables.
+    /// Enumerates all database tables.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database tables.</returns>
     public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)
     {
         return _tableProvider.GetAllTables(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets all database tables.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database tables.</returns>
+    public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables2(CancellationToken cancellationToken = default)
+    {
+        return _tableProvider.GetAllTables2(cancellationToken);
     }
 
     /// <summary>
@@ -62,13 +73,23 @@ public class SqlServerRelationalDatabase : IRelationalDatabase
     }
 
     /// <summary>
-    /// Gets all database views.
+    /// Enumerates all database views.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database views.</returns>
     public IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default)
     {
         return _viewProvider.GetAllViews(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets all database views.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database views.</returns>
+    public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews2(CancellationToken cancellationToken = default)
+    {
+        return _viewProvider.GetAllViews2(cancellationToken);
     }
 
     /// <summary>
@@ -86,13 +107,23 @@ public class SqlServerRelationalDatabase : IRelationalDatabase
     }
 
     /// <summary>
-    /// Gets all database sequences.
+    /// Enumerates all database sequences.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database sequences.</returns>
     public IAsyncEnumerable<IDatabaseSequence> GetAllSequences(CancellationToken cancellationToken = default)
     {
         return _sequenceProvider.GetAllSequences(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets all database sequences.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database sequences.</returns>
+    public Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences2(CancellationToken cancellationToken = default)
+    {
+        return _sequenceProvider.GetAllSequences2(cancellationToken);
     }
 
     /// <summary>
@@ -110,13 +141,23 @@ public class SqlServerRelationalDatabase : IRelationalDatabase
     }
 
     /// <summary>
-    /// Gets all database synonyms.
+    /// Enumerates all database synonyms.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database synonyms.</returns>
     public IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default)
     {
         return _synonymProvider.GetAllSynonyms(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets all database synonyms.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database synonyms.</returns>
+    public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms2(CancellationToken cancellationToken = default)
+    {
+        return _synonymProvider.GetAllSynonyms2(cancellationToken);
     }
 
     /// <summary>
@@ -134,13 +175,23 @@ public class SqlServerRelationalDatabase : IRelationalDatabase
     }
 
     /// <summary>
-    /// Gets all database routines.
+    /// Enumerates all database routines.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database routines.</returns>
     public IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines(CancellationToken cancellationToken = default)
     {
         return _routineProvider.GetAllRoutines(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets all database routines.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database routines.</returns>
+    public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines2(CancellationToken cancellationToken = default)
+    {
+        return _routineProvider.GetAllRoutines2(cancellationToken);
     }
 
     /// <summary>

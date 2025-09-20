@@ -48,7 +48,7 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
     protected string CommentProperty { get; } = "MS_Description";
 
     /// <summary>
-    /// Retrieves comments for all database synonyms.
+    /// Enumerates comments for all database synonyms.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database synonyms comments.</returns>
@@ -58,6 +58,30 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.SynonymName))
             .Select(QualifySynonymName)
             .SelectAwait(synonymName => LoadSynonymCommentsAsyncCore(synonymName, cancellationToken).ToValue());
+    }
+
+    /// <summary>
+    /// Retrieves comments for all database synonyms.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of database synonyms comments.</returns>
+    public async Task<IReadOnlyCollection<IDatabaseSynonymComments>> GetAllSynonymComments2(CancellationToken cancellationToken = default)
+    {
+        var synonymNames = await Connection.QueryEnumerableAsync<GetAllSynonymNames.Result>(GetAllSynonymNames.Sql, cancellationToken)
+            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.SynonymName))
+            .Select(QualifySynonymName)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        var synonymCommentTasks = synonymNames
+            .Select(synonymName => LoadSynonymCommentsAsyncCore(synonymName, cancellationToken))
+            .ToList();
+
+        await Task.WhenAll(synonymCommentTasks).ConfigureAwait(false);
+
+        return synonymCommentTasks
+            .Select(s => s.Result)
+            .ToArray();
     }
 
     /// <summary>

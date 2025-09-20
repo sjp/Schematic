@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -40,7 +41,7 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
     protected IIdentifierDefaults IdentifierDefaults { get; }
 
     /// <summary>
-    /// Gets all database synonyms.
+    /// Enumerates all database synonyms.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database synonyms.</returns>
@@ -61,6 +62,32 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
 
                 return new DatabaseSynonym(synonymName, qualifiedTargetName);
             });
+    }
+
+    /// <summary>
+    /// Gets all database synonyms.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database synonyms.</returns>
+    public async Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms2(CancellationToken cancellationToken = default)
+    {
+        return await Connection.QueryEnumerableAsync<GetAllSynonymDefinitions.Result>(GetAllSynonymDefinitions.Sql, cancellationToken)
+            .Select(row =>
+            {
+                var synonymName = QualifySynonymName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.SynonymName));
+
+                var serverName = !row.TargetServerName.IsNullOrWhiteSpace() ? row.TargetServerName : null;
+                var databaseName = !row.TargetDatabaseName.IsNullOrWhiteSpace() ? row.TargetDatabaseName : null;
+                var schemaName = !row.TargetSchemaName.IsNullOrWhiteSpace() ? row.TargetSchemaName : null;
+                var localName = row.TargetObjectName;
+
+                var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
+                var qualifiedTargetName = QualifySynonymTargetName(targetName);
+
+                return new DatabaseSynonym(synonymName, qualifiedTargetName);
+            })
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <summary>

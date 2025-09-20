@@ -48,7 +48,7 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
     protected string CommentProperty { get; } = "MS_Description";
 
     /// <summary>
-    /// Retrieves comments for all database sequences.
+    /// Enumerates comments for all database sequences.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database sequence comments.</returns>
@@ -58,6 +58,30 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.SequenceName))
             .Select(QualifySequenceName)
             .SelectAwait(sequenceName => LoadSequenceCommentsAsyncCore(sequenceName, cancellationToken).ToValue());
+    }
+
+    /// <summary>
+    /// Retrieves comments for all database sequences.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of database sequence comments.</returns>
+    public async Task<IReadOnlyCollection<IDatabaseSequenceComments>> GetAllSequenceComments2(CancellationToken cancellationToken = default)
+    {
+        var sequenceNames = await Connection.QueryEnumerableAsync<GetAllSequenceNames.Result>(GetAllSequenceNames.Sql, cancellationToken)
+            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.SequenceName))
+            .Select(QualifySequenceName)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        var sequenceCommentTasks = sequenceNames
+            .Select(sequenceName => LoadSequenceCommentsAsyncCore(sequenceName, cancellationToken))
+            .ToArray();
+
+        await Task.WhenAll(sequenceCommentTasks).ConfigureAwait(false);
+
+        return sequenceCommentTasks
+            .Select(s => s.Result)
+            .ToArray();
     }
 
     /// <summary>
