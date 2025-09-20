@@ -14,16 +14,16 @@ namespace SJP.Schematic.Oracle.Tests.Integration;
 internal sealed class OracleDatabasePackageProviderTests : OracleTest
 {
     private IOracleDatabasePackageProvider PackageProvider => new OracleDatabasePackageProvider(DbConnection, IdentifierDefaults, IdentifierResolver);
-    private AsyncLazy<List<IOracleDatabasePackage>> _packages;
-    private AsyncLazy<IReadOnlyCollection<IOracleDatabasePackage>> _packages2;
-    private Task<List<IOracleDatabasePackage>> GetAllPackages() => _packages.Task;
-    private Task<IReadOnlyCollection<IOracleDatabasePackage>> GetAllPackages2() => _packages2.Task;
+    private AsyncLazy<List<IOracleDatabasePackage>> _enumeratePackages;
+    private AsyncLazy<IReadOnlyCollection<IOracleDatabasePackage>> _getAllPackages;
+    private Task<List<IOracleDatabasePackage>> EnumerateAllPackages() => _enumeratePackages.Task;
+    private Task<IReadOnlyCollection<IOracleDatabasePackage>> GetAllPackages() => _getAllPackages.Task;
 
     [OneTimeSetUp]
     public async Task Init()
     {
-        _packages = new AsyncLazy<List<IOracleDatabasePackage>>(() => PackageProvider.GetAllPackages().ToListAsync().AsTask());
-        _packages2 = new AsyncLazy<IReadOnlyCollection<IOracleDatabasePackage>>(() => PackageProvider.GetAllPackages2());
+        _enumeratePackages = new AsyncLazy<List<IOracleDatabasePackage>>(() => PackageProvider.EnumerateAllPackages().ToListAsync().AsTask());
+        _getAllPackages = new AsyncLazy<IReadOnlyCollection<IOracleDatabasePackage>>(() => PackageProvider.GetAllPackages());
 
         await DbConnection.ExecuteAsync(@"CREATE PACKAGE db_test_package_1 AS
     PROCEDURE test_proc();
@@ -161,38 +161,38 @@ END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
     }
 
     [Test]
-    public async Task GetAllPackages_WhenEnumerated_ContainsPackages()
+    public async Task EnumerateAllPackages_WhenEnumerated_ContainsPackages()
     {
-        var packages = await GetAllPackages().ConfigureAwait(false);
+        var packages = await EnumerateAllPackages().ConfigureAwait(false);
 
         Assert.That(packages, Is.Not.Empty);
     }
 
     [Test]
-    public async Task GetAllPackages_WhenEnumerated_ContainsTestPackage()
+    public async Task EnumerateAllPackages_WhenEnumerated_ContainsTestPackage()
     {
         const string expectedPackageName = "DB_TEST_PACKAGE_1";
 
-        var packages = await GetAllPackages().ConfigureAwait(false);
+        var packages = await EnumerateAllPackages().ConfigureAwait(false);
         var containsTestPackage = packages.Exists(s => string.Equals(s.Name.LocalName, expectedPackageName, StringComparison.Ordinal));
 
         Assert.That(containsTestPackage, Is.True);
     }
 
     [Test]
-    public async Task GetAllPackages2_WhenRetrieved_ContainsPackages()
+    public async Task GetAllPackages_WhenRetrieved_ContainsPackages()
     {
-        var packages = await GetAllPackages2().ConfigureAwait(false);
+        var packages = await GetAllPackages().ConfigureAwait(false);
 
         Assert.That(packages, Is.Not.Empty);
     }
 
     [Test]
-    public async Task GetAllPackages2_WhenRetrieved_ContainsTestPackage()
+    public async Task GetAllPackages_WhenRetrieved_ContainsTestPackage()
     {
         const string expectedPackageName = "DB_TEST_PACKAGE_1";
 
-        var packages = await GetAllPackages2().ConfigureAwait(false);
+        var packages = await GetAllPackages().ConfigureAwait(false);
         var containsTestPackage = packages.Exists(s => string.Equals(s.Name.LocalName, expectedPackageName, StringComparison.Ordinal));
 
         Assert.That(containsTestPackage, Is.True);

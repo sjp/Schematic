@@ -53,7 +53,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database packages.</returns>
-    public IAsyncEnumerable<IOracleDatabasePackage> GetAllPackages(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IOracleDatabasePackage> EnumerateAllPackages(CancellationToken cancellationToken = default)
     {
         return Connection.QueryEnumerableAsync<GetAllPackageNames.Result>(GetAllPackageNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.PackageName))
@@ -66,7 +66,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database packages.</returns>
-    public async Task<IReadOnlyCollection<IOracleDatabasePackage>> GetAllPackages2(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<IOracleDatabasePackage>> GetAllPackages(CancellationToken cancellationToken = default)
     {
         var packageNames = await Connection.QueryEnumerableAsync<GetAllPackageNames.Result>(GetAllPackageNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.PackageName))

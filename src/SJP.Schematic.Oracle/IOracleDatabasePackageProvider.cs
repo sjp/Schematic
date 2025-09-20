@@ -16,14 +16,14 @@ public interface IOracleDatabasePackageProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database packages.</returns>
-    IAsyncEnumerable<IOracleDatabasePackage> GetAllPackages(CancellationToken cancellationToken = default);
+    IAsyncEnumerable<IOracleDatabasePackage> EnumerateAllPackages(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets all database packages.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database packages.</returns>
-    Task<IReadOnlyCollection<IOracleDatabasePackage>> GetAllPackages2(CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<IOracleDatabasePackage>> GetAllPackages(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a database package.

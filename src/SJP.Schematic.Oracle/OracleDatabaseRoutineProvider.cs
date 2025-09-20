@@ -54,7 +54,7 @@ public class OracleDatabaseRoutineProvider : IDatabaseRoutineProvider
     {
         var (simpleRoutines, packages) = await (
             SimpleRoutineProvider.EnumerateAllRoutines(cancellationToken).ToListAsync(cancellationToken).AsTask(),
-            PackageProvider.GetAllPackages(cancellationToken).ToListAsync(cancellationToken).AsTask()
+            PackageProvider.EnumerateAllPackages(cancellationToken).ToListAsync(cancellationToken).AsTask()
         ).WhenAll().ConfigureAwait(false);
 
         var routines = simpleRoutines
@@ -75,7 +75,7 @@ public class OracleDatabaseRoutineProvider : IDatabaseRoutineProvider
     {
         var (simpleRoutines, packages) = await (
             SimpleRoutineProvider.GetAllRoutines(cancellationToken),
-            PackageProvider.GetAllPackages2(cancellationToken)
+            PackageProvider.GetAllPackages(cancellationToken)
         ).WhenAll().ConfigureAwait(false);
 
         return simpleRoutines
