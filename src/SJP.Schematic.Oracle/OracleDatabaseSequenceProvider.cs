@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -48,7 +49,7 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
     protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
     /// <summary>
-    /// Gets all database sequences.
+    /// Enumerate all database sequences.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database sequences.</returns>
@@ -74,6 +75,37 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
                     row.CacheSize
                 );
             });
+    }
+
+    /// <summary>
+    /// Gets all database sequences.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database sequences.</returns>
+    public async Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences2(CancellationToken cancellationToken = default)
+    {
+        return await Connection.QueryEnumerableAsync<GetAllSequences.Result>(Queries.GetAllSequences.Sql, cancellationToken)
+            .Select(row =>
+            {
+                var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.SequenceName));
+
+                var cycle = string.Equals(row.Cycle, Constants.Y, StringComparison.Ordinal);
+                var start = row.Increment >= 0
+                    ? row.MinValue
+                    : row.MaxValue;
+
+                return new DatabaseSequence(
+                    sequenceName,
+                    start,
+                    row.Increment,
+                    Option<decimal>.Some(row.MinValue),
+                    Option<decimal>.Some(row.MaxValue),
+                    cycle,
+                    row.CacheSize
+                );
+            })
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <summary>

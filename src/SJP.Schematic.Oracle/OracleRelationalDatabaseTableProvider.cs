@@ -81,7 +81,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     );
 
     /// <summary>
-    /// Gets all database tables.
+    /// Enumerates all database tables.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database tables.</returns>
@@ -93,6 +93,32 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
             .Select(QualifyTableName)
             .SelectAwait(tableName => LoadTableAsyncCore(tableName, queryCache, cancellationToken).ToValue());
+    }
+
+    /// <summary>
+    /// Gets all database tables.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database tables.</returns>
+    public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables2(CancellationToken cancellationToken = default)
+    {
+        var queryCache = CreateQueryCache();
+
+        var tableNames = await DbConnection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
+            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
+            .Select(QualifyTableName)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        var tableTasks = tableNames
+            .Select(tableName => LoadTableAsyncCore(tableName, queryCache, cancellationToken))
+            .ToArray();
+
+        await Task.WhenAll(tableTasks).ConfigureAwait(false);
+
+        return tableTasks
+            .Select(t => t.Result)
+            .ToArray();
     }
 
     /// <summary>

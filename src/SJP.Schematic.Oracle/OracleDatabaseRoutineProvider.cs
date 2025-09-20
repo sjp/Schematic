@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -45,7 +46,7 @@ public class OracleDatabaseRoutineProvider : IDatabaseRoutineProvider
     protected IOracleDatabasePackageProvider PackageProvider { get; }
 
     /// <summary>
-    /// Gets all database routines.
+    /// Enumerates all database routines.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database routines.</returns>
@@ -63,6 +64,25 @@ public class OracleDatabaseRoutineProvider : IDatabaseRoutineProvider
 
         foreach (var routine in routines)
             yield return routine;
+    }
+
+    /// <summary>
+    /// Gets all database routines.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database routines.</returns>
+    public async Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines2(CancellationToken cancellationToken = default)
+    {
+        var (simpleRoutines, packages) = await (
+            SimpleRoutineProvider.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).AsTask(),
+            PackageProvider.GetAllPackages(cancellationToken).ToListAsync(cancellationToken).AsTask()
+        ).WhenAll().ConfigureAwait(false);
+
+        return simpleRoutines
+            .Concat(packages)
+            .OrderBy(static r => r.Name.Schema, StringComparer.Ordinal)
+            .ThenBy(static r => r.Name.LocalName, StringComparer.Ordinal)
+            .ToArray();
     }
 
     /// <summary>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -48,7 +49,7 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
     protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
     /// <summary>
-    /// Gets all database synonyms.
+    /// Enumerates all database synonyms.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database synonyms.</returns>
@@ -76,6 +77,38 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
 
                 return new DatabaseSynonym(qualifiedSynonymName, qualifiedTargetName);
             });
+    }
+
+    /// <summary>
+    /// Gets all database synonyms.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database synonyms.</returns>
+    public async Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms2(CancellationToken cancellationToken = default)
+    {
+        // collections created directly instead of via LoadSynonym() methods
+        // the main reason is to avoid queries where possible, especially when
+        // the SYS.ALL_SYNONYMS data dictionary view is very slow
+
+        return await Connection.QueryEnumerableAsync<GetAllSynonyms.Result>(Queries.GetAllSynonyms.Sql, cancellationToken)
+            .Select(synonymRow =>
+            {
+                var synonymSchema = !synonymRow.SchemaName.IsNullOrWhiteSpace() ? synonymRow.SchemaName : null;
+                var synonymName = !synonymRow.SynonymName.IsNullOrWhiteSpace() ? synonymRow.SynonymName : null;
+
+                var targetDatabaseName = !synonymRow.TargetDatabaseName.IsNullOrWhiteSpace() ? synonymRow.TargetDatabaseName : null;
+                var targetSchemaName = !synonymRow.TargetSchemaName.IsNullOrWhiteSpace() ? synonymRow.TargetSchemaName : null;
+                var targetLocalName = !synonymRow.TargetObjectName.IsNullOrWhiteSpace() ? synonymRow.TargetObjectName : null;
+
+                var fullSynonymName = Identifier.CreateQualifiedIdentifier(synonymSchema, synonymName);
+                var targetName = Identifier.CreateQualifiedIdentifier(targetDatabaseName, targetSchemaName, targetLocalName);
+
+                var qualifiedSynonymName = QualifySynonymName(fullSynonymName);
+                var qualifiedTargetName = QualifySynonymTargetName(targetName);
+
+                return new DatabaseSynonym(qualifiedSynonymName, qualifiedTargetName);
+            })
+            .ToListAsync(cancellationToken);
     }
 
     /// <summary>
