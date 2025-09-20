@@ -87,9 +87,9 @@ public class SqlServerRelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database views.</returns>
-    public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews2(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default)
     {
-        return _viewProvider.GetAllViews2(cancellationToken);
+        return _viewProvider.GetAllViews(cancellationToken);
     }
 
     /// <summary>

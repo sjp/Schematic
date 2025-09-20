@@ -102,8 +102,8 @@ public class OrmLiteDataAccessGenerator : IDataAccessGenerator
         ) = await (
             Database.GetAllTables2(cancellationToken),
             CommentProvider.GetAllTableComments2(cancellationToken),
-            Database.GetAllViews2(cancellationToken),
-            CommentProvider.GetAllViewComments2(cancellationToken)
+            Database.GetAllViews(cancellationToken),
+            CommentProvider.GetAllViewComments(cancellationToken)
         ).WhenAll().ConfigureAwait(false);
 
         var tableGenerator = new OrmLiteTableGenerator(FileSystem, NameTranslator, baseNamespace);

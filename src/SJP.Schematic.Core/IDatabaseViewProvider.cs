@@ -30,5 +30,5 @@ public interface IDatabaseViewProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database views.</returns>
-    Task<IReadOnlyCollection<IDatabaseView>> GetAllViews2(CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default);
 }

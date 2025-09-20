@@ -181,17 +181,17 @@ internal sealed class PostgreSqlQueryViewCommentProviderTests : PostgreSqlTest
     }
 
     [Test]
-    public async Task GetAllViewComments2_WhenRetrieved_ContainsViewComments()
+    public async Task GetAllViewComments_WhenRetrieved_ContainsViewComments()
     {
-        var viewComments = await ViewCommentProvider.GetAllViewComments2().ConfigureAwait(false);
+        var viewComments = await ViewCommentProvider.GetAllViewComments().ConfigureAwait(false);
 
         Assert.That(viewComments, Is.Not.Empty);
     }
 
     [Test]
-    public async Task GetAllViewComments2_WhenEnumerated_ContainsTestViewComment()
+    public async Task GetAllViewComments_WhenEnumerated_ContainsTestViewComment()
     {
-        var viewComments = await ViewCommentProvider.GetAllViewComments2().ConfigureAwait(false);
+        var viewComments = await ViewCommentProvider.GetAllViewComments().ConfigureAwait(false);
         var containsTestView = viewComments.Any(t => string.Equals(t.ViewName.LocalName, "view_comment_view_1", StringComparison.Ordinal));
 
         Assert.That(containsTestView, Is.True);

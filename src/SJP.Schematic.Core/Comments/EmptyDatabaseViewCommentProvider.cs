@@ -25,7 +25,7 @@ public sealed class EmptyDatabaseViewCommentProvider : IDatabaseViewCommentProvi
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of view comments.</returns>
-    public Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments2(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseViewComments>>([]);
+    public Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseViewComments>>([]);
 
     /// <summary>
     /// Retrieves comments for a particular database view.

@@ -148,7 +148,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of view comments.</returns>
-    public Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments2(CancellationToken cancellationToken = default) => Task.FromResult(ViewComments);
+    public Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default) => Task.FromResult(ViewComments);
 
     /// <summary>
     /// Retrieves comments for a particular database routine.

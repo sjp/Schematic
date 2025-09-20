@@ -74,9 +74,9 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database views.</returns>
-    public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews2(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default)
     {
-        return ViewProvider.GetAllViews2(cancellationToken);
+        return ViewProvider.GetAllViews(cancellationToken);
     }
 
     /// <summary>

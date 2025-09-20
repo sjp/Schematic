@@ -43,7 +43,7 @@ public class DatabaseCommentProviderMapper
             routineComments
         ) = await (
             source.GetAllTableComments2(cancellationToken),
-            source.GetAllViewComments2(cancellationToken),
+            source.GetAllViewComments(cancellationToken),
             source.GetAllSequenceComments(cancellationToken),
             source.GetAllSynonymComments(cancellationToken),
             source.GetAllRoutineComments(cancellationToken)

@@ -91,17 +91,17 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     }
 
     [Test]
-    public async Task GetAllViews2_WhenRetrieved_ContainsViews()
+    public async Task GetAllViews_WhenRetrieved_ContainsViews()
     {
-        var views = await ViewProvider.GetAllViews2().ConfigureAwait(false);
+        var views = await ViewProvider.GetAllViews().ConfigureAwait(false);
 
         Assert.That(views, Is.Not.Empty);
     }
 
     [Test]
-    public async Task GetAllViews2_WhenRetrieved_ContainsTestView()
+    public async Task GetAllViews_WhenRetrieved_ContainsTestView()
     {
-        var views = await ViewProvider.GetAllViews2().ConfigureAwait(false);
+        var views = await ViewProvider.GetAllViews().ConfigureAwait(false);
         var containsTestView = views.Any(t => string.Equals(t.Name.LocalName, "db_test_view_1", StringComparison.Ordinal));
 
         Assert.That(containsTestView, Is.True);

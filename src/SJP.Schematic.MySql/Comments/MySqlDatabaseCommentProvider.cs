@@ -98,9 +98,9 @@ public class MySqlDatabaseCommentProvider : IRelationalDatabaseCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of database view comments.</returns>
-    public Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments2(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default)
     {
-        return ViewCommentProvider.GetAllViewComments2(cancellationToken);
+        return ViewCommentProvider.GetAllViewComments(cancellationToken);
     }
 
     /// <summary>

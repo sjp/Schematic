@@ -101,9 +101,9 @@ public class SqlServerDatabaseCommentProvider : IRelationalDatabaseCommentProvid
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of view comments.</returns>
-    public Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments2(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default)
     {
-        return _viewCommentProvider.GetAllViewComments2(cancellationToken);
+        return _viewCommentProvider.GetAllViewComments(cancellationToken);
     }
 
     /// <summary>

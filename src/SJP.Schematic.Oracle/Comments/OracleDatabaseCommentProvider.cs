@@ -100,9 +100,9 @@ public class OracleDatabaseCommentProvider : IRelationalDatabaseCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An collection of database view comments.</returns>
-    public Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments2(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default)
     {
-        return _viewCommentProvider.GetAllViewComments2(cancellationToken);
+        return _viewCommentProvider.GetAllViewComments(cancellationToken);
     }
 
     /// <summary>

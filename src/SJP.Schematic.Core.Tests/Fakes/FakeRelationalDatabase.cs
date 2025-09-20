@@ -67,7 +67,7 @@ internal class FakeRelationalDatabase : IRelationalDatabase
 
     public virtual Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables2(CancellationToken cancellationToken = default) => Task.FromResult(Tables);
 
-    public virtual Task<IReadOnlyCollection<IDatabaseView>> GetAllViews2(CancellationToken cancellationToken = default) => Task.FromResult(Views);
+    public virtual Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default) => Task.FromResult(Views);
 
     public virtual Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default) => Task.FromResult(Routines);
 }

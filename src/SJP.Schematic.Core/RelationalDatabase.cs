@@ -168,7 +168,7 @@ public class RelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token. Unused.</param>
     /// <returns>A collection of database views.</returns>
-    public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews2(CancellationToken cancellationToken = default) => Task.FromResult(Views);
+    public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default) => Task.FromResult(Views);
 
     /// <summary>
     /// Retrieves a database view by its name.

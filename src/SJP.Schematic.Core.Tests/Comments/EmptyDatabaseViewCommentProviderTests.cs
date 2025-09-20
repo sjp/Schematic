@@ -37,10 +37,10 @@ internal static class EmptyDatabaseViewCommentProviderTests
     }
 
     [Test]
-    public static async Task GetAllViewComments2_WhenInvoked_DoesNotContainAnyValues()
+    public static async Task GetAllViewComments_WhenInvoked_DoesNotContainAnyValues()
     {
         var provider = new EmptyDatabaseViewCommentProvider();
-        var comments = await provider.GetAllViewComments2().ConfigureAwait(false);
+        var comments = await provider.GetAllViewComments().ConfigureAwait(false);
 
         Assert.That(comments, Is.Empty);
     }

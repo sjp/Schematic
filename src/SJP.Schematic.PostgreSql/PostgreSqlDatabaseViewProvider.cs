@@ -71,11 +71,11 @@ public class PostgreSqlDatabaseViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database views.</returns>
-    public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews2(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default)
     {
         var (queryViews, materializedViews) = await (
-            QueryViewProvider.GetAllViews2(cancellationToken),
-            MaterializedViewProvider.GetAllViews2(cancellationToken)
+            QueryViewProvider.GetAllViews(cancellationToken),
+            MaterializedViewProvider.GetAllViews(cancellationToken)
         ).WhenAll().ConfigureAwait(false);
 
         return queryViews

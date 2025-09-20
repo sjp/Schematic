@@ -382,7 +382,7 @@ internal static class RelationalDatabaseCommentProviderTests
     }
 
     [Test]
-    public static async Task GetAllViewComments2_WhenInvoked_ReturnsViewCommentsFromCtor()
+    public static async Task GetAllViewComments_WhenInvoked_ReturnsViewCommentsFromCtor()
     {
         var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
         var identifierResolver = new VerbatimIdentifierResolutionStrategy();
@@ -406,7 +406,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbViewComments = await commentProvider.GetAllViewComments2().ConfigureAwait(false);
+        var dbViewComments = await commentProvider.GetAllViewComments().ConfigureAwait(false);
         var viewName = dbViewComments.Select(v => v.ViewName).Single();
 
         Assert.That(viewName, Is.EqualTo(testViewName));

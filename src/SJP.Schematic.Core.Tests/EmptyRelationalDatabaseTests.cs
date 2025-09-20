@@ -93,9 +93,9 @@ internal static class EmptyRelationalDatabaseTests
     }
 
     [Test]
-    public static async Task GetAllViews2_WhenRetrieved_ContainsNoValues()
+    public static async Task GetAllViews_WhenRetrieved_ContainsNoValues()
     {
-        var views = await Database.GetAllViews2().ConfigureAwait(false);
+        var views = await Database.GetAllViews().ConfigureAwait(false);
 
         Assert.That(views, Is.Empty);
     }

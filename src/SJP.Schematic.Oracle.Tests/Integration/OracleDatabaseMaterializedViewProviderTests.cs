@@ -177,18 +177,18 @@ internal sealed class OracleDatabaseMaterializedViewProviderTests : OracleTest
     }
 
     [Test]
-    public async Task GetAllViews2_WhenRetrieved_ContainsViews()
+    public async Task GetAllViews_WhenRetrieved_ContainsViews()
     {
-        var views = await ViewProvider.GetAllViews2().ConfigureAwait(false);
+        var views = await ViewProvider.GetAllViews().ConfigureAwait(false);
 
         Assert.That(views, Is.Not.Empty);
     }
 
     [Test]
-    public async Task GetAllViews2_WhenRetrieved_ContainsTestView()
+    public async Task GetAllViews_WhenRetrieved_ContainsTestView()
     {
         const string viewName = "MVIEW_VIEW_TEST_VIEW_2";
-        var views = await ViewProvider.GetAllViews2().ConfigureAwait(false);
+        var views = await ViewProvider.GetAllViews().ConfigureAwait(false);
         var containsTestView = views.Any(v => string.Equals(v.Name.LocalName, viewName, StringComparison.Ordinal));
 
         Assert.That(containsTestView, Is.True);
@@ -206,10 +206,10 @@ internal sealed class OracleDatabaseMaterializedViewProviderTests : OracleTest
     }
 
     [Test]
-    public async Task GetAllViews2_WhenRetrieved_DoesNotContainQueryView()
+    public async Task GetAllViews_WhenRetrieved_DoesNotContainQueryView()
     {
         const string viewName = "MVIEW_VIEW_TEST_VIEW_1";
-        var views = await ViewProvider.GetAllViews2().ConfigureAwait(false);
+        var views = await ViewProvider.GetAllViews().ConfigureAwait(false);
         var containsTestView = views.Any(v => string.Equals(v.Name.LocalName, viewName, StringComparison.Ordinal));
 
         Assert.That(containsTestView, Is.False);
