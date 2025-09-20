@@ -70,7 +70,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     );
 
     /// <summary>
-    /// Gets all database tables.
+    /// Enumerates all database tables.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database tables.</returns>
@@ -86,6 +86,36 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
             .Select(QualifyTableName)
             .SelectAwait(tableName => LoadTableAsyncCore(tableName, queryCache, cancellationToken).ToValue());
+    }
+
+    /// <summary>
+    /// Gets all database tables.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database tables.</returns>
+    public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables2(CancellationToken cancellationToken = default)
+    {
+        var queryCache = CreateQueryCache();
+
+        var tableNames = await DbConnection.QueryEnumerableAsync(
+                GetAllTableNames.Sql,
+                new GetAllTableNames.Query { SchemaName = IdentifierDefaults.Schema! },
+                cancellationToken
+            )
+            .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
+            .Select(QualifyTableName)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        var tableTasks = tableNames
+            .Select(tableName => LoadTableAsyncCore(tableName, queryCache, cancellationToken))
+            .ToArray();
+
+        await Task.WhenAll(tableTasks).ConfigureAwait(false);
+
+        return tableTasks
+            .Select(t => t.Result)
+            .ToArray();
     }
 
     /// <summary>

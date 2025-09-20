@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 
 namespace SJP.Schematic.Core.Tests.Fakes;
@@ -59,4 +60,14 @@ internal class FakeRelationalDatabase : IRelationalDatabase
     public virtual IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default) => Views.ToAsyncEnumerable();
 
     public virtual IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines(CancellationToken cancellationToken = default) => Routines.ToAsyncEnumerable();
+
+    public virtual Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences2(CancellationToken cancellationToken = default) => Task.FromResult(Sequences);
+
+    public virtual Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms2(CancellationToken cancellationToken = default) => Task.FromResult(Synonyms);
+
+    public virtual Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables2(CancellationToken cancellationToken = default) => Task.FromResult(Tables);
+
+    public virtual Task<IReadOnlyCollection<IDatabaseView>> GetAllViews2(CancellationToken cancellationToken = default) => Task.FromResult(Views);
+
+    public virtual Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines2(CancellationToken cancellationToken = default) => Task.FromResult(Routines);
 }

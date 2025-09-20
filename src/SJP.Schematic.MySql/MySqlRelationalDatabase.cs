@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 
@@ -36,13 +37,23 @@ public class MySqlRelationalDatabase : IRelationalDatabase
     public IIdentifierDefaults IdentifierDefaults { get; }
 
     /// <summary>
-    /// Gets all database tables.
+    /// Enumerates all database tables.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database tables.</returns>
     public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)
     {
         return _tableProvider.GetAllTables(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets all database tables.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database tables.</returns>
+    public Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables2(CancellationToken cancellationToken = default)
+    {
+        return _tableProvider.GetAllTables2(cancellationToken);
     }
 
     /// <summary>
@@ -60,13 +71,23 @@ public class MySqlRelationalDatabase : IRelationalDatabase
     }
 
     /// <summary>
-    /// Gets all database views.
+    /// Enumerates all database views.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database views.</returns>
     public IAsyncEnumerable<IDatabaseView> GetAllViews(CancellationToken cancellationToken = default)
     {
         return _viewProvider.GetAllViews(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets all database views.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database views.</returns>
+    public Task<IReadOnlyCollection<IDatabaseView>> GetAllViews2(CancellationToken cancellationToken = default)
+    {
+        return _viewProvider.GetAllViews2(cancellationToken);
     }
 
     /// <summary>
@@ -83,12 +104,24 @@ public class MySqlRelationalDatabase : IRelationalDatabase
         return _viewProvider.GetView(viewName, cancellationToken);
     }
 
-    /// <summary>Gets all database sequences. This will always be an empty collection.</summary>
+    /// <summary>
+    /// Enumerates all database sequences. This will always be an empty collection.
+    /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database sequences.</returns>
     public IAsyncEnumerable<IDatabaseSequence> GetAllSequences(CancellationToken cancellationToken = default)
     {
         return SequenceProvider.GetAllSequences(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets all database sequences. This will always be an empty collection.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>An empty collection of database sequences.</returns>
+    public Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences2(CancellationToken cancellationToken = default)
+    {
+        return SequenceProvider.GetAllSequences2(cancellationToken);
     }
 
     /// <summary>
@@ -105,12 +138,24 @@ public class MySqlRelationalDatabase : IRelationalDatabase
         return SequenceProvider.GetSequence(sequenceName, cancellationToken);
     }
 
-    /// <summary>Gets all database synonyms. This will always be an empty collection.</summary>
+    /// <summary>
+    /// Enumerates all database synonyms. This will always be an empty collection.
+    /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database synonyms.</returns>
     public IAsyncEnumerable<IDatabaseSynonym> GetAllSynonyms(CancellationToken cancellationToken = default)
     {
         return SynonymProvider.GetAllSynonyms(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets all database synonyms. This will always be an empty collection.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>An empty collection of database synonyms.</returns>
+    public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms2(CancellationToken cancellationToken = default)
+    {
+        return SynonymProvider.GetAllSynonyms2(cancellationToken);
     }
 
     /// <summary>
@@ -128,13 +173,23 @@ public class MySqlRelationalDatabase : IRelationalDatabase
     }
 
     /// <summary>
-    /// Retrieves all database routines.
+    /// Enumerates all database routines.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database routines.</returns>
     public IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines(CancellationToken cancellationToken = default)
     {
         return _routineProvider.GetAllRoutines(cancellationToken);
+    }
+
+    /// <summary>
+    /// Retrieves all database routines.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database routines.</returns>
+    public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines2(CancellationToken cancellationToken = default)
+    {
+        return _routineProvider.GetAllRoutines2(cancellationToken);
     }
 
     /// <summary>

@@ -53,7 +53,7 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
     protected IDatabaseDialect Dialect => Connection.Dialect;
 
     /// <summary>
-    /// Gets all database views.
+    /// Enumerates all database views.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database views.</returns>
@@ -69,6 +69,36 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName)
             .SelectAwait(viewName => LoadViewAsyncCore(viewName, cancellationToken).ToValue());
+    }
+
+    /// <summary>
+    /// Gets all database views.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database views.</returns>
+    public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews2(CancellationToken cancellationToken = default)
+    {
+        var queryResult = DbConnection.QueryEnumerableAsync(
+            GetAllViewNames.Sql,
+            new GetAllViewNames.Query { SchemaName = IdentifierDefaults.Schema! },
+            cancellationToken
+        );
+
+        var viewNames = await queryResult
+            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
+            .Select(QualifyViewName)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        var viewTasks = viewNames
+            .Select(viewName => LoadViewAsyncCore(viewName, cancellationToken))
+            .ToArray();
+
+        await Task.WhenAll(viewTasks).ConfigureAwait(false);
+
+        return viewTasks
+            .Select(t => t.Result)
+            .ToArray();
     }
 
     /// <summary>

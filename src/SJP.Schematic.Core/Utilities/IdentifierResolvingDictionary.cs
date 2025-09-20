@@ -106,7 +106,7 @@ public class IdentifierResolvingDictionary<TValue> : IReadOnlyDictionary<Identif
     /// <summary>
     /// Returns an enumerator that iterates through a collection.
     /// </summary>
-    /// <returns>An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.</returns>
+    /// <returns>An <see cref="IEnumerator" /> object that can be used to iterate through the collection.</returns>
     IEnumerator IEnumerable.GetEnumerator() => _dictionary.GetEnumerator();
 
     private readonly IReadOnlyDictionary<Identifier, TValue> _dictionary;

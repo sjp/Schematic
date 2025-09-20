@@ -43,7 +43,7 @@ public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
     protected IIdentifierDefaults IdentifierDefaults { get; }
 
     /// <summary>
-    /// Retrieves comments for all database tables.
+    /// Enumerates comments for all database tables.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database table comments, where available.</returns>
@@ -57,6 +57,34 @@ public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
             .Select(QualifyTableName)
             .SelectAwait(tableName => LoadTableCommentsAsyncCore(tableName, cancellationToken).ToValue());
+    }
+
+    /// <summary>
+    /// Retrieves comments for all database tables.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of database table comments, where available.</returns>
+    public async Task<IReadOnlyCollection<IRelationalDatabaseTableComments>> GetAllTableComments2(CancellationToken cancellationToken = default)
+    {
+        var tableNames = await Connection.QueryEnumerableAsync(
+                GetAllTableNames.Sql,
+                new GetAllTableNames.Query { SchemaName = IdentifierDefaults.Schema! },
+                cancellationToken
+            )
+            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
+            .Select(QualifyTableName)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        var tableCommentTasks = tableNames
+            .Select(tableName => LoadTableCommentsAsyncCore(tableName, cancellationToken))
+            .ToArray();
+
+        await Task.WhenAll(tableCommentTasks).ConfigureAwait(false);
+
+        return tableCommentTasks
+            .Select(tc => tc.Result)
+            .ToArray();
     }
 
     /// <summary>
