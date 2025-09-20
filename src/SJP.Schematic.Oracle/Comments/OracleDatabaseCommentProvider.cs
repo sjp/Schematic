@@ -168,9 +168,9 @@ public class OracleDatabaseCommentProvider : IRelationalDatabaseCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database synonyms comments.</returns>
-    public Task<IReadOnlyCollection<IDatabaseSynonymComments>> GetAllSynonymComments2(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IDatabaseSynonymComments>> GetAllSynonymComments(CancellationToken cancellationToken = default)
     {
-        return SynonymCommentProvider.GetAllSynonymComments2(cancellationToken);
+        return SynonymCommentProvider.GetAllSynonymComments(cancellationToken);
     }
 
     /// <summary>

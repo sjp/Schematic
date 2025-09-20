@@ -25,7 +25,7 @@ public sealed class EmptyDatabaseSynonymCommentProvider : IDatabaseSynonymCommen
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of synonym comments.</returns>
-    public Task<IReadOnlyCollection<IDatabaseSynonymComments>> GetAllSynonymComments2(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseSynonymComments>>([]);
+    public Task<IReadOnlyCollection<IDatabaseSynonymComments>> GetAllSynonymComments(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseSynonymComments>>([]);
 
     /// <summary>
     /// Retrieves comments for a particular database synonym.

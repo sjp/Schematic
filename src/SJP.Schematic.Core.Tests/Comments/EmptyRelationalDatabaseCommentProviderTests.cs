@@ -117,10 +117,10 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     }
 
     [Test]
-    public static async Task GetAllSynonymComments2_WhenInvoked_DoesNotContainAnyValues()
+    public static async Task GetAllSynonymComments_WhenInvoked_DoesNotContainAnyValues()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
-        var comments = await provider.GetAllSynonymComments2().ConfigureAwait(false);
+        var comments = await provider.GetAllSynonymComments().ConfigureAwait(false);
 
         Assert.That(comments, Is.Empty);
     }

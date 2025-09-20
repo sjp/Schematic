@@ -148,18 +148,18 @@ internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
     }
 
     [Test]
-    public async Task GetAllSynonyms2_WhenRetrieved_ContainsSynonyms()
+    public async Task GetAllSynonyms_WhenRetrieved_ContainsSynonyms()
     {
-        var synonyms = await SynonymProvider.GetAllSynonyms2().ConfigureAwait(false);
+        var synonyms = await SynonymProvider.GetAllSynonyms().ConfigureAwait(false);
 
         Assert.That(synonyms, Is.Not.Empty);
     }
 
     [Test]
-    public async Task GetAllSynonyms2_WhenRetrieved_ContainsTestSynonym()
+    public async Task GetAllSynonyms_WhenRetrieved_ContainsTestSynonym()
     {
         const string expectedSynonymName = "DB_TEST_SYNONYM_1";
-        var synonyms = await SynonymProvider.GetAllSynonyms2().ConfigureAwait(false);
+        var synonyms = await SynonymProvider.GetAllSynonyms().ConfigureAwait(false);
         var containsTestSynonym = synonyms.Any(s => string.Equals(s.Name.LocalName, expectedSynonymName, StringComparison.Ordinal));
 
         Assert.That(containsTestSynonym, Is.True);

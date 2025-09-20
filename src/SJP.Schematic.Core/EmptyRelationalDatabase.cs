@@ -142,9 +142,9 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database synonyms.</returns>
-    public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms2(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default)
     {
-        return SynonymProvider.GetAllSynonyms2(cancellationToken);
+        return SynonymProvider.GetAllSynonyms(cancellationToken);
     }
 
     /// <summary>

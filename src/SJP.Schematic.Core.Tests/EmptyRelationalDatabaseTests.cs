@@ -145,9 +145,9 @@ internal static class EmptyRelationalDatabaseTests
     }
 
     [Test]
-    public static async Task GetAllSynonyms2_WhenRetrieved_ContainsNoValues()
+    public static async Task GetAllSynonyms_WhenRetrieved_ContainsNoValues()
     {
-        var synonyms = await Database.GetAllSynonyms2().ConfigureAwait(false);
+        var synonyms = await Database.GetAllSynonyms().ConfigureAwait(false);
 
         Assert.That(synonyms, Is.Empty);
     }

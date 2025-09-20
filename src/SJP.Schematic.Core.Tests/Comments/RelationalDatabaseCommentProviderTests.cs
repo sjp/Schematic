@@ -644,7 +644,7 @@ internal static class RelationalDatabaseCommentProviderTests
     }
 
     [Test]
-    public static async Task GetAllSynonymComments2_WhenInvoked_ReturnsSynonymCommentsFromCtor()
+    public static async Task GetAllSynonymComments_WhenInvoked_ReturnsSynonymCommentsFromCtor()
     {
         var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
         var identifierResolver = new VerbatimIdentifierResolutionStrategy();
@@ -668,7 +668,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbSynonyms = await commentProvider.GetAllSynonymComments2().ConfigureAwait(false);
+        var dbSynonyms = await commentProvider.GetAllSynonymComments().ConfigureAwait(false);
         var synonymName = dbSynonyms.Select(s => s.SynonymName).Single();
 
         Assert.That(synonymName, Is.EqualTo(testSynonymName));

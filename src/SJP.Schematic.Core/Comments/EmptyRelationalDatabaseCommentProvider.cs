@@ -103,9 +103,9 @@ public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of synonym comments.</returns>
-    public Task<IReadOnlyCollection<IDatabaseSynonymComments>> GetAllSynonymComments2(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IDatabaseSynonymComments>> GetAllSynonymComments(CancellationToken cancellationToken = default)
     {
-        return _synonymCommentProvider.GetAllSynonymComments2(cancellationToken);
+        return _synonymCommentProvider.GetAllSynonymComments(cancellationToken);
     }
 
     /// <summary>

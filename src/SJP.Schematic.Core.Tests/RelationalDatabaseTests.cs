@@ -643,7 +643,7 @@ internal static class RelationalDatabaseTests
     }
 
     [Test]
-    public static async Task GetAllSynonyms2_WhenInvoked_ReturnsSynonymsFromCtor()
+    public static async Task GetAllSynonyms_WhenInvoked_ReturnsSynonymsFromCtor()
     {
         var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
         var identifierResolver = new VerbatimIdentifierResolutionStrategy();
@@ -667,7 +667,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbSynonyms = await database.GetAllSynonyms2().ConfigureAwait(false);
+        var dbSynonyms = await database.GetAllSynonyms().ConfigureAwait(false);
         var synonymName = dbSynonyms.Select(s => s.Name).Single();
 
         Assert.That(synonymName, Is.EqualTo(testSynonymName));

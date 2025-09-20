@@ -155,9 +155,9 @@ public class SqlServerRelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database synonyms.</returns>
-    public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms2(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default)
     {
-        return _synonymProvider.GetAllSynonyms2(cancellationToken);
+        return _synonymProvider.GetAllSynonyms(cancellationToken);
     }
 
     /// <summary>

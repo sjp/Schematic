@@ -49,7 +49,7 @@ public class ReportGenerator
             Database.GetAllTables2(cancellationToken),
             Database.GetAllViews2(cancellationToken),
             Database.GetAllSequences(cancellationToken),
-            Database.GetAllSynonyms2(cancellationToken),
+            Database.GetAllSynonyms(cancellationToken),
             Database.GetAllRoutines(cancellationToken)
         ).WhenAll().ConfigureAwait(false);
 

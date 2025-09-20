@@ -201,17 +201,17 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     }
 
     [Test]
-    public async Task GetAllSynonymComments2_WhenRetrieved_ContainsSynonymComments()
+    public async Task GetAllSynonymComments_WhenRetrieved_ContainsSynonymComments()
     {
-        var synonymComments = await SynonymCommentProvider.GetAllSynonymComments2().ConfigureAwait(false);
+        var synonymComments = await SynonymCommentProvider.GetAllSynonymComments().ConfigureAwait(false);
 
         Assert.That(synonymComments, Is.Not.Empty);
     }
 
     [Test]
-    public async Task GetAllSynonymComments2_WhenRetrieved_ContainsTestSynonymComment()
+    public async Task GetAllSynonymComments_WhenRetrieved_ContainsTestSynonymComment()
     {
-        var synonymComments = await SynonymCommentProvider.GetAllSynonymComments2().ConfigureAwait(false);
+        var synonymComments = await SynonymCommentProvider.GetAllSynonymComments().ConfigureAwait(false);
         var containsTestSynonym = synonymComments.Any(t => string.Equals(t.SynonymName.LocalName, "synonym_comment_synonym_1", StringComparison.Ordinal));
 
         Assert.That(containsTestSynonym, Is.True);
