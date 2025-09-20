@@ -34,10 +34,10 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     }
 
     [Test]
-    public static async Task GetAllTableComments_WhenInvoked_DoesNotEnumerateAnyValues()
+    public static async Task EnumerateAllTableComments_WhenInvoked_DoesNotEnumerateAnyValues()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
-        var hasComments = await provider.GetAllTableComments().AnyAsync().ConfigureAwait(false);
+        var hasComments = await provider.EnumerateAllTableComments().AnyAsync().ConfigureAwait(false);
 
         Assert.That(hasComments, Is.False);
     }

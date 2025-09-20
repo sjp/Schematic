@@ -23,7 +23,7 @@ public interface IRelationalDatabaseTableProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database tables.</returns>
-    IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default);
+    IAsyncEnumerable<IRelationalDatabaseTable> EnumerateAllTables(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets all database tables, in parallel if possible.

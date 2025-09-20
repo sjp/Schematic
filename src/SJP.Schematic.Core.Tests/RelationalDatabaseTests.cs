@@ -219,7 +219,7 @@ internal static class RelationalDatabaseTests
     }
 
     [Test]
-    public static async Task GetAllTables_WhenInvoked_ReturnsTablesFromCtor()
+    public static async Task EnumerateAllTables_WhenInvoked_ReturnsTablesFromCtor()
     {
         var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
         var identifierResolver = new VerbatimIdentifierResolutionStrategy();
@@ -244,7 +244,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbTables = await database.GetAllTables().ToListAsync().ConfigureAwait(false);
+        var dbTables = await database.EnumerateAllTables().ToListAsync().ConfigureAwait(false);
         var tableName = dbTables.Select(t => t.Name).Single();
 
         Assert.That(tableName, Is.EqualTo(testTableName));

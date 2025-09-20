@@ -441,9 +441,9 @@ execute procedure test_trigger_fn()", CancellationToken.None).ConfigureAwait(fal
     }
 
     [Test]
-    public async Task GetAllTables_WhenEnumerated_ContainsTables()
+    public async Task EnumerateAllTables_WhenEnumerated_ContainsTables()
     {
-        var hasTables = await TableProvider.GetAllTables()
+        var hasTables = await TableProvider.EnumerateAllTables()
             .AnyAsync()
             .ConfigureAwait(false);
 
@@ -451,9 +451,9 @@ execute procedure test_trigger_fn()", CancellationToken.None).ConfigureAwait(fal
     }
 
     [Test]
-    public async Task GetAllTables_WhenEnumerated_ContainsTestTable()
+    public async Task EnumerateAllTables_WhenEnumerated_ContainsTestTable()
     {
-        var containsTestTable = await TableProvider.GetAllTables()
+        var containsTestTable = await TableProvider.EnumerateAllTables()
             .AnyAsync(t => string.Equals(t.Name.LocalName, "db_test_table_1", StringComparison.Ordinal))
             .ConfigureAwait(false);
 

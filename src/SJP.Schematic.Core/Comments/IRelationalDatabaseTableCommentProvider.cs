@@ -24,7 +24,7 @@ public interface IRelationalDatabaseTableCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of table comments.</returns>
-    IAsyncEnumerable<IRelationalDatabaseTableComments> GetAllTableComments(CancellationToken cancellationToken = default);
+    IAsyncEnumerable<IRelationalDatabaseTableComments> EnumerateAllTableComments(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves all database table comments defined within a database.

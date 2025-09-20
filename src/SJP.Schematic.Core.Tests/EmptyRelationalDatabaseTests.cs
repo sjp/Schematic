@@ -56,9 +56,9 @@ internal static class EmptyRelationalDatabaseTests
     }
 
     [Test]
-    public static async Task GetAllTables_WhenEnumerated_ContainsNoValues()
+    public static async Task EnumerateAllTables_WhenEnumerated_ContainsNoValues()
     {
-        var hasTables = await Database.GetAllTables()
+        var hasTables = await Database.EnumerateAllTables()
             .AnyAsync()
             .ConfigureAwait(false);
 

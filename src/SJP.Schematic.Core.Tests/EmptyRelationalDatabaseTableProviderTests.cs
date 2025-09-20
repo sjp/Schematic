@@ -25,10 +25,10 @@ internal static class EmptyRelationalDatabaseTableProviderTests
     }
 
     [Test]
-    public static async Task GetAllTables_WhenEnumerated_ContainsNoValues()
+    public static async Task EnumerateAllTables_WhenEnumerated_ContainsNoValues()
     {
         var provider = new EmptyRelationalDatabaseTableProvider();
-        var hasTables = await provider.GetAllTables().AnyAsync().ConfigureAwait(false);
+        var hasTables = await provider.EnumerateAllTables().AnyAsync().ConfigureAwait(false);
 
         Assert.That(hasTables, Is.False);
     }

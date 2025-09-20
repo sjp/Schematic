@@ -74,11 +74,11 @@ public class PostgreSqlRelationalDatabaseTableProvider : IRelationalDatabaseTabl
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database tables.</returns>
-    public async IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<IRelationalDatabaseTable> EnumerateAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var provider = await _tableProvider.ConfigureAwait(false);
         var tables = provider.Match(
-            tp => tp.GetAllTables(cancellationToken),
+            tp => tp.EnumerateAllTables(cancellationToken),
             AsyncEnumerable.Empty<IRelationalDatabaseTable>
         );
 

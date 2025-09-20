@@ -30,9 +30,9 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database tables.</returns>
-    public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IRelationalDatabaseTable> EnumerateAllTables(CancellationToken cancellationToken = default)
     {
-        return TableProvider.GetAllTables(cancellationToken);
+        return TableProvider.EnumerateAllTables(cancellationToken);
     }
 
     /// <summary>

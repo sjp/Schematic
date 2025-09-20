@@ -46,7 +46,7 @@ public class RelationalDatabaseMapper
             dtoSynonyms,
             dtoRoutines
         ) = await (
-            source.GetAllTables(cancellationToken)
+            source.EnumerateAllTables(cancellationToken)
                 .Select(t => tableMapper.Map<IRelationalDatabaseTable, Dto.RelationalDatabaseTable>(t))
                 .ToListAsync(cancellationToken)
                 .AsTask(),

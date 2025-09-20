@@ -245,7 +245,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbTableComments = await commentProvider.GetAllTableComments().ToListAsync().ConfigureAwait(false);
+        var dbTableComments = await commentProvider.EnumerateAllTableComments().ToListAsync().ConfigureAwait(false);
         var tableName = dbTableComments.Select(t => t.TableName).Single();
 
         Assert.That(tableName, Is.EqualTo(testTableName));

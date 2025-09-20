@@ -22,7 +22,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [OneTimeSetUp]
     public async Task Init()
     {
-        _tables = new AsyncLazy<List<IRelationalDatabaseTable>>(() => TableProvider.GetAllTables().ToListAsync().AsTask());
+        _tables = new AsyncLazy<List<IRelationalDatabaseTable>>(() => TableProvider.EnumerateAllTables().ToListAsync().AsTask());
         _tables2 = new AsyncLazy<IReadOnlyCollection<IRelationalDatabaseTable>>(() => TableProvider.GetAllTables2());
 
         await DbConnection.ExecuteAsync("create table db_test_table_1 ( title varchar2(200) )", CancellationToken.None).ConfigureAwait(false);
@@ -361,7 +361,7 @@ end;
     }
 
     [Test]
-    public async Task GetAllTables_WhenEnumerated_ContainsTables()
+    public async Task EnumerateAllTables_WhenEnumerated_ContainsTables()
     {
         var tables = await GetAllTables().ConfigureAwait(false);
 
@@ -369,7 +369,7 @@ end;
     }
 
     [Test]
-    public async Task GetAllTables_WhenEnumerated_ContainsTestTable()
+    public async Task EnumerateAllTables_WhenEnumerated_ContainsTestTable()
     {
         const string expectedTableName = "DB_TEST_TABLE_1";
         var tables = await GetAllTables().ConfigureAwait(false);

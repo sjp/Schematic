@@ -52,7 +52,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
 
     private async IAsyncEnumerable<IRuleMessage> AnalyseDatabaseCore(IRelationalDatabase database, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        var tables = await database.GetAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+        var tables = await database.EnumerateAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
         foreach (var tableRule in TableRules)
         {
             await foreach (var message in tableRule.AnalyseTables(tables, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))

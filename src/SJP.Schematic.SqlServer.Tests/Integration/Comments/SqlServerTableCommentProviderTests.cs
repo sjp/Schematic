@@ -247,9 +247,9 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     }
 
     [Test]
-    public async Task GetAllTableComments_WhenEnumerated_ContainsTableComments()
+    public async Task EnumerateAllTableComments_WhenEnumerated_ContainsTableComments()
     {
-        var hasTableComments = await TableCommentProvider.GetAllTableComments()
+        var hasTableComments = await TableCommentProvider.EnumerateAllTableComments()
             .AnyAsync()
             .ConfigureAwait(false);
 
@@ -257,9 +257,9 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     }
 
     [Test]
-    public async Task GetAllTableComments_WhenEnumerated_ContainsTestTableComment()
+    public async Task EnumerateAllTableComments_WhenEnumerated_ContainsTestTableComment()
     {
-        var containsTestTable = await TableCommentProvider.GetAllTableComments()
+        var containsTestTable = await TableCommentProvider.EnumerateAllTableComments()
             .AnyAsync(t => string.Equals(t.TableName.LocalName, "table_comment_table_1", StringComparison.Ordinal))
             .ConfigureAwait(false);
 
