@@ -23,14 +23,21 @@ public class PostgreSqlConnectionFactory : IDbConnectionFactory
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
-        DataSource = new NpgsqlDataSourceBuilder(connectionString).Build();
+        var connectionStringBuilder = new NpgsqlConnectionStringBuilder(connectionString)
+        {
+            MaxPoolSize = 10,
+            Timeout = 300,
+            CommandTimeout = 30
+        };
+
+        DataSource = new NpgsqlDataSourceBuilder(connectionStringBuilder.ConnectionString).Build();
     }
 
     /// <summary>
     /// Gets the database provider's connection factory.
     /// </summary>
     /// <value>The database provider connection factory.</value>
-    protected DbDataSource DataSource { get; }
+    protected NpgsqlDataSource DataSource { get; }
 
     /// <summary>
     /// Creates a database connection instance, but does not open the connection.
