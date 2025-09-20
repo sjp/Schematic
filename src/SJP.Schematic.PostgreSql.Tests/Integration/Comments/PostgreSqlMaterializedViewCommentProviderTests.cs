@@ -181,6 +181,23 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
     }
 
     [Test]
+    public async Task GetAllViewComments2_WhenRetrieved_ContainsViewComments()
+    {
+        var viewComments = await ViewCommentProvider.GetAllViewComments2().ConfigureAwait(false);
+
+        Assert.That(viewComments, Is.Not.Empty);
+    }
+
+    [Test]
+    public async Task GetAllViewComments2_WhenEnumerated_ContainsTestViewComment()
+    {
+        var viewComments = await ViewCommentProvider.GetAllViewComments2().ConfigureAwait(false);
+        var containsTestView = viewComments.Any(t => string.Equals(t.ViewName.LocalName, "matview_comment_matview_1", StringComparison.Ordinal));
+
+        Assert.That(containsTestView, Is.True);
+    }
+
+    [Test]
     public async Task GetViewComments_WhenViewMissingComment_ReturnsNone()
     {
         var comments = await GetViewCommentsAsync("matview_comment_matview_1").ConfigureAwait(false);

@@ -172,6 +172,24 @@ internal sealed class PostgreSqlDatabaseViewProviderTests : PostgreSqlTest
     }
 
     [Test]
+    public async Task GetAllViews2_WhenRetrieved_ContainsViews()
+    {
+        var views = await ViewProvider.GetAllViews2().ConfigureAwait(false);
+
+        Assert.That(views, Is.Not.Empty);
+    }
+
+    [Test]
+    public async Task GetAllViews2_WhenRetrieved_ContainsTestView()
+    {
+        const string viewName = "db_test_view_1";
+        var views = await ViewProvider.GetAllViews2().ConfigureAwait(false);
+        var containsTestView = views.Any(v => string.Equals(v.Name.LocalName, viewName, StringComparison.Ordinal));
+
+        Assert.That(containsTestView, Is.True);
+    }
+
+    [Test]
     public async Task Definition_PropertyGet_ReturnsCorrectDefinition()
     {
         var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
@@ -217,6 +235,16 @@ internal sealed class PostgreSqlDatabaseViewProviderTests : PostgreSqlTest
         var containsTestView = await ViewProvider.GetAllViews()
             .AnyAsync(v => string.Equals(v.Name.LocalName, viewName, StringComparison.Ordinal))
             .ConfigureAwait(false);
+
+        Assert.That(containsTestView, Is.True);
+    }
+
+    [Test]
+    public async Task GetAllViews2_WhenRetrieved_ContainsTestMaterializedView()
+    {
+        const string viewName = "view_test_matview_1";
+        var views = await ViewProvider.GetAllViews2().ConfigureAwait(false);
+        var containsTestView = views.Any(v => string.Equals(v.Name.LocalName, viewName, StringComparison.Ordinal));
 
         Assert.That(containsTestView, Is.True);
     }

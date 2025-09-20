@@ -151,4 +151,21 @@ LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
 
         Assert.That(containsTestRoutine, Is.True);
     }
+
+    [Test]
+    public async Task GetAllRoutineComments2_WhenRetrieved_ContainsRoutineComments()
+    {
+        var routineComments = await RoutineCommentProvider.GetAllRoutineComments2().ConfigureAwait(false);
+
+        Assert.That(routineComments, Is.Not.Empty);
+    }
+
+    [Test]
+    public async Task GetAllRoutineComments2_WhenRetrieved_ContainsTestRoutineComment()
+    {
+        var routineComments = await RoutineCommentProvider.GetAllRoutineComments2().ConfigureAwait(false);
+        var containsTestRoutine = routineComments.Any(r => string.Equals(r.RoutineName.LocalName, "db_comment_test_routine_1", StringComparison.Ordinal));
+
+        Assert.That(containsTestRoutine, Is.True);
+    }
 }

@@ -193,6 +193,23 @@ internal sealed class PostgreSqlViewCommentProviderTests : PostgreSqlTest
     }
 
     [Test]
+    public async Task GetAllViewComments2_WhenRetrieved_ContainsViewComments()
+    {
+        var viewComments = await ViewCommentProvider.GetAllViewComments2().ConfigureAwait(false);
+
+        Assert.That(viewComments, Is.Not.Empty);
+    }
+
+    [Test]
+    public async Task GetAllViewComments2_WhenRetrieved_ContainsTestViewComment()
+    {
+        var viewComments = await ViewCommentProvider.GetAllViewComments2().ConfigureAwait(false);
+        var containsTestView = viewComments.Any(v => string.Equals(v.ViewName.LocalName, "wrapper_view_comment_view_1", StringComparison.Ordinal));
+
+        Assert.That(containsTestView, Is.True);
+    }
+
+    [Test]
     public async Task GetViewComments_WhenViewMissingComment_ReturnsNone()
     {
         var comments = await GetViewCommentsAsync("wrapper_view_comment_view_1").ConfigureAwait(false);
@@ -382,6 +399,15 @@ internal sealed class PostgreSqlViewCommentProviderTests : PostgreSqlTest
         var containsTestView = await ViewCommentProvider.GetAllViewComments()
             .AnyAsync(v => string.Equals(v.ViewName.LocalName, "wrapper_view_comment_matview_1", StringComparison.Ordinal))
             .ConfigureAwait(false);
+
+        Assert.That(containsTestView, Is.True);
+    }
+
+    [Test]
+    public async Task GetAllViewComments2_WhenRetrieved_ContainsTestMatView()
+    {
+        var viewComments = await ViewCommentProvider.GetAllViewComments2().ConfigureAwait(false);
+        var containsTestView = viewComments.Any(v => string.Equals(v.ViewName.LocalName, "wrapper_view_comment_matview_1", StringComparison.Ordinal));
 
         Assert.That(containsTestView, Is.True);
     }

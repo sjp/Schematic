@@ -132,4 +132,21 @@ internal sealed class PostgreSqlDatabaseSequenceProviderTests : PostgreSqlTest
 
         Assert.That(containsTestSequence, Is.True);
     }
+
+    [Test]
+    public async Task GetAllSequences2_WhenRetrieved_ContainsSequences()
+    {
+        var sequences = await SequenceProvider.GetAllSequences2().ConfigureAwait(false);
+
+        Assert.That(sequences, Is.Not.Empty);
+    }
+
+    [Test]
+    public async Task GetAllSequences2_WhenRetrieved_ContainsTestSequence()
+    {
+        var sequences = await SequenceProvider.GetAllSequences2().ConfigureAwait(false);
+        var containsTestSequence = sequences.Any(s => string.Equals(s.Name.LocalName, "db_test_sequence_1", StringComparison.Ordinal));
+
+        Assert.That(containsTestSequence, Is.True);
+    }
 }

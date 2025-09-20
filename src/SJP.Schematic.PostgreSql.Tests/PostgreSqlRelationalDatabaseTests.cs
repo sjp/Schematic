@@ -106,5 +106,13 @@ internal static class PostgreSqlRelationalDatabaseTests
 
             Assert.That(hasSynonyms, Is.False);
         }
+
+        [Test]
+        public static async Task GetAllSynonyms2_WhenRetrieved_ContainsNoValues()
+        {
+            var synonyms = await Database.GetAllSynonyms2().ConfigureAwait(false);
+
+            Assert.That(synonyms, Is.Empty);
+        }
     }
 }
