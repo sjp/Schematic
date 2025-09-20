@@ -43,7 +43,7 @@ internal sealed class LintCommand : AsyncCommand<LintCommand.Settings>
         var linter = new RelationalDatabaseLinter(rules);
 
         var snapshotDb = await database.SnapshotAsync(cancellationToken);
-        var dbResults = await linter.AnalyseDatabase(snapshotDb, cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+        var dbResults = await linter.AnalyseDatabase(snapshotDb, cancellationToken).ConfigureAwait(false);
         var groupedResults = dbResults
             .GroupAsDictionary(static r => r.RuleId, StringComparer.Ordinal)
             .ToList();

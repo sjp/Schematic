@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Utilities;
@@ -31,11 +32,12 @@ public class ForeignKeyIsPrimaryKeyRule : Rule, ITableRule
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" />.</exception>
-    public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IRuleMessage>> AnalyseTables(IReadOnlyCollection<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tables);
 
-        return tables.SelectMany(AnalyseTable).ToAsyncEnumerable();
+        var messages = tables.SelectMany(AnalyseTable).ToList();
+        return Task.FromResult<IReadOnlyCollection<IRuleMessage>>(messages);
     }
 
     /// <summary>
@@ -44,7 +46,7 @@ public class ForeignKeyIsPrimaryKeyRule : Rule, ITableRule
     /// <param name="table">A database table.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
-    protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
+    protected IReadOnlyCollection<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
     {
         ArgumentNullException.ThrowIfNull(table);
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Utilities;
 
@@ -30,12 +31,13 @@ public class ForeignKeyMissingRule : Rule, ITableRule
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" />.</exception>
-    public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IRuleMessage>> AnalyseTables(IReadOnlyCollection<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tables);
 
         var tableNames = tables.Select(t => t.Name).ToList();
-        return tables.SelectMany(t => AnalyseTable(t, tableNames)).ToAsyncEnumerable();
+        var messages = tables.SelectMany(t => AnalyseTable(t, tableNames)).ToList();
+        return Task.FromResult<IReadOnlyCollection<IRuleMessage>>(messages);
     }
 
     /// <summary>
@@ -45,7 +47,7 @@ public class ForeignKeyMissingRule : Rule, ITableRule
     /// <param name="tableNames">Other table names in the database.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="tableNames"/> is <see langword="null" />.</exception>
-    protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table, IEnumerable<Identifier> tableNames)
+    protected IReadOnlyCollection<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table, IEnumerable<Identifier> tableNames)
     {
         ArgumentNullException.ThrowIfNull(table);
         ArgumentNullException.ThrowIfNull(tableNames);

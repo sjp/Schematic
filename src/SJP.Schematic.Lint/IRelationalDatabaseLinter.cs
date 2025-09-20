@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Lint;
@@ -15,7 +16,7 @@ public interface IRelationalDatabaseLinter
     /// <param name="database">A relational database. Analysis will be performed on objects retrieved from the database.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    IAsyncEnumerable<IRuleMessage> AnalyseDatabase(IRelationalDatabase database, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<IRuleMessage>> AnalyseDatabase(IRelationalDatabase database, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Analyses database routines.
@@ -23,7 +24,7 @@ public interface IRelationalDatabaseLinter
     /// <param name="routines">A set of database routines.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    IAsyncEnumerable<IRuleMessage> AnalyseRoutines(IReadOnlyCollection<IDatabaseRoutine> routines, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<IRuleMessage>> AnalyseRoutines(IReadOnlyCollection<IDatabaseRoutine> routines, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Analyses database sequences.
@@ -31,7 +32,7 @@ public interface IRelationalDatabaseLinter
     /// <param name="sequences">A set of database sequences.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    IAsyncEnumerable<IRuleMessage> AnalyseSequences(IReadOnlyCollection<IDatabaseSequence> sequences, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<IRuleMessage>> AnalyseSequences(IReadOnlyCollection<IDatabaseSequence> sequences, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Analyses database synonyms.
@@ -39,7 +40,7 @@ public interface IRelationalDatabaseLinter
     /// <param name="synonyms">A set of database synonyms.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    IAsyncEnumerable<IRuleMessage> AnalyseSynonyms(IReadOnlyCollection<IDatabaseSynonym> synonyms, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<IRuleMessage>> AnalyseSynonyms(IReadOnlyCollection<IDatabaseSynonym> synonyms, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Analyses database tables.
@@ -47,7 +48,7 @@ public interface IRelationalDatabaseLinter
     /// <param name="tables">A set of database tables.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    IAsyncEnumerable<IRuleMessage> AnalyseTables(IReadOnlyCollection<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<IRuleMessage>> AnalyseTables(IReadOnlyCollection<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Analyses database views.
@@ -55,5 +56,5 @@ public interface IRelationalDatabaseLinter
     /// <param name="views">A set of database views.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    IAsyncEnumerable<IRuleMessage> AnalyseViews(IReadOnlyCollection<IDatabaseView> views, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<IRuleMessage>> AnalyseViews(IReadOnlyCollection<IDatabaseView> views, CancellationToken cancellationToken = default);
 }

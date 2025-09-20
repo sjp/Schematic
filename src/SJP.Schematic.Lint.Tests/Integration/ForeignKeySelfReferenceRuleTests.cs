@@ -99,9 +99,9 @@ create table table_with_self_referencing_columns_1 (
             await database.GetTable("table_without_self_referencing_columns_1").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
-        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.False);
+        Assert.That(messages, Is.Empty);
     }
 
     [Test]
@@ -116,9 +116,9 @@ create table table_with_self_referencing_columns_1 (
             await database.GetTable("table_without_self_referencing_columns_2").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
-        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.False);
+        Assert.That(messages, Is.Empty);
     }
 
     [Test]
@@ -132,9 +132,9 @@ create table table_with_self_referencing_columns_1 (
             await database.GetTable("table_without_self_referencing_columns_3").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
-        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.False);
+        Assert.That(messages, Is.Empty);
     }
 
     [Test]
@@ -148,8 +148,8 @@ create table table_with_self_referencing_columns_1 (
             await database.GetTable("table_with_self_referencing_columns_1").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
-        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.True);
+        Assert.That(messages, Is.Not.Empty);
     }
 }

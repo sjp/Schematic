@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
@@ -40,21 +40,24 @@ public class InvalidViewDefinitionRule : Rule, IViewRule
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="views"/> is <see langword="null" />.</exception>
-    public IAsyncEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IRuleMessage>> AnalyseViews(IReadOnlyCollection<IDatabaseView> views, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(views);
 
         return AnalyseViewsCore(views, cancellationToken);
     }
 
-    private async IAsyncEnumerable<IRuleMessage> AnalyseViewsCore(IEnumerable<IDatabaseView> views, [EnumeratorCancellation] CancellationToken cancellationToken)
+    private async Task<IReadOnlyCollection<IRuleMessage>> AnalyseViewsCore(IReadOnlyCollection<IDatabaseView> views, CancellationToken cancellationToken)
     {
-        foreach (var view in views)
-        {
-            var messages = await AnalyseViewAsync(view, cancellationToken).ConfigureAwait(false);
-            foreach (var message in messages)
-                yield return message;
-        }
+        var messages = await views
+            .Select(v => AnalyseViewAsync(v, cancellationToken))
+            .ToArray()
+            .WhenAll()
+            .ConfigureAwait(false);
+
+        return messages
+            .SelectMany(_ => _)
+            .ToArray();
     }
 
     /// <summary>
@@ -64,14 +67,14 @@ public class InvalidViewDefinitionRule : Rule, IViewRule
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="view"/> is <see langword="null" />.</exception>
-    protected Task<IEnumerable<IRuleMessage>> AnalyseViewAsync(IDatabaseView view, CancellationToken cancellationToken)
+    protected Task<IReadOnlyCollection<IRuleMessage>> AnalyseViewAsync(IDatabaseView view, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(view);
 
         return AnalyseViewAsyncCore(view, cancellationToken);
     }
 
-    private async Task<IEnumerable<IRuleMessage>> AnalyseViewAsyncCore(IDatabaseView view, CancellationToken cancellationToken)
+    private async Task<IReadOnlyCollection<IRuleMessage>> AnalyseViewAsyncCore(IDatabaseView view, CancellationToken cancellationToken)
     {
         try
         {

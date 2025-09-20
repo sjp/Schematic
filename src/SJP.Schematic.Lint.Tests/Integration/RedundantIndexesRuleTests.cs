@@ -54,9 +54,9 @@ internal sealed class RedundantIndexesRuleTests : SqliteTest
             await database.GetTable("valid_table_1").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
-        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.False);
+        Assert.That(messages, Is.Empty);
     }
 
     [Test]
@@ -70,9 +70,9 @@ internal sealed class RedundantIndexesRuleTests : SqliteTest
             await database.GetTable("valid_table_2").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
-        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.False);
+        Assert.That(messages, Is.Empty);
     }
 
     [Test]
@@ -86,8 +86,8 @@ internal sealed class RedundantIndexesRuleTests : SqliteTest
             await database.GetTable("valid_table_3").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
-        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.True);
+        Assert.That(messages, Is.Not.Empty);
     }
 }

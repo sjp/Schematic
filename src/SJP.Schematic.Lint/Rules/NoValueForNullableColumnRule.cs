@@ -56,21 +56,24 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" />.</exception>
-    public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IRuleMessage>> AnalyseTables(IReadOnlyCollection<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tables);
 
         return AnalyseTablesCore(tables, cancellationToken);
     }
 
-    private async IAsyncEnumerable<IRuleMessage> AnalyseTablesCore(IEnumerable<IRelationalDatabaseTable> tables, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    private async Task<IReadOnlyCollection<IRuleMessage>> AnalyseTablesCore(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
-        foreach (var table in tables)
-        {
-            var messages = await AnalyseTableAsync(table, cancellationToken).ConfigureAwait(false);
-            foreach (var message in messages)
-                yield return message;
-        }
+        var messages = await tables
+            .Select(t => AnalyseTableAsync(t, cancellationToken))
+            .ToArray()
+            .WhenAll()
+            .ConfigureAwait(false);
+
+        return messages
+            .SelectMany(_ => _)
+            .ToArray();
     }
 
     /// <summary>
@@ -80,14 +83,14 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
-    protected Task<IEnumerable<IRuleMessage>> AnalyseTableAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
+    protected Task<IReadOnlyCollection<IRuleMessage>> AnalyseTableAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(table);
 
         return AnalyseTableAsyncCore(table, cancellationToken);
     }
 
-    private async Task<IEnumerable<IRuleMessage>> AnalyseTableAsyncCore(IRelationalDatabaseTable table, CancellationToken cancellationToken)
+    private async Task<IReadOnlyCollection<IRuleMessage>> AnalyseTableAsyncCore(IRelationalDatabaseTable table, CancellationToken cancellationToken)
     {
         var nullableColumns = table.Columns.Where(c => c.IsNullable).ToList();
         if (nullableColumns.Empty())

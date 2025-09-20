@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Lint;
 
@@ -43,49 +43,50 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="database"/> is <see langword="null" />.</exception>
-    public IAsyncEnumerable<IRuleMessage> AnalyseDatabase(IRelationalDatabase database, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IRuleMessage>> AnalyseDatabase(IRelationalDatabase database, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(database);
 
         return AnalyseDatabaseCore(database, cancellationToken);
     }
 
-    private async IAsyncEnumerable<IRuleMessage> AnalyseDatabaseCore(IRelationalDatabase database, [EnumeratorCancellation] CancellationToken cancellationToken)
+    private async Task<IReadOnlyCollection<IRuleMessage>> AnalyseDatabaseCore(IRelationalDatabase database, CancellationToken cancellationToken)
     {
-        var tables = await database.EnumerateAllTables(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-        foreach (var tableRule in TableRules)
-        {
-            await foreach (var message in tableRule.AnalyseTables(tables, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
-                yield return message;
-        }
+        var (
+            tables,
+            views,
+            sequences,
+            synonyms,
+            routines
+        ) = await (
+            database.GetAllTables(cancellationToken),
+            database.GetAllViews(cancellationToken),
+            database.GetAllSequences(cancellationToken),
+            database.GetAllSynonyms(cancellationToken),
+            database.GetAllRoutines(cancellationToken)
+        ).WhenAll().ConfigureAwait(false);
 
-        var views = await database.EnumerateAllViews(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-        foreach (var viewRule in ViewRules)
-        {
-            await foreach (var message in viewRule.AnalyseViews(views, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
-                yield return message;
-        }
+        var (
+            tableMessagesByRule,
+            viewMessagesByRule,
+            sequenceMessagesByRule,
+            synonymMessagesByRule,
+            routineMessagesByRule
+        ) = await (
+            TableRules.Select(tr => tr.AnalyseTables(tables, cancellationToken)).ToArray().WhenAll(),
+            ViewRules.Select(vr => vr.AnalyseViews(views, cancellationToken)).ToArray().WhenAll(),
+            SequenceRules.Select(sr => sr.AnalyseSequences(sequences, cancellationToken)).ToArray().WhenAll(),
+            SynonymRules.Select(sr => sr.AnalyseSynonyms(synonyms, cancellationToken)).ToArray().WhenAll(),
+            RoutineRules.Select(rr => rr.AnalyseRoutines(routines, cancellationToken)).ToArray().WhenAll()
+        ).WhenAll().ConfigureAwait(false);
 
-        var sequences = await database.EnumerateAllSequences(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-        foreach (var sequenceRule in SequenceRules)
-        {
-            await foreach (var message in sequenceRule.AnalyseSequences(sequences, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
-                yield return message;
-        }
-
-        var synonyms = await database.EnumerateAllSynonyms(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-        foreach (var synonymRule in SynonymRules)
-        {
-            await foreach (var message in synonymRule.AnalyseSynonyms(synonyms, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
-                yield return message;
-        }
-
-        var routines = await database.EnumerateAllRoutines(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-        foreach (var routineRule in RoutineRules)
-        {
-            await foreach (var message in routineRule.AnalyseRoutines(routines, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
-                yield return message;
-        }
+        // all evaluated, now to flatten + aggregate
+        return tableMessagesByRule.SelectMany(_ => _)
+            .Concat(viewMessagesByRule.SelectMany(_ => _))
+            .Concat(sequenceMessagesByRule.SelectMany(_ => _))
+            .Concat(synonymMessagesByRule.SelectMany(_ => _))
+            .Concat(routineMessagesByRule.SelectMany(_ => _))
+            .ToList();
     }
 
     /// <summary>
@@ -95,20 +96,24 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" />.</exception>
-    public IAsyncEnumerable<IRuleMessage> AnalyseTables(IReadOnlyCollection<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IRuleMessage>> AnalyseTables(IReadOnlyCollection<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tables);
 
         return AnalyseTablesCore(tables, cancellationToken);
     }
 
-    private async IAsyncEnumerable<IRuleMessage> AnalyseTablesCore(IEnumerable<IRelationalDatabaseTable> tables, [EnumeratorCancellation] CancellationToken cancellationToken)
+    private async Task<IReadOnlyCollection<IRuleMessage>> AnalyseTablesCore(IReadOnlyCollection<IRelationalDatabaseTable> tables, CancellationToken cancellationToken)
     {
-        foreach (var tableRule in TableRules)
-        {
-            await foreach (var message in tableRule.AnalyseTables(tables, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
-                yield return message;
-        }
+        var messages = await TableRules
+            .Select(tr => tr.AnalyseTables(tables, cancellationToken))
+            .ToArray()
+            .WhenAll()
+            .ConfigureAwait(false);
+
+        return messages
+            .SelectMany(_ => _)
+            .ToList();
     }
 
     /// <summary>
@@ -118,20 +123,24 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="views"/> is <see langword="null" />.</exception>
-    public IAsyncEnumerable<IRuleMessage> AnalyseViews(IReadOnlyCollection<IDatabaseView> views, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IRuleMessage>> AnalyseViews(IReadOnlyCollection<IDatabaseView> views, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(views);
 
         return AnalyseViewsCore(views, cancellationToken);
     }
 
-    private async IAsyncEnumerable<IRuleMessage> AnalyseViewsCore(IEnumerable<IDatabaseView> views, [EnumeratorCancellation] CancellationToken cancellationToken)
+    private async Task<IReadOnlyCollection<IRuleMessage>> AnalyseViewsCore(IReadOnlyCollection<IDatabaseView> views, CancellationToken cancellationToken)
     {
-        foreach (var viewRule in ViewRules)
-        {
-            await foreach (var message in viewRule.AnalyseViews(views, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
-                yield return message;
-        }
+        var messages = await ViewRules
+            .Select(vr => vr.AnalyseViews(views, cancellationToken))
+            .ToArray()
+            .WhenAll()
+            .ConfigureAwait(false);
+
+        return messages
+            .SelectMany(_ => _)
+            .ToList();
     }
 
     /// <summary>
@@ -141,20 +150,24 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="sequences"/> is <see langword="null" />.</exception>
-    public IAsyncEnumerable<IRuleMessage> AnalyseSequences(IReadOnlyCollection<IDatabaseSequence> sequences, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IRuleMessage>> AnalyseSequences(IReadOnlyCollection<IDatabaseSequence> sequences, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(sequences);
 
         return AnalyseSequencesCore(sequences, cancellationToken);
     }
 
-    private async IAsyncEnumerable<IRuleMessage> AnalyseSequencesCore(IEnumerable<IDatabaseSequence> sequences, [EnumeratorCancellation] CancellationToken cancellationToken)
+    private async Task<IReadOnlyCollection<IRuleMessage>> AnalyseSequencesCore(IReadOnlyCollection<IDatabaseSequence> sequences, CancellationToken cancellationToken)
     {
-        foreach (var sequenceRule in SequenceRules)
-        {
-            await foreach (var message in sequenceRule.AnalyseSequences(sequences, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
-                yield return message;
-        }
+        var messages = await SequenceRules
+            .Select(sr => sr.AnalyseSequences(sequences, cancellationToken))
+            .ToArray()
+            .WhenAll()
+            .ConfigureAwait(false);
+
+        return messages
+            .SelectMany(_ => _)
+            .ToList();
     }
 
     /// <summary>
@@ -164,20 +177,24 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="synonyms"/> is <see langword="null" />.</exception>
-    public IAsyncEnumerable<IRuleMessage> AnalyseSynonyms(IReadOnlyCollection<IDatabaseSynonym> synonyms, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IRuleMessage>> AnalyseSynonyms(IReadOnlyCollection<IDatabaseSynonym> synonyms, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(synonyms);
 
         return AnalyseSynonymsCore(synonyms, cancellationToken);
     }
 
-    private async IAsyncEnumerable<IRuleMessage> AnalyseSynonymsCore(IEnumerable<IDatabaseSynonym> synonyms, [EnumeratorCancellation] CancellationToken cancellationToken)
+    private async Task<IReadOnlyCollection<IRuleMessage>> AnalyseSynonymsCore(IReadOnlyCollection<IDatabaseSynonym> synonyms, CancellationToken cancellationToken)
     {
-        foreach (var synonymRule in SynonymRules)
-        {
-            await foreach (var message in synonymRule.AnalyseSynonyms(synonyms, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
-                yield return message;
-        }
+        var messages = await SynonymRules
+            .Select(sr => sr.AnalyseSynonyms(synonyms, cancellationToken))
+            .ToArray()
+            .WhenAll()
+            .ConfigureAwait(false);
+
+        return messages
+            .SelectMany(_ => _)
+            .ToList();
     }
 
     /// <summary>
@@ -187,19 +204,23 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="routines"/> is <see langword="null" />.</exception>
-    public IAsyncEnumerable<IRuleMessage> AnalyseRoutines(IReadOnlyCollection<IDatabaseRoutine> routines, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IRuleMessage>> AnalyseRoutines(IReadOnlyCollection<IDatabaseRoutine> routines, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(routines);
 
         return AnalyseRoutinesCore(routines, cancellationToken);
     }
 
-    private async IAsyncEnumerable<IRuleMessage> AnalyseRoutinesCore(IEnumerable<IDatabaseRoutine> routines, [EnumeratorCancellation] CancellationToken cancellationToken)
+    private async Task<IReadOnlyCollection<IRuleMessage>> AnalyseRoutinesCore(IReadOnlyCollection<IDatabaseRoutine> routines, CancellationToken cancellationToken)
     {
-        foreach (var routineRule in RoutineRules)
-        {
-            await foreach (var message in routineRule.AnalyseRoutines(routines, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
-                yield return message;
-        }
+        var messages = await RoutineRules
+            .Select(rr => rr.AnalyseRoutines(routines, cancellationToken))
+            .ToArray()
+            .WhenAll()
+            .ConfigureAwait(false);
+
+        return messages
+            .SelectMany(_ => _)
+            .ToList();
     }
 }

@@ -66,9 +66,9 @@ internal static class NoNonNullableColumnsPresentRuleTests
         );
         var tables = new[] { table };
 
-        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.False);
+        Assert.That(messages, Is.Empty);
     }
 
     [Test]
@@ -97,8 +97,8 @@ internal static class NoNonNullableColumnsPresentRuleTests
         );
         var tables = new[] { table };
 
-        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.True);
+        Assert.That(messages, Is.Not.Empty);
     }
 }

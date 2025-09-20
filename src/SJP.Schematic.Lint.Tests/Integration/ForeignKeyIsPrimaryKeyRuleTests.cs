@@ -58,9 +58,9 @@ create table parent_table_with_pk_column_to_pk_column_1 (
             await database.GetTable("parent_table_with_different_column_to_pk_column_1").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
-        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.False);
+        Assert.That(messages, Is.Empty);
     }
 
     [Test]
@@ -74,8 +74,8 @@ create table parent_table_with_pk_column_to_pk_column_1 (
             await database.GetTable("parent_table_with_pk_column_to_pk_column_1").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
-        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.True);
+        Assert.That(messages, Is.Not.Empty);
     }
 }

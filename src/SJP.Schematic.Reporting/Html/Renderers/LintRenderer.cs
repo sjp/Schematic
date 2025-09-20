@@ -64,11 +64,11 @@ internal sealed class LintRenderer : ITemplateRenderer
             synonymMessages,
             routineMessages
         ) = await (
-            Linter.AnalyseTables(Tables, cancellationToken).ToListAsync(cancellationToken).AsTask(),
-            Linter.AnalyseViews(Views, cancellationToken).ToListAsync(cancellationToken).AsTask(),
-            Linter.AnalyseSequences(Sequences, cancellationToken).ToListAsync(cancellationToken).AsTask(),
-            Linter.AnalyseSynonyms(Synonyms, cancellationToken).ToListAsync(cancellationToken).AsTask(),
-            Linter.AnalyseRoutines(Routines, cancellationToken).ToListAsync(cancellationToken).AsTask()
+            Linter.AnalyseTables(Tables, cancellationToken),
+            Linter.AnalyseViews(Views, cancellationToken),
+            Linter.AnalyseSequences(Sequences, cancellationToken),
+            Linter.AnalyseSynonyms(Synonyms, cancellationToken),
+            Linter.AnalyseRoutines(Routines, cancellationToken)
         ).WhenAll().ConfigureAwait(false);
 
         var messages = tableMessages

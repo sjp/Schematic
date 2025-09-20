@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
@@ -56,21 +55,24 @@ public class ForeignKeySelfReferenceRule : Rule, ITableRule
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" />.</exception>
-    public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IRuleMessage>> AnalyseTables(IReadOnlyCollection<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tables);
 
         return AnalyseTablesCore(tables, cancellationToken);
     }
 
-    private async IAsyncEnumerable<IRuleMessage> AnalyseTablesCore(IEnumerable<IRelationalDatabaseTable> tables, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    private async Task<IReadOnlyCollection<IRuleMessage>> AnalyseTablesCore(IReadOnlyCollection<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
-        foreach (var table in tables)
-        {
-            var messages = await AnalyseTableAsync(table, cancellationToken).ConfigureAwait(false);
-            foreach (var message in messages)
-                yield return message;
-        }
+        var messages = await tables
+            .Select(t => AnalyseTableAsync(t, cancellationToken))
+            .ToArray()
+            .WhenAll()
+            .ConfigureAwait(false);
+
+        return messages
+            .SelectMany(_ => _)
+            .ToArray();
     }
 
     /// <summary>
@@ -80,17 +82,17 @@ public class ForeignKeySelfReferenceRule : Rule, ITableRule
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
-    protected Task<IEnumerable<IRuleMessage>> AnalyseTableAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
+    protected Task<IReadOnlyCollection<IRuleMessage>> AnalyseTableAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(table);
 
         return table.PrimaryKey.Match(
             pk => AnalyseTableWithPrimaryKeyAsync(table, pk, cancellationToken),
-            () => Task.FromResult<IEnumerable<IRuleMessage>>([])
+            () => Task.FromResult<IReadOnlyCollection<IRuleMessage>>([])
         );
     }
 
-    private async Task<IEnumerable<IRuleMessage>> AnalyseTableWithPrimaryKeyAsync(IRelationalDatabaseTable table, IDatabaseKey primaryKey, CancellationToken cancellationToken)
+    private async Task<IReadOnlyCollection<IRuleMessage>> AnalyseTableWithPrimaryKeyAsync(IRelationalDatabaseTable table, IDatabaseKey primaryKey, CancellationToken cancellationToken)
     {
         var matchingForeignKeys = table.ParentKeys
             .Where(fk => fk.ParentTable == table.Name)

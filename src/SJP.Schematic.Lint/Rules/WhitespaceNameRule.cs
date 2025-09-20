@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Lint.Rules;
@@ -33,11 +34,12 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" />.</exception>
-    public IAsyncEnumerable<IRuleMessage> AnalyseTables(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IRuleMessage>> AnalyseTables(IReadOnlyCollection<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tables);
 
-        return tables.SelectMany(AnalyseTable).ToAsyncEnumerable();
+        var messages = tables.SelectMany(AnalyseTable).ToList();
+        return Task.FromResult<IReadOnlyCollection<IRuleMessage>>(messages);
     }
 
     /// <summary>
@@ -47,11 +49,12 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="views"/> is <see langword="null" />.</exception>
-    public IAsyncEnumerable<IRuleMessage> AnalyseViews(IEnumerable<IDatabaseView> views, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IRuleMessage>> AnalyseViews(IReadOnlyCollection<IDatabaseView> views, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(views);
 
-        return views.SelectMany(AnalyseView).ToAsyncEnumerable();
+        var messages = views.SelectMany(AnalyseView).ToList();
+        return Task.FromResult<IReadOnlyCollection<IRuleMessage>>(messages);
     }
 
     /// <summary>
@@ -61,11 +64,12 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="sequences"/> is <see langword="null" />.</exception>
-    public IAsyncEnumerable<IRuleMessage> AnalyseSequences(IEnumerable<IDatabaseSequence> sequences, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IRuleMessage>> AnalyseSequences(IReadOnlyCollection<IDatabaseSequence> sequences, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(sequences);
 
-        return sequences.SelectMany(AnalyseSequence).ToAsyncEnumerable();
+        var messages = sequences.SelectMany(AnalyseSequence).ToList();
+        return Task.FromResult<IReadOnlyCollection<IRuleMessage>>(messages);
     }
 
     /// <summary>
@@ -75,11 +79,12 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="synonyms"/> is <see langword="null" />.</exception>
-    public IAsyncEnumerable<IRuleMessage> AnalyseSynonyms(IEnumerable<IDatabaseSynonym> synonyms, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IRuleMessage>> AnalyseSynonyms(IReadOnlyCollection<IDatabaseSynonym> synonyms, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(synonyms);
 
-        return synonyms.SelectMany(AnalyseSynonym).ToAsyncEnumerable();
+        var messages = synonyms.SelectMany(AnalyseSynonym).ToList();
+        return Task.FromResult<IReadOnlyCollection<IRuleMessage>>(messages);
     }
 
     /// <summary>
@@ -89,11 +94,12 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="routines"/> is <see langword="null" />.</exception>
-    public IAsyncEnumerable<IRuleMessage> AnalyseRoutines(IEnumerable<IDatabaseRoutine> routines, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IRuleMessage>> AnalyseRoutines(IReadOnlyCollection<IDatabaseRoutine> routines, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(routines);
 
-        return routines.SelectMany(AnalyseRoutine).ToAsyncEnumerable();
+        var messages = routines.SelectMany(AnalyseRoutine).ToList();
+        return Task.FromResult<IReadOnlyCollection<IRuleMessage>>(messages);
     }
 
     /// <summary>
@@ -102,7 +108,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// <param name="table">A database table.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
-    protected IEnumerable<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
+    protected IReadOnlyCollection<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table)
     {
         ArgumentNullException.ThrowIfNull(table);
 
@@ -134,7 +140,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// <param name="view">A set of database views.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="view"/> is <see langword="null" />.</exception>
-    protected IEnumerable<IRuleMessage> AnalyseView(IDatabaseView view)
+    protected IReadOnlyCollection<IRuleMessage> AnalyseView(IDatabaseView view)
     {
         ArgumentNullException.ThrowIfNull(view);
 
@@ -166,7 +172,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// <param name="sequence">A database sequence.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="sequence"/> is <see langword="null" />.</exception>
-    protected IEnumerable<IRuleMessage> AnalyseSequence(IDatabaseSequence sequence)
+    protected IReadOnlyCollection<IRuleMessage> AnalyseSequence(IDatabaseSequence sequence)
     {
         ArgumentNullException.ThrowIfNull(sequence);
 
@@ -188,7 +194,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// <param name="synonym">A database synonym.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="synonym"/> is <see langword="null" />.</exception>
-    protected IEnumerable<IRuleMessage> AnalyseSynonym(IDatabaseSynonym synonym)
+    protected IReadOnlyCollection<IRuleMessage> AnalyseSynonym(IDatabaseSynonym synonym)
     {
         ArgumentNullException.ThrowIfNull(synonym);
 
@@ -210,7 +216,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// <param name="routine">A database routine.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="routine"/> is <see langword="null" />.</exception>
-    protected IEnumerable<IRuleMessage> AnalyseRoutine(IDatabaseRoutine routine)
+    protected IReadOnlyCollection<IRuleMessage> AnalyseRoutine(IDatabaseRoutine routine)
     {
         ArgumentNullException.ThrowIfNull(routine);
 

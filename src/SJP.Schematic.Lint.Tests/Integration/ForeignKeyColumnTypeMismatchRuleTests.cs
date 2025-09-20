@@ -62,9 +62,9 @@ create table child_table_with_text_key_column_1 (
             await database.GetTable("child_table_with_int_key_column_1").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
-        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.False);
+        Assert.That(messages, Is.Empty);
     }
 
     [Test]
@@ -79,8 +79,8 @@ create table child_table_with_text_key_column_1 (
             await database.GetTable("child_table_with_text_key_column_1").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
-        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.True);
+        Assert.That(messages, Is.Not.Empty);
     }
 }

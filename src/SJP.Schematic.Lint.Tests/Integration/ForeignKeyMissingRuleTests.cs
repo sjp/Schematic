@@ -76,9 +76,9 @@ create table NoForeignKeyChildWithoutKey (
             await database.GetTable("no_foreign_key_child_with_key").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
-        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.False);
+        Assert.That(messages, Is.Empty);
     }
 
     [Test]
@@ -93,9 +93,9 @@ create table NoForeignKeyChildWithoutKey (
             await database.GetTable("NoForeignKeyParent1").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
-        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.False);
+        Assert.That(messages, Is.Empty);
     }
 
     [Test]
@@ -110,9 +110,9 @@ create table NoForeignKeyChildWithoutKey (
             await database.GetTable("no_foreign_key_child_without_key").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
-        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.True);
+        Assert.That(messages, Is.Not.Empty);
     }
 
     [Test]
@@ -127,8 +127,8 @@ create table NoForeignKeyChildWithoutKey (
             await database.GetTable("NoForeignKeyParent1").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
-        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.True);
+        Assert.That(messages, Is.Not.Empty);
     }
 }

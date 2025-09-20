@@ -27,7 +27,7 @@ internal static class RelationalDatabaseLinterTests
     [Test]
     public static async Task AnalyseDatabase_GivenEmptyDatabase_ReturnsEmptyMessages()
     {
-        var messages = await Linter.AnalyseDatabase(EmptyDatabase).ToListAsync().ConfigureAwait(false);
+        var messages = await Linter.AnalyseDatabase(EmptyDatabase).ConfigureAwait(false);
 
         Assert.That(messages, Is.Empty);
     }
@@ -41,7 +41,7 @@ internal static class RelationalDatabaseLinterTests
     [Test]
     public static async Task AnalyseTables_GivenEmptyTables_ReturnsEmptyMessages()
     {
-        var messages = await Linter.AnalyseTables([]).ToListAsync().ConfigureAwait(false);
+        var messages = await Linter.AnalyseTables([]).ConfigureAwait(false);
 
         Assert.That(messages, Is.Empty);
     }
@@ -55,7 +55,7 @@ internal static class RelationalDatabaseLinterTests
     [Test]
     public static async Task AnalyseViews_GivenEmptyViews_ReturnsEmptyMessages()
     {
-        var messages = await Linter.AnalyseViews([]).ToListAsync().ConfigureAwait(false);
+        var messages = await Linter.AnalyseViews([]).ConfigureAwait(false);
 
         Assert.That(messages, Is.Empty);
     }
@@ -69,7 +69,7 @@ internal static class RelationalDatabaseLinterTests
     [Test]
     public static async Task AnalyseSequences_GivenEmptySequences_ReturnsEmptyMessages()
     {
-        var messages = await Linter.AnalyseSequences([]).ToListAsync().ConfigureAwait(false);
+        var messages = await Linter.AnalyseSequences([]).ConfigureAwait(false);
 
         Assert.That(messages, Is.Empty);
     }
@@ -83,7 +83,7 @@ internal static class RelationalDatabaseLinterTests
     [Test]
     public static async Task AnalyseSynonyms_GivenEmptySynonyms_ReturnsEmptyMessages()
     {
-        var messages = await Linter.AnalyseSynonyms([]).ToListAsync().ConfigureAwait(false);
+        var messages = await Linter.AnalyseSynonyms([]).ConfigureAwait(false);
 
         Assert.That(messages, Is.Empty);
     }
@@ -97,7 +97,7 @@ internal static class RelationalDatabaseLinterTests
     [Test]
     public static async Task AnalyseRoutines_GivenEmptyRoutines_ReturnsEmptyMessages()
     {
-        var messages = await Linter.AnalyseRoutines([]).ToListAsync().ConfigureAwait(false);
+        var messages = await Linter.AnalyseRoutines([]).ConfigureAwait(false);
 
         Assert.That(messages, Is.Empty);
     }

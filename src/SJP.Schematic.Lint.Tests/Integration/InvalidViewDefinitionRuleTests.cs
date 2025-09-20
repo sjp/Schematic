@@ -60,9 +60,9 @@ internal sealed class InvalidViewDefinitionRuleTests : SqliteTest
             await database.GetView("valid_view_1").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
-        var hasMessages = await rule.AnalyseViews(views).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseViews(views).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.False);
+        Assert.That(messages, Is.Empty);
     }
 
     [Test]
@@ -76,9 +76,9 @@ internal sealed class InvalidViewDefinitionRuleTests : SqliteTest
             await database.GetView("invalid_view_1").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
-        var hasMessages = await rule.AnalyseViews(views).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseViews(views).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.True);
+        Assert.That(messages, Is.Not.Empty);
     }
 
     [Test]
@@ -93,8 +93,8 @@ internal sealed class InvalidViewDefinitionRuleTests : SqliteTest
             await database.GetView("invalid_view_1").UnwrapSomeAsync().ConfigureAwait(false),
         };
 
-        var hasMessages = await rule.AnalyseViews(views).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseViews(views).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.True);
+        Assert.That(messages, Is.Not.Empty);
     }
 }

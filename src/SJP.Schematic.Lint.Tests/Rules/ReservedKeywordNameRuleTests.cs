@@ -83,9 +83,9 @@ internal static class ReservedKeywordNameRuleTests
         );
         var tables = new[] { table };
 
-        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.False);
+        Assert.That(messages, Is.Empty);
     }
 
     [Test]
@@ -107,9 +107,9 @@ internal static class ReservedKeywordNameRuleTests
         );
         var tables = new[] { table };
 
-        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.True);
+        Assert.That(messages, Is.Not.Empty);
     }
 
     [Test]
@@ -138,9 +138,9 @@ internal static class ReservedKeywordNameRuleTests
         );
         var tables = new[] { table };
 
-        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.False);
+        Assert.That(messages, Is.Empty);
     }
 
     [Test]
@@ -169,9 +169,9 @@ internal static class ReservedKeywordNameRuleTests
         );
         var tables = new[] { table };
 
-        var hasMessages = await rule.AnalyseTables(tables).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.True);
+        Assert.That(messages, Is.Not.Empty);
     }
 
     [Test]
@@ -187,9 +187,9 @@ internal static class ReservedKeywordNameRuleTests
         );
         var views = new[] { view };
 
-        var hasMessages = await rule.AnalyseViews(views).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseViews(views).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.False);
+        Assert.That(messages, Is.Empty);
     }
 
     [Test]
@@ -205,9 +205,9 @@ internal static class ReservedKeywordNameRuleTests
         );
         var views = new[] { view };
 
-        var hasMessages = await rule.AnalyseViews(views).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseViews(views).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.True);
+        Assert.That(messages, Is.Not.Empty);
     }
 
     [Test]
@@ -231,9 +231,9 @@ internal static class ReservedKeywordNameRuleTests
         );
         var views = new[] { view };
 
-        var hasMessages = await rule.AnalyseViews(views).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseViews(views).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.False);
+        Assert.That(messages, Is.Empty);
     }
 
     [Test]
@@ -257,9 +257,9 @@ internal static class ReservedKeywordNameRuleTests
         );
         var views = new[] { view };
 
-        var hasMessages = await rule.AnalyseViews(views).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseViews(views).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.True);
+        Assert.That(messages, Is.Not.Empty);
     }
 
     [Test]
@@ -279,9 +279,9 @@ internal static class ReservedKeywordNameRuleTests
         );
         var sequences = new[] { sequence };
 
-        var hasMessages = await rule.AnalyseSequences(sequences).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseSequences(sequences).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.False);
+        Assert.That(messages, Is.Empty);
     }
 
     [Test]
@@ -301,9 +301,9 @@ internal static class ReservedKeywordNameRuleTests
         );
         var sequences = new[] { sequence };
 
-        var hasMessages = await rule.AnalyseSequences(sequences).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseSequences(sequences).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.True);
+        Assert.That(messages, Is.Not.Empty);
     }
 
     [Test]
@@ -315,9 +315,9 @@ internal static class ReservedKeywordNameRuleTests
         var synonym = new DatabaseSynonym(synonymName, "target");
         var synonyms = new[] { synonym };
 
-        var hasMessages = await rule.AnalyseSynonyms(synonyms).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseSynonyms(synonyms).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.False);
+        Assert.That(messages, Is.Empty);
     }
 
     [Test]
@@ -329,9 +329,9 @@ internal static class ReservedKeywordNameRuleTests
         var synonym = new DatabaseSynonym(synonymName, "target");
         var synonyms = new[] { synonym };
 
-        var hasMessages = await rule.AnalyseSynonyms(synonyms).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseSynonyms(synonyms).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.True);
+        Assert.That(messages, Is.Not.Empty);
     }
 
     [Test]
@@ -343,9 +343,9 @@ internal static class ReservedKeywordNameRuleTests
         var routine = new DatabaseRoutine(routineName, "routine_definition");
         var routines = new[] { routine };
 
-        var hasMessages = await rule.AnalyseRoutines(routines).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseRoutines(routines).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.False);
+        Assert.That(messages, Is.Empty);
     }
 
     [Test]
@@ -357,9 +357,9 @@ internal static class ReservedKeywordNameRuleTests
         var routine = new DatabaseRoutine(routineName, "routine_definition");
         var routines = new[] { routine };
 
-        var hasMessages = await rule.AnalyseRoutines(routines).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseRoutines(routines).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.True);
+        Assert.That(messages, Is.Not.Empty);
     }
 
     private static IDatabaseDialect CreateFakeDialect() => new FakeDatabaseDialect { ReservedKeywords = ["SELECT"] };

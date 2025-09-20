@@ -31,9 +31,9 @@ internal sealed class RedundantIndexesRuleTests
 
         var table = CreateTable("table_a", []);
 
-        var hasMessages = await rule.AnalyseTables([table]).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables([table]).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.False);
+        Assert.That(messages, Is.Empty);
     }
 
     [Test]
@@ -49,9 +49,9 @@ internal sealed class RedundantIndexesRuleTests
 
         var table = CreateTable("table_a", indexes);
 
-        var hasMessages = await rule.AnalyseTables([table]).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables([table]).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.False);
+        Assert.That(messages, Is.Empty);
     }
 
     [Test]
@@ -67,9 +67,9 @@ internal sealed class RedundantIndexesRuleTests
 
         var table = CreateTable("table_a", indexes);
 
-        var hasMessages = await rule.AnalyseTables([table]).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables([table]).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.True);
+        Assert.That(messages, Is.Not.Empty);
     }
 
     [Test]
@@ -91,9 +91,9 @@ internal sealed class RedundantIndexesRuleTests
 
         var table = CreateTable("table_a", indexes);
 
-        var hasMessages = await rule.AnalyseTables([table]).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables([table]).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.True);
+        Assert.That(messages, Is.Not.Empty);
     }
 
     [Test]
@@ -121,9 +121,9 @@ internal sealed class RedundantIndexesRuleTests
 
         var table = CreateTable("table_a", indexes);
 
-        var hasMessages = await rule.AnalyseTables([table]).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables([table]).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.False);
+        Assert.That(messages, Is.Empty);
     }
 
     [Test]
@@ -145,9 +145,9 @@ internal sealed class RedundantIndexesRuleTests
 
         var table = CreateTable("table_a", indexes);
 
-        var hasMessages = await rule.AnalyseTables([table]).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables([table]).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.True);
+        Assert.That(messages, Is.Not.Empty);
     }
 
     [Test]
@@ -169,9 +169,9 @@ internal sealed class RedundantIndexesRuleTests
 
         var table = CreateTable("table_a", indexes);
 
-        var hasMessages = await rule.AnalyseTables([table]).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables([table]).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.True);
+        Assert.That(messages, Is.Not.Empty);
     }
 
     [Test]
@@ -193,9 +193,9 @@ internal sealed class RedundantIndexesRuleTests
 
         var table = CreateTable("table_a", indexes);
 
-        var hasMessages = await rule.AnalyseTables([table]).AnyAsync().ConfigureAwait(false);
+        var messages = await rule.AnalyseTables([table]).ConfigureAwait(false);
 
-        Assert.That(hasMessages, Is.False);
+        Assert.That(messages, Is.Empty);
     }
 
     private static IDatabaseColumn CreateColumn(string name)
