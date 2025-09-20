@@ -35,4 +35,13 @@ internal static class EmptyDatabaseSynonymCommentProviderTests
 
         Assert.That(hasComments, Is.False);
     }
+
+    [Test]
+    public static async Task GetAllSynonymComments2_WhenInvoked_DoesNotContainAnyValues()
+    {
+        var provider = new EmptyDatabaseSynonymCommentProvider();
+        var comments = await provider.GetAllSynonymComments2().ConfigureAwait(false);
+
+        Assert.That(comments, Is.Empty);
+    }
 }

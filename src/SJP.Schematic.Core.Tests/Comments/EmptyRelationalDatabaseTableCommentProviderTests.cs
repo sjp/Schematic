@@ -33,4 +33,13 @@ internal static class EmptyRelationalDatabaseTableCommentProviderTests
 
         Assert.That(hasComments, Is.False);
     }
+
+    [Test]
+    public static async Task GetAllTableComments2_WhenInvoked_DoesNotContainAnyValues()
+    {
+        var provider = new EmptyRelationalDatabaseTableCommentProvider();
+        var comments = await provider.GetAllTableComments2().ConfigureAwait(false);
+
+        Assert.That(comments, Is.Empty);
+    }
 }

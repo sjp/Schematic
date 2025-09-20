@@ -35,6 +35,72 @@ internal static class EmptyRelationalDatabaseTests
     }
 
     [Test]
+    public static void GetSynonym_GivenNullSynonymName_ThrowsArgumentNullException()
+    {
+        Assert.That(() => Database.GetSynonym(null), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void GetRoutine_GivenNullRoutineName_ThrowsArgumentNullException()
+    {
+        Assert.That(() => Database.GetRoutine(null), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static async Task GetTable_GivenValidSequenceName_ReturnsNone()
+    {
+        var tableName = new Identifier("test");
+        var tableIsNone = await Database.GetTable(tableName).IsNone.ConfigureAwait(false);
+
+        Assert.That(tableIsNone, Is.True);
+    }
+
+    [Test]
+    public static async Task GetAllTables_WhenEnumerated_ContainsNoValues()
+    {
+        var hasTables = await Database.GetAllTables()
+            .AnyAsync()
+            .ConfigureAwait(false);
+
+        Assert.That(hasTables, Is.False);
+    }
+
+    [Test]
+    public static async Task GetAllTables2_WhenRetrieved_ContainsNoValues()
+    {
+        var tables = await Database.GetAllTables2().ConfigureAwait(false);
+
+        Assert.That(tables, Is.Empty);
+    }
+
+    [Test]
+    public static async Task GetView_GivenValidViewName_ReturnsNone()
+    {
+        var viewName = new Identifier("test");
+        var viewIsNone = await Database.GetView(viewName).IsNone.ConfigureAwait(false);
+
+        Assert.That(viewIsNone, Is.True);
+    }
+
+    [Test]
+    public static async Task GetAllViews_WhenEnumerated_ContainsNoValues()
+    {
+        var hasViews = await Database.GetAllViews()
+            .AnyAsync()
+            .ConfigureAwait(false);
+
+        Assert.That(hasViews, Is.False);
+    }
+
+    [Test]
+    public static async Task GetAllViews2_WhenRetrieved_ContainsNoValues()
+    {
+        var views = await Database.GetAllViews2().ConfigureAwait(false);
+
+        Assert.That(views, Is.Empty);
+    }
+
+    [Test]
     public static async Task GetSequence_GivenValidSequenceName_ReturnsNone()
     {
         var sequenceName = new Identifier("test");
@@ -54,9 +120,11 @@ internal static class EmptyRelationalDatabaseTests
     }
 
     [Test]
-    public static void GetSynonym_GivenNullSynonymName_ThrowsArgumentNullException()
+    public static async Task GetAllSequences2_WhenRetrieved_ContainsNoValues()
     {
-        Assert.That(() => Database.GetSynonym(null), Throws.ArgumentNullException);
+        var sequences = await Database.GetAllSequences2().ConfigureAwait(false);
+
+        Assert.That(sequences, Is.Empty);
     }
 
     [Test]
@@ -77,9 +145,11 @@ internal static class EmptyRelationalDatabaseTests
     }
 
     [Test]
-    public static void GetRoutine_GivenNullRoutineName_ThrowsArgumentNullException()
+    public static async Task GetAllSynonyms2_WhenRetrieved_ContainsNoValues()
     {
-        Assert.That(() => Database.GetRoutine(null), Throws.ArgumentNullException);
+        var synonyms = await Database.GetAllSynonyms2().ConfigureAwait(false);
+
+        Assert.That(synonyms, Is.Empty);
     }
 
     [Test]
@@ -99,5 +169,13 @@ internal static class EmptyRelationalDatabaseTests
             .ConfigureAwait(false);
 
         Assert.That(hasRoutines, Is.False);
+    }
+
+    [Test]
+    public static async Task GetAllRoutines2_WhenRetrieved_ContainsNoValues()
+    {
+        var routines = await Database.GetAllRoutines2().ConfigureAwait(false);
+
+        Assert.That(routines, Is.Empty);
     }
 }

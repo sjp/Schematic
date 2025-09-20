@@ -35,4 +35,13 @@ internal static class EmptyDatabaseSequenceCommentProviderTests
 
         Assert.That(hasComments, Is.False);
     }
+
+    [Test]
+    public static async Task GetAllSequenceComments2_WhenInvoked_DoesNotContainAnyValues()
+    {
+        var provider = new EmptyDatabaseSequenceCommentProvider();
+        var comments = await provider.GetAllSequenceComments2().ConfigureAwait(false);
+
+        Assert.That(comments, Is.Empty);
+    }
 }

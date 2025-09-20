@@ -34,4 +34,13 @@ internal static class EmptyDatabaseViewProviderTests
 
         Assert.That(hasViews, Is.False);
     }
+
+    [Test]
+    public static async Task GetAllViews2_WhenRetrieved_ContainsNoValues()
+    {
+        var provider = new EmptyDatabaseViewProvider();
+        var views = await provider.GetAllViews2().ConfigureAwait(false);
+
+        Assert.That(views, Is.Empty);
+    }
 }

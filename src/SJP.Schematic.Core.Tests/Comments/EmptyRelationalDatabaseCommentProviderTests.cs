@@ -43,6 +43,15 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     }
 
     [Test]
+    public static async Task GetAllTableComments2_WhenInvoked_DoesNotContainAnyValues()
+    {
+        var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
+        var comments = await provider.GetAllTableComments2().ConfigureAwait(false);
+
+        Assert.That(comments, Is.Empty);
+    }
+
+    [Test]
     public static void GetViewComments_GivenNullName_ThrowsArgumentNullException()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
@@ -68,6 +77,15 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
             .ConfigureAwait(false);
 
         Assert.That(hasComments, Is.False);
+    }
+
+    [Test]
+    public static async Task GetAllViewComments2_WhenInvoked_DoesNotContainAnyValues()
+    {
+        var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
+        var comments = await provider.GetAllViewComments2().ConfigureAwait(false);
+
+        Assert.That(comments, Is.Empty);
     }
 
     [Test]
@@ -99,6 +117,15 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     }
 
     [Test]
+    public static async Task GetAllSynonymComments2_WhenInvoked_DoesNotContainAnyValues()
+    {
+        var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
+        var comments = await provider.GetAllSynonymComments2().ConfigureAwait(false);
+
+        Assert.That(comments, Is.Empty);
+    }
+
+    [Test]
     public static void GetSequenceComments_GivenNullName_ThrowsArgumentNullException()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
@@ -127,6 +154,15 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     }
 
     [Test]
+    public static async Task GetAllSequenceComments2_WhenInvoked_DoesNotContainAnyValues()
+    {
+        var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
+        var comments = await provider.GetAllSequenceComments2().ConfigureAwait(false);
+
+        Assert.That(comments, Is.Empty);
+    }
+
+    [Test]
     public static void GetRoutineComments_GivenNullName_ThrowsArgumentNullException()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
@@ -152,5 +188,14 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
             .ConfigureAwait(false);
 
         Assert.That(hasComments, Is.False);
+    }
+
+    [Test]
+    public static async Task GetAllRoutineComments2_WhenInvoked_DoesNotContainAnyValues()
+    {
+        var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
+        var comments = await provider.GetAllRoutineComments2().ConfigureAwait(false);
+
+        Assert.That(comments, Is.Empty);
     }
 }

@@ -34,4 +34,13 @@ internal static class EmptyDatabaseRoutineProviderTests
 
         Assert.That(hasRoutines, Is.False);
     }
+
+    [Test]
+    public static async Task GetAllRoutines2_WhenRetrieved_ContainsNoValues()
+    {
+        var provider = new EmptyDatabaseRoutineProvider();
+        var routines = await provider.GetAllRoutines2().ConfigureAwait(false);
+
+        Assert.That(routines, Is.Empty);
+    }
 }
