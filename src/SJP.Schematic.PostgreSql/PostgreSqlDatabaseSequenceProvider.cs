@@ -68,11 +68,11 @@ public class PostgreSqlDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database sequences.</returns>
-    public async IAsyncEnumerable<IDatabaseSequence> GetAllSequences([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<IDatabaseSequence> EnumerateAllSequences([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var provider = await _sequenceProvider.ConfigureAwait(false);
         var sequences = provider.Match(
-            sp => sp.GetAllSequences(cancellationToken),
+            sp => sp.EnumerateAllSequences(cancellationToken),
             AsyncEnumerable.Empty<IDatabaseSequence>
         );
 

@@ -54,7 +54,7 @@ public class PostgreSqlSequenceCommentProvider : IDatabaseSequenceCommentProvide
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database sequence comments.</returns>
-    public IAsyncEnumerable<IDatabaseSequenceComments> GetAllSequenceComments(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseSequenceComments> EnumerateAllSequenceComments(CancellationToken cancellationToken = default)
     {
         return Connection.QueryEnumerableAsync<GetAllSequenceComments.Result>(Queries.GetAllSequenceComments.Sql, cancellationToken)
             .Select(commentData =>

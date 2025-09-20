@@ -25,10 +25,10 @@ internal static class EmptyDatabaseSequenceProviderTests
     }
 
     [Test]
-    public static async Task GetAllSequences_WhenEnumerated_ContainsNoValues()
+    public static async Task EnumerateAllSequences_WhenEnumerated_ContainsNoValues()
     {
         var provider = new EmptyDatabaseSequenceProvider();
-        var hasSequences = await provider.GetAllSequences()
+        var hasSequences = await provider.EnumerateAllSequences()
             .AnyAsync()
             .ConfigureAwait(false);
 

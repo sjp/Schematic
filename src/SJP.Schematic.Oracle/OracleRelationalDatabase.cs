@@ -110,9 +110,9 @@ public class OracleRelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database sequences.</returns>
-    public IAsyncEnumerable<IDatabaseSequence> GetAllSequences(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseSequence> EnumerateAllSequences(CancellationToken cancellationToken = default)
     {
-        return _sequenceProvider.GetAllSequences(cancellationToken);
+        return _sequenceProvider.EnumerateAllSequences(cancellationToken);
     }
 
     /// <summary>

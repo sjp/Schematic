@@ -24,7 +24,7 @@ public interface IDatabaseSequenceCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of sequence comments.</returns>
-    IAsyncEnumerable<IDatabaseSequenceComments> GetAllSequenceComments(CancellationToken cancellationToken = default);
+    IAsyncEnumerable<IDatabaseSequenceComments> EnumerateAllSequenceComments(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves all database sequence comments defined within a database.

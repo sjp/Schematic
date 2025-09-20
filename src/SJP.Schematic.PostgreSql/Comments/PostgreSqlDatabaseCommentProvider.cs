@@ -126,9 +126,9 @@ public class PostgreSqlDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database sequence comments.</returns>
-    public IAsyncEnumerable<IDatabaseSequenceComments> GetAllSequenceComments(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseSequenceComments> EnumerateAllSequenceComments(CancellationToken cancellationToken = default)
     {
-        return _sequenceCommentProvider.GetAllSequenceComments(cancellationToken);
+        return _sequenceCommentProvider.EnumerateAllSequenceComments(cancellationToken);
     }
 
     /// <summary>

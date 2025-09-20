@@ -43,9 +43,9 @@ public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of sequence comments.</returns>
-    public IAsyncEnumerable<IDatabaseSequenceComments> GetAllSequenceComments(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseSequenceComments> EnumerateAllSequenceComments(CancellationToken cancellationToken = default)
     {
-        return _sequenceCommentProvider.GetAllSequenceComments(cancellationToken);
+        return _sequenceCommentProvider.EnumerateAllSequenceComments(cancellationToken);
     }
 
     /// <summary>

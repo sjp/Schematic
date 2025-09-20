@@ -52,7 +52,7 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database sequence comments.</returns>
-    public IAsyncEnumerable<IDatabaseSequenceComments> GetAllSequenceComments(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseSequenceComments> EnumerateAllSequenceComments(CancellationToken cancellationToken = default)
     {
         return Connection.QueryEnumerableAsync<GetAllSequenceNames.Result>(GetAllSequenceNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.SequenceName))

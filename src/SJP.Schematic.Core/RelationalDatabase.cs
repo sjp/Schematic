@@ -189,7 +189,7 @@ public class RelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token. Unused.</param>
     /// <returns>A collection of database sequences.</returns>
-    public IAsyncEnumerable<IDatabaseSequence> GetAllSequences(CancellationToken cancellationToken = default) => Sequences.ToAsyncEnumerable();
+    public IAsyncEnumerable<IDatabaseSequence> EnumerateAllSequences(CancellationToken cancellationToken = default) => Sequences.ToAsyncEnumerable();
 
     /// <summary>
     /// Retrieves all of the database sequences.

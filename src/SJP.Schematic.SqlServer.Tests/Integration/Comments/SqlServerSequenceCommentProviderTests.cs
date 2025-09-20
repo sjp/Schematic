@@ -179,9 +179,9 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     }
 
     [Test]
-    public async Task GetAllSequenceComments_WhenEnumerated_ContainsSequenceComments()
+    public async Task EnumerateAllSequenceComments_WhenEnumerated_ContainsSequenceComments()
     {
-        var hasSequenceComments = await SequenceCommentProvider.GetAllSequenceComments()
+        var hasSequenceComments = await SequenceCommentProvider.EnumerateAllSequenceComments()
             .AnyAsync()
             .ConfigureAwait(false);
 
@@ -189,9 +189,9 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     }
 
     [Test]
-    public async Task GetAllSequenceComments_WhenEnumerated_ContainsTestSequenceComment()
+    public async Task EnumerateAllSequenceComments_WhenEnumerated_ContainsTestSequenceComment()
     {
-        var containsTestSequence = await SequenceCommentProvider.GetAllSequenceComments()
+        var containsTestSequence = await SequenceCommentProvider.EnumerateAllSequenceComments()
             .AnyAsync(t => string.Equals(t.SequenceName.LocalName, "sequence_comment_sequence_1", StringComparison.Ordinal))
             .ConfigureAwait(false);
 

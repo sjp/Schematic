@@ -51,7 +51,7 @@ internal class FakeRelationalDatabase : IRelationalDatabase
         return Routines.Find(r => r.Name == routineName).ToAsync();
     }
 
-    public virtual IAsyncEnumerable<IDatabaseSequence> GetAllSequences(CancellationToken cancellationToken = default) => Sequences.ToAsyncEnumerable();
+    public virtual IAsyncEnumerable<IDatabaseSequence> EnumerateAllSequences(CancellationToken cancellationToken = default) => Sequences.ToAsyncEnumerable();
 
     public virtual IAsyncEnumerable<IDatabaseSynonym> EnumerateAllSynonyms(CancellationToken cancellationToken = default) => Synonyms.ToAsyncEnumerable();
 

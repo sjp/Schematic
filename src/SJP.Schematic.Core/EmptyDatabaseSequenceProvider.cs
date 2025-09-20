@@ -18,7 +18,7 @@ public sealed class EmptyDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database sequences.</returns>
-    public IAsyncEnumerable<IDatabaseSequence> GetAllSequences(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseSequence>();
+    public IAsyncEnumerable<IDatabaseSequence> EnumerateAllSequences(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseSequence>();
 
     /// <summary>
     /// Gets all database sequences. This will always be an empty collection.

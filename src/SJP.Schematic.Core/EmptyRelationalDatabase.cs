@@ -98,9 +98,9 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database sequences.</returns>
-    public IAsyncEnumerable<IDatabaseSequence> GetAllSequences(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseSequence> EnumerateAllSequences(CancellationToken cancellationToken = default)
     {
-        return SequenceProvider.GetAllSequences(cancellationToken);
+        return SequenceProvider.EnumerateAllSequences(cancellationToken);
     }
 
     /// <summary>

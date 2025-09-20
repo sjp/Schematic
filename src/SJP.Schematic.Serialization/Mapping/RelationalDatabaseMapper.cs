@@ -54,7 +54,7 @@ public class RelationalDatabaseMapper
                 .Select(v => viewMapper.Map<IDatabaseView, Dto.DatabaseView>(v))
                 .ToListAsync(cancellationToken)
                 .AsTask(),
-            source.GetAllSequences(cancellationToken)
+            source.EnumerateAllSequences(cancellationToken)
                 .Select(s => sequenceMapper.Map<IDatabaseSequence, Dto.DatabaseSequence>(s))
                 .ToListAsync(cancellationToken)
                 .AsTask(),

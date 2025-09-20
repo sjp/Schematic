@@ -18,7 +18,7 @@ public sealed class EmptyDatabaseSequenceCommentProvider : IDatabaseSequenceComm
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of sequence comments.</returns>
-    public IAsyncEnumerable<IDatabaseSequenceComments> GetAllSequenceComments(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseSequenceComments>();
+    public IAsyncEnumerable<IDatabaseSequenceComments> EnumerateAllSequenceComments(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseSequenceComments>();
 
     /// <summary>
     /// Retrieves all database sequence comments defined within a database.

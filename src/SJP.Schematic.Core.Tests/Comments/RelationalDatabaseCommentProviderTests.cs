@@ -506,7 +506,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbSequences = await commentProvider.GetAllSequenceComments().ToListAsync().ConfigureAwait(false);
+        var dbSequences = await commentProvider.EnumerateAllSequenceComments().ToListAsync().ConfigureAwait(false);
         var sequenceName = dbSequences.Select(s => s.SequenceName).Single();
 
         Assert.That(sequenceName, Is.EqualTo(testSequenceName));

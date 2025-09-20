@@ -110,9 +110,9 @@ internal static class EmptyRelationalDatabaseTests
     }
 
     [Test]
-    public static async Task GetAllSequences_WhenEnumerated_ContainsNoValues()
+    public static async Task EnumerateAllSequences_WhenEnumerated_ContainsNoValues()
     {
-        var hasSequences = await Database.GetAllSequences()
+        var hasSequences = await Database.EnumerateAllSequences()
             .AnyAsync()
             .ConfigureAwait(false);
 

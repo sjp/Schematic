@@ -166,9 +166,9 @@ internal sealed class OracleDatabaseSequenceProviderTests : OracleTest
     }
 
     [Test]
-    public async Task GetAllSequences_WhenEnumerated_ContainsSequences()
+    public async Task EnumerateAllSequences_WhenEnumerated_ContainsSequences()
     {
-        var hasSequences = await SequenceProvider.GetAllSequences()
+        var hasSequences = await SequenceProvider.EnumerateAllSequences()
             .AnyAsync()
             .ConfigureAwait(false);
 
@@ -176,11 +176,11 @@ internal sealed class OracleDatabaseSequenceProviderTests : OracleTest
     }
 
     [Test]
-    public async Task GetAllSequences_WhenEnumerated_ContainsTestSequence()
+    public async Task EnumerateAllSequences_WhenEnumerated_ContainsTestSequence()
     {
         const string expectedSequenceName = "DB_TEST_SEQUENCE_1";
 
-        var containsTestSequence = await SequenceProvider.GetAllSequences()
+        var containsTestSequence = await SequenceProvider.EnumerateAllSequences()
             .AnyAsync(s => string.Equals(s.Name.LocalName, expectedSequenceName, StringComparison.Ordinal))
             .ConfigureAwait(false);
 

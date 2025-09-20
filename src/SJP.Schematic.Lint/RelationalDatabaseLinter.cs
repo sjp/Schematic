@@ -66,7 +66,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
                 yield return message;
         }
 
-        var sequences = await database.GetAllSequences(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+        var sequences = await database.EnumerateAllSequences(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
         foreach (var sequenceRule in SequenceRules)
         {
             await foreach (var message in sequenceRule.AnalyseSequences(sequences, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))

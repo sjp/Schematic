@@ -53,7 +53,7 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database sequences.</returns>
-    public IAsyncEnumerable<IDatabaseSequence> GetAllSequences(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseSequence> EnumerateAllSequences(CancellationToken cancellationToken = default)
     {
         return Connection.QueryEnumerableAsync<GetAllSequences.Result>(Queries.GetAllSequences.Sql, cancellationToken)
             .Select(row =>

@@ -157,9 +157,9 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
     }
 
     [Test]
-    public async Task GetAllSequenceComments_WhenEnumerated_ContainsSequenceComments()
+    public async Task EnumerateAllSequenceComments_WhenEnumerated_ContainsSequenceComments()
     {
-        var hasSequenceComments = await SequenceCommentProvider.GetAllSequenceComments()
+        var hasSequenceComments = await SequenceCommentProvider.EnumerateAllSequenceComments()
             .AnyAsync()
             .ConfigureAwait(false);
 
@@ -167,9 +167,9 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
     }
 
     [Test]
-    public async Task GetAllSequenceComments_WhenEnumerated_ContainsTestSequenceComment()
+    public async Task EnumerateAllSequenceComments_WhenEnumerated_ContainsTestSequenceComment()
     {
-        var containsTestSequence = await SequenceCommentProvider.GetAllSequenceComments()
+        var containsTestSequence = await SequenceCommentProvider.EnumerateAllSequenceComments()
             .AnyAsync(t => string.Equals(t.SequenceName.LocalName, "comment_test_sequence_1", StringComparison.Ordinal))
             .ConfigureAwait(false);
 
