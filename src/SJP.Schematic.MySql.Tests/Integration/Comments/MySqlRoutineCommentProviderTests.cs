@@ -189,10 +189,33 @@ END
     public async Task GetAllRoutineComments_WhenEnumerated_ContainsTestRoutineComment()
     {
         var containsTestRoutine = await RoutineCommentProvider.GetAllRoutineComments()
-            .AnyAsync(t => string.Equals(t.RoutineName.LocalName, "comment_test_routine_1", StringComparison.Ordinal))
+            .AnyAsync(rc => string.Equals(rc.RoutineName.LocalName, "comment_test_routine_1", StringComparison.Ordinal))
             .ConfigureAwait(false);
 
         Assert.That(containsTestRoutine, Is.True);
+    }
+
+    [Test]
+    public async Task GetAllRoutineComments2_WhenRetrieved_ContainsRoutineComments()
+    {
+        var routineComments = await RoutineCommentProvider.GetAllRoutineComments2().ConfigureAwait(false);
+
+        var hasComments = routineComments.Any(rc => rc.Comment.IsSome);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(routineComments, Is.Not.Empty);
+            Assert.That(hasComments, Is.True);
+        }
+    }
+
+    [Test]
+    public async Task GetAllRoutineComments2_WhenRetrieved_ContainsTestRoutineComment()
+    {
+        var routineComments = await RoutineCommentProvider.GetAllRoutineComments2().ConfigureAwait(false);
+        var hasTestRoutine = routineComments.Any(rc => string.Equals(rc.RoutineName.LocalName, "comment_test_routine_1", StringComparison.Ordinal));
+
+        Assert.That(hasTestRoutine, Is.True);
     }
 
     [Test]

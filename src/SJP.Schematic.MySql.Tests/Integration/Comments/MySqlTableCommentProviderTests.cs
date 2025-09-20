@@ -172,6 +172,29 @@ CREATE TABLE table_comment_table_2
     }
 
     [Test]
+    public async Task GetAllTableComments2_WhenRetrieved_ContainsTableComments()
+    {
+        var tableComments = await TableCommentProvider.GetAllTableComments2().ConfigureAwait(false);
+
+        var hasComments = tableComments.Any(tc => tc.Comment.IsSome);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(tableComments, Is.Not.Empty);
+            Assert.That(hasComments, Is.True);
+        }
+    }
+
+    [Test]
+    public async Task GetAllTableComments2_WhenRetrieved_ContainsTestTableComment()
+    {
+        var tableComments = await TableCommentProvider.GetAllTableComments2().ConfigureAwait(false);
+        var containsTestTable = tableComments.Any(t => string.Equals(t.TableName.LocalName, "table_comment_table_1", StringComparison.Ordinal));
+
+        Assert.That(containsTestTable, Is.True);
+    }
+
+    [Test]
     public async Task GetTableComments_WhenTableMissingComment_ReturnsNone()
     {
         var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
