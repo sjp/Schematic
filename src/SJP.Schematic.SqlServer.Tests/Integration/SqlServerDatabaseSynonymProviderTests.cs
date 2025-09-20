@@ -167,6 +167,23 @@ internal sealed class SqlServerDatabaseSynonymProviderTests : SqlServerTest
     }
 
     [Test]
+    public async Task GetAllSynonyms2_WhenRetrieved_ContainsSynonyms()
+    {
+        var synonyms = await SynonymProvider.GetAllSynonyms2().ConfigureAwait(false);
+
+        Assert.That(synonyms, Is.Not.Empty);
+    }
+
+    [Test]
+    public async Task GetAllSynonyms2_WhenRetrieved_ContainsTestSynonym()
+    {
+        var synonyms = await SynonymProvider.GetAllSynonyms2().ConfigureAwait(false);
+        var containsTestSynonym = synonyms.Any(s => string.Equals(s.Name.LocalName, "db_test_synonym_1", StringComparison.Ordinal));
+
+        Assert.That(containsTestSynonym, Is.Not.Empty);
+    }
+
+    [Test]
     public async Task GetSynonym_ForSynonymToView_ReturnsSynonymWithCorrectTarget()
     {
         var expectedTarget = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "synonym_test_view_1");
