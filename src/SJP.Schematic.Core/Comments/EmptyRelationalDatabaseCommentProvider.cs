@@ -33,9 +33,9 @@ public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of routine comments.</returns>
-    public IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseRoutineComments> EnumerateAllRoutineComments(CancellationToken cancellationToken = default)
     {
-        return _routineCommentProvider.GetAllRoutineComments(cancellationToken);
+        return _routineCommentProvider.EnumerateAllRoutineComments(cancellationToken);
     }
 
     /// <summary>

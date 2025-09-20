@@ -251,6 +251,38 @@ internal static class RelationalDatabaseTests
     }
 
     [Test]
+    public static async Task GetAllTables2_WhenInvoked_ReturnsTablesFromCtor()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+
+        var testTableName = Identifier.CreateQualifiedIdentifier("test_table_name");
+        var table = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
+        table.Setup(t => t.Name).Returns(testTableName);
+        var tables = new[] { table.Object };
+
+        var views = Array.Empty<IDatabaseView>();
+        var sequences = Array.Empty<IDatabaseSequence>();
+        var synonyms = Array.Empty<IDatabaseSynonym>();
+        var routines = Array.Empty<IDatabaseRoutine>();
+
+        var database = new RelationalDatabase(
+            identifierDefaults,
+            identifierResolver,
+            tables,
+            views,
+            sequences,
+            synonyms,
+            routines
+        );
+
+        var dbTables = await database.GetAllTables2().ConfigureAwait(false);
+        var tableName = dbTables.Select(t => t.Name).Single();
+
+        Assert.That(tableName, Is.EqualTo(testTableName));
+    }
+
+    [Test]
     public static async Task GetTable_WhenGivenMatchingTableName_ReturnsTableFromCtor()
     {
         var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
@@ -343,6 +375,37 @@ internal static class RelationalDatabaseTests
         );
 
         var dbViews = await database.GetAllViews().ToListAsync().ConfigureAwait(false);
+        var viewName = dbViews.Select(v => v.Name).Single();
+
+        Assert.That(viewName, Is.EqualTo(testViewName));
+    }
+
+    [Test]
+    public static async Task GetAllViews2_WhenInvoked_ReturnsViewsFromCtor()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+        var tables = Array.Empty<IRelationalDatabaseTable>();
+        var sequences = Array.Empty<IDatabaseSequence>();
+        var synonyms = Array.Empty<IDatabaseSynonym>();
+        var routines = Array.Empty<IDatabaseRoutine>();
+
+        var testViewName = Identifier.CreateQualifiedIdentifier("test_view_name");
+        var view = new Mock<IDatabaseView>(MockBehavior.Strict);
+        view.Setup(t => t.Name).Returns(testViewName);
+        var views = new[] { view.Object };
+
+        var database = new RelationalDatabase(
+            identifierDefaults,
+            identifierResolver,
+            tables,
+            views,
+            sequences,
+            synonyms,
+            routines
+        );
+
+        var dbViews = await database.GetAllViews2().ConfigureAwait(false);
         var viewName = dbViews.Select(v => v.Name).Single();
 
         Assert.That(viewName, Is.EqualTo(testViewName));
@@ -449,6 +512,37 @@ internal static class RelationalDatabaseTests
     }
 
     [Test]
+    public static async Task GetAllSequences2_WhenInvoked_ReturnsSequencesFromCtor()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+        var tables = Array.Empty<IRelationalDatabaseTable>();
+        var views = Array.Empty<IDatabaseView>();
+        var synonyms = Array.Empty<IDatabaseSynonym>();
+        var routines = Array.Empty<IDatabaseRoutine>();
+
+        var testSequenceName = Identifier.CreateQualifiedIdentifier("test_sequence_name");
+        var sequence = new Mock<IDatabaseSequence>(MockBehavior.Strict);
+        sequence.Setup(t => t.Name).Returns(testSequenceName);
+        var sequences = new[] { sequence.Object };
+
+        var database = new RelationalDatabase(
+            identifierDefaults,
+            identifierResolver,
+            tables,
+            views,
+            sequences,
+            synonyms,
+            routines
+        );
+
+        var dbSequences = await database.GetAllSequences2().ConfigureAwait(false);
+        var sequenceName = dbSequences.Select(s => s.Name).Single();
+
+        Assert.That(sequenceName, Is.EqualTo(testSequenceName));
+    }
+
+    [Test]
     public static async Task GetSequence_WhenGivenMatchingSequenceName_ReturnsSequenceFromCtor()
     {
         var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
@@ -549,6 +643,37 @@ internal static class RelationalDatabaseTests
     }
 
     [Test]
+    public static async Task GetAllSynonyms2_WhenInvoked_ReturnsSynonymsFromCtor()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+        var tables = Array.Empty<IRelationalDatabaseTable>();
+        var views = Array.Empty<IDatabaseView>();
+        var sequences = Array.Empty<IDatabaseSequence>();
+        var routines = Array.Empty<IDatabaseRoutine>();
+
+        var testSynonymName = Identifier.CreateQualifiedIdentifier("test_synonym_name");
+        var synonym = new Mock<IDatabaseSynonym>(MockBehavior.Strict);
+        synonym.Setup(t => t.Name).Returns(testSynonymName);
+        var synonyms = new[] { synonym.Object };
+
+        var database = new RelationalDatabase(
+            identifierDefaults,
+            identifierResolver,
+            tables,
+            views,
+            sequences,
+            synonyms,
+            routines
+        );
+
+        var dbSynonyms = await database.GetAllSynonyms2().ConfigureAwait(false);
+        var synonymName = dbSynonyms.Select(s => s.Name).Single();
+
+        Assert.That(synonymName, Is.EqualTo(testSynonymName));
+    }
+
+    [Test]
     public static async Task GetSynonym_WhenGivenMatchingSynonymName_ReturnsSynonymFromCtor()
     {
         var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
@@ -618,7 +743,7 @@ internal static class RelationalDatabaseTests
     }
 
     [Test]
-    public static async Task GetAllRoutines_WhenInvoked_ReturnsRoutinesFromCtor()
+    public static async Task EnumerateAllRoutines_WhenInvoked_ReturnsRoutinesFromCtor()
     {
         var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
         var identifierResolver = new VerbatimIdentifierResolutionStrategy();
@@ -642,7 +767,38 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbRoutines = await database.GetAllRoutines().ToListAsync().ConfigureAwait(false);
+        var dbRoutines = await database.EnumerateAllRoutines().ToListAsync().ConfigureAwait(false);
+        var routineName = dbRoutines.Select(r => r.Name).Single();
+
+        Assert.That(routineName, Is.EqualTo(testRoutineName));
+    }
+
+    [Test]
+    public static async Task GetAllRoutines2_WhenInvoked_ReturnsRoutinesFromCtor()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+        var tables = Array.Empty<IRelationalDatabaseTable>();
+        var views = Array.Empty<IDatabaseView>();
+        var sequences = Array.Empty<IDatabaseSequence>();
+        var synonyms = Array.Empty<IDatabaseSynonym>();
+
+        var testRoutineName = Identifier.CreateQualifiedIdentifier("test_routine_name");
+        var routine = new Mock<IDatabaseRoutine>(MockBehavior.Strict);
+        routine.Setup(t => t.Name).Returns(testRoutineName);
+        var routines = new[] { routine.Object };
+
+        var database = new RelationalDatabase(
+            identifierDefaults,
+            identifierResolver,
+            tables,
+            views,
+            sequences,
+            synonyms,
+            routines
+        );
+
+        var dbRoutines = await database.GetAllRoutines2().ConfigureAwait(false);
         var routineName = dbRoutines.Select(r => r.Name).Single();
 
         Assert.That(routineName, Is.EqualTo(testRoutineName));

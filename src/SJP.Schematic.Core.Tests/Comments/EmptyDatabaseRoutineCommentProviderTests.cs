@@ -26,10 +26,10 @@ internal static class EmptyDatabaseRoutineCommentProviderTests
     }
 
     [Test]
-    public static async Task GetAllRoutineComments_WhenInvoked_DoesNotEnumerateAnyValues()
+    public static async Task EnumerateAllRoutineComments_WhenInvoked_DoesNotEnumerateAnyValues()
     {
         var provider = new EmptyDatabaseRoutineCommentProvider();
-        var hasComments = await provider.GetAllRoutineComments()
+        var hasComments = await provider.EnumerateAllRoutineComments()
             .AnyAsync()
             .ConfigureAwait(false);
 

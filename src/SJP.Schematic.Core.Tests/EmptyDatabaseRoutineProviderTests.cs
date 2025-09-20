@@ -25,10 +25,10 @@ internal static class EmptyDatabaseRoutineProviderTests
     }
 
     [Test]
-    public static async Task GetAllRoutines_WhenEnumerated_ContainsNoValues()
+    public static async Task EnumerateAllRoutines_WhenEnumerated_ContainsNoValues()
     {
         var provider = new EmptyDatabaseRoutineProvider();
-        var hasRoutines = await provider.GetAllRoutines()
+        var hasRoutines = await provider.EnumerateAllRoutines()
             .AnyAsync()
             .ConfigureAwait(false);
 

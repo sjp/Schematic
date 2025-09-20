@@ -115,7 +115,7 @@ internal static class RelationalDatabaseCommentProviderSnapshotExtensionsTests
         var snapshotViewComments = await snapshot.GetAllViewComments().ToListAsync().ConfigureAwait(false);
         var snapshotSequenceComments = await snapshot.GetAllSequenceComments().ToListAsync().ConfigureAwait(false);
         var snapshotSynonymComments = await snapshot.GetAllSynonymComments().ToListAsync().ConfigureAwait(false);
-        var snapshotRoutineComments = await snapshot.GetAllRoutineComments().ToListAsync().ConfigureAwait(false);
+        var snapshotRoutineComments = await snapshot.EnumerateAllRoutineComments().ToListAsync().ConfigureAwait(false);
 
         using (Assert.EnterMultipleScope())
         {
@@ -307,7 +307,7 @@ internal static class RelationalDatabaseCommentProviderSnapshotExtensionsTests
         var snapshotViewComments = await snapshot.GetAllViewComments().ToListAsync().ConfigureAwait(false);
         var snapshotSequenceComments = await snapshot.GetAllSequenceComments().ToListAsync().ConfigureAwait(false);
         var snapshotSynonymComments = await snapshot.GetAllSynonymComments().ToListAsync().ConfigureAwait(false);
-        var snapshotRoutineComments = await snapshot.GetAllRoutineComments().ToListAsync().ConfigureAwait(false);
+        var snapshotRoutineComments = await snapshot.EnumerateAllRoutineComments().ToListAsync().ConfigureAwait(false);
 
         using (Assert.EnterMultipleScope())
         {
@@ -535,7 +535,7 @@ internal static class RelationalDatabaseCommentProviderSnapshotExtensionsTests
         var snapshotViewComments = await snapshot.GetAllViewComments().ToListAsync().ConfigureAwait(false);
         var snapshotSequenceComments = await snapshot.GetAllSequenceComments().ToListAsync().ConfigureAwait(false);
         var snapshotSynonymComments = await snapshot.GetAllSynonymComments().ToListAsync().ConfigureAwait(false);
-        var snapshotRoutineComments = await snapshot.GetAllRoutineComments().ToListAsync().ConfigureAwait(false);
+        var snapshotRoutineComments = await snapshot.EnumerateAllRoutineComments().ToListAsync().ConfigureAwait(false);
 
         using (Assert.EnterMultipleScope())
         {
@@ -553,7 +553,7 @@ internal static class RelationalDatabaseCommentProviderSnapshotExtensionsTests
         var tableSnapshotViewComments = await tableSnapshot.GetAllViewComments().ToListAsync().ConfigureAwait(false);
         var tableSnapshotSequenceComments = await tableSnapshot.GetAllSequenceComments().ToListAsync().ConfigureAwait(false);
         var tableSnapshotSynonymComments = await tableSnapshot.GetAllSynonymComments().ToListAsync().ConfigureAwait(false);
-        var tableSnapshotRoutineComments = await tableSnapshot.GetAllRoutineComments().ToListAsync().ConfigureAwait(false);
+        var tableSnapshotRoutineComments = await tableSnapshot.EnumerateAllRoutineComments().ToListAsync().ConfigureAwait(false);
 
         using (Assert.EnterMultipleScope())
         {
@@ -571,7 +571,7 @@ internal static class RelationalDatabaseCommentProviderSnapshotExtensionsTests
         var viewSnapshotViewComments = await viewSnapshot.GetAllViewComments().ToListAsync().ConfigureAwait(false);
         var viewSnapshotSequenceComments = await viewSnapshot.GetAllSequenceComments().ToListAsync().ConfigureAwait(false);
         var viewSnapshotSynonymComments = await viewSnapshot.GetAllSynonymComments().ToListAsync().ConfigureAwait(false);
-        var viewSnapshotRoutineComments = await viewSnapshot.GetAllRoutineComments().ToListAsync().ConfigureAwait(false);
+        var viewSnapshotRoutineComments = await viewSnapshot.EnumerateAllRoutineComments().ToListAsync().ConfigureAwait(false);
 
         using (Assert.EnterMultipleScope())
         {
@@ -589,7 +589,7 @@ internal static class RelationalDatabaseCommentProviderSnapshotExtensionsTests
         var sequenceSnapshotViewComments = await sequenceSnapshot.GetAllViewComments().ToListAsync().ConfigureAwait(false);
         var sequenceSnapshotSequenceComments = await sequenceSnapshot.GetAllSequenceComments().ToListAsync().ConfigureAwait(false);
         var sequenceSnapshotSynonymComments = await sequenceSnapshot.GetAllSynonymComments().ToListAsync().ConfigureAwait(false);
-        var sequenceSnapshotRoutineComments = await sequenceSnapshot.GetAllRoutineComments().ToListAsync().ConfigureAwait(false);
+        var sequenceSnapshotRoutineComments = await sequenceSnapshot.EnumerateAllRoutineComments().ToListAsync().ConfigureAwait(false);
 
         using (Assert.EnterMultipleScope())
         {
@@ -607,7 +607,7 @@ internal static class RelationalDatabaseCommentProviderSnapshotExtensionsTests
         var synonymSnapshotViewComments = await synonymSnapshot.GetAllViewComments().ToListAsync().ConfigureAwait(false);
         var synonymSnapshotSequenceComments = await synonymSnapshot.GetAllSequenceComments().ToListAsync().ConfigureAwait(false);
         var synonymSnapshotSynonymComments = await synonymSnapshot.GetAllSynonymComments().ToListAsync().ConfigureAwait(false);
-        var synonymSnapshotRoutineComments = await synonymSnapshot.GetAllRoutineComments().ToListAsync().ConfigureAwait(false);
+        var synonymSnapshotRoutineComments = await synonymSnapshot.EnumerateAllRoutineComments().ToListAsync().ConfigureAwait(false);
 
         using (Assert.EnterMultipleScope())
         {
@@ -625,7 +625,7 @@ internal static class RelationalDatabaseCommentProviderSnapshotExtensionsTests
         var routineSnapshotViewComments = await routineSnapshot.GetAllViewComments().ToListAsync().ConfigureAwait(false);
         var routineSnapshotSequenceComments = await routineSnapshot.GetAllSequenceComments().ToListAsync().ConfigureAwait(false);
         var routineSnapshotSynonymComments = await routineSnapshot.GetAllSynonymComments().ToListAsync().ConfigureAwait(false);
-        var routineSnapshotRoutineComments = await routineSnapshot.GetAllRoutineComments().ToListAsync().ConfigureAwait(false);
+        var routineSnapshotRoutineComments = await routineSnapshot.EnumerateAllRoutineComments().ToListAsync().ConfigureAwait(false);
 
         using (Assert.EnterMultipleScope())
         {

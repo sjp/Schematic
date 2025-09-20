@@ -166,7 +166,7 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
         var snapshotViews = await snapshot.GetAllViews().ToListAsync().ConfigureAwait(false);
         var snapshotSequences = await snapshot.GetAllSequences().ToListAsync().ConfigureAwait(false);
         var snapshotSynonyms = await snapshot.GetAllSynonyms().ToListAsync().ConfigureAwait(false);
-        var snapshotRoutines = await snapshot.GetAllRoutines().ToListAsync().ConfigureAwait(false);
+        var snapshotRoutines = await snapshot.EnumerateAllRoutines().ToListAsync().ConfigureAwait(false);
 
         using (Assert.EnterMultipleScope())
         {
@@ -291,7 +291,7 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
         var snapshotViews = await snapshot.GetAllViews().ToListAsync().ConfigureAwait(false);
         var snapshotSequences = await snapshot.GetAllSequences().ToListAsync().ConfigureAwait(false);
         var snapshotSynonyms = await snapshot.GetAllSynonyms().ToListAsync().ConfigureAwait(false);
-        var snapshotRoutines = await snapshot.GetAllRoutines().ToListAsync().ConfigureAwait(false);
+        var snapshotRoutines = await snapshot.EnumerateAllRoutines().ToListAsync().ConfigureAwait(false);
 
         using (Assert.EnterMultipleScope())
         {
@@ -586,7 +586,7 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
         var snapshotViews = await snapshot.GetAllViews().ToListAsync().ConfigureAwait(false);
         var snapshotSequences = await snapshot.GetAllSequences().ToListAsync().ConfigureAwait(false);
         var snapshotSynonyms = await snapshot.GetAllSynonyms().ToListAsync().ConfigureAwait(false);
-        var snapshotRoutines = await snapshot.GetAllRoutines().ToListAsync().ConfigureAwait(false);
+        var snapshotRoutines = await snapshot.EnumerateAllRoutines().ToListAsync().ConfigureAwait(false);
 
         using (Assert.EnterMultipleScope())
         {
@@ -604,7 +604,7 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
         var tableSnapshotViews = await tableSnapshot.GetAllViews().ToListAsync().ConfigureAwait(false);
         var tableSnapshotSequences = await tableSnapshot.GetAllSequences().ToListAsync().ConfigureAwait(false);
         var tableSnapshotSynonyms = await tableSnapshot.GetAllSynonyms().ToListAsync().ConfigureAwait(false);
-        var tableSnapshotRoutines = await tableSnapshot.GetAllRoutines().ToListAsync().ConfigureAwait(false);
+        var tableSnapshotRoutines = await tableSnapshot.EnumerateAllRoutines().ToListAsync().ConfigureAwait(false);
 
         using (Assert.EnterMultipleScope())
         {
@@ -622,7 +622,7 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
         var viewSnapshotViews = await viewSnapshot.GetAllViews().ToListAsync().ConfigureAwait(false);
         var viewSnapshotSequences = await viewSnapshot.GetAllSequences().ToListAsync().ConfigureAwait(false);
         var viewSnapshotSynonyms = await viewSnapshot.GetAllSynonyms().ToListAsync().ConfigureAwait(false);
-        var viewSnapshotRoutines = await viewSnapshot.GetAllRoutines().ToListAsync().ConfigureAwait(false);
+        var viewSnapshotRoutines = await viewSnapshot.EnumerateAllRoutines().ToListAsync().ConfigureAwait(false);
 
         using (Assert.EnterMultipleScope())
         {
@@ -640,7 +640,7 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
         var sequenceSnapshotViews = await sequenceSnapshot.GetAllViews().ToListAsync().ConfigureAwait(false);
         var sequenceSnapshotSequences = await sequenceSnapshot.GetAllSequences().ToListAsync().ConfigureAwait(false);
         var sequenceSnapshotSynonyms = await sequenceSnapshot.GetAllSynonyms().ToListAsync().ConfigureAwait(false);
-        var sequenceSnapshotRoutines = await sequenceSnapshot.GetAllRoutines().ToListAsync().ConfigureAwait(false);
+        var sequenceSnapshotRoutines = await sequenceSnapshot.EnumerateAllRoutines().ToListAsync().ConfigureAwait(false);
 
         using (Assert.EnterMultipleScope())
         {
@@ -658,7 +658,7 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
         var synonymSnapshotViews = await synonymSnapshot.GetAllViews().ToListAsync().ConfigureAwait(false);
         var synonymSnapshotSequences = await synonymSnapshot.GetAllSequences().ToListAsync().ConfigureAwait(false);
         var synonymSnapshotSynonyms = await synonymSnapshot.GetAllSynonyms().ToListAsync().ConfigureAwait(false);
-        var synonymSnapshotRoutines = await synonymSnapshot.GetAllRoutines().ToListAsync().ConfigureAwait(false);
+        var synonymSnapshotRoutines = await synonymSnapshot.EnumerateAllRoutines().ToListAsync().ConfigureAwait(false);
 
         using (Assert.EnterMultipleScope())
         {
@@ -676,7 +676,7 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
         var routineSnapshotViews = await routineSnapshot.GetAllViews().ToListAsync().ConfigureAwait(false);
         var routineSnapshotSequences = await routineSnapshot.GetAllSequences().ToListAsync().ConfigureAwait(false);
         var routineSnapshotSynonyms = await routineSnapshot.GetAllSynonyms().ToListAsync().ConfigureAwait(false);
-        var routineSnapshotRoutines = await routineSnapshot.GetAllRoutines().ToListAsync().ConfigureAwait(false);
+        var routineSnapshotRoutines = await routineSnapshot.EnumerateAllRoutines().ToListAsync().ConfigureAwait(false);
 
         using (Assert.EnterMultipleScope())
         {

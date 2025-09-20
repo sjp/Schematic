@@ -158,9 +158,9 @@ internal static class SqliteRelationalDatabaseTests
         }
 
         [Test]
-        public static async Task GetAllRoutines_WhenEnumerated_ContainsNoValues()
+        public static async Task EnumerateAllRoutines_WhenEnumerated_ContainsNoValues()
         {
-            var hasRoutines = await Database.GetAllRoutines()
+            var hasRoutines = await Database.EnumerateAllRoutines()
                 .AnyAsync()
                 .ConfigureAwait(false);
 

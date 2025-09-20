@@ -192,9 +192,9 @@ public class OracleDatabaseCommentProvider : IRelationalDatabaseCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of routine comments.</returns>
-    public IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseRoutineComments> EnumerateAllRoutineComments(CancellationToken cancellationToken = default)
     {
-        return RoutineCommentProvider.GetAllRoutineComments(cancellationToken);
+        return RoutineCommentProvider.EnumerateAllRoutineComments(cancellationToken);
     }
 
     /// <summary>

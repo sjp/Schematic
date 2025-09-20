@@ -245,7 +245,7 @@ public class RelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token. Unused.</param>
     /// <returns>A collection of database routines.</returns>
-    public IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines(CancellationToken cancellationToken = default) => Routines.ToAsyncEnumerable();
+    public IAsyncEnumerable<IDatabaseRoutine> EnumerateAllRoutines(CancellationToken cancellationToken = default) => Routines.ToAsyncEnumerable();
 
     /// <summary>
     /// Retrieves all of the database routines.

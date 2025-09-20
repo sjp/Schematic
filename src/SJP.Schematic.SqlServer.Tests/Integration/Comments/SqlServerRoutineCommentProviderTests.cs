@@ -222,9 +222,9 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     }
 
     [Test]
-    public async Task GetAllRoutineComments_WhenEnumerated_ContainsRoutineComments()
+    public async Task EnumerateAllRoutineComments_WhenEnumerated_ContainsRoutineComments()
     {
-        var hasRoutineComments = await RoutineCommentProvider.GetAllRoutineComments()
+        var hasRoutineComments = await RoutineCommentProvider.EnumerateAllRoutineComments()
             .AnyAsync()
             .ConfigureAwait(false);
 
@@ -232,9 +232,9 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     }
 
     [Test]
-    public async Task GetAllRoutineComments_WhenEnumerated_ContainsTestRoutineComment()
+    public async Task EnumerateAllRoutineComments_WhenEnumerated_ContainsTestRoutineComment()
     {
-        var containsTestRoutine = await RoutineCommentProvider.GetAllRoutineComments()
+        var containsTestRoutine = await RoutineCommentProvider.EnumerateAllRoutineComments()
             .AnyAsync(t => string.Equals(t.RoutineName.LocalName, "routine_comment_tf_1", StringComparison.Ordinal))
             .ConfigureAwait(false);
 

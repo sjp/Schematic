@@ -80,7 +80,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
                 yield return message;
         }
 
-        var routines = await database.GetAllRoutines(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+        var routines = await database.EnumerateAllRoutines(cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
         foreach (var routineRule in RoutineRules)
         {
             await foreach (var message in routineRule.AnalyseRoutines(routines, cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))

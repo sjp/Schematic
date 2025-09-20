@@ -62,7 +62,7 @@ public class RelationalDatabaseMapper
                 .Select(s => synonymMapper.Map<IDatabaseSynonym, Dto.DatabaseSynonym>(s))
                 .ToListAsync(cancellationToken)
                 .AsTask(),
-            source.GetAllRoutines(cancellationToken)
+            source.EnumerateAllRoutines(cancellationToken)
                 .Select(r => routineMapper.Map<IDatabaseRoutine, Dto.DatabaseRoutine>(r))
                 .ToListAsync(cancellationToken)
                 .AsTask()

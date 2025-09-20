@@ -619,7 +619,7 @@ internal static class RelationalDatabaseCommentProviderTests
     }
 
     [Test]
-    public static async Task GetAllRoutineComments_WhenInvoked_ReturnsRoutineCommentsFromCtor()
+    public static async Task EnumerateAllRoutineComments_WhenInvoked_ReturnsRoutineCommentsFromCtor()
     {
         var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
         var identifierResolver = new VerbatimIdentifierResolutionStrategy();
@@ -643,7 +643,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbRoutines = await commentProvider.GetAllRoutineComments().ToListAsync().ConfigureAwait(false);
+        var dbRoutines = await commentProvider.EnumerateAllRoutineComments().ToListAsync().ConfigureAwait(false);
         var routineName = dbRoutines.Select(r => r.RoutineName).Single();
 
         Assert.That(routineName, Is.EqualTo(testRoutineName));

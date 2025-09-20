@@ -166,9 +166,9 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database routines.</returns>
-    public IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseRoutine> EnumerateAllRoutines(CancellationToken cancellationToken = default)
     {
-        return RoutineProvider.GetAllRoutines(cancellationToken);
+        return RoutineProvider.EnumerateAllRoutines(cancellationToken);
     }
 
     /// <summary>

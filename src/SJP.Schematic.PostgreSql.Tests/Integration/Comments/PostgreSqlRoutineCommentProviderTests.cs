@@ -133,9 +133,9 @@ LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
     }
 
     [Test]
-    public async Task GetAllRoutineComments_WhenEnumerated_ContainsRoutineComments()
+    public async Task EnumerateAllRoutineComments_WhenEnumerated_ContainsRoutineComments()
     {
-        var hasRoutineComments = await RoutineCommentProvider.GetAllRoutineComments()
+        var hasRoutineComments = await RoutineCommentProvider.EnumerateAllRoutineComments()
             .AnyAsync()
             .ConfigureAwait(false);
 
@@ -143,9 +143,9 @@ LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
     }
 
     [Test]
-    public async Task GetAllRoutineComments_WhenEnumerated_ContainsTestRoutineComment()
+    public async Task EnumerateAllRoutineComments_WhenEnumerated_ContainsTestRoutineComment()
     {
-        var containsTestRoutine = await RoutineCommentProvider.GetAllRoutineComments()
+        var containsTestRoutine = await RoutineCommentProvider.EnumerateAllRoutineComments()
             .AnyAsync(r => string.Equals(r.RoutineName.LocalName, "db_comment_test_routine_1", StringComparison.Ordinal))
             .ConfigureAwait(false);
 

@@ -176,9 +176,9 @@ END
     }
 
     [Test]
-    public async Task GetAllRoutineComments_WhenEnumerated_ContainsRoutineComments()
+    public async Task EnumerateAllRoutineComments_WhenEnumerated_ContainsRoutineComments()
     {
-        var hasRoutineComments = await RoutineCommentProvider.GetAllRoutineComments()
+        var hasRoutineComments = await RoutineCommentProvider.EnumerateAllRoutineComments()
             .AnyAsync()
             .ConfigureAwait(false);
 
@@ -186,9 +186,9 @@ END
     }
 
     [Test]
-    public async Task GetAllRoutineComments_WhenEnumerated_ContainsTestRoutineComment()
+    public async Task EnumerateAllRoutineComments_WhenEnumerated_ContainsTestRoutineComment()
     {
-        var containsTestRoutine = await RoutineCommentProvider.GetAllRoutineComments()
+        var containsTestRoutine = await RoutineCommentProvider.EnumerateAllRoutineComments()
             .AnyAsync(rc => string.Equals(rc.RoutineName.LocalName, "comment_test_routine_1", StringComparison.Ordinal))
             .ConfigureAwait(false);
 

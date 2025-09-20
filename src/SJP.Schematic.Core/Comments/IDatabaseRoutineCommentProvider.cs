@@ -24,7 +24,7 @@ public interface IDatabaseRoutineCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of routine comments.</returns>
-    IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments(CancellationToken cancellationToken = default);
+    IAsyncEnumerable<IDatabaseRoutineComments> EnumerateAllRoutineComments(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves all database routine comments defined within a database.

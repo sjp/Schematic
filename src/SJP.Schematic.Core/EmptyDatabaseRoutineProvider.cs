@@ -18,7 +18,7 @@ public sealed class EmptyDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database routines.</returns>
-    public IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseRoutine>();
+    public IAsyncEnumerable<IDatabaseRoutine> EnumerateAllRoutines(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseRoutine>();
 
     /// <summary>
     /// Gets all database routines. This will always be an empty collection.

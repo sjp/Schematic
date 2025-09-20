@@ -18,7 +18,7 @@ public sealed class EmptyDatabaseRoutineCommentProvider : IDatabaseRoutineCommen
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of routine comments.</returns>
-    public IAsyncEnumerable<IDatabaseRoutineComments> GetAllRoutineComments(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseRoutineComments>();
+    public IAsyncEnumerable<IDatabaseRoutineComments> EnumerateAllRoutineComments(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IDatabaseRoutineComments>();
 
     /// <summary>
     /// Retrieves all database routine comments defined within a database.

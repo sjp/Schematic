@@ -177,9 +177,9 @@ public class MySqlRelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database routines.</returns>
-    public IAsyncEnumerable<IDatabaseRoutine> GetAllRoutines(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseRoutine> EnumerateAllRoutines(CancellationToken cancellationToken = default)
     {
-        return _routineProvider.GetAllRoutines(cancellationToken);
+        return _routineProvider.EnumerateAllRoutines(cancellationToken);
     }
 
     /// <summary>

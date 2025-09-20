@@ -181,9 +181,9 @@ END;", CancellationToken.None).ConfigureAwait(false);
     }
 
     [Test]
-    public async Task GetAllRoutines_WhenEnumerated_ContainsRoutines()
+    public async Task EnumerateAllRoutines_WhenEnumerated_ContainsRoutines()
     {
-        var hasRoutines = await RoutineProvider.GetAllRoutines()
+        var hasRoutines = await RoutineProvider.EnumerateAllRoutines()
             .AnyAsync()
             .ConfigureAwait(false);
 
@@ -191,9 +191,9 @@ END;", CancellationToken.None).ConfigureAwait(false);
     }
 
     [Test]
-    public async Task GetAllRoutines_WhenEnumerated_ContainsTestRoutine()
+    public async Task EnumerateAllRoutines_WhenEnumerated_ContainsTestRoutine()
     {
-        var containsTestRoutine = await RoutineProvider.GetAllRoutines()
+        var containsTestRoutine = await RoutineProvider.EnumerateAllRoutines()
             .AnyAsync(r => string.Equals(r.Name.LocalName, "DB_TEST_ROUTINE_1", StringComparison.Ordinal))
             .ConfigureAwait(false);
 

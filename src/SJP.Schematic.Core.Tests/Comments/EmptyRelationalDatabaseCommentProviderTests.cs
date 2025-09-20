@@ -183,7 +183,7 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     public static async Task GetAllRoutineComments_WhenInvoked_DoesNotEnumerateAnyValues()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
-        var hasComments = await provider.GetAllRoutineComments()
+        var hasComments = await provider.EnumerateAllRoutineComments()
             .AnyAsync()
             .ConfigureAwait(false);
 
