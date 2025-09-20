@@ -191,10 +191,10 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     }
 
     [Test]
-    public static async Task GetAllRoutineComments2_WhenInvoked_DoesNotContainAnyValues()
+    public static async Task GetAllRoutineComments_WhenInvoked_DoesNotContainAnyValues()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
-        var comments = await provider.GetAllRoutineComments2().ConfigureAwait(false);
+        var comments = await provider.GetAllRoutineComments().ConfigureAwait(false);
 
         Assert.That(comments, Is.Empty);
     }

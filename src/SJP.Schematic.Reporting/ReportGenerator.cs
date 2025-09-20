@@ -50,7 +50,7 @@ public class ReportGenerator
             Database.GetAllViews2(cancellationToken),
             Database.GetAllSequences2(cancellationToken),
             Database.GetAllSynonyms2(cancellationToken),
-            Database.GetAllRoutines2(cancellationToken)
+            Database.GetAllRoutines(cancellationToken)
         ).WhenAll().ConfigureAwait(false);
 
         var rowCounts = await GetRowCountsAsync(tables, cancellationToken).ConfigureAwait(false);

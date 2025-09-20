@@ -188,9 +188,9 @@ public class OracleRelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database routines.</returns>
-    public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines2(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default)
     {
-        return _routineProvider.GetAllRoutines2(cancellationToken);
+        return _routineProvider.GetAllRoutines(cancellationToken);
     }
 
     /// <summary>

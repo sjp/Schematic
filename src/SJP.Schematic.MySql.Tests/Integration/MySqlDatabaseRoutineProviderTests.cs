@@ -178,18 +178,18 @@ END", CancellationToken.None).ConfigureAwait(false);
     }
 
     [Test]
-    public async Task GetAllRoutines2_WhenRetrieved_ContainsRoutines()
+    public async Task GetAllRoutines_WhenRetrieved_ContainsRoutines()
     {
-        var routines = await RoutineProvider.GetAllRoutines2().ConfigureAwait(false);
+        var routines = await RoutineProvider.GetAllRoutines().ConfigureAwait(false);
 
         Assert.That(routines, Is.Not.Empty);
     }
 
     [Test]
-    public async Task GetAllRoutines2_WhenRetrieved_ContainsTestRoutine()
+    public async Task GetAllRoutines_WhenRetrieved_ContainsTestRoutine()
     {
         const string routineName = "db_test_routine_1";
-        var routines = await RoutineProvider.GetAllRoutines2().ConfigureAwait(false);
+        var routines = await RoutineProvider.GetAllRoutines().ConfigureAwait(false);
         var containsTestRoutine = routines.Any(r => string.Equals(r.Name.LocalName, routineName, StringComparison.Ordinal));
 
         Assert.That(containsTestRoutine, Is.True);

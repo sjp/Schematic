@@ -202,9 +202,9 @@ public class OracleDatabaseCommentProvider : IRelationalDatabaseCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of routine comments.</returns>
-    public Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments2(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments(CancellationToken cancellationToken = default)
     {
-        return RoutineCommentProvider.GetAllRoutineComments2(cancellationToken);
+        return RoutineCommentProvider.GetAllRoutineComments(cancellationToken);
     }
 
     private readonly IRelationalDatabaseTableCommentProvider _tableCommentProvider;

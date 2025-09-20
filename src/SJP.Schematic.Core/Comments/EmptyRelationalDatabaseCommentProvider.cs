@@ -83,9 +83,9 @@ public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of routine comments.</returns>
-    public Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments2(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments(CancellationToken cancellationToken = default)
     {
-        return _routineCommentProvider.GetAllRoutineComments2(cancellationToken);
+        return _routineCommentProvider.GetAllRoutineComments(cancellationToken);
     }
 
     /// <summary>

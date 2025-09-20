@@ -71,10 +71,10 @@ public class OracleDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database routines.</returns>
-    public async Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines2(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default)
     {
         var (simpleRoutines, packages) = await (
-            SimpleRoutineProvider.GetAllRoutines2(cancellationToken),
+            SimpleRoutineProvider.GetAllRoutines(cancellationToken),
             PackageProvider.GetAllPackages2(cancellationToken)
         ).WhenAll().ConfigureAwait(false);
 

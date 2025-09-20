@@ -64,7 +64,7 @@ public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database routine comments, where available.</returns>
-    public async Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments2(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments(CancellationToken cancellationToken = default)
     {
         var routineNames = await Connection.QueryEnumerableAsync(
                 GetAllRoutineNames.Sql,

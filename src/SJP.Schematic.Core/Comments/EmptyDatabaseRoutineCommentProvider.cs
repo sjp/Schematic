@@ -25,7 +25,7 @@ public sealed class EmptyDatabaseRoutineCommentProvider : IDatabaseRoutineCommen
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of routine comments.</returns>
-    public Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments2(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseRoutineComments>>([]);
+    public Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseRoutineComments>>([]);
 
     /// <summary>
     /// Retrieves comments for a particular database routine.

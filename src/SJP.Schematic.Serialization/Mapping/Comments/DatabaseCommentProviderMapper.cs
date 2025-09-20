@@ -46,7 +46,7 @@ public class DatabaseCommentProviderMapper
             source.GetAllViewComments2(cancellationToken),
             source.GetAllSequenceComments2(cancellationToken),
             source.GetAllSynonymComments2(cancellationToken),
-            source.GetAllRoutineComments2(cancellationToken)
+            source.GetAllRoutineComments(cancellationToken)
         ).WhenAll().ConfigureAwait(false);
 
         var tableCommentMapper = MapperRegistry.GetMapper<IRelationalDatabaseTableComments, DatabaseTableComments>();

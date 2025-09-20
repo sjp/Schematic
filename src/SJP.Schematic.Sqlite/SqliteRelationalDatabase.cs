@@ -205,9 +205,9 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database routines.</returns>
-    public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines2(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default)
     {
-        return RoutineProvider.GetAllRoutines2(cancellationToken);
+        return RoutineProvider.GetAllRoutines(cancellationToken);
     }
 
     /// <summary>

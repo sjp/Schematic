@@ -120,7 +120,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of routine comments.</returns>
-    public Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments2(CancellationToken cancellationToken = default) => Task.FromResult(RoutineComments);
+    public Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments(CancellationToken cancellationToken = default) => Task.FromResult(RoutineComments);
 
     /// <summary>
     /// Retrieves all database sequence comments defined within a database.

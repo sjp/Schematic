@@ -774,7 +774,7 @@ internal static class RelationalDatabaseTests
     }
 
     [Test]
-    public static async Task GetAllRoutines2_WhenInvoked_ReturnsRoutinesFromCtor()
+    public static async Task GetAllRoutines_WhenInvoked_ReturnsRoutinesFromCtor()
     {
         var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
         var identifierResolver = new VerbatimIdentifierResolutionStrategy();
@@ -798,7 +798,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbRoutines = await database.GetAllRoutines2().ConfigureAwait(false);
+        var dbRoutines = await database.GetAllRoutines().ConfigureAwait(false);
         var routineName = dbRoutines.Select(r => r.Name).Single();
 
         Assert.That(routineName, Is.EqualTo(testRoutineName));

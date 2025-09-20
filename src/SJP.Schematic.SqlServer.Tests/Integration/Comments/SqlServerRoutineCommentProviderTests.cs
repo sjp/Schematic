@@ -242,17 +242,17 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     }
 
     [Test]
-    public async Task GetAllRoutineComments2_WhenRetrieved_ContainsRoutineComments()
+    public async Task GetAllRoutineComments_WhenRetrieved_ContainsRoutineComments()
     {
-        var routineComments = await RoutineCommentProvider.GetAllRoutineComments2().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetAllRoutineComments().ConfigureAwait(false);
 
         Assert.That(routineComments, Is.Not.Empty);
     }
 
     [Test]
-    public async Task GetAllRoutineComments2_WhenRetrieved_ContainsTestRoutineComment()
+    public async Task GetAllRoutineComments_WhenRetrieved_ContainsTestRoutineComment()
     {
-        var routineComments = await RoutineCommentProvider.GetAllRoutineComments2().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetAllRoutineComments().ConfigureAwait(false);
         var containsTestRoutine = routineComments.Any(t => string.Equals(t.RoutineName.LocalName, "routine_comment_tf_1", StringComparison.Ordinal));
 
         Assert.That(containsTestRoutine, Is.True);

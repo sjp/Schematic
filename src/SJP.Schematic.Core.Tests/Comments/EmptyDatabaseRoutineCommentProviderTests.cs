@@ -37,10 +37,10 @@ internal static class EmptyDatabaseRoutineCommentProviderTests
     }
 
     [Test]
-    public static async Task GetAllRoutineComments2_WhenInvoked_DoesNotContainsAnyValues()
+    public static async Task GetAllRoutineComments_WhenInvoked_DoesNotContainsAnyValues()
     {
         var provider = new EmptyDatabaseRoutineCommentProvider();
-        var comments = await provider.GetAllRoutineComments2().ConfigureAwait(false);
+        var comments = await provider.GetAllRoutineComments().ConfigureAwait(false);
 
         Assert.That(comments, Is.Empty);
     }

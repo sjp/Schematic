@@ -172,9 +172,9 @@ internal static class EmptyRelationalDatabaseTests
     }
 
     [Test]
-    public static async Task GetAllRoutines2_WhenRetrieved_ContainsNoValues()
+    public static async Task GetAllRoutines_WhenRetrieved_ContainsNoValues()
     {
-        var routines = await Database.GetAllRoutines2().ConfigureAwait(false);
+        var routines = await Database.GetAllRoutines().ConfigureAwait(false);
 
         Assert.That(routines, Is.Empty);
     }

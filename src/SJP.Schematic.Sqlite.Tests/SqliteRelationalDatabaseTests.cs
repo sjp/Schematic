@@ -168,9 +168,9 @@ internal static class SqliteRelationalDatabaseTests
         }
 
         [Test]
-        public static async Task GetAllRoutines2_WhenRetrieved_ContainsNoValues()
+        public static async Task GetAllRoutines_WhenRetrieved_ContainsNoValues()
         {
-            var routiens = await Database.GetAllRoutines2().ConfigureAwait(false);
+            var routiens = await Database.GetAllRoutines().ConfigureAwait(false);
 
             Assert.That(routiens, Is.Empty);
         }

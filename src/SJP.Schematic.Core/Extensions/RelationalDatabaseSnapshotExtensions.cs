@@ -92,7 +92,7 @@ public static class RelationalDatabaseSnapshotExtensions
             ? database.GetAllSynonyms2(cancellationToken)
             : Task.FromResult<IReadOnlyCollection<IDatabaseSynonym>>([]);
         var routinesTask = snapshotOptions.IncludeRoutines
-            ? database.GetAllRoutines2(cancellationToken)
+            ? database.GetAllRoutines(cancellationToken)
             : Task.FromResult<IReadOnlyCollection<IDatabaseRoutine>>([]);
 
         var (
