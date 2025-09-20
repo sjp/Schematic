@@ -21,7 +21,7 @@ public sealed class EmptyRelationalDatabaseTableProvider : IRelationalDatabaseTa
     public IAsyncEnumerable<IRelationalDatabaseTable> GetAllTables(CancellationToken cancellationToken = default) => AsyncEnumerable.Empty<IRelationalDatabaseTable>();
 
     /// <summary>
-    /// Enumerates all database tables. This will always be an empty collection.
+    /// Gets all database tables. This will always be an empty collection.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database tables.</returns>
