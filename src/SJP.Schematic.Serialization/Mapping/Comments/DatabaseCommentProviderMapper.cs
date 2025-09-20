@@ -44,7 +44,7 @@ public class DatabaseCommentProviderMapper
         ) = await (
             source.GetAllTableComments2(cancellationToken),
             source.GetAllViewComments2(cancellationToken),
-            source.GetAllSequenceComments2(cancellationToken),
+            source.GetAllSequenceComments(cancellationToken),
             source.GetAllSynonymComments2(cancellationToken),
             source.GetAllRoutineComments(cancellationToken)
         ).WhenAll().ConfigureAwait(false);

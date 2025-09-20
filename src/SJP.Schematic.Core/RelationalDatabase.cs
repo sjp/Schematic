@@ -196,7 +196,7 @@ public class RelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token. Unused.</param>
     /// <returns>A collection of database sequences.</returns>
-    public Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences2(CancellationToken cancellationToken = default) => Task.FromResult(Sequences);
+    public Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default) => Task.FromResult(Sequences);
 
     /// <summary>
     /// Retrieves a database sequence by its name.

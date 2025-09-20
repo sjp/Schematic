@@ -86,7 +86,7 @@ public static class RelationalDatabaseSnapshotExtensions
             ? database.GetAllViews2(cancellationToken)
             : Task.FromResult<IReadOnlyCollection<IDatabaseView>>([]);
         var sequencesTask = snapshotOptions.IncludeSequences
-            ? database.GetAllSequences2(cancellationToken)
+            ? database.GetAllSequences(cancellationToken)
             : Task.FromResult<IReadOnlyCollection<IDatabaseSequence>>([]);
         var synonymsTask = snapshotOptions.IncludeSynonyms
             ? database.GetAllSynonyms2(cancellationToken)

@@ -87,7 +87,7 @@ public static class RelationalDatabaseCommentProviderSnapshotExtensions
             ? databaseComments.GetAllViewComments2(cancellationToken)
             : Task.FromResult<IReadOnlyCollection<IDatabaseViewComments>>([]);
         var sequenceCommentsTask = snapshotOptions.IncludeSequenceComments
-            ? databaseComments.GetAllSequenceComments2(cancellationToken)
+            ? databaseComments.GetAllSequenceComments(cancellationToken)
             : Task.FromResult<IReadOnlyCollection<IDatabaseSequenceComments>>([]);
         var synonymCommentsTask = snapshotOptions.IncludeSynonymComments
             ? databaseComments.GetAllSynonymComments2(cancellationToken)

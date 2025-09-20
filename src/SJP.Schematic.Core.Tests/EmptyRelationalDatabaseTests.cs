@@ -120,9 +120,9 @@ internal static class EmptyRelationalDatabaseTests
     }
 
     [Test]
-    public static async Task GetAllSequences2_WhenRetrieved_ContainsNoValues()
+    public static async Task GetAllSequences_WhenRetrieved_ContainsNoValues()
     {
-        var sequences = await Database.GetAllSequences2().ConfigureAwait(false);
+        var sequences = await Database.GetAllSequences().ConfigureAwait(false);
 
         Assert.That(sequences, Is.Empty);
     }

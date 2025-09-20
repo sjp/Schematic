@@ -31,5 +31,5 @@ public interface IDatabaseSequenceCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of sequence comments.</returns>
-    Task<IReadOnlyCollection<IDatabaseSequenceComments>> GetAllSequenceComments2(CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<IDatabaseSequenceComments>> GetAllSequenceComments(CancellationToken cancellationToken = default);
 }

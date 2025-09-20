@@ -75,7 +75,7 @@ public class PostgreSqlSequenceCommentProvider : IDatabaseSequenceCommentProvide
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database sequence comments.</returns>
-    public async Task<IReadOnlyCollection<IDatabaseSequenceComments>> GetAllSequenceComments2(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<IDatabaseSequenceComments>> GetAllSequenceComments(CancellationToken cancellationToken = default)
     {
         return await Connection.QueryEnumerableAsync<GetAllSequenceComments.Result>(Queries.GetAllSequenceComments.Sql, cancellationToken)
             .Select(commentData =>

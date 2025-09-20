@@ -48,7 +48,7 @@ public class ReportGenerator
         ) = await (
             Database.GetAllTables2(cancellationToken),
             Database.GetAllViews2(cancellationToken),
-            Database.GetAllSequences2(cancellationToken),
+            Database.GetAllSequences(cancellationToken),
             Database.GetAllSynonyms2(cancellationToken),
             Database.GetAllRoutines(cancellationToken)
         ).WhenAll().ConfigureAwait(false);

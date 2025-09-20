@@ -25,7 +25,7 @@ public sealed class EmptyDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database sequences.</returns>
-    public Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences2(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseSequence>>([]);
+    public Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseSequence>>([]);
 
     /// <summary>
     /// Gets a database sequence. This will always be a 'none' result.

@@ -85,11 +85,11 @@ public class PostgreSqlDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database sequences.</returns>
-    public async Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences2(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default)
     {
         var provider = await _sequenceProvider.ConfigureAwait(false);
         return await provider.Match(
-            sp => sp.GetAllSequences2(cancellationToken),
+            sp => sp.GetAllSequences(cancellationToken),
             () => Task.FromResult<IReadOnlyCollection<IDatabaseSequence>>([])
         );
     }

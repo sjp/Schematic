@@ -512,7 +512,7 @@ internal static class RelationalDatabaseTests
     }
 
     [Test]
-    public static async Task GetAllSequences2_WhenInvoked_ReturnsSequencesFromCtor()
+    public static async Task GetAllSequences_WhenInvoked_ReturnsSequencesFromCtor()
     {
         var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
         var identifierResolver = new VerbatimIdentifierResolutionStrategy();
@@ -536,7 +536,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbSequences = await database.GetAllSequences2().ConfigureAwait(false);
+        var dbSequences = await database.GetAllSequences().ConfigureAwait(false);
         var sequenceName = dbSequences.Select(s => s.Name).Single();
 
         Assert.That(sequenceName, Is.EqualTo(testSequenceName));

@@ -127,7 +127,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of sequence comments.</returns>
-    public Task<IReadOnlyCollection<IDatabaseSequenceComments>> GetAllSequenceComments2(CancellationToken cancellationToken = default) => Task.FromResult(SequenceComments);
+    public Task<IReadOnlyCollection<IDatabaseSequenceComments>> GetAllSequenceComments(CancellationToken cancellationToken = default) => Task.FromResult(SequenceComments);
 
     /// <summary>
     /// Retrieves all database synonym comments defined within a database.

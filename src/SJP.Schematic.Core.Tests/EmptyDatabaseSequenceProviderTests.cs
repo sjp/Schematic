@@ -36,10 +36,10 @@ internal static class EmptyDatabaseSequenceProviderTests
     }
 
     [Test]
-    public static async Task GetAllSequences2_WhenRetrieved_ContainsNoValues()
+    public static async Task GetAllSequences_WhenRetrieved_ContainsNoValues()
     {
         var provider = new EmptyDatabaseSequenceProvider();
-        var sequences = await provider.GetAllSequences2().ConfigureAwait(false);
+        var sequences = await provider.GetAllSequences().ConfigureAwait(false);
 
         Assert.That(sequences, Is.Empty);
     }

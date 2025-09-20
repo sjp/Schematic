@@ -37,10 +37,10 @@ internal static class EmptyDatabaseSequenceCommentProviderTests
     }
 
     [Test]
-    public static async Task GetAllSequenceComments2_WhenInvoked_DoesNotContainAnyValues()
+    public static async Task GetAllSequenceComments_WhenInvoked_DoesNotContainAnyValues()
     {
         var provider = new EmptyDatabaseSequenceCommentProvider();
-        var comments = await provider.GetAllSequenceComments2().ConfigureAwait(false);
+        var comments = await provider.GetAllSequenceComments().ConfigureAwait(false);
 
         Assert.That(comments, Is.Empty);
     }

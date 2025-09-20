@@ -25,7 +25,7 @@ public sealed class EmptyDatabaseSequenceCommentProvider : IDatabaseSequenceComm
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of sequence comments.</returns>
-    public Task<IReadOnlyCollection<IDatabaseSequenceComments>> GetAllSequenceComments2(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseSequenceComments>>([]);
+    public Task<IReadOnlyCollection<IDatabaseSequenceComments>> GetAllSequenceComments(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<IDatabaseSequenceComments>>([]);
 
     /// <summary>
     /// Retrieves comments for a particular database sequence.

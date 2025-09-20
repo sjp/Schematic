@@ -513,7 +513,7 @@ internal static class RelationalDatabaseCommentProviderTests
     }
 
     [Test]
-    public static async Task GetAllSequenceComments2_WhenInvoked_ReturnsSequenceCommentsFromCtor()
+    public static async Task GetAllSequenceComments_WhenInvoked_ReturnsSequenceCommentsFromCtor()
     {
         var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
         var identifierResolver = new VerbatimIdentifierResolutionStrategy();
@@ -537,7 +537,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbSequences = await commentProvider.GetAllSequenceComments2().ConfigureAwait(false);
+        var dbSequences = await commentProvider.GetAllSequenceComments().ConfigureAwait(false);
         var sequenceName = dbSequences.Select(s => s.SequenceName).Single();
 
         Assert.That(sequenceName, Is.EqualTo(testSequenceName));

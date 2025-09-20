@@ -82,7 +82,7 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database sequences.</returns>
-    public async Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences2(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default)
     {
         return await Connection.QueryEnumerableAsync<GetAllSequences.Result>(Queries.GetAllSequences.Sql, cancellationToken)
             .Select(row =>

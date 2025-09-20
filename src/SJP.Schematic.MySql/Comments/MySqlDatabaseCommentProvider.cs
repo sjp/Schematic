@@ -132,9 +132,9 @@ public class MySqlDatabaseCommentProvider : IRelationalDatabaseCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An empty collection of database sequence comments.</returns>
-    public Task<IReadOnlyCollection<IDatabaseSequenceComments>> GetAllSequenceComments2(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IDatabaseSequenceComments>> GetAllSequenceComments(CancellationToken cancellationToken = default)
     {
-        return SequenceCommentProvider.GetAllSequenceComments2(cancellationToken);
+        return SequenceCommentProvider.GetAllSequenceComments(cancellationToken);
     }
 
     /// <summary>

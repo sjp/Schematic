@@ -199,17 +199,17 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     }
 
     [Test]
-    public async Task GetAllSequenceComments2_WhenRetrieved_ContainsSequenceComments()
+    public async Task GetAllSequenceComments_WhenRetrieved_ContainsSequenceComments()
     {
-        var sequenceComments = await SequenceCommentProvider.GetAllSequenceComments2().ConfigureAwait(false);
+        var sequenceComments = await SequenceCommentProvider.GetAllSequenceComments().ConfigureAwait(false);
 
         Assert.That(sequenceComments, Is.Not.Empty);
     }
 
     [Test]
-    public async Task GetAllSequenceComments2_WhenRetrieved_ContainsTestSequenceComment()
+    public async Task GetAllSequenceComments_WhenRetrieved_ContainsTestSequenceComment()
     {
-        var sequenceComments = await SequenceCommentProvider.GetAllSequenceComments2().ConfigureAwait(false);
+        var sequenceComments = await SequenceCommentProvider.GetAllSequenceComments().ConfigureAwait(false);
         var containsTestSequence = sequenceComments.Any(t => string.Equals(t.SequenceName.LocalName, "sequence_comment_sequence_1", StringComparison.Ordinal));
 
         Assert.That(containsTestSequence, Is.True);

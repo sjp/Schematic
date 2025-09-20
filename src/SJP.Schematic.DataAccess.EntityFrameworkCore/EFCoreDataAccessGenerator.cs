@@ -109,7 +109,7 @@ public class EFCoreDataAccessGenerator : IDataAccessGenerator
             CommentProvider.GetAllTableComments2(cancellationToken),
             Database.GetAllViews2(cancellationToken),
             CommentProvider.GetAllViewComments2(cancellationToken),
-            Database.GetAllSequences2(cancellationToken)
+            Database.GetAllSequences(cancellationToken)
         ).WhenAll().ConfigureAwait(false);
 
         var tableCommentsLookup = new Dictionary<Identifier, IRelationalDatabaseTableComments>();

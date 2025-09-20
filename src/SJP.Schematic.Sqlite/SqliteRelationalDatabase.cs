@@ -137,9 +137,9 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database sequences.</returns>
-    public Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences2(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default)
     {
-        return SequenceProvider.GetAllSequences2(cancellationToken);
+        return SequenceProvider.GetAllSequences(cancellationToken);
     }
 
     /// <summary>

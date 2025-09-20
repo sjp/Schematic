@@ -134,9 +134,9 @@ public class OracleDatabaseCommentProvider : IRelationalDatabaseCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database sequence comments.</returns>
-    public Task<IReadOnlyCollection<IDatabaseSequenceComments>> GetAllSequenceComments2(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IDatabaseSequenceComments>> GetAllSequenceComments(CancellationToken cancellationToken = default)
     {
-        return SequenceCommentProvider.GetAllSequenceComments2(cancellationToken);
+        return SequenceCommentProvider.GetAllSequenceComments(cancellationToken);
     }
 
     /// <summary>

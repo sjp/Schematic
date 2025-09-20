@@ -121,9 +121,9 @@ public class SqlServerRelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database sequences.</returns>
-    public Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences2(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default)
     {
-        return _sequenceProvider.GetAllSequences2(cancellationToken);
+        return _sequenceProvider.GetAllSequences(cancellationToken);
     }
 
     /// <summary>
