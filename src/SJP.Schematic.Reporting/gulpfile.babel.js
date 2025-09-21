@@ -23,13 +23,13 @@ export const clean = () =>
     ]);
 
 const sourceSansFont = () => {
-    return src('node_modules/source-sans/WOFF/OTF/*.otf.woff')
+    return src('node_modules/source-sans/WOFF/OTF/*.otf.woff', { encoding: false })
         .pipe(newer('assets/fonts'))
         .pipe(dest('assets/fonts'));
 }
 
 const fontAwesomeFont = () => {
-    return src('node_modules/font-awesome/fonts/*-webfont.woff')
+    return src('node_modules/font-awesome/fonts/*-webfont.woff', { encoding: false })
         .pipe(newer('assets/fonts'))
         .pipe(dest('assets/fonts'));
 }
