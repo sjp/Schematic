@@ -40,33 +40,24 @@ public class RelationalDatabaseMapper
         var routineMapper = MapperRegistry.GetMapper<IDatabaseRoutine, Dto.DatabaseRoutine>();
 
         var (
-            dtoTables,
-            dtoViews,
-            dtoSequences,
-            dtoSynonyms,
-            dtoRoutines
+            tables,
+            views,
+            sequences,
+            synonyms,
+            routines
         ) = await (
-            source.EnumerateAllTables(cancellationToken)
-                .Select(t => tableMapper.Map<IRelationalDatabaseTable, Dto.RelationalDatabaseTable>(t))
-                .ToListAsync(cancellationToken)
-                .AsTask(),
-            source.EnumerateAllViews(cancellationToken)
-                .Select(v => viewMapper.Map<IDatabaseView, Dto.DatabaseView>(v))
-                .ToListAsync(cancellationToken)
-                .AsTask(),
-            source.EnumerateAllSequences(cancellationToken)
-                .Select(s => sequenceMapper.Map<IDatabaseSequence, Dto.DatabaseSequence>(s))
-                .ToListAsync(cancellationToken)
-                .AsTask(),
-            source.EnumerateAllSynonyms(cancellationToken)
-                .Select(s => synonymMapper.Map<IDatabaseSynonym, Dto.DatabaseSynonym>(s))
-                .ToListAsync(cancellationToken)
-                .AsTask(),
-            source.EnumerateAllRoutines(cancellationToken)
-                .Select(r => routineMapper.Map<IDatabaseRoutine, Dto.DatabaseRoutine>(r))
-                .ToListAsync(cancellationToken)
-                .AsTask()
+            source.GetAllTables(cancellationToken),
+            source.GetAllViews(cancellationToken),
+            source.GetAllSequences(cancellationToken),
+            source.GetAllSynonyms(cancellationToken),
+            source.GetAllRoutines(cancellationToken)
         ).WhenAll().ConfigureAwait(false);
+
+        var dtoTables = tables.Select(t => tableMapper.Map<IRelationalDatabaseTable, Dto.RelationalDatabaseTable>(t)).ToList();
+        var dtoViews = views.Select(v => viewMapper.Map<IDatabaseView, Dto.DatabaseView>(v)).ToList();
+        var dtoSequences = sequences.Select(s => sequenceMapper.Map<IDatabaseSequence, Dto.DatabaseSequence>(s)).ToList();
+        var dtoSynonyms = synonyms.Select(s => synonymMapper.Map<IDatabaseSynonym, Dto.DatabaseSynonym>(s)).ToList();
+        var dtoRoutines = routines.Select(r => routineMapper.Map<IDatabaseRoutine, Dto.DatabaseRoutine>(r)).ToList();
 
         var identifierDefaultsMapper = MapperRegistry.GetMapper<IIdentifierDefaults, Dto.IdentifierDefaults>();
         var dtoIdentifierDefaults = identifierDefaultsMapper.Map<IIdentifierDefaults, Dto.IdentifierDefaults>(source.IdentifierDefaults);

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -50,20 +49,12 @@ public class OracleDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database routines.</returns>
-    public async IAsyncEnumerable<IDatabaseRoutine> EnumerateAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseRoutine> EnumerateAllRoutines(CancellationToken cancellationToken = default)
     {
-        var (simpleRoutines, packages) = await (
-            SimpleRoutineProvider.EnumerateAllRoutines(cancellationToken).ToListAsync(cancellationToken).AsTask(),
-            PackageProvider.EnumerateAllPackages(cancellationToken).ToListAsync(cancellationToken).AsTask()
-        ).WhenAll().ConfigureAwait(false);
-
-        var routines = simpleRoutines
-            .Concat(packages)
+        return SimpleRoutineProvider.EnumerateAllRoutines(cancellationToken)
+            .Concat(PackageProvider.EnumerateAllPackages(cancellationToken))
             .OrderBy(static r => r.Name.Schema, StringComparer.Ordinal)
             .ThenBy(static r => r.Name.LocalName, StringComparer.Ordinal);
-
-        foreach (var routine in routines)
-            yield return routine;
     }
 
     /// <summary>

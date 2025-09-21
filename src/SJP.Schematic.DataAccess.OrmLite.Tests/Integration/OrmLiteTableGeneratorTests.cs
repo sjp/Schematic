@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -101,7 +100,7 @@ create table test_table_4 (
     [Test]
     public async Task Generate_GivenTableWithVariousColumnTypes_GeneratesExpectedOutput()
     {
-        var tables = await Database.EnumerateAllTables().ToListAsync().ConfigureAwait(false);
+        var tables = await Database.GetAllTables().ConfigureAwait(false);
         var table = await GetTable("test_table_1").ConfigureAwait(false);
         var generator = TableGenerator;
 
@@ -114,7 +113,7 @@ create table test_table_4 (
     [Test]
     public async Task Generate_GivenTableWithVariousIndexesAndConstraints_GeneratesExpectedOutput()
     {
-        var tables = await Database.EnumerateAllTables().ToListAsync().ConfigureAwait(false);
+        var tables = await Database.GetAllTables().ConfigureAwait(false);
         var table = await GetTable("test_table_2").ConfigureAwait(false);
         var generator = TableGenerator;
 
@@ -127,7 +126,7 @@ create table test_table_4 (
     [Test]
     public async Task Generate_GivenTableWithForeignKeys_GeneratesExpectedOutput()
     {
-        var tables = await Database.EnumerateAllTables().ToListAsync().ConfigureAwait(false);
+        var tables = await Database.GetAllTables().ConfigureAwait(false);
         var table = await GetTable("test_table_4").ConfigureAwait(false);
         var generator = TableGenerator;
 
@@ -143,7 +142,7 @@ create table test_table_4 (
         const string tableComment = "This is a test table comment for OrmLite";
         const string columnComment = "This is a test column comment for OrmLite";
 
-        var tables = await Database.EnumerateAllTables().ToListAsync().ConfigureAwait(false);
+        var tables = await Database.GetAllTables().ConfigureAwait(false);
         var table = await GetTable("test_table_5").ConfigureAwait(false);
         var generator = TableGenerator;
 
@@ -173,7 +172,7 @@ This is a second line for it.";
 
 This is a second line for it.";
 
-        var tables = await Database.EnumerateAllTables().ToListAsync().ConfigureAwait(false);
+        var tables = await Database.GetAllTables().ConfigureAwait(false);
         var table = await GetTable("test_table_5").ConfigureAwait(false);
         var generator = TableGenerator;
 

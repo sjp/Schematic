@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -91,9 +90,9 @@ create table test_table_4 (
     public async Task ToString_GivenVariousTablesWithAnnotationsRequired_GeneratesExpectedOutput()
     {
         var builder = Builder;
-        var tables = await Database.EnumerateAllTables().ToListAsync().ConfigureAwait(false);
-        var views = await Database.EnumerateAllViews().ToListAsync().ConfigureAwait(false);
-        var sequences = await Database.EnumerateAllSequences().ToListAsync().ConfigureAwait(false);
+        var tables = await Database.GetAllTables().ConfigureAwait(false);
+        var views = await Database.GetAllViews().ConfigureAwait(false);
+        var sequences = await Database.GetAllSequences().ConfigureAwait(false);
 
         var expected = TestAppContextOutput;
         var result = builder.Generate(tables, views, sequences);

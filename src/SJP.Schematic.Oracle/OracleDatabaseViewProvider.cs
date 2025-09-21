@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -50,20 +49,12 @@ public class OracleDatabaseViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database views.</returns>
-    public async IAsyncEnumerable<IDatabaseView> EnumerateAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseView> EnumerateAllViews(CancellationToken cancellationToken = default)
     {
-        var (queryViews, materializedViews) = await (
-            QueryViewProvider.EnumerateAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask(),
-            MaterializedViewProvider.EnumerateAllViews(cancellationToken).ToListAsync(cancellationToken).AsTask()
-        ).WhenAll().ConfigureAwait(false);
-
-        var views = queryViews
-            .Concat(materializedViews)
+        return QueryViewProvider.EnumerateAllViews(cancellationToken)
+            .Concat(MaterializedViewProvider.EnumerateAllViews(cancellationToken))
             .OrderBy(static v => v.Name.Schema, StringComparer.Ordinal)
             .ThenBy(static v => v.Name.LocalName, StringComparer.Ordinal);
-
-        foreach (var view in views)
-            yield return view;
     }
 
     /// <summary>
