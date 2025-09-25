@@ -7,7 +7,7 @@
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="Dapper" Version="2.1.66" />
     <PackageVersion Include="Enums.NET" Version="5.0.0" />
-    <PackageVersion Include="FluentAssertions" Version="8.6.0" />
+    <PackageVersion Include="FluentAssertions" Version="8.7.0" />
     <PackageVersion Include="LanguageExt.Core" Version="4.4.9" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.14.0" />
     <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.1.1" />
