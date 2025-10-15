@@ -27,7 +27,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" VersionOverride="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
     <None Update="sqlite-test.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
