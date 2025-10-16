@@ -14,18 +14,18 @@ internal sealed class NoValueForNullableColumnRuleTests : SqliteTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create table table_without_nullable_columns_1 ( column_1 integer not null )", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create table table_for_nullable_columns_1 ( column_1 integer not null, column_2 integer null )", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create table table_for_nullable_columns_2 ( column_1 integer not null, column_2 integer null )", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("insert into table_for_nullable_columns_2 ( column_1 ) values (1)", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create table table_without_nullable_columns_1 ( column_1 integer not null )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table table_for_nullable_columns_1 ( column_1 integer not null, column_2 integer null )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table table_for_nullable_columns_2 ( column_1 integer not null, column_2 integer null )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("insert into table_for_nullable_columns_2 ( column_1 ) values (1)", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table table_without_nullable_columns_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table table_for_nullable_columns_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table table_for_nullable_columns_2", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table table_without_nullable_columns_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_for_nullable_columns_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_for_nullable_columns_2", CancellationToken.None);
     }
 
     [Test]
@@ -60,10 +60,10 @@ internal sealed class NoValueForNullableColumnRuleTests : SqliteTest
 
         var tables = new[]
         {
-            await database.GetTable("table_without_nullable_columns_1").UnwrapSomeAsync().ConfigureAwait(false),
+            await database.GetTable("table_without_nullable_columns_1").UnwrapSomeAsync(),
         };
 
-        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Empty);
     }
@@ -76,10 +76,10 @@ internal sealed class NoValueForNullableColumnRuleTests : SqliteTest
 
         var tables = new[]
         {
-            await database.GetTable("table_for_nullable_columns_1").UnwrapSomeAsync().ConfigureAwait(false),
+            await database.GetTable("table_for_nullable_columns_1").UnwrapSomeAsync(),
         };
 
-        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Empty);
     }
@@ -92,10 +92,10 @@ internal sealed class NoValueForNullableColumnRuleTests : SqliteTest
 
         var tables = new[]
         {
-            await database.GetTable("table_for_nullable_columns_2").UnwrapSomeAsync().ConfigureAwait(false),
+            await database.GetTable("table_for_nullable_columns_2").UnwrapSomeAsync(),
         };
 
-        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Not.Empty);
     }

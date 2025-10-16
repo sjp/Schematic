@@ -49,7 +49,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : PostgreSqlRelationalDat
             GetV11TableIndexes.Sql,
             new GetV11TableIndexes.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (queryResult.Empty())
             return [];
@@ -67,7 +67,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : PostgreSqlRelationalDat
         if (indexColumns.Empty())
             return [];
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
         var columnLookup = GetColumnLookup(columns);
 
         var result = new List<IDatabaseIndex>(indexColumns.Count);

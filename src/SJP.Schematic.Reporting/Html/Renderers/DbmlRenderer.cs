@@ -31,7 +31,7 @@ internal sealed class DbmlRenderer : ITemplateRenderer
         var dbmlDocument = formatter.RenderTables(Tables);
         var dbmlOutputPath = Path.Combine(ExportDirectory.FullName, "relationships.dbml");
         await using var writer = File.CreateText(dbmlOutputPath);
-        await writer.WriteAsync(dbmlDocument.AsMemory(), cancellationToken).ConfigureAwait(false);
-        await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
+        await writer.WriteAsync(dbmlDocument.AsMemory(), cancellationToken);
+        await writer.FlushAsync(cancellationToken);
     }
 }

@@ -92,8 +92,7 @@ public class PostgreSqlDatabaseSequenceProviderBase : IDatabaseSequenceProvider
                     row.CacheSize
                 );
             })
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
     }
 
     /// <summary>

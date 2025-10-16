@@ -70,14 +70,12 @@ public class SqlServerViewCommentProvider : IDatabaseViewCommentProvider
         var viewNames = await Connection.QueryEnumerableAsync<GetAllViewNames.Result>(GetAllViewNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return await viewNames
             .Select(viewName => LoadViewCommentsAsyncCore(viewName, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
     }
 
     /// <summary>
@@ -143,7 +141,7 @@ public class SqlServerViewCommentProvider : IDatabaseViewCommentProvider
                 CommentProperty = CommentProperty,
             },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         var commentData = queryResult.Select(r => new CommentData
         {

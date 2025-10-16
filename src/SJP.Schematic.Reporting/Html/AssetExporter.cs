@@ -58,13 +58,13 @@ internal sealed class AssetExporter
             if (isGzipped)
             {
                 await using var gzipStream = new GZipStream(resourceStream, CompressionMode.Decompress);
-                await gzipStream.CopyToAsync(stream, cancellationToken).ConfigureAwait(false);
-                await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
+                await gzipStream.CopyToAsync(stream, cancellationToken);
+                await stream.FlushAsync(cancellationToken);
             }
             else
             {
-                await resourceStream.CopyToAsync(stream, cancellationToken).ConfigureAwait(false);
-                await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
+                await resourceStream.CopyToAsync(stream, cancellationToken);
+                await stream.FlushAsync(cancellationToken);
             }
         }
     }

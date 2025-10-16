@@ -20,7 +20,7 @@ internal static class EmptyDatabaseSequenceCommentProviderTests
     {
         var provider = new EmptyDatabaseSequenceCommentProvider();
         var comment = provider.GetSequenceComments("test_sequence");
-        var isNone = await comment.IsNone.ConfigureAwait(false);
+        var isNone = await comment.IsNone;
 
         Assert.That(isNone, Is.True);
     }
@@ -29,9 +29,7 @@ internal static class EmptyDatabaseSequenceCommentProviderTests
     public static async Task EnumerateAllSequenceComments_WhenInvoked_DoesNotEnumerateAnyValues()
     {
         var provider = new EmptyDatabaseSequenceCommentProvider();
-        var hasComments = await provider.EnumerateAllSequenceComments()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasComments = await provider.EnumerateAllSequenceComments().AnyAsync();
 
         Assert.That(hasComments, Is.False);
     }
@@ -40,7 +38,7 @@ internal static class EmptyDatabaseSequenceCommentProviderTests
     public static async Task GetAllSequenceComments_WhenInvoked_DoesNotContainAnyValues()
     {
         var provider = new EmptyDatabaseSequenceCommentProvider();
-        var comments = await provider.GetAllSequenceComments().ConfigureAwait(false);
+        var comments = await provider.GetAllSequenceComments();
 
         Assert.That(comments, Is.Empty);
     }

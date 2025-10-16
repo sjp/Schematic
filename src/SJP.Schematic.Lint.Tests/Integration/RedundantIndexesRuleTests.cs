@@ -12,20 +12,20 @@ internal sealed class RedundantIndexesRuleTests : SqliteTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create table valid_table_1 ( column_1 integer )", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create table valid_table_2 ( column_1 integer, column_2 integer, column_3 integer )", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create index ix_valid_table_1 on valid_table_2 ( column_2, column_3 )", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create table valid_table_3 ( column_1 integer, column_2 integer, column_3 integer )", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create index ix_valid_table_3_1 on valid_table_3 ( column_2 )", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create index ix_valid_table_3_2 on valid_table_3 ( column_2, column_3 )", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create table valid_table_1 ( column_1 integer )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table valid_table_2 ( column_1 integer, column_2 integer, column_3 integer )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create index ix_valid_table_1 on valid_table_2 ( column_2, column_3 )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table valid_table_3 ( column_1 integer, column_2 integer, column_3 integer )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create index ix_valid_table_3_1 on valid_table_3 ( column_2 )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create index ix_valid_table_3_2 on valid_table_3 ( column_2, column_3 )", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table valid_table_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table valid_table_2", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table valid_table_3", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table valid_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table valid_table_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table valid_table_3", CancellationToken.None);
     }
 
     [Test]
@@ -50,10 +50,10 @@ internal sealed class RedundantIndexesRuleTests : SqliteTest
 
         var tables = new[]
         {
-            await database.GetTable("valid_table_1").UnwrapSomeAsync().ConfigureAwait(false),
+            await database.GetTable("valid_table_1").UnwrapSomeAsync(),
         };
 
-        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Empty);
     }
@@ -66,10 +66,10 @@ internal sealed class RedundantIndexesRuleTests : SqliteTest
 
         var tables = new[]
         {
-            await database.GetTable("valid_table_2").UnwrapSomeAsync().ConfigureAwait(false),
+            await database.GetTable("valid_table_2").UnwrapSomeAsync(),
         };
 
-        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Empty);
     }
@@ -82,10 +82,10 @@ internal sealed class RedundantIndexesRuleTests : SqliteTest
 
         var tables = new[]
         {
-            await database.GetTable("valid_table_3").UnwrapSomeAsync().ConfigureAwait(false),
+            await database.GetTable("valid_table_3").UnwrapSomeAsync(),
         };
 
-        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Not.Empty);
     }

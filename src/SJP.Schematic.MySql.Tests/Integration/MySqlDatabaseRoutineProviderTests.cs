@@ -25,20 +25,20 @@ CREATE FUNCTION db_test_routine_1()
   DETERMINISTIC
 BEGIN
   RETURN 'test';
-END;", CancellationToken.None).ConfigureAwait(false);
+END;", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 CREATE PROCEDURE db_test_routine_2()
 DETERMINISTIC
 BEGIN
    COMMIT;
-END", CancellationToken.None).ConfigureAwait(false);
+END", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop function db_test_routine_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop procedure db_test_routine_2", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop function db_test_routine_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop procedure db_test_routine_2", CancellationToken.None);
     }
 
     private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)
@@ -50,7 +50,7 @@ END", CancellationToken.None).ConfigureAwait(false);
 
     private async Task<IDatabaseRoutine> GetRoutineAsyncCore(Identifier routineName)
     {
-        using (await _lock.LockAsync().ConfigureAwait(false))
+        using (await _lock.LockAsync())
         {
             if (!_routinesCache.TryGetValue(routineName, out var lazyRoutine))
             {
@@ -58,7 +58,7 @@ END", CancellationToken.None).ConfigureAwait(false);
                 _routinesCache[routineName] = lazyRoutine;
             }
 
-            return await lazyRoutine.ConfigureAwait(false);
+            return await lazyRoutine;
         }
     }
 
@@ -68,7 +68,7 @@ END", CancellationToken.None).ConfigureAwait(false);
     [Test]
     public async Task GetRoutine_WhenRoutinePresent_ReturnsRoutine()
     {
-        var routineIsSome = await RoutineProvider.GetRoutine("db_test_routine_1").IsSome.ConfigureAwait(false);
+        var routineIsSome = await RoutineProvider.GetRoutine("db_test_routine_1").IsSome;
 
         Assert.That(routineIsSome, Is.True);
     }
@@ -77,7 +77,7 @@ END", CancellationToken.None).ConfigureAwait(false);
     public async Task GetRoutine_WhenRoutinePresent_ReturnsRoutineWithCorrectName()
     {
         var routineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_routine_1");
-        var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync();
 
         Assert.That(routine.Name, Is.EqualTo(routineName));
     }
@@ -88,7 +88,7 @@ END", CancellationToken.None).ConfigureAwait(false);
         var routineName = new Identifier("db_test_routine_1");
         var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_routine_1");
 
-        var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync();
 
         Assert.That(routine.Name, Is.EqualTo(expectedRoutineName));
     }
@@ -99,7 +99,7 @@ END", CancellationToken.None).ConfigureAwait(false);
         var routineName = new Identifier(IdentifierDefaults.Schema, "db_test_routine_1");
         var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_routine_1");
 
-        var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync();
 
         Assert.That(routine.Name, Is.EqualTo(expectedRoutineName));
     }
@@ -110,7 +110,7 @@ END", CancellationToken.None).ConfigureAwait(false);
         var routineName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_routine_1");
         var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_routine_1");
 
-        var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync();
 
         Assert.That(routine.Name, Is.EqualTo(expectedRoutineName));
     }
@@ -121,7 +121,7 @@ END", CancellationToken.None).ConfigureAwait(false);
         var routineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_routine_1");
         var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_routine_1");
 
-        var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync();
 
         Assert.That(routine.Name, Is.EqualTo(expectedRoutineName));
     }
@@ -132,7 +132,7 @@ END", CancellationToken.None).ConfigureAwait(false);
         var routineName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_routine_1");
         var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_routine_1");
 
-        var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync();
 
         Assert.That(routine.Name, Is.EqualTo(expectedRoutineName));
     }
@@ -143,7 +143,7 @@ END", CancellationToken.None).ConfigureAwait(false);
         var routineName = new Identifier("A", "B", IdentifierDefaults.Schema, "db_test_routine_1");
         var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_routine_1");
 
-        var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routine = await RoutineProvider.GetRoutine(routineName).UnwrapSomeAsync();
 
         Assert.That(routine.Name, Is.EqualTo(expectedRoutineName));
     }
@@ -151,7 +151,7 @@ END", CancellationToken.None).ConfigureAwait(false);
     [Test]
     public async Task GetRoutine_WhenRoutineMissing_ReturnsNone()
     {
-        var routineIsNone = await RoutineProvider.GetRoutine("routine_that_doesnt_exist").IsNone.ConfigureAwait(false);
+        var routineIsNone = await RoutineProvider.GetRoutine("routine_that_doesnt_exist").IsNone;
 
         Assert.That(routineIsNone, Is.True);
     }
@@ -159,9 +159,7 @@ END", CancellationToken.None).ConfigureAwait(false);
     [Test]
     public async Task EnumerateAllRoutines_WhenEnumerated_ContainsRoutines()
     {
-        var hasRoutines = await RoutineProvider.EnumerateAllRoutines()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasRoutines = await RoutineProvider.EnumerateAllRoutines().AnyAsync();
 
         Assert.That(hasRoutines, Is.True);
     }
@@ -171,8 +169,7 @@ END", CancellationToken.None).ConfigureAwait(false);
     {
         const string routineName = "db_test_routine_1";
         var containsTestRoutine = await RoutineProvider.EnumerateAllRoutines()
-            .AnyAsync(r => string.Equals(r.Name.LocalName, routineName, StringComparison.Ordinal))
-            .ConfigureAwait(false);
+            .AnyAsync(r => string.Equals(r.Name.LocalName, routineName, StringComparison.Ordinal));
 
         Assert.That(containsTestRoutine, Is.True);
     }
@@ -180,7 +177,7 @@ END", CancellationToken.None).ConfigureAwait(false);
     [Test]
     public async Task GetAllRoutines_WhenRetrieved_ContainsRoutines()
     {
-        var routines = await RoutineProvider.GetAllRoutines().ConfigureAwait(false);
+        var routines = await RoutineProvider.GetAllRoutines();
 
         Assert.That(routines, Is.Not.Empty);
     }
@@ -189,7 +186,7 @@ END", CancellationToken.None).ConfigureAwait(false);
     public async Task GetAllRoutines_WhenRetrieved_ContainsTestRoutine()
     {
         const string routineName = "db_test_routine_1";
-        var routines = await RoutineProvider.GetAllRoutines().ConfigureAwait(false);
+        var routines = await RoutineProvider.GetAllRoutines();
         var containsTestRoutine = routines.Any(r => string.Equals(r.Name.LocalName, routineName, StringComparison.Ordinal));
 
         Assert.That(containsTestRoutine, Is.True);
@@ -198,7 +195,7 @@ END", CancellationToken.None).ConfigureAwait(false);
     [Test]
     public async Task Definition_ForFunction_ReturnsCorrectDefinition()
     {
-        var routine = await GetRoutineAsync("db_test_routine_1").ConfigureAwait(false);
+        var routine = await GetRoutineAsync("db_test_routine_1");
 
         var definition = routine.Definition;
         const string expectedDefinition = @"BEGIN
@@ -211,7 +208,7 @@ END";
     [Test]
     public async Task Definition_ForStoredProcedure_ReturnsCorrectDefinition()
     {
-        var routine = await GetRoutineAsync("db_test_routine_2").ConfigureAwait(false);
+        var routine = await GetRoutineAsync("db_test_routine_2");
 
         var definition = routine.Definition;
         const string expectedDefinition = @"BEGIN

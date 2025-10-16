@@ -30,22 +30,22 @@ internal sealed class PocoTableGeneratorTests : SqliteTest
     testblob blob default X'DEADBEEF',
     testdatetime datetime default CURRENT_TIMESTAMP,
     teststring text default 'test'
-)", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create table test_table_2 ( test_column_1 integer )", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table test_table_2 ( test_column_1 integer )", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table test_table_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table test_table_2", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table test_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table test_table_2", CancellationToken.None);
     }
 
     [Test]
     public async Task Generate_GivenTableWithVariousColumnTypes_GeneratesExpectedOutput()
     {
-        var tables = await Database.GetAllTables().ConfigureAwait(false);
-        var table = await GetTable("test_table_1").ConfigureAwait(false);
+        var tables = await Database.GetAllTables();
+        var table = await GetTable("test_table_1");
         var generator = TableGenerator;
 
         const string expected = TestTable1Output;
@@ -60,8 +60,8 @@ internal sealed class PocoTableGeneratorTests : SqliteTest
         const string tableComment = "This is a test table comment for Poco";
         const string columnComment = "This is a test column comment for Poco";
 
-        var tables = await Database.GetAllTables().ConfigureAwait(false);
-        var table = await GetTable("test_table_2").ConfigureAwait(false);
+        var tables = await Database.GetAllTables();
+        var table = await GetTable("test_table_2");
         var generator = TableGenerator;
 
         var comment = new RelationalDatabaseTableComments("test_table_2",
@@ -90,8 +90,8 @@ This is a second line for it.";
 
 This is a second line for it.";
 
-        var tables = await Database.GetAllTables().ConfigureAwait(false);
-        var table = await GetTable("test_table_2").ConfigureAwait(false);
+        var tables = await Database.GetAllTables();
+        var table = await GetTable("test_table_2");
         var generator = TableGenerator;
 
         var comment = new RelationalDatabaseTableComments("test_table_2",

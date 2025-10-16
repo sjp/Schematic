@@ -39,11 +39,11 @@ public static class ConnectionExtensions
     {
         var command = new CommandDefinition(sql, commandType: CommandType.Text, cancellationToken: cancellationToken);
 
-        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-        await using var _ = connection.WithDispose(connectionFactory).ConfigureAwait(false);
+        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        await using var _ = connection.WithDispose(connectionFactory);
 
         var retryPolicy = BuildRetryPolicy(connectionFactory);
-        return await retryPolicy.ExecuteAsync(_ => connection.QueryAsync<T>(command), cancellationToken).ConfigureAwait(false);
+        return await retryPolicy.ExecuteAsync(_ => connection.QueryAsync<T>(command), cancellationToken);
     }
 
     /// <summary>
@@ -71,11 +71,11 @@ public static class ConnectionExtensions
     {
         var command = new CommandDefinition(sql, parameters, commandType: CommandType.Text, cancellationToken: cancellationToken);
 
-        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-        await using var _ = connection.WithDispose(connectionFactory).ConfigureAwait(false);
+        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        await using var _ = connection.WithDispose(connectionFactory);
 
         var retryPolicy = BuildRetryPolicy(connectionFactory);
-        return await retryPolicy.ExecuteAsync(_ => connection.QueryAsync<T>(command), cancellationToken).ConfigureAwait(false);
+        return await retryPolicy.ExecuteAsync(_ => connection.QueryAsync<T>(command), cancellationToken);
     }
 
     /// <summary>
@@ -98,13 +98,13 @@ public static class ConnectionExtensions
 
     private static async IAsyncEnumerable<T> QueryEnumerableAsyncCore<T>(IDbConnectionFactory connectionFactory, string sql, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-        await using var _ = connection.WithDispose(connectionFactory).ConfigureAwait(false);
+        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        await using var _ = connection.WithDispose(connectionFactory);
 
         var retryPolicy = BuildRetryPolicy(connectionFactory);
 
         var source = connection.QueryUnbufferedAsync<T>(sql).WithRetryPolicy(retryPolicy, cancellationToken);
-        await foreach (var item in source.WithCancellation(cancellationToken).ConfigureAwait(false))
+        await foreach (var item in source.WithCancellation(cancellationToken))
             yield return item;
     }
 
@@ -131,12 +131,12 @@ public static class ConnectionExtensions
     private static async IAsyncEnumerable<T> QueryEnumerableAsyncCore<T>(IDbConnectionFactory connectionFactory, string sql, ISqlQuery<T> parameters, [EnumeratorCancellation] CancellationToken cancellationToken)
         where T : notnull
     {
-        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-        await using var _ = connection.WithDispose(connectionFactory).ConfigureAwait(false);
+        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        await using var _ = connection.WithDispose(connectionFactory);
 
         var retryPolicy = BuildRetryPolicy(connectionFactory);
         var source = connection.QueryUnbufferedAsync<T>(sql, parameters).WithRetryPolicy(retryPolicy, cancellationToken);
-        await foreach (var item in source.WithCancellation(cancellationToken).ConfigureAwait(false))
+        await foreach (var item in source.WithCancellation(cancellationToken))
             yield return item;
     }
 
@@ -162,11 +162,11 @@ public static class ConnectionExtensions
     {
         var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
 
-        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-        await using var _ = connection.WithDispose(connectionFactory).ConfigureAwait(false);
+        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        await using var _ = connection.WithDispose(connectionFactory);
 
         var retryPolicy = BuildRetryPolicy(connectionFactory);
-        return await retryPolicy.ExecuteAsync(_ => connection.ExecuteScalarAsync<T>(command), cancellationToken).ConfigureAwait(false);
+        return await retryPolicy.ExecuteAsync(_ => connection.ExecuteScalarAsync<T>(command), cancellationToken);
     }
 
     /// <summary>
@@ -195,11 +195,11 @@ public static class ConnectionExtensions
     {
         var command = new CommandDefinition(sql, parameters, commandType: CommandType.Text, cancellationToken: cancellationToken);
 
-        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-        await using var _ = connection.WithDispose(connectionFactory).ConfigureAwait(false);
+        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        await using var _ = connection.WithDispose(connectionFactory);
 
         var retryPolicy = BuildRetryPolicy(connectionFactory);
-        return await retryPolicy.ExecuteAsync(_ => connection.ExecuteScalarAsync<TResult>(command), cancellationToken).ConfigureAwait(false);
+        return await retryPolicy.ExecuteAsync(_ => connection.ExecuteScalarAsync<TResult>(command), cancellationToken);
     }
 
     /// <summary>
@@ -222,11 +222,11 @@ public static class ConnectionExtensions
     {
         var command = new CommandDefinition(sql, commandType: CommandType.Text, cancellationToken: cancellationToken);
 
-        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-        await using var _ = connection.WithDispose(connectionFactory).ConfigureAwait(false);
+        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        await using var _ = connection.WithDispose(connectionFactory);
 
         var retryPolicy = BuildRetryPolicy(connectionFactory);
-        return await retryPolicy.ExecuteAsync(_ => connection.ExecuteAsync(command), cancellationToken).ConfigureAwait(false);
+        return await retryPolicy.ExecuteAsync(_ => connection.ExecuteAsync(command), cancellationToken);
     }
 
     /// <summary>
@@ -251,11 +251,11 @@ public static class ConnectionExtensions
     {
         var command = new CommandDefinition(sql, parameters, commandType: CommandType.Text, cancellationToken: cancellationToken);
 
-        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-        await using var _ = connection.WithDispose(connectionFactory).ConfigureAwait(false);
+        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        await using var _ = connection.WithDispose(connectionFactory);
 
         var retryPolicy = BuildRetryPolicy(connectionFactory);
-        return await retryPolicy.ExecuteAsync(_ => connection.ExecuteAsync(command), cancellationToken).ConfigureAwait(false);
+        return await retryPolicy.ExecuteAsync(_ => connection.ExecuteAsync(command), cancellationToken);
     }
 
     /// <summary>
@@ -282,11 +282,11 @@ public static class ConnectionExtensions
     {
         var command = new CommandDefinition(sql, commandType: CommandType.Text, cancellationToken: cancellationToken);
 
-        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-        await using var _ = connection.WithDispose(connectionFactory).ConfigureAwait(false);
+        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        await using var _ = connection.WithDispose(connectionFactory);
 
         var retryPolicy = BuildRetryPolicy(connectionFactory);
-        var result = await retryPolicy.ExecuteAsync(_ => connection.QueryFirstOrDefaultAsync<T>(command), cancellationToken).ConfigureAwait(false);
+        var result = await retryPolicy.ExecuteAsync(_ => connection.QueryFirstOrDefaultAsync<T>(command), cancellationToken);
 
         return result != null
             ? Option<T>.Some(result)
@@ -319,11 +319,11 @@ public static class ConnectionExtensions
     {
         var command = new CommandDefinition(sql, parameters, commandType: CommandType.Text, cancellationToken: cancellationToken);
 
-        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-        await using var _ = connection.WithDispose(connectionFactory).ConfigureAwait(false);
+        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        await using var _ = connection.WithDispose(connectionFactory);
 
         var retryPolicy = BuildRetryPolicy(connectionFactory);
-        var result = await retryPolicy.ExecuteAsync(_ => connection.QueryFirstOrDefaultAsync<TResult>(command), cancellationToken).ConfigureAwait(false);
+        var result = await retryPolicy.ExecuteAsync(_ => connection.QueryFirstOrDefaultAsync<TResult>(command), cancellationToken);
 
         return result != null
             ? Option<TResult>.Some(result)
@@ -353,11 +353,11 @@ public static class ConnectionExtensions
     {
         var command = new CommandDefinition(sql, commandType: CommandType.Text, cancellationToken: cancellationToken);
 
-        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-        await using var _ = connection.WithDispose(connectionFactory).ConfigureAwait(false);
+        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        await using var _ = connection.WithDispose(connectionFactory);
 
         var retryPolicy = BuildRetryPolicy(connectionFactory);
-        return await retryPolicy.ExecuteAsync(_ => connection.QuerySingleAsync<T>(command), cancellationToken).ConfigureAwait(false);
+        return await retryPolicy.ExecuteAsync(_ => connection.QuerySingleAsync<T>(command), cancellationToken);
     }
 
     /// <summary>
@@ -385,11 +385,11 @@ public static class ConnectionExtensions
     {
         var command = new CommandDefinition(sql, parameters, commandType: CommandType.Text, cancellationToken: cancellationToken);
 
-        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-        await using var _ = connection.WithDispose(connectionFactory).ConfigureAwait(false);
+        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        await using var _ = connection.WithDispose(connectionFactory);
 
         var retryPolicy = BuildRetryPolicy(connectionFactory);
-        return await retryPolicy.ExecuteAsync(_ => connection.QuerySingleAsync<TResult>(command), cancellationToken).ConfigureAwait(false);
+        return await retryPolicy.ExecuteAsync(_ => connection.QuerySingleAsync<TResult>(command), cancellationToken);
     }
 
     /// <summary>
@@ -417,11 +417,11 @@ public static class ConnectionExtensions
         {
             var command = new CommandDefinition(sql, commandType: CommandType.Text, cancellationToken: cancellationToken);
 
-            var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-            await using var _ = connection.WithDispose(connectionFactory).ConfigureAwait(false);
+            var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+            await using var _ = connection.WithDispose(connectionFactory);
 
             var retryPolicy = BuildRetryPolicy(connectionFactory);
-            var result = await retryPolicy.ExecuteAsync(_ => connection.QuerySingleOrDefaultAsync<T>(command), cancellationToken).ConfigureAwait(false);
+            var result = await retryPolicy.ExecuteAsync(_ => connection.QuerySingleOrDefaultAsync<T>(command), cancellationToken);
 
             return result != null
                 ? Option<T>.Some(result)
@@ -460,11 +460,11 @@ public static class ConnectionExtensions
         {
             var command = new CommandDefinition(sql, parameters, commandType: CommandType.Text, cancellationToken: cancellationToken);
 
-            var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-            await using var _ = connection.WithDispose(connectionFactory).ConfigureAwait(false);
+            var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+            await using var _ = connection.WithDispose(connectionFactory);
 
             var retryPolicy = BuildRetryPolicy(connectionFactory);
-            var result = await retryPolicy.ExecuteAsync(_ => connection.QuerySingleOrDefaultAsync<TResult>(command), cancellationToken).ConfigureAwait(false);
+            var result = await retryPolicy.ExecuteAsync(_ => connection.QuerySingleOrDefaultAsync<TResult>(command), cancellationToken);
 
             return result != null
                 ? Option<TResult>.Some(result)
@@ -485,7 +485,7 @@ public static class ConnectionExtensions
 
     private static async IAsyncEnumerable<T> WithRetryPolicy<T>(this IAsyncEnumerable<T> source, IAsyncPolicy policy, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        var enumerator = source.ConfigureAwait(false).WithCancellation(cancellationToken).GetAsyncEnumerator();
+        var enumerator = source.WithCancellation(cancellationToken).GetAsyncEnumerator();
 
         try
         {
@@ -493,7 +493,7 @@ public static class ConnectionExtensions
 
             do
             {
-                hasNext = await policy.ExecuteAsync(async () => await enumerator.MoveNextAsync()).ConfigureAwait(false);
+                hasNext = await policy.ExecuteAsync(async () => await enumerator.MoveNextAsync());
                 if (hasNext)
                     yield return enumerator.Current;
             }
@@ -501,7 +501,7 @@ public static class ConnectionExtensions
         }
         finally
         {
-            await policy.ExecuteAsync(async () => await enumerator.DisposeAsync()).ConfigureAwait(false);
+            await policy.ExecuteAsync(async () => await enumerator.DisposeAsync());
         }
     }
 
@@ -527,7 +527,7 @@ public static class ConnectionExtensions
             if (_shouldDispose)
             {
                 if (_connection is IAsyncDisposable asyncDisposable)
-                    await asyncDisposable.DisposeAsync().ConfigureAwait(false);
+                    await asyncDisposable.DisposeAsync();
                 else
                     _connection.Dispose();
 

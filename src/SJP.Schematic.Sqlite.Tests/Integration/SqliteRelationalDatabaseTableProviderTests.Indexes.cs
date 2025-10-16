@@ -10,7 +10,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     [Test]
     public async Task Indexes_WhenGivenTableWithNoIndexes_ReturnsEmptyCollection()
     {
-        var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_1");
 
         Assert.That(table.Indexes, Is.Empty);
     }
@@ -18,7 +18,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     [Test]
     public async Task Indexes_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithColumnOnly()
     {
-        var table = await GetTableAsync("table_test_table_8").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_8");
         var index = table.Indexes.Single();
         var indexColumns = index.Columns
             .Select(c => c.DependentColumns.Single())
@@ -34,7 +34,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     [Test]
     public async Task Indexes_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithCorrectName()
     {
-        var table = await GetTableAsync("table_test_table_8").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_8");
         var index = table.Indexes.Single();
 
         Assert.That(index.Name.LocalName, Is.EqualTo("ix_test_table_8"));
@@ -45,7 +45,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     {
         var expectedColumnNames = new[] { "first_name", "last_name", "middle_name" };
 
-        var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_9");
         var index = table.Indexes.Single();
         var indexColumns = index.Columns
             .Select(c => c.DependentColumns.Single())
@@ -62,7 +62,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     [Test]
     public async Task Indexes_WhenGivenTableWithMultiColumnIndex_ReturnsIndexWithCorrectName()
     {
-        var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_9");
         var index = table.Indexes.Single();
 
         Assert.That(index.Name.LocalName, Is.EqualTo("ix_test_table_9"));
@@ -71,7 +71,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     [Test]
     public async Task Indexes_WhenGivenTableWithIndexContainingNoIncludedColumns_ReturnsIndexWithoutIncludedColumns()
     {
-        var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_9");
         var index = table.Indexes.Single();
         var includedColumns = index.IncludedColumns
             .Select(c => c.Name.LocalName)
@@ -83,7 +83,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     [Test]
     public async Task Indexes_WhenGivenTableWithNonUniqueIndex_ReturnsIndexWithIsUniqueFalse()
     {
-        var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_9");
         var index = table.Indexes.Single();
 
         Assert.That(index.IsUnique, Is.False);
@@ -92,7 +92,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     [Test]
     public async Task Indexes_WhenGivenTableWithUniqueIndex_ReturnsIndexWithIsUniqueTrue()
     {
-        var table = await GetTableAsync("table_test_table_13").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_13");
         var index = table.Indexes.Single();
 
         Assert.That(index.IsUnique, Is.True);
@@ -101,7 +101,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     [Test]
     public async Task Indexes_WhenGivenTableWithFilteredIndexes_ReturnsIndexWithFilteredDefinition()
     {
-        var table = await GetTableAsync("table_test_table_38").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_38");
         var index1 = table.Indexes.Single(i => i.Name.LocalName == "ix_test_table_38_1");
         var index2 = table.Indexes.Single(i => i.Name.LocalName == "ix_test_table_38_2");
 

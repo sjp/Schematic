@@ -71,7 +71,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <returns>A collection of database views.</returns>
     public async IAsyncEnumerable<IDatabaseView> EnumerateAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var dbNamesQuery = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
+        var dbNamesQuery = await ConnectionPragma.DatabaseListAsync(cancellationToken);
         var dbNames = dbNamesQuery
             .OrderBy(static d => d.seq)
             .Select(static d => d.name)
@@ -85,8 +85,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
             var viewNames = await DbConnection.QueryEnumerableAsync<GetAllViewNames.Result>(sql, cancellationToken)
                 .Where(static result => !IsReservedViewName(result.ViewName))
                 .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.ViewName))
-                .ToListAsync(cancellationToken)
-                .ConfigureAwait(false);
+                .ToListAsync(cancellationToken);
 
             qualifiedViewNames.AddRange(viewNames);
         }
@@ -96,7 +95,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
             .ThenBy(static v => v.LocalName, StringComparer.Ordinal);
 
         foreach (var viewName in orderedViewNames)
-            yield return await LoadViewAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
+            yield return await LoadViewAsyncCore(viewName, cancellationToken);
     }
 
     /// <summary>
@@ -106,7 +105,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <returns>A collection of database views.</returns>
     public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default)
     {
-        var dbNamesQuery = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
+        var dbNamesQuery = await ConnectionPragma.DatabaseListAsync(cancellationToken);
         var dbNames = dbNamesQuery
             .OrderBy(static d => d.seq)
             .Select(static d => d.name)
@@ -120,8 +119,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
             var viewNames = await DbConnection.QueryEnumerableAsync<GetAllViewNames.Result>(sql, cancellationToken)
                 .Where(static result => !IsReservedViewName(result.ViewName))
                 .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.ViewName))
-                .ToListAsync(cancellationToken)
-                .ConfigureAwait(false);
+                .ToListAsync(cancellationToken);
 
             qualifiedViewNames.AddRange(viewNames);
         }
@@ -147,8 +145,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
         return await orderedViewNames
             .Select(viewName => LoadViewAsyncCore(viewName, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
     }
 
     /// <summary>
@@ -168,22 +165,18 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     private async Task<Option<IDatabaseView>> GetViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
         if (viewName.Schema != null)
-        {
-            return await LoadView(viewName, cancellationToken)
-                .ToOption()
-                .ConfigureAwait(false);
-        }
+            return await LoadView(viewName, cancellationToken).ToOption();
 
-        var dbNamesResult = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
+        var dbNamesResult = await ConnectionPragma.DatabaseListAsync(cancellationToken);
         var dbNames = dbNamesResult.OrderBy(static l => l.seq).Select(static l => l.name).ToList();
         foreach (var dbName in dbNames)
         {
             var qualifiedViewName = Identifier.CreateQualifiedIdentifier(dbName, viewName.LocalName);
             var view = LoadView(qualifiedViewName, cancellationToken);
 
-            var viewIsSome = await view.IsSome.ConfigureAwait(false);
+            var viewIsSome = await view.IsSome;
             if (viewIsSome)
-                return await view.ToOption().ConfigureAwait(false);
+                return await view.ToOption();
         }
 
         return Option<IDatabaseView>.None;
@@ -212,11 +205,11 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
                 sql,
                 new GetViewName.Query { ViewName = viewName.LocalName },
                 cancellationToken
-            ).ConfigureAwait(false);
+            );
 
             if (viewLocalName != null)
             {
-                var dbList = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
+                var dbList = await ConnectionPragma.DatabaseListAsync(cancellationToken);
                 var viewSchemaName = dbList
                     .OrderBy(static s => s.seq)
                     .Select(static s => s.name)
@@ -228,7 +221,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
             }
         }
 
-        var dbNamesResult = await ConnectionPragma.DatabaseListAsync(cancellationToken).ConfigureAwait(false);
+        var dbNamesResult = await ConnectionPragma.DatabaseListAsync(cancellationToken);
         var dbNames = dbNamesResult
             .OrderBy(static l => l.seq)
             .Select(static l => l.name)
@@ -240,7 +233,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
                 sql,
                 new GetViewName.Query { ViewName = viewName.LocalName },
                 cancellationToken
-            ).ConfigureAwait(false);
+            );
 
             if (viewLocalName != null)
                 return Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(dbName, viewLocalName));
@@ -269,8 +262,8 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     {
         var databasePragma = GetDatabasePragma(viewName.Schema!);
 
-        var columns = await LoadColumnsAsync(databasePragma, viewName, cancellationToken).ConfigureAwait(false);
-        var definition = await LoadDefinitionAsync(viewName, cancellationToken).ConfigureAwait(false);
+        var columns = await LoadColumnsAsync(databasePragma, viewName, cancellationToken);
+        var definition = await LoadDefinitionAsync(viewName, cancellationToken);
 
         return new DatabaseView(viewName, definition!, columns);
     }
@@ -318,7 +311,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
             // When the view is invalid, this may throw an exception so we catch it.
             // This does mean that we are in a partial state, but if the definition is corrected
             // and the view is queried again then we'll end up with something correct.
-            tableInfos = await pragma.TableInfoAsync(viewName, cancellationToken).ConfigureAwait(false);
+            tableInfos = await pragma.TableInfoAsync(viewName, cancellationToken);
         }
         catch (SqliteException ex) when (ex.SqliteErrorCode == SqliteError)
         {
@@ -338,7 +331,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
 
             var columnTypeName = tableInfo.type;
             if (columnTypeName.IsNullOrWhiteSpace())
-                columnTypeName = await GetTypeofColumnAsync(viewName, columnName, cancellationToken).ConfigureAwait(false);
+                columnTypeName = await GetTypeofColumnAsync(viewName, columnName, cancellationToken);
 
             var affinity = AffinityParser.ParseTypeName(columnTypeName);
             var columnType = new SqliteColumnType(affinity);

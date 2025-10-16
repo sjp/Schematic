@@ -19,7 +19,7 @@ internal static class EmptyRelationalDatabaseTableProviderTests
     {
         var provider = new EmptyRelationalDatabaseTableProvider();
         var table = provider.GetTable("table_name");
-        var tableIsNone = await table.IsNone.ConfigureAwait(false);
+        var tableIsNone = await table.IsNone;
 
         Assert.That(tableIsNone, Is.True);
     }
@@ -28,7 +28,7 @@ internal static class EmptyRelationalDatabaseTableProviderTests
     public static async Task EnumerateAllTables_WhenEnumerated_ContainsNoValues()
     {
         var provider = new EmptyRelationalDatabaseTableProvider();
-        var hasTables = await provider.EnumerateAllTables().AnyAsync().ConfigureAwait(false);
+        var hasTables = await provider.EnumerateAllTables().AnyAsync();
 
         Assert.That(hasTables, Is.False);
     }
@@ -37,7 +37,7 @@ internal static class EmptyRelationalDatabaseTableProviderTests
     public static async Task GetAllTables_WhenRetrieved_ContainsNoValues()
     {
         var provider = new EmptyRelationalDatabaseTableProvider();
-        var tables = await provider.GetAllTables().ConfigureAwait(false);
+        var tables = await provider.GetAllTables();
 
         Assert.That(tables, Is.Empty);
     }

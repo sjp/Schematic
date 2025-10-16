@@ -56,7 +56,7 @@ public class PostgreSqlViewCommentProvider : IDatabaseViewCommentProvider
         var (queryViews, materializedViews) = await (
             QueryViewCommentProvider.EnumerateAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask(),
             MaterializedViewCommentProvider.EnumerateAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask()
-        ).WhenAll().ConfigureAwait(false);
+        ).WhenAll();
 
         var viewComments = queryViews
             .Concat(materializedViews)
@@ -77,7 +77,7 @@ public class PostgreSqlViewCommentProvider : IDatabaseViewCommentProvider
         var (queryViews, materializedViews) = await (
             QueryViewCommentProvider.GetAllViewComments(cancellationToken),
             MaterializedViewCommentProvider.GetAllViewComments(cancellationToken)
-        ).WhenAll().ConfigureAwait(false);
+        ).WhenAll();
 
         return queryViews
             .Concat(materializedViews)

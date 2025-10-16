@@ -107,7 +107,7 @@ public static class RelationalDatabaseSnapshotExtensions
             sequencesTask,
             synonymsTask,
             routinesTask
-        ).WhenAll().ConfigureAwait(false);
+        ).WhenAll();
 
         return new RelationalDatabase(
             database.IdentifierDefaults,

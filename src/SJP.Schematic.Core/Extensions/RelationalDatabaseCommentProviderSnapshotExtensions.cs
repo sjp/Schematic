@@ -108,7 +108,7 @@ public static class RelationalDatabaseCommentProviderSnapshotExtensions
             sequenceCommentsTask,
             synonymCommentsTask,
             routineCommentsTask
-        ).WhenAll().ConfigureAwait(false);
+        ).WhenAll();
 
         return new RelationalDatabaseCommentProvider(
             databaseComments.IdentifierDefaults,

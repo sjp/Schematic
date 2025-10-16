@@ -31,7 +31,7 @@ create table test_table_1 (
     test_string text,
     test_string_with_default text default 'test',
     constraint test_table_1_pk primary key (test_pk)
-)", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 create table test_table_2 (
     test_pk_1 integer not null,
@@ -42,11 +42,11 @@ create table test_table_2 (
     comment text null,
     constraint test_table_2_pk primary key (test_pk_1, test_pk_2),
     constraint test_table_2_multi_uk unique (first_name, middle_name, last_name)
-)", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create index ix_test_table_2_first_name on test_table_2 (first_name, last_name)", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create index ix_test_table_2_comment on test_table_2 (comment)", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create unique index ux_test_table_2_first_name_middle_name on test_table_2 (first_name, middle_name)", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create unique index ux_test_table_2_last_name on test_table_2 (last_name)", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create index ix_test_table_2_first_name on test_table_2 (first_name, last_name)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create index ix_test_table_2_comment on test_table_2 (comment)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create unique index ux_test_table_2_first_name_middle_name on test_table_2 (first_name, middle_name)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create unique index ux_test_table_2_last_name on test_table_2 (last_name)", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 create table test_table_3 (
     test_pk integer not null primary key autoincrement,
@@ -58,7 +58,7 @@ create table test_table_3 (
     test_datetime datetime default CURRENT_TIMESTAMP,
     test_string text,
     test_string_with_default text default 'test'
-)", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 create table test_table_4 (
     test_pk integer not null primary key autoincrement,
@@ -78,21 +78,21 @@ create table test_table_4 (
     constraint fk_test_table_4_test_table_3_fk2 foreign key (test_table_3_fk2) references test_table_3 (test_pk) on update cascade,
     constraint fk_test_table_4_test_table_3_fk3 foreign key (test_table_3_fk3) references test_table_3 (test_pk) on delete set null,
     constraint fk_test_table_4_test_table_3_fk4 foreign key (test_table_3_fk4) references test_table_3 (test_pk) on update set null on delete cascade
-)", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create table test_table_5 ( test_column_1 integer )", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table test_table_5 ( test_column_1 integer )", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 create table test_table_6 (
     test_pk integer not null,
     test_int integer not null,
     constraint test_table_6_pk primary key (test_pk)
-)", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 create table test_table_7 (
     test_pk integer not null,
     test_table_6_fk1 integer not null,
     constraint test_table_7_pk primary key (test_pk),
     constraint fk_test_table_7_test_table_6_fk1 foreign key (test_table_6_fk1) references test_table_6 (test_pk)
-)", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 create table test_table_8 (
     test_pk integer not null,
@@ -100,35 +100,35 @@ create table test_table_8 (
     constraint test_table_8_pk primary key (test_pk),
     constraint fk_test_table_8_test_table_6_fk1 foreign key (test_table_8_fk1) references test_table_6 (test_pk),
     constraint test_table_8_uk1 unique (test_table_8_fk1)
-)", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 create table test_table_9 (
     test_pk integer not null,
     test_table_9_fk1 integer not null,
     constraint test_table_9_pk primary key (test_pk),
     constraint fk_test_table_9_test_table_6_fk1 foreign key (test_table_9_fk1) references test_table_6 (test_pk)
-)", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create unique index ux_test_table_9_fk1 on test_table_9 (test_table_9_fk1)", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create unique index ux_test_table_9_fk1 on test_table_9 (test_table_9_fk1)", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table test_table_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table test_table_2", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table test_table_4", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table test_table_3", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table test_table_5", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table test_table_7", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table test_table_8", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table test_table_9", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table test_table_6", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table test_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table test_table_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table test_table_4", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table test_table_3", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table test_table_5", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table test_table_7", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table test_table_8", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table test_table_9", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table test_table_6", CancellationToken.None);
     }
 
     [Test]
     public async Task RenderTables_GivenSimpleTable_GeneratesExpectedDot()
     {
-        var table = await GetTable("test_table_5").ConfigureAwait(false);
+        var table = await GetTable("test_table_5");
         var tables = new[] { table };
 
         var result = Formatter.RenderTables(tables);
@@ -139,7 +139,7 @@ create table test_table_9 (
     [Test]
     public async Task RenderTables_GivenComplexTable_GeneratesExpectedDot()
     {
-        var table = await GetTable("test_table_1").ConfigureAwait(false);
+        var table = await GetTable("test_table_1");
         var tables = new[] { table };
 
         var result = Formatter.RenderTables(tables);
@@ -150,7 +150,7 @@ create table test_table_9 (
     [Test]
     public async Task RenderTables_GivenTableWithMultipleIndexes_GeneratesExpectedDot()
     {
-        var table = await GetTable("test_table_2").ConfigureAwait(false);
+        var table = await GetTable("test_table_2");
         var tables = new[] { table };
 
         var result = Formatter.RenderTables(tables);
@@ -163,10 +163,10 @@ create table test_table_9 (
     {
         var tables = new[]
         {
-            await GetTable("test_table_6").ConfigureAwait(false),
-            await GetTable("test_table_7").ConfigureAwait(false),
-            await GetTable("test_table_8").ConfigureAwait(false),
-            await GetTable("test_table_9").ConfigureAwait(false),
+            await GetTable("test_table_6"),
+            await GetTable("test_table_7"),
+            await GetTable("test_table_8"),
+            await GetTable("test_table_9"),
         };
 
         var result = Formatter.RenderTables(tables);

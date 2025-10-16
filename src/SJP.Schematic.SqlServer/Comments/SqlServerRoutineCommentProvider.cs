@@ -70,14 +70,12 @@ public class SqlServerRoutineCommentProvider : IDatabaseRoutineCommentProvider
         var routineNames = await Connection.QueryEnumerableAsync<GetAllRoutineNames.Result>(GetAllRoutineNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return await routineNames
             .Select(routineName => LoadRoutineCommentsAsyncCore(routineName, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
     }
 
     /// <summary>
@@ -143,7 +141,7 @@ public class SqlServerRoutineCommentProvider : IDatabaseRoutineCommentProvider
                 CommentProperty = CommentProperty,
             },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         var commentData = queryResult.Select(r => new CommentData
         {

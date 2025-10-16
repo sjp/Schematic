@@ -51,18 +51,18 @@ public class ReportGenerator
             Database.GetAllSequences(cancellationToken),
             Database.GetAllSynonyms(cancellationToken),
             Database.GetAllRoutines(cancellationToken)
-        ).WhenAll().ConfigureAwait(false);
+        ).WhenAll();
 
-        var rowCounts = await GetRowCountsAsync(tables, cancellationToken).ConfigureAwait(false);
+        var rowCounts = await GetRowCountsAsync(tables, cancellationToken);
 
-        var dbVersion = await Connection.Dialect.GetDatabaseDisplayVersionAsync(Connection, cancellationToken).ConfigureAwait(false);
+        var dbVersion = await Connection.Dialect.GetDatabaseDisplayVersionAsync(Connection, cancellationToken);
 
         var renderers = GetRenderers(tables, views, sequences, synonyms, routines, rowCounts, dbVersion);
         var renderTasks = renderers.Select(r => r.RenderAsync(cancellationToken)).ToArray();
-        await Task.WhenAll(renderTasks).ConfigureAwait(false);
+        await Task.WhenAll(renderTasks);
 
         var assetExporter = new AssetExporter();
-        await assetExporter.SaveAssetsAsync(ExportDirectory, true, cancellationToken).ConfigureAwait(false);
+        await assetExporter.SaveAssetsAsync(ExportDirectory, true, cancellationToken);
     }
 
     private async Task<IReadOnlyDictionary<Identifier, ulong>> GetRowCountsAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken)
@@ -72,13 +72,13 @@ public class ReportGenerator
         foreach (var table in tables)
             rowCountTasks.Add(GetTableRowCountAsync(table.Name, cancellationToken));
 
-        await Task.WhenAll(rowCountTasks).ConfigureAwait(false);
+        await Task.WhenAll(rowCountTasks);
 
         var result = new Dictionary<Identifier, ulong>();
 
         foreach (var rowCountTask in rowCountTasks)
         {
-            var rowCountInfo = await rowCountTask.ConfigureAwait(false);
+            var rowCountInfo = await rowCountTask;
             result[rowCountInfo.Key] = rowCountInfo.Value;
         }
 
@@ -87,7 +87,7 @@ public class ReportGenerator
 
     private async Task<KeyValuePair<Identifier, ulong>> GetTableRowCountAsync(Identifier tableName, CancellationToken cancellationToken)
     {
-        var rowCount = await Connection.DbConnection.GetRowCountAsync(Connection.Dialect, tableName, cancellationToken).ConfigureAwait(false);
+        var rowCount = await Connection.DbConnection.GetRowCountAsync(Connection.Dialect, tableName, cancellationToken);
         return new KeyValuePair<Identifier, ulong>(tableName, rowCount);
     }
 

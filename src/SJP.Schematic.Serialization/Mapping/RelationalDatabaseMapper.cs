@@ -51,7 +51,7 @@ public class RelationalDatabaseMapper
             source.GetAllSequences(cancellationToken),
             source.GetAllSynonyms(cancellationToken),
             source.GetAllRoutines(cancellationToken)
-        ).WhenAll().ConfigureAwait(false);
+        ).WhenAll();
 
         var dtoTables = tables.Select(t => tableMapper.Map<IRelationalDatabaseTable, Dto.RelationalDatabaseTable>(t)).ToList();
         var dtoViews = views.Select(v => viewMapper.Map<IDatabaseView, Dto.DatabaseView>(v)).ToList();

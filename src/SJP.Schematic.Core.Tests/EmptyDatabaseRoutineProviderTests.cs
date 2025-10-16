@@ -19,7 +19,7 @@ internal static class EmptyDatabaseRoutineProviderTests
     {
         var provider = new EmptyDatabaseRoutineProvider();
         var routine = provider.GetRoutine("routine_name");
-        var routineIsNone = await routine.IsNone.ConfigureAwait(false);
+        var routineIsNone = await routine.IsNone;
 
         Assert.That(routineIsNone, Is.True);
     }
@@ -28,9 +28,7 @@ internal static class EmptyDatabaseRoutineProviderTests
     public static async Task EnumerateAllRoutines_WhenEnumerated_ContainsNoValues()
     {
         var provider = new EmptyDatabaseRoutineProvider();
-        var hasRoutines = await provider.EnumerateAllRoutines()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasRoutines = await provider.EnumerateAllRoutines().AnyAsync();
 
         Assert.That(hasRoutines, Is.False);
     }
@@ -39,7 +37,7 @@ internal static class EmptyDatabaseRoutineProviderTests
     public static async Task GetAllRoutines_WhenRetrieved_ContainsNoValues()
     {
         var provider = new EmptyDatabaseRoutineProvider();
-        var routines = await provider.GetAllRoutines().ConfigureAwait(false);
+        var routines = await provider.GetAllRoutines();
 
         Assert.That(routines, Is.Empty);
     }

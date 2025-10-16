@@ -15,13 +15,13 @@ public class JsonRelationalDatabaseCommentSerializer : IRelationalDatabaseCommen
     public async Task SerializeAsync(Stream stream, IRelationalDatabaseCommentProvider databaseComments, CancellationToken cancellationToken = default)
     {
         var dbCommentMapper = new DatabaseCommentProviderMapper();
-        var dto = await dbCommentMapper.MapAsync(databaseComments, cancellationToken).ConfigureAwait(false);
-        await JsonSerializer.SerializeAsync(stream, dto, _settings.Value, cancellationToken).ConfigureAwait(false);
+        var dto = await dbCommentMapper.MapAsync(databaseComments, cancellationToken);
+        await JsonSerializer.SerializeAsync(stream, dto, _settings.Value, cancellationToken);
     }
 
     public async Task<IRelationalDatabaseCommentProvider> DeserializeAsync(Stream stream, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken = default)
     {
-        var dto = await JsonSerializer.DeserializeAsync<Dto.Comments.DatabaseCommentProvider>(stream, _settings.Value, cancellationToken).ConfigureAwait(false);
+        var dto = await JsonSerializer.DeserializeAsync<Dto.Comments.DatabaseCommentProvider>(stream, _settings.Value, cancellationToken);
         if (dto == null)
             throw new InvalidOperationException("Unable to parse the given JSON as a database comment definition.");
 

@@ -52,18 +52,18 @@ internal sealed class TriggerRenderer : ITemplateRenderer
                 var triggerModel = mapper.Map(table.Name, trigger);
                 var outputPath = Path.Combine(outputDirectory, trigger.Name.ToSafeKey() + ".html");
 
-                var renderedTable = await Formatter.RenderTemplateAsync(triggerModel, cancellationToken).ConfigureAwait(false);
+                var renderedTable = await Formatter.RenderTemplateAsync(triggerModel, cancellationToken);
 
                 var pageTitle = trigger.Name.ToVisibleName() + " · Trigger · " + table.Name.ToVisibleName();
                 var container = new Container(renderedTable, pageTitle, "../../../");
-                var renderedPage = await Formatter.RenderTemplateAsync(container, cancellationToken).ConfigureAwait(false);
+                var renderedPage = await Formatter.RenderTemplateAsync(container, cancellationToken);
 
                 await using var writer = File.CreateText(outputPath);
-                await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
-                await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
+                await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken);
+                await writer.FlushAsync(cancellationToken);
             });
         });
 
-        await Task.WhenAll(triggerTasks).ConfigureAwait(false);
+        await Task.WhenAll(triggerTasks);
     }
 }

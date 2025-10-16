@@ -87,14 +87,12 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
         var viewNames = await queryResult
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return await viewNames
             .Select(viewName => LoadViewAsyncCore(viewName, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
     }
 
     /// <summary>
@@ -154,7 +152,7 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
         var (columns, definition) = await (
             LoadColumnsAsync(viewName, cancellationToken),
             LoadDefinitionAsync(viewName, cancellationToken)
-        ).WhenAll().ConfigureAwait(false);
+        ).WhenAll();
 
         return new DatabaseView(viewName, definition, columns);
     }
@@ -201,7 +199,7 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
 
         var result = new List<IDatabaseColumn>();
 
-        await foreach (var row in query.ConfigureAwait(false).WithCancellation(cancellationToken))
+        await foreach (var row in query.WithCancellation(cancellationToken))
         {
             var precision = row.DateTimePrecision > 0
                 ? new NumericPrecision(row.DateTimePrecision, 0)

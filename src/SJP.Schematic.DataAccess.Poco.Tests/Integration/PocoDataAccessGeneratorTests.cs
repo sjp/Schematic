@@ -30,23 +30,23 @@ select
     X'DEADBEEF' as testblob,
     CURRENT_TIMESTAMP as testdatetime,
     'test' as teststring
-", CancellationToken.None).ConfigureAwait(false);
+", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"create table view_test_table_1 (
     testint integer not null primary key autoincrement,
     testdecimal numeric default 2.45,
     testblob blob default X'DEADBEEF',
     testdatetime datetime default CURRENT_TIMESTAMP,
     teststring text default 'test'
-)", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create view test_view_2 as select * from view_test_table_1", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create view test_view_2 as select * from view_test_table_1", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop view test_view_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop view test_view_2", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table view_test_table_1", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop view test_view_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop view test_view_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table view_test_table_1", CancellationToken.None);
     }
 
     [Test]
@@ -72,7 +72,7 @@ select
         var nameTranslator = new PascalCaseNameTranslator();
         var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
         var generator = new PocoDataAccessGenerator(mockFs, Database, commentProvider, nameTranslator);
-        await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
+        await generator.GenerateAsync(projectPath, TestNamespace);
 
         using (Assert.EnterMultipleScope())
         {
@@ -97,9 +97,9 @@ select
         var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
         var nameTranslator = new PascalCaseNameTranslator();
         var generator = new PocoDataAccessGenerator(fileSystem, database, commentProvider, nameTranslator);
-        await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
+        await generator.GenerateAsync(projectPath, TestNamespace);
 
-        var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
+        var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath);
         Assert.That(buildsSuccessfully, Is.True);
     }
 
@@ -113,9 +113,9 @@ select
         var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
         var nameTranslator = new PascalCaseNameTranslator();
         var generator = new PocoDataAccessGenerator(fileSystem, Database, commentProvider, nameTranslator);
-        await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
+        await generator.GenerateAsync(projectPath, TestNamespace);
 
-        var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
+        var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath);
         Assert.That(buildsSuccessfully, Is.True);
     }
 
@@ -144,7 +144,7 @@ select
 
         using var process = new Process { StartInfo = startInfo };
         process.Start();
-        await process.WaitForExitAsync().ConfigureAwait(false);
+        await process.WaitForExitAsync();
 
         return process.ExitCode == ExitSuccess;
     }

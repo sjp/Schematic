@@ -42,12 +42,12 @@ internal sealed class ReportCommand : AsyncCommand<ReportCommand.Settings>
         var dependencyProvider = _dependencyProviderFactory.GetDbDependencies(settings.ConfigFile!.FullName);
         ConfigureDotPath(dependencyProvider.Configuration);
         var connection = dependencyProvider.GetSchematicConnection();
-        var database = await connection.Dialect.GetRelationalDatabaseAsync(connection, cancellationToken).ConfigureAwait(false);
+        var database = await connection.Dialect.GetRelationalDatabaseAsync(connection, cancellationToken);
 
-        var snapshotDb = await database.SnapshotAsync(cancellationToken).ConfigureAwait(false);
+        var snapshotDb = await database.SnapshotAsync(cancellationToken);
 
         var reportGenerator = new ReportGenerator(connection, snapshotDb, settings.OutputDirectory!.FullName);
-        await reportGenerator.GenerateAsync(cancellationToken).ConfigureAwait(false);
+        await reportGenerator.GenerateAsync(cancellationToken);
 
         _console.Write("Report generated to: " + settings.OutputDirectory!.FullName);
         return ErrorCode.Success;

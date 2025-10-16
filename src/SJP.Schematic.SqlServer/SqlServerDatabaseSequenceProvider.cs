@@ -84,8 +84,7 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
                     row.IsCached ? row.CacheSize ?? -1 : 0 // -1 as unknown/database determined
                 );
             })
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
     }
 
     /// <summary>

@@ -24,19 +24,19 @@ RETURNS integer AS $$
 BEGIN
     RETURN val + 1;
 END; $$
-LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
+LANGUAGE PLPGSQL", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop function db_comment_test_routine_1(integer)", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop function db_comment_test_routine_1(integer)", CancellationToken.None);
     }
 
     [Test]
     public async Task GetRoutineComments_WhenRoutinePresent_ReturnsRoutineComment()
     {
-        var routineIsSome = await RoutineCommentProvider.GetRoutineComments("db_comment_test_routine_1").IsSome.ConfigureAwait(false);
+        var routineIsSome = await RoutineCommentProvider.GetRoutineComments("db_comment_test_routine_1").IsSome;
         Assert.That(routineIsSome, Is.True);
     }
 
@@ -44,7 +44,7 @@ LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
     public async Task GetRoutineComments_WhenRoutinePresent_ReturnsRoutineWithCorrectName()
     {
         const string routineName = "db_comment_test_routine_1";
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync();
 
         Assert.That(routineComments.RoutineName.LocalName, Is.EqualTo(routineName));
     }
@@ -55,7 +55,7 @@ LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
         var routineName = new Identifier("db_comment_test_routine_1");
         var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_comment_test_routine_1");
 
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync();
 
         Assert.That(routineComments.RoutineName, Is.EqualTo(expectedRoutineName));
     }
@@ -66,7 +66,7 @@ LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
         var routineName = new Identifier(IdentifierDefaults.Schema, "db_comment_test_routine_1");
         var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_comment_test_routine_1");
 
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync();
 
         Assert.That(routineComments.RoutineName, Is.EqualTo(expectedRoutineName));
     }
@@ -77,7 +77,7 @@ LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
         var routineName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_comment_test_routine_1");
         var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_comment_test_routine_1");
 
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync();
 
         Assert.That(routineComments.RoutineName, Is.EqualTo(expectedRoutineName));
     }
@@ -87,7 +87,7 @@ LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
     {
         var routineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_comment_test_routine_1");
 
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync();
 
         Assert.That(routineComments.RoutineName, Is.EqualTo(routineName));
     }
@@ -98,7 +98,7 @@ LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
         var routineName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_comment_test_routine_1");
         var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_comment_test_routine_1");
 
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync();
 
         Assert.That(routineComments.RoutineName, Is.EqualTo(expectedRoutineName));
     }
@@ -109,7 +109,7 @@ LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
         var routineName = new Identifier("A", "B", IdentifierDefaults.Schema, "db_comment_test_routine_1");
         var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_comment_test_routine_1");
 
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync();
 
         Assert.That(routineComments.RoutineName, Is.EqualTo(expectedRoutineName));
     }
@@ -120,7 +120,7 @@ LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
         var routineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "DB_COMMENT_TEST_ROUTINE_1");
         var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_comment_test_routine_1");
 
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync();
 
         Assert.That(routineComments.RoutineName, Is.EqualTo(expectedRoutineName));
     }
@@ -128,16 +128,14 @@ LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
     [Test]
     public async Task GetRoutineComments_WhenRoutineMissing_ReturnsNone()
     {
-        var routineIsNone = await RoutineCommentProvider.GetRoutineComments("routine_that_doesnt_exist").IsNone.ConfigureAwait(false);
+        var routineIsNone = await RoutineCommentProvider.GetRoutineComments("routine_that_doesnt_exist").IsNone;
         Assert.That(routineIsNone, Is.True);
     }
 
     [Test]
     public async Task EnumerateAllRoutineComments_WhenEnumerated_ContainsRoutineComments()
     {
-        var hasRoutineComments = await RoutineCommentProvider.EnumerateAllRoutineComments()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasRoutineComments = await RoutineCommentProvider.EnumerateAllRoutineComments().AnyAsync();
 
         Assert.That(hasRoutineComments, Is.True);
     }
@@ -146,8 +144,7 @@ LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
     public async Task EnumerateAllRoutineComments_WhenEnumerated_ContainsTestRoutineComment()
     {
         var containsTestRoutine = await RoutineCommentProvider.EnumerateAllRoutineComments()
-            .AnyAsync(r => string.Equals(r.RoutineName.LocalName, "db_comment_test_routine_1", StringComparison.Ordinal))
-            .ConfigureAwait(false);
+            .AnyAsync(r => string.Equals(r.RoutineName.LocalName, "db_comment_test_routine_1", StringComparison.Ordinal));
 
         Assert.That(containsTestRoutine, Is.True);
     }
@@ -155,7 +152,7 @@ LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
     [Test]
     public async Task GetAllRoutineComments_WhenRetrieved_ContainsRoutineComments()
     {
-        var routineComments = await RoutineCommentProvider.GetAllRoutineComments().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetAllRoutineComments();
 
         Assert.That(routineComments, Is.Not.Empty);
     }
@@ -163,7 +160,7 @@ LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
     [Test]
     public async Task GetAllRoutineComments_WhenRetrieved_ContainsTestRoutineComment()
     {
-        var routineComments = await RoutineCommentProvider.GetAllRoutineComments().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetAllRoutineComments();
         var containsTestRoutine = routineComments.Any(r => string.Equals(r.RoutineName.LocalName, "db_comment_test_routine_1", StringComparison.Ordinal));
 
         Assert.That(containsTestRoutine, Is.True);

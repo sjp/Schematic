@@ -92,7 +92,7 @@ internal static class PostgreSqlRelationalDatabaseTests
         public static async Task GetSynonym_GivenValidSynonymName_ReturnsNone()
         {
             var synonymName = new Identifier("test");
-            var synonymIsNone = await Database.GetSynonym(synonymName).IsNone.ConfigureAwait(false);
+            var synonymIsNone = await Database.GetSynonym(synonymName).IsNone;
 
             Assert.That(synonymIsNone, Is.True);
         }
@@ -100,9 +100,7 @@ internal static class PostgreSqlRelationalDatabaseTests
         [Test]
         public static async Task EnumerateAllSynonyms_WhenEnumerated_ContainsNoValues()
         {
-            var hasSynonyms = await Database.EnumerateAllSynonyms()
-                .AnyAsync()
-                .ConfigureAwait(false);
+            var hasSynonyms = await Database.EnumerateAllSynonyms().AnyAsync();
 
             Assert.That(hasSynonyms, Is.False);
         }
@@ -110,7 +108,7 @@ internal static class PostgreSqlRelationalDatabaseTests
         [Test]
         public static async Task GetAllSynonyms_WhenRetrieved_ContainsNoValues()
         {
-            var synonyms = await Database.GetAllSynonyms().ConfigureAwait(false);
+            var synonyms = await Database.GetAllSynonyms();
 
             Assert.That(synonyms, Is.Empty);
         }

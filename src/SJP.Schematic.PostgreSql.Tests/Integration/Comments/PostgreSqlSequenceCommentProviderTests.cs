@@ -20,17 +20,17 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create sequence comment_test_sequence_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create sequence comment_test_sequence_2", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create sequence comment_test_sequence_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create sequence comment_test_sequence_2", CancellationToken.None);
 
-        await DbConnection.ExecuteAsync("comment on sequence comment_test_sequence_2 is 'This is a test sequence.'", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("comment on sequence comment_test_sequence_2 is 'This is a test sequence.'", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop sequence comment_test_sequence_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop sequence comment_test_sequence_2", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop sequence comment_test_sequence_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop sequence comment_test_sequence_2", CancellationToken.None);
     }
 
     private Task<IDatabaseSequenceComments> GetSequenceCommentsAsync(Identifier sequenceName)
@@ -42,7 +42,7 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
 
     private async Task<IDatabaseSequenceComments> GetSequenceCommentsAsyncCore(Identifier sequenceName)
     {
-        using (await _lock.LockAsync().ConfigureAwait(false))
+        using (await _lock.LockAsync())
         {
             if (!_commentsCache.TryGetValue(sequenceName, out var lazyComment))
             {
@@ -50,7 +50,7 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
                 _commentsCache[sequenceName] = lazyComment;
             }
 
-            return await lazyComment.ConfigureAwait(false);
+            return await lazyComment;
         }
     }
 
@@ -60,7 +60,7 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
     [Test]
     public async Task GetSequenceComments_WhenSequencePresent_ReturnsSequenceComment()
     {
-        var sequenceIsSome = await SequenceCommentProvider.GetSequenceComments("comment_test_sequence_1").IsSome.ConfigureAwait(false);
+        var sequenceIsSome = await SequenceCommentProvider.GetSequenceComments("comment_test_sequence_1").IsSome;
         Assert.That(sequenceIsSome, Is.True);
     }
 
@@ -68,7 +68,7 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
     public async Task GetSequenceComments_WhenSequencePresent_ReturnsSequenceWithCorrectName()
     {
         const string sequenceName = "comment_test_sequence_1";
-        var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
+        var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync();
 
         Assert.That(sequenceComments.SequenceName.LocalName, Is.EqualTo(sequenceName));
     }
@@ -79,7 +79,7 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
         var sequenceName = new Identifier("comment_test_sequence_1");
         var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "comment_test_sequence_1");
 
-        var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
+        var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync();
 
         Assert.That(sequenceComments.SequenceName, Is.EqualTo(expectedSequenceName));
     }
@@ -90,7 +90,7 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
         var sequenceName = new Identifier(IdentifierDefaults.Schema, "comment_test_sequence_1");
         var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "comment_test_sequence_1");
 
-        var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
+        var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync();
 
         Assert.That(sequenceComments.SequenceName, Is.EqualTo(expectedSequenceName));
     }
@@ -101,7 +101,7 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
         var sequenceName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "comment_test_sequence_1");
         var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "comment_test_sequence_1");
 
-        var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
+        var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync();
 
         Assert.That(sequenceComments.SequenceName, Is.EqualTo(expectedSequenceName));
     }
@@ -111,7 +111,7 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
     {
         var sequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "comment_test_sequence_1");
 
-        var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
+        var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync();
 
         Assert.That(sequenceComments.SequenceName, Is.EqualTo(sequenceName));
     }
@@ -122,7 +122,7 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
         var sequenceName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "comment_test_sequence_1");
         var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "comment_test_sequence_1");
 
-        var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
+        var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync();
 
         Assert.That(sequenceComments.SequenceName, Is.EqualTo(expectedSequenceName));
     }
@@ -133,7 +133,7 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
         var sequenceName = new Identifier("A", "B", IdentifierDefaults.Schema, "comment_test_sequence_1");
         var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "comment_test_sequence_1");
 
-        var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
+        var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync();
 
         Assert.That(sequenceComments.SequenceName, Is.EqualTo(expectedSequenceName));
     }
@@ -144,7 +144,7 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
         var sequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "COMMENT_TEST_SEQUENCE_1");
         var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "comment_test_sequence_1");
 
-        var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
+        var sequenceComments = await SequenceCommentProvider.GetSequenceComments(sequenceName).UnwrapSomeAsync();
 
         Assert.That(sequenceComments.SequenceName, Is.EqualTo(expectedSequenceName));
     }
@@ -152,16 +152,14 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
     [Test]
     public async Task GetSequenceComments_WhenSequenceMissing_ReturnsNone()
     {
-        var sequenceIsNone = await SequenceCommentProvider.GetSequenceComments("sequence_that_doesnt_exist").IsNone.ConfigureAwait(false);
+        var sequenceIsNone = await SequenceCommentProvider.GetSequenceComments("sequence_that_doesnt_exist").IsNone;
         Assert.That(sequenceIsNone, Is.True);
     }
 
     [Test]
     public async Task EnumerateAllSequenceComments_WhenEnumerated_ContainsSequenceComments()
     {
-        var hasSequenceComments = await SequenceCommentProvider.EnumerateAllSequenceComments()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasSequenceComments = await SequenceCommentProvider.EnumerateAllSequenceComments().AnyAsync();
 
         Assert.That(hasSequenceComments, Is.True);
     }
@@ -170,8 +168,7 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
     public async Task EnumerateAllSequenceComments_WhenEnumerated_ContainsTestSequenceComment()
     {
         var containsTestSequence = await SequenceCommentProvider.EnumerateAllSequenceComments()
-            .AnyAsync(t => string.Equals(t.SequenceName.LocalName, "comment_test_sequence_1", StringComparison.Ordinal))
-            .ConfigureAwait(false);
+            .AnyAsync(t => string.Equals(t.SequenceName.LocalName, "comment_test_sequence_1", StringComparison.Ordinal));
 
         Assert.That(containsTestSequence, Is.True);
     }
@@ -179,7 +176,7 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
     [Test]
     public async Task GetAllSequenceComments_WhenRetrieved_ContainsSequenceComments()
     {
-        var sequenceComments = await SequenceCommentProvider.GetAllSequenceComments().ConfigureAwait(false);
+        var sequenceComments = await SequenceCommentProvider.GetAllSequenceComments();
 
         Assert.That(sequenceComments, Is.Not.Empty);
     }
@@ -187,7 +184,7 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
     [Test]
     public async Task GetAllSequenceComments_WhenRetrieved_ContainsTestSequenceComment()
     {
-        var sequenceComments = await SequenceCommentProvider.GetAllSequenceComments().ConfigureAwait(false);
+        var sequenceComments = await SequenceCommentProvider.GetAllSequenceComments();
         var containsTestSequence = sequenceComments.Any(t => string.Equals(t.SequenceName.LocalName, "comment_test_sequence_1", StringComparison.Ordinal));
 
         Assert.That(containsTestSequence, Is.True);
@@ -196,7 +193,7 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
     [Test]
     public async Task GetSequenceComments_WhenSequenceMissingComment_ReturnsNone()
     {
-        var comments = await GetSequenceCommentsAsync("comment_test_sequence_1").ConfigureAwait(false);
+        var comments = await GetSequenceCommentsAsync("comment_test_sequence_1");
 
         Assert.That(comments.Comment.IsNone, Is.True);
     }
@@ -205,7 +202,7 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
     public async Task GetSequenceComments_WhenSequenceContainsComment_ReturnsExpectedValue()
     {
         const string expectedComment = "This is a test sequence.";
-        var comments = await GetSequenceCommentsAsync("comment_test_sequence_2").ConfigureAwait(false);
+        var comments = await GetSequenceCommentsAsync("comment_test_sequence_2");
 
         var sequenceComment = comments.Comment.UnwrapSome();
 

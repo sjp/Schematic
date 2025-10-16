@@ -20,8 +20,8 @@ internal sealed class PostgreSqlTableCommentProviderTests : PostgreSqlTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create table table_comment_table_1 ( test_column_1 int )", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create table table_comment_table_2 ( test_column_1 int, constraint test_comment_table_2_pk primary key (test_column_1) )", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create table table_comment_table_1 ( test_column_1 int )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table table_comment_table_2 ( test_column_1 int, constraint test_comment_table_2_pk primary key (test_column_1) )", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 CREATE TABLE table_comment_table_3
 (
@@ -35,9 +35,9 @@ CREATE TABLE table_comment_table_3
     CONSTRAINT table_comment_table_3_ck_2 CHECK (test_column_1 < 1000),
     CONSTRAINT table_comment_table_3_fk_1 FOREIGN KEY (test_column_3) REFERENCES table_comment_table_3 (test_column_1),
     CONSTRAINT table_comment_table_3_fk_2 FOREIGN KEY (test_column_2) REFERENCES table_comment_table_3 (test_column_1)
-)", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create index table_comment_table_3_ix_1 on table_comment_table_3 (test_column_2)", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create index table_comment_table_3_ix_2 on table_comment_table_3 (test_column_3)", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create index table_comment_table_3_ix_1 on table_comment_table_3 (test_column_2)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create index table_comment_table_3_ix_2 on table_comment_table_3 (test_column_3)", CancellationToken.None);
 
         await DbConnection.ExecuteAsync(@"create function table_comment_table_3_trigger_fn_1()
 returns trigger as
@@ -46,36 +46,36 @@ BEGIN
     RETURN null;
 END;
 $BODY$
-LANGUAGE PLPGSQL", CancellationToken.None).ConfigureAwait(false);
+LANGUAGE PLPGSQL", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 create trigger table_comment_table_3_trigger_1
 before insert
 on table_comment_table_3
-execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None).ConfigureAwait(false);
+execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 create trigger table_comment_table_3_trigger_2
 after insert
 on table_comment_table_3
-execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None).ConfigureAwait(false);
+execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None);
 
-        await DbConnection.ExecuteAsync("comment on table table_comment_table_3 is 'This is a test table comment.'", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("comment on column table_comment_table_3.test_column_2 is 'This is a column comment.'", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("comment on constraint table_comment_table_3_pk on table_comment_table_3 is 'This is a primary key comment.'", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("comment on constraint table_comment_table_3_uk_2 on table_comment_table_3 is 'This is a unique key comment.'", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("comment on constraint table_comment_table_3_ck_2 on table_comment_table_3 is 'This is a check comment.'", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("comment on constraint table_comment_table_3_fk_2 on table_comment_table_3 is 'This is a foreign key comment.'", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("comment on table table_comment_table_3 is 'This is a test table comment.'", CancellationToken.None);
+        await DbConnection.ExecuteAsync("comment on column table_comment_table_3.test_column_2 is 'This is a column comment.'", CancellationToken.None);
+        await DbConnection.ExecuteAsync("comment on constraint table_comment_table_3_pk on table_comment_table_3 is 'This is a primary key comment.'", CancellationToken.None);
+        await DbConnection.ExecuteAsync("comment on constraint table_comment_table_3_uk_2 on table_comment_table_3 is 'This is a unique key comment.'", CancellationToken.None);
+        await DbConnection.ExecuteAsync("comment on constraint table_comment_table_3_ck_2 on table_comment_table_3 is 'This is a check comment.'", CancellationToken.None);
+        await DbConnection.ExecuteAsync("comment on constraint table_comment_table_3_fk_2 on table_comment_table_3 is 'This is a foreign key comment.'", CancellationToken.None);
 
-        await DbConnection.ExecuteAsync("comment on index table_comment_table_3_ix_2 is 'This is an index comment.'", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("comment on trigger table_comment_table_3_trigger_2 on table_comment_table_3 is 'This is a trigger comment.'", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("comment on index table_comment_table_3_ix_2 is 'This is an index comment.'", CancellationToken.None);
+        await DbConnection.ExecuteAsync("comment on trigger table_comment_table_3_trigger_2 on table_comment_table_3 is 'This is a trigger comment.'", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table table_comment_table_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table table_comment_table_2", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table table_comment_table_3", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop function table_comment_table_3_trigger_fn_1()", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table table_comment_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_comment_table_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_comment_table_3", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop function table_comment_table_3_trigger_fn_1()", CancellationToken.None);
     }
 
     private Task<IRelationalDatabaseTableComments> GetTableCommentsAsync(Identifier tableName)
@@ -87,7 +87,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
 
     private async Task<IRelationalDatabaseTableComments> GetTableCommentsAsyncCore(Identifier tableName)
     {
-        using (await _lock.LockAsync().ConfigureAwait(false))
+        using (await _lock.LockAsync())
         {
             if (!_commentsCache.TryGetValue(tableName, out var lazyComment))
             {
@@ -95,7 +95,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
                 _commentsCache[tableName] = lazyComment;
             }
 
-            return await lazyComment.ConfigureAwait(false);
+            return await lazyComment;
         }
     }
 
@@ -105,7 +105,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     [Test]
     public async Task GetTableComments_WhenTablePresent_ReturnsTableComment()
     {
-        var tableIsSome = await TableCommentProvider.GetTableComments("table_comment_table_1").IsSome.ConfigureAwait(false);
+        var tableIsSome = await TableCommentProvider.GetTableComments("table_comment_table_1").IsSome;
         Assert.That(tableIsSome, Is.True);
     }
 
@@ -113,7 +113,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     public async Task GetTableComments_WhenTablePresent_ReturnsTableWithCorrectName()
     {
         const string tableName = "table_comment_table_1";
-        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync();
 
         Assert.That(tableComments.TableName.LocalName, Is.EqualTo(tableName));
     }
@@ -124,7 +124,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
         var tableName = new Identifier("table_comment_table_1");
         var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
 
-        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync();
 
         Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
     }
@@ -135,7 +135,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
         var tableName = new Identifier(IdentifierDefaults.Schema, "table_comment_table_1");
         var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
 
-        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync();
 
         Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
     }
@@ -146,7 +146,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
         var tableName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
         var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
 
-        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync();
 
         Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
     }
@@ -156,7 +156,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     {
         var tableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
 
-        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync();
 
         Assert.That(tableComments.TableName, Is.EqualTo(tableName));
     }
@@ -167,7 +167,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
         var tableName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
         var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
 
-        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync();
 
         Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
     }
@@ -178,7 +178,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
         var tableName = new Identifier("A", "B", IdentifierDefaults.Schema, "table_comment_table_1");
         var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
 
-        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync();
 
         Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
     }
@@ -189,7 +189,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
         var tableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "TABLE_COMMENT_TABLE_1");
         var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
 
-        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync();
 
         Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
     }
@@ -197,16 +197,14 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     [Test]
     public async Task GetTableComments_WhenTableMissing_ReturnsNone()
     {
-        var tableIsNone = await TableCommentProvider.GetTableComments("table_that_doesnt_exist").IsNone.ConfigureAwait(false);
+        var tableIsNone = await TableCommentProvider.GetTableComments("table_that_doesnt_exist").IsNone;
         Assert.That(tableIsNone, Is.True);
     }
 
     [Test]
     public async Task EnumerateAllTableComments_WhenEnumerated_ContainsTableComments()
     {
-        var hasTableComments = await TableCommentProvider.EnumerateAllTableComments()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasTableComments = await TableCommentProvider.EnumerateAllTableComments().AnyAsync();
 
         Assert.That(hasTableComments, Is.True);
     }
@@ -215,8 +213,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     public async Task EnumerateAllTableComments_WhenEnumerated_ContainsTestTableComment()
     {
         var containsTestTable = await TableCommentProvider.EnumerateAllTableComments()
-            .AnyAsync(t => string.Equals(t.TableName.LocalName, "table_comment_table_1", StringComparison.Ordinal))
-            .ConfigureAwait(false);
+            .AnyAsync(t => string.Equals(t.TableName.LocalName, "table_comment_table_1", StringComparison.Ordinal));
 
         Assert.That(containsTestTable, Is.True);
     }
@@ -224,7 +221,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     [Test]
     public async Task GetAllTableComments_WhenRetrieved_ContainsTableComments()
     {
-        var tableComments = await TableCommentProvider.GetAllTableComments().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetAllTableComments();
 
         Assert.That(tableComments, Is.Not.Empty);
     }
@@ -232,7 +229,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     [Test]
     public async Task GetAllTableComments_WhenRetrieved_ContainsTestTableComment()
     {
-        var tableComments = await TableCommentProvider.GetAllTableComments().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetAllTableComments();
         var containsTestTable = tableComments.Any(t => string.Equals(t.TableName.LocalName, "table_comment_table_1", StringComparison.Ordinal));
 
         Assert.That(containsTestTable, Is.True);
@@ -241,7 +238,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     [Test]
     public async Task GetTableComments_WhenTableMissingComment_ReturnsNone()
     {
-        var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_1");
 
         Assert.That(comments.Comment.IsNone, Is.True);
     }
@@ -249,7 +246,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     [Test]
     public async Task GetTableComments_WhenTableMissingPrimaryKey_ReturnsNone()
     {
-        var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_1");
 
         Assert.That(comments.PrimaryKeyComment, OptionIs.None);
     }
@@ -257,7 +254,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     [Test]
     public async Task GetTableComments_WhenTableMissingColumnComments_ReturnsLookupKeyedWithColumnNames()
     {
-        var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_1");
 
         var columnComments = comments.ColumnComments;
         var hasColumns = columnComments.Count == 1 && string.Equals(columnComments.Keys.Single().LocalName, "test_column_1", StringComparison.Ordinal);
@@ -268,7 +265,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     [Test]
     public async Task GetTableComments_WhenTableMissingColumnComments_ReturnsLookupWithOnlyNoneValues()
     {
-        var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_1");
 
         var columnComments = comments.ColumnComments;
         var hasOnlyNones = columnComments.Count == 1 && columnComments.Values.Single().IsNone;
@@ -279,7 +276,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     [Test]
     public async Task GetTableComments_WhenTableMissingChecks_ReturnsEmptyLookup()
     {
-        var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_1");
 
         Assert.That(comments.CheckComments, Is.Empty);
     }
@@ -287,7 +284,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     [Test]
     public async Task GetTableComments_WhenTableMissingUniqueKeys_ReturnsEmptyLookup()
     {
-        var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_1");
 
         Assert.That(comments.UniqueKeyComments, Is.Empty);
     }
@@ -295,7 +292,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     [Test]
     public async Task GetTableComments_WhenTableMissingIndexes_ReturnsEmptyLookup()
     {
-        var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_1");
 
         Assert.That(comments.IndexComments, Is.Empty);
     }
@@ -303,7 +300,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     [Test]
     public async Task GetTableComments_WhenTableMissingTriggers_ReturnsEmptyLookup()
     {
-        var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_1");
 
         Assert.That(comments.TriggerComments, Is.Empty);
     }
@@ -311,7 +308,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     [Test]
     public async Task GetTableComments_WhenTableMissingForeignKeys_ReturnsEmptyLookup()
     {
-        var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_1");
 
         Assert.That(comments.ForeignKeyComments, Is.Empty);
     }
@@ -320,7 +317,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     public async Task GetTableComments_WhenTableContainsComment_ReturnsExpectedValue()
     {
         const string expectedComment = "This is a test table comment.";
-        var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_3");
 
         var tableComment = comments.Comment.UnwrapSome();
 
@@ -330,7 +327,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     [Test]
     public async Task GetTableComments_WhenTableContainsPrimaryKeyWithNoComment_ReturnsNone()
     {
-        var comments = await GetTableCommentsAsync("table_comment_table_2").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_2");
 
         var pkComment = comments.PrimaryKeyComment;
 
@@ -341,7 +338,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     public async Task GetTableComments_WhenTableContainsPrimaryKeyWithComment_ReturnsExpectedValue()
     {
         const string expectedComment = "This is a primary key comment.";
-        var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_3");
 
         var pkComment = comments.PrimaryKeyComment.UnwrapSome();
 
@@ -357,7 +354,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
             new Identifier("test_column_2"),
             new Identifier("test_column_3"),
         };
-        var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_3");
 
         Assert.That(comments.ColumnComments.Keys.Order(), Is.EqualTo(columnNames));
     }
@@ -371,7 +368,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
             false,
             true,
         };
-        var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_3");
 
         var columnComments = comments.ColumnComments;
         var noneStates = new[]
@@ -388,7 +385,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     public async Task GetTableComments_PropertyGetForColumnComments_ReturnsCorrectCommentValue()
     {
         const string expectedComment = "This is a column comment.";
-        var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_3");
 
         var comment = comments.ColumnComments["test_column_2"].UnwrapSome();
 
@@ -403,7 +400,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
             new Identifier("table_comment_table_3_ix_1"),
             new Identifier("table_comment_table_3_ix_2"),
         };
-        var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_3");
 
         Assert.That(comments.IndexComments.Keys.Order(), Is.EqualTo(indexNames));
     }
@@ -412,7 +409,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     public async Task GetTableComments_PropertyGetForIndexComments_ReturnsCorrectNoneOrSome()
     {
         var expectedNoneStates = new[] { true, false };
-        var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_3");
 
         var indexComments = comments.IndexComments;
         var noneStates = new[]
@@ -428,7 +425,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     public async Task GetTableComments_PropertyGetForIndexComments_ReturnsCorrectCommentValue()
     {
         const string expectedComment = "This is an index comment.";
-        var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_3");
 
         var comment = comments.IndexComments["table_comment_table_3_ix_2"].UnwrapSome();
 
@@ -443,7 +440,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
             new Identifier("table_comment_table_3_trigger_1"),
             new Identifier("table_comment_table_3_trigger_2"),
         };
-        var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_3");
 
         Assert.That(comments.TriggerComments.Keys.Order(), Is.EqualTo(triggerNames));
     }
@@ -452,7 +449,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     public async Task GetTableComments_PropertyGetForTriggerComments_ReturnsCorrectNoneOrSome()
     {
         var expectedNoneStates = new[] { true, false };
-        var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_3");
 
         var triggerComments = comments.TriggerComments;
         var noneStates = new[]
@@ -468,7 +465,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     public async Task GetTableComments_PropertyGetForTriggerComments_ReturnsCorrectCommentValue()
     {
         const string expectedComment = "This is a trigger comment.";
-        var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_3");
 
         var comment = comments.TriggerComments["table_comment_table_3_trigger_2"].UnwrapSome();
 
@@ -483,7 +480,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
             new Identifier("table_comment_table_3_ck_1"),
             new Identifier("table_comment_table_3_ck_2"),
         };
-        var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_3");
 
         Assert.That(comments.CheckComments.Keys.Order(), Is.EqualTo(checkNames));
     }
@@ -492,7 +489,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     public async Task GetTableComments_PropertyGetForCheckComments_ReturnsCorrectNoneOrSome()
     {
         var expectedNoneStates = new[] { true, false };
-        var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_3");
 
         var checkComments = comments.CheckComments;
         var noneStates = new[]
@@ -508,7 +505,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     public async Task GetTableComments_PropertyGetForCheckComments_ReturnsCorrectCommentValue()
     {
         const string expectedComment = "This is a check comment.";
-        var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_3");
 
         var comment = comments.CheckComments["table_comment_table_3_ck_2"].UnwrapSome();
 
@@ -523,7 +520,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
             new Identifier("table_comment_table_3_uk_1"),
             new Identifier("table_comment_table_3_uk_2"),
         };
-        var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_3");
 
         Assert.That(comments.UniqueKeyComments.Keys.Order(), Is.EqualTo(uniqueKeyNames));
     }
@@ -532,7 +529,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     public async Task GetTableComments_PropertyGetForUniqueKeyComments_ReturnsCorrectNoneOrSome()
     {
         var expectedNoneStates = new[] { true, false };
-        var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_3");
 
         var uniqueKeyComments = comments.UniqueKeyComments;
         var noneStates = new[]
@@ -548,7 +545,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     public async Task GetTableComments_PropertyGetForUniqueKeyComments_ReturnsCorrectCommentValue()
     {
         const string expectedComment = "This is a unique key comment.";
-        var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_3");
 
         var comment = comments.UniqueKeyComments["table_comment_table_3_uk_2"].UnwrapSome();
 
@@ -563,7 +560,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
             new Identifier("table_comment_table_3_fk_1"),
             new Identifier("table_comment_table_3_fk_2"),
         };
-        var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_3");
 
         Assert.That(comments.ForeignKeyComments.Keys.Order(), Is.EqualTo(foreignKeyNames));
     }
@@ -572,7 +569,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     public async Task GetTableComments_PropertyGetForForeignKeyComments_ReturnsCorrectNoneOrSome()
     {
         var expectedNoneStates = new[] { true, false };
-        var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_3");
 
         var foreignKeyComments = comments.ForeignKeyComments;
         var noneStates = new[]
@@ -588,7 +585,7 @@ execute procedure table_comment_table_3_trigger_fn_1()", CancellationToken.None)
     public async Task GetTableComments_PropertyGetForForeignKeyComments_ReturnsCorrectCommentValue()
     {
         const string expectedComment = "This is a foreign key comment.";
-        var comments = await GetTableCommentsAsync("table_comment_table_3").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_3");
 
         var comment = comments.ForeignKeyComments["table_comment_table_3_fk_2"].UnwrapSome();
 

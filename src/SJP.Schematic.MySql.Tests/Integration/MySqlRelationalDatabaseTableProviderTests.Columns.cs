@@ -12,7 +12,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task Columns_WhenGivenTableWithOneColumn_ReturnsColumnCollectionWithOneValue()
     {
-        var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_1");
 
         Assert.That(table.Columns, Has.Exactly(1).Items);
     }
@@ -20,7 +20,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task Columns_WhenGivenTableWithOneColumn_ReturnsColumnWithCorrectName()
     {
-        var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_1");
         var column = table.Columns.Single();
         const string columnName = "test_column";
 
@@ -31,7 +31,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     public async Task Columns_WhenGivenTableWithMultipleColumns_ReturnsColumnsInCorrectOrder()
     {
         var expectedColumnNames = new[] { "first_name", "middle_name", "last_name" };
-        var table = await GetTableAsync("table_test_table_4").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_4");
         var columns = table.Columns;
         var columnNames = columns.Select(c => c.Name.LocalName);
 
@@ -42,7 +42,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     public async Task Columns_WhenGivenTableWithNullableColumn_ColumnReturnsIsNullableTrue()
     {
         const string tableName = "table_test_table_1";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
         Assert.That(column.IsNullable, Is.True);
@@ -52,7 +52,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     public async Task Columns_WhenGivenTableWithNotNullableColumn_ColumnReturnsIsNullableFalse()
     {
         const string tableName = "table_test_table_2";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
         Assert.That(column.IsNullable, Is.False);
@@ -62,7 +62,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     public async Task Columns_WhenGivenTableWithColumnWithNoDefaultValue_ColumnReturnsNoneDefaultValue()
     {
         const string tableName = "table_test_table_1";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
         Assert.That(column.DefaultValue, OptionIs.None);
@@ -72,7 +72,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     public async Task Columns_WhenGivenTableWithColumnWithDefaultValue_ColumnReturnsCorrectDefaultValue()
     {
         const string tableName = "table_test_table_33";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
         const string defaultValue = "1";
@@ -85,7 +85,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     public async Task Columns_WhenGivenTableWithNonComputedColumn_ReturnsIsComputedFalse()
     {
         const string tableName = "table_test_table_1";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
         Assert.That(column.IsComputed, Is.False);
@@ -95,7 +95,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     public async Task Columns_WhenGivenTableWithComputedColumn_ReturnsIsComputedTrue()
     {
         const string tableName = "table_test_table_34";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
 
         Assert.That(column.IsNullable, Is.True);
@@ -105,7 +105,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     public async Task Columns_WhenGivenTableWithComputedColumnCastedToInterface_ReturnsNotNullObject()
     {
         const string tableName = "table_test_table_34";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
 
         var computedColumn = column as IDatabaseComputedColumn;
@@ -118,7 +118,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
         const string tableName = "table_test_table_34";
         const string expectedDefinition = "(`test_column_1` + `test_column_2`)";
 
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
 
         var computedColumn = column as IDatabaseComputedColumn;
@@ -129,7 +129,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     public async Task Columns_WhenGivenTableColumnWithoutIdentity_ReturnsNoneAutoincrement()
     {
         const string tableName = "table_test_table_1";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
         Assert.That(column.AutoIncrement, OptionIs.None);
@@ -139,7 +139,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     public async Task Columns_WhenGivenTableColumnWithIdentity_ReturnsSomeAutoincrement()
     {
         const string tableName = "table_test_table_35";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
 
         Assert.That(column.AutoIncrement, OptionIs.Some);
@@ -149,7 +149,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     public async Task Columns_WhenGivenTableColumnWithIdentity_ReturnsCorrectInitialValue()
     {
         const string tableName = "table_test_table_35";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
 
         Assert.That(column.AutoIncrement.UnwrapSome().InitialValue, Is.EqualTo(1));
@@ -159,7 +159,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     public async Task Columns_WhenGivenTableColumnWithIdentity_ReturnsCorrectIncrement()
     {
         const string tableName = "table_test_table_35";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
 
         Assert.That(column.AutoIncrement.UnwrapSome().Increment, Is.EqualTo(1));

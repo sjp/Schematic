@@ -76,13 +76,13 @@ public class PostgreSqlRelationalDatabaseTableProvider : IRelationalDatabaseTabl
     /// <returns>A collection of database tables.</returns>
     public async IAsyncEnumerable<IRelationalDatabaseTable> EnumerateAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var provider = await _tableProvider.ConfigureAwait(false);
+        var provider = await _tableProvider;
         var tables = provider.Match(
             tp => tp.EnumerateAllTables(cancellationToken),
             AsyncEnumerable.Empty<IRelationalDatabaseTable>
         );
 
-        await foreach (var table in tables.WithCancellation(cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
+        await foreach (var table in tables.WithCancellation(cancellationToken).WithCancellation(cancellationToken))
             yield return table;
     }
 
@@ -93,7 +93,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : IRelationalDatabaseTabl
     /// <returns>A collection of database tables.</returns>
     public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
     {
-        var provider = await _tableProvider.ConfigureAwait(false);
+        var provider = await _tableProvider;
         return await provider.Match(
             tp => tp.GetAllTables(cancellationToken),
             () => Empty.Tasks.Tables
@@ -118,7 +118,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : IRelationalDatabaseTabl
 
     private async Task<Option<IRelationalDatabaseTableProvider>> LoadVersionedTableProvider()
     {
-        var version = await Dialect.GetDatabaseVersionAsync(Connection, CancellationToken.None).ConfigureAwait(false);
+        var version = await Dialect.GetDatabaseVersionAsync(Connection, CancellationToken.None);
 
         var factories = new Dictionary<Version, Func<IRelationalDatabaseTableProvider>>
         {

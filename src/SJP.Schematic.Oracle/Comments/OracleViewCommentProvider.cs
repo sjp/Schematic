@@ -56,7 +56,7 @@ public class OracleViewCommentProvider : IDatabaseViewCommentProvider
         var (queryViewComments, materializedViewComments) = await (
             QueryViewCommentProvider.EnumerateAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask(),
             MaterializedViewCommentProvider.EnumerateAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask()
-        ).WhenAll().ConfigureAwait(false);
+        ).WhenAll();
 
         var comments = queryViewComments
             .Concat(materializedViewComments)
@@ -77,7 +77,7 @@ public class OracleViewCommentProvider : IDatabaseViewCommentProvider
         var (queryViewComments, materializedViewComments) = await (
             QueryViewCommentProvider.GetAllViewComments(cancellationToken),
             MaterializedViewCommentProvider.GetAllViewComments(cancellationToken)
-        ).WhenAll().ConfigureAwait(false);
+        ).WhenAll();
 
         return queryViewComments
             .Concat(materializedViewComments)

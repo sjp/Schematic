@@ -18,25 +18,25 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create view db_test_view_1 as select 1 as dummy", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create view db_test_view_1 as select 1 as dummy", CancellationToken.None);
 
-        await DbConnection.ExecuteAsync("create view view_test_view_1 as select 1 as test", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create table view_test_table_1 (table_id int primary key not null)", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create view view_test_view_2 as select 1, 2.345, 'test', X'DEADBEEF'", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create view view_test_view_3 as select 1, 2.345, 'test', X'DEADBEEF', table_id from view_test_table_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create view view_test_view_4 as select 1, 1, 1, 1", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create view view_test_view_1 as select 1 as test", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table view_test_table_1 (table_id int primary key not null)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create view view_test_view_2 as select 1, 2.345, 'test', X'DEADBEEF'", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create view view_test_view_3 as select 1, 2.345, 'test', X'DEADBEEF', table_id from view_test_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create view view_test_view_4 as select 1, 1, 1, 1", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop view db_test_view_1", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop view db_test_view_1", CancellationToken.None);
 
-        await DbConnection.ExecuteAsync("drop view view_test_view_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop view view_test_view_3", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table view_test_table_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop view view_test_view_2", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop view view_test_view_4", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop view view_test_view_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop view view_test_view_3", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table view_test_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop view view_test_view_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop view view_test_view_4", CancellationToken.None);
     }
 
     private Task<IDatabaseView> GetViewAsync(Identifier viewName)
@@ -48,7 +48,7 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
 
     private async Task<IDatabaseView> GetViewAsyncCore(Identifier viewName)
     {
-        using (await _lock.LockAsync().ConfigureAwait(false))
+        using (await _lock.LockAsync())
         {
             if (!_viewsCache.TryGetValue(viewName, out var lazyView))
             {
@@ -56,7 +56,7 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
                 _viewsCache[viewName] = lazyView;
             }
 
-            return await lazyView.ConfigureAwait(false);
+            return await lazyView;
         }
     }
 
@@ -66,16 +66,14 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     [Test]
     public async Task GetView_WhenViewPresent_ReturnsView()
     {
-        var viewIsSome = await ViewProvider.GetView("db_test_view_1").IsSome.ConfigureAwait(false);
+        var viewIsSome = await ViewProvider.GetView("db_test_view_1").IsSome;
         Assert.That(viewIsSome, Is.True);
     }
 
     [Test]
     public async Task EnumerateAllViews_WhenEnumerated_ContainsViews()
     {
-        var hasViews = await ViewProvider.EnumerateAllViews()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasViews = await ViewProvider.EnumerateAllViews().AnyAsync();
 
         Assert.That(hasViews, Is.True);
     }
@@ -84,8 +82,7 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     public async Task EnumerateAllViews_WhenEnumerated_ContainsTestView()
     {
         var containsTestView = await ViewProvider.EnumerateAllViews()
-            .AnyAsync(v => string.Equals(v.Name.LocalName, "db_test_view_1", StringComparison.Ordinal))
-            .ConfigureAwait(false);
+            .AnyAsync(v => string.Equals(v.Name.LocalName, "db_test_view_1", StringComparison.Ordinal));
 
         Assert.That(containsTestView, Is.True);
     }
@@ -93,7 +90,7 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     [Test]
     public async Task GetAllViews_WhenRetrieved_ContainsViews()
     {
-        var views = await ViewProvider.GetAllViews().ConfigureAwait(false);
+        var views = await ViewProvider.GetAllViews();
 
         Assert.That(views, Is.Not.Empty);
     }
@@ -101,7 +98,7 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     [Test]
     public async Task GetAllViews_WhenRetrieved_ContainsTestView()
     {
-        var views = await ViewProvider.GetAllViews().ConfigureAwait(false);
+        var views = await ViewProvider.GetAllViews();
         var containsTestView = views.Any(t => string.Equals(t.Name.LocalName, "db_test_view_1", StringComparison.Ordinal));
 
         Assert.That(containsTestView, Is.True);
@@ -113,7 +110,7 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
         var viewName = new Identifier("db_test_view_1");
         var expectedViewName = new Identifier(IdentifierDefaults.Schema, "db_test_view_1");
 
-        var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+        var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync();
 
         Assert.That(view.Name, Is.EqualTo(expectedViewName));
     }
@@ -123,7 +120,7 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     {
         var expectedViewName = new Identifier(IdentifierDefaults.Schema, "db_test_view_1");
 
-        var view = await ViewProvider.GetView(expectedViewName).UnwrapSomeAsync().ConfigureAwait(false);
+        var view = await ViewProvider.GetView(expectedViewName).UnwrapSomeAsync();
 
         Assert.That(view.Name, Is.EqualTo(expectedViewName));
     }
@@ -134,7 +131,7 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
         var viewName = new Identifier("test", IdentifierDefaults.Schema, "db_test_view_1");
         var expectedViewName = new Identifier(IdentifierDefaults.Schema, "db_test_view_1");
 
-        var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+        var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync();
 
         Assert.That(view.Name, Is.EqualTo(expectedViewName));
     }
@@ -142,7 +139,7 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     [Test]
     public async Task GetView_WhenViewMissing_ReturnsNone()
     {
-        var viewIsNone = await ViewProvider.GetView("view_that_doesnt_exist").IsNone.ConfigureAwait(false);
+        var viewIsNone = await ViewProvider.GetView("view_that_doesnt_exist").IsNone;
         Assert.That(viewIsNone, Is.True);
     }
 
@@ -150,7 +147,7 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     public async Task GetView_WhenViewPresentGivenLocalNameNameWithDifferentCase_ReturnsMatchingName()
     {
         var inputName = new Identifier("DB_TEST_view_1");
-        var view = await ViewProvider.GetView(inputName).UnwrapSomeAsync().ConfigureAwait(false);
+        var view = await ViewProvider.GetView(inputName).UnwrapSomeAsync();
 
         var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, view.Name.LocalName);
         Assert.That(equalNames, Is.True);
@@ -160,7 +157,7 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     public async Task GetView_WhenViewPresentGivenQualifiedNameNameWithDifferentCase_ReturnsMatchingName()
     {
         var inputName = new Identifier("Main", "DB_TEST_view_1");
-        var view = await ViewProvider.GetView(inputName).UnwrapSomeAsync().ConfigureAwait(false);
+        var view = await ViewProvider.GetView(inputName).UnwrapSomeAsync();
 
         var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, view.Name);
         Assert.That(equalNames, Is.True);
@@ -170,7 +167,7 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     public async Task Definition_PropertyGet_ReturnsCorrectDefinition()
     {
         var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
-        var view = await GetViewAsync(viewName).ConfigureAwait(false);
+        var view = await GetViewAsync(viewName);
 
         var definition = view.Definition;
         const string expected = "create view view_test_view_1 as select 1 as test";
@@ -183,7 +180,7 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     public async Task IsMaterialized_WhenViewIsNotMaterialized_ReturnsFalse()
     {
         var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
-        var view = await GetViewAsync(viewName).ConfigureAwait(false);
+        var view = await GetViewAsync(viewName);
 
         Assert.That(view.IsMaterialized, Is.False);
     }
@@ -192,7 +189,7 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     public async Task Columns_WhenViewContainsSingleColumn_ContainsOneValueOnly()
     {
         var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
-        var view = await GetViewAsync(viewName).ConfigureAwait(false);
+        var view = await GetViewAsync(viewName);
 
         Assert.That(view.Columns, Has.Exactly(1).Items);
     }
@@ -201,7 +198,7 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     public async Task Columns_WhenViewContainsSingleColumn_ContainsColumnName()
     {
         var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");
-        var view = await GetViewAsync(viewName).ConfigureAwait(false);
+        var view = await GetViewAsync(viewName);
         var containsColumn = view.Columns.Any(c => c.Name == "test");
 
         Assert.That(containsColumn, Is.True);
@@ -211,7 +208,7 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     public async Task Columns_WhenViewContainsUnnamedColumns_ContainsCorrectNumberOfColumns()
     {
         var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_2");
-        var view = await GetViewAsync(viewName).ConfigureAwait(false);
+        var view = await GetViewAsync(viewName);
 
         Assert.That(view.Columns, Has.Exactly(4).Items);
     }
@@ -220,7 +217,7 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     public async Task Columns_WhenViewContainsUnnamedColumns_ContainsCorrectTypesForColumns()
     {
         var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_2");
-        var view = await GetViewAsync(viewName).ConfigureAwait(false);
+        var view = await GetViewAsync(viewName);
         var columnTypes = view.Columns.Select(c => c.Type.DataType).ToList();
         var expectedTypes = new[] { DataType.BigInteger, DataType.Float, DataType.UnicodeText, DataType.LargeBinary };
 
@@ -231,7 +228,7 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     public async Task Columns_WhenViewContainsUnnamedColumnsAndTableColumn_ContainsCorrectNumberOfColumns()
     {
         var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_3");
-        var view = await GetViewAsync(viewName).ConfigureAwait(false);
+        var view = await GetViewAsync(viewName);
 
         Assert.That(view.Columns, Has.Exactly(5).Items);
     }
@@ -240,7 +237,7 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     public async Task Columns_WhenViewContainsUnnamedColumnsAndTableColumn_ContainsCorrectTypesForColumns()
     {
         var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_3");
-        var view = await GetViewAsync(viewName).ConfigureAwait(false);
+        var view = await GetViewAsync(viewName);
         var columnTypes = view.Columns.Select(c => c.Type.DataType).ToList();
         var expectedTypes = new[] { DataType.Numeric, DataType.Numeric, DataType.Numeric, DataType.Numeric, DataType.BigInteger };
 
@@ -251,7 +248,7 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     public async Task Columns_WhenViewContainsDuplicatedUnnamedColumns_ContainsCorrectNumberOfColumns()
     {
         var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_4");
-        var view = await GetViewAsync(viewName).ConfigureAwait(false);
+        var view = await GetViewAsync(viewName);
 
         Assert.That(view.Columns, Has.Exactly(4).Items);
     }
@@ -260,7 +257,7 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     public async Task Columns_WhenViewContainsDuplicatedUnnamedColumns_ContainsCorrectTypesForColumns()
     {
         var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_4");
-        var view = await GetViewAsync(viewName).ConfigureAwait(false);
+        var view = await GetViewAsync(viewName);
         var columnTypes = view.Columns.Select(c => c.Type.DataType).ToList();
         var expectedTypes = new[] { DataType.BigInteger, DataType.BigInteger, DataType.BigInteger, DataType.BigInteger };
 

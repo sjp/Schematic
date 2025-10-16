@@ -72,14 +72,12 @@ public class OracleQueryViewCommentProvider : IDatabaseViewCommentProvider
         var viewNames = await Connection.QueryEnumerableAsync<GetAllViewNames.Result>(GetAllViewNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return await viewNames
             .Select(viewName => LoadViewCommentsAsyncCore(viewName, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
     }
 
     /// <summary>
@@ -157,13 +155,13 @@ public class OracleQueryViewCommentProvider : IDatabaseViewCommentProvider
     private async Task<IDatabaseViewComments> LoadViewCommentsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
         if (string.Equals(viewName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal)) // fast path
-            return await LoadUserViewCommentsAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
+            return await LoadUserViewCommentsAsyncCore(viewName, cancellationToken);
 
         var result = await Connection.QueryAsync(
             Queries.GetViewComments.Sql,
             new GetViewComments.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         var commentData = result.Select(r => new CommentData
         {
@@ -184,7 +182,7 @@ public class OracleQueryViewCommentProvider : IDatabaseViewCommentProvider
             GetUserViewComments.Sql,
             new GetUserViewComments.Query { ViewName = viewName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         var commentData = result.Select(r => new CommentData
         {

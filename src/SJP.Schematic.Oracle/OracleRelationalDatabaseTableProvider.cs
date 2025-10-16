@@ -107,14 +107,12 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         var tableNames = await DbConnection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
             .Select(QualifyTableName)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return await tableNames
             .Select(tableName => LoadTableAsyncCore(tableName, queryCache, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
     }
 
     /// <summary>
@@ -213,7 +211,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             queryCache.GetUniqueKeysAsync(tableName, cancellationToken),
             queryCache.GetForeignKeysAsync(tableName, cancellationToken),
             LoadChildKeysAsync(tableName, queryCache, cancellationToken)
-        ).WhenAll().ConfigureAwait(false);
+        ).WhenAll();
 
         return new RelationalDatabaseTable(
             tableName,
@@ -250,12 +248,12 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             GetTablePrimaryKey.Sql,
             new GetTablePrimaryKey.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (primaryKeyColumns.Empty())
             return Option<IDatabaseKey>.None;
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
         var columnLookup = GetColumnLookup(columns);
 
         var groupedByName = primaryKeyColumns.GroupAsDictionary(static row => new { row.ConstraintName, row.EnabledStatus });
@@ -299,7 +297,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             GetTableIndexes.Sql,
             new GetTableIndexes.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (queryResult.Empty())
             return [];
@@ -308,7 +306,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         if (indexColumns.Empty())
             return [];
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
         var columnLookup = GetColumnLookup(columns);
 
         var result = new List<IDatabaseIndex>(indexColumns.Count);
@@ -361,12 +359,12 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             GetTableUniqueKeys.Sql,
             new GetTableUniqueKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (uniqueKeyColumns.Empty())
             return [];
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
         var columnLookup = GetColumnLookup(columns);
 
         var groupedByName = uniqueKeyColumns
@@ -413,7 +411,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             GetTableChildKeys.Sql,
             new GetTableChildKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
         if (queryResult.Empty())
             return [];
 
@@ -421,8 +419,8 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         if (childKeyRows.Empty())
             return [];
 
-        var primaryKey = await queryCache.GetPrimaryKeyAsync(tableName, cancellationToken).ConfigureAwait(false);
-        var uniqueKeys = await queryCache.GetUniqueKeysAsync(tableName, cancellationToken).ConfigureAwait(false);
+        var primaryKey = await queryCache.GetPrimaryKeyAsync(tableName, cancellationToken);
+        var uniqueKeys = await queryCache.GetUniqueKeysAsync(tableName, cancellationToken);
         var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
 
         var result = new List<IDatabaseRelationalKey>(childKeyRows.Count);
@@ -432,19 +430,19 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             // ensure we have a key to begin with
             IDatabaseKey? parentKey = null;
             if (string.Equals(childKeyRow.ParentKeyType, Constants.PrimaryKeyType, StringComparison.Ordinal))
-                await primaryKey.IfSomeAsync(k => parentKey = k).ConfigureAwait(false);
+                await primaryKey.IfSomeAsync(k => parentKey = k);
             else if (childKeyRow.ParentKeyName != null && uniqueKeyLookup.ContainsKey(childKeyRow.ParentKeyName))
                 parentKey = uniqueKeyLookup[childKeyRow.ParentKeyName];
             if (parentKey == null)
                 continue;
 
             var candidateChildTableName = Identifier.CreateQualifiedIdentifier(childKeyRow.ChildTableSchema, childKeyRow.ChildTableName);
-            var childTableNameOption = await queryCache.GetTableNameAsync(candidateChildTableName, cancellationToken).ConfigureAwait(false);
+            var childTableNameOption = await queryCache.GetTableNameAsync(candidateChildTableName, cancellationToken);
 
             await childTableNameOption
                 .BindAsync(async childTableName =>
                 {
-                    var parentKeys = await queryCache.GetForeignKeysAsync(childTableName, cancellationToken).ConfigureAwait(false);
+                    var parentKeys = await queryCache.GetForeignKeysAsync(childTableName, cancellationToken);
                     var parentKeyLookup = GetDatabaseKeyLookup(parentKeys.Select(static fk => fk.ChildKey).ToList());
 
                     var childKeyName = Identifier.CreateQualifiedIdentifier(childKeyRow.ChildKeyName);
@@ -458,8 +456,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                     var relationalKey = new OracleRelationalKey(childTableName, childKey, tableName, parentKey, deleteAction);
                     return OptionAsync<IDatabaseRelationalKey>.Some(relationalKey);
                 })
-                .IfSome(relationalKey => result.Add(relationalKey))
-                .ConfigureAwait(false);
+                .IfSome(result.Add);
         }
 
         return result;
@@ -487,12 +484,12 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             GetTableChecks.Sql,
             new GetTableChecks.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (checks.Empty())
             return [];
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
         var columnLookup = GetColumnLookup(columns);
 
         var columnNotNullConstraints = columnLookup.Keys
@@ -540,7 +537,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             GetTableParentKeys.Sql,
             new GetTableParentKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (queryResult.Empty())
             return [];
@@ -558,14 +555,14 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         if (foreignKeys.Empty())
             return [];
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
         var columnLookup = GetColumnLookup(columns);
 
         var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
         foreach (var fkey in foreignKeys)
         {
             var candidateParentTableName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
-            var parentTableNameOption = await queryCache.GetTableNameAsync(candidateParentTableName, cancellationToken).ConfigureAwait(false);
+            var parentTableNameOption = await queryCache.GetTableNameAsync(candidateParentTableName, cancellationToken);
             Identifier? resolvedParentTableName = null;
 
             await parentTableNameOption
@@ -574,12 +571,12 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                     resolvedParentTableName = parentTableName;
                     if (string.Equals(fkey.Key.KeyType, Constants.PrimaryKeyType, StringComparison.Ordinal))
                     {
-                        var pk = await queryCache.GetPrimaryKeyAsync(parentTableName, cancellationToken).ConfigureAwait(false);
+                        var pk = await queryCache.GetPrimaryKeyAsync(parentTableName, cancellationToken);
                         return pk.ToAsync();
                     }
 
                     var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentConstraintName);
-                    var uniqueKeys = await queryCache.GetUniqueKeysAsync(parentTableName, cancellationToken).ConfigureAwait(false);
+                    var uniqueKeys = await queryCache.GetUniqueKeysAsync(parentTableName, cancellationToken);
                     var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
 
                     return uniqueKeyLookup.ContainsKey(parentKeyName.LocalName)
@@ -601,8 +598,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                     var deleteAction = ReferentialActionMapping[fkey.Key.DeleteAction];
                     return new OracleRelationalKey(tableName, childKey, resolvedParentTableName!, parentKey, deleteAction);
                 })
-                .IfSome(relationalKey => result.Add(relationalKey))
-                .ConfigureAwait(false);
+                .IfSome(result.Add);
         }
 
         return result;
@@ -628,13 +624,13 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             GetTableColumns.Sql,
             new GetTableColumns.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         var columnNames = query
             .Where(static row => row.ColumnName != null)
             .Select(static row => row.ColumnName!)
             .ToList();
-        var notNullableColumnNames = await GetNotNullConstrainedColumnsAsync(tableName, columnNames, cancellationToken).ConfigureAwait(false);
+        var notNullableColumnNames = await GetNotNullConstrainedColumnsAsync(tableName, columnNames, cancellationToken);
         var result = new List<IDatabaseColumn>();
 
         foreach (var row in query)
@@ -692,7 +688,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             GetTableTriggers.Sql,
             new GetTableTriggers.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (queryResult.Empty())
             return [];
@@ -757,7 +753,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             GetTableChecks.Sql,
             new GetTableChecks.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (checks.Empty())
             return [];

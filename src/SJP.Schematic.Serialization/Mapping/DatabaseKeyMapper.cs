@@ -40,7 +40,7 @@ public class DatabaseKeyMapper
     public Dto.DatabaseKey? Map(Option<IDatabaseKey> source)
     {
         return source.MatchUnsafe(
-            key => Map(key),
+            Map,
             (Dto.DatabaseKey?)null
         );
     }

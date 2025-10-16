@@ -20,7 +20,7 @@ public static class TaskArrayExtensions
     {
         ArgumentNullException.ThrowIfNull(tasks);
 
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        await Task.WhenAll(tasks);
 
         return tasks
             .Select(t => t.Result)

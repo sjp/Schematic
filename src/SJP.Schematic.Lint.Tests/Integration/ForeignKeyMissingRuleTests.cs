@@ -12,41 +12,41 @@ internal sealed class ForeignKeyMissingRuleTests : SqliteTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create table no_foreign_key_parent_1 ( column_1 integer not null primary key autoincrement )", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create table NoForeignKeyParent1 ( Column1 integer not null primary key autoincrement )", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create table no_foreign_key_parent_1 ( column_1 integer not null primary key autoincrement )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table NoForeignKeyParent1 ( Column1 integer not null primary key autoincrement )", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 create table no_foreign_key_child_with_key (
     column_1 integer,
     no_foreign_key_parent_1_id integer,
     constraint no_foreign_key_child_with_key_fk1 foreign key (no_foreign_key_parent_1_id) references no_foreign_key_parent_1 (column_1)
-)", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 create table no_foreign_key_child_without_key (
     column_1 integer,
     no_foreign_key_parent_1_id integer
-)", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 create table NoForeignKeyChildWithKey (
     Column1 integer,
     NoForeignKeyParent1Id integer,
     constraint NoForeignKeyChildWithKeyFk1 foreign key (NoForeignKeyParent1Id) references NoForeignKeyParent1 (Column1)
-)", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 create table NoForeignKeyChildWithoutKey (
     Column1 integer,
     NoForeignKeyParent1Id integer
-)", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table no_foreign_key_child_with_key", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table no_foreign_key_child_without_key", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table NoForeignKeyChildWithKey", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table NoForeignKeyChildWithoutKey", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table no_foreign_key_parent_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table NoForeignKeyParent1", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table no_foreign_key_child_with_key", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table no_foreign_key_child_without_key", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table NoForeignKeyChildWithKey", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table NoForeignKeyChildWithoutKey", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table no_foreign_key_parent_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table NoForeignKeyParent1", CancellationToken.None);
     }
 
     [Test]
@@ -71,11 +71,11 @@ create table NoForeignKeyChildWithoutKey (
 
         var tables = new[]
         {
-            await database.GetTable("no_foreign_key_parent_1").UnwrapSomeAsync().ConfigureAwait(false),
-            await database.GetTable("no_foreign_key_child_with_key").UnwrapSomeAsync().ConfigureAwait(false),
+            await database.GetTable("no_foreign_key_parent_1").UnwrapSomeAsync(),
+            await database.GetTable("no_foreign_key_child_with_key").UnwrapSomeAsync(),
         };
 
-        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Empty);
     }
@@ -88,11 +88,11 @@ create table NoForeignKeyChildWithoutKey (
 
         var tables = new[]
         {
-            await database.GetTable("NoForeignKeyChildWithKey").UnwrapSomeAsync().ConfigureAwait(false),
-            await database.GetTable("NoForeignKeyParent1").UnwrapSomeAsync().ConfigureAwait(false),
+            await database.GetTable("NoForeignKeyChildWithKey").UnwrapSomeAsync(),
+            await database.GetTable("NoForeignKeyParent1").UnwrapSomeAsync(),
         };
 
-        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Empty);
     }
@@ -105,11 +105,11 @@ create table NoForeignKeyChildWithoutKey (
 
         var tables = new[]
         {
-            await database.GetTable("no_foreign_key_parent_1").UnwrapSomeAsync().ConfigureAwait(false),
-            await database.GetTable("no_foreign_key_child_without_key").UnwrapSomeAsync().ConfigureAwait(false),
+            await database.GetTable("no_foreign_key_parent_1").UnwrapSomeAsync(),
+            await database.GetTable("no_foreign_key_child_without_key").UnwrapSomeAsync(),
         };
 
-        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Not.Empty);
     }
@@ -122,11 +122,11 @@ create table NoForeignKeyChildWithoutKey (
 
         var tables = new[]
         {
-            await database.GetTable("NoForeignKeyChildWithoutKey").UnwrapSomeAsync().ConfigureAwait(false),
-            await database.GetTable("NoForeignKeyParent1").UnwrapSomeAsync().ConfigureAwait(false),
+            await database.GetTable("NoForeignKeyChildWithoutKey").UnwrapSomeAsync(),
+            await database.GetTable("NoForeignKeyParent1").UnwrapSomeAsync(),
         };
 
-        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Not.Empty);
     }

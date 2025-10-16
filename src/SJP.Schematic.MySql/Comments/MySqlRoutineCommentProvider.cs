@@ -73,13 +73,11 @@ public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
             )
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return await routineNames
             .Select(routineName => LoadRoutineCommentsAsyncCore(routineName, cancellationToken))
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
     }
 
     /// <summary>
@@ -140,7 +138,7 @@ public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
             Queries.GetRoutineComments.Sql,
             new GetRoutineComments.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         var routineComment = !comment.IsNullOrWhiteSpace()
             ? Option<string>.Some(comment)

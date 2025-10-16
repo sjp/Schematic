@@ -50,7 +50,7 @@ internal static class EmptyRelationalDatabaseTests
     public static async Task GetTable_GivenValidSequenceName_ReturnsNone()
     {
         var tableName = new Identifier("test");
-        var tableIsNone = await Database.GetTable(tableName).IsNone.ConfigureAwait(false);
+        var tableIsNone = await Database.GetTable(tableName).IsNone;
 
         Assert.That(tableIsNone, Is.True);
     }
@@ -58,9 +58,7 @@ internal static class EmptyRelationalDatabaseTests
     [Test]
     public static async Task EnumerateAllTables_WhenEnumerated_ContainsNoValues()
     {
-        var hasTables = await Database.EnumerateAllTables()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasTables = await Database.EnumerateAllTables().AnyAsync();
 
         Assert.That(hasTables, Is.False);
     }
@@ -68,7 +66,7 @@ internal static class EmptyRelationalDatabaseTests
     [Test]
     public static async Task GetAllTables_WhenRetrieved_ContainsNoValues()
     {
-        var tables = await Database.GetAllTables().ConfigureAwait(false);
+        var tables = await Database.GetAllTables();
 
         Assert.That(tables, Is.Empty);
     }
@@ -77,7 +75,7 @@ internal static class EmptyRelationalDatabaseTests
     public static async Task GetView_GivenValidViewName_ReturnsNone()
     {
         var viewName = new Identifier("test");
-        var viewIsNone = await Database.GetView(viewName).IsNone.ConfigureAwait(false);
+        var viewIsNone = await Database.GetView(viewName).IsNone;
 
         Assert.That(viewIsNone, Is.True);
     }
@@ -85,9 +83,7 @@ internal static class EmptyRelationalDatabaseTests
     [Test]
     public static async Task EnumerateAllViews_WhenEnumerated_ContainsNoValues()
     {
-        var hasViews = await Database.EnumerateAllViews()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasViews = await Database.EnumerateAllViews().AnyAsync();
 
         Assert.That(hasViews, Is.False);
     }
@@ -95,7 +91,7 @@ internal static class EmptyRelationalDatabaseTests
     [Test]
     public static async Task GetAllViews_WhenRetrieved_ContainsNoValues()
     {
-        var views = await Database.GetAllViews().ConfigureAwait(false);
+        var views = await Database.GetAllViews();
 
         Assert.That(views, Is.Empty);
     }
@@ -104,7 +100,7 @@ internal static class EmptyRelationalDatabaseTests
     public static async Task GetSequence_GivenValidSequenceName_ReturnsNone()
     {
         var sequenceName = new Identifier("test");
-        var sequenceIsNone = await Database.GetSequence(sequenceName).IsNone.ConfigureAwait(false);
+        var sequenceIsNone = await Database.GetSequence(sequenceName).IsNone;
 
         Assert.That(sequenceIsNone, Is.True);
     }
@@ -112,9 +108,7 @@ internal static class EmptyRelationalDatabaseTests
     [Test]
     public static async Task EnumerateAllSequences_WhenEnumerated_ContainsNoValues()
     {
-        var hasSequences = await Database.EnumerateAllSequences()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasSequences = await Database.EnumerateAllSequences().AnyAsync();
 
         Assert.That(hasSequences, Is.False);
     }
@@ -122,7 +116,7 @@ internal static class EmptyRelationalDatabaseTests
     [Test]
     public static async Task GetAllSequences_WhenRetrieved_ContainsNoValues()
     {
-        var sequences = await Database.GetAllSequences().ConfigureAwait(false);
+        var sequences = await Database.GetAllSequences();
 
         Assert.That(sequences, Is.Empty);
     }
@@ -131,7 +125,7 @@ internal static class EmptyRelationalDatabaseTests
     public static async Task GetSynonym_GivenValidSynonymName_ReturnsNone()
     {
         var synonymName = new Identifier("test");
-        var synonymIsNone = await Database.GetSynonym(synonymName).IsNone.ConfigureAwait(false);
+        var synonymIsNone = await Database.GetSynonym(synonymName).IsNone;
 
         Assert.That(synonymIsNone, Is.True);
     }
@@ -139,7 +133,7 @@ internal static class EmptyRelationalDatabaseTests
     [Test]
     public static async Task EnumerateAllSynonyms_WhenEnumerated_ContainsNoValues()
     {
-        var synonyms = await Database.EnumerateAllSynonyms().ToListAsync().ConfigureAwait(false);
+        var synonyms = await Database.EnumerateAllSynonyms().ToListAsync();
 
         Assert.That(synonyms, Is.Empty);
     }
@@ -147,7 +141,7 @@ internal static class EmptyRelationalDatabaseTests
     [Test]
     public static async Task GetAllSynonyms_WhenRetrieved_ContainsNoValues()
     {
-        var synonyms = await Database.GetAllSynonyms().ConfigureAwait(false);
+        var synonyms = await Database.GetAllSynonyms();
 
         Assert.That(synonyms, Is.Empty);
     }
@@ -156,7 +150,7 @@ internal static class EmptyRelationalDatabaseTests
     public static async Task GetRoutine_GivenValidRoutineName_ReturnsNone()
     {
         var routineName = new Identifier("test");
-        var routineIsNone = await Database.GetRoutine(routineName).IsNone.ConfigureAwait(false);
+        var routineIsNone = await Database.GetRoutine(routineName).IsNone;
 
         Assert.That(routineIsNone, Is.True);
     }
@@ -164,9 +158,7 @@ internal static class EmptyRelationalDatabaseTests
     [Test]
     public static async Task EnumerateAllRoutines_WhenEnumerated_ContainsNoValues()
     {
-        var hasRoutines = await Database.EnumerateAllRoutines()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasRoutines = await Database.EnumerateAllRoutines().AnyAsync();
 
         Assert.That(hasRoutines, Is.False);
     }
@@ -174,7 +166,7 @@ internal static class EmptyRelationalDatabaseTests
     [Test]
     public static async Task GetAllRoutines_WhenRetrieved_ContainsNoValues()
     {
-        var routines = await Database.GetAllRoutines().ConfigureAwait(false);
+        var routines = await Database.GetAllRoutines();
 
         Assert.That(routines, Is.Empty);
     }

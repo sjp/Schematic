@@ -17,19 +17,19 @@ create table parent_table_with_different_column_to_pk_column_1 (
     column_1 integer not null primary key autoincrement,
     column_2 integer,
     constraint test_fk_1 foreign key (column_2) references parent_table_with_different_column_to_pk_column_1 (column_1)
-)", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 create table parent_table_with_pk_column_to_pk_column_1 (
     column_1 integer not null primary key autoincrement,
     constraint test_fk_1 foreign key (column_1) references parent_table_with_pk_column_to_pk_column_1 (column_1)
-)", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table parent_table_with_different_column_to_pk_column_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table parent_table_with_pk_column_to_pk_column_1", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table parent_table_with_different_column_to_pk_column_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table parent_table_with_pk_column_to_pk_column_1", CancellationToken.None);
     }
 
     [Test]
@@ -54,10 +54,10 @@ create table parent_table_with_pk_column_to_pk_column_1 (
 
         var tables = new[]
         {
-            await database.GetTable("parent_table_with_different_column_to_pk_column_1").UnwrapSomeAsync().ConfigureAwait(false),
+            await database.GetTable("parent_table_with_different_column_to_pk_column_1").UnwrapSomeAsync(),
         };
 
-        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Empty);
     }
@@ -70,10 +70,10 @@ create table parent_table_with_pk_column_to_pk_column_1 (
 
         var tables = new[]
         {
-            await database.GetTable("parent_table_with_pk_column_to_pk_column_1").UnwrapSomeAsync().ConfigureAwait(false),
+            await database.GetTable("parent_table_with_pk_column_to_pk_column_1").UnwrapSomeAsync(),
         };
 
-        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Not.Empty);
     }

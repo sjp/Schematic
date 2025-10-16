@@ -82,7 +82,7 @@ public class SqliteTableParser
             if (primaryKey.IsNone && parsedColumn.PrimaryKey.IsSome)
                 primaryKey = parsedColumn.PrimaryKey;
 
-            parsedColumn.UniqueKey.IfSome(uk => uniqueKeys.Add(uk));
+            parsedColumn.UniqueKey.IfSome(uniqueKeys.Add);
             foreignKeys.AddRange(parsedColumn.ForeignKeys);
             checks.AddRange(parsedColumn.Checks);
         }

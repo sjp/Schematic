@@ -39,8 +39,8 @@ internal static class AsyncCacheTests
             return Task.FromResult(string.Empty);
         });
 
-        await cache.GetByKeyAsync("a", "cache_ignore").ConfigureAwait(false);
-        await cache.GetByKeyAsync("a", "cache_ignore").ConfigureAwait(false);
+        await cache.GetByKeyAsync("a", "cache_ignore");
+        await cache.GetByKeyAsync("a", "cache_ignore");
 
         Assert.That(counter, Is.EqualTo(1));
     }

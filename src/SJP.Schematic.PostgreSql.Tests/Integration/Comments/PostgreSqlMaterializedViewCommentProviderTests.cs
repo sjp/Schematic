@@ -20,21 +20,21 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create table matview_comment_table_1 (test_column_1 int primary key not null, test_column_2 int, test_column_3 int)", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create table matview_comment_table_1 (test_column_1 int primary key not null, test_column_2 int, test_column_3 int)", CancellationToken.None);
 
-        await DbConnection.ExecuteAsync("create materialized view matview_comment_matview_1 as select test_column_1, test_column_2, test_column_3 from matview_comment_table_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create materialized view matview_comment_matview_2 as select test_column_1, test_column_2, test_column_3 from matview_comment_table_1", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create materialized view matview_comment_matview_1 as select test_column_1, test_column_2, test_column_3 from matview_comment_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create materialized view matview_comment_matview_2 as select test_column_1, test_column_2, test_column_3 from matview_comment_table_1", CancellationToken.None);
 
-        await DbConnection.ExecuteAsync("comment on materialized view matview_comment_matview_2 is 'This is a test materialized view.'", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("comment on column matview_comment_matview_2.test_column_2 is 'This is a test materialized view column.'", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("comment on materialized view matview_comment_matview_2 is 'This is a test materialized view.'", CancellationToken.None);
+        await DbConnection.ExecuteAsync("comment on column matview_comment_matview_2.test_column_2 is 'This is a test materialized view column.'", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop materialized view matview_comment_matview_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop materialized view matview_comment_matview_2", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table matview_comment_table_1", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop materialized view matview_comment_matview_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop materialized view matview_comment_matview_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table matview_comment_table_1", CancellationToken.None);
     }
 
     private Task<IDatabaseViewComments> GetViewCommentsAsync(Identifier viewName)
@@ -46,7 +46,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
 
     private async Task<IDatabaseViewComments> GetViewCommentsAsyncCore(Identifier viewName)
     {
-        using (await _lock.LockAsync().ConfigureAwait(false))
+        using (await _lock.LockAsync())
         {
             if (!_commentsCache.TryGetValue(viewName, out var lazyComment))
             {
@@ -54,7 +54,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
                 _commentsCache[viewName] = lazyComment;
             }
 
-            return await lazyComment.ConfigureAwait(false);
+            return await lazyComment;
         }
     }
 
@@ -64,7 +64,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
     [Test]
     public async Task GetViewComments_WhenViewPresent_ReturnsViewComment()
     {
-        var viewIsSome = await ViewCommentProvider.GetViewComments("matview_comment_matview_1").IsSome.ConfigureAwait(false);
+        var viewIsSome = await ViewCommentProvider.GetViewComments("matview_comment_matview_1").IsSome;
         Assert.That(viewIsSome, Is.True);
     }
 
@@ -72,7 +72,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
     public async Task GetViewComments_WhenViewPresent_ReturnsViewWithCorrectName()
     {
         const string viewName = "matview_comment_matview_1";
-        var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+        var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync();
 
         Assert.That(viewComments.ViewName.LocalName, Is.EqualTo(viewName));
     }
@@ -83,7 +83,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
         var viewName = new Identifier("matview_comment_matview_1");
         var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "matview_comment_matview_1");
 
-        var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+        var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync();
 
         Assert.That(viewComments.ViewName, Is.EqualTo(expectedViewName));
     }
@@ -94,7 +94,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
         var viewName = new Identifier(IdentifierDefaults.Schema, "matview_comment_matview_1");
         var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "matview_comment_matview_1");
 
-        var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+        var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync();
 
         Assert.That(viewComments.ViewName, Is.EqualTo(expectedViewName));
     }
@@ -105,7 +105,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
         var viewName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "matview_comment_matview_1");
         var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "matview_comment_matview_1");
 
-        var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+        var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync();
 
         Assert.That(viewComments.ViewName, Is.EqualTo(expectedViewName));
     }
@@ -115,7 +115,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
     {
         var viewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "matview_comment_matview_1");
 
-        var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+        var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync();
 
         Assert.That(viewComments.ViewName, Is.EqualTo(viewName));
     }
@@ -126,7 +126,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
         var viewName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "matview_comment_matview_1");
         var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "matview_comment_matview_1");
 
-        var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+        var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync();
 
         Assert.That(viewComments.ViewName, Is.EqualTo(expectedViewName));
     }
@@ -137,7 +137,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
         var viewName = new Identifier("A", "B", IdentifierDefaults.Schema, "matview_comment_matview_1");
         var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "matview_comment_matview_1");
 
-        var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+        var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync();
 
         Assert.That(viewComments.ViewName, Is.EqualTo(expectedViewName));
     }
@@ -148,7 +148,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
         var viewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "MATVIEW_COMMENT_MATVIEW_1");
         var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "matview_comment_matview_1");
 
-        var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+        var viewComments = await ViewCommentProvider.GetViewComments(viewName).UnwrapSomeAsync();
 
         Assert.That(viewComments.ViewName, Is.EqualTo(expectedViewName));
     }
@@ -156,16 +156,14 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
     [Test]
     public async Task GetViewComments_WhenViewMissing_ReturnsNone()
     {
-        var viewIsNone = await ViewCommentProvider.GetViewComments("view_that_doesnt_exist").IsNone.ConfigureAwait(false);
+        var viewIsNone = await ViewCommentProvider.GetViewComments("view_that_doesnt_exist").IsNone;
         Assert.That(viewIsNone, Is.True);
     }
 
     [Test]
     public async Task EnumerateAllViewComments_WhenEnumerated_ContainsViewComments()
     {
-        var hasViewComments = await ViewCommentProvider.EnumerateAllViewComments()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasViewComments = await ViewCommentProvider.EnumerateAllViewComments().AnyAsync();
 
         Assert.That(hasViewComments, Is.True);
     }
@@ -174,8 +172,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
     public async Task EnumerateAllViewComments_WhenEnumerated_ContainsTestViewComment()
     {
         var containsTestView = await ViewCommentProvider.EnumerateAllViewComments()
-            .AnyAsync(t => string.Equals(t.ViewName.LocalName, "matview_comment_matview_1", StringComparison.Ordinal))
-            .ConfigureAwait(false);
+            .AnyAsync(t => string.Equals(t.ViewName.LocalName, "matview_comment_matview_1", StringComparison.Ordinal));
 
         Assert.That(containsTestView, Is.True);
     }
@@ -183,7 +180,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
     [Test]
     public async Task GetAllViewComments_WhenRetrieved_ContainsViewComments()
     {
-        var viewComments = await ViewCommentProvider.GetAllViewComments().ConfigureAwait(false);
+        var viewComments = await ViewCommentProvider.GetAllViewComments();
 
         Assert.That(viewComments, Is.Not.Empty);
     }
@@ -191,7 +188,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
     [Test]
     public async Task GetAllViewComments_WhenEnumerated_ContainsTestViewComment()
     {
-        var viewComments = await ViewCommentProvider.GetAllViewComments().ConfigureAwait(false);
+        var viewComments = await ViewCommentProvider.GetAllViewComments();
         var containsTestView = viewComments.Any(t => string.Equals(t.ViewName.LocalName, "matview_comment_matview_1", StringComparison.Ordinal));
 
         Assert.That(containsTestView, Is.True);
@@ -200,7 +197,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
     [Test]
     public async Task GetViewComments_WhenViewMissingComment_ReturnsNone()
     {
-        var comments = await GetViewCommentsAsync("matview_comment_matview_1").ConfigureAwait(false);
+        var comments = await GetViewCommentsAsync("matview_comment_matview_1");
 
         Assert.That(comments.Comment.IsNone, Is.True);
     }
@@ -215,7 +212,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
             new Identifier("test_column_3"),
         };
 
-        var comments = await GetViewCommentsAsync("matview_comment_matview_1").ConfigureAwait(false);
+        var comments = await GetViewCommentsAsync("matview_comment_matview_1");
 
         Assert.That(comments.ColumnComments.Keys.Order(), Is.EqualTo(columnNames));
     }
@@ -223,7 +220,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
     [Test]
     public async Task GetViewComments_WhenViewMissingColumnComments_ReturnsLookupWithOnlyNoneValues()
     {
-        var comments = await GetViewCommentsAsync("matview_comment_matview_1").ConfigureAwait(false);
+        var comments = await GetViewCommentsAsync("matview_comment_matview_1");
 
         var columnComments = comments.ColumnComments;
         var hasOnlyNones = columnComments.All(c => c.Value.IsNone);
@@ -235,7 +232,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
     public async Task GetViewComments_WhenViewContainsComment_ReturnsExpectedValue()
     {
         const string expectedComment = "This is a test materialized view.";
-        var comments = await GetViewCommentsAsync("matview_comment_matview_2").ConfigureAwait(false);
+        var comments = await GetViewCommentsAsync("matview_comment_matview_2");
 
         var viewComment = comments.Comment.UnwrapSome();
 
@@ -251,7 +248,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
             new Identifier("test_column_2"),
             new Identifier("test_column_3"),
         };
-        var comments = await GetViewCommentsAsync("matview_comment_matview_2").ConfigureAwait(false);
+        var comments = await GetViewCommentsAsync("matview_comment_matview_2");
 
         Assert.That(comments.ColumnComments.Keys.Order(), Is.EqualTo(columnNames));
     }
@@ -265,7 +262,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
             false,
             true,
         };
-        var comments = await GetViewCommentsAsync("matview_comment_matview_2").ConfigureAwait(false);
+        var comments = await GetViewCommentsAsync("matview_comment_matview_2");
 
         var columnComments = comments.ColumnComments;
         var noneStates = new[]
@@ -282,7 +279,7 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
     public async Task GetViewComments_PropertyGetForColumnComments_ReturnsCorrectCommentValue()
     {
         const string expectedComment = "This is a test materialized view column.";
-        var comments = await GetViewCommentsAsync("matview_comment_matview_2").ConfigureAwait(false);
+        var comments = await GetViewCommentsAsync("matview_comment_matview_2");
 
         var comment = comments.ColumnComments["test_column_2"].UnwrapSome();
 

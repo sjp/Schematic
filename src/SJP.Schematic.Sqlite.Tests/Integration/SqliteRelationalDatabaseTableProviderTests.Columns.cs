@@ -11,7 +11,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     [Test]
     public async Task Columns_WhenGivenTableWithOneColumn_ReturnsColumnCollectionWithOneValue()
     {
-        var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_1");
 
         Assert.That(table.Columns, Has.Exactly(1).Items);
     }
@@ -19,7 +19,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     [Test]
     public async Task Columns_WhenGivenTableWithOneColumn_ReturnsColumnWithCorrectName()
     {
-        var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_1");
         var column = table.Columns.Single();
         const string columnName = "test_column";
 
@@ -30,7 +30,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     public async Task Columns_WhenGivenTableWithMultipleColumns_ReturnsColumnsInCorrectOrder()
     {
         var expectedColumnNames = new[] { "first_name", "middle_name", "last_name" };
-        var table = await GetTableAsync("table_test_table_4").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_4");
         var columns = table.Columns;
         var columnNames = columns.Select(c => c.Name.LocalName);
 
@@ -41,7 +41,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     public async Task Columns_WhenGivenTableWithNullableColumn_ColumnReturnsIsNullableTrue()
     {
         const string tableName = "table_test_table_1";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
         Assert.That(column.IsNullable, Is.True);
@@ -51,7 +51,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     public async Task Columns_WhenGivenTableWithNotNullableColumn_ColumnReturnsIsNullableFalse()
     {
         const string tableName = "table_test_table_2";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
         Assert.That(column.IsNullable, Is.False);
@@ -61,7 +61,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     public async Task Columns_WhenGivenTableWithColumnWithNoDefaultValue_ColumnReturnsNoneDefaultValue()
     {
         const string tableName = "table_test_table_1";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
         Assert.That(column.DefaultValue, OptionIs.None);
@@ -71,7 +71,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     public async Task Columns_WhenGivenTableWithColumnWithDefaultValue_ColumnReturnsCorrectDefaultValue()
     {
         const string tableName = "table_test_table_33";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
         const string defaultValue = "1";
@@ -82,7 +82,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     public async Task Columns_WhenGivenTableWithNonComputedColumn_ReturnsIsComputedFalse()
     {
         const string tableName = "table_test_table_1";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
         Assert.That(column.IsComputed, Is.False);
@@ -92,7 +92,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     public async Task Columns_WhenGivenTableColumnWithoutIdentity_ReturnsNoneAutoIncrement()
     {
         const string tableName = "table_test_table_1";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
         Assert.That(column.AutoIncrement, OptionIs.None);
@@ -102,7 +102,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     public async Task Columns_WhenGivenTableWithNoGeneratedColumns_ReturnsNoComputedColumns()
     {
         const string tableName = "table_test_table_1";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var computedColumns = table.Columns.Where(c => c.IsComputed).ToList();
 
         Assert.That(computedColumns, Is.Empty);
@@ -112,7 +112,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     public async Task Columns_WhenGivenTableWithGeneratedColumns_ReturnsExpectedComputedColumnCount()
     {
         const string tableName = "table_test_table_37";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var computedColumns = table.Columns.Where(c => c.IsComputed).ToList();
 
         Assert.That(computedColumns, Has.Exactly(3).Items);
@@ -122,7 +122,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     public async Task Columns_WhenGivenTableWithGeneratedColumns_ReturnsExpectedComputedColumnNames()
     {
         const string tableName = "table_test_table_37";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var expectedColumnNames = new[] { "test_column_2", "test_column_3", "test_column_4" };
         var computedColumnNames = table.Columns.Where(c => c.IsComputed).Select(c => c.Name.LocalName).ToList();
 
@@ -139,7 +139,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
             "(test_column_1 * test_column_1 * test_column_1)",
             "(test_column_1 * test_column_1 * test_column_1 * test_column_1)",
         };
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var computedColumnDefinitions = table.Columns
             .Where(c => c.IsComputed)
             .Select(c => c as IDatabaseComputedColumn)

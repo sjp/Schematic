@@ -71,14 +71,12 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
         var synonymNames = await Connection.QueryEnumerableAsync<GetAllSynonymNames.Result>(GetAllSynonymNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.SynonymName))
             .Select(QualifySynonymName)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return await synonymNames
             .Select(synonymName => LoadSynonymCommentsAsyncCore(synonymName, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
     }
 
     /// <summary>
@@ -144,7 +142,7 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
                 CommentProperty = CommentProperty,
             },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         var commentData = queryResult.Select(r => new CommentData
         {

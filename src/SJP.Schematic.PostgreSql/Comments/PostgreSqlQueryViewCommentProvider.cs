@@ -72,14 +72,12 @@ public class PostgreSqlQueryViewCommentProvider : IDatabaseViewCommentProvider
         var viewNames = await Connection.QueryEnumerableAsync<GetAllViewNames.Result>(GetAllViewNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return await viewNames
             .Select(viewName => LoadViewCommentsAsyncCore(viewName, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
     }
 
     /// <summary>
@@ -160,7 +158,7 @@ public class PostgreSqlQueryViewCommentProvider : IDatabaseViewCommentProvider
             Queries.GetViewComments.Sql,
             new GetViewComments.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         var commentData = result.Select(r => new CommentData
         {

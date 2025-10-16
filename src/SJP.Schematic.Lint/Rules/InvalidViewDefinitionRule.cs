@@ -52,8 +52,7 @@ public class InvalidViewDefinitionRule : Rule, IViewRule
         var messages = await views
             .Select(v => AnalyseViewAsync(v, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
 
         return messages
             .SelectMany(_ => _)
@@ -81,7 +80,7 @@ public class InvalidViewDefinitionRule : Rule, IViewRule
             var simpleViewName = Identifier.CreateQualifiedIdentifier(view.Name.Schema, view.Name.LocalName);
             var quotedViewName = Connection.Dialect.QuoteName(simpleViewName);
             var query = "select 1 as dummy from " + quotedViewName;
-            await Connection.DbConnection.ExecuteScalarAsync<long>(query, cancellationToken).ConfigureAwait(false);
+            await Connection.DbConnection.ExecuteScalarAsync<long>(query, cancellationToken);
 
             return [];
         }

@@ -27,13 +27,13 @@ CREATE FUNCTION comment_test_routine_1()
   DETERMINISTIC
 BEGIN
   RETURN 'test';
-END", CancellationToken.None).ConfigureAwait(false);
+END", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 CREATE PROCEDURE comment_test_routine_2()
 DETERMINISTIC
 BEGIN
    COMMIT;
-END", CancellationToken.None).ConfigureAwait(false);
+END", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 CREATE FUNCTION comment_test_routine_3()
   RETURNS TEXT
@@ -43,7 +43,7 @@ CREATE FUNCTION comment_test_routine_3()
 BEGIN
   RETURN 'test';
 END
-", CancellationToken.None).ConfigureAwait(false);
+", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 CREATE PROCEDURE comment_test_routine_4()
   DETERMINISTIC
@@ -51,16 +51,16 @@ CREATE PROCEDURE comment_test_routine_4()
 BEGIN
    COMMIT;
 END
-", CancellationToken.None).ConfigureAwait(false);
+", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop function comment_test_routine_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop function comment_test_routine_3", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop procedure comment_test_routine_2", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop procedure comment_test_routine_4", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop function comment_test_routine_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop function comment_test_routine_3", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop procedure comment_test_routine_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop procedure comment_test_routine_4", CancellationToken.None);
     }
 
     private Task<IDatabaseRoutineComments> GetRoutineCommentsAsync(Identifier routineName)
@@ -72,7 +72,7 @@ END
 
     private async Task<IDatabaseRoutineComments> GetRoutineCommentsAsyncCore(Identifier routineName)
     {
-        using (await _lock.LockAsync().ConfigureAwait(false))
+        using (await _lock.LockAsync())
         {
             if (!_commentsCache.TryGetValue(routineName, out var lazyComment))
             {
@@ -80,7 +80,7 @@ END
                 _commentsCache[routineName] = lazyComment;
             }
 
-            return await lazyComment.ConfigureAwait(false);
+            return await lazyComment;
         }
     }
 
@@ -90,7 +90,7 @@ END
     [Test]
     public async Task GetRoutineComments_WhenRoutinePresent_ReturnsRoutineComment()
     {
-        var routineIsSome = await RoutineCommentProvider.GetRoutineComments("comment_test_routine_1").IsSome.ConfigureAwait(false);
+        var routineIsSome = await RoutineCommentProvider.GetRoutineComments("comment_test_routine_1").IsSome;
         Assert.That(routineIsSome, Is.True);
     }
 
@@ -98,7 +98,7 @@ END
     public async Task GetRoutineComments_WhenRoutinePresent_ReturnsRoutineWithCorrectName()
     {
         const string routineName = "comment_test_routine_1";
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync();
 
         Assert.That(routineComments.RoutineName.LocalName, Is.EqualTo(routineName));
     }
@@ -109,7 +109,7 @@ END
         var routineName = new Identifier("comment_test_routine_1");
         var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "comment_test_routine_1");
 
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync();
 
         Assert.That(routineComments.RoutineName, Is.EqualTo(expectedRoutineName));
     }
@@ -120,7 +120,7 @@ END
         var routineName = new Identifier(IdentifierDefaults.Schema, "comment_test_routine_1");
         var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "comment_test_routine_1");
 
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync();
 
         Assert.That(routineComments.RoutineName, Is.EqualTo(expectedRoutineName));
     }
@@ -131,7 +131,7 @@ END
         var routineName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "comment_test_routine_1");
         var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "comment_test_routine_1");
 
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync();
 
         Assert.That(routineComments.RoutineName, Is.EqualTo(expectedRoutineName));
     }
@@ -141,7 +141,7 @@ END
     {
         var routineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "comment_test_routine_1");
 
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync();
 
         Assert.That(routineComments.RoutineName, Is.EqualTo(routineName));
     }
@@ -152,7 +152,7 @@ END
         var routineName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "comment_test_routine_1");
         var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "comment_test_routine_1");
 
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync();
 
         Assert.That(routineComments.RoutineName, Is.EqualTo(expectedRoutineName));
     }
@@ -163,7 +163,7 @@ END
         var routineName = new Identifier("A", "B", IdentifierDefaults.Schema, "comment_test_routine_1");
         var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "comment_test_routine_1");
 
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync();
 
         Assert.That(routineComments.RoutineName, Is.EqualTo(expectedRoutineName));
     }
@@ -171,16 +171,14 @@ END
     [Test]
     public async Task GetRoutineComments_WhenRoutineMissing_ReturnsNone()
     {
-        var routineIsNone = await RoutineCommentProvider.GetRoutineComments("routine_that_doesnt_exist").IsNone.ConfigureAwait(false);
+        var routineIsNone = await RoutineCommentProvider.GetRoutineComments("routine_that_doesnt_exist").IsNone;
         Assert.That(routineIsNone, Is.True);
     }
 
     [Test]
     public async Task EnumerateAllRoutineComments_WhenEnumerated_ContainsRoutineComments()
     {
-        var hasRoutineComments = await RoutineCommentProvider.EnumerateAllRoutineComments()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasRoutineComments = await RoutineCommentProvider.EnumerateAllRoutineComments().AnyAsync();
 
         Assert.That(hasRoutineComments, Is.True);
     }
@@ -189,8 +187,7 @@ END
     public async Task EnumerateAllRoutineComments_WhenEnumerated_ContainsTestRoutineComment()
     {
         var containsTestRoutine = await RoutineCommentProvider.EnumerateAllRoutineComments()
-            .AnyAsync(rc => string.Equals(rc.RoutineName.LocalName, "comment_test_routine_1", StringComparison.Ordinal))
-            .ConfigureAwait(false);
+            .AnyAsync(rc => string.Equals(rc.RoutineName.LocalName, "comment_test_routine_1", StringComparison.Ordinal));
 
         Assert.That(containsTestRoutine, Is.True);
     }
@@ -198,7 +195,7 @@ END
     [Test]
     public async Task GetAllRoutineComments_WhenRetrieved_ContainsRoutineComments()
     {
-        var routineComments = await RoutineCommentProvider.GetAllRoutineComments().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetAllRoutineComments();
 
         var hasComments = routineComments.Any(rc => rc.Comment.IsSome);
 
@@ -212,7 +209,7 @@ END
     [Test]
     public async Task GetAllRoutineComments_WhenRetrieved_ContainsTestRoutineComment()
     {
-        var routineComments = await RoutineCommentProvider.GetAllRoutineComments().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetAllRoutineComments();
         var hasTestRoutine = routineComments.Any(rc => string.Equals(rc.RoutineName.LocalName, "comment_test_routine_1", StringComparison.Ordinal));
 
         Assert.That(hasTestRoutine, Is.True);
@@ -221,7 +218,7 @@ END
     [Test]
     public async Task GetRoutineComments_WhenFunctionMissingComment_ReturnsNone()
     {
-        var comments = await GetRoutineCommentsAsync("comment_test_routine_1").ConfigureAwait(false);
+        var comments = await GetRoutineCommentsAsync("comment_test_routine_1");
 
         Assert.That(comments.Comment.IsNone, Is.True);
     }
@@ -230,7 +227,7 @@ END
     public async Task GetRoutineComments_WhenFunctionContainsComment_ReturnsExpectedValue()
     {
         const string expectedComment = "This is a test function comment.";
-        var comments = await GetRoutineCommentsAsync("comment_test_routine_3").ConfigureAwait(false);
+        var comments = await GetRoutineCommentsAsync("comment_test_routine_3");
 
         var routineComment = comments.Comment.UnwrapSome();
 
@@ -240,7 +237,7 @@ END
     [Test]
     public async Task GetRoutineComments_WhenStoredProcedureMissingComment_ReturnsNone()
     {
-        var comments = await GetRoutineCommentsAsync("comment_test_routine_2").ConfigureAwait(false);
+        var comments = await GetRoutineCommentsAsync("comment_test_routine_2");
 
         Assert.That(comments.Comment.IsNone, Is.True);
     }
@@ -249,7 +246,7 @@ END
     public async Task GetRoutineComments_WhenStoredProcedureContainsComment_ReturnsExpectedValue()
     {
         const string expectedComment = "This is a test stored procedure comment.";
-        var comments = await GetRoutineCommentsAsync("comment_test_routine_4").ConfigureAwait(false);
+        var comments = await GetRoutineCommentsAsync("comment_test_routine_4");
 
         var routineComment = comments.Comment.UnwrapSome();
 

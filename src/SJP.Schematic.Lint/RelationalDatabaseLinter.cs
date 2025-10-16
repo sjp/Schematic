@@ -64,7 +64,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
             database.GetAllSequences(cancellationToken),
             database.GetAllSynonyms(cancellationToken),
             database.GetAllRoutines(cancellationToken)
-        ).WhenAll().ConfigureAwait(false);
+        ).WhenAll();
 
         var (
             tableMessagesByRule,
@@ -78,7 +78,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
             SequenceRules.Select(sr => sr.AnalyseSequences(sequences, cancellationToken)).ToArray().WhenAll(),
             SynonymRules.Select(sr => sr.AnalyseSynonyms(synonyms, cancellationToken)).ToArray().WhenAll(),
             RoutineRules.Select(rr => rr.AnalyseRoutines(routines, cancellationToken)).ToArray().WhenAll()
-        ).WhenAll().ConfigureAwait(false);
+        ).WhenAll();
 
         // all evaluated, now to flatten + aggregate
         return tableMessagesByRule.SelectMany(_ => _)
@@ -108,8 +108,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
         var messages = await TableRules
             .Select(tr => tr.AnalyseTables(tables, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
 
         return messages
             .SelectMany(_ => _)
@@ -135,8 +134,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
         var messages = await ViewRules
             .Select(vr => vr.AnalyseViews(views, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
 
         return messages
             .SelectMany(_ => _)
@@ -162,8 +160,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
         var messages = await SequenceRules
             .Select(sr => sr.AnalyseSequences(sequences, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
 
         return messages
             .SelectMany(_ => _)
@@ -189,8 +186,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
         var messages = await SynonymRules
             .Select(sr => sr.AnalyseSynonyms(synonyms, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
 
         return messages
             .SelectMany(_ => _)
@@ -216,8 +212,7 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
         var messages = await RoutineRules
             .Select(rr => rr.AnalyseRoutines(routines, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
 
         return messages
             .SelectMany(_ => _)

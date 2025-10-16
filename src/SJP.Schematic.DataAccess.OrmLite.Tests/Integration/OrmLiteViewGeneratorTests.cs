@@ -31,31 +31,31 @@ select
     X'DEADBEEF' as testblob,
     CURRENT_TIMESTAMP as testdatetime,
     'test' as teststring
-", CancellationToken.None).ConfigureAwait(false);
+", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"create table view_test_table_1 (
     testint integer not null primary key autoincrement,
     testdecimal numeric default 2.45,
     testblob blob default X'DEADBEEF',
     testdatetime datetime default CURRENT_TIMESTAMP,
     teststring text default 'test'
-)", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create view test_view_2 as select * from view_test_table_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create view test_view_3 as select 1 as test_column_1", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create view test_view_2 as select * from view_test_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create view test_view_3 as select 1 as test_column_1", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop view test_view_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop view test_view_2", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table view_test_table_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop view test_view_3", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop view test_view_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop view test_view_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table view_test_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop view test_view_3", CancellationToken.None);
     }
 
     [Test]
     public async Task Generate_GivenViewWithLiteralColumnTypes_GeneratesExpectedOutput()
     {
-        var view = await GetView("test_view_1").ConfigureAwait(false);
+        var view = await GetView("test_view_1");
         var generator = ViewGenerator;
 
         var expected = TestView1Output;
@@ -67,7 +67,7 @@ select
     [Test]
     public async Task Generate_GivenViewSelectingFromTable_GeneratesExpectedOutput()
     {
-        var view = await GetView("test_view_2").ConfigureAwait(false);
+        var view = await GetView("test_view_2");
         var generator = ViewGenerator;
 
         var expected = TestView2Output;
@@ -82,7 +82,7 @@ select
         const string viewComment = "This is a test view comment for OrmLite";
         const string columnComment = "This is a test column comment for OrmLite";
 
-        var view = await GetView("test_view_3").ConfigureAwait(false);
+        var view = await GetView("test_view_3");
         var generator = ViewGenerator;
 
         var comment = new DatabaseViewComments("test_view_3",
@@ -105,7 +105,7 @@ This is a second line for it.";
 
 This is a second line for it.";
 
-        var view = await GetView("test_view_3").ConfigureAwait(false);
+        var view = await GetView("test_view_3");
         var generator = ViewGenerator;
 
         var comment = new DatabaseViewComments("test_view_3",

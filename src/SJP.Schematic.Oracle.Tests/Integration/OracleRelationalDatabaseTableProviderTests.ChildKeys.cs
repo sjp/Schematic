@@ -12,7 +12,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task ChildKeys_WhenGivenTableWithNoChildKeys_ReturnsEmptyCollection()
     {
-        var table = await GetTableAsync("table_test_table_2").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_2");
 
         Assert.That(table.ChildKeys, Is.Empty);
     }
@@ -20,7 +20,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectNames()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_16", StringComparison.Ordinal));
 
         using (Assert.EnterMultipleScope())
@@ -33,7 +33,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectKeyTypes()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_16", StringComparison.Ordinal));
 
         using (Assert.EnterMultipleScope())
@@ -46,7 +46,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectTables()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_16", StringComparison.Ordinal));
 
         using (Assert.EnterMultipleScope())
@@ -59,7 +59,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectColumns()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_16", StringComparison.Ordinal));
 
         var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
@@ -78,7 +78,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithDefaultUpdateAction_ReturnsUpdateActionAsNoAction()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_16", StringComparison.Ordinal));
 
@@ -88,7 +88,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithDefaultDeleteAction_ReturnsDeleteActionAsNoAction()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_16", StringComparison.Ordinal));
 
@@ -98,7 +98,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithCascadeDeleteAction_ReturnsDeleteActionAsCascade()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_24", StringComparison.Ordinal));
 
@@ -108,7 +108,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithSetNullDeleteAction_ReturnsDeleteActionAsSetNull()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_25", StringComparison.Ordinal));
 
@@ -118,7 +118,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ReturnsIsEnabledTrue()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_16", StringComparison.Ordinal));
 
@@ -128,7 +128,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithDisabledForeignKeyToPrimaryKey_ReturnsIsEnabledFalse()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_30", StringComparison.Ordinal));
 
@@ -138,7 +138,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectNames()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_17", StringComparison.Ordinal));
 
         using (Assert.EnterMultipleScope())
@@ -151,7 +151,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectKeyTypes()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_17", StringComparison.Ordinal));
 
         using (Assert.EnterMultipleScope())
@@ -164,7 +164,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectTables()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_17", StringComparison.Ordinal));
 
         using (Assert.EnterMultipleScope())
@@ -177,7 +177,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectColumns()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_17", StringComparison.Ordinal));
 
         var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
@@ -196,7 +196,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithDefaultUpdateAction_ReturnsUpdateActionAsNoAction()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_17", StringComparison.Ordinal));
 
@@ -206,7 +206,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithDefaultDeleteAction_ReturnsDeleteActionAsNoAction()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_17", StringComparison.Ordinal));
 
@@ -216,7 +216,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithCascadeDeleteAction_ReturnsDeleteActionAsCascade()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_27", StringComparison.Ordinal));
 
@@ -226,7 +226,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithSetNullDeleteAction_ReturnsDeleteActionAsSetNull()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_28", StringComparison.Ordinal));
 
@@ -236,7 +236,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ReturnsIsEnabledTrue()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_17", StringComparison.Ordinal));
 
@@ -246,7 +246,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithDisabledForeignKeyToUniqueKey_ReturnsIsEnabledFalse()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_31", StringComparison.Ordinal));
 

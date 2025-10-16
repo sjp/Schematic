@@ -51,8 +51,8 @@ internal static class DbConnectionFactoryExtensionsTests
 
         var cachingFactory = factory.Object.AsCachingFactory();
 
-        _ = await cachingFactory.OpenConnectionAsync().ConfigureAwait(false);
-        _ = await cachingFactory.OpenConnectionAsync().ConfigureAwait(false);
+        _ = await cachingFactory.OpenConnectionAsync();
+        _ = await cachingFactory.OpenConnectionAsync();
 
         factory.Verify(f => f.CreateConnection(), Times.Once);
     }

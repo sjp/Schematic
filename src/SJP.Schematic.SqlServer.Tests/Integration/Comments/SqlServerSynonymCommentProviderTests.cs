@@ -20,19 +20,19 @@ internal sealed class SqlServerSynonymCommentProviderTests : SqlServerTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create view synonym_comment_view_1 as select 1 as test_column_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create synonym synonym_comment_synonym_1 for synonym_comment_view_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create synonym synonym_comment_synonym_2 for synonym_comment_view_1", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create view synonym_comment_view_1 as select 1 as test_column_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create synonym synonym_comment_synonym_1 for synonym_comment_view_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create synonym synonym_comment_synonym_2 for synonym_comment_view_1", CancellationToken.None);
 
-        await AddCommentForSynonym("This is a test synonym comment.", "dbo", "synonym_comment_synonym_2").ConfigureAwait(false);
+        await AddCommentForSynonym("This is a test synonym comment.", "dbo", "synonym_comment_synonym_2");
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop synonym synonym_comment_synonym_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop synonym synonym_comment_synonym_2", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop view synonym_comment_view_1", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop synonym synonym_comment_synonym_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop synonym synonym_comment_synonym_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop view synonym_comment_view_1", CancellationToken.None);
     }
 
     private Task AddCommentForSynonym(string comment, string schemaName, string synonymName)
@@ -56,7 +56,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
     private async Task<IDatabaseSynonymComments> GetSynonymCommentsAsyncCore(Identifier synonymName)
     {
-        using (await _lock.LockAsync().ConfigureAwait(false))
+        using (await _lock.LockAsync())
         {
             if (!_commentsCache.TryGetValue(synonymName, out var lazyComment))
             {
@@ -64,7 +64,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                 _commentsCache[synonymName] = lazyComment;
             }
 
-            return await lazyComment.ConfigureAwait(false);
+            return await lazyComment;
         }
     }
 
@@ -74,7 +74,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     [Test]
     public async Task GetSynonymComments_WhenSynonymPresent_ReturnsSynonymComment()
     {
-        var synonymIsSome = await SynonymCommentProvider.GetSynonymComments("synonym_comment_synonym_1").IsSome.ConfigureAwait(false);
+        var synonymIsSome = await SynonymCommentProvider.GetSynonymComments("synonym_comment_synonym_1").IsSome;
         Assert.That(synonymIsSome, Is.True);
     }
 
@@ -82,7 +82,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     public async Task GetSynonymComments_WhenSynonymPresent_ReturnsSynonymWithCorrectName()
     {
         const string synonymName = "synonym_comment_synonym_1";
-        var synonymComments = await SynonymCommentProvider.GetSynonymComments(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
+        var synonymComments = await SynonymCommentProvider.GetSynonymComments(synonymName).UnwrapSomeAsync();
 
         Assert.That(synonymComments.SynonymName.LocalName, Is.EqualTo(synonymName));
     }
@@ -93,7 +93,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         var synonymName = new Identifier("synonym_comment_synonym_1");
         var expectedSynonymName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "synonym_comment_synonym_1");
 
-        var synonymComments = await SynonymCommentProvider.GetSynonymComments(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
+        var synonymComments = await SynonymCommentProvider.GetSynonymComments(synonymName).UnwrapSomeAsync();
 
         Assert.That(synonymComments.SynonymName, Is.EqualTo(expectedSynonymName));
     }
@@ -104,7 +104,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         var synonymName = new Identifier(IdentifierDefaults.Schema, "synonym_comment_synonym_1");
         var expectedSynonymName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "synonym_comment_synonym_1");
 
-        var synonymComments = await SynonymCommentProvider.GetSynonymComments(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
+        var synonymComments = await SynonymCommentProvider.GetSynonymComments(synonymName).UnwrapSomeAsync();
 
         Assert.That(synonymComments.SynonymName, Is.EqualTo(expectedSynonymName));
     }
@@ -115,7 +115,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         var synonymName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "synonym_comment_synonym_1");
         var expectedSynonymName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "synonym_comment_synonym_1");
 
-        var synonymComments = await SynonymCommentProvider.GetSynonymComments(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
+        var synonymComments = await SynonymCommentProvider.GetSynonymComments(synonymName).UnwrapSomeAsync();
 
         Assert.That(synonymComments.SynonymName, Is.EqualTo(expectedSynonymName));
     }
@@ -125,7 +125,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     {
         var synonymName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "synonym_comment_synonym_1");
 
-        var synonymComments = await SynonymCommentProvider.GetSynonymComments(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
+        var synonymComments = await SynonymCommentProvider.GetSynonymComments(synonymName).UnwrapSomeAsync();
 
         Assert.That(synonymComments.SynonymName, Is.EqualTo(synonymName));
     }
@@ -136,7 +136,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         var synonymName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "synonym_comment_synonym_1");
         var expectedSynonymName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "synonym_comment_synonym_1");
 
-        var synonymComments = await SynonymCommentProvider.GetSynonymComments(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
+        var synonymComments = await SynonymCommentProvider.GetSynonymComments(synonymName).UnwrapSomeAsync();
 
         Assert.That(synonymComments.SynonymName, Is.EqualTo(expectedSynonymName));
     }
@@ -147,7 +147,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         var synonymName = new Identifier("A", "B", IdentifierDefaults.Schema, "synonym_comment_synonym_1");
         var expectedSynonymName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "synonym_comment_synonym_1");
 
-        var synonymComments = await SynonymCommentProvider.GetSynonymComments(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
+        var synonymComments = await SynonymCommentProvider.GetSynonymComments(synonymName).UnwrapSomeAsync();
 
         Assert.That(synonymComments.SynonymName, Is.EqualTo(expectedSynonymName));
     }
@@ -155,7 +155,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     [Test]
     public async Task GetSynonymComments_WhenSynonymMissing_ReturnsNone()
     {
-        var synonymIsNone = await SynonymCommentProvider.GetSynonymComments("synonym_that_doesnt_exist").IsNone.ConfigureAwait(false);
+        var synonymIsNone = await SynonymCommentProvider.GetSynonymComments("synonym_that_doesnt_exist").IsNone;
         Assert.That(synonymIsNone, Is.True);
     }
 
@@ -163,7 +163,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     public async Task GetSynonymComments_WhenSynonymPresentGivenLocalNameWithDifferentCase_ReturnsMatchingName()
     {
         var inputName = new Identifier("SYNONYM_COMMENT_synonym_1");
-        var synonymComments = await SynonymCommentProvider.GetSynonymComments(inputName).UnwrapSomeAsync().ConfigureAwait(false);
+        var synonymComments = await SynonymCommentProvider.GetSynonymComments(inputName).UnwrapSomeAsync();
 
         var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, synonymComments.SynonymName.LocalName);
         Assert.That(equalNames, Is.True);
@@ -173,7 +173,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     public async Task GetSynonymComments_WhenSynonymPresentGivenSchemaAndLocalNameWithDifferentCase_ReturnsMatchingName()
     {
         var inputName = new Identifier("Dbo", "SYNONYM_COMMENT_synonym_1");
-        var synonymComments = await SynonymCommentProvider.GetSynonymComments(inputName).UnwrapSomeAsync().ConfigureAwait(false);
+        var synonymComments = await SynonymCommentProvider.GetSynonymComments(inputName).UnwrapSomeAsync();
 
         var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, synonymComments.SynonymName.Schema)
             && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, synonymComments.SynonymName.LocalName);
@@ -183,9 +183,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     [Test]
     public async Task EnumerateAllSynonymComments_WhenEnumerated_ContainsSynonymComments()
     {
-        var hasSynonymComments = await SynonymCommentProvider.EnumerateAllSynonymComments()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasSynonymComments = await SynonymCommentProvider.EnumerateAllSynonymComments().AnyAsync();
 
         Assert.That(hasSynonymComments, Is.True);
     }
@@ -194,8 +192,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     public async Task EnumerateAllSynonymComments_WhenEnumerated_ContainsTestSynonymComment()
     {
         var containsTestSynonym = await SynonymCommentProvider.EnumerateAllSynonymComments()
-            .AnyAsync(t => string.Equals(t.SynonymName.LocalName, "synonym_comment_synonym_1", StringComparison.Ordinal))
-            .ConfigureAwait(false);
+            .AnyAsync(t => string.Equals(t.SynonymName.LocalName, "synonym_comment_synonym_1", StringComparison.Ordinal));
 
         Assert.That(containsTestSynonym, Is.True);
     }
@@ -203,7 +200,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     [Test]
     public async Task GetAllSynonymComments_WhenRetrieved_ContainsSynonymComments()
     {
-        var synonymComments = await SynonymCommentProvider.GetAllSynonymComments().ConfigureAwait(false);
+        var synonymComments = await SynonymCommentProvider.GetAllSynonymComments();
 
         Assert.That(synonymComments, Is.Not.Empty);
     }
@@ -211,7 +208,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     [Test]
     public async Task GetAllSynonymComments_WhenRetrieved_ContainsTestSynonymComment()
     {
-        var synonymComments = await SynonymCommentProvider.GetAllSynonymComments().ConfigureAwait(false);
+        var synonymComments = await SynonymCommentProvider.GetAllSynonymComments();
         var containsTestSynonym = synonymComments.Any(t => string.Equals(t.SynonymName.LocalName, "synonym_comment_synonym_1", StringComparison.Ordinal));
 
         Assert.That(containsTestSynonym, Is.True);
@@ -220,7 +217,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     [Test]
     public async Task GetSynonymComments_WhenSynonymMissingComment_ReturnsNone()
     {
-        var comments = await GetSynonymCommentsAsync("synonym_comment_synonym_1").ConfigureAwait(false);
+        var comments = await GetSynonymCommentsAsync("synonym_comment_synonym_1");
 
         Assert.That(comments.Comment.IsNone, Is.True);
     }
@@ -229,7 +226,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     public async Task GetSynonymComments_WhenSynonymContainsComment_ReturnsExpectedValue()
     {
         const string expectedComment = "This is a test synonym comment.";
-        var comments = await GetSynonymCommentsAsync("synonym_comment_synonym_2").ConfigureAwait(false);
+        var comments = await GetSynonymCommentsAsync("synonym_comment_synonym_2");
 
         var synonymComment = comments.Comment.UnwrapSome();
 

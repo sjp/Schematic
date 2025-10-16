@@ -27,23 +27,23 @@ internal sealed class OracleDatabasePackageProviderTests : OracleTest
 
         await DbConnection.ExecuteAsync(@"CREATE PACKAGE db_test_package_1 AS
     PROCEDURE test_proc();
-END db_test_package_1", CancellationToken.None).ConfigureAwait(false);
+END db_test_package_1", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"CREATE PACKAGE BODY db_test_package_1 AS
     PROCEDURE test_proc() AS
     BEGIN
         SELECT 1 AS TEST_COL FROM DUAL;
     END test_proc;
-END db_test_package_1", CancellationToken.None).ConfigureAwait(false);
+END db_test_package_1", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"CREATE PACKAGE db_test_package_2 AS
     PROCEDURE test_proc();
-END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
+END db_test_package_2", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop package db_test_package_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop package db_test_package_2", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop package db_test_package_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop package db_test_package_2", CancellationToken.None);
     }
 
     private Task<IOracleDatabasePackage> GetPackageAsync(Identifier packageName)
@@ -55,7 +55,7 @@ END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
 
     private async Task<IOracleDatabasePackage> GetPackageAsyncCore(Identifier packageName)
     {
-        using (await _lock.LockAsync().ConfigureAwait(false))
+        using (await _lock.LockAsync())
         {
             if (!_packagesCache.TryGetValue(packageName, out var lazyPackage))
             {
@@ -63,7 +63,7 @@ END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
                 _packagesCache[packageName] = lazyPackage;
             }
 
-            return await lazyPackage.ConfigureAwait(false);
+            return await lazyPackage;
         }
     }
 
@@ -73,7 +73,7 @@ END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
     [Test]
     public async Task GetPackage_WhenPackagePresent_ReturnsPackage()
     {
-        var packageIsSome = await PackageProvider.GetPackage("db_test_package_1").IsSome.ConfigureAwait(false);
+        var packageIsSome = await PackageProvider.GetPackage("db_test_package_1").IsSome;
         Assert.That(packageIsSome, Is.True);
     }
 
@@ -83,7 +83,7 @@ END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
         const string packageName = "db_test_package_1";
         const string expectedPackageName = "DB_TEST_PACKAGE_1";
 
-        var package = await PackageProvider.GetPackage(packageName).UnwrapSomeAsync().ConfigureAwait(false);
+        var package = await PackageProvider.GetPackage(packageName).UnwrapSomeAsync();
 
         Assert.That(package.Name.LocalName, Is.EqualTo(expectedPackageName));
     }
@@ -94,7 +94,7 @@ END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
         var packageName = new Identifier("DB_TEST_PACKAGE_1");
         var expectedPackageName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "DB_TEST_PACKAGE_1");
 
-        var package = await PackageProvider.GetPackage(packageName).UnwrapSomeAsync().ConfigureAwait(false);
+        var package = await PackageProvider.GetPackage(packageName).UnwrapSomeAsync();
 
         Assert.That(package.Name, Is.EqualTo(expectedPackageName));
     }
@@ -105,7 +105,7 @@ END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
         var packageName = new Identifier(IdentifierDefaults.Schema, "DB_TEST_PACKAGE_1");
         var expectedPackageName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "DB_TEST_PACKAGE_1");
 
-        var package = await PackageProvider.GetPackage(packageName).UnwrapSomeAsync().ConfigureAwait(false);
+        var package = await PackageProvider.GetPackage(packageName).UnwrapSomeAsync();
 
         Assert.That(package.Name, Is.EqualTo(expectedPackageName));
     }
@@ -116,7 +116,7 @@ END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
         var packageName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "DB_TEST_PACKAGE_1");
         var expectedPackageName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "DB_TEST_PACKAGE_1");
 
-        var package = await PackageProvider.GetPackage(packageName).UnwrapSomeAsync().ConfigureAwait(false);
+        var package = await PackageProvider.GetPackage(packageName).UnwrapSomeAsync();
 
         Assert.That(package.Name, Is.EqualTo(expectedPackageName));
     }
@@ -126,7 +126,7 @@ END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
     {
         var packageName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "DB_TEST_PACKAGE_1");
 
-        var package = await PackageProvider.GetPackage(packageName).UnwrapSomeAsync().ConfigureAwait(false);
+        var package = await PackageProvider.GetPackage(packageName).UnwrapSomeAsync();
 
         Assert.That(package.Name, Is.EqualTo(packageName));
     }
@@ -137,7 +137,7 @@ END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
         var packageName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_package_1");
         var expectedPackageName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "DB_TEST_PACKAGE_1");
 
-        var package = await PackageProvider.GetPackage(packageName).UnwrapSomeAsync().ConfigureAwait(false);
+        var package = await PackageProvider.GetPackage(packageName).UnwrapSomeAsync();
 
         Assert.That(package.Name, Is.EqualTo(expectedPackageName));
     }
@@ -148,7 +148,7 @@ END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
         var packageName = new Identifier("A", "B", IdentifierDefaults.Schema, "db_test_package_1");
         var expectedPackageName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "DB_TEST_PACKAGE_1");
 
-        var package = await PackageProvider.GetPackage(packageName).UnwrapSomeAsync().ConfigureAwait(false);
+        var package = await PackageProvider.GetPackage(packageName).UnwrapSomeAsync();
 
         Assert.That(package.Name, Is.EqualTo(expectedPackageName));
     }
@@ -156,14 +156,14 @@ END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
     [Test]
     public async Task GetPackage_WhenPackageMissing_ReturnsNone()
     {
-        var packageIsNone = await PackageProvider.GetPackage("package_that_doesnt_exist").IsNone.ConfigureAwait(false);
+        var packageIsNone = await PackageProvider.GetPackage("package_that_doesnt_exist").IsNone;
         Assert.That(packageIsNone, Is.True);
     }
 
     [Test]
     public async Task EnumerateAllPackages_WhenEnumerated_ContainsPackages()
     {
-        var packages = await EnumerateAllPackages().ConfigureAwait(false);
+        var packages = await EnumerateAllPackages();
 
         Assert.That(packages, Is.Not.Empty);
     }
@@ -173,7 +173,7 @@ END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
     {
         const string expectedPackageName = "DB_TEST_PACKAGE_1";
 
-        var packages = await EnumerateAllPackages().ConfigureAwait(false);
+        var packages = await EnumerateAllPackages();
         var containsTestPackage = packages.Exists(s => string.Equals(s.Name.LocalName, expectedPackageName, StringComparison.Ordinal));
 
         Assert.That(containsTestPackage, Is.True);
@@ -182,7 +182,7 @@ END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
     [Test]
     public async Task GetAllPackages_WhenRetrieved_ContainsPackages()
     {
-        var packages = await GetAllPackages().ConfigureAwait(false);
+        var packages = await GetAllPackages();
 
         Assert.That(packages, Is.Not.Empty);
     }
@@ -192,7 +192,7 @@ END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
     {
         const string expectedPackageName = "DB_TEST_PACKAGE_1";
 
-        var packages = await GetAllPackages().ConfigureAwait(false);
+        var packages = await GetAllPackages();
         var containsTestPackage = packages.Exists(s => string.Equals(s.Name.LocalName, expectedPackageName, StringComparison.Ordinal));
 
         Assert.That(containsTestPackage, Is.True);
@@ -201,7 +201,7 @@ END db_test_package_2", CancellationToken.None).ConfigureAwait(false);
     [Test]
     public async Task Specification_GivenPackageWithBody_ReturnsCorrectValue()
     {
-        var package = await GetPackageAsync("DB_TEST_PACKAGE_1").ConfigureAwait(false);
+        var package = await GetPackageAsync("DB_TEST_PACKAGE_1");
 
         const string expectedSpecification = @"PACKAGE db_test_package_1 AS
     PROCEDURE test_proc();
@@ -213,7 +213,7 @@ END db_test_package_1";
     [Test]
     public async Task Specification_GivenPackageWithoutBody_ReturnsCorrectValue()
     {
-        var package = await GetPackageAsync("DB_TEST_PACKAGE_2").ConfigureAwait(false);
+        var package = await GetPackageAsync("DB_TEST_PACKAGE_2");
 
         const string expectedSpecification = @"PACKAGE db_test_package_2 AS
     PROCEDURE test_proc();
@@ -225,7 +225,7 @@ END db_test_package_2";
     [Test]
     public async Task Body_GivenPackageWithBody_ReturnsCorrectValue()
     {
-        var package = await GetPackageAsync("DB_TEST_PACKAGE_1").ConfigureAwait(false);
+        var package = await GetPackageAsync("DB_TEST_PACKAGE_1");
 
         const string expectedBody = @"PACKAGE BODY db_test_package_1 AS
     PROCEDURE test_proc() AS
@@ -241,7 +241,7 @@ END db_test_package_1";
     [Test]
     public async Task Body_GivenPackageWithoutBody_ReturnsNone()
     {
-        var package = await GetPackageAsync("DB_TEST_PACKAGE_2").ConfigureAwait(false);
+        var package = await GetPackageAsync("DB_TEST_PACKAGE_2");
 
         Assert.That(package.Body, OptionIs.None);
     }

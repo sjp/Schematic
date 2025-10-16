@@ -108,14 +108,12 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         var tableNames = await DbConnection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
             .Select(QualifyTableName)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return await tableNames
             .Select(tableName => LoadTableAsyncCore(tableName, queryCache, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
     }
 
     /// <summary>
@@ -214,7 +212,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             queryCache.GetUniqueKeysAsync(tableName, cancellationToken),
             queryCache.GetForeignKeysAsync(tableName, cancellationToken),
             LoadChildKeysAsync(tableName, queryCache, cancellationToken)
-        ).WhenAll().ConfigureAwait(false);
+        ).WhenAll();
 
         return new RelationalDatabaseTable(
             tableName,
@@ -251,12 +249,12 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             GetTablePrimaryKey.Sql,
             new GetTablePrimaryKey.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (primaryKeyColumns.Empty())
             return Option<IDatabaseKey>.None;
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
         var columnLookup = GetColumnLookup(columns);
 
         var groupedByName = primaryKeyColumns.GroupAsDictionary(static row => new { row.ConstraintName });
@@ -299,7 +297,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             GetTableIndexes.Sql,
             new GetTableIndexes.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (queryResult.Empty())
             return [];
@@ -316,7 +314,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         if (indexColumns.Empty())
             return [];
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
         var columnLookup = GetColumnLookup(columns);
 
         var result = new List<IDatabaseIndex>(indexColumns.Count);
@@ -381,12 +379,12 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             GetTableUniqueKeys.Sql,
             new GetTableUniqueKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (uniqueKeyColumns.Empty())
             return [];
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
         var columnLookup = GetColumnLookup(columns);
 
         var groupedByName = uniqueKeyColumns.GroupAsDictionary(static row => new { row.ConstraintName });
@@ -435,7 +433,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             GetTableChildKeys.Sql,
             new GetTableChildKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (queryResult.Empty())
             return [];
@@ -454,8 +452,8 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         if (groupedChildKeys.Empty())
             return [];
 
-        var primaryKey = await queryCache.GetPrimaryKeyAsync(tableName, cancellationToken).ConfigureAwait(false);
-        var uniqueKeys = await queryCache.GetUniqueKeysAsync(tableName, cancellationToken).ConfigureAwait(false);
+        var primaryKey = await queryCache.GetPrimaryKeyAsync(tableName, cancellationToken);
+        var uniqueKeys = await queryCache.GetUniqueKeysAsync(tableName, cancellationToken);
         var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
 
         var result = new List<IDatabaseRelationalKey>(groupedChildKeys.Count);
@@ -465,7 +463,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             // ensure we have a key to begin with
             IDatabaseKey? parentKey = null;
             if (string.Equals(groupedChildKey.Key.ParentKeyType, Constants.PrimaryKeyType, StringComparison.Ordinal))
-                await primaryKey.IfSomeAsync(k => parentKey = k).ConfigureAwait(false);
+                await primaryKey.IfSomeAsync(k => parentKey = k);
             else if (uniqueKeyLookup.ContainsKey(groupedChildKey.Key.ParentKeyName))
                 parentKey = uniqueKeyLookup[groupedChildKey.Key.ParentKeyName];
 
@@ -478,7 +476,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             await childTableNameOption
                 .BindAsync(async childTableName =>
                 {
-                    var childParentKeys = await queryCache.GetForeignKeysAsync(childTableName, cancellationToken).ConfigureAwait(false);
+                    var childParentKeys = await queryCache.GetForeignKeysAsync(childTableName, cancellationToken);
                     var parentKeyLookup = GetDatabaseKeyLookup(childParentKeys.Select(static fk => fk.ChildKey).ToList());
 
                     var childKeyName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildKeyName);
@@ -490,8 +488,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                     var relationalKey = new DatabaseRelationalKey(childTableName, childKey, tableName, parentKey, deleteAction, updateAction);
                     return OptionAsync<IDatabaseRelationalKey>.Some(relationalKey);
                 })
-                .IfSome(relationalKey => result.Add(relationalKey))
-                .ConfigureAwait(false);
+                .IfSome(result.Add);
         }
 
         return result;
@@ -509,7 +506,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             GetTableChecks.Sql,
             new GetTableChecks.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (checks.Empty())
             return [];
@@ -553,7 +550,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             GetTableParentKeys.Sql,
             new GetTableParentKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (queryResult.Empty())
             return [];
@@ -571,14 +568,14 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         if (foreignKeys.Empty())
             return [];
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
         var columnLookup = GetColumnLookup(columns);
 
         var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
         foreach (var fkey in foreignKeys)
         {
             var candidateParentTableName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentSchemaName, fkey.Key.ParentTableName);
-            var parentTableNameOption = await queryCache.GetTableNameAsync(candidateParentTableName, cancellationToken).ConfigureAwait(false);
+            var parentTableNameOption = await queryCache.GetTableNameAsync(candidateParentTableName, cancellationToken);
             Identifier? resolvedParentTableName = null;
 
             await parentTableNameOption
@@ -587,12 +584,12 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                     resolvedParentTableName = parentTableName;
                     if (string.Equals(fkey.Key.KeyType, Constants.PrimaryKeyType, StringComparison.Ordinal))
                     {
-                        var pk = await queryCache.GetPrimaryKeyAsync(parentTableName, cancellationToken).ConfigureAwait(false);
+                        var pk = await queryCache.GetPrimaryKeyAsync(parentTableName, cancellationToken);
                         return pk.ToAsync();
                     }
 
                     var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
-                    var uniqueKeys = await queryCache.GetUniqueKeysAsync(parentTableName, cancellationToken).ConfigureAwait(false);
+                    var uniqueKeys = await queryCache.GetUniqueKeysAsync(parentTableName, cancellationToken);
                     var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
 
                     return uniqueKeyLookup.ContainsKey(parentKeyName.LocalName)
@@ -617,8 +614,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
 
                     return new DatabaseRelationalKey(tableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
                 })
-                .IfSome(relationalKey => result.Add(relationalKey))
-                .ConfigureAwait(false);
+                .IfSome(result.Add);
         }
 
         return result;
@@ -682,8 +678,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
 
                 return new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement);
             })
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
     }
 
     /// <summary>
@@ -706,7 +701,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             GetTableTriggers.Sql,
             new GetTableTriggers.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (queryResult.Empty())
             return [];

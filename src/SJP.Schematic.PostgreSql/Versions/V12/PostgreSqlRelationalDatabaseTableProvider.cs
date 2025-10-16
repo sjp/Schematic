@@ -94,8 +94,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : V11.PostgreSqlRelationa
                     ? new DatabaseComputedColumn(columnName, columnType, isNullable, defaultValue, computedDefinition)
                     : new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement);
             })
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
     }
 
     /// <summary>
@@ -127,7 +126,6 @@ public class PostgreSqlRelationalDatabaseTableProvider : V11.PostgreSqlRelationa
 
                 return new PostgreSqlCheckConstraint(constraintName, definition);
             })
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
     }
 }

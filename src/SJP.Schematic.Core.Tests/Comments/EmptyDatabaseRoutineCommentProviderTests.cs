@@ -20,7 +20,7 @@ internal static class EmptyDatabaseRoutineCommentProviderTests
     {
         var provider = new EmptyDatabaseRoutineCommentProvider();
         var comment = provider.GetRoutineComments("test_routine");
-        var isNone = await comment.IsNone.ConfigureAwait(false);
+        var isNone = await comment.IsNone;
 
         Assert.That(isNone, Is.True);
     }
@@ -29,9 +29,7 @@ internal static class EmptyDatabaseRoutineCommentProviderTests
     public static async Task EnumerateAllRoutineComments_WhenInvoked_DoesNotEnumerateAnyValues()
     {
         var provider = new EmptyDatabaseRoutineCommentProvider();
-        var hasComments = await provider.EnumerateAllRoutineComments()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasComments = await provider.EnumerateAllRoutineComments().AnyAsync();
 
         Assert.That(hasComments, Is.False);
     }
@@ -40,7 +38,7 @@ internal static class EmptyDatabaseRoutineCommentProviderTests
     public static async Task GetAllRoutineComments_WhenInvoked_DoesNotContainsAnyValues()
     {
         var provider = new EmptyDatabaseRoutineCommentProvider();
-        var comments = await provider.GetAllRoutineComments().ConfigureAwait(false);
+        var comments = await provider.GetAllRoutineComments();
 
         Assert.That(comments, Is.Empty);
     }

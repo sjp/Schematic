@@ -57,7 +57,7 @@ internal sealed class RelationshipsRenderer : ITemplateRenderer
             foreach (var diagram in viewModel.Diagrams)
             {
                 var svgFilePath = Path.Combine(ExportDirectory.FullName, diagram.ContainerId + ".svg");
-                var svg = await dotRenderer.RenderToSvgAsync(diagram.Dot, cancellationToken).ConfigureAwait(false);
+                var svg = await dotRenderer.RenderToSvgAsync(diagram.Dot, cancellationToken);
 
                 // ensure links open in new window with right attrs
                 var doc = XDocument.Parse(svg, LoadOptions.PreserveWhitespace);
@@ -77,7 +77,7 @@ internal sealed class RelationshipsRenderer : ITemplateRenderer
                     svgRoot.Attribute("width")?.Remove();
                     svgRoot.Attribute("height")?.Remove();
 
-                    await svgRoot.SaveAsync(writer, SaveOptions.DisableFormatting, cancellationToken).ConfigureAwait(false);
+                    await svgRoot.SaveAsync(writer, SaveOptions.DisableFormatting, cancellationToken);
                     var svgText = writer.ToString();
                     if (svgText.StartsWith(XmlDeclaration, StringComparison.Ordinal))
                         svgText = svgText[XmlDeclaration.Length..];
@@ -93,25 +93,25 @@ internal sealed class RelationshipsRenderer : ITemplateRenderer
                 }
 
                 await using var svgFileStream = File.CreateText(svgFilePath);
-                await doc.SaveAsync(svgFileStream, SaveOptions.DisableFormatting, cancellationToken).ConfigureAwait(false);
+                await doc.SaveAsync(svgFileStream, SaveOptions.DisableFormatting, cancellationToken);
             }
         }
 
-        var renderedRelationships = await Formatter.RenderTemplateAsync(viewModel, cancellationToken).ConfigureAwait(false);
+        var renderedRelationships = await Formatter.RenderTemplateAsync(viewModel, cancellationToken);
 
         var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
             ? IdentifierDefaults.Database + " Database"
             : "Database";
         var pageTitle = "Relationships · " + databaseName;
         var relationshipContainer = new Container(renderedRelationships, pageTitle, string.Empty);
-        var renderedPage = await Formatter.RenderTemplateAsync(relationshipContainer, cancellationToken).ConfigureAwait(false);
+        var renderedPage = await Formatter.RenderTemplateAsync(relationshipContainer, cancellationToken);
 
         var outputPath = Path.Combine(ExportDirectory.FullName, "relationships.html");
 
         await using (var writer = File.CreateText(outputPath))
         {
-            await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
-            await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
+            await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken);
+            await writer.FlushAsync(cancellationToken);
         }
     }
 

@@ -51,21 +51,21 @@ internal sealed class TablesRenderer : ITemplateRenderer
         }
 
         var tablesVm = new Tables(tableViewModels);
-        var renderedMain = await Formatter.RenderTemplateAsync(tablesVm, cancellationToken).ConfigureAwait(false);
+        var renderedMain = await Formatter.RenderTemplateAsync(tablesVm, cancellationToken);
 
         var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
             ? IdentifierDefaults.Database + " Database"
             : "Database";
         var pageTitle = "Tables · " + databaseName;
         var mainContainer = new Container(renderedMain, pageTitle, string.Empty);
-        var renderedPage = await Formatter.RenderTemplateAsync(mainContainer, cancellationToken).ConfigureAwait(false);
+        var renderedPage = await Formatter.RenderTemplateAsync(mainContainer, cancellationToken);
 
         if (!ExportDirectory.Exists)
             ExportDirectory.Create();
         var outputPath = Path.Combine(ExportDirectory.FullName, "tables.html");
 
         await using var writer = File.CreateText(outputPath);
-        await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
-        await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
+        await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken);
+        await writer.FlushAsync(cancellationToken);
     }
 }

@@ -36,14 +36,14 @@ internal sealed class LintCommand : AsyncCommand<LintCommand.Settings>
 
         var dependencyProvider = _dependencyProviderFactory.GetDbDependencies(settings.ConfigFile!.FullName);
         var connection = dependencyProvider.GetSchematicConnection();
-        var database = await connection.Dialect.GetRelationalDatabaseAsync(connection, cancellationToken).ConfigureAwait(false);
+        var database = await connection.Dialect.GetRelationalDatabaseAsync(connection, cancellationToken);
 
         var ruleProvider = new DefaultRuleProvider();
         var rules = ruleProvider.GetRules(connection, RuleLevel.Information);
         var linter = new RelationalDatabaseLinter(rules);
 
         var snapshotDb = await database.SnapshotAsync(cancellationToken);
-        var dbResults = await linter.AnalyseDatabase(snapshotDb, cancellationToken).ConfigureAwait(false);
+        var dbResults = await linter.AnalyseDatabase(snapshotDb, cancellationToken);
         var groupedResults = dbResults
             .GroupAsDictionary(static r => r.RuleId, StringComparer.Ordinal)
             .ToList();

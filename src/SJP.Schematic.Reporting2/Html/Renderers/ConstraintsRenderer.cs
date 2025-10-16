@@ -69,21 +69,21 @@ internal sealed class ConstraintsRenderer : ITemplateRenderer
             foreignKeyViewModels,
             checkConstraintViewModels
         );
-        var renderedConstraints = await Formatter.RenderTemplateAsync(templateParameter, cancellationToken).ConfigureAwait(false);
+        var renderedConstraints = await Formatter.RenderTemplateAsync(templateParameter, cancellationToken);
 
         var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
             ? IdentifierDefaults.Database + " Database"
             : "Database";
         var pageTitle = "Constraints · " + databaseName;
         var constraintsContainer = new Container(renderedConstraints, pageTitle, string.Empty);
-        var renderedPage = await Formatter.RenderTemplateAsync(constraintsContainer, cancellationToken).ConfigureAwait(false);
+        var renderedPage = await Formatter.RenderTemplateAsync(constraintsContainer, cancellationToken);
 
         if (!ExportDirectory.Exists)
             ExportDirectory.Create();
         var outputPath = Path.Combine(ExportDirectory.FullName, "constraints.html");
 
         await using var writer = File.CreateText(outputPath);
-        await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
-        await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
+        await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken);
+        await writer.FlushAsync(cancellationToken);
     }
 }

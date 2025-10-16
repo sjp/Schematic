@@ -71,14 +71,12 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
         var packageNames = await Connection.QueryEnumerableAsync<GetAllPackageNames.Result>(GetAllPackageNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.PackageName))
             .Select(QualifyPackageName)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return await packageNames
             .Select(packageName => LoadPackageAsyncCore(packageName, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
     }
 
     /// <summary>
@@ -156,13 +154,13 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     private async Task<IOracleDatabasePackage> LoadPackageAsyncCore(Identifier packageName, CancellationToken cancellationToken)
     {
         if (string.Equals(packageName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal)) // fast path
-            return await LoadUserPackageAsyncCore(packageName, cancellationToken).ConfigureAwait(false);
+            return await LoadUserPackageAsyncCore(packageName, cancellationToken);
 
         var lines = await Connection.QueryAsync(
             GetPackageDefinition.Sql,
             new GetPackageDefinition.Query { SchemaName = packageName.Schema!, PackageName = packageName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         var spec = lines
             .Where(static p => string.Equals(p.RoutineType, PackageObjectType, StringComparison.Ordinal) && p.Text != null)
@@ -191,7 +189,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
             GetUserPackageDefinition.Sql,
             new GetUserPackageDefinition.Query { PackageName = packageName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         var spec = lines
             .Where(static p => string.Equals(p.RoutineType, PackageObjectType, StringComparison.Ordinal) && p.Text != null)

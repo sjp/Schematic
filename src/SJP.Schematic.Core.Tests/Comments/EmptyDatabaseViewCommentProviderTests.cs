@@ -20,7 +20,7 @@ internal static class EmptyDatabaseViewCommentProviderTests
     {
         var provider = new EmptyDatabaseViewCommentProvider();
         var comment = provider.GetViewComments("test_view");
-        var isNone = await comment.IsNone.ConfigureAwait(false);
+        var isNone = await comment.IsNone;
 
         Assert.That(isNone, Is.True);
     }
@@ -29,9 +29,7 @@ internal static class EmptyDatabaseViewCommentProviderTests
     public static async Task EnumerateAllViewComments_WhenInvoked_DoesNotEnumerateAnyValues()
     {
         var provider = new EmptyDatabaseViewCommentProvider();
-        var hasComments = await provider.EnumerateAllViewComments()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasComments = await provider.EnumerateAllViewComments().AnyAsync();
 
         Assert.That(hasComments, Is.False);
     }
@@ -40,7 +38,7 @@ internal static class EmptyDatabaseViewCommentProviderTests
     public static async Task GetAllViewComments_WhenInvoked_DoesNotContainAnyValues()
     {
         var provider = new EmptyDatabaseViewCommentProvider();
-        var comments = await provider.GetAllViewComments().ConfigureAwait(false);
+        var comments = await provider.GetAllViewComments();
 
         Assert.That(comments, Is.Empty);
     }

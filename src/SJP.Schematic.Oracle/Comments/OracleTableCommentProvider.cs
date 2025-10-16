@@ -73,14 +73,12 @@ public class OracleTableCommentProvider : IRelationalDatabaseTableCommentProvide
         var tableNames = await Connection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
             .Select(QualifyTableName)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return await tableNames
             .Select(tableName => LoadTableCommentsAsyncCore(tableName, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
     }
 
     /// <summary>
@@ -158,13 +156,13 @@ public class OracleTableCommentProvider : IRelationalDatabaseTableCommentProvide
     private async Task<IRelationalDatabaseTableComments> LoadTableCommentsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
         if (string.Equals(tableName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal)) // fast path
-            return await LoadUserTableCommentsAsyncCore(tableName, cancellationToken).ConfigureAwait(false);
+            return await LoadUserTableCommentsAsyncCore(tableName, cancellationToken);
 
         var result = await Connection.QueryAsync(
             Queries.GetTableComments.Sql,
             new GetTableComments.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         var commentData = result.Select(r => new CommentData
         {
@@ -202,7 +200,7 @@ public class OracleTableCommentProvider : IRelationalDatabaseTableCommentProvide
             GetUserTableComments.Sql,
             new GetUserTableComments.Query { TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         var commentData = result.Select(r => new CommentData
         {

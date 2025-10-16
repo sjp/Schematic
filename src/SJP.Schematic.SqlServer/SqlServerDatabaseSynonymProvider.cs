@@ -86,8 +86,7 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
 
                 return new DatabaseSynonym(synonymName, qualifiedTargetName);
             })
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
     }
 
     /// <summary>

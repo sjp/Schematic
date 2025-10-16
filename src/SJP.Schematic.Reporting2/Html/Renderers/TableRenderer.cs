@@ -65,7 +65,7 @@ internal sealed class TableRenderer : ITemplateRenderer
             foreach (var diagram in tableModel.Diagrams)
             {
                 var svgFilePath = Path.Combine(ExportDirectory.FullName, diagram.ContainerId + ".svg");
-                var svg = await dotRenderer.RenderToSvgAsync(diagram.Dot, cancellationToken).ConfigureAwait(false);
+                var svg = await dotRenderer.RenderToSvgAsync(diagram.Dot, cancellationToken);
 
                 // ensure links open in new window with right attrs
                 var doc = XDocument.Parse(svg, LoadOptions.PreserveWhitespace);
@@ -85,7 +85,7 @@ internal sealed class TableRenderer : ITemplateRenderer
                     svgRoot.Attribute("width")?.Remove();
                     svgRoot.Attribute("height")?.Remove();
 
-                    await svgRoot.SaveAsync(writer, SaveOptions.DisableFormatting, cancellationToken).ConfigureAwait(false);
+                    await svgRoot.SaveAsync(writer, SaveOptions.DisableFormatting, cancellationToken);
                     var svgText = writer.ToString();
                     if (svgText.StartsWith(XmlDeclaration, StringComparison.Ordinal))
                         svgText = svgText[XmlDeclaration.Length..];
@@ -101,26 +101,26 @@ internal sealed class TableRenderer : ITemplateRenderer
                 }
 
                 await using var svgFileStream = File.OpenWrite(svgFilePath);
-                await doc.SaveAsync(svgFileStream, SaveOptions.DisableFormatting, cancellationToken).ConfigureAwait(false);
+                await doc.SaveAsync(svgFileStream, SaveOptions.DisableFormatting, cancellationToken);
             }
 
-            var renderedTable = await Formatter.RenderTemplateAsync(tableModel, cancellationToken).ConfigureAwait(false);
+            var renderedTable = await Formatter.RenderTemplateAsync(tableModel, cancellationToken);
 
             var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                 ? IdentifierDefaults.Database + " Database"
                 : "Database";
             var pageTitle = table.Name.ToVisibleName() + " · Table · " + databaseName;
             var tableContainer = new Container(renderedTable, pageTitle, "../");
-            var renderedPage = await Formatter.RenderTemplateAsync(tableContainer, cancellationToken).ConfigureAwait(false);
+            var renderedPage = await Formatter.RenderTemplateAsync(tableContainer, cancellationToken);
 
             await using (var writer = File.CreateText(outputPath))
             {
-                await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
-                await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
+                await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken);
+                await writer.FlushAsync(cancellationToken);
             }
         });
 
-        await Task.WhenAll(tableTasks).ConfigureAwait(false);
+        await Task.WhenAll(tableTasks);
     }
 
     private const string XmlDeclaration = @"<?xml version=""1.0"" encoding=""utf-16""?>";

@@ -67,8 +67,7 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
         var messages = await tables
             .Select(t => AnalyseTableAsync(t, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
 
         return messages
             .SelectMany(_ => _)
@@ -95,7 +94,7 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
         if (nullableColumns.Empty())
             return [];
 
-        var tableHasRows = await TableHasRowsAsync(table, cancellationToken).ConfigureAwait(false);
+        var tableHasRows = await TableHasRowsAsync(table, cancellationToken);
         if (!tableHasRows)
             return [];
 
@@ -103,7 +102,7 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
 
         foreach (var nullableColumn in nullableColumns)
         {
-            var hasValue = await NullableColumnHasValueAsync(table, nullableColumn, cancellationToken).ConfigureAwait(false);
+            var hasValue = await NullableColumnHasValueAsync(table, nullableColumn, cancellationToken);
             if (hasValue)
                 continue;
 
@@ -130,8 +129,8 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
 
     private async Task<bool> TableHasRowsAsyncCore(IRelationalDatabaseTable table, CancellationToken cancellationToken)
     {
-        var sql = await GetTableHasRowsQueryAsync(table.Name).ConfigureAwait(false);
-        return await DbConnection.ExecuteScalarAsync<bool>(sql, cancellationToken).ConfigureAwait(false);
+        var sql = await GetTableHasRowsQueryAsync(table.Name);
+        return await DbConnection.ExecuteScalarAsync<bool>(sql, cancellationToken);
     }
 
     /// <summary>
@@ -154,8 +153,8 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     private async Task<bool> NullableColumnHasValueAsyncCore(IRelationalDatabaseTable table, IDatabaseColumn column,
         CancellationToken cancellationToken)
     {
-        var sql = await GetNullableColumnHasValueQueryAsync(table.Name, column.Name).ConfigureAwait(false);
-        return await DbConnection.ExecuteScalarAsync<bool>(sql, cancellationToken).ConfigureAwait(false);
+        var sql = await GetNullableColumnHasValueQueryAsync(table.Name, column.Name);
+        return await DbConnection.ExecuteScalarAsync<bool>(sql, cancellationToken);
     }
     /// <summary>
     /// Builds the message used for reporting.
@@ -186,7 +185,7 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
         var filterSql = "select 1 as dummy_col from " + quotedTableName;
         var sql = $"select case when exists ({filterSql}) then 1 else 0 end as dummy";
 
-        var suffix = await _fromQuerySuffixAsync.ConfigureAwait(false);
+        var suffix = await _fromQuerySuffixAsync;
         return suffix.IsNullOrWhiteSpace()
             ? sql
             : sql + " from " + suffix;
@@ -207,7 +206,7 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
         var filterSql = $"select 1 as exists_val from {quotedTableName} where {quotedColumnName} is not null";
         var sql = $"select case when exists ({filterSql}) then 1 else 0 end as dummy";
 
-        var suffix = await _fromQuerySuffixAsync.ConfigureAwait(false);
+        var suffix = await _fromQuerySuffixAsync;
         return suffix.IsNullOrWhiteSpace()
             ? sql
             : sql + " from " + suffix;
@@ -217,7 +216,7 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     {
         try
         {
-            _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryNoTable, CancellationToken.None).ConfigureAwait(false);
+            _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryNoTable, CancellationToken.None);
             return string.Empty;
         }
         catch
@@ -227,7 +226,7 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
 
         try
         {
-            _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryFromSysDual, CancellationToken.None).ConfigureAwait(false);
+            _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryFromSysDual, CancellationToken.None);
             return "SYS.DUAL";
         }
         catch
@@ -235,7 +234,7 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
             // Deliberately ignoring because we are testing functionality
         }
 
-        _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryFromDual, CancellationToken.None).ConfigureAwait(false);
+        _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryFromDual, CancellationToken.None);
         return "DUAL";
     }
 

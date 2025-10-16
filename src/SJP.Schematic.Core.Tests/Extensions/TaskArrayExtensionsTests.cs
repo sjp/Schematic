@@ -23,7 +23,7 @@ public static class TaskArrayExtensionsTests
             Task.FromResult(6),
         };
 
-        var results = await tasks.WhenAll().ConfigureAwait(false);
+        var results = await tasks.WhenAll();
 
         using (Assert.EnterMultipleScope())
         {

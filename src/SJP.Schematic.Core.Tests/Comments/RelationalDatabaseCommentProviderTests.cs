@@ -245,7 +245,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbTableComments = await commentProvider.EnumerateAllTableComments().ToListAsync().ConfigureAwait(false);
+        var dbTableComments = await commentProvider.EnumerateAllTableComments().ToListAsync();
         var tableName = dbTableComments.Select(t => t.TableName).Single();
 
         Assert.That(tableName, Is.EqualTo(testTableName));
@@ -277,7 +277,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbTableComments = await commentProvider.GetAllTableComments().ConfigureAwait(false);
+        var dbTableComments = await commentProvider.GetAllTableComments();
         var tableName = dbTableComments.Select(t => t.TableName).Single();
 
         Assert.That(tableName, Is.EqualTo(testTableName));
@@ -309,7 +309,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbTableComments = await commentProvider.GetTableComments(testTableName).ToOption().ConfigureAwait(false);
+        var dbTableComments = await commentProvider.GetTableComments(testTableName).ToOption();
         var tableName = dbTableComments.Match(t => t.TableName.LocalName, string.Empty);
 
         using (Assert.EnterMultipleScope())
@@ -345,7 +345,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbTable = await commentProvider.GetTableComments("missing_table_name").ToOption().ConfigureAwait(false);
+        var dbTable = await commentProvider.GetTableComments("missing_table_name").ToOption();
 
         Assert.That(dbTable, OptionIs.None);
     }
@@ -375,7 +375,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbViewComments = await commentProvider.EnumerateAllViewComments().ToListAsync().ConfigureAwait(false);
+        var dbViewComments = await commentProvider.EnumerateAllViewComments().ToListAsync();
         var viewName = dbViewComments.Select(v => v.ViewName).Single();
 
         Assert.That(viewName, Is.EqualTo(testViewName));
@@ -406,7 +406,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbViewComments = await commentProvider.GetAllViewComments().ConfigureAwait(false);
+        var dbViewComments = await commentProvider.GetAllViewComments();
         var viewName = dbViewComments.Select(v => v.ViewName).Single();
 
         Assert.That(viewName, Is.EqualTo(testViewName));
@@ -439,7 +439,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbViewComments = await commentProvider.GetViewComments(testViewName).ToOption().ConfigureAwait(false);
+        var dbViewComments = await commentProvider.GetViewComments(testViewName).ToOption();
         var viewName = dbViewComments.Match(v => v.ViewName.LocalName, string.Empty);
 
         using (Assert.EnterMultipleScope())
@@ -476,7 +476,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbView = await commentProvider.GetViewComments("missing_view_name").ToOption().ConfigureAwait(false);
+        var dbView = await commentProvider.GetViewComments("missing_view_name").ToOption();
 
         Assert.That(dbView, OptionIs.None);
     }
@@ -506,7 +506,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbSequences = await commentProvider.EnumerateAllSequenceComments().ToListAsync().ConfigureAwait(false);
+        var dbSequences = await commentProvider.EnumerateAllSequenceComments().ToListAsync();
         var sequenceName = dbSequences.Select(s => s.SequenceName).Single();
 
         Assert.That(sequenceName, Is.EqualTo(testSequenceName));
@@ -537,7 +537,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbSequences = await commentProvider.GetAllSequenceComments().ConfigureAwait(false);
+        var dbSequences = await commentProvider.GetAllSequenceComments();
         var sequenceName = dbSequences.Select(s => s.SequenceName).Single();
 
         Assert.That(sequenceName, Is.EqualTo(testSequenceName));
@@ -570,7 +570,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbSequence = await commentProvider.GetSequenceComments(testSequenceName).ToOption().ConfigureAwait(false);
+        var dbSequence = await commentProvider.GetSequenceComments(testSequenceName).ToOption();
         var sequenceName = dbSequence.Match(s => s.SequenceName.LocalName, string.Empty);
 
         using (Assert.EnterMultipleScope())
@@ -607,7 +607,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbSequence = await commentProvider.GetSequenceComments("missing_sequence_name").ToOption().ConfigureAwait(false);
+        var dbSequence = await commentProvider.GetSequenceComments("missing_sequence_name").ToOption();
 
         Assert.That(dbSequence, OptionIs.None);
     }
@@ -637,7 +637,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbSynonyms = await commentProvider.EnumerateAllSynonymComments().ToListAsync().ConfigureAwait(false);
+        var dbSynonyms = await commentProvider.EnumerateAllSynonymComments().ToListAsync();
         var synonymName = dbSynonyms.Select(s => s.SynonymName).Single();
 
         Assert.That(synonymName, Is.EqualTo(testSynonymName));
@@ -668,7 +668,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbSynonyms = await commentProvider.GetAllSynonymComments().ConfigureAwait(false);
+        var dbSynonyms = await commentProvider.GetAllSynonymComments();
         var synonymName = dbSynonyms.Select(s => s.SynonymName).Single();
 
         Assert.That(synonymName, Is.EqualTo(testSynonymName));
@@ -701,7 +701,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbSynonym = await commentProvider.GetSynonymComments(testSynonymName).ToOption().ConfigureAwait(false);
+        var dbSynonym = await commentProvider.GetSynonymComments(testSynonymName).ToOption();
         var synonymName = dbSynonym.Match(s => s.SynonymName.LocalName, string.Empty);
 
         using (Assert.EnterMultipleScope())
@@ -738,7 +738,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbSynonym = await commentProvider.GetSynonymComments("missing_synonym_name").ToOption().ConfigureAwait(false);
+        var dbSynonym = await commentProvider.GetSynonymComments("missing_synonym_name").ToOption();
 
         Assert.That(dbSynonym, OptionIs.None);
     }
@@ -768,7 +768,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbRoutines = await commentProvider.EnumerateAllRoutineComments().ToListAsync().ConfigureAwait(false);
+        var dbRoutines = await commentProvider.EnumerateAllRoutineComments().ToListAsync();
         var routineName = dbRoutines.Select(r => r.RoutineName).Single();
 
         Assert.That(routineName, Is.EqualTo(testRoutineName));
@@ -799,7 +799,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbRoutines = await commentProvider.GetAllRoutineComments().ConfigureAwait(false);
+        var dbRoutines = await commentProvider.GetAllRoutineComments();
         var routineName = dbRoutines.Select(r => r.RoutineName).Single();
 
         Assert.That(routineName, Is.EqualTo(testRoutineName));
@@ -831,7 +831,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbRoutine = await commentProvider.GetRoutineComments(testRoutineName).ToOption().ConfigureAwait(false);
+        var dbRoutine = await commentProvider.GetRoutineComments(testRoutineName).ToOption();
         var routineName = dbRoutine.Match(r => r.RoutineName.LocalName, string.Empty);
 
         using (Assert.EnterMultipleScope())
@@ -867,7 +867,7 @@ internal static class RelationalDatabaseCommentProviderTests
             routineComments
         );
 
-        var dbRoutine = await commentProvider.GetRoutineComments("missing_routine_name").ToOption().ConfigureAwait(false);
+        var dbRoutine = await commentProvider.GetRoutineComments("missing_routine_name").ToOption();
 
         Assert.That(dbRoutine, OptionIs.None);
     }

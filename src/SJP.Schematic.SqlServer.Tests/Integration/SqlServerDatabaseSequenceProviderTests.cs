@@ -18,33 +18,33 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_2 start with 20", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_3 start with 100 increment by 100", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_4 start with 1000 minvalue -99", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_5 start with 1000 no minvalue", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_6 start with 1 maxvalue 333", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_7 start with 1 no maxvalue", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_8 cycle", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_9 no cycle", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_10 cache 10", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_11 no cache", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_2 start with 20", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_3 start with 100 increment by 100", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_4 start with 1000 minvalue -99", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_5 start with 1000 no minvalue", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_6 start with 1 maxvalue 333", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_7 start with 1 no maxvalue", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_8 cycle", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_9 no cycle", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_10 cache 10", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_11 no cache", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_2", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_3", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_4", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_5", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_6", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_7", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_8", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_9", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_10", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_11", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_3", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_4", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_5", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_6", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_7", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_8", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_9", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_10", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_11", CancellationToken.None);
     }
 
     private Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)
@@ -56,7 +56,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
 
     private async Task<IDatabaseSequence> GetSequenceAsyncCore(Identifier sequenceName)
     {
-        using (await _lock.LockAsync().ConfigureAwait(false))
+        using (await _lock.LockAsync())
         {
             if (!_sequencesCache.TryGetValue(sequenceName, out var lazySequence))
             {
@@ -64,7 +64,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
                 _sequencesCache[sequenceName] = lazySequence;
             }
 
-            return await lazySequence.ConfigureAwait(false);
+            return await lazySequence;
         }
     }
 
@@ -74,7 +74,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     [Test]
     public async Task GetSequence_WhenSequencePresent_ReturnsSequence()
     {
-        var sequenceIsSome = await SequenceProvider.GetSequence("db_test_sequence_1").IsSome.ConfigureAwait(false);
+        var sequenceIsSome = await SequenceProvider.GetSequence("db_test_sequence_1").IsSome;
         Assert.That(sequenceIsSome, Is.True);
     }
 
@@ -82,7 +82,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     public async Task GetSequence_WhenSequencePresent_ReturnsSequenceWithCorrectName()
     {
         const string sequenceName = "db_test_sequence_1";
-        var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
+        var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync();
 
         Assert.That(sequence.Name.LocalName, Is.EqualTo(sequenceName));
     }
@@ -93,7 +93,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
         var sequenceName = new Identifier("db_test_sequence_1");
         var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
 
-        var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
+        var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync();
 
         Assert.That(sequence.Name, Is.EqualTo(expectedSequenceName));
     }
@@ -104,7 +104,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
         var sequenceName = new Identifier(IdentifierDefaults.Schema, "db_test_sequence_1");
         var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
 
-        var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
+        var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync();
 
         Assert.That(sequence.Name, Is.EqualTo(expectedSequenceName));
     }
@@ -115,7 +115,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
         var sequenceName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
         var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
 
-        var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
+        var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync();
 
         Assert.That(sequence.Name, Is.EqualTo(expectedSequenceName));
     }
@@ -125,7 +125,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     {
         var sequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
 
-        var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
+        var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync();
 
         Assert.That(sequence.Name, Is.EqualTo(sequenceName));
     }
@@ -136,7 +136,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
         var sequenceName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
         var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
 
-        var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
+        var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync();
 
         Assert.That(sequence.Name, Is.EqualTo(expectedSequenceName));
     }
@@ -147,7 +147,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
         var sequenceName = new Identifier("A", "B", IdentifierDefaults.Schema, "db_test_sequence_1");
         var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_sequence_1");
 
-        var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync().ConfigureAwait(false);
+        var sequence = await SequenceProvider.GetSequence(sequenceName).UnwrapSomeAsync();
 
         Assert.That(sequence.Name, Is.EqualTo(expectedSequenceName));
     }
@@ -155,7 +155,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     [Test]
     public async Task GetSequence_WhenSequenceMissing_ReturnsNone()
     {
-        var sequenceIsNone = await SequenceProvider.GetSequence("sequence_that_doesnt_exist").IsNone.ConfigureAwait(false);
+        var sequenceIsNone = await SequenceProvider.GetSequence("sequence_that_doesnt_exist").IsNone;
         Assert.That(sequenceIsNone, Is.True);
     }
 
@@ -163,7 +163,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     public async Task GetSequence_WhenSequencePresentGivenLocalNameWithDifferentCase_ReturnsMatchingName()
     {
         var inputName = new Identifier("DB_TEST_sequence_1");
-        var sequence = await SequenceProvider.GetSequence(inputName).UnwrapSomeAsync().ConfigureAwait(false);
+        var sequence = await SequenceProvider.GetSequence(inputName).UnwrapSomeAsync();
 
         var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, sequence.Name.LocalName);
         Assert.That(equalNames, Is.True);
@@ -173,7 +173,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     public async Task GetSequence_WhenSequencePresentGivenSchemaAndLocalNameWithDifferentCase_ReturnsMatchingName()
     {
         var inputName = new Identifier("Dbo", "DB_TEST_sequence_1");
-        var sequence = await SequenceProvider.GetSequence(inputName).UnwrapSomeAsync().ConfigureAwait(false);
+        var sequence = await SequenceProvider.GetSequence(inputName).UnwrapSomeAsync();
 
         var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, sequence.Name.Schema)
             && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, sequence.Name.LocalName);
@@ -183,9 +183,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     [Test]
     public async Task EnumerateAllSequences_WhenEnumerated_ContainsSequences()
     {
-        var hasSequences = await SequenceProvider.EnumerateAllSequences()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasSequences = await SequenceProvider.EnumerateAllSequences().AnyAsync();
 
         Assert.That(hasSequences, Is.True);
     }
@@ -194,8 +192,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     public async Task EnumerateAllSequences_WhenEnumerated_ContainsTestSequence()
     {
         var containsTestSequence = await SequenceProvider.EnumerateAllSequences()
-            .AnyAsync(s => string.Equals(s.Name.LocalName, "db_test_sequence_1", StringComparison.Ordinal))
-            .ConfigureAwait(false);
+            .AnyAsync(s => string.Equals(s.Name.LocalName, "db_test_sequence_1", StringComparison.Ordinal));
 
         Assert.That(containsTestSequence, Is.True);
     }
@@ -203,7 +200,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     [Test]
     public async Task GetAllSequences_WhenRetrieved_ContainsSequences()
     {
-        var sequences = await SequenceProvider.GetAllSequences().ConfigureAwait(false);
+        var sequences = await SequenceProvider.GetAllSequences();
 
         Assert.That(sequences, Is.Not.Empty);
     }
@@ -211,7 +208,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     [Test]
     public async Task GetAllSequences_WhenRetrieved_ContainsTestSequence()
     {
-        var sequences = await SequenceProvider.GetAllSequences().ConfigureAwait(false);
+        var sequences = await SequenceProvider.GetAllSequences();
         var containsTestSequence = sequences.Any(s => string.Equals(s.Name.LocalName, "db_test_sequence_1", StringComparison.Ordinal));
 
         Assert.That(containsTestSequence, Is.True);
@@ -220,7 +217,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     [Test]
     public async Task Start_GivenDefaultSequence_ReturnsLongMinValue()
     {
-        var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
+        var sequence = await GetSequenceAsync("db_test_sequence_1");
 
         Assert.That(sequence.Start, Is.EqualTo(long.MinValue));
     }
@@ -228,7 +225,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     [Test]
     public async Task Start_GivenSequenceWithCustomStart_ReturnsCorrectValue()
     {
-        var sequence = await GetSequenceAsync("db_test_sequence_2").ConfigureAwait(false);
+        var sequence = await GetSequenceAsync("db_test_sequence_2");
 
         Assert.That(sequence.Start, Is.EqualTo(20));
     }
@@ -236,7 +233,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     [Test]
     public async Task Increment_GivenDefaultSequence_ReturnsOne()
     {
-        var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
+        var sequence = await GetSequenceAsync("db_test_sequence_1");
 
         Assert.That(sequence.Increment, Is.EqualTo(1));
     }
@@ -244,7 +241,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     [Test]
     public async Task Increment_GivenSequenceWithCustomIncrement_ReturnsCorrectValue()
     {
-        var sequence = await GetSequenceAsync("db_test_sequence_3").ConfigureAwait(false);
+        var sequence = await GetSequenceAsync("db_test_sequence_3");
 
         Assert.That(sequence.Increment, Is.EqualTo(100));
     }
@@ -252,7 +249,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     [Test]
     public async Task MinValue_GivenDefaultSequence_ReturnsLongMinValue()
     {
-        var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
+        var sequence = await GetSequenceAsync("db_test_sequence_1");
 
         Assert.That(sequence.MinValue.UnwrapSome(), Is.EqualTo(long.MinValue));
     }
@@ -260,7 +257,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     [Test]
     public async Task MinValue_GivenSequenceWithCustomMinValue_ReturnsCorrectValue()
     {
-        var sequence = await GetSequenceAsync("db_test_sequence_4").ConfigureAwait(false);
+        var sequence = await GetSequenceAsync("db_test_sequence_4");
 
         Assert.That(sequence.MinValue.UnwrapSome(), Is.EqualTo(-99));
     }
@@ -268,7 +265,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     [Test]
     public async Task MinValue_GivenSequenceWithNoMinValue_ReturnsLongMinValue()
     {
-        var sequence = await GetSequenceAsync("db_test_sequence_5").ConfigureAwait(false);
+        var sequence = await GetSequenceAsync("db_test_sequence_5");
 
         Assert.That(sequence.MinValue.UnwrapSome(), Is.EqualTo(long.MinValue));
     }
@@ -276,7 +273,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     [Test]
     public async Task MaxValue_GivenDefaultSequence_ReturnsLongMaxValue()
     {
-        var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
+        var sequence = await GetSequenceAsync("db_test_sequence_1");
 
         Assert.That(sequence.MaxValue.UnwrapSome(), Is.EqualTo(long.MaxValue));
     }
@@ -284,7 +281,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     [Test]
     public async Task MaxValue_GivenSequenceWithCustomMaxValue_ReturnsCorrectValue()
     {
-        var sequence = await GetSequenceAsync("db_test_sequence_6").ConfigureAwait(false);
+        var sequence = await GetSequenceAsync("db_test_sequence_6");
 
         Assert.That(sequence.MaxValue.UnwrapSome(), Is.EqualTo(333));
     }
@@ -292,7 +289,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     [Test]
     public async Task MaxValue_GivenSequenceWithNoMaxValue_ReturnsLongMaxValue()
     {
-        var sequence = await GetSequenceAsync("db_test_sequence_7").ConfigureAwait(false);
+        var sequence = await GetSequenceAsync("db_test_sequence_7");
 
         Assert.That(sequence.MaxValue.UnwrapSome(), Is.EqualTo(long.MaxValue));
     }
@@ -300,7 +297,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     [Test]
     public async Task Cycle_GivenDefaultSequence_ReturnsTrue()
     {
-        var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
+        var sequence = await GetSequenceAsync("db_test_sequence_1");
 
         Assert.That(sequence.Cycle, Is.False);
     }
@@ -308,7 +305,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     [Test]
     public async Task Cycle_GivenSequenceWithCycle_ReturnsTrue()
     {
-        var sequence = await GetSequenceAsync("db_test_sequence_8").ConfigureAwait(false);
+        var sequence = await GetSequenceAsync("db_test_sequence_8");
 
         Assert.That(sequence.Cycle, Is.True);
     }
@@ -316,7 +313,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     [Test]
     public async Task Cycle_GivenSequenceWithNoCycle_ReturnsTrue()
     {
-        var sequence = await GetSequenceAsync("db_test_sequence_9").ConfigureAwait(false);
+        var sequence = await GetSequenceAsync("db_test_sequence_9");
 
         Assert.That(sequence.Cycle, Is.False);
     }
@@ -324,7 +321,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     [Test]
     public async Task Cache_GivenDefaultSequence_ReturnsNegativeOne()
     {
-        var sequence = await GetSequenceAsync("db_test_sequence_1").ConfigureAwait(false);
+        var sequence = await GetSequenceAsync("db_test_sequence_1");
 
         Assert.That(sequence.Cache, Is.EqualTo(-1));
     }
@@ -332,7 +329,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     [Test]
     public async Task Cache_GivenSequenceWithCacheSet_ReturnsCorrectValue()
     {
-        var sequence = await GetSequenceAsync("db_test_sequence_10").ConfigureAwait(false);
+        var sequence = await GetSequenceAsync("db_test_sequence_10");
 
         Assert.That(sequence.Cache, Is.EqualTo(10));
     }
@@ -340,7 +337,7 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     [Test]
     public async Task Cache_GivenSequenceWithNoCacheSet_ReturnsCorrectValue()
     {
-        var sequence = await GetSequenceAsync("db_test_sequence_11").ConfigureAwait(false);
+        var sequence = await GetSequenceAsync("db_test_sequence_11");
 
         Assert.That(sequence.Cache, Is.Zero);
     }

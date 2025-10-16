@@ -55,21 +55,21 @@ internal sealed class OrphansRenderer : ITemplateRenderer
 ;
 
         var templateParameter = new Orphans(orphanedTableViewModels);
-        var renderedOrphans = await Formatter.RenderTemplateAsync(templateParameter, cancellationToken).ConfigureAwait(false);
+        var renderedOrphans = await Formatter.RenderTemplateAsync(templateParameter, cancellationToken);
 
         var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
             ? IdentifierDefaults.Database + " Database"
             : "Database";
         var pageTitle = "Orphan Tables · " + databaseName;
         var orphansContainer = new Container(renderedOrphans, pageTitle, string.Empty);
-        var renderedPage = await Formatter.RenderTemplateAsync(orphansContainer, cancellationToken).ConfigureAwait(false);
+        var renderedPage = await Formatter.RenderTemplateAsync(orphansContainer, cancellationToken);
 
         if (!ExportDirectory.Exists)
             ExportDirectory.Create();
         var outputPath = Path.Combine(ExportDirectory.FullName, "orphans.html");
 
         await using var writer = File.CreateText(outputPath);
-        await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
-        await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
+        await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken);
+        await writer.FlushAsync(cancellationToken);
     }
 }

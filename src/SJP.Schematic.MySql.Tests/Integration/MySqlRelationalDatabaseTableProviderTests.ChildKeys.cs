@@ -12,7 +12,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task ChildKeys_WhenGivenTableWithNoChildKeys_ReturnsEmptyCollection()
     {
-        var table = await GetTableAsync("table_test_table_2").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_2");
 
         Assert.That(table.ChildKeys, Is.Empty);
     }
@@ -20,7 +20,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectNames()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_16", StringComparison.Ordinal));
 
         using (Assert.EnterMultipleScope())
@@ -33,7 +33,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectKeyTypes()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_16", StringComparison.Ordinal));
 
         using (Assert.EnterMultipleScope())
@@ -46,7 +46,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectTables()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_16", StringComparison.Ordinal));
 
         using (Assert.EnterMultipleScope())
@@ -59,7 +59,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectColumns()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_16", StringComparison.Ordinal));
 
         var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
@@ -78,7 +78,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithDefaultUpdateAction_ReturnsUpdateActionAsRestrictOrNoAction()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_16", StringComparison.Ordinal));
 
@@ -89,7 +89,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithCascadeUpdateAction_ReturnsUpdateActionAsCascade()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_18", StringComparison.Ordinal));
 
@@ -99,7 +99,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithSetNullUpdateAction_ReturnsUpdateActionAsSetNull()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_19", StringComparison.Ordinal));
 
@@ -109,7 +109,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithDefaultDeleteAction_ReturnsDeleteActionAsRestrictOrNoAction()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_16", StringComparison.Ordinal));
 
@@ -120,7 +120,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithCascadeDeleteAction_ReturnsDeleteActionAsCascade()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_24", StringComparison.Ordinal));
 
@@ -130,7 +130,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKeyWithSetNullDeleteAction_ReturnsDeleteActionAsSetNull()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_25", StringComparison.Ordinal));
 
@@ -140,7 +140,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToPrimaryKey_ReturnsIsEnabledTrue()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_16", StringComparison.Ordinal));
 
@@ -150,7 +150,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectNames()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_17", StringComparison.Ordinal));
 
         using (Assert.EnterMultipleScope())
@@ -163,7 +163,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectKeyTypes()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_17", StringComparison.Ordinal));
 
         using (Assert.EnterMultipleScope())
@@ -176,7 +176,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectTables()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_17", StringComparison.Ordinal));
 
         using (Assert.EnterMultipleScope())
@@ -189,7 +189,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectColumns()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_17", StringComparison.Ordinal));
 
         var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
@@ -208,7 +208,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithDefaultUpdateAction_ReturnsUpdateActionAsRestrictOrNoAction()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_17", StringComparison.Ordinal));
 
@@ -219,7 +219,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithCascadeUpdateAction_ReturnsUpdateActionAsCascade()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_21", StringComparison.Ordinal));
 
@@ -229,7 +229,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithSetNullUpdateAction_ReturnsUpdateActionAsSetNull()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_22", StringComparison.Ordinal));
 
@@ -239,7 +239,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithDefaultDeleteAction_ReturnsDeleteActionAsRestrict()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_17", StringComparison.Ordinal));
 
@@ -250,7 +250,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithCascadeDeleteAction_ReturnsDeleteActionAsCascade()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_27", StringComparison.Ordinal));
 
@@ -260,7 +260,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKeyWithSetNullDeleteAction_ReturnsDeleteActionAsSetNull()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_28", StringComparison.Ordinal));
 
@@ -270,7 +270,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueKey_ReturnsIsEnabledTrue()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var childKeys = table.ChildKeys;
         var foreignKey = childKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_17", StringComparison.Ordinal));
 

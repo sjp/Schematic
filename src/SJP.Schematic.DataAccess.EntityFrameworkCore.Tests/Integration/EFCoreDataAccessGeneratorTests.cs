@@ -28,15 +28,15 @@ internal sealed class EFCoreDataAccessGeneratorTests : SqliteTest
     testblob blob default X'DEADBEEF',
     testdatetime datetime default CURRENT_TIMESTAMP,
     teststring text default 'test'
-)", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create view dal_test_view_1 as select * from dal_test_table_1", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create view dal_test_view_1 as select * from dal_test_table_1", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop view dal_test_view_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table dal_test_table_1", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop view dal_test_view_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table dal_test_table_1", CancellationToken.None);
     }
 
     [Test]
@@ -61,7 +61,7 @@ internal sealed class EFCoreDataAccessGeneratorTests : SqliteTest
 
         var nameTranslator = new PascalCaseNameTranslator();
         var generator = new EFCoreDataAccessGenerator(mockFs, Database, new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults), nameTranslator);
-        await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
+        await generator.GenerateAsync(projectPath, TestNamespace);
 
         using (Assert.EnterMultipleScope())
         {
@@ -86,9 +86,9 @@ internal sealed class EFCoreDataAccessGeneratorTests : SqliteTest
         var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
         var nameTranslator = new PascalCaseNameTranslator();
         var generator = new EFCoreDataAccessGenerator(fileSystem, database, commentProvider, nameTranslator);
-        await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
+        await generator.GenerateAsync(projectPath, TestNamespace);
 
-        var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
+        var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath);
         Assert.That(buildsSuccessfully, Is.True);
     }
 
@@ -102,9 +102,9 @@ internal sealed class EFCoreDataAccessGeneratorTests : SqliteTest
         var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
         var nameTranslator = new PascalCaseNameTranslator();
         var generator = new EFCoreDataAccessGenerator(fileSystem, Database, commentProvider, nameTranslator);
-        await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
+        await generator.GenerateAsync(projectPath, TestNamespace);
 
-        var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
+        var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath);
         Assert.That(buildsSuccessfully, Is.True);
     }
 
@@ -133,7 +133,7 @@ internal sealed class EFCoreDataAccessGeneratorTests : SqliteTest
 
         using var process = new Process { StartInfo = startInfo };
         process.Start();
-        await process.WaitForExitAsync().ConfigureAwait(false);
+        await process.WaitForExitAsync();
 
         return process.ExitCode == ExitSuccess;
     }

@@ -19,20 +19,20 @@ internal sealed class ForeignKeySelfReferenceRuleTests : SqliteTest
 create table table_without_self_referencing_columns_1 (
     column_1 integer,
     column_2 integer
-)", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
 
         // no self referencing foreign keys
         await DbConnection.ExecuteAsync(@"
 create table table_without_self_referencing_columns_2_parent (
     column_1 integer not null primary key autoincrement,
     column_2 integer
-)", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 create table table_without_self_referencing_columns_2 (
     column_1 integer not null primary key autoincrement,
     column_2 integer,
     constraint test_fk_1 foreign key (column_2) references table_without_self_referencing_columns_2_parent (column_1)
-)", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
 
         // no rows for same-row self-reference
         await DbConnection.ExecuteAsync(@"
@@ -40,8 +40,8 @@ create table table_without_self_referencing_columns_3 (
     column_1 integer not null primary key autoincrement,
     column_2 integer null,
     constraint self_ref_fk_1 foreign key (column_2) references table_without_self_referencing_columns_3 (column_1)
-)", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("insert into table_without_self_referencing_columns_3 (column_1, column_2) values (1, NULL)", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("insert into table_without_self_referencing_columns_3 (column_1, column_2) values (1, NULL)", CancellationToken.None);
 
         // rows containing a same-row self-reference present
         await DbConnection.ExecuteAsync(@"
@@ -49,18 +49,18 @@ create table table_with_self_referencing_columns_1 (
     column_1 integer not null primary key autoincrement,
     column_2 integer,
     constraint self_ref_fk_1 foreign key (column_2) references table_with_self_referencing_columns_1 (column_1)
-)", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("insert into table_with_self_referencing_columns_1 (column_1, column_2) values (1, 1)", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("insert into table_with_self_referencing_columns_1 (column_1, column_2) values (1, 1)", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table table_without_self_referencing_columns_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table table_without_self_referencing_columns_2", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table table_without_self_referencing_columns_2_parent", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table table_without_self_referencing_columns_3", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table table_with_self_referencing_columns_1", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table table_without_self_referencing_columns_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_without_self_referencing_columns_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_without_self_referencing_columns_2_parent", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_without_self_referencing_columns_3", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_with_self_referencing_columns_1", CancellationToken.None);
     }
 
     [Test]
@@ -95,10 +95,10 @@ create table table_with_self_referencing_columns_1 (
 
         var tables = new[]
         {
-            await database.GetTable("table_without_self_referencing_columns_1").UnwrapSomeAsync().ConfigureAwait(false),
+            await database.GetTable("table_without_self_referencing_columns_1").UnwrapSomeAsync(),
         };
 
-        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Empty);
     }
@@ -111,11 +111,11 @@ create table table_with_self_referencing_columns_1 (
 
         var tables = new[]
         {
-            await database.GetTable("table_without_self_referencing_columns_2_parent").UnwrapSomeAsync().ConfigureAwait(false),
-            await database.GetTable("table_without_self_referencing_columns_2").UnwrapSomeAsync().ConfigureAwait(false),
+            await database.GetTable("table_without_self_referencing_columns_2_parent").UnwrapSomeAsync(),
+            await database.GetTable("table_without_self_referencing_columns_2").UnwrapSomeAsync(),
         };
 
-        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Empty);
     }
@@ -128,10 +128,10 @@ create table table_with_self_referencing_columns_1 (
 
         var tables = new[]
         {
-            await database.GetTable("table_without_self_referencing_columns_3").UnwrapSomeAsync().ConfigureAwait(false),
+            await database.GetTable("table_without_self_referencing_columns_3").UnwrapSomeAsync(),
         };
 
-        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Empty);
     }
@@ -144,10 +144,10 @@ create table table_with_self_referencing_columns_1 (
 
         var tables = new[]
         {
-            await database.GetTable("table_with_self_referencing_columns_1").UnwrapSomeAsync().ConfigureAwait(false),
+            await database.GetTable("table_with_self_referencing_columns_1").UnwrapSomeAsync(),
         };
 
-        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Not.Empty);
     }

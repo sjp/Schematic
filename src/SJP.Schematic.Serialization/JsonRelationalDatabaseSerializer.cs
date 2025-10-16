@@ -14,13 +14,13 @@ public class JsonRelationalDatabaseSerializer : IRelationalDatabaseSerializer
     public async Task SerializeAsync(Stream stream, IRelationalDatabase database, CancellationToken cancellationToken = default)
     {
         var dbMapper = new RelationalDatabaseMapper();
-        var dto = await dbMapper.MapAsync(database, cancellationToken).ConfigureAwait(false);
-        await JsonSerializer.SerializeAsync(stream, dto, _settings.Value, cancellationToken).ConfigureAwait(false);
+        var dto = await dbMapper.MapAsync(database, cancellationToken);
+        await JsonSerializer.SerializeAsync(stream, dto, _settings.Value, cancellationToken);
     }
 
     public async Task<IRelationalDatabase> DeserializeAsync(Stream stream, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken = default)
     {
-        var dto = await JsonSerializer.DeserializeAsync<Dto.RelationalDatabase>(stream, _settings.Value, cancellationToken).ConfigureAwait(false);
+        var dto = await JsonSerializer.DeserializeAsync<Dto.RelationalDatabase>(stream, _settings.Value, cancellationToken);
         if (dto == null)
             throw new InvalidOperationException("Unable to parse the given JSON as a database definition.");
 

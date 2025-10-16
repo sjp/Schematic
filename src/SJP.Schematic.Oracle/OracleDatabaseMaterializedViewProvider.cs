@@ -83,14 +83,12 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
         var viewNames = await DbConnection.QueryEnumerableAsync<GetAllMaterializedViewNames.Result>(GetAllMaterializedViewNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return await viewNames
             .Select(viewName => LoadViewAsyncCore(viewName, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
     }
 
     /// <summary>
@@ -170,7 +168,7 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
         var (columns, definition) = await (
             LoadColumnsAsync(viewName, cancellationToken),
             LoadDefinitionAsync(viewName, cancellationToken)
-        ).WhenAll().ConfigureAwait(false);
+        ).WhenAll();
 
         return new DatabaseMaterializedView(viewName, definition, columns);
     }
@@ -212,13 +210,13 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
             GetMaterializedViewColumns.Sql,
             new GetMaterializedViewColumns.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         var columnNames = query
             .Where(static row => row.ColumnName != null)
             .Select(static row => row.ColumnName!)
             .ToList();
-        var notNullableColumnNames = await GetNotNullConstrainedColumnsAsync(viewName, columnNames, cancellationToken).ConfigureAwait(false);
+        var notNullableColumnNames = await GetNotNullConstrainedColumnsAsync(viewName, columnNames, cancellationToken);
         var result = new List<IDatabaseColumn>();
 
         foreach (var row in query)
@@ -272,7 +270,7 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
             GetMaterializedViewChecks.Sql,
             new GetMaterializedViewChecks.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (checks.Empty())
             return [];

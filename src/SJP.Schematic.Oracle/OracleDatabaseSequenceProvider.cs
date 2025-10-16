@@ -104,8 +104,7 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
                     row.CacheSize
                 );
             })
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
     }
 
     /// <summary>

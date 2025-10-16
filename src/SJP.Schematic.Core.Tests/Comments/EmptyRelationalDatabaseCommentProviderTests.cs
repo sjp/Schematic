@@ -28,7 +28,7 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
         var comment = provider.GetTableComments("test_table");
-        var isNone = await comment.IsNone.ConfigureAwait(false);
+        var isNone = await comment.IsNone;
 
         Assert.That(isNone, Is.True);
     }
@@ -37,7 +37,7 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     public static async Task EnumerateAllTableComments_WhenInvoked_DoesNotEnumerateAnyValues()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
-        var hasComments = await provider.EnumerateAllTableComments().AnyAsync().ConfigureAwait(false);
+        var hasComments = await provider.EnumerateAllTableComments().AnyAsync();
 
         Assert.That(hasComments, Is.False);
     }
@@ -46,7 +46,7 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     public static async Task GetAllTableComments_WhenInvoked_DoesNotContainAnyValues()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
-        var comments = await provider.GetAllTableComments().ConfigureAwait(false);
+        var comments = await provider.GetAllTableComments();
 
         Assert.That(comments, Is.Empty);
     }
@@ -63,7 +63,7 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
         var comment = provider.GetViewComments("test_view");
-        var isNone = await comment.IsNone.ConfigureAwait(false);
+        var isNone = await comment.IsNone;
 
         Assert.That(isNone, Is.True);
     }
@@ -72,9 +72,7 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     public static async Task EnumerateAllViewComments_WhenInvoked_DoesNotEnumerateAnyValues()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
-        var hasComments = await provider.EnumerateAllViewComments()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasComments = await provider.EnumerateAllViewComments().AnyAsync();
 
         Assert.That(hasComments, Is.False);
     }
@@ -83,7 +81,7 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     public static async Task GetAllViewComments_WhenInvoked_DoesNotContainAnyValues()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
-        var comments = await provider.GetAllViewComments().ConfigureAwait(false);
+        var comments = await provider.GetAllViewComments();
 
         Assert.That(comments, Is.Empty);
     }
@@ -100,7 +98,7 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
         var comment = provider.GetSynonymComments("test_synonym");
-        var isNone = await comment.IsNone.ConfigureAwait(false);
+        var isNone = await comment.IsNone;
 
         Assert.That(isNone, Is.True);
     }
@@ -109,9 +107,7 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     public static async Task EnumerateAllSynonymComments_WhenInvoked_DoesNotEnumerateAnyValues()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
-        var hasComments = await provider.EnumerateAllSynonymComments()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasComments = await provider.EnumerateAllSynonymComments().AnyAsync();
 
         Assert.That(hasComments, Is.False);
     }
@@ -120,7 +116,7 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     public static async Task GetAllSynonymComments_WhenInvoked_DoesNotContainAnyValues()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
-        var comments = await provider.GetAllSynonymComments().ConfigureAwait(false);
+        var comments = await provider.GetAllSynonymComments();
 
         Assert.That(comments, Is.Empty);
     }
@@ -137,7 +133,7 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
         var comment = provider.GetSequenceComments("test_sequence");
-        var isNone = await comment.IsNone.ConfigureAwait(false);
+        var isNone = await comment.IsNone;
 
         Assert.That(isNone, Is.True);
     }
@@ -146,9 +142,7 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     public static async Task EnumerateAllSequenceComments_WhenInvoked_DoesNotEnumerateAnyValues()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
-        var hasComments = await provider.EnumerateAllSequenceComments()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasComments = await provider.EnumerateAllSequenceComments().AnyAsync();
 
         Assert.That(hasComments, Is.False);
     }
@@ -157,7 +151,7 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     public static async Task GetAllSequenceComments_WhenInvoked_DoesNotContainAnyValues()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
-        var comments = await provider.GetAllSequenceComments().ConfigureAwait(false);
+        var comments = await provider.GetAllSequenceComments();
 
         Assert.That(comments, Is.Empty);
     }
@@ -174,7 +168,7 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
         var comment = provider.GetRoutineComments("test_routine");
-        var isNone = await comment.IsNone.ConfigureAwait(false);
+        var isNone = await comment.IsNone;
 
         Assert.That(isNone, Is.True);
     }
@@ -183,9 +177,7 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     public static async Task EnumerateAllRoutineComments_WhenInvoked_DoesNotEnumerateAnyValues()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
-        var hasComments = await provider.EnumerateAllRoutineComments()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasComments = await provider.EnumerateAllRoutineComments().AnyAsync();
 
         Assert.That(hasComments, Is.False);
     }
@@ -194,7 +186,7 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     public static async Task GetAllRoutineComments_WhenInvoked_DoesNotContainAnyValues()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
-        var comments = await provider.GetAllRoutineComments().ConfigureAwait(false);
+        var comments = await provider.GetAllRoutineComments();
 
         Assert.That(comments, Is.Empty);
     }

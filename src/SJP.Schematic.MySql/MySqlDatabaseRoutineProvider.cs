@@ -77,14 +77,12 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
             )
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return await routineNames
             .Select(routineName => LoadRoutineAsyncCore(routineName, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
     }
 
     /// <summary>
@@ -141,7 +139,7 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
 
     private async Task<IDatabaseRoutine> LoadRoutineAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
-        var definition = await LoadDefinitionAsync(routineName, cancellationToken).ConfigureAwait(false);
+        var definition = await LoadDefinitionAsync(routineName, cancellationToken);
         return new DatabaseRoutine(routineName, definition!);
     }
 

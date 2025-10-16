@@ -10,7 +10,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task Indexes_WhenGivenTableWithNoIndexes_ReturnsEmptyCollection()
     {
-        var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_1");
 
         Assert.That(table.Indexes, Is.Empty);
     }
@@ -18,7 +18,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task Indexes_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithColumnOnly()
     {
-        var table = await GetTableAsync("table_test_table_8").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_8");
         var index = table.Indexes.Single();
         var indexColumns = index.Columns
             .Select(c => c.DependentColumns.Single())
@@ -34,7 +34,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task Indexes_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithCorrectName()
     {
-        var table = await GetTableAsync("table_test_table_8").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_8");
         var index = table.Indexes.Single();
 
         Assert.That(index.Name.LocalName, Is.EqualTo("ix_test_table_8"));
@@ -45,7 +45,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     {
         var expectedColumnNames = new[] { "first_name", "last_name", "middle_name" };
 
-        var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_9");
         var index = table.Indexes.Single();
         var indexColumns = index.Columns
             .Select(c => c.DependentColumns.Single())
@@ -62,7 +62,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task Indexes_WhenGivenTableWithMultiColumnIndex_ReturnsIndexWithCorrectName()
     {
-        var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_9");
         var index = table.Indexes.Single();
 
         Assert.That(index.Name.LocalName, Is.EqualTo("ix_test_table_9"));
@@ -71,7 +71,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task Indexes_WhenGivenTableWithIndexContainingNoIncludedColumns_ReturnsIndexWithoutIncludedColumns()
     {
-        var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_9");
         var index = table.Indexes.Single();
         var includedColumns = index.IncludedColumns
             .Select(c => c.Name.LocalName)
@@ -86,7 +86,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         var expectedColumnNames = new[] { "test_column" };
         var expectedIncludedColumnNames = new[] { "test_column_2" };
 
-        var table = await GetTableAsync("table_test_table_10").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_10");
         var index = table.Indexes.Single();
         var indexColumns = index.Columns
             .Select(c => c.DependentColumns.Single())
@@ -111,7 +111,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         var expectedColumnNames = new[] { "first_name" };
         var expectedIncludedColumnNames = new[] { "last_name", "middle_name" };
 
-        var table = await GetTableAsync("table_test_table_11").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_11");
         var index = table.Indexes.Single();
         var indexColumns = index.Columns
             .Select(c => c.DependentColumns.Single())
@@ -133,7 +133,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task Indexes_WhenGivenTableWithEnabledIndex_ReturnsIndexWithIsEnabledTrue()
     {
-        var table = await GetTableAsync("table_test_table_11").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_11");
         var index = table.Indexes.Single();
 
         Assert.That(index.IsEnabled, Is.True);
@@ -142,7 +142,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task Indexes_WhenGivenTableWithDisabledIndex_ReturnsIndexWithIsEnabledFalse()
     {
-        var table = await GetTableAsync("table_test_table_12").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_12");
         var index = table.Indexes.Single();
 
         Assert.That(index.IsEnabled, Is.False);
@@ -151,7 +151,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task Indexes_WhenGivenTableWithNonUniqueIndex_ReturnsIndexWithIsUniqueFalse()
     {
-        var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_9");
         var index = table.Indexes.Single();
 
         Assert.That(index.IsUnique, Is.False);
@@ -160,7 +160,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task Indexes_WhenGivenTableWithUniqueIndex_ReturnsIndexWithIsUniqueTrue()
     {
-        var table = await GetTableAsync("table_test_table_13").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_13");
         var index = table.Indexes.Single();
 
         Assert.That(index.IsUnique, Is.True);
@@ -169,7 +169,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task Indexes_WhenGivenTableWithUnfilteredIndex_ReturnsIndexWithFilterDefinitionOfNone()
     {
-        var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_9");
         var index = table.Indexes.Single();
 
         Assert.That(index.FilterDefinition, OptionIs.None);
@@ -178,7 +178,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task Indexes_WhenGivenTableWithFilteredIndex_ReturnsIndexWithFilterDefinition()
     {
-        var table = await GetTableAsync("table_test_table_36").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_36");
         var index = table.Indexes.Single();
 
         Assert.That(index.FilterDefinition.UnwrapSome(), Is.EqualTo("([test_column]>(100))"));

@@ -34,7 +34,7 @@ public class PostgreSqlDialect : DatabaseDialect
 
     private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        var result = await connection.DbConnection.QuerySingleAsync<GetIdentifierDefaults.Result>(GetIdentifierDefaults.Sql, cancellationToken).ConfigureAwait(false);
+        var result = await connection.DbConnection.QuerySingleAsync<GetIdentifierDefaults.Result>(GetIdentifierDefaults.Sql, cancellationToken);
 
         if (result.Server.IsNullOrWhiteSpace())
             return result with { Server = "127.0.0.1" };
@@ -74,7 +74,7 @@ public class PostgreSqlDialect : DatabaseDialect
 
     private static async Task<Version> GetDatabaseVersionAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
+        var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken);
         return ParsePostgresVersionString(versionStr!) ?? new Version(0, 0);
     }
 
@@ -141,7 +141,7 @@ public class PostgreSqlDialect : DatabaseDialect
 
     private static async Task<IRelationalDatabase> GetRelationalDatabaseAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken).ConfigureAwait(false);
+        var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
         var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
         return new PostgreSqlRelationalDatabase(connection, identifierDefaults, identifierResolver);
     }
@@ -162,7 +162,7 @@ public class PostgreSqlDialect : DatabaseDialect
 
     private static async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken).ConfigureAwait(false);
+        var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
         var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
         return new PostgreSqlDatabaseCommentProvider(connection.DbConnection, identifierDefaults, identifierResolver);
     }

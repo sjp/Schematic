@@ -92,7 +92,7 @@ public class EFCoreDataAccessGenerator : IDataAccessGenerator
         if (projectFileInfo.Directory != null && !projectFileInfo.Directory.Exists)
             projectFileInfo.Directory.Create();
 
-        await FileSystem.File.WriteAllTextAsync(projectPath, ProjectDefinition, cancellationToken).ConfigureAwait(false);
+        await FileSystem.File.WriteAllTextAsync(projectPath, ProjectDefinition, cancellationToken);
 
         var dbContextGenerator = new EFCoreDbContextBuilder(NameTranslator, baseNamespace);
         var tableGenerator = new EFCoreTableGenerator(FileSystem, NameTranslator, baseNamespace);
@@ -110,7 +110,7 @@ public class EFCoreDataAccessGenerator : IDataAccessGenerator
             Database.GetAllViews(cancellationToken),
             CommentProvider.GetAllViewComments(cancellationToken),
             Database.GetAllSequences(cancellationToken)
-        ).WhenAll().ConfigureAwait(false);
+        ).WhenAll();
 
         var tableCommentsLookup = new Dictionary<Identifier, IRelationalDatabaseTableComments>();
         foreach (var comment in tableComments)
@@ -135,7 +135,7 @@ public class EFCoreDataAccessGenerator : IDataAccessGenerator
             if (tablePath.Exists)
                 tablePath.Delete();
 
-            await FileSystem.File.WriteAllTextAsync(tablePath.FullName, tableClass, cancellationToken).ConfigureAwait(false);
+            await FileSystem.File.WriteAllTextAsync(tablePath.FullName, tableClass, cancellationToken);
         }
 
         foreach (var view in views)
@@ -153,13 +153,13 @@ public class EFCoreDataAccessGenerator : IDataAccessGenerator
             if (viewPath.Exists)
                 viewPath.Delete();
 
-            await FileSystem.File.WriteAllTextAsync(viewPath.FullName, viewClass, cancellationToken).ConfigureAwait(false);
+            await FileSystem.File.WriteAllTextAsync(viewPath.FullName, viewClass, cancellationToken);
         }
 
         var dbContextText = dbContextGenerator.Generate(tables, views, sequences);
         var dbContextPath = FileSystem.Path.Combine(projectFileInfo.Directory!.FullName, "AppContext.cs");
 
-        await FileSystem.File.WriteAllTextAsync(dbContextPath, dbContextText, cancellationToken).ConfigureAwait(false);
+        await FileSystem.File.WriteAllTextAsync(dbContextPath, dbContextText, cancellationToken);
     }
 
     private static string ProjectDefinition { get; } =

@@ -71,14 +71,12 @@ public class PostgreSqlDatabaseRoutineProvider : IDatabaseRoutineProvider
         var routineNames = await Connection.QueryEnumerableAsync<GetAllRoutineNames.Result>(GetAllRoutineNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return await routineNames
             .Select(routineName => LoadRoutineAsyncCore(routineName, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
     }
 
     /// <summary>
@@ -155,7 +153,7 @@ public class PostgreSqlDatabaseRoutineProvider : IDatabaseRoutineProvider
 
     private async Task<IDatabaseRoutine> LoadRoutineAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
-        var definition = await LoadDefinitionAsync(routineName, cancellationToken).ConfigureAwait(false);
+        var definition = await LoadDefinitionAsync(routineName, cancellationToken);
         return new DatabaseRoutine(routineName, definition!);
     }
 

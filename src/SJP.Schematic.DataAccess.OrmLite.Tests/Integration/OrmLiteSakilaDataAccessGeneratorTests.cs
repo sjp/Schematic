@@ -28,9 +28,9 @@ internal sealed class OrmLiteSakilaDataAccessGeneratorTests : SakilaTest
         var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
         var nameTranslator = new PascalCaseNameTranslator();
         var generator = new OrmLiteDataAccessGenerator(fileSystem, database, commentProvider, nameTranslator);
-        await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
+        await generator.GenerateAsync(projectPath, TestNamespace);
 
-        var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
+        var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath);
         Assert.That(buildsSuccessfully, Is.True);
     }
 
@@ -44,9 +44,9 @@ internal sealed class OrmLiteSakilaDataAccessGeneratorTests : SakilaTest
         var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
         var nameTranslator = new PascalCaseNameTranslator();
         var generator = new OrmLiteDataAccessGenerator(fileSystem, Database, commentProvider, nameTranslator);
-        await generator.GenerateAsync(projectPath, TestNamespace).ConfigureAwait(false);
+        await generator.GenerateAsync(projectPath, TestNamespace);
 
-        var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath).ConfigureAwait(false);
+        var buildsSuccessfully = await ProjectBuildsSuccessfullyAsync(projectPath);
         Assert.That(buildsSuccessfully, Is.True);
     }
 
@@ -75,7 +75,7 @@ internal sealed class OrmLiteSakilaDataAccessGeneratorTests : SakilaTest
 
         using var process = new Process { StartInfo = startInfo };
         process.Start();
-        await process.WaitForExitAsync().ConfigureAwait(false);
+        await process.WaitForExitAsync();
 
         return process.ExitCode == ExitSuccess;
     }

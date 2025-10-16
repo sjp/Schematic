@@ -65,7 +65,7 @@ public class DisabledObjectsRule : Rule, ITableRule
         primaryKey
             .Where(pk => !pk.IsEnabled)
             .Map(pk => BuildDisabledPrimaryKeyMessage(table.Name, pk.Name))
-            .IfSome(ruleMessage => result.Add(ruleMessage));
+            .IfSome(result.Add);
 
         var disabledUniqueKeys = table.UniqueKeys.Where(uk => !uk.IsEnabled);
         foreach (var uniqueKey in disabledUniqueKeys)

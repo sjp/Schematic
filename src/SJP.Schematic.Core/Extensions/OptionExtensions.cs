@@ -45,7 +45,7 @@ public static class OptionExtensions
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var resolvedOption = await option.ToOption().ConfigureAwait(false);
+            var resolvedOption = await option.ToOption();
             if (resolvedOption.IsSome)
                 return resolvedOption;
         }

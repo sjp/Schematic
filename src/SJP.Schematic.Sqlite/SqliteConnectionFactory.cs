@@ -63,7 +63,7 @@ public class SqliteConnectionFactory : IDbConnectionFactory
         var connection = new SqliteConnection(ConnectionString);
 
         if (connection.State != ConnectionState.Open)
-            await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+            await connection.OpenAsync(cancellationToken);
 
         return connection;
     }

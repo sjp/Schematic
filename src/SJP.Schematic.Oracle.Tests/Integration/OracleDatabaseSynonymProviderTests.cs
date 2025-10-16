@@ -16,31 +16,31 @@ internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create synonym db_test_synonym_1 for sys.user_tables", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create synonym db_test_synonym_1 for sys.user_tables", CancellationToken.None);
 
-        await DbConnection.ExecuteAsync("create view synonym_test_view_1 as select 1 as test from dual", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create table synonym_test_table_1 (table_id number primary key not null)", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create synonym synonym_test_synonym_1 for synonym_test_view_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create synonym synonym_test_synonym_2 for synonym_test_table_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create synonym synonym_test_synonym_3 for non_existent_target", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create view synonym_test_view_1 as select 1 as test from dual", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table synonym_test_table_1 (table_id number primary key not null)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create synonym synonym_test_synonym_1 for synonym_test_view_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create synonym synonym_test_synonym_2 for synonym_test_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create synonym synonym_test_synonym_3 for non_existent_target", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop synonym db_test_synonym_1", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop synonym db_test_synonym_1", CancellationToken.None);
 
-        await DbConnection.ExecuteAsync("drop view synonym_test_view_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table synonym_test_table_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop synonym synonym_test_synonym_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop synonym synonym_test_synonym_2", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop synonym synonym_test_synonym_3", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop view synonym_test_view_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table synonym_test_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop synonym synonym_test_synonym_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop synonym synonym_test_synonym_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop synonym synonym_test_synonym_3", CancellationToken.None);
     }
 
     [Test]
     public async Task GetSynonym_WhenSynonymPresent_ReturnsSynonym()
     {
-        var synonymIsSome = await SynonymProvider.GetSynonym("db_test_synonym_1").IsSome.ConfigureAwait(false);
+        var synonymIsSome = await SynonymProvider.GetSynonym("db_test_synonym_1").IsSome;
         Assert.That(synonymIsSome, Is.True);
     }
 
@@ -49,7 +49,7 @@ internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
     {
         const string synonymName = "db_test_synonym_1";
         const string expectedSynonymName = "DB_TEST_SYNONYM_1";
-        var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
+        var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync();
 
         Assert.That(synonym.Name.LocalName, Is.EqualTo(expectedSynonymName));
     }
@@ -60,7 +60,7 @@ internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
         var synonymName = new Identifier("db_test_synonym_1");
         var expectedSynonymName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "DB_TEST_SYNONYM_1");
 
-        var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
+        var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync();
 
         Assert.That(synonym.Name, Is.EqualTo(expectedSynonymName));
     }
@@ -71,7 +71,7 @@ internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
         var synonymName = new Identifier(IdentifierDefaults.Schema, "db_test_synonym_1");
         var expectedSynonymName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "DB_TEST_SYNONYM_1");
 
-        var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
+        var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync();
 
         Assert.That(synonym.Name, Is.EqualTo(expectedSynonymName));
     }
@@ -82,7 +82,7 @@ internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
         var synonymName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_synonym_1");
         var expectedSynonymName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "DB_TEST_SYNONYM_1");
 
-        var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
+        var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync();
 
         Assert.That(synonym.Name, Is.EqualTo(expectedSynonymName));
     }
@@ -92,7 +92,7 @@ internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
     {
         var synonymName = Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "DB_TEST_SYNONYM_1");
 
-        var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
+        var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync();
 
         Assert.That(synonym.Name, Is.EqualTo(synonymName));
     }
@@ -103,7 +103,7 @@ internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
         var synonymName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "db_test_synonym_1");
         var expectedSynonymName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "DB_TEST_SYNONYM_1");
 
-        var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
+        var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync();
 
         Assert.That(synonym.Name, Is.EqualTo(expectedSynonymName));
     }
@@ -114,7 +114,7 @@ internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
         var synonymName = new Identifier("A", "B", IdentifierDefaults.Schema, "db_test_synonym_1");
         var expectedSynonymName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "DB_TEST_SYNONYM_1");
 
-        var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync().ConfigureAwait(false);
+        var synonym = await SynonymProvider.GetSynonym(synonymName).UnwrapSomeAsync();
 
         Assert.That(synonym.Name, Is.EqualTo(expectedSynonymName));
     }
@@ -122,16 +122,14 @@ internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
     [Test]
     public async Task GetSynonym_WhenSynonymMissing_ReturnsNone()
     {
-        var synonymIsNone = await SynonymProvider.GetSynonym("synonym_that_doesnt_exist").IsNone.ConfigureAwait(false);
+        var synonymIsNone = await SynonymProvider.GetSynonym("synonym_that_doesnt_exist").IsNone;
         Assert.That(synonymIsNone, Is.True);
     }
 
     [Test]
     public async Task EnumerateAllSynonyms_WhenEnumerated_ContainsSynonyms()
     {
-        var hasSynonyms = await SynonymProvider.EnumerateAllSynonyms()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasSynonyms = await SynonymProvider.EnumerateAllSynonyms().AnyAsync();
 
         Assert.That(hasSynonyms, Is.True);
     }
@@ -141,8 +139,7 @@ internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
     {
         const string expectedSynonymName = "DB_TEST_SYNONYM_1";
         var containsTestSynonym = await SynonymProvider.EnumerateAllSynonyms()
-            .AnyAsync(s => string.Equals(s.Name.LocalName, expectedSynonymName, StringComparison.Ordinal))
-            .ConfigureAwait(false);
+            .AnyAsync(s => string.Equals(s.Name.LocalName, expectedSynonymName, StringComparison.Ordinal));
 
         Assert.That(containsTestSynonym, Is.True);
     }
@@ -150,7 +147,7 @@ internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
     [Test]
     public async Task GetAllSynonyms_WhenRetrieved_ContainsSynonyms()
     {
-        var synonyms = await SynonymProvider.GetAllSynonyms().ConfigureAwait(false);
+        var synonyms = await SynonymProvider.GetAllSynonyms();
 
         Assert.That(synonyms, Is.Not.Empty);
     }
@@ -159,7 +156,7 @@ internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
     public async Task GetAllSynonyms_WhenRetrieved_ContainsTestSynonym()
     {
         const string expectedSynonymName = "DB_TEST_SYNONYM_1";
-        var synonyms = await SynonymProvider.GetAllSynonyms().ConfigureAwait(false);
+        var synonyms = await SynonymProvider.GetAllSynonyms();
         var containsTestSynonym = synonyms.Any(s => string.Equals(s.Name.LocalName, expectedSynonymName, StringComparison.Ordinal));
 
         Assert.That(containsTestSynonym, Is.True);
@@ -169,7 +166,7 @@ internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
     public async Task GetSynonym_ForSynonymToView_ReturnsSynonymWithCorrectTarget()
     {
         var expectedTarget = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "SYNONYM_TEST_VIEW_1");
-        var synonym = await SynonymProvider.GetSynonym("SYNONYM_TEST_SYNONYM_1").UnwrapSomeAsync().ConfigureAwait(false);
+        var synonym = await SynonymProvider.GetSynonym("SYNONYM_TEST_SYNONYM_1").UnwrapSomeAsync();
 
         Assert.That(synonym.Target, Is.EqualTo(expectedTarget));
     }
@@ -178,7 +175,7 @@ internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
     public async Task GetSynonym_ForSynonymToTable_ReturnsSynonymWithCorrectTarget()
     {
         var expectedTarget = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "SYNONYM_TEST_TABLE_1");
-        var synonym = await SynonymProvider.GetSynonym("SYNONYM_TEST_SYNONYM_2").UnwrapSomeAsync().ConfigureAwait(false);
+        var synonym = await SynonymProvider.GetSynonym("SYNONYM_TEST_SYNONYM_2").UnwrapSomeAsync();
 
         Assert.That(synonym.Target, Is.EqualTo(expectedTarget));
     }
@@ -187,7 +184,7 @@ internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
     public async Task GetSynonym_ForSynonymToMissingObject_ReturnsSynonymWithMissingTarget()
     {
         var expectedTarget = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "NON_EXISTENT_TARGET");
-        var synonym = await SynonymProvider.GetSynonym("SYNONYM_TEST_SYNONYM_3").UnwrapSomeAsync().ConfigureAwait(false);
+        var synonym = await SynonymProvider.GetSynonym("SYNONYM_TEST_SYNONYM_3").UnwrapSomeAsync();
 
         Assert.That(synonym.Target, Is.EqualTo(expectedTarget));
     }

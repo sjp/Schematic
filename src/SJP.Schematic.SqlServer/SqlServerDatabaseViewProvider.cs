@@ -75,14 +75,12 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
         var viewNames = await DbConnection.QueryEnumerableAsync<GetAllViewNames.Result>(GetAllViewNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return await viewNames
             .Select(viewName => LoadViewAsyncCore(viewName, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
     }
 
     /// <summary>
@@ -147,7 +145,7 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
             LoadColumnsAsync(viewName, cancellationToken),
             LoadDefinitionAsync(viewName, cancellationToken),
             LoadIndexExistsAsync(viewName, cancellationToken)
-        ).WhenAll().ConfigureAwait(false);
+        ).WhenAll();
 
         return isMaterialized
             ? new DatabaseMaterializedView(viewName, definition, columns)
@@ -236,8 +234,7 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
 
                 return new DatabaseColumn(columnName, columnType, row.IsNullable, defaultValue, autoIncrement);
             })
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
     }
 
     /// <summary>

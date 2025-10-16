@@ -11,7 +11,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Indexes_WhenGivenTableWithNoIndexes_ReturnsEmptyCollection()
     {
-        var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_1");
 
         Assert.That(table.Indexes, Is.Empty);
     }
@@ -19,7 +19,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Indexes_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithColumnOnly()
     {
-        var table = await GetTableAsync("table_test_table_8").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_8");
         var index = table.Indexes.Single();
         var indexColumns = index.Columns
             .Select(c => c.DependentColumns.Single())
@@ -35,7 +35,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Indexes_WhenGivenTableWithSingleColumnIndex_ReturnsIndexWithCorrectName()
     {
-        var table = await GetTableAsync("table_test_table_8").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_8");
         var index = table.Indexes.Single();
 
         Assert.That(index.Name.LocalName, Is.EqualTo("ix_test_table_8"));
@@ -46,7 +46,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     {
         var expectedColumnNames = new[] { "first_name", "last_name", "middle_name" };
 
-        var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_9");
         var index = table.Indexes.Single();
         var indexColumns = index.Columns
             .Select(c => c.DependentColumns.Single())
@@ -63,7 +63,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Indexes_WhenGivenTableWithMultiColumnIndex_ReturnsIndexWithCorrectName()
     {
-        var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_9");
         var index = table.Indexes.Single();
 
         Assert.That(index.Name.LocalName, Is.EqualTo("ix_test_table_9"));
@@ -72,7 +72,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Indexes_WhenGivenTableWithIndexContainingNoIncludedColumns_ReturnsIndexWithoutIncludedColumns()
     {
-        var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_9");
         var index = table.Indexes.Single();
         var includedColumns = index.IncludedColumns
             .Select(c => c.Name.LocalName)
@@ -84,7 +84,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Indexes_WhenGivenTableWithEnabledIndex_ReturnsIndexWithIsEnabledTrue()
     {
-        var table = await GetTableAsync("table_test_table_11").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_11");
         var index = table.Indexes.Single();
 
         Assert.That(index.IsEnabled, Is.True);
@@ -93,7 +93,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Indexes_WhenGivenTableWithNonUniqueIndex_ReturnsIndexWithIsUniqueFalse()
     {
-        var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_9");
         var index = table.Indexes.Single();
 
         Assert.That(index.IsUnique, Is.False);
@@ -102,7 +102,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Indexes_WhenGivenTableWithUniqueIndex_ReturnsIndexWithIsUniqueTrue()
     {
-        var table = await GetTableAsync("table_test_table_13").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_13");
         var index = table.Indexes.Single();
 
         Assert.That(index.IsUnique, Is.True);
@@ -111,7 +111,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Indexes_WhenGivenTableWithIncludedColumnIndex_ReturnsIndexWithIncludedColumn()
     {
-        var dbVersion = await Dialect.GetDatabaseVersionAsync(Connection).ConfigureAwait(false);
+        var dbVersion = await Dialect.GetDatabaseVersionAsync(Connection);
         if (dbVersion < new Version(11, 0))
         {
             Assert.Pass();
@@ -121,7 +121,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         var expectedColumnNames = new[] { "last_name_parent" };
         var expectedIncludedColumnNames = new[] { "first_name_parent" };
 
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
         var index = table.Indexes.Single(ix => !ix.IsUnique);
         var indexColumns = index.Columns
             .Select(c => c.DependentColumns.Single())
@@ -144,7 +144,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Indexes_WhenGivenTableWithMultipleIncludedColumnIndex_ReturnsIndexWithIncludedColumnsInCorrectOrder()
     {
-        var dbVersion = await Dialect.GetDatabaseVersionAsync(Connection).ConfigureAwait(false);
+        var dbVersion = await Dialect.GetDatabaseVersionAsync(Connection);
         if (dbVersion < new Version(11, 0))
         {
             Assert.Pass();
@@ -154,7 +154,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         var expectedColumnNames = new[] { "last_name" };
         var expectedIncludedColumnNames = new[] { "middle_name", "first_name_child" };
 
-        var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_16");
         var index = table.Indexes.Single();
         var indexColumns = index.Columns
             .Select(c => c.DependentColumns.Single())
@@ -177,7 +177,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Indexes_WhenGivenTableWithoutFilteredIndex_ReturnsIndexWithNonFilterDefinition()
     {
-        var table = await GetTableAsync("table_test_table_9").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_9");
         var index = table.Indexes.Single();
 
         Assert.That(index.FilterDefinition, OptionIs.None);
@@ -186,7 +186,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Indexes_WhenGivenTableWithFilteredIndex_ReturnsIndexWithExpectedFilterDefinition()
     {
-        var table = await GetTableAsync("table_test_table_38").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_38");
         var index = table.Indexes.Single();
 
         Assert.That(index.FilterDefinition.UnwrapSome(), Is.EqualTo("(test_column > 100)"));

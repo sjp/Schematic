@@ -18,23 +18,23 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create view matview_db_test_view_1 as select 1 as dummy", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create view matview_db_test_view_1 as select 1 as dummy", CancellationToken.None);
 
-        await DbConnection.ExecuteAsync("create view matview_view_test_view_1 as select 1 as test", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create table matview_view_test_table_1 (table_id int primary key not null)", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create view matview_view_test_view_2 as select table_id as test from matview_view_test_table_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create materialized view matview_view_test_matview_1 as select table_id as test from matview_view_test_table_1", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create view matview_view_test_view_1 as select 1 as test", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table matview_view_test_table_1 (table_id int primary key not null)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create view matview_view_test_view_2 as select table_id as test from matview_view_test_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create materialized view matview_view_test_matview_1 as select table_id as test from matview_view_test_table_1", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop view matview_db_test_view_1", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop view matview_db_test_view_1", CancellationToken.None);
 
-        await DbConnection.ExecuteAsync("drop view matview_view_test_view_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop view matview_view_test_view_2", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop materialized view matview_view_test_matview_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table matview_view_test_table_1", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop view matview_view_test_view_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop view matview_view_test_view_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop materialized view matview_view_test_matview_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table matview_view_test_table_1", CancellationToken.None);
     }
 
     private Task<IDatabaseView> GetViewAsync(Identifier viewName)
@@ -59,7 +59,7 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
     [Test]
     public async Task GetView_WhenViewPresent_ReturnsView()
     {
-        var viewIsSome = await ViewProvider.GetView("matview_view_test_matview_1").IsSome.ConfigureAwait(false);
+        var viewIsSome = await ViewProvider.GetView("matview_view_test_matview_1").IsSome;
         Assert.That(viewIsSome, Is.True);
     }
 
@@ -67,7 +67,7 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
     public async Task GetView_WhenViewPresent_ReturnsViewWithCorrectName()
     {
         var viewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "matview_view_test_matview_1");
-        var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+        var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync();
 
         Assert.That(view.Name, Is.EqualTo(viewName));
     }
@@ -78,7 +78,7 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
         var viewName = new Identifier("matview_view_test_matview_1");
         var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "matview_view_test_matview_1");
 
-        var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+        var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync();
 
         Assert.That(view.Name, Is.EqualTo(expectedViewName));
     }
@@ -89,7 +89,7 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
         var viewName = new Identifier(IdentifierDefaults.Schema, "matview_view_test_matview_1");
         var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "matview_view_test_matview_1");
 
-        var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+        var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync();
 
         Assert.That(view.Name, Is.EqualTo(expectedViewName));
     }
@@ -100,7 +100,7 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
         var viewName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "matview_view_test_matview_1");
         var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "matview_view_test_matview_1");
 
-        var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+        var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync();
 
         Assert.That(view.Name, Is.EqualTo(expectedViewName));
     }
@@ -111,7 +111,7 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
         var viewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "matview_view_test_matview_1");
         var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "matview_view_test_matview_1");
 
-        var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+        var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync();
 
         Assert.That(view.Name, Is.EqualTo(expectedViewName));
     }
@@ -122,7 +122,7 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
         var viewName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "matview_view_test_matview_1");
         var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "matview_view_test_matview_1");
 
-        var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+        var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync();
 
         Assert.That(view.Name, Is.EqualTo(expectedViewName));
     }
@@ -133,7 +133,7 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
         var viewName = new Identifier("A", "B", IdentifierDefaults.Schema, "matview_view_test_matview_1");
         var expectedViewName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "matview_view_test_matview_1");
 
-        var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync().ConfigureAwait(false);
+        var view = await ViewProvider.GetView(viewName).UnwrapSomeAsync();
 
         Assert.That(view.Name, Is.EqualTo(expectedViewName));
     }
@@ -141,23 +141,21 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
     [Test]
     public async Task GetView_WhenViewMissing_ReturnsNone()
     {
-        var viewIsNone = await ViewProvider.GetView("view_that_doesnt_exist").IsNone.ConfigureAwait(false);
+        var viewIsNone = await ViewProvider.GetView("view_that_doesnt_exist").IsNone;
         Assert.That(viewIsNone, Is.True);
     }
 
     [Test]
     public async Task GetView_WhenGivenNameOfQueryView_ReturnsNone()
     {
-        var viewIsNone = await ViewProvider.GetView("matview_db_test_view_1").IsNone.ConfigureAwait(false);
+        var viewIsNone = await ViewProvider.GetView("matview_db_test_view_1").IsNone;
         Assert.That(viewIsNone, Is.True);
     }
 
     [Test]
     public async Task EnumerateAllViews_WhenEnumerated_ContainsViews()
     {
-        var hasViews = await ViewProvider.EnumerateAllViews()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasViews = await ViewProvider.EnumerateAllViews().AnyAsync();
 
         Assert.That(hasViews, Is.True);
     }
@@ -167,8 +165,7 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
     {
         const string viewName = "matview_view_test_matview_1";
         var containsTestView = await ViewProvider.EnumerateAllViews()
-            .AnyAsync(v => string.Equals(v.Name.LocalName, viewName, StringComparison.Ordinal))
-            .ConfigureAwait(false);
+            .AnyAsync(v => string.Equals(v.Name.LocalName, viewName, StringComparison.Ordinal));
 
         Assert.That(containsTestView, Is.True);
     }
@@ -178,8 +175,7 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
     {
         const string viewName = "matview_view_test_view_1";
         var containsTestView = await ViewProvider.EnumerateAllViews()
-            .AnyAsync(v => string.Equals(v.Name.LocalName, viewName, StringComparison.Ordinal))
-            .ConfigureAwait(false);
+            .AnyAsync(v => string.Equals(v.Name.LocalName, viewName, StringComparison.Ordinal));
 
         Assert.That(containsTestView, Is.False);
     }
@@ -187,7 +183,7 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
     [Test]
     public async Task GetAllViews_WhenRetrieved_ContainsViews()
     {
-        var views = await ViewProvider.GetAllViews().ConfigureAwait(false);
+        var views = await ViewProvider.GetAllViews();
 
         Assert.That(views, Is.Not.Empty);
     }
@@ -196,7 +192,7 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
     public async Task GetAllViews_WhenRetrieved_ContainsTestView()
     {
         const string viewName = "matview_view_test_matview_1";
-        var views = await ViewProvider.GetAllViews().ConfigureAwait(false);
+        var views = await ViewProvider.GetAllViews();
         var containsTestView = views.Any(v => string.Equals(v.Name.LocalName, viewName, StringComparison.Ordinal));
 
         Assert.That(containsTestView, Is.True);
@@ -206,7 +202,7 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
     public async Task GetAllViews_WhenRetrieved_DoesNotContainQueryView()
     {
         const string viewName = "matview_view_test_view_1";
-        var views = await ViewProvider.GetAllViews().ConfigureAwait(false);
+        var views = await ViewProvider.GetAllViews();
         var containsTestView = views.Any(v => string.Equals(v.Name.LocalName, viewName, StringComparison.Ordinal));
 
         Assert.That(containsTestView, Is.False);
@@ -216,10 +212,10 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
     public async Task Definition_PropertyGet_ReturnsCorrectDefinition()
     {
         var viewName = new Identifier(IdentifierDefaults.Schema, "matview_view_test_matview_1");
-        var view = await GetViewAsync(viewName).ConfigureAwait(false);
+        var view = await GetViewAsync(viewName);
 
         var definition = view.Definition;
-        var version = await Dialect.GetDatabaseVersionAsync(Connection).ConfigureAwait(false);
+        var version = await Dialect.GetDatabaseVersionAsync(Connection);
 
         var expected = version.Major >= 16
             ? @" SELECT table_id AS test
@@ -234,7 +230,7 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
     public async Task Columns_WhenViewContainsSingleColumn_ContainsOneValueOnly()
     {
         var viewName = new Identifier(IdentifierDefaults.Schema, "matview_view_test_matview_1");
-        var view = await GetViewAsync(viewName).ConfigureAwait(false);
+        var view = await GetViewAsync(viewName);
 
         Assert.That(view.Columns, Has.Exactly(1).Items);
     }
@@ -243,7 +239,7 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
     public async Task Columns_WhenViewContainsSingleColumn_ContainsColumnName()
     {
         var viewName = new Identifier(IdentifierDefaults.Schema, "matview_view_test_matview_1");
-        var view = await GetViewAsync(viewName).ConfigureAwait(false);
+        var view = await GetViewAsync(viewName);
         var containsColumn = view.Columns.Any(c => c.Name == "test");
 
         Assert.That(containsColumn, Is.True);
@@ -252,7 +248,7 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
     [Test]
     public async Task IsMaterialized_WhenViewIsMaterialized_ReturnsTrue()
     {
-        var view = await GetViewAsync("matview_view_test_matview_1").ConfigureAwait(false);
+        var view = await GetViewAsync("matview_view_test_matview_1");
 
         Assert.That(view.IsMaterialized, Is.True);
     }

@@ -20,23 +20,23 @@ internal sealed class MySqlTableCommentProviderTests : MySqlTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create table table_comment_table_1 ( test_column_1 int )", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create table table_comment_table_1 ( test_column_1 int )", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 CREATE TABLE table_comment_table_2
 (
     test_column_1 INT,
     test_column_2 INT COMMENT 'This is a column comment.',
     test_column_3 INT
-) COMMENT 'This is a test table comment.'", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create index table_comment_table_2_ix_1 on table_comment_table_2 (test_column_2)", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create index table_comment_table_2_ix_2 on table_comment_table_2 (test_column_3) COMMENT 'This is an index comment.'", CancellationToken.None).ConfigureAwait(false);
+) COMMENT 'This is a test table comment.'", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create index table_comment_table_2_ix_1 on table_comment_table_2 (test_column_2)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create index table_comment_table_2_ix_2 on table_comment_table_2 (test_column_3) COMMENT 'This is an index comment.'", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table table_comment_table_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table table_comment_table_2", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table table_comment_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_comment_table_2", CancellationToken.None);
     }
 
     private Task<IRelationalDatabaseTableComments> GetTableCommentsAsync(Identifier tableName)
@@ -48,7 +48,7 @@ CREATE TABLE table_comment_table_2
 
     private async Task<IRelationalDatabaseTableComments> GetTableCommentsAsyncCore(Identifier tableName)
     {
-        using (await _lock.LockAsync().ConfigureAwait(false))
+        using (await _lock.LockAsync())
         {
             if (!_commentsCache.TryGetValue(tableName, out var lazyComment))
             {
@@ -56,7 +56,7 @@ CREATE TABLE table_comment_table_2
                 _commentsCache[tableName] = lazyComment;
             }
 
-            return await lazyComment.ConfigureAwait(false);
+            return await lazyComment;
         }
     }
 
@@ -66,7 +66,7 @@ CREATE TABLE table_comment_table_2
     [Test]
     public async Task GetTableComments_WhenTablePresent_ReturnsTableComment()
     {
-        var tableIsSome = await TableCommentProvider.GetTableComments("table_comment_table_1").IsSome.ConfigureAwait(false);
+        var tableIsSome = await TableCommentProvider.GetTableComments("table_comment_table_1").IsSome;
         Assert.That(tableIsSome, Is.True);
     }
 
@@ -74,7 +74,7 @@ CREATE TABLE table_comment_table_2
     public async Task GetTableComments_WhenTablePresent_ReturnsTableWithCorrectName()
     {
         const string tableName = "table_comment_table_1";
-        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync();
 
         Assert.That(tableComments.TableName.LocalName, Is.EqualTo(tableName));
     }
@@ -85,7 +85,7 @@ CREATE TABLE table_comment_table_2
         var tableName = new Identifier("table_comment_table_1");
         var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
 
-        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync();
 
         Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
     }
@@ -96,7 +96,7 @@ CREATE TABLE table_comment_table_2
         var tableName = new Identifier(IdentifierDefaults.Schema, "table_comment_table_1");
         var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
 
-        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync();
 
         Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
     }
@@ -107,7 +107,7 @@ CREATE TABLE table_comment_table_2
         var tableName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
         var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
 
-        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync();
 
         Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
     }
@@ -117,7 +117,7 @@ CREATE TABLE table_comment_table_2
     {
         var tableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
 
-        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync();
 
         Assert.That(tableComments.TableName, Is.EqualTo(tableName));
     }
@@ -128,7 +128,7 @@ CREATE TABLE table_comment_table_2
         var tableName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
         var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
 
-        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync();
 
         Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
     }
@@ -139,7 +139,7 @@ CREATE TABLE table_comment_table_2
         var tableName = new Identifier("A", "B", IdentifierDefaults.Schema, "table_comment_table_1");
         var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
 
-        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync();
 
         Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
     }
@@ -147,16 +147,14 @@ CREATE TABLE table_comment_table_2
     [Test]
     public async Task GetTableComments_WhenTableMissing_ReturnsNone()
     {
-        var tableIsNone = await TableCommentProvider.GetTableComments("table_that_doesnt_exist").IsNone.ConfigureAwait(false);
+        var tableIsNone = await TableCommentProvider.GetTableComments("table_that_doesnt_exist").IsNone;
         Assert.That(tableIsNone, Is.True);
     }
 
     [Test]
     public async Task EnumerateAllTableComments_WhenEnumerated_ContainsTableComments()
     {
-        var hasTableComments = await TableCommentProvider.EnumerateAllTableComments()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasTableComments = await TableCommentProvider.EnumerateAllTableComments().AnyAsync();
 
         Assert.That(hasTableComments, Is.True);
     }
@@ -165,8 +163,7 @@ CREATE TABLE table_comment_table_2
     public async Task EnumerateAllTableComments_WhenEnumerated_ContainsTestTableComment()
     {
         var containsTestTable = await TableCommentProvider.EnumerateAllTableComments()
-            .AnyAsync(t => string.Equals(t.TableName.LocalName, "table_comment_table_1", StringComparison.Ordinal))
-            .ConfigureAwait(false);
+            .AnyAsync(t => string.Equals(t.TableName.LocalName, "table_comment_table_1", StringComparison.Ordinal));
 
         Assert.That(containsTestTable, Is.True);
     }
@@ -174,7 +171,7 @@ CREATE TABLE table_comment_table_2
     [Test]
     public async Task GetAllTableComments_WhenRetrieved_ContainsTableComments()
     {
-        var tableComments = await TableCommentProvider.GetAllTableComments().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetAllTableComments();
 
         var hasComments = tableComments.Any(tc => tc.Comment.IsSome);
 
@@ -188,7 +185,7 @@ CREATE TABLE table_comment_table_2
     [Test]
     public async Task GetAllTableComments_WhenRetrieved_ContainsTestTableComment()
     {
-        var tableComments = await TableCommentProvider.GetAllTableComments().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetAllTableComments();
         var containsTestTable = tableComments.Any(t => string.Equals(t.TableName.LocalName, "table_comment_table_1", StringComparison.Ordinal));
 
         Assert.That(containsTestTable, Is.True);
@@ -197,7 +194,7 @@ CREATE TABLE table_comment_table_2
     [Test]
     public async Task GetTableComments_WhenTableMissingComment_ReturnsNone()
     {
-        var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_1");
 
         Assert.That(comments.Comment.IsNone, Is.True);
     }
@@ -205,7 +202,7 @@ CREATE TABLE table_comment_table_2
     [Test]
     public async Task GetTableComments_WhenTableMissingPrimaryKey_ReturnsNone()
     {
-        var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_1");
 
         Assert.That(comments.PrimaryKeyComment, OptionIs.None);
     }
@@ -213,7 +210,7 @@ CREATE TABLE table_comment_table_2
     [Test]
     public async Task GetTableComments_WhenTableMissingColumnComments_ReturnsLookupKeyedWithColumnNames()
     {
-        var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_1");
 
         var columnComments = comments.ColumnComments;
         var hasColumns = columnComments.Count == 1 && string.Equals(columnComments.Keys.Single().LocalName, "test_column_1", StringComparison.Ordinal);
@@ -224,7 +221,7 @@ CREATE TABLE table_comment_table_2
     [Test]
     public async Task GetTableComments_WhenTableMissingColumnComments_ReturnsLookupWithOnlyNoneValues()
     {
-        var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_1");
 
         var columnComments = comments.ColumnComments;
         var hasOnlyNones = columnComments.Count == 1 && columnComments.Values.Single().IsNone;
@@ -235,7 +232,7 @@ CREATE TABLE table_comment_table_2
     [Test]
     public async Task GetTableComments_WhenTableMissingChecks_ReturnsEmptyLookup()
     {
-        var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_1");
 
         Assert.That(comments.CheckComments, Is.Empty);
     }
@@ -243,7 +240,7 @@ CREATE TABLE table_comment_table_2
     [Test]
     public async Task GetTableComments_WhenTableMissingUniqueKeys_ReturnsEmptyLookup()
     {
-        var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_1");
 
         Assert.That(comments.UniqueKeyComments, Is.Empty);
     }
@@ -251,7 +248,7 @@ CREATE TABLE table_comment_table_2
     [Test]
     public async Task GetTableComments_WhenTableMissingIndexes_ReturnsEmptyLookup()
     {
-        var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_1");
 
         Assert.That(comments.IndexComments, Is.Empty);
     }
@@ -259,7 +256,7 @@ CREATE TABLE table_comment_table_2
     [Test]
     public async Task GetTableComments_WhenTableMissingTriggers_ReturnsEmptyLookup()
     {
-        var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_1");
 
         Assert.That(comments.TriggerComments, Is.Empty);
     }
@@ -267,7 +264,7 @@ CREATE TABLE table_comment_table_2
     [Test]
     public async Task GetTableComments_WhenTableMissingForeignKeys_ReturnsEmptyLookup()
     {
-        var comments = await GetTableCommentsAsync("table_comment_table_1").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_1");
 
         Assert.That(comments.ForeignKeyComments, Is.Empty);
     }
@@ -276,7 +273,7 @@ CREATE TABLE table_comment_table_2
     public async Task GetTableComments_WhenTableContainsComment_ReturnsExpectedValue()
     {
         const string expectedComment = "This is a test table comment.";
-        var comments = await GetTableCommentsAsync("table_comment_table_2").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_2");
 
         var tableComment = comments.Comment.UnwrapSome();
 
@@ -292,7 +289,7 @@ CREATE TABLE table_comment_table_2
             new Identifier("test_column_2"),
             new Identifier("test_column_3"),
         };
-        var comments = await GetTableCommentsAsync("table_comment_table_2").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_2");
 
         var columnComments = comments.ColumnComments;
         var allKeysPresent = columnNames.All(columnComments.ContainsKey);
@@ -309,7 +306,7 @@ CREATE TABLE table_comment_table_2
             false,
             true,
         };
-        var comments = await GetTableCommentsAsync("table_comment_table_2").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_2");
 
         var columnComments = comments.ColumnComments;
         var noneStates = new[]
@@ -326,7 +323,7 @@ CREATE TABLE table_comment_table_2
     public async Task GetTableComments_PropertyGetForColumnComments_ReturnsCorrectCommentValue()
     {
         const string expectedComment = "This is a column comment.";
-        var comments = await GetTableCommentsAsync("table_comment_table_2").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_2");
 
         var comment = comments.ColumnComments["test_column_2"].UnwrapSome();
 
@@ -341,7 +338,7 @@ CREATE TABLE table_comment_table_2
             new Identifier("table_comment_table_2_ix_1"),
             new Identifier("table_comment_table_2_ix_2"),
         };
-        var comments = await GetTableCommentsAsync("table_comment_table_2").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_2");
 
         var indexComments = comments.IndexComments;
         var allKeysPresent = indexNames.All(indexComments.ContainsKey);
@@ -353,7 +350,7 @@ CREATE TABLE table_comment_table_2
     public async Task GetTableComments_PropertyGetForIndexComments_ReturnsCorrectNoneOrSome()
     {
         var expectedNoneStates = new[] { true, false };
-        var comments = await GetTableCommentsAsync("table_comment_table_2").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_2");
 
         var indexComments = comments.IndexComments;
         var noneStates = new[]
@@ -369,7 +366,7 @@ CREATE TABLE table_comment_table_2
     public async Task GetTableComments_PropertyGetForIndexComments_ReturnsCorrectCommentValue()
     {
         const string expectedComment = "This is an index comment.";
-        var comments = await GetTableCommentsAsync("table_comment_table_2").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("table_comment_table_2");
 
         var comment = comments.IndexComments["table_comment_table_2_ix_2"].UnwrapSome();
 

@@ -92,7 +92,7 @@ public class OrmLiteDataAccessGenerator : IDataAccessGenerator
         if (projectFileInfo.Directory != null && !projectFileInfo.Directory.Exists)
             projectFileInfo.Directory.Create();
 
-        await FileSystem.File.WriteAllTextAsync(projectPath, ProjectDefinition, cancellationToken).ConfigureAwait(false);
+        await FileSystem.File.WriteAllTextAsync(projectPath, ProjectDefinition, cancellationToken);
 
         var (
             tables,
@@ -104,7 +104,7 @@ public class OrmLiteDataAccessGenerator : IDataAccessGenerator
             CommentProvider.GetAllTableComments(cancellationToken),
             Database.GetAllViews(cancellationToken),
             CommentProvider.GetAllViewComments(cancellationToken)
-        ).WhenAll().ConfigureAwait(false);
+        ).WhenAll();
 
         var tableGenerator = new OrmLiteTableGenerator(FileSystem, NameTranslator, baseNamespace);
         var tableCommentsLookup = new Dictionary<Identifier, IRelationalDatabaseTableComments>();
@@ -131,7 +131,7 @@ public class OrmLiteDataAccessGenerator : IDataAccessGenerator
             if (tablePath.Exists)
                 tablePath.Delete();
 
-            await FileSystem.File.WriteAllTextAsync(tablePath.FullName, tableClass, cancellationToken).ConfigureAwait(false);
+            await FileSystem.File.WriteAllTextAsync(tablePath.FullName, tableClass, cancellationToken);
         }
 
         foreach (var view in views)
@@ -149,7 +149,7 @@ public class OrmLiteDataAccessGenerator : IDataAccessGenerator
             if (viewPath.Exists)
                 viewPath.Delete();
 
-            await FileSystem.File.WriteAllTextAsync(viewPath.FullName, viewClass, cancellationToken).ConfigureAwait(false);
+            await FileSystem.File.WriteAllTextAsync(viewPath.FullName, viewClass, cancellationToken);
         }
     }
 

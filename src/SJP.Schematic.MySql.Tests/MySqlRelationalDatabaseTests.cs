@@ -68,7 +68,7 @@ internal static class MySqlRelationalDatabaseTests
         public static async Task GetSequence_GivenValidSequenceName_ReturnsNone()
         {
             var sequenceName = new Identifier("test");
-            var sequenceIsNone = await Database.GetSequence(sequenceName).IsNone.ConfigureAwait(false);
+            var sequenceIsNone = await Database.GetSequence(sequenceName).IsNone;
 
             Assert.That(sequenceIsNone, Is.True);
         }
@@ -76,9 +76,7 @@ internal static class MySqlRelationalDatabaseTests
         [Test]
         public static async Task EnumerateAllSequences_WhenEnumerated_ContainsNoValues()
         {
-            var hasSequences = await Database.EnumerateAllSequences()
-                .AnyAsync()
-                .ConfigureAwait(false);
+            var hasSequences = await Database.EnumerateAllSequences().AnyAsync();
 
             Assert.That(hasSequences, Is.False);
         }
@@ -86,7 +84,7 @@ internal static class MySqlRelationalDatabaseTests
         [Test]
         public static async Task GetAllSequences_WhenRetrieved_ContainsNoValues()
         {
-            var sequences = await Database.GetAllSequences().ConfigureAwait(false);
+            var sequences = await Database.GetAllSequences();
 
             Assert.That(sequences, Is.Empty);
         }
@@ -106,7 +104,7 @@ internal static class MySqlRelationalDatabaseTests
         public static async Task GetSynonym_GivenValidSynonymName_ReturnsNone()
         {
             var synonymName = new Identifier("test");
-            var synonymIsNone = await Database.GetSynonym(synonymName).IsNone.ConfigureAwait(false);
+            var synonymIsNone = await Database.GetSynonym(synonymName).IsNone;
 
             Assert.That(synonymIsNone, Is.True);
         }
@@ -114,7 +112,7 @@ internal static class MySqlRelationalDatabaseTests
         [Test]
         public static async Task EnumerateAllSynonyms_WhenEnumerated_ContainsNoValues()
         {
-            var synonyms = await Database.EnumerateAllSynonyms().ToListAsync().ConfigureAwait(false);
+            var synonyms = await Database.EnumerateAllSynonyms().ToListAsync();
 
             Assert.That(synonyms, Is.Empty);
         }
@@ -122,7 +120,7 @@ internal static class MySqlRelationalDatabaseTests
         [Test]
         public static async Task GetAllSynonyms_WhenRetrieved_ContainsNoValues()
         {
-            var synonyms = await Database.GetAllSynonyms().ConfigureAwait(false);
+            var synonyms = await Database.GetAllSynonyms();
 
             Assert.That(synonyms, Is.Empty);
         }

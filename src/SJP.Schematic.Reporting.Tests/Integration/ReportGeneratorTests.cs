@@ -13,6 +13,6 @@ internal sealed class ReportGeneratorTests : SakilaTest
 
         using var tempDir = new TemporaryDirectory();
         var exporter = new ReportGenerator(Connection, database, tempDir.DirectoryPath);
-        Assert.That(async () => await exporter.GenerateAsync().ConfigureAwait(false), Throws.Nothing);
+        Assert.That(async () => await exporter.GenerateAsync(), Throws.Nothing);
     }
 }

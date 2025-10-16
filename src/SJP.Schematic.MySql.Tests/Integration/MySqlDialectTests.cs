@@ -9,7 +9,7 @@ internal sealed class MySqlDialectTests : MySqlTest
     [Test]
     public async Task GetDatabaseDisplayVersionAsync_GivenValidConnection_ReturnsNonEmptyString()
     {
-        var versionStr = await Dialect.GetDatabaseDisplayVersionAsync(Connection).ConfigureAwait(false);
+        var versionStr = await Dialect.GetDatabaseDisplayVersionAsync(Connection);
         var validStr = !versionStr.IsNullOrWhiteSpace();
 
         Assert.That(validStr, Is.True);
@@ -18,7 +18,7 @@ internal sealed class MySqlDialectTests : MySqlTest
     [Test]
     public async Task GetDatabaseVersionAsync_GivenValidConnection_ReturnsNonNullVersion()
     {
-        var version = await Dialect.GetDatabaseVersionAsync(Connection).ConfigureAwait(false);
+        var version = await Dialect.GetDatabaseVersionAsync(Connection);
 
         Assert.That(version, Is.Not.Null);
     }

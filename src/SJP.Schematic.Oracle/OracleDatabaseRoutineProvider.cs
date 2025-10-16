@@ -67,7 +67,7 @@ public class OracleDatabaseRoutineProvider : IDatabaseRoutineProvider
         var (simpleRoutines, packages) = await (
             SimpleRoutineProvider.GetAllRoutines(cancellationToken),
             PackageProvider.GetAllPackages(cancellationToken)
-        ).WhenAll().ConfigureAwait(false);
+        ).WhenAll();
 
         return simpleRoutines
             .Concat(packages)

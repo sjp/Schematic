@@ -50,8 +50,8 @@ internal static class CachingConnectionFactoryTests
 
         var cachingFactory = new CachingConnectionFactory(factory.Object);
 
-        _ = await cachingFactory.OpenConnectionAsync().ConfigureAwait(false);
-        _ = await cachingFactory.OpenConnectionAsync().ConfigureAwait(false);
+        _ = await cachingFactory.OpenConnectionAsync();
+        _ = await cachingFactory.OpenConnectionAsync();
 
         factory.Verify(f => f.CreateConnection(), Times.Once);
     }

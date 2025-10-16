@@ -32,11 +32,11 @@ public static class ValueTaskCollectionExtensions
     {
         var tasks = new Task[] { task1, task2 };
 
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        await Task.WhenAll(tasks);
 
         return (
-            await task1.ConfigureAwait(false),
-            await task2.ConfigureAwait(false)
+            await task1,
+            await task2
         );
     }
 
@@ -67,12 +67,12 @@ public static class ValueTaskCollectionExtensions
     {
         var tasks = new Task[] { task1, task2, task3 };
 
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        await Task.WhenAll(tasks);
 
         return (
-            await task1.ConfigureAwait(false),
-            await task2.ConfigureAwait(false),
-            await task3.ConfigureAwait(false)
+            await task1,
+            await task2,
+            await task3
         );
     }
 
@@ -106,13 +106,13 @@ public static class ValueTaskCollectionExtensions
     {
         var tasks = new Task[] { task1, task2, task3, task4 };
 
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        await Task.WhenAll(tasks);
 
         return (
-            await task1.ConfigureAwait(false),
-            await task2.ConfigureAwait(false),
-            await task3.ConfigureAwait(false),
-            await task4.ConfigureAwait(false)
+            await task1,
+            await task2,
+            await task3,
+            await task4
         );
     }
 
@@ -149,14 +149,14 @@ public static class ValueTaskCollectionExtensions
     {
         var tasks = new Task[] { task1, task2, task3, task4, task5 };
 
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        await Task.WhenAll(tasks);
 
         return (
-            await task1.ConfigureAwait(false),
-            await task2.ConfigureAwait(false),
-            await task3.ConfigureAwait(false),
-            await task4.ConfigureAwait(false),
-            await task5.ConfigureAwait(false)
+            await task1,
+            await task2,
+            await task3,
+            await task4,
+            await task5
         );
     }
 
@@ -196,15 +196,15 @@ public static class ValueTaskCollectionExtensions
     {
         var tasks = new Task[] { task1, task2, task3, task4, task5, task6 };
 
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        await Task.WhenAll(tasks);
 
         return (
-            await task1.ConfigureAwait(false),
-            await task2.ConfigureAwait(false),
-            await task3.ConfigureAwait(false),
-            await task4.ConfigureAwait(false),
-            await task5.ConfigureAwait(false),
-            await task6.ConfigureAwait(false)
+            await task1,
+            await task2,
+            await task3,
+            await task4,
+            await task5,
+            await task6
         );
     }
 
@@ -247,16 +247,16 @@ public static class ValueTaskCollectionExtensions
     {
         var tasks = new Task[] { task1, task2, task3, task4, task5, task6, task7 };
 
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        await Task.WhenAll(tasks);
 
         return (
-            await task1.ConfigureAwait(false),
-            await task2.ConfigureAwait(false),
-            await task3.ConfigureAwait(false),
-            await task4.ConfigureAwait(false),
-            await task5.ConfigureAwait(false),
-            await task6.ConfigureAwait(false),
-            await task7.ConfigureAwait(false)
+            await task1,
+            await task2,
+            await task3,
+            await task4,
+            await task5,
+            await task6,
+            await task7
         );
     }
 
@@ -302,17 +302,17 @@ public static class ValueTaskCollectionExtensions
     {
         var tasks = new Task[] { task1, task2, task3, task4, task5, task6, task7, task8 };
 
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        await Task.WhenAll(tasks);
 
         return (
-            await task1.ConfigureAwait(false),
-            await task2.ConfigureAwait(false),
-            await task3.ConfigureAwait(false),
-            await task4.ConfigureAwait(false),
-            await task5.ConfigureAwait(false),
-            await task6.ConfigureAwait(false),
-            await task7.ConfigureAwait(false),
-            await task8.ConfigureAwait(false)
+            await task1,
+            await task2,
+            await task3,
+            await task4,
+            await task5,
+            await task6,
+            await task7,
+            await task8
         );
     }
 
@@ -361,18 +361,18 @@ public static class ValueTaskCollectionExtensions
     {
         var tasks = new Task[] { task1, task2, task3, task4, task5, task6, task7, task8, task9 };
 
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        await Task.WhenAll(tasks);
 
         return (
-            await task1.ConfigureAwait(false),
-            await task2.ConfigureAwait(false),
-            await task3.ConfigureAwait(false),
-            await task4.ConfigureAwait(false),
-            await task5.ConfigureAwait(false),
-            await task6.ConfigureAwait(false),
-            await task7.ConfigureAwait(false),
-            await task8.ConfigureAwait(false),
-            await task9.ConfigureAwait(false)
+            await task1,
+            await task2,
+            await task3,
+            await task4,
+            await task5,
+            await task6,
+            await task7,
+            await task8,
+            await task9
         );
     }
 
@@ -424,19 +424,19 @@ public static class ValueTaskCollectionExtensions
     {
         var tasks = new Task[] { task1, task2, task3, task4, task5, task6, task7, task8, task9, task10 };
 
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        await Task.WhenAll(tasks);
 
         return (
-            await task1.ConfigureAwait(false),
-            await task2.ConfigureAwait(false),
-            await task3.ConfigureAwait(false),
-            await task4.ConfigureAwait(false),
-            await task5.ConfigureAwait(false),
-            await task6.ConfigureAwait(false),
-            await task7.ConfigureAwait(false),
-            await task8.ConfigureAwait(false),
-            await task9.ConfigureAwait(false),
-            await task10.ConfigureAwait(false)
+            await task1,
+            await task2,
+            await task3,
+            await task4,
+            await task5,
+            await task6,
+            await task7,
+            await task8,
+            await task9,
+            await task10
         );
     }
 
@@ -491,20 +491,20 @@ public static class ValueTaskCollectionExtensions
     {
         var tasks = new Task[] { task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11 };
 
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        await Task.WhenAll(tasks);
 
         return (
-            await task1.ConfigureAwait(false),
-            await task2.ConfigureAwait(false),
-            await task3.ConfigureAwait(false),
-            await task4.ConfigureAwait(false),
-            await task5.ConfigureAwait(false),
-            await task6.ConfigureAwait(false),
-            await task7.ConfigureAwait(false),
-            await task8.ConfigureAwait(false),
-            await task9.ConfigureAwait(false),
-            await task10.ConfigureAwait(false),
-            await task11.ConfigureAwait(false)
+            await task1,
+            await task2,
+            await task3,
+            await task4,
+            await task5,
+            await task6,
+            await task7,
+            await task8,
+            await task9,
+            await task10,
+            await task11
         );
     }
 
@@ -562,21 +562,21 @@ public static class ValueTaskCollectionExtensions
     {
         var tasks = new Task[] { task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11, task12 };
 
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        await Task.WhenAll(tasks);
 
         return (
-            await task1.ConfigureAwait(false),
-            await task2.ConfigureAwait(false),
-            await task3.ConfigureAwait(false),
-            await task4.ConfigureAwait(false),
-            await task5.ConfigureAwait(false),
-            await task6.ConfigureAwait(false),
-            await task7.ConfigureAwait(false),
-            await task8.ConfigureAwait(false),
-            await task9.ConfigureAwait(false),
-            await task10.ConfigureAwait(false),
-            await task11.ConfigureAwait(false),
-            await task12.ConfigureAwait(false)
+            await task1,
+            await task2,
+            await task3,
+            await task4,
+            await task5,
+            await task6,
+            await task7,
+            await task8,
+            await task9,
+            await task10,
+            await task11,
+            await task12
         );
     }
 
@@ -637,22 +637,22 @@ public static class ValueTaskCollectionExtensions
     {
         var tasks = new Task[] { task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11, task12, task13 };
 
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        await Task.WhenAll(tasks);
 
         return (
-            await task1.ConfigureAwait(false),
-            await task2.ConfigureAwait(false),
-            await task3.ConfigureAwait(false),
-            await task4.ConfigureAwait(false),
-            await task5.ConfigureAwait(false),
-            await task6.ConfigureAwait(false),
-            await task7.ConfigureAwait(false),
-            await task8.ConfigureAwait(false),
-            await task9.ConfigureAwait(false),
-            await task10.ConfigureAwait(false),
-            await task11.ConfigureAwait(false),
-            await task12.ConfigureAwait(false),
-            await task13.ConfigureAwait(false)
+            await task1,
+            await task2,
+            await task3,
+            await task4,
+            await task5,
+            await task6,
+            await task7,
+            await task8,
+            await task9,
+            await task10,
+            await task11,
+            await task12,
+            await task13
         );
     }
 
@@ -716,23 +716,23 @@ public static class ValueTaskCollectionExtensions
     {
         var tasks = new Task[] { task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11, task12, task13, task14 };
 
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        await Task.WhenAll(tasks);
 
         return (
-            await task1.ConfigureAwait(false),
-            await task2.ConfigureAwait(false),
-            await task3.ConfigureAwait(false),
-            await task4.ConfigureAwait(false),
-            await task5.ConfigureAwait(false),
-            await task6.ConfigureAwait(false),
-            await task7.ConfigureAwait(false),
-            await task8.ConfigureAwait(false),
-            await task9.ConfigureAwait(false),
-            await task10.ConfigureAwait(false),
-            await task11.ConfigureAwait(false),
-            await task12.ConfigureAwait(false),
-            await task13.ConfigureAwait(false),
-            await task14.ConfigureAwait(false)
+            await task1,
+            await task2,
+            await task3,
+            await task4,
+            await task5,
+            await task6,
+            await task7,
+            await task8,
+            await task9,
+            await task10,
+            await task11,
+            await task12,
+            await task13,
+            await task14
         );
     }
 
@@ -799,24 +799,24 @@ public static class ValueTaskCollectionExtensions
     {
         var tasks = new Task[] { task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11, task12, task13, task14, task15 };
 
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        await Task.WhenAll(tasks);
 
         return (
-            await task1.ConfigureAwait(false),
-            await task2.ConfigureAwait(false),
-            await task3.ConfigureAwait(false),
-            await task4.ConfigureAwait(false),
-            await task5.ConfigureAwait(false),
-            await task6.ConfigureAwait(false),
-            await task7.ConfigureAwait(false),
-            await task8.ConfigureAwait(false),
-            await task9.ConfigureAwait(false),
-            await task10.ConfigureAwait(false),
-            await task11.ConfigureAwait(false),
-            await task12.ConfigureAwait(false),
-            await task13.ConfigureAwait(false),
-            await task14.ConfigureAwait(false),
-            await task15.ConfigureAwait(false)
+            await task1,
+            await task2,
+            await task3,
+            await task4,
+            await task5,
+            await task6,
+            await task7,
+            await task8,
+            await task9,
+            await task10,
+            await task11,
+            await task12,
+            await task13,
+            await task14,
+            await task15
         );
     }
 
@@ -886,25 +886,25 @@ public static class ValueTaskCollectionExtensions
     {
         var tasks = new Task[] { task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11, task12, task13, task14, task15, task16 };
 
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        await Task.WhenAll(tasks);
 
         return (
-            await task1.ConfigureAwait(false),
-            await task2.ConfigureAwait(false),
-            await task3.ConfigureAwait(false),
-            await task4.ConfigureAwait(false),
-            await task5.ConfigureAwait(false),
-            await task6.ConfigureAwait(false),
-            await task7.ConfigureAwait(false),
-            await task8.ConfigureAwait(false),
-            await task9.ConfigureAwait(false),
-            await task10.ConfigureAwait(false),
-            await task11.ConfigureAwait(false),
-            await task12.ConfigureAwait(false),
-            await task13.ConfigureAwait(false),
-            await task14.ConfigureAwait(false),
-            await task15.ConfigureAwait(false),
-            await task16.ConfigureAwait(false)
+            await task1,
+            await task2,
+            await task3,
+            await task4,
+            await task5,
+            await task6,
+            await task7,
+            await task8,
+            await task9,
+            await task10,
+            await task11,
+            await task12,
+            await task13,
+            await task14,
+            await task15,
+            await task16
         );
     }
 }

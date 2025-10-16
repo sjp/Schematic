@@ -14,15 +14,15 @@ internal sealed class InvalidViewDefinitionRuleTests : SqliteTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create view valid_view_1 as select 1 as dummy", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create view invalid_view_1 as select x from unknown_table", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create view valid_view_1 as select 1 as dummy", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create view invalid_view_1 as select x from unknown_table", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop view valid_view_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop view invalid_view_1", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop view valid_view_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop view invalid_view_1", CancellationToken.None);
     }
 
     [Test]
@@ -56,10 +56,10 @@ internal sealed class InvalidViewDefinitionRuleTests : SqliteTest
 
         var views = new[]
         {
-            await database.GetView("valid_view_1").UnwrapSomeAsync().ConfigureAwait(false),
+            await database.GetView("valid_view_1").UnwrapSomeAsync(),
         };
 
-        var messages = await rule.AnalyseViews(views).ConfigureAwait(false);
+        var messages = await rule.AnalyseViews(views);
 
         Assert.That(messages, Is.Empty);
     }
@@ -72,10 +72,10 @@ internal sealed class InvalidViewDefinitionRuleTests : SqliteTest
 
         var views = new[]
         {
-            await database.GetView("invalid_view_1").UnwrapSomeAsync().ConfigureAwait(false),
+            await database.GetView("invalid_view_1").UnwrapSomeAsync(),
         };
 
-        var messages = await rule.AnalyseViews(views).ConfigureAwait(false);
+        var messages = await rule.AnalyseViews(views);
 
         Assert.That(messages, Is.Not.Empty);
     }
@@ -88,11 +88,11 @@ internal sealed class InvalidViewDefinitionRuleTests : SqliteTest
 
         var views = new[]
         {
-            await database.GetView("valid_view_1").UnwrapSomeAsync().ConfigureAwait(false),
-            await database.GetView("invalid_view_1").UnwrapSomeAsync().ConfigureAwait(false),
+            await database.GetView("valid_view_1").UnwrapSomeAsync(),
+            await database.GetView("invalid_view_1").UnwrapSomeAsync(),
         };
 
-        var messages = await rule.AnalyseViews(views).ConfigureAwait(false);
+        var messages = await rule.AnalyseViews(views);
 
         Assert.That(messages, Is.Not.Empty);
     }

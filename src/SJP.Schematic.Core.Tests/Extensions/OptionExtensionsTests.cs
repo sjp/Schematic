@@ -65,7 +65,7 @@ internal static class OptionExtensionsTests
             OptionAsync<string>.None,
         };
         var result = input.FirstSome();
-        var resultIsNone = await result.IsNone.ConfigureAwait(false);
+        var resultIsNone = await result.IsNone;
 
         Assert.That(resultIsNone, Is.True);
     }
@@ -82,7 +82,7 @@ internal static class OptionExtensionsTests
             OptionAsync<string>.None,
         };
         var result = input.FirstSome();
-        var unwrapped = await result.UnwrapSomeAsync().ConfigureAwait(false);
+        var unwrapped = await result.UnwrapSomeAsync();
 
         Assert.That(unwrapped, Is.EqualTo(expected));
     }

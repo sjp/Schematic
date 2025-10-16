@@ -69,7 +69,7 @@ internal sealed class LintRenderer : ITemplateRenderer
             Linter.AnalyseSequences(Sequences, cancellationToken),
             Linter.AnalyseSynonyms(Synonyms, cancellationToken),
             Linter.AnalyseRoutines(Routines, cancellationToken)
-        ).WhenAll().ConfigureAwait(false);
+        ).WhenAll();
 
         var messages = tableMessages
             .Concat(viewMessages)
@@ -83,21 +83,21 @@ internal sealed class LintRenderer : ITemplateRenderer
             .ToList();
 
         var templateParameter = new LintResults(groupedRules);
-        var renderedLint = await Formatter.RenderTemplateAsync(templateParameter, cancellationToken).ConfigureAwait(false);
+        var renderedLint = await Formatter.RenderTemplateAsync(templateParameter, cancellationToken);
 
         var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
             ? IdentifierDefaults.Database + " Database"
             : "Database";
         var pageTitle = "Lint · " + databaseName;
         var lintContainer = new Container(renderedLint, pageTitle, string.Empty);
-        var renderedPage = await Formatter.RenderTemplateAsync(lintContainer, cancellationToken).ConfigureAwait(false);
+        var renderedPage = await Formatter.RenderTemplateAsync(lintContainer, cancellationToken);
 
         if (!ExportDirectory.Exists)
             ExportDirectory.Create();
         var outputPath = Path.Combine(ExportDirectory.FullName, "lint.html");
 
         await using var writer = File.CreateText(outputPath);
-        await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
-        await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
+        await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken);
+        await writer.FlushAsync(cancellationToken);
     }
 }

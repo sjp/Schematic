@@ -11,7 +11,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task Columns_WhenGivenTableWithOneColumn_ReturnsColumnCollectionWithOneValue()
     {
-        var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_1");
 
         Assert.That(table.Columns, Has.Exactly(1).Items);
     }
@@ -19,7 +19,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task Columns_WhenGivenTableWithOneColumn_ReturnsColumnWithCorrectName()
     {
-        var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_1");
         var column = table.Columns.Single();
         const string columnName = "TEST_COLUMN";
 
@@ -30,7 +30,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     public async Task Columns_WhenGivenTableWithMultipleColumns_ReturnsColumnsInCorrectOrder()
     {
         var expectedColumnNames = new[] { "FIRST_NAME", "MIDDLE_NAME", "LAST_NAME" };
-        var table = await GetTableAsync("table_test_table_4").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_4");
         var columns = table.Columns;
         var columnNames = columns.Select(c => c.Name.LocalName);
 
@@ -41,7 +41,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     public async Task Columns_WhenGivenTableWithNullableColumn_ColumnReturnsIsNullableTrue()
     {
         const string tableName = "TABLE_TEST_TABLE_1";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
         Assert.That(column.IsNullable, Is.True);
@@ -51,7 +51,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     public async Task Columns_WhenGivenTableWithNotNullableColumn_ColumnReturnsIsNullableFalse()
     {
         const string tableName = "TABLE_TEST_TABLE_2";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
         Assert.That(column.IsNullable, Is.False);
@@ -61,7 +61,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     public async Task Columns_WhenGivenTableWithColumnWithNoDefaultValue_ColumnReturnsNoneDefaultValue()
     {
         const string tableName = "TABLE_TEST_TABLE_1";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
         Assert.That(column.DefaultValue, OptionIs.None);
@@ -71,7 +71,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     public async Task Columns_WhenGivenTableWithColumnWithDefaultValue_ColumnReturnsCorrectDefaultValue()
     {
         const string tableName = "TABLE_TEST_TABLE_33";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
         const string defaultValue = "1";
@@ -85,7 +85,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     public async Task Columns_WhenGivenTableWithNonComputedColumn_ReturnsIsComputedFalse()
     {
         const string tableName = "TABLE_TEST_TABLE_1";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
         Assert.That(column.IsComputed, Is.False);
@@ -95,7 +95,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     public async Task Columns_WhenGivenTableWithComputedColumn_ReturnsIsComputedTrue()
     {
         const string tableName = "TABLE_TEST_TABLE_34";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
 
         Assert.That(column.IsNullable, Is.True);
@@ -105,7 +105,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     public async Task Columns_WhenGivenTableWithComputedColumnCastedToInterface_ReturnsNotNullObject()
     {
         const string tableName = "TABLE_TEST_TABLE_34";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
 
         var computedColumn = column as IDatabaseComputedColumn;
@@ -118,7 +118,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         const string tableName = "TABLE_TEST_TABLE_34";
         const string expectedDefinition = "\"TEST_COLUMN_1\"+\"TEST_COLUMN_2\"";
 
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
 
         var computedColumn = column as IDatabaseComputedColumn;
@@ -129,7 +129,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     public async Task Columns_WhenGivenTableColumnWithoutIdentity_ReturnsNoneAutoIncrement()
     {
         const string tableName = "TABLE_TEST_TABLE_1";
-        var table = await GetTableAsync(tableName).ConfigureAwait(false);
+        var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
         Assert.That(column.AutoIncrement, OptionIs.None);

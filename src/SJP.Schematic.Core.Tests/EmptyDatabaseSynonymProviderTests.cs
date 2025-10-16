@@ -19,7 +19,7 @@ internal static class EmptyDatabaseSynonymProviderTests
     {
         var provider = new EmptyDatabaseSynonymProvider();
         var synonym = provider.GetSynonym("synonym_name");
-        var synonymIsNone = await synonym.IsNone.ConfigureAwait(false);
+        var synonymIsNone = await synonym.IsNone;
 
         Assert.That(synonymIsNone, Is.True);
     }
@@ -28,7 +28,7 @@ internal static class EmptyDatabaseSynonymProviderTests
     public static async Task EnumerateAllSynonyms_WhenEnumerated_ContainsNoValues()
     {
         var provider = new EmptyDatabaseSynonymProvider();
-        var hasSynonyms = await provider.EnumerateAllSynonyms().AnyAsync().ConfigureAwait(false);
+        var hasSynonyms = await provider.EnumerateAllSynonyms().AnyAsync();
 
         Assert.That(hasSynonyms, Is.False);
     }
@@ -37,7 +37,7 @@ internal static class EmptyDatabaseSynonymProviderTests
     public static async Task GetAllSynonyms_WhenRetrieved_ContainsNoValues()
     {
         var provider = new EmptyDatabaseSynonymProvider();
-        var synonyms = await provider.GetAllSynonyms().ConfigureAwait(false);
+        var synonyms = await provider.GetAllSynonyms();
 
         Assert.That(synonyms, Is.Empty);
     }

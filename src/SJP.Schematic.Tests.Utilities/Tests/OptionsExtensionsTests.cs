@@ -26,7 +26,7 @@ internal static class OptionsExtensionsTests
     [Test]
     public static void UnwrapSomeAsync_GivenNoneInput_ThrowsArgumentException()
     {
-        Assert.That(async () => await OptionAsync<string>.None.UnwrapSomeAsync().ConfigureAwait(false), Throws.ArgumentException);
+        Assert.That(async () => await OptionAsync<string>.None.UnwrapSomeAsync(), Throws.ArgumentException);
     }
 
     [Test]
@@ -34,7 +34,7 @@ internal static class OptionsExtensionsTests
     {
         const string expected = "expected";
         var option = OptionAsync<string>.Some(expected);
-        var unwrapped = await option.UnwrapSomeAsync().ConfigureAwait(false);
+        var unwrapped = await option.UnwrapSomeAsync();
 
         Assert.That(unwrapped, Is.EqualTo(expected));
     }

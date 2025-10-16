@@ -30,7 +30,7 @@ AS
 BEGIN
    INSERT INTO @ret (test_col) VALUES (1);
    RETURN
-END", CancellationToken.None).ConfigureAwait(false);
+END", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 CREATE FUNCTION dbo.routine_comment_tf_2()
 RETURNS @ret TABLE
@@ -41,25 +41,25 @@ AS
 BEGIN
    INSERT INTO @ret (test_col) VALUES (1);
    RETURN
-END", CancellationToken.None).ConfigureAwait(false);
+END", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"CREATE PROCEDURE routine_comment_sp_1
 AS
-SELECT DB_NAME() AS ThisDB", CancellationToken.None).ConfigureAwait(false);
+SELECT DB_NAME() AS ThisDB", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"CREATE PROCEDURE routine_comment_sp_2
 AS
-SELECT DB_NAME() AS ThisDB", CancellationToken.None).ConfigureAwait(false);
+SELECT DB_NAME() AS ThisDB", CancellationToken.None);
 
-        await AddCommentForFunction("This is a test function comment.", "dbo", "routine_comment_tf_2").ConfigureAwait(false);
-        await AddCommentForStoredProcedure("This is a test stored procedure comment.", "dbo", "routine_comment_sp_2").ConfigureAwait(false);
+        await AddCommentForFunction("This is a test function comment.", "dbo", "routine_comment_tf_2");
+        await AddCommentForStoredProcedure("This is a test stored procedure comment.", "dbo", "routine_comment_sp_2");
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop function routine_comment_tf_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop function routine_comment_tf_2", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop procedure routine_comment_sp_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop procedure routine_comment_sp_2", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop function routine_comment_tf_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop function routine_comment_tf_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop procedure routine_comment_sp_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop procedure routine_comment_sp_2", CancellationToken.None);
     }
 
     private Task AddCommentForFunction(string comment, string schemaName, string functionName)
@@ -95,7 +95,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
 
     private async Task<IDatabaseRoutineComments> GetRoutineCommentsAsyncCore(Identifier routineName)
     {
-        using (await _lock.LockAsync().ConfigureAwait(false))
+        using (await _lock.LockAsync())
         {
             if (!_commentsCache.TryGetValue(routineName, out var lazyComment))
             {
@@ -103,7 +103,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                 _commentsCache[routineName] = lazyComment;
             }
 
-            return await lazyComment.ConfigureAwait(false);
+            return await lazyComment;
         }
     }
 
@@ -113,7 +113,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     [Test]
     public async Task GetRoutineComments_WhenRoutinePresent_ReturnsRoutineComment()
     {
-        var routineIsSome = await RoutineCommentProvider.GetRoutineComments("routine_comment_tf_1").IsSome.ConfigureAwait(false);
+        var routineIsSome = await RoutineCommentProvider.GetRoutineComments("routine_comment_tf_1").IsSome;
         Assert.That(routineIsSome, Is.True);
     }
 
@@ -121,7 +121,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     public async Task GetRoutineComments_WhenRoutinePresent_ReturnsRoutineWithCorrectName()
     {
         const string routineName = "routine_comment_tf_1";
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync();
 
         Assert.That(routineComments.RoutineName.LocalName, Is.EqualTo(routineName));
     }
@@ -132,7 +132,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         var routineName = new Identifier("routine_comment_tf_1");
         var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "routine_comment_tf_1");
 
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync();
 
         Assert.That(routineComments.RoutineName, Is.EqualTo(expectedRoutineName));
     }
@@ -143,7 +143,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         var routineName = new Identifier(IdentifierDefaults.Schema, "routine_comment_tf_1");
         var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "routine_comment_tf_1");
 
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync();
 
         Assert.That(routineComments.RoutineName, Is.EqualTo(expectedRoutineName));
     }
@@ -154,7 +154,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         var routineName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "routine_comment_tf_1");
         var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "routine_comment_tf_1");
 
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync();
 
         Assert.That(routineComments.RoutineName, Is.EqualTo(expectedRoutineName));
     }
@@ -164,7 +164,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     {
         var routineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "routine_comment_tf_1");
 
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync();
 
         Assert.That(routineComments.RoutineName, Is.EqualTo(routineName));
     }
@@ -175,7 +175,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         var routineName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "routine_comment_tf_1");
         var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "routine_comment_tf_1");
 
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync();
 
         Assert.That(routineComments.RoutineName, Is.EqualTo(expectedRoutineName));
     }
@@ -186,7 +186,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         var routineName = new Identifier("A", "B", IdentifierDefaults.Schema, "routine_comment_tf_1");
         var expectedRoutineName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "routine_comment_tf_1");
 
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(routineName).UnwrapSomeAsync();
 
         Assert.That(routineComments.RoutineName, Is.EqualTo(expectedRoutineName));
     }
@@ -194,7 +194,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     [Test]
     public async Task GetRoutineComments_WhenRoutineMissing_ReturnsNone()
     {
-        var routineIsNone = await RoutineCommentProvider.GetRoutineComments("routine_that_doesnt_exist").IsNone.ConfigureAwait(false);
+        var routineIsNone = await RoutineCommentProvider.GetRoutineComments("routine_that_doesnt_exist").IsNone;
         Assert.That(routineIsNone, Is.True);
     }
 
@@ -202,7 +202,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     public async Task GetRoutineComments_WhenRoutinePresentGivenLocalNameWithDifferentCase_ReturnsMatchingName()
     {
         var inputName = new Identifier("ROUTINE_COMMENT_tf_1");
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(inputName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(inputName).UnwrapSomeAsync();
 
         var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName, routineComments.RoutineName.LocalName);
 
@@ -213,7 +213,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     public async Task GetRoutineComments_WhenRoutinePresentGivenSchemaAndLocalNameWithDifferentCase_ReturnsMatchingName()
     {
         var inputName = new Identifier("Dbo", "ROUTINE_COMMENT_tf_1");
-        var routineComments = await RoutineCommentProvider.GetRoutineComments(inputName).UnwrapSomeAsync().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetRoutineComments(inputName).UnwrapSomeAsync();
 
         var equalNames = IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.Schema, routineComments.RoutineName.Schema)
             && IdentifierComparer.OrdinalIgnoreCase.Equals(inputName.LocalName, routineComments.RoutineName.LocalName);
@@ -224,9 +224,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     [Test]
     public async Task EnumerateAllRoutineComments_WhenEnumerated_ContainsRoutineComments()
     {
-        var hasRoutineComments = await RoutineCommentProvider.EnumerateAllRoutineComments()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasRoutineComments = await RoutineCommentProvider.EnumerateAllRoutineComments().AnyAsync();
 
         Assert.That(hasRoutineComments, Is.True);
     }
@@ -235,8 +233,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     public async Task EnumerateAllRoutineComments_WhenEnumerated_ContainsTestRoutineComment()
     {
         var containsTestRoutine = await RoutineCommentProvider.EnumerateAllRoutineComments()
-            .AnyAsync(t => string.Equals(t.RoutineName.LocalName, "routine_comment_tf_1", StringComparison.Ordinal))
-            .ConfigureAwait(false);
+            .AnyAsync(t => string.Equals(t.RoutineName.LocalName, "routine_comment_tf_1", StringComparison.Ordinal));
 
         Assert.That(containsTestRoutine, Is.True);
     }
@@ -244,7 +241,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     [Test]
     public async Task GetAllRoutineComments_WhenRetrieved_ContainsRoutineComments()
     {
-        var routineComments = await RoutineCommentProvider.GetAllRoutineComments().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetAllRoutineComments();
 
         Assert.That(routineComments, Is.Not.Empty);
     }
@@ -252,7 +249,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     [Test]
     public async Task GetAllRoutineComments_WhenRetrieved_ContainsTestRoutineComment()
     {
-        var routineComments = await RoutineCommentProvider.GetAllRoutineComments().ConfigureAwait(false);
+        var routineComments = await RoutineCommentProvider.GetAllRoutineComments();
         var containsTestRoutine = routineComments.Any(t => string.Equals(t.RoutineName.LocalName, "routine_comment_tf_1", StringComparison.Ordinal));
 
         Assert.That(containsTestRoutine, Is.True);
@@ -261,7 +258,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     [Test]
     public async Task GetRoutineComments_WhenFunctionMissingComment_ReturnsNone()
     {
-        var comments = await GetRoutineCommentsAsync("routine_comment_tf_1").ConfigureAwait(false);
+        var comments = await GetRoutineCommentsAsync("routine_comment_tf_1");
 
         Assert.That(comments.Comment.IsNone, Is.True);
     }
@@ -270,7 +267,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     public async Task GetRoutineComments_WhenFunctionContainsComment_ReturnsExpectedValue()
     {
         const string expectedComment = "This is a test function comment.";
-        var comments = await GetRoutineCommentsAsync("routine_comment_tf_2").ConfigureAwait(false);
+        var comments = await GetRoutineCommentsAsync("routine_comment_tf_2");
 
         var routineComment = comments.Comment.UnwrapSome();
 
@@ -280,7 +277,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     [Test]
     public async Task GetRoutineComments_WhenStoredProcedureMissingComment_ReturnsNone()
     {
-        var comments = await GetRoutineCommentsAsync("routine_comment_sp_1").ConfigureAwait(false);
+        var comments = await GetRoutineCommentsAsync("routine_comment_sp_1");
 
         Assert.That(comments.Comment.IsNone, Is.True);
     }
@@ -289,7 +286,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
     public async Task GetRoutineComments_WhenStoredProcedureContainsComment_ReturnsExpectedValue()
     {
         const string expectedComment = "This is a test stored procedure comment.";
-        var comments = await GetRoutineCommentsAsync("routine_comment_sp_2").ConfigureAwait(false);
+        var comments = await GetRoutineCommentsAsync("routine_comment_sp_2");
 
         var routineComment = comments.Comment.UnwrapSome();
 

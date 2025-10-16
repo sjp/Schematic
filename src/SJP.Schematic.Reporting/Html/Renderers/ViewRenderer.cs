@@ -48,22 +48,22 @@ internal sealed class ViewRenderer : ITemplateRenderer
         var viewTasks = Views.Select(async view =>
         {
             var viewModel = mapper.Map(view, ReferencedObjectTargets);
-            var renderedView = await Formatter.RenderTemplateAsync(viewModel, cancellationToken).ConfigureAwait(false);
+            var renderedView = await Formatter.RenderTemplateAsync(viewModel, cancellationToken);
 
             var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                 ? IdentifierDefaults.Database + " Database"
                 : "Database";
             var pageTitle = view.Name.ToVisibleName() + " · View · " + databaseName;
             var viewContainer = new Container(renderedView, pageTitle, "../");
-            var renderedPage = await Formatter.RenderTemplateAsync(viewContainer, cancellationToken).ConfigureAwait(false);
+            var renderedPage = await Formatter.RenderTemplateAsync(viewContainer, cancellationToken);
 
             var outputPath = Path.Combine(ExportDirectory.FullName, view.Name.ToSafeKey() + ".html");
             if (!ExportDirectory.Exists)
                 ExportDirectory.Create();
 
             await using var writer = File.CreateText(outputPath);
-            await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
-            await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
+            await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken);
+            await writer.FlushAsync(cancellationToken);
         });
 
         return Task.WhenAll(viewTasks);

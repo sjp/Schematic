@@ -47,7 +47,7 @@ public class MySqlDialect : DatabaseDialect
 
     private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        return await connection.DbConnection.QuerySingleAsync<GetIdentifierDefaults.Result>(GetIdentifierDefaults.Sql, cancellationToken).ConfigureAwait(false);
+        return await connection.DbConnection.QuerySingleAsync<GetIdentifierDefaults.Result>(GetIdentifierDefaults.Sql, cancellationToken);
     }
 
     /// <summary>
@@ -66,7 +66,7 @@ public class MySqlDialect : DatabaseDialect
 
     private static async Task<string> GetDatabaseDisplayVersionAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
+        var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken);
         return "MySQL " + versionStr;
     }
 
@@ -86,7 +86,7 @@ public class MySqlDialect : DatabaseDialect
 
     private static async Task<Version> GetDatabaseVersionAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken).ConfigureAwait(false);
+        var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken);
         return ParseMySqlVersion(versionStr!);
     }
 
@@ -106,7 +106,7 @@ public class MySqlDialect : DatabaseDialect
 
     private static async Task<IRelationalDatabase> GetRelationalDatabaseAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken).ConfigureAwait(false);
+        var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
         return new MySqlRelationalDatabase(connection, identifierDefaults);
     }
 
@@ -126,7 +126,7 @@ public class MySqlDialect : DatabaseDialect
 
     private static async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken).ConfigureAwait(false);
+        var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
         return new MySqlDatabaseCommentProvider(connection.DbConnection, identifierDefaults);
     }
 

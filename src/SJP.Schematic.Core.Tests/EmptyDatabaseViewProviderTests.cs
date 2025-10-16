@@ -19,7 +19,7 @@ internal static class EmptyDatabaseViewProviderTests
     {
         var provider = new EmptyDatabaseViewProvider();
         var view = provider.GetView("view_name");
-        var viewIsNone = await view.IsNone.ConfigureAwait(false);
+        var viewIsNone = await view.IsNone;
 
         Assert.That(viewIsNone, Is.True);
     }
@@ -28,9 +28,7 @@ internal static class EmptyDatabaseViewProviderTests
     public static async Task EnumerateAllViews_WhenEnumerated_ContainsNoValues()
     {
         var provider = new EmptyDatabaseViewProvider();
-        var hasViews = await provider.EnumerateAllViews()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasViews = await provider.EnumerateAllViews().AnyAsync();
 
         Assert.That(hasViews, Is.False);
     }
@@ -39,7 +37,7 @@ internal static class EmptyDatabaseViewProviderTests
     public static async Task GetAllViews_WhenRetrieved_ContainsNoValues()
     {
         var provider = new EmptyDatabaseViewProvider();
-        var views = await provider.GetAllViews().ConfigureAwait(false);
+        var views = await provider.GetAllViews();
 
         Assert.That(views, Is.Empty);
     }

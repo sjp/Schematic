@@ -10,7 +10,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     [Test]
     public async Task Checks_WhenGivenTableWithNoChecks_ReturnsEmptyCollection()
     {
-        var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_1");
 
         Assert.That(table.Checks, Is.Empty);
     }
@@ -18,7 +18,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     [Test]
     public async Task Checks_WhenGivenTableWithCheck_ReturnsContraintWithCorrectName()
     {
-        var table = await GetTableAsync("table_test_table_14").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_14");
         var check = table.Checks.Single();
 
         Assert.That(check.Name.UnwrapSome().LocalName, Is.EqualTo("ck_test_table_14"));
@@ -29,7 +29,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     {
         const string expectedDefinition = "([test_column]>(1))";
 
-        var table = await GetTableAsync("table_test_table_14").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_14");
         var check = table.Checks.Single();
 
         var comparer = new SqliteExpressionComparer();
@@ -41,7 +41,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     [Test]
     public async Task Checks_WhenGivenTableWithEnabledCheck_ReturnsIsEnabledTrue()
     {
-        var table = await GetTableAsync("table_test_table_14").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_14");
         var check = table.Checks.Single();
 
         Assert.That(check.IsEnabled, Is.True);

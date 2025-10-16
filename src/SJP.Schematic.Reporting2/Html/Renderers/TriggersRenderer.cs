@@ -40,21 +40,21 @@ internal sealed class TriggersRenderer : ITemplateRenderer
         var triggers = Tables.SelectMany(t => t.Triggers.Select(tr => mapper.Map(t.Name, tr))).ToList();
         var triggersVm = new Triggers(triggers);
 
-        var renderedTriggers = await Formatter.RenderTemplateAsync(triggersVm, cancellationToken).ConfigureAwait(false);
+        var renderedTriggers = await Formatter.RenderTemplateAsync(triggersVm, cancellationToken);
 
         var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
             ? IdentifierDefaults.Database + " Database"
             : "Database";
         var pageTitle = "Triggers · " + databaseName;
         var mainContainer = new Container(renderedTriggers, pageTitle, string.Empty);
-        var renderedPage = await Formatter.RenderTemplateAsync(mainContainer, cancellationToken).ConfigureAwait(false);
+        var renderedPage = await Formatter.RenderTemplateAsync(mainContainer, cancellationToken);
 
         if (!ExportDirectory.Exists)
             ExportDirectory.Create();
         var outputPath = Path.Combine(ExportDirectory.FullName, "triggers.html");
 
         await using var writer = File.CreateText(outputPath);
-        await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
-        await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
+        await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken);
+        await writer.FlushAsync(cancellationToken);
     }
 }

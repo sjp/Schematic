@@ -10,7 +10,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     [Test]
     public async Task Columns_GivenTableWithComputedColumns_ReturnsColumnCollectionsWithExpectedCount()
     {
-        var table = await GetTableAsync("table_test_table_37").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_37");
 
         Assert.That(table.Columns, Has.Exactly(4).Items);
     }
@@ -18,7 +18,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     [Test]
     public async Task Columns_GivenTableWithComputedColumns_ReturnsExpectedNumberOfPhysicalColumns()
     {
-        var table = await GetTableAsync("table_test_table_37").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_37");
 
         var physicalColumns = table.Columns.Where(c => !c.IsComputed).ToList();
 
@@ -29,7 +29,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     public async Task Columns_WhenGivenTableWithComputedColumns_ReturnsComputedColumnsWithCorrectNames()
     {
         var expectedColumnNames = new[] { "test_column_2", "test_column_3", "test_column_4" };
-        var table = await GetTableAsync("table_test_table_37").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_37");
         var columns = table.Columns;
         var columnNames = columns.Where(c => c.IsComputed).Select(c => c.Name.LocalName).ToList();
 
@@ -41,7 +41,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     public async Task Columns_WhenGivenTableWithComputedColumns_ReturnsColumnsInCorrectOrder()
     {
         var expectedColumnNames = new[] { "test_column_1", "test_column_2", "test_column_3", "test_column_4" };
-        var table = await GetTableAsync("table_test_table_37").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_37");
         var columns = table.Columns;
         var columnNames = columns.Select(c => c.Name.LocalName).ToList();
 
@@ -58,7 +58,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
             "(test_column_1 * test_column_1 * test_column_1)",
             "(test_column_1 * test_column_1 * test_column_1 * test_column_1)",
         };
-        var table = await GetTableAsync("table_test_table_37").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_37");
         var columns = table.Columns;
         var definitions = columns.OfType<IDatabaseComputedColumn>()
             .Select(c => c.Definition)

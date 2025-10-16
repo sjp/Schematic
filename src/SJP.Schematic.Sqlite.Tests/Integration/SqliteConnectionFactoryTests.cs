@@ -19,7 +19,7 @@ internal static class SqliteConnectionFactoryTests
     public static async Task OpenConnectionAsync_WhenInvoked_ReturnsConnectionInOpenState()
     {
         var factory = new SqliteConnectionFactory("Data Source=:memory:");
-        await using var connection = await factory.OpenConnectionAsync().ConfigureAwait(false);
+        await using var connection = await factory.OpenConnectionAsync();
 
         Assert.That(connection.State, Is.EqualTo(ConnectionState.Open));
     }

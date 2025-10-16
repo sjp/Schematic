@@ -86,9 +86,9 @@ public class OracleDialect : DatabaseDialect
             .MatchUnsafe(
                 static dbHost => dbHost.ServerHost + "/" + dbHost.ServerSid,
                 static () => (string?)null
-            ).ConfigureAwait(false);
-        var dbName = await hostInfoOption.MatchUnsafe(h => h.DatabaseName, () => null).ConfigureAwait(false);
-        var defaultSchema = await hostInfoOption.MatchUnsafe(h => h.DefaultSchema, () => null).ConfigureAwait(false);
+            );
+        var dbName = await hostInfoOption.MatchUnsafe(h => h.DatabaseName, () => null);
+        var defaultSchema = await hostInfoOption.MatchUnsafe(h => h.DefaultSchema, () => null);
 
         return new IdentifierDefaults(qualifiedServerName, dbName, defaultSchema);
     }
@@ -170,7 +170,7 @@ public class OracleDialect : DatabaseDialect
 
     private static async Task<IRelationalDatabase> GetRelationalDatabaseAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken).ConfigureAwait(false);
+        var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
         var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
         return new OracleRelationalDatabase(connection, identifierDefaults, identifierResolver);
     }
@@ -191,7 +191,7 @@ public class OracleDialect : DatabaseDialect
 
     private static async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken).ConfigureAwait(false);
+        var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
         var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
         return new OracleDatabaseCommentProvider(connection.DbConnection, identifierDefaults, identifierResolver);
     }

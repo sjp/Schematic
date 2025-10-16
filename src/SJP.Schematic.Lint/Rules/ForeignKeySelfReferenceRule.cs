@@ -67,8 +67,7 @@ public class ForeignKeySelfReferenceRule : Rule, ITableRule
         var messages = await tables
             .Select(t => AnalyseTableAsync(t, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
 
         return messages
             .SelectMany(_ => _)
@@ -106,7 +105,7 @@ public class ForeignKeySelfReferenceRule : Rule, ITableRule
 
         foreach (var foreignKey in matchingForeignKeys)
         {
-            var isSelfReferencing = await TableHasSelfReferencingForeignKeyRowsAsync(table, primaryKey, foreignKey, cancellationToken).ConfigureAwait(false);
+            var isSelfReferencing = await TableHasSelfReferencingForeignKeyRowsAsync(table, primaryKey, foreignKey, cancellationToken);
             if (isSelfReferencing)
             {
                 var message = BuildMessage(table.Name, primaryKey, foreignKey);
@@ -135,8 +134,8 @@ public class ForeignKeySelfReferenceRule : Rule, ITableRule
             table.Name,
             pkColumnNames,
             fkColumnNames
-        ).ConfigureAwait(false);
-        return await DbConnection.ExecuteScalarAsync<bool>(sql, cancellationToken).ConfigureAwait(false);
+        );
+        return await DbConnection.ExecuteScalarAsync<bool>(sql, cancellationToken);
     }
 
     private async Task<string> GetTableMatchingForeignKeyPrimaryKeyQueryCore(Identifier tableName, IEnumerable<Identifier> pkColumnNames, IEnumerable<Identifier> fkColumnNames)
@@ -164,7 +163,7 @@ where {whereFilterClauses}
 ";
         var sql = $"select case when exists ({filterSql}) then 1 else 0 end as dummy";
 
-        var suffix = await _fromQuerySuffixAsync.ConfigureAwait(false);
+        var suffix = await _fromQuerySuffixAsync;
         return suffix.IsNullOrWhiteSpace()
             ? sql
             : sql + " from " + suffix;
@@ -218,7 +217,7 @@ where {whereFilterClauses}
     {
         try
         {
-            _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryNoTable, CancellationToken.None).ConfigureAwait(false);
+            _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryNoTable, CancellationToken.None);
             return string.Empty;
         }
         catch
@@ -228,7 +227,7 @@ where {whereFilterClauses}
 
         try
         {
-            _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryFromSysDual, CancellationToken.None).ConfigureAwait(false);
+            _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryFromSysDual, CancellationToken.None);
             return "SYS.DUAL";
         }
         catch
@@ -236,7 +235,7 @@ where {whereFilterClauses}
             // Deliberately ignoring because we are testing functionality
         }
 
-        _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryFromDual, CancellationToken.None).ConfigureAwait(false);
+        _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryFromDual, CancellationToken.None);
         return "DUAL";
     }
 

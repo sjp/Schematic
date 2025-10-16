@@ -75,13 +75,13 @@ internal sealed class DotSvgRendererTests
     [Test, GraphvizAvailable]
     public void RenderToSvgAsync_GivenInvalidDot_ThrowsGraphvizException()
     {
-        Assert.That(async () => await Renderer.RenderToSvgAsync("this is not dot").ConfigureAwait(false), Throws.TypeOf<GraphvizException>());
+        Assert.That(async () => await Renderer.RenderToSvgAsync("this is not dot"), Throws.TypeOf<GraphvizException>());
     }
 
     [Test, GraphvizAvailable]
     public async Task RenderToSvgAsync_GivenValidDot_ReturnsValidSvgXml()
     {
-        var svg = await Renderer.RenderToSvgAsync("digraph g { a -> b }").ConfigureAwait(false);
+        var svg = await Renderer.RenderToSvgAsync("digraph g { a -> b }");
 
         Assert.That(() => _ = XDocument.Parse(svg, LoadOptions.PreserveWhitespace), Throws.Nothing);
     }
@@ -89,7 +89,7 @@ internal sealed class DotSvgRendererTests
     [Test, GraphvizAvailable]
     public async Task RenderToSvgAsync_GivenVizJsGraphExample_ReturnsValidSvgXml()
     {
-        var svg = await Renderer.RenderToSvgAsync(VizJsExample).ConfigureAwait(false);
+        var svg = await Renderer.RenderToSvgAsync(VizJsExample);
 
         Assert.That(() => _ = XDocument.Parse(svg, LoadOptions.PreserveWhitespace), Throws.Nothing);
     }

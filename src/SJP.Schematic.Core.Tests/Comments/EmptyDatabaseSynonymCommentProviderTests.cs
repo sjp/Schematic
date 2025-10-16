@@ -20,7 +20,7 @@ internal static class EmptyDatabaseSynonymCommentProviderTests
     {
         var provider = new EmptyDatabaseSynonymCommentProvider();
         var comment = provider.GetSynonymComments("test_synonym");
-        var isNone = await comment.IsNone.ConfigureAwait(false);
+        var isNone = await comment.IsNone;
 
         Assert.That(isNone, Is.True);
     }
@@ -29,9 +29,7 @@ internal static class EmptyDatabaseSynonymCommentProviderTests
     public static async Task EnumerateAllSynonymComments_WhenInvoked_DoesNotEnumerateAnyValues()
     {
         var provider = new EmptyDatabaseSynonymCommentProvider();
-        var hasComments = await provider.EnumerateAllSynonymComments()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasComments = await provider.EnumerateAllSynonymComments().AnyAsync();
 
         Assert.That(hasComments, Is.False);
     }
@@ -40,7 +38,7 @@ internal static class EmptyDatabaseSynonymCommentProviderTests
     public static async Task GetAllSynonymComments_WhenInvoked_DoesNotContainAnyValues()
     {
         var provider = new EmptyDatabaseSynonymCommentProvider();
-        var comments = await provider.GetAllSynonymComments().ConfigureAwait(false);
+        var comments = await provider.GetAllSynonymComments();
 
         Assert.That(comments, Is.Empty);
     }

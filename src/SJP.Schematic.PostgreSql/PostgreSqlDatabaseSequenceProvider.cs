@@ -70,13 +70,13 @@ public class PostgreSqlDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// <returns>A collection of database sequences.</returns>
     public async IAsyncEnumerable<IDatabaseSequence> EnumerateAllSequences([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var provider = await _sequenceProvider.ConfigureAwait(false);
+        var provider = await _sequenceProvider;
         var sequences = provider.Match(
             sp => sp.EnumerateAllSequences(cancellationToken),
             AsyncEnumerable.Empty<IDatabaseSequence>
         );
 
-        await foreach (var sequence in sequences.ConfigureAwait(false).WithCancellation(cancellationToken))
+        await foreach (var sequence in sequences.WithCancellation(cancellationToken))
             yield return sequence;
     }
 
@@ -87,7 +87,7 @@ public class PostgreSqlDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// <returns>A collection of database sequences.</returns>
     public async Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default)
     {
-        var provider = await _sequenceProvider.ConfigureAwait(false);
+        var provider = await _sequenceProvider;
         return await provider.Match(
             sp => sp.GetAllSequences(cancellationToken),
             () => Empty.Tasks.Sequences
@@ -112,7 +112,7 @@ public class PostgreSqlDatabaseSequenceProvider : IDatabaseSequenceProvider
 
     private async Task<Option<IDatabaseSequenceProvider>> LoadVersionedSequenceProvider()
     {
-        var version = await Dialect.GetDatabaseVersionAsync(Connection, CancellationToken.None).ConfigureAwait(false);
+        var version = await Dialect.GetDatabaseVersionAsync(Connection, CancellationToken.None);
 
         var factories = new Dictionary<Version, Func<IDatabaseSequenceProvider>>
         {

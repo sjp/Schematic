@@ -100,7 +100,7 @@ public class DotSvgRenderer : IDotSvgRenderer
 
         try
         {
-            await File.WriteAllTextAsync(tmpInputFilePath, dot, cancellationToken).ConfigureAwait(false);
+            await File.WriteAllTextAsync(tmpInputFilePath, dot, cancellationToken);
 
             var startInfo = new ProcessStartInfo
             {
@@ -112,16 +112,16 @@ public class DotSvgRenderer : IDotSvgRenderer
             using (var process = new Process { StartInfo = startInfo })
             {
                 process.Start();
-                await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+                await process.WaitForExitAsync(cancellationToken);
 
                 if (process.ExitCode != ExitSuccess)
                 {
-                    var stdErr = await process.StandardError.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
+                    var stdErr = await process.StandardError.ReadToEndAsync(cancellationToken);
                     throw new GraphvizException(process.ExitCode, stdErr);
                 }
             }
 
-            return await File.ReadAllTextAsync(tmpOutputFilePath, cancellationToken).ConfigureAwait(false);
+            return await File.ReadAllTextAsync(tmpOutputFilePath, cancellationToken);
         }
         finally
         {

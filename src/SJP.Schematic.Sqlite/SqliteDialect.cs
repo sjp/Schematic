@@ -54,7 +54,7 @@ public class SqliteDialect : DatabaseDialect
 
     private static async Task<string> GetDatabaseDisplayVersionAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken).ConfigureAwait(false);
+        var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken);
         return "SQLite " + versionStr;
     }
 
@@ -74,7 +74,7 @@ public class SqliteDialect : DatabaseDialect
 
     private static async Task<Version> GetDatabaseVersionAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken).ConfigureAwait(false);
+        var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken);
         return Version.Parse(versionStr!);
     }
 
@@ -96,7 +96,7 @@ public class SqliteDialect : DatabaseDialect
 
     private static async Task<IRelationalDatabase> GetRelationalDatabaseAsyncCore(ISchematicConnection connection)
     {
-        var identifierDefaults = await GetIdentifierDefaultsAsyncCore().ConfigureAwait(false);
+        var identifierDefaults = await GetIdentifierDefaultsAsyncCore();
         return new SqliteRelationalDatabase(connection, identifierDefaults, new ConnectionPragma(connection));
     }
 
@@ -109,7 +109,7 @@ public class SqliteDialect : DatabaseDialect
     /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
     public override async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
     {
-        var identifierDefaults = await GetIdentifierDefaultsAsyncCore().ConfigureAwait(false);
+        var identifierDefaults = await GetIdentifierDefaultsAsyncCore();
         return new EmptyRelationalDatabaseCommentProvider(identifierDefaults);
     }
 

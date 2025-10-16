@@ -72,14 +72,12 @@ public class OracleMaterializedViewCommentProvider : IDatabaseViewCommentProvide
         var viewNames = await Connection.QueryEnumerableAsync<GetAllMaterializedViewNames.Result>(GetAllMaterializedViewNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return await viewNames
             .Select(viewName => LoadViewCommentsAsyncCore(viewName, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
     }
 
     /// <summary>
@@ -157,13 +155,13 @@ public class OracleMaterializedViewCommentProvider : IDatabaseViewCommentProvide
     private async Task<IDatabaseViewComments> LoadViewCommentsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
         if (string.Equals(viewName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal)) // fast path
-            return await LoadUserViewCommentsAsyncCore(viewName, cancellationToken).ConfigureAwait(false);
+            return await LoadUserViewCommentsAsyncCore(viewName, cancellationToken);
 
         var result = await Connection.QueryAsync(
             GetMaterializedViewComments.Sql,
             new GetMaterializedViewComments.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         var commentData = result.Select(r => new CommentData
         {
@@ -184,7 +182,7 @@ public class OracleMaterializedViewCommentProvider : IDatabaseViewCommentProvide
             GetUserMaterializedViewComments.Sql,
             new GetUserMaterializedViewComments.Query { ViewName = viewName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         var commentData = result.Select(r => new CommentData
         {

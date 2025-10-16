@@ -93,14 +93,12 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         var tableNames = await DbConnection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
             .Select(QualifyTableName)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return await tableNames
             .Select(tableName => LoadTableAsyncCore(tableName, queryCache, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
     }
 
     /// <summary>
@@ -179,7 +177,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             queryCache.GetUniqueKeysAsync(tableName, cancellationToken),
             queryCache.GetForeignKeysAsync(tableName, cancellationToken),
             LoadChildKeysAsync(tableName, queryCache, cancellationToken)
-        ).WhenAll().ConfigureAwait(false);
+        ).WhenAll();
 
         return new RelationalDatabaseTable(
             tableName,
@@ -216,7 +214,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             GetTablePrimaryKey.Sql,
             new GetTablePrimaryKey.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (primaryKeyColumns.Empty())
             return Option<IDatabaseKey>.None;
@@ -229,7 +227,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
 
         var isEnabled = !firstRow.Key.IsDisabled;
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
         var columnLookup = GetColumnLookup(columns);
 
         var keyColumns = groupedByName
@@ -265,7 +263,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             GetTableIndexes.Sql,
             new GetTableIndexes.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (queryResult.Empty())
             return [];
@@ -283,7 +281,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         if (indexColumns.Empty())
             return [];
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
         var columnLookup = GetColumnLookup(columns);
 
         var result = new List<IDatabaseIndex>(indexColumns.Count);
@@ -347,12 +345,12 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             GetTableUniqueKeys.Sql,
             new GetTableUniqueKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (uniqueKeyColumns.Empty())
             return [];
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
         var columnLookup = GetColumnLookup(columns);
 
         var groupedByName = uniqueKeyColumns.GroupAsDictionary(static row => new { row.ConstraintName, row.IsDisabled });
@@ -401,7 +399,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             GetTableChildKeys.Sql,
             new GetTableChildKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (queryResult.Empty())
             return [];
@@ -420,8 +418,8 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         if (groupedChildKeys.Empty())
             return [];
 
-        var primaryKey = await queryCache.GetPrimaryKeyAsync(tableName, cancellationToken).ConfigureAwait(false);
-        var uniqueKeys = await queryCache.GetUniqueKeysAsync(tableName, cancellationToken).ConfigureAwait(false);
+        var primaryKey = await queryCache.GetPrimaryKeyAsync(tableName, cancellationToken);
+        var uniqueKeys = await queryCache.GetUniqueKeysAsync(tableName, cancellationToken);
         var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
 
         var result = new List<IDatabaseRelationalKey>(groupedChildKeys.Count);
@@ -432,21 +430,21 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             IDatabaseKey? parentKey = null;
 
             if (string.Equals(groupedChildKey.Key.ParentKeyType, Constants.PrimaryKeyType, StringComparison.Ordinal))
-                await primaryKey.IfSomeAsync(k => parentKey = k).ConfigureAwait(false);
+                await primaryKey.IfSomeAsync(k => parentKey = k);
             else if (uniqueKeyLookup.ContainsKey(groupedChildKey.Key.ParentKeyName))
                 parentKey = uniqueKeyLookup[groupedChildKey.Key.ParentKeyName];
             if (parentKey == null)
                 continue;
 
             var candidateChildTableName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
-            var childTableNameOption = await queryCache.GetTableNameAsync(candidateChildTableName, cancellationToken).ConfigureAwait(false);
+            var childTableNameOption = await queryCache.GetTableNameAsync(candidateChildTableName, cancellationToken);
 
             await childTableNameOption
                 .BindAsync(async childTableName =>
                 {
                     var childKeyName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildKeyName);
 
-                    var parentKeys = await queryCache.GetForeignKeysAsync(childTableName, cancellationToken).ConfigureAwait(false);
+                    var parentKeys = await queryCache.GetForeignKeysAsync(childTableName, cancellationToken);
                     var parentKeyLookup = GetDatabaseKeyLookup(parentKeys.Select(fk => fk.ChildKey).ToList());
 
                     if (!parentKeyLookup.TryGetValue(childKeyName, out var childKey))
@@ -457,8 +455,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
                     var relationalKey = new DatabaseRelationalKey(childTableName, childKey, tableName, parentKey, deleteAction, updateAction);
                     return OptionAsync<IDatabaseRelationalKey>.Some(relationalKey);
                 })
-                .IfSome(relationalKey => result.Add(relationalKey))
-                .ConfigureAwait(false);
+                .IfSome(result.Add);
         }
 
         return result;
@@ -486,8 +483,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
 
                 return new DatabaseCheckConstraint(constraintName, definition, isEnabled);
             })
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
     }
 
     /// <summary>
@@ -512,7 +508,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             GetTableParentKeys.Sql,
             new GetTableParentKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (queryResult.Empty())
             return [];
@@ -531,14 +527,14 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         if (foreignKeys.Empty())
             return [];
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken).ConfigureAwait(false);
+        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
         var columnLookup = GetColumnLookup(columns);
 
         var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
         foreach (var fkey in foreignKeys)
         {
             var candidateParentTableName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
-            var parentTableNameOption = await queryCache.GetTableNameAsync(candidateParentTableName, cancellationToken).ConfigureAwait(false);
+            var parentTableNameOption = await queryCache.GetTableNameAsync(candidateParentTableName, cancellationToken);
             Identifier? resolvedParentTableName = null;
 
             await parentTableNameOption
@@ -547,12 +543,12 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
                     resolvedParentTableName = parentTableName;
                     if (string.Equals(fkey.Key.KeyType, Constants.PrimaryKeyType, StringComparison.Ordinal))
                     {
-                        var primaryKey = await queryCache.GetPrimaryKeyAsync(parentTableName, cancellationToken).ConfigureAwait(false);
+                        var primaryKey = await queryCache.GetPrimaryKeyAsync(parentTableName, cancellationToken);
                         return primaryKey.ToAsync();
                     }
 
                     var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
-                    var parentUniqueKeys = await queryCache.GetUniqueKeysAsync(parentTableName, cancellationToken).ConfigureAwait(false);
+                    var parentUniqueKeys = await queryCache.GetUniqueKeysAsync(parentTableName, cancellationToken);
                     var parentUniqueKeyLookup = GetDatabaseKeyLookup(parentUniqueKeys);
 
                     return parentUniqueKeyLookup.ContainsKey(parentKeyName.LocalName)
@@ -576,8 +572,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
 
                     return new DatabaseRelationalKey(tableName, childKey, resolvedParentTableName!, parentKey, deleteAction, updateAction);
                 })
-                .IfSome(relationalKey => result.Add(relationalKey))
-                .ConfigureAwait(false);
+                .IfSome(result.Add);
         }
 
         return result;
@@ -634,8 +629,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
                     ? new DatabaseComputedColumn(columnName, columnType, row.IsNullable, defaultValue, computedColumnDefinition)
                     : new DatabaseColumn(columnName, columnType, row.IsNullable, defaultValue, autoIncrement);
             })
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
     }
 
     /// <summary>
@@ -658,7 +652,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             GetTableTriggers.Sql,
             new GetTableTriggers.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (queryResult.Empty())
             return [];

@@ -44,7 +44,7 @@ internal sealed class TestCommand : AsyncCommand<TestCommand.Settings>
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cts.CancelAfter(TimeSpan.FromSeconds(settings.Timeout));
 
-            _ = await connectionFactory.OpenConnectionAsync(cts.Token).ConfigureAwait(false);
+            _ = await connectionFactory.OpenConnectionAsync(cts.Token);
 
             _console.MarkupLine("[green]Successfully connected to the database.[/]");
 

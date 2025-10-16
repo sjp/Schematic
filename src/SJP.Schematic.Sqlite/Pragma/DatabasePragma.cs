@@ -134,10 +134,10 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <returns>The size of the cache, in pages.</returns>
     public async Task<ulong> CacheSizeInPagesAsync(CancellationToken cancellationToken = default)
     {
-        var size = await DbConnection.ExecuteScalarAsync<long>(CacheSizeInPagesReadQuery, cancellationToken).ConfigureAwait(false);
+        var size = await DbConnection.ExecuteScalarAsync<long>(CacheSizeInPagesReadQuery, cancellationToken);
         if (size < 0)
         {
-            var pageSize = await PageSizeAsync(cancellationToken).ConfigureAwait(false);
+            var pageSize = await PageSizeAsync(cancellationToken);
             size /= -pageSize / 1024;
         }
 
@@ -172,9 +172,9 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <returns>The size of the cache, in kibibytes.</returns>
     public async Task<ulong> CacheSizeInKibibytesAsync(CancellationToken cancellationToken = default)
     {
-        var size = await DbConnection.ExecuteScalarAsync<long>(CacheSizeInKibibytesReadQuery, cancellationToken).ConfigureAwait(false);
+        var size = await DbConnection.ExecuteScalarAsync<long>(CacheSizeInKibibytesReadQuery, cancellationToken);
         if (size > 0)
-            size *= await PageSizeAsync(cancellationToken).ConfigureAwait(false) / 1024;
+            size *= await PageSizeAsync(cancellationToken) / 1024;
         else
             size *= -1;
 
@@ -443,7 +443,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <returns>A collection of informative error messages describing integrity failures.</returns>
     public async Task<IEnumerable<string>> IntegrityCheckAsync(CancellationToken cancellationToken = default)
     {
-        var errors = await DbConnection.QueryAsync<string>(IntegrityCheckDatabaseQuery, cancellationToken).ConfigureAwait(false);
+        var errors = await DbConnection.QueryAsync<string>(IntegrityCheckDatabaseQuery, cancellationToken);
         var result = errors.ToList();
         if (result.Count == 1 && string.Equals(result[0], "ok", StringComparison.Ordinal))
             return [];
@@ -466,7 +466,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     public async Task<IEnumerable<string>> IntegrityCheckAsync(uint maxErrors, CancellationToken cancellationToken = default)
     {
         var sql = IntegrityCheckMaxErrorsQuery(maxErrors);
-        var errors = await DbConnection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
+        var errors = await DbConnection.QueryAsync<string>(sql, cancellationToken);
         var result = errors.ToList();
         if (result.Count == 1 && string.Equals(result[0], "ok", StringComparison.Ordinal))
             return [];
@@ -504,7 +504,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     private async Task<IEnumerable<string>> IntegrityCheckAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
         var sql = IntegrityCheckTableQuery(tableName);
-        var errors = await DbConnection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
+        var errors = await DbConnection.QueryAsync<string>(sql, cancellationToken);
         var result = errors.ToList();
         if (result.Count == 1 && string.Equals(result[0], "ok", StringComparison.Ordinal))
             return [];
@@ -534,7 +534,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <exception cref="InvalidOperationException">Thrown when an unknown and unsupported journal mode is returned.</exception>
     public async Task<JournalMode> JournalModeAsync(CancellationToken cancellationToken = default)
     {
-        var journalModeName = await DbConnection.ExecuteScalarAsync<string>(JournalModeReadQuery, cancellationToken).ConfigureAwait(false);
+        var journalModeName = await DbConnection.ExecuteScalarAsync<string>(JournalModeReadQuery, cancellationToken);
         if (!Enum.TryParse(journalModeName, true, out JournalMode journalMode))
             throw new InvalidOperationException("Unknown and unsupported journal mode found: " + journalModeName);
 
@@ -606,7 +606,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <exception cref="InvalidOperationException">An unknown and unsupported locking mode was returned.</exception>
     public async Task<LockingMode> LockingModeAsync(CancellationToken cancellationToken = default)
     {
-        var lockingModeName = await DbConnection.ExecuteScalarAsync<string>(LockingModeReadQuery, cancellationToken).ConfigureAwait(false);
+        var lockingModeName = await DbConnection.ExecuteScalarAsync<string>(LockingModeReadQuery, cancellationToken);
         if (!Enum.TryParse(lockingModeName, true, out LockingMode lockingMode))
             throw new InvalidOperationException("Unknown and unsupported locking mode found: " + lockingModeName);
 
@@ -787,7 +787,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     public async Task<IEnumerable<string>> QuickCheckAsync(uint maxErrors = 0, CancellationToken cancellationToken = default)
     {
         var sql = QuickCheckQuery(maxErrors);
-        var errors = await DbConnection.QueryAsync<string>(sql, cancellationToken).ConfigureAwait(false);
+        var errors = await DbConnection.QueryAsync<string>(sql, cancellationToken);
         var result = errors.ToList();
         if (result.Count == 1 && string.Equals(result[0], "ok", StringComparison.Ordinal))
             return [];
@@ -843,7 +843,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <exception cref="InvalidOperationException">An invalid or unsupported <see cref="SecureDeleteMode"/> was returned from the database.</exception>
     public async Task<SecureDeleteMode> SecureDeleteAsync(CancellationToken cancellationToken = default)
     {
-        var secureDeleteValue = await DbConnection.ExecuteScalarAsync<int>(SecureDeleteReadQuery, cancellationToken).ConfigureAwait(false);
+        var secureDeleteValue = await DbConnection.ExecuteScalarAsync<int>(SecureDeleteReadQuery, cancellationToken);
         if (!Enums.TryToObject(secureDeleteValue, out SecureDeleteMode deleteMode))
             throw new InvalidOperationException($"Unable to map the value '{secureDeleteValue.ToString(CultureInfo.InvariantCulture)}' to a member of {nameof(SecureDeleteMode)}.");
 
@@ -887,7 +887,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <exception cref="InvalidOperationException">Thrown when the database returns an unknown or unsupported value.</exception>
     public async Task<SynchronousLevel> SynchronousAsync(CancellationToken cancellationToken = default)
     {
-        var level = await DbConnection.ExecuteScalarAsync<int>(SynchronousReadQuery, cancellationToken).ConfigureAwait(false);
+        var level = await DbConnection.ExecuteScalarAsync<int>(SynchronousReadQuery, cancellationToken);
         if (!Enums.TryToObject(level, out SynchronousLevel syncLevel))
             throw new InvalidOperationException($"Unable to map the value '{level.ToString(CultureInfo.InvariantCulture)}' to a member of {nameof(SynchronousLevel)}.");
 
@@ -1076,7 +1076,7 @@ public class DatabasePragma : ISqliteDatabasePragma
 
     private async Task<pragma_wal_checkpoint> WalCheckpointAsyncCore(WalCheckpointMode checkpointMode, CancellationToken cancellationToken)
     {
-        var result = await DbConnection.QueryAsync<pragma_wal_checkpoint>(WalCheckpointQuery(checkpointMode), cancellationToken).ConfigureAwait(false);
+        var result = await DbConnection.QueryAsync<pragma_wal_checkpoint>(WalCheckpointQuery(checkpointMode), cancellationToken);
         return result.Single();
     }
 

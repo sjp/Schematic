@@ -33,10 +33,10 @@ public static class OptionExtensions
     /// <exception cref="ArgumentException"><paramref name="input"/> is an <see cref="OptionAsync{T}"/> in the none state.</exception>
     public static async Task<T> UnwrapSomeAsync<T>(this OptionAsync<T> input)
     {
-        var isNone = await input.IsNone.ConfigureAwait(false);
+        var isNone = await input.IsNone;
         if (isNone)
             throw new ArgumentException("The given optional object does not have a value.", nameof(input));
 
-        return await input.IfNoneUnsafe(default(T)!).ConfigureAwait(false);
+        return await input.IfNoneUnsafe(default(T)!);
     }
 }

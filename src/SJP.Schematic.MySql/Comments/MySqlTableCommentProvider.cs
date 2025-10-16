@@ -73,14 +73,12 @@ public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
             )
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
             .Select(QualifyTableName)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return await tableNames
             .Select(tableName => LoadTableCommentsAsyncCore(tableName, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
     }
 
     /// <summary>
@@ -141,7 +139,7 @@ public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
             Queries.GetTableComments.Sql,
             new GetTableComments.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         var tableComment = GetFirstCommentByType(commentsData, Constants.Table);
         var primaryKeyComment = Option<string>.None;

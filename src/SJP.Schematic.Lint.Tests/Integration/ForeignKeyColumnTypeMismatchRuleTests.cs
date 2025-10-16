@@ -12,27 +12,27 @@ internal sealed class ForeignKeyColumnTypeMismatchRuleTests : SqliteTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create table parent_table_with_int_key_column_1 ( column_1 integer not null primary key autoincrement )", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create table parent_table_with_int_key_column_1 ( column_1 integer not null primary key autoincrement )", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 create table child_table_with_int_key_column_1 (
     column_1 integer,
     column_2 integer,
     constraint test_valid_fk foreign key (column_2) references parent_table_with_int_key_column_1 (column_1)
-)", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 create table child_table_with_text_key_column_1 (
     column_1 integer,
     column_2 text,
     constraint test_valid_fk foreign key (column_2) references parent_table_with_int_key_column_1 (column_1)
-)", CancellationToken.None).ConfigureAwait(false);
+)", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table parent_table_with_int_key_column_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table child_table_with_int_key_column_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table child_table_with_text_key_column_1", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table parent_table_with_int_key_column_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table child_table_with_int_key_column_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table child_table_with_text_key_column_1", CancellationToken.None);
     }
 
     [Test]
@@ -57,11 +57,11 @@ create table child_table_with_text_key_column_1 (
 
         var tables = new[]
         {
-            await database.GetTable("parent_table_with_int_key_column_1").UnwrapSomeAsync().ConfigureAwait(false),
-            await database.GetTable("child_table_with_int_key_column_1").UnwrapSomeAsync().ConfigureAwait(false),
+            await database.GetTable("parent_table_with_int_key_column_1").UnwrapSomeAsync(),
+            await database.GetTable("child_table_with_int_key_column_1").UnwrapSomeAsync(),
         };
 
-        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Empty);
     }
@@ -74,11 +74,11 @@ create table child_table_with_text_key_column_1 (
 
         var tables = new[]
         {
-            await database.GetTable("parent_table_with_int_key_column_1").UnwrapSomeAsync().ConfigureAwait(false),
-            await database.GetTable("child_table_with_text_key_column_1").UnwrapSomeAsync().ConfigureAwait(false),
+            await database.GetTable("parent_table_with_int_key_column_1").UnwrapSomeAsync(),
+            await database.GetTable("child_table_with_text_key_column_1").UnwrapSomeAsync(),
         };
 
-        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Not.Empty);
     }

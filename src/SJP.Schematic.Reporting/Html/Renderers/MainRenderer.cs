@@ -86,7 +86,7 @@ internal sealed class MainRenderer : ITemplateRenderer
             var indexCount = indexesLookup.UCount();
             indexesCount += indexCount;
 
-            await table.PrimaryKey.IfSomeAsync(_ => constraints++).ConfigureAwait(false);
+            await table.PrimaryKey.IfSomeAsync(_ => constraints++);
 
             constraints += uniqueKeyCount;
             constraints += renderTable.ParentsCount;
@@ -157,21 +157,21 @@ internal sealed class MainRenderer : ITemplateRenderer
             routineViewModels
         );
 
-        var renderedMain = await Formatter.RenderTemplateAsync(templateParameter, cancellationToken).ConfigureAwait(false);
+        var renderedMain = await Formatter.RenderTemplateAsync(templateParameter, cancellationToken);
 
         var databaseName = !Database.IdentifierDefaults.Database.IsNullOrWhiteSpace()
             ? Database.IdentifierDefaults.Database + " Database"
             : "Database";
         var pageTitle = "Home · " + databaseName;
         var mainContainer = new Container(renderedMain, pageTitle, string.Empty);
-        var renderedPage = await Formatter.RenderTemplateAsync(mainContainer, cancellationToken).ConfigureAwait(false);
+        var renderedPage = await Formatter.RenderTemplateAsync(mainContainer, cancellationToken);
 
         if (!ExportDirectory.Exists)
             ExportDirectory.Create();
         var outputPath = Path.Combine(ExportDirectory.FullName, "index.html");
 
         await using var writer = File.CreateText(outputPath);
-        await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
-        await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
+        await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken);
+        await writer.FlushAsync(cancellationToken);
     }
 }

@@ -42,7 +42,7 @@ internal static class NoIndexesPresentOnTableRuleTests
         );
         var tables = new[] { table };
 
-        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Not.Empty);
     }
@@ -65,7 +65,7 @@ internal static class NoIndexesPresentOnTableRuleTests
         );
         var tables = new[] { table };
 
-        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Empty);
     }
@@ -102,7 +102,7 @@ internal static class NoIndexesPresentOnTableRuleTests
         );
         var tables = new[] { table };
 
-        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Empty);
     }
@@ -125,7 +125,7 @@ internal static class NoIndexesPresentOnTableRuleTests
         );
         var tables = new[] { table };
 
-        var messages = await rule.AnalyseTables(tables).ConfigureAwait(false);
+        var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Empty);
     }

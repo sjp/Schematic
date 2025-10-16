@@ -39,10 +39,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        var applicationId = await dbPragma.ApplicationIdAsync().ConfigureAwait(false);
+        var applicationId = await dbPragma.ApplicationIdAsync();
         var newValue = applicationId == 123 ? 456 : 123;
-        await dbPragma.ApplicationIdAsync(newValue).ConfigureAwait(false);
-        var readOfNewValue = await dbPragma.ApplicationIdAsync().ConfigureAwait(false);
+        await dbPragma.ApplicationIdAsync(newValue);
+        var readOfNewValue = await dbPragma.ApplicationIdAsync();
 
         Assert.That(readOfNewValue, Is.EqualTo(newValue));
     }
@@ -53,10 +53,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        var autoVacuum = await dbPragma.AutoVacuumAsync().ConfigureAwait(false);
+        var autoVacuum = await dbPragma.AutoVacuumAsync();
         var newValue = autoVacuum == AutoVacuumMode.Disabled ? AutoVacuumMode.Incremental : AutoVacuumMode.Disabled;
-        await dbPragma.AutoVacuumAsync(newValue).ConfigureAwait(false);
-        var readOfNewValue = await dbPragma.AutoVacuumAsync().ConfigureAwait(false);
+        await dbPragma.AutoVacuumAsync(newValue);
+        var readOfNewValue = await dbPragma.AutoVacuumAsync();
 
         Assert.That(readOfNewValue, Is.EqualTo(newValue));
     }
@@ -77,10 +77,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        var cacheSizeInPages = await dbPragma.CacheSizeInPagesAsync().ConfigureAwait(false);
+        var cacheSizeInPages = await dbPragma.CacheSizeInPagesAsync();
         var newValue = cacheSizeInPages == 1000u ? 2000u : 1000u;
-        await dbPragma.CacheSizeInPagesAsync(newValue).ConfigureAwait(false);
-        var readOfNewValue = await dbPragma.CacheSizeInPagesAsync().ConfigureAwait(false);
+        await dbPragma.CacheSizeInPagesAsync(newValue);
+        var readOfNewValue = await dbPragma.CacheSizeInPagesAsync();
 
         Assert.That(readOfNewValue, Is.EqualTo(newValue));
     }
@@ -91,10 +91,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        var cacheSizeInKibibytes = await dbPragma.CacheSizeInKibibytesAsync().ConfigureAwait(false);
+        var cacheSizeInKibibytes = await dbPragma.CacheSizeInKibibytesAsync();
         var newValue = cacheSizeInKibibytes == 1000u ? 2000u : 1000u;
-        await dbPragma.CacheSizeInKibibytesAsync(newValue).ConfigureAwait(false);
-        var readOfNewValue = await dbPragma.CacheSizeInKibibytesAsync().ConfigureAwait(false);
+        await dbPragma.CacheSizeInKibibytesAsync(newValue);
+        var readOfNewValue = await dbPragma.CacheSizeInKibibytesAsync();
 
         Assert.That(readOfNewValue, Is.EqualTo(newValue));
     }
@@ -105,10 +105,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        var cacheSpill = await dbPragma.CacheSpillAsync().ConfigureAwait(false);
+        var cacheSpill = await dbPragma.CacheSpillAsync();
         var newValue = !cacheSpill;
-        await dbPragma.CacheSpillAsync(newValue).ConfigureAwait(false);
-        var readOfNewValue = await dbPragma.CacheSpillAsync().ConfigureAwait(false);
+        await dbPragma.CacheSpillAsync(newValue);
+        var readOfNewValue = await dbPragma.CacheSpillAsync();
 
         Assert.That(readOfNewValue, Is.EqualTo(newValue));
     }
@@ -119,7 +119,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        Assert.That(async () => await dbPragma.DataVersionAsync().ConfigureAwait(false), Throws.Nothing);
+        Assert.That(async () => await dbPragma.DataVersionAsync(), Throws.Nothing);
     }
 
     [Test]
@@ -127,16 +127,16 @@ internal sealed class DatabasePragmaTests : SqliteTest
     {
         var connection = CreateConnectionFactory();
         var connPragma = CreateConnectionPragma(connection);
-        await connPragma.ForeignKeysAsync(false).ConfigureAwait(false); // must disable enforcement to allow delayed check
+        await connPragma.ForeignKeysAsync(false); // must disable enforcement to allow delayed check
 
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
-        await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )", CancellationToken.None).ConfigureAwait(false);
-        await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'test')", CancellationToken.None).ConfigureAwait(false);
-        await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 2)", CancellationToken.None).ConfigureAwait(false);
+        await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )", CancellationToken.None);
+        await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )", CancellationToken.None);
+        await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'test')", CancellationToken.None);
+        await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 2)", CancellationToken.None);
 
-        var fkCheck = await dbPragma.ForeignKeyCheckDatabaseAsync().ConfigureAwait(false);
+        var fkCheck = await dbPragma.ForeignKeyCheckDatabaseAsync();
 
         Assert.That(fkCheck, Is.Not.Empty);
     }
@@ -146,16 +146,16 @@ internal sealed class DatabasePragmaTests : SqliteTest
     {
         var connection = CreateConnectionFactory();
         var connPragma = CreateConnectionPragma(connection);
-        await connPragma.ForeignKeysAsync(false).ConfigureAwait(false); // must disable enforcement to allow delayed check
+        await connPragma.ForeignKeysAsync(false); // must disable enforcement to allow delayed check
 
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
-        await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )", CancellationToken.None).ConfigureAwait(false);
-        await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'test')", CancellationToken.None).ConfigureAwait(false);
-        await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 2)", CancellationToken.None).ConfigureAwait(false);
+        await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )", CancellationToken.None);
+        await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )", CancellationToken.None);
+        await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'test')", CancellationToken.None);
+        await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 2)", CancellationToken.None);
 
-        var fkCheck = await dbPragma.ForeignKeyCheckTableAsync("test_child").ConfigureAwait(false);
+        var fkCheck = await dbPragma.ForeignKeyCheckTableAsync("test_child");
 
         Assert.That(fkCheck, Is.Not.Empty);
     }
@@ -185,12 +185,12 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
-        await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )", CancellationToken.None).ConfigureAwait(false);
-        await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'test')", CancellationToken.None).ConfigureAwait(false);
-        await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 1)", CancellationToken.None).ConfigureAwait(false);
+        await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )", CancellationToken.None);
+        await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )", CancellationToken.None);
+        await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'test')", CancellationToken.None);
+        await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 1)", CancellationToken.None);
 
-        var fkList = await dbPragma.ForeignKeyListAsync("test_child").ConfigureAwait(false);
+        var fkList = await dbPragma.ForeignKeyListAsync("test_child");
 
         Assert.That(fkList, Is.Not.Empty);
     }
@@ -220,7 +220,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        Assert.That(async () => await dbPragma.FreeListCountAsync().ConfigureAwait(false), Throws.Nothing);
+        Assert.That(async () => await dbPragma.FreeListCountAsync(), Throws.Nothing);
     }
 
     [Test]
@@ -229,7 +229,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        Assert.That(async () => await dbPragma.IncrementalVacuumAsync(1000).ConfigureAwait(false), Throws.Nothing);
+        Assert.That(async () => await dbPragma.IncrementalVacuumAsync(1000), Throws.Nothing);
     }
 
     [Test]
@@ -238,7 +238,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        Assert.That(async () => await dbPragma.IncrementalVacuumAsync(0).ConfigureAwait(false), Throws.Nothing);
+        Assert.That(async () => await dbPragma.IncrementalVacuumAsync(0), Throws.Nothing);
     }
 
     [Test]
@@ -247,10 +247,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
-        await connection.ExecuteAsync("create index ix_test_index on test_table (val)", CancellationToken.None).ConfigureAwait(false);
+        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None);
+        await connection.ExecuteAsync("create index ix_test_index on test_table (val)", CancellationToken.None);
 
-        var indexInfos = await dbPragma.IndexInfoAsync("ix_test_index").ConfigureAwait(false);
+        var indexInfos = await dbPragma.IndexInfoAsync("ix_test_index");
         var indexInfo = indexInfos.Single();
 
         using (Assert.EnterMultipleScope())
@@ -266,10 +266,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
-        await connection.ExecuteAsync("create index ix_test_index on test_table (val)", CancellationToken.None).ConfigureAwait(false);
+        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None);
+        await connection.ExecuteAsync("create index ix_test_index on test_table (val)", CancellationToken.None);
 
-        var indexList = await dbPragma.IndexListAsync("test_table").ConfigureAwait(false);
+        var indexList = await dbPragma.IndexListAsync("test_table");
         var firstIndex = indexList.First();
 
         using (Assert.EnterMultipleScope())
@@ -304,10 +304,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
-        await connection.ExecuteAsync("create index ix_test_index on test_table (val)", CancellationToken.None).ConfigureAwait(false);
+        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None);
+        await connection.ExecuteAsync("create index ix_test_index on test_table (val)", CancellationToken.None);
 
-        var indexXInfos = await dbPragma.IndexXInfoAsync("ix_test_index").ConfigureAwait(false);
+        var indexXInfos = await dbPragma.IndexXInfoAsync("ix_test_index");
         var indexXInfo = indexXInfos.First(info => info.cid >= 0);
 
         using (Assert.EnterMultipleScope())
@@ -323,7 +323,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        var errors = await dbPragma.IntegrityCheckAsync().ConfigureAwait(false);
+        var errors = await dbPragma.IntegrityCheckAsync();
 
         Assert.That(errors, Is.Empty);
     }
@@ -334,7 +334,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        var errors = await dbPragma.IntegrityCheckAsync(0).ConfigureAwait(false);
+        var errors = await dbPragma.IntegrityCheckAsync(0);
 
         Assert.That(errors, Is.Empty);
     }
@@ -345,7 +345,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        var errors = await dbPragma.IntegrityCheckAsync(10).ConfigureAwait(false);
+        var errors = await dbPragma.IntegrityCheckAsync(10);
 
         Assert.That(errors, Is.Empty);
     }
@@ -356,9 +356,9 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
+        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None);
 
-        var errors = await dbPragma.IntegrityCheckAsync("test_table").ConfigureAwait(false);
+        var errors = await dbPragma.IntegrityCheckAsync("test_table");
 
         Assert.That(errors, Is.Empty);
     }
@@ -369,7 +369,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        var journalMode = await dbPragma.JournalModeAsync().ConfigureAwait(false);
+        var journalMode = await dbPragma.JournalModeAsync();
 
         Assert.That(journalMode, Is.EqualTo(JournalMode.Memory));
     }
@@ -381,10 +381,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        var journalMode = await dbPragma.JournalModeAsync().ConfigureAwait(false);
+        var journalMode = await dbPragma.JournalModeAsync();
         var newValue = journalMode == JournalMode.Persist ? JournalMode.Memory : JournalMode.Persist;
-        await dbPragma.JournalModeAsync(newValue).ConfigureAwait(false);
-        var readOfNewValue = await dbPragma.JournalModeAsync().ConfigureAwait(false);
+        await dbPragma.JournalModeAsync(newValue);
+        var readOfNewValue = await dbPragma.JournalModeAsync();
 
         Assert.That(readOfNewValue, Is.EqualTo(newValue));
     }
@@ -405,10 +405,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        var journalSizeLimit = await dbPragma.JournalSizeLimitAsync().ConfigureAwait(false);
+        var journalSizeLimit = await dbPragma.JournalSizeLimitAsync();
         var newValue = journalSizeLimit == 123u ? 456u : 123u;
-        await dbPragma.JournalSizeLimitAsync(newValue).ConfigureAwait(false);
-        var readOfNewValue = await dbPragma.JournalSizeLimitAsync().ConfigureAwait(false);
+        await dbPragma.JournalSizeLimitAsync(newValue);
+        var readOfNewValue = await dbPragma.JournalSizeLimitAsync();
 
         Assert.That(readOfNewValue, Is.EqualTo(newValue));
     }
@@ -419,11 +419,11 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        _ = await dbPragma.LockingModeAsync().ConfigureAwait(false); // should be normal
+        _ = await dbPragma.LockingModeAsync(); // should be normal
         const LockingMode newValue = LockingMode.Exclusive;
-        await dbPragma.LockingModeAsync(newValue).ConfigureAwait(false);
+        await dbPragma.LockingModeAsync(newValue);
         // not checking value as it's a once-only effect
-        Assert.That(async () => _ = await dbPragma.LockingModeAsync().ConfigureAwait(false), Throws.Nothing);
+        Assert.That(async () => _ = await dbPragma.LockingModeAsync(), Throws.Nothing);
     }
 
     [Test]
@@ -442,10 +442,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        var maxPageCount = await dbPragma.MaxPageCountAsync().ConfigureAwait(false);
+        var maxPageCount = await dbPragma.MaxPageCountAsync();
         var newValue = maxPageCount == 123u ? 456u : 123u;
-        await dbPragma.MaxPageCountAsync(newValue).ConfigureAwait(false);
-        var readOfNewValue = await dbPragma.MaxPageCountAsync().ConfigureAwait(false);
+        await dbPragma.MaxPageCountAsync(newValue);
+        var readOfNewValue = await dbPragma.MaxPageCountAsync();
 
         Assert.That(readOfNewValue, Is.EqualTo(newValue));
     }
@@ -457,10 +457,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        var mmapSize = await dbPragma.MmapSizeAsync().ConfigureAwait(false);
+        var mmapSize = await dbPragma.MmapSizeAsync();
         var newValue = mmapSize == 123u ? 456u : 123u;
-        await dbPragma.MmapSizeAsync(newValue).ConfigureAwait(false);
-        var readOfNewValue = await dbPragma.MmapSizeAsync().ConfigureAwait(false);
+        await dbPragma.MmapSizeAsync(newValue);
+        var readOfNewValue = await dbPragma.MmapSizeAsync();
 
         Assert.That(readOfNewValue, Is.EqualTo(newValue));
     }
@@ -471,7 +471,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        Assert.That(async () => await dbPragma.OptimizeAsync().ConfigureAwait(false), Throws.Nothing);
+        Assert.That(async () => await dbPragma.OptimizeAsync(), Throws.Nothing);
     }
 
     [Test]
@@ -490,7 +490,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        Assert.That(async () => await dbPragma.PageCountAsync().ConfigureAwait(false), Throws.Nothing);
+        Assert.That(async () => await dbPragma.PageCountAsync(), Throws.Nothing);
     }
 
     [Test]
@@ -499,10 +499,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        var pageSize = await dbPragma.PageSizeAsync().ConfigureAwait(false);
+        var pageSize = await dbPragma.PageSizeAsync();
         var newValue = pageSize == (ushort)512u ? (ushort)1024u : (ushort)512u;
-        await dbPragma.PageSizeAsync(newValue).ConfigureAwait(false);
-        var readOfNewValue = await dbPragma.PageSizeAsync().ConfigureAwait(false);
+        await dbPragma.PageSizeAsync(newValue);
+        var readOfNewValue = await dbPragma.PageSizeAsync();
 
         Assert.That(readOfNewValue, Is.EqualTo(newValue));
     }
@@ -533,7 +533,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        var errors = await dbPragma.QuickCheckAsync().ConfigureAwait(false);
+        var errors = await dbPragma.QuickCheckAsync();
 
         Assert.That(errors, Is.Empty);
     }
@@ -544,7 +544,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        var errors = await dbPragma.QuickCheckAsync(10).ConfigureAwait(false);
+        var errors = await dbPragma.QuickCheckAsync(10);
 
         Assert.That(errors, Is.Empty);
     }
@@ -555,10 +555,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        var schemaVersion = await dbPragma.SchemaVersionAsync().ConfigureAwait(false);
+        var schemaVersion = await dbPragma.SchemaVersionAsync();
         var newValue = schemaVersion == 123 ? 456 : 123;
-        await dbPragma.SchemaVersionAsync(newValue).ConfigureAwait(false);
-        var readOfNewValue = await dbPragma.SchemaVersionAsync().ConfigureAwait(false);
+        await dbPragma.SchemaVersionAsync(newValue);
+        var readOfNewValue = await dbPragma.SchemaVersionAsync();
 
         Assert.That(readOfNewValue, Is.EqualTo(newValue));
     }
@@ -569,10 +569,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        var secureDelete = await dbPragma.SecureDeleteAsync().ConfigureAwait(false);
+        var secureDelete = await dbPragma.SecureDeleteAsync();
         var newValue = secureDelete == SecureDeleteMode.On ? SecureDeleteMode.Off : SecureDeleteMode.On;
-        await dbPragma.SecureDeleteAsync(newValue).ConfigureAwait(false);
-        var readOfNewValue = await dbPragma.SecureDeleteAsync().ConfigureAwait(false);
+        await dbPragma.SecureDeleteAsync(newValue);
+        var readOfNewValue = await dbPragma.SecureDeleteAsync();
 
         Assert.That(readOfNewValue, Is.EqualTo(newValue));
     }
@@ -593,10 +593,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        var synchronous = await dbPragma.SynchronousAsync().ConfigureAwait(false);
+        var synchronous = await dbPragma.SynchronousAsync();
         var newValue = synchronous == SynchronousLevel.Normal ? SynchronousLevel.Full : SynchronousLevel.Normal;
-        await dbPragma.SynchronousAsync(newValue).ConfigureAwait(false);
-        var readOfNewValue = await dbPragma.SynchronousAsync().ConfigureAwait(false);
+        await dbPragma.SynchronousAsync(newValue);
+        var readOfNewValue = await dbPragma.SynchronousAsync();
 
         Assert.That(readOfNewValue, Is.EqualTo(newValue));
     }
@@ -617,9 +617,9 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
+        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None);
 
-        var tableInfo = await dbPragma.TableInfoAsync("test_table").ConfigureAwait(false);
+        var tableInfo = await dbPragma.TableInfoAsync("test_table");
 
         Assert.That(tableInfo, Is.Not.Empty);
     }
@@ -649,9 +649,9 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
+        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None);
 
-        var tableInfo = await dbPragma.TableListAsync().ConfigureAwait(false);
+        var tableInfo = await dbPragma.TableListAsync();
 
         Assert.That(tableInfo, Is.Not.Empty);
     }
@@ -662,9 +662,9 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
+        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None);
 
-        var tableInfo = await dbPragma.TableListAsync("test_table").ConfigureAwait(false);
+        var tableInfo = await dbPragma.TableListAsync("test_table");
 
         Assert.That(tableInfo, Is.Not.Empty);
     }
@@ -675,9 +675,9 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create view test_view as select 1 as dummy", CancellationToken.None).ConfigureAwait(false);
+        await connection.ExecuteAsync("create view test_view as select 1 as dummy", CancellationToken.None);
 
-        var tableInfo = await dbPragma.TableListAsync("test_view").ConfigureAwait(false);
+        var tableInfo = await dbPragma.TableListAsync("test_view");
 
         Assert.That(tableInfo, Is.Not.Empty);
     }
@@ -707,9 +707,9 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None).ConfigureAwait(false);
+        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None);
 
-        var tableInfo = await dbPragma.TableXInfoAsync("test_table").ConfigureAwait(false);
+        var tableInfo = await dbPragma.TableXInfoAsync("test_table");
 
         Assert.That(tableInfo, Is.Not.Empty);
     }
@@ -739,10 +739,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        var userVersion = await dbPragma.UserVersionAsync().ConfigureAwait(false);
+        var userVersion = await dbPragma.UserVersionAsync();
         var newValue = userVersion == 123 ? 456 : 123;
-        await dbPragma.UserVersionAsync(newValue).ConfigureAwait(false);
-        var readOfNewValue = await dbPragma.UserVersionAsync().ConfigureAwait(false);
+        await dbPragma.UserVersionAsync(newValue);
+        var readOfNewValue = await dbPragma.UserVersionAsync();
 
         Assert.That(readOfNewValue, Is.EqualTo(newValue));
     }
@@ -752,7 +752,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
     {
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
-        var results = await dbPragma.WalCheckpointAsync().ConfigureAwait(false);
+        var results = await dbPragma.WalCheckpointAsync();
 
         Assert.That(results, Is.Not.Null);
     }

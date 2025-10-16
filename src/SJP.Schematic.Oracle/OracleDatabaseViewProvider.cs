@@ -67,7 +67,7 @@ public class OracleDatabaseViewProvider : IDatabaseViewProvider
         var (queryViews, materializedViews) = await (
             QueryViewProvider.GetAllViews(cancellationToken),
             MaterializedViewProvider.GetAllViews(cancellationToken)
-        ).WhenAll().ConfigureAwait(false);
+        ).WhenAll();
 
         return queryViews
             .Concat(materializedViews)

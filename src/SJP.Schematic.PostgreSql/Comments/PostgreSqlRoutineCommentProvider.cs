@@ -72,14 +72,12 @@ public class PostgreSqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
         var routineNames = await Connection.QueryEnumerableAsync<GetAllRoutineNames.Result>(GetAllRoutineNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return await routineNames
             .Select(routineName => LoadRoutineCommentsAsyncCore(routineName, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
     }
 
     /// <summary>
@@ -165,7 +163,7 @@ public class PostgreSqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
                 ? OptionAsync<string>.Some(c.Comment)
                 : OptionAsync<string>.None);
 
-        var comment = await commentOption.ToOption().ConfigureAwait(false);
+        var comment = await commentOption.ToOption();
         return new DatabaseRoutineComments(routineName, comment);
     }
 

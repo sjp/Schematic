@@ -70,14 +70,12 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
         var sequenceNames = await Connection.QueryEnumerableAsync<GetAllSequenceNames.Result>(GetAllSequenceNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.SequenceName))
             .Select(QualifySequenceName)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return await sequenceNames
             .Select(sequenceName => LoadSequenceCommentsAsyncCore(sequenceName, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
     }
 
     /// <summary>
@@ -143,7 +141,7 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
                 CommentProperty = CommentProperty,
             },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         var commentData = queryResult.Select(r => new CommentData
         {

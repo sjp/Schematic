@@ -20,7 +20,7 @@ internal static class EmptyRelationalDatabaseTableCommentProviderTests
     {
         var provider = new EmptyRelationalDatabaseTableCommentProvider();
         var comment = provider.GetTableComments("test_table");
-        var isNone = await comment.IsNone.ConfigureAwait(false);
+        var isNone = await comment.IsNone;
 
         Assert.That(isNone, Is.True);
     }
@@ -29,7 +29,7 @@ internal static class EmptyRelationalDatabaseTableCommentProviderTests
     public static async Task EnumerateAllTableComments_WhenInvoked_DoesNotEnumerateAnyValues()
     {
         var provider = new EmptyRelationalDatabaseTableCommentProvider();
-        var hasComments = await provider.EnumerateAllTableComments().AnyAsync().ConfigureAwait(false);
+        var hasComments = await provider.EnumerateAllTableComments().AnyAsync();
 
         Assert.That(hasComments, Is.False);
     }
@@ -38,7 +38,7 @@ internal static class EmptyRelationalDatabaseTableCommentProviderTests
     public static async Task GetAllTableComments_WhenInvoked_DoesNotContainAnyValues()
     {
         var provider = new EmptyRelationalDatabaseTableCommentProvider();
-        var comments = await provider.GetAllTableComments().ConfigureAwait(false);
+        var comments = await provider.GetAllTableComments();
 
         Assert.That(comments, Is.Empty);
     }

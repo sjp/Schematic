@@ -72,14 +72,12 @@ public class PostgreSqlTableCommentProvider : IRelationalDatabaseTableCommentPro
         var tableNames = await Connection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
             .Select(QualifyTableName)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return await tableNames
             .Select(tableName => LoadTableCommentsAsyncCore(tableName, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
     }
 
     /// <summary>
@@ -160,7 +158,7 @@ public class PostgreSqlTableCommentProvider : IRelationalDatabaseTableCommentPro
             Queries.GetTableComments.Sql,
             new GetTableComments.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         var commentData = result.Select(r => new CommentData
         {

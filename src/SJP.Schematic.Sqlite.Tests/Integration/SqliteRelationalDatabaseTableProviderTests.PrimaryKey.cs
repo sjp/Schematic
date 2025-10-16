@@ -11,7 +11,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     [Test]
     public async Task PrimaryKey_WhenGivenTableWithNoPrimaryKey_ReturnsNone()
     {
-        var table = await GetTableAsync("table_test_table_1").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_1");
 
         Assert.That(table.PrimaryKey, OptionIs.None);
     }
@@ -19,7 +19,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     [Test]
     public async Task PrimaryKey_WhenGivenTableWithPrimaryKey_ReturnsCorrectKeyType()
     {
-        var table = await GetTableAsync("table_test_table_2").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_2");
         var primaryKey = table.PrimaryKey.UnwrapSome();
 
         Assert.That(primaryKey.KeyType, Is.EqualTo(DatabaseKeyType.Primary));
@@ -28,7 +28,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     [Test]
     public async Task PrimaryKey_WhenGivenTableWithColumnAsPrimaryKey_ReturnsPrimaryKeyWithColumnOnly()
     {
-        var table = await GetTableAsync("table_test_table_2").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_2");
         var pk = table.PrimaryKey.UnwrapSome();
         var pkColumns = pk.Columns.ToList();
 
@@ -42,7 +42,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     [Test]
     public async Task PrimaryKey_WhenGivenTableWithSingleColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithColumnOnly()
     {
-        var table = await GetTableAsync("table_test_table_3").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_3");
         var pk = table.PrimaryKey.UnwrapSome();
         var pkColumns = pk.Columns.ToList();
 
@@ -56,7 +56,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     [Test]
     public async Task PrimaryKey_WhenGivenTableWithSingleColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithCorrectName()
     {
-        var table = await GetTableAsync("table_test_table_3").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_3");
         var pk = table.PrimaryKey.UnwrapSome();
 
         Assert.That(pk.Name.UnwrapSome().LocalName, Is.EqualTo("pk_test_table_3"));
@@ -67,7 +67,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     {
         var expectedColumnNames = new[] { "first_name", "last_name", "middle_name" };
 
-        var table = await GetTableAsync("table_test_table_4").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_4");
         var pk = table.PrimaryKey.UnwrapSome();
         var pkColumns = pk.Columns.ToList();
         var pkColumnNames = pkColumns.ConvertAll(c => c.Name.LocalName);
@@ -82,7 +82,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     [Test]
     public async Task PrimaryKey_WhenGivenTableWithMultiColumnConstraintAsPrimaryKey_ReturnsPrimaryKeyWithCorrectName()
     {
-        var table = await GetTableAsync("table_test_table_4").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_4");
         var pk = table.PrimaryKey.UnwrapSome();
 
         Assert.That(pk.Name.UnwrapSome().LocalName, Is.EqualTo("pk_test_table_4"));

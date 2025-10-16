@@ -11,7 +11,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithNoForeignKeys_ReturnsEmptyCollection()
     {
-        var table = await GetTableAsync("table_test_table_15").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_15");
 
         Assert.That(table.ParentKeys, Is.Empty);
     }
@@ -19,7 +19,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectNames()
     {
-        var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_16");
         var foreignKey = table.ParentKeys.Single();
 
         using (Assert.EnterMultipleScope())
@@ -32,7 +32,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectKeyTypes()
     {
-        var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_16");
         var foreignKey = table.ParentKeys.Single();
 
         using (Assert.EnterMultipleScope())
@@ -45,7 +45,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectTables()
     {
-        var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_16");
         var foreignKey = table.ParentKeys.Single();
 
         using (Assert.EnterMultipleScope())
@@ -58,7 +58,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ContainsConstraintWithCorrectColumns()
     {
-        var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_16");
         var foreignKey = table.ParentKeys.Single();
 
         var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
@@ -77,7 +77,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultUpdateAction_ReturnsUpdateActionAsNoAction()
     {
-        var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_16");
         var parentKeys = table.ParentKeys;
         var foreignKey = parentKeys.Single();
 
@@ -87,7 +87,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeUpdateAction_ReturnsUpdateActionAsCascade()
     {
-        var table = await GetTableAsync("table_test_table_18").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_18");
         var parentKeys = table.ParentKeys;
         var foreignKey = parentKeys.Single();
 
@@ -97,7 +97,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullUpdateAction_ReturnsUpdateActionAsSetNull()
     {
-        var table = await GetTableAsync("table_test_table_19").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_19");
         var parentKeys = table.ParentKeys;
         var foreignKey = parentKeys.Single();
 
@@ -107,7 +107,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultUpdateAction_ReturnsUpdateActionAsSetDefault()
     {
-        var table = await GetTableAsync("table_test_table_20").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_20");
         var parentKeys = table.ParentKeys;
         var foreignKey = parentKeys.Single();
 
@@ -117,7 +117,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithDefaultDeleteAction_ReturnsDeleteActionAsNoAction()
     {
-        var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_16");
         var parentKeys = table.ParentKeys;
         var foreignKey = parentKeys.Single();
 
@@ -127,7 +127,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithCascadeDeleteAction_ReturnsDeleteActionAsCascade()
     {
-        var table = await GetTableAsync("table_test_table_24").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_24");
         var parentKeys = table.ParentKeys;
         var foreignKey = parentKeys.Single();
 
@@ -137,7 +137,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetNullDeleteAction_ReturnsDeleteActionAsSetNull()
     {
-        var table = await GetTableAsync("table_test_table_25").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_25");
         var parentKeys = table.ParentKeys;
         var foreignKey = parentKeys.Single();
 
@@ -147,7 +147,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKeyWithSetDefaultDeleteAction_ReturnsDeleteActionAsSetDefault()
     {
-        var table = await GetTableAsync("table_test_table_26").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_26");
         var parentKeys = table.ParentKeys;
         var foreignKey = parentKeys.Single();
 
@@ -157,7 +157,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToPrimaryKey_ReturnsIsEnabledTrue()
     {
-        var table = await GetTableAsync("table_test_table_16").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_16");
         var parentKeys = table.ParentKeys;
         var foreignKey = parentKeys.Single();
 
@@ -167,7 +167,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithDisabledForeignKeyToPrimaryKey_ReturnsIsEnabledFalse()
     {
-        var table = await GetTableAsync("table_test_table_30").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_30");
         var parentKeys = table.ParentKeys;
         var foreignKey = parentKeys.Single();
 
@@ -177,7 +177,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectNames()
     {
-        var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_17");
         var foreignKey = table.ParentKeys.Single();
 
         using (Assert.EnterMultipleScope())
@@ -190,7 +190,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectKeyTypes()
     {
-        var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_17");
         var foreignKey = table.ParentKeys.Single();
 
         using (Assert.EnterMultipleScope())
@@ -203,7 +203,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectTables()
     {
-        var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_17");
         var foreignKey = table.ParentKeys.Single();
 
         using (Assert.EnterMultipleScope())
@@ -216,7 +216,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ContainsConstraintWithCorrectColumns()
     {
-        var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_17");
         var foreignKey = table.ParentKeys.Single();
 
         var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
@@ -235,7 +235,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultUpdateAction_ReturnsUpdateActionAsNoAction()
     {
-        var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_17");
         var parentKeys = table.ParentKeys;
         var foreignKey = parentKeys.Single();
 
@@ -245,7 +245,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeUpdateAction_ReturnsUpdateActionAsCascade()
     {
-        var table = await GetTableAsync("table_test_table_21").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_21");
         var parentKeys = table.ParentKeys;
         var foreignKey = parentKeys.Single();
 
@@ -255,7 +255,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullUpdateAction_ReturnsUpdateActionAsSetNull()
     {
-        var table = await GetTableAsync("table_test_table_22").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_22");
         var parentKeys = table.ParentKeys;
         var foreignKey = parentKeys.Single();
 
@@ -265,7 +265,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultUpdateAction_ReturnsUpdateActionAsSetDefault()
     {
-        var table = await GetTableAsync("table_test_table_23").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_23");
         var parentKeys = table.ParentKeys;
         var foreignKey = parentKeys.Single();
 
@@ -275,7 +275,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithDefaultDeleteAction_ReturnsDeleteActionAsNoAction()
     {
-        var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_17");
         var parentKeys = table.ParentKeys;
         var foreignKey = parentKeys.Single();
 
@@ -285,7 +285,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithCascadeDeleteAction_ReturnsDeleteActionAsCascade()
     {
-        var table = await GetTableAsync("table_test_table_27").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_27");
         var parentKeys = table.ParentKeys;
         var foreignKey = parentKeys.Single();
 
@@ -295,7 +295,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetNullDeleteAction_ReturnsDeleteActionAsSetNull()
     {
-        var table = await GetTableAsync("table_test_table_28").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_28");
         var parentKeys = table.ParentKeys;
         var foreignKey = parentKeys.Single();
 
@@ -305,7 +305,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKeyWithSetDefaultDeleteAction_ReturnsDeleteActionAsSetDefault()
     {
-        var table = await GetTableAsync("table_test_table_29").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_29");
         var parentKeys = table.ParentKeys;
         var foreignKey = parentKeys.Single();
 
@@ -315,7 +315,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueKey_ReturnsIsEnabledTrue()
     {
-        var table = await GetTableAsync("table_test_table_17").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_17");
         var parentKeys = table.ParentKeys;
         var foreignKey = parentKeys.Single();
 
@@ -325,7 +325,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task ParentKeys_WhenGivenTableWithDisabledForeignKeyToUniqueKey_ReturnsIsEnabledFalse()
     {
-        var table = await GetTableAsync("table_test_table_31").ConfigureAwait(false);
+        var table = await GetTableAsync("table_test_table_31");
         var parentKeys = table.ParentKeys;
         var foreignKey = parentKeys.Single();
 

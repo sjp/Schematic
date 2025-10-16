@@ -52,7 +52,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <returns>A collection of schema-specific pragma accessors.</returns>
     public async Task<IEnumerable<ISqliteDatabasePragma>> DatabasePragmasAsync(CancellationToken cancellationToken = default)
     {
-        var databases = await DatabaseListAsync(cancellationToken).ConfigureAwait(false);
+        var databases = await DatabaseListAsync(cancellationToken);
         return databases
             .OrderBy(static d => d.seq)
             .Select(d => new DatabasePragma(Connection, d.name!))
@@ -122,7 +122,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <returns>The timespan of the busy timeout.</returns>
     public async Task<TimeSpan> BusyTimeoutAsync(CancellationToken cancellationToken = default)
     {
-        var ms = await DbConnection.ExecuteScalarAsync<int>(BusyTimeoutReadQuery, cancellationToken).ConfigureAwait(false);
+        var ms = await DbConnection.ExecuteScalarAsync<int>(BusyTimeoutReadQuery, cancellationToken);
         return TimeSpan.FromMilliseconds(ms);
     }
 
@@ -310,7 +310,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <exception cref="InvalidOperationException">Thrown when an unknown encoding was found.</exception>
     public async Task<Encoding> EncodingAsync(CancellationToken cancellationToken = default)
     {
-        var encodingName = await DbConnection.ExecuteScalarAsync<string>(EncodingReadQuery, cancellationToken).ConfigureAwait(false);
+        var encodingName = await DbConnection.ExecuteScalarAsync<string>(EncodingReadQuery, cancellationToken);
         if (!NameEncodingMapping.TryGetValue(encodingName!, out var encoding))
             throw new InvalidOperationException("Unknown and unsupported encoding found: " + encodingName);
 
@@ -680,7 +680,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <exception cref="InvalidOperationException">Throws when an unknown temporary storage location was encountered.</exception>
     public async Task<TemporaryStoreLocation> TemporaryStoreAsync(CancellationToken cancellationToken = default)
     {
-        var location = await DbConnection.ExecuteScalarAsync<int>(TemporaryStoreReadQuery, cancellationToken).ConfigureAwait(false);
+        var location = await DbConnection.ExecuteScalarAsync<int>(TemporaryStoreReadQuery, cancellationToken);
         if (!Enums.TryToObject(location, out TemporaryStoreLocation tempLocation))
             throw new InvalidOperationException($"Unable to map the value '{location.ToString(CultureInfo.InvariantCulture)}' to a member of {nameof(TemporaryStoreLocation)}.");
 

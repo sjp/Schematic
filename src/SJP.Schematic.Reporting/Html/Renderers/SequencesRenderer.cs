@@ -40,21 +40,21 @@ internal sealed class SequencesRenderer : ITemplateRenderer
         var sequenceViewModels = Sequences.Select(mapper.Map).ToList();
         var sequencesVm = new Sequences(sequenceViewModels);
 
-        var renderedMain = await Formatter.RenderTemplateAsync(sequencesVm, cancellationToken).ConfigureAwait(false);
+        var renderedMain = await Formatter.RenderTemplateAsync(sequencesVm, cancellationToken);
 
         var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
             ? IdentifierDefaults.Database + " Database"
             : "Database";
         var pageTitle = "Sequences · " + databaseName;
         var mainContainer = new Container(renderedMain, pageTitle, string.Empty);
-        var renderedPage = await Formatter.RenderTemplateAsync(mainContainer, cancellationToken).ConfigureAwait(false);
+        var renderedPage = await Formatter.RenderTemplateAsync(mainContainer, cancellationToken);
 
         if (!ExportDirectory.Exists)
             ExportDirectory.Create();
         var outputPath = Path.Combine(ExportDirectory.FullName, "sequences.html");
 
         await using var writer = File.CreateText(outputPath);
-        await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
-        await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
+        await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken);
+        await writer.FlushAsync(cancellationToken);
     }
 }

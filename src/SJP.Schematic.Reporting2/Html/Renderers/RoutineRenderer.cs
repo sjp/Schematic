@@ -44,22 +44,22 @@ internal sealed class RoutineRenderer : ITemplateRenderer
         var routineTasks = Routines.Select(async routine =>
         {
             var viewModel = mapper.Map(routine);
-            var renderedRoutine = await Formatter.RenderTemplateAsync(viewModel, cancellationToken).ConfigureAwait(false);
+            var renderedRoutine = await Formatter.RenderTemplateAsync(viewModel, cancellationToken);
 
             var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
                 ? IdentifierDefaults.Database + " Database"
                 : "Database";
             var pageTitle = routine.Name.ToVisibleName() + " · Routine · " + databaseName;
             var routineContainer = new Container(renderedRoutine, pageTitle, "../");
-            var renderedPage = await Formatter.RenderTemplateAsync(routineContainer, cancellationToken).ConfigureAwait(false);
+            var renderedPage = await Formatter.RenderTemplateAsync(routineContainer, cancellationToken);
 
             var outputPath = Path.Combine(ExportDirectory.FullName, routine.Name.ToSafeKey() + ".html");
             if (!ExportDirectory.Exists)
                 ExportDirectory.Create();
 
             await using var writer = File.CreateText(outputPath);
-            await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken).ConfigureAwait(false);
-            await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
+            await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken);
+            await writer.FlushAsync(cancellationToken);
         });
 
         return Task.WhenAll(routineTasks);

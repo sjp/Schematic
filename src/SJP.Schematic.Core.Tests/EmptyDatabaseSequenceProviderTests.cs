@@ -19,7 +19,7 @@ internal static class EmptyDatabaseSequenceProviderTests
     {
         var provider = new EmptyDatabaseSequenceProvider();
         var sequence = provider.GetSequence("sequence_name");
-        var sequenceIsNone = await sequence.IsNone.ConfigureAwait(false);
+        var sequenceIsNone = await sequence.IsNone;
 
         Assert.That(sequenceIsNone, Is.True);
     }
@@ -28,9 +28,7 @@ internal static class EmptyDatabaseSequenceProviderTests
     public static async Task EnumerateAllSequences_WhenEnumerated_ContainsNoValues()
     {
         var provider = new EmptyDatabaseSequenceProvider();
-        var hasSequences = await provider.EnumerateAllSequences()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasSequences = await provider.EnumerateAllSequences().AnyAsync();
 
         Assert.That(hasSequences, Is.False);
     }
@@ -39,7 +37,7 @@ internal static class EmptyDatabaseSequenceProviderTests
     public static async Task GetAllSequences_WhenRetrieved_ContainsNoValues()
     {
         var provider = new EmptyDatabaseSequenceProvider();
-        var sequences = await provider.GetAllSequences().ConfigureAwait(false);
+        var sequences = await provider.GetAllSequences();
 
         Assert.That(sequences, Is.Empty);
     }

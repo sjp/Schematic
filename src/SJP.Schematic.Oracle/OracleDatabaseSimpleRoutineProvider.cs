@@ -71,14 +71,12 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
         var routineNames = await Connection.QueryEnumerableAsync<GetAllRoutineNames.Result>(GetAllRoutineNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .ToListAsync(cancellationToken);
 
         return await routineNames
             .Select(routineName => LoadRoutineAsyncCore(routineName, cancellationToken))
             .ToArray()
-            .WhenAll()
-            .ConfigureAwait(false);
+            .WhenAll();
     }
 
     /// <summary>
@@ -155,7 +153,7 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
 
     private async Task<IDatabaseRoutine> LoadRoutineAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
-        var definition = await LoadDefinitionAsync(routineName, cancellationToken).ConfigureAwait(false);
+        var definition = await LoadDefinitionAsync(routineName, cancellationToken);
         return new DatabaseRoutine(routineName, definition);
     }
 
@@ -177,13 +175,13 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
     {
         // fast path
         if (string.Equals(routineName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal))
-            return await LoadUserDefinitionAsyncCore(routineName, cancellationToken).ConfigureAwait(false);
+            return await LoadUserDefinitionAsyncCore(routineName, cancellationToken);
 
         var lines = await Connection.QueryAsync(
             GetRoutineDefinition.Sql,
             new GetRoutineDefinition.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (lines.Empty())
             return string.Empty;
@@ -198,7 +196,7 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
             GetUserRoutineDefinition.Sql,
             new GetUserRoutineDefinition.Query { RoutineName = routineName.LocalName },
             cancellationToken
-        ).ConfigureAwait(false);
+        );
 
         if (userLines.Empty())
             return string.Empty;

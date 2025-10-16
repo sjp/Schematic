@@ -26,7 +26,7 @@ internal static class RelationalDatabaseLinterTests
     [Test]
     public static async Task AnalyseDatabase_GivenEmptyDatabase_ReturnsEmptyMessages()
     {
-        var messages = await Linter.AnalyseDatabase(EmptyDatabase).ConfigureAwait(false);
+        var messages = await Linter.AnalyseDatabase(EmptyDatabase);
 
         Assert.That(messages, Is.Empty);
     }
@@ -40,7 +40,7 @@ internal static class RelationalDatabaseLinterTests
     [Test]
     public static async Task AnalyseTables_GivenEmptyTables_ReturnsEmptyMessages()
     {
-        var messages = await Linter.AnalyseTables([]).ConfigureAwait(false);
+        var messages = await Linter.AnalyseTables([]);
 
         Assert.That(messages, Is.Empty);
     }
@@ -54,7 +54,7 @@ internal static class RelationalDatabaseLinterTests
     [Test]
     public static async Task AnalyseViews_GivenEmptyViews_ReturnsEmptyMessages()
     {
-        var messages = await Linter.AnalyseViews([]).ConfigureAwait(false);
+        var messages = await Linter.AnalyseViews([]);
 
         Assert.That(messages, Is.Empty);
     }
@@ -68,7 +68,7 @@ internal static class RelationalDatabaseLinterTests
     [Test]
     public static async Task AnalyseSequences_GivenEmptySequences_ReturnsEmptyMessages()
     {
-        var messages = await Linter.AnalyseSequences([]).ConfigureAwait(false);
+        var messages = await Linter.AnalyseSequences([]);
 
         Assert.That(messages, Is.Empty);
     }
@@ -82,7 +82,7 @@ internal static class RelationalDatabaseLinterTests
     [Test]
     public static async Task AnalyseSynonyms_GivenEmptySynonyms_ReturnsEmptyMessages()
     {
-        var messages = await Linter.AnalyseSynonyms([]).ConfigureAwait(false);
+        var messages = await Linter.AnalyseSynonyms([]);
 
         Assert.That(messages, Is.Empty);
     }
@@ -96,7 +96,7 @@ internal static class RelationalDatabaseLinterTests
     [Test]
     public static async Task AnalyseRoutines_GivenEmptyRoutines_ReturnsEmptyMessages()
     {
-        var messages = await Linter.AnalyseRoutines([]).ConfigureAwait(false);
+        var messages = await Linter.AnalyseRoutines([]);
 
         Assert.That(messages, Is.Empty);
     }

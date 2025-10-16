@@ -244,7 +244,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbTables = await database.EnumerateAllTables().ToListAsync().ConfigureAwait(false);
+        var dbTables = await database.EnumerateAllTables().ToListAsync();
         var tableName = dbTables.Select(t => t.Name).Single();
 
         Assert.That(tableName, Is.EqualTo(testTableName));
@@ -276,7 +276,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbTables = await database.GetAllTables().ConfigureAwait(false);
+        var dbTables = await database.GetAllTables();
         var tableName = dbTables.Select(t => t.Name).Single();
 
         Assert.That(tableName, Is.EqualTo(testTableName));
@@ -308,7 +308,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbTable = await database.GetTable(testTableName).ToOption().ConfigureAwait(false);
+        var dbTable = await database.GetTable(testTableName).ToOption();
         var tableName = dbTable.Match(t => t.Name.LocalName, string.Empty);
 
         using (Assert.EnterMultipleScope())
@@ -344,7 +344,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbTable = await database.GetTable("missing_table_name").ToOption().ConfigureAwait(false);
+        var dbTable = await database.GetTable("missing_table_name").ToOption();
 
         Assert.That(dbTable, OptionIs.None);
     }
@@ -374,7 +374,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbViews = await database.EnumerateAllViews().ToListAsync().ConfigureAwait(false);
+        var dbViews = await database.EnumerateAllViews().ToListAsync();
         var viewName = dbViews.Select(v => v.Name).Single();
 
         Assert.That(viewName, Is.EqualTo(testViewName));
@@ -405,7 +405,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbViews = await database.GetAllViews().ConfigureAwait(false);
+        var dbViews = await database.GetAllViews();
         var viewName = dbViews.Select(v => v.Name).Single();
 
         Assert.That(viewName, Is.EqualTo(testViewName));
@@ -438,7 +438,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbView = await database.GetView(testViewName).ToOption().ConfigureAwait(false);
+        var dbView = await database.GetView(testViewName).ToOption();
         var viewName = dbView.Match(v => v.Name.LocalName, string.Empty);
 
         using (Assert.EnterMultipleScope())
@@ -475,7 +475,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbView = await database.GetView("missing_view_name").ToOption().ConfigureAwait(false);
+        var dbView = await database.GetView("missing_view_name").ToOption();
 
         Assert.That(dbView, OptionIs.None);
     }
@@ -505,7 +505,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbSequences = await database.EnumerateAllSequences().ToListAsync().ConfigureAwait(false);
+        var dbSequences = await database.EnumerateAllSequences().ToListAsync();
         var sequenceName = dbSequences.Select(s => s.Name).Single();
 
         Assert.That(sequenceName, Is.EqualTo(testSequenceName));
@@ -536,7 +536,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbSequences = await database.GetAllSequences().ConfigureAwait(false);
+        var dbSequences = await database.GetAllSequences();
         var sequenceName = dbSequences.Select(s => s.Name).Single();
 
         Assert.That(sequenceName, Is.EqualTo(testSequenceName));
@@ -569,7 +569,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbSequence = await database.GetSequence(testSequenceName).ToOption().ConfigureAwait(false);
+        var dbSequence = await database.GetSequence(testSequenceName).ToOption();
         var sequenceName = dbSequence.Match(s => s.Name.LocalName, string.Empty);
 
         using (Assert.EnterMultipleScope())
@@ -606,7 +606,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbSequence = await database.GetSequence("missing_sequence_name").ToOption().ConfigureAwait(false);
+        var dbSequence = await database.GetSequence("missing_sequence_name").ToOption();
 
         Assert.That(dbSequence, OptionIs.None);
     }
@@ -636,7 +636,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbSynonyms = await database.EnumerateAllSynonyms().ToListAsync().ConfigureAwait(false);
+        var dbSynonyms = await database.EnumerateAllSynonyms().ToListAsync();
         var synonymName = dbSynonyms.Select(s => s.Name).Single();
 
         Assert.That(synonymName, Is.EqualTo(testSynonymName));
@@ -667,7 +667,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbSynonyms = await database.GetAllSynonyms().ConfigureAwait(false);
+        var dbSynonyms = await database.GetAllSynonyms();
         var synonymName = dbSynonyms.Select(s => s.Name).Single();
 
         Assert.That(synonymName, Is.EqualTo(testSynonymName));
@@ -700,7 +700,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbSynonym = await database.GetSynonym(testSynonymName).ToOption().ConfigureAwait(false);
+        var dbSynonym = await database.GetSynonym(testSynonymName).ToOption();
         var synonymName = dbSynonym.Match(s => s.Name.LocalName, string.Empty);
 
         using (Assert.EnterMultipleScope())
@@ -737,7 +737,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbSynonym = await database.GetSynonym("missing_synonym_name").ToOption().ConfigureAwait(false);
+        var dbSynonym = await database.GetSynonym("missing_synonym_name").ToOption();
 
         Assert.That(dbSynonym, OptionIs.None);
     }
@@ -767,7 +767,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbRoutines = await database.EnumerateAllRoutines().ToListAsync().ConfigureAwait(false);
+        var dbRoutines = await database.EnumerateAllRoutines().ToListAsync();
         var routineName = dbRoutines.Select(r => r.Name).Single();
 
         Assert.That(routineName, Is.EqualTo(testRoutineName));
@@ -798,7 +798,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbRoutines = await database.GetAllRoutines().ConfigureAwait(false);
+        var dbRoutines = await database.GetAllRoutines();
         var routineName = dbRoutines.Select(r => r.Name).Single();
 
         Assert.That(routineName, Is.EqualTo(testRoutineName));
@@ -830,7 +830,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbRoutine = await database.GetRoutine(testRoutineName).ToOption().ConfigureAwait(false);
+        var dbRoutine = await database.GetRoutine(testRoutineName).ToOption();
         var routineName = dbRoutine.Match(r => r.Name.LocalName, string.Empty);
 
         using (Assert.EnterMultipleScope())
@@ -866,7 +866,7 @@ internal static class RelationalDatabaseTests
             routines
         );
 
-        var dbRoutine = await database.GetRoutine("missing_routine_name").ToOption().ConfigureAwait(false);
+        var dbRoutine = await database.GetRoutine("missing_routine_name").ToOption();
 
         Assert.That(dbRoutine, OptionIs.None);
     }

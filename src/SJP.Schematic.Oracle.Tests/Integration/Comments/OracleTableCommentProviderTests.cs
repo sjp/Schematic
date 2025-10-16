@@ -20,18 +20,18 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create table table_comment_table_1 ( test_column_1 number )", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("create table table_comment_table_2 ( test_column_1 number, test_column_2 number, test_column_3 number )", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("create table table_comment_table_1 ( test_column_1 number )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table table_comment_table_2 ( test_column_1 number, test_column_2 number, test_column_3 number )", CancellationToken.None);
 
-        await DbConnection.ExecuteAsync("comment on table table_comment_table_2 is 'This is a test table comment.'", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("comment on column table_comment_table_2.test_column_2 is 'This is a column comment.'", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("comment on table table_comment_table_2 is 'This is a test table comment.'", CancellationToken.None);
+        await DbConnection.ExecuteAsync("comment on column table_comment_table_2.test_column_2 is 'This is a column comment.'", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table table_comment_table_1", CancellationToken.None).ConfigureAwait(false);
-        await DbConnection.ExecuteAsync("drop table table_comment_table_2", CancellationToken.None).ConfigureAwait(false);
+        await DbConnection.ExecuteAsync("drop table table_comment_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_comment_table_2", CancellationToken.None);
     }
 
     private Task<IRelationalDatabaseTableComments> GetTableCommentsAsync(Identifier tableName)
@@ -43,7 +43,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
 
     private async Task<IRelationalDatabaseTableComments> GetTableCommentsAsyncCore(Identifier tableName)
     {
-        using (await _lock.LockAsync().ConfigureAwait(false))
+        using (await _lock.LockAsync())
         {
             if (!_commentsCache.TryGetValue(tableName, out var lazyComment))
             {
@@ -51,7 +51,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
                 _commentsCache[tableName] = lazyComment;
             }
 
-            return await lazyComment.ConfigureAwait(false);
+            return await lazyComment;
         }
     }
 
@@ -61,7 +61,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
     [Test]
     public async Task GetTableComments_WhenTablePresent_ReturnsTableComment()
     {
-        var tableIsSome = await TableCommentProvider.GetTableComments("table_comment_table_1").IsSome.ConfigureAwait(false);
+        var tableIsSome = await TableCommentProvider.GetTableComments("table_comment_table_1").IsSome;
         Assert.That(tableIsSome, Is.True);
     }
 
@@ -69,7 +69,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
     public async Task GetTableComments_WhenTablePresent_ReturnsTableWithCorrectName()
     {
         const string tableName = "TABLE_COMMENT_TABLE_1";
-        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync();
 
         Assert.That(tableComments.TableName.LocalName, Is.EqualTo(tableName));
     }
@@ -80,7 +80,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
         var tableName = new Identifier("table_comment_table_1");
         var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "TABLE_COMMENT_TABLE_1");
 
-        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync();
 
         Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
     }
@@ -91,7 +91,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
         var tableName = new Identifier(IdentifierDefaults.Schema, "table_comment_table_1");
         var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "TABLE_COMMENT_TABLE_1");
 
-        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync();
 
         Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
     }
@@ -102,7 +102,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
         var tableName = new Identifier(IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
         var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "TABLE_COMMENT_TABLE_1");
 
-        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync();
 
         Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
     }
@@ -112,7 +112,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
     {
         var tableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "TABLE_COMMENT_TABLE_1");
 
-        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync();
 
         Assert.That(tableComments.TableName, Is.EqualTo(tableName));
     }
@@ -123,7 +123,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
         var tableName = new Identifier("A", IdentifierDefaults.Database, IdentifierDefaults.Schema, "table_comment_table_1");
         var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "TABLE_COMMENT_TABLE_1");
 
-        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync();
 
         Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
     }
@@ -134,7 +134,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
         var tableName = new Identifier("A", "B", IdentifierDefaults.Schema, "table_comment_table_1");
         var expectedTableName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "TABLE_COMMENT_TABLE_1");
 
-        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetTableComments(tableName).UnwrapSomeAsync();
 
         Assert.That(tableComments.TableName, Is.EqualTo(expectedTableName));
     }
@@ -142,16 +142,14 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
     [Test]
     public async Task GetTableComments_WhenTableMissing_ReturnsNone()
     {
-        var tableIsNone = await TableCommentProvider.GetTableComments("table_that_doesnt_exist").IsNone.ConfigureAwait(false);
+        var tableIsNone = await TableCommentProvider.GetTableComments("table_that_doesnt_exist").IsNone;
         Assert.That(tableIsNone, Is.True);
     }
 
     [Test]
     public async Task EnumerateAllTableComments_WhenEnumerated_ContainsTableComments()
     {
-        var hasTableComments = await TableCommentProvider.EnumerateAllTableComments()
-            .AnyAsync()
-            .ConfigureAwait(false);
+        var hasTableComments = await TableCommentProvider.EnumerateAllTableComments().AnyAsync();
 
         Assert.That(hasTableComments, Is.True);
     }
@@ -160,8 +158,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
     public async Task EnumerateAllTableComments_WhenEnumerated_ContainsTestTableComment()
     {
         var containsTestTable = await TableCommentProvider.EnumerateAllTableComments()
-            .AnyAsync(t => string.Equals(t.TableName.LocalName, "TABLE_COMMENT_TABLE_1", StringComparison.Ordinal))
-            .ConfigureAwait(false);
+            .AnyAsync(t => string.Equals(t.TableName.LocalName, "TABLE_COMMENT_TABLE_1", StringComparison.Ordinal));
 
         Assert.That(containsTestTable, Is.True);
     }
@@ -169,7 +166,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
     [Test]
     public async Task GetAllTableComments_WhenRetrieved_ContainsTableComments()
     {
-        var tableComments = await TableCommentProvider.GetAllTableComments().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetAllTableComments();
 
         Assert.That(tableComments, Is.Not.Empty);
     }
@@ -177,7 +174,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
     [Test]
     public async Task GetAllTableComments_WhenRetrieved_ContainsTestTableComment()
     {
-        var tableComments = await TableCommentProvider.GetAllTableComments().ConfigureAwait(false);
+        var tableComments = await TableCommentProvider.GetAllTableComments();
         var containsTestTable = tableComments.Any(t => string.Equals(t.TableName.LocalName, "TABLE_COMMENT_TABLE_1", StringComparison.Ordinal));
 
         Assert.That(containsTestTable, Is.True);
@@ -186,7 +183,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
     [Test]
     public async Task GetTableComments_WhenTableMissingComment_ReturnsNone()
     {
-        var comments = await GetTableCommentsAsync("TABLE_COMMENT_TABLE_1").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("TABLE_COMMENT_TABLE_1");
 
         Assert.That(comments.Comment.IsNone, Is.True);
     }
@@ -194,7 +191,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
     [Test]
     public async Task GetTableComments_WhenTableMissingColumnComments_ReturnsLookupKeyedWithColumnNames()
     {
-        var comments = await GetTableCommentsAsync("TABLE_COMMENT_TABLE_1").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("TABLE_COMMENT_TABLE_1");
 
         var columnComments = comments.ColumnComments;
         var hasColumns = columnComments.Count == 1 && string.Equals(columnComments.Keys.Single().LocalName, "TEST_COLUMN_1", StringComparison.Ordinal);
@@ -205,7 +202,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
     [Test]
     public async Task GetTableComments_WhenTableMissingColumnComments_ReturnsLookupWithOnlyNoneValues()
     {
-        var comments = await GetTableCommentsAsync("TABLE_COMMENT_TABLE_1").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("TABLE_COMMENT_TABLE_1");
 
         var columnComments = comments.ColumnComments;
         var hasOnlyNones = columnComments.Count == 1 && columnComments.Values.Single().IsNone;
@@ -217,7 +214,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
     public async Task GetTableComments_WhenTableContainsComment_ReturnsExpectedValue()
     {
         const string expectedComment = "This is a test table comment.";
-        var comments = await GetTableCommentsAsync("TABLE_COMMENT_TABLE_2").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("TABLE_COMMENT_TABLE_2");
 
         var tableComment = comments.Comment.UnwrapSome();
 
@@ -233,7 +230,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
             new Identifier("TEST_COLUMN_2"),
             new Identifier("TEST_COLUMN_3"),
         };
-        var comments = await GetTableCommentsAsync("TABLE_COMMENT_TABLE_2").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("TABLE_COMMENT_TABLE_2");
 
         Assert.That(comments.ColumnComments.Keys, Is.EqualTo(columnNames));
     }
@@ -247,7 +244,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
             false,
             true,
         };
-        var comments = await GetTableCommentsAsync("TABLE_COMMENT_TABLE_2").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("TABLE_COMMENT_TABLE_2");
 
         var columnComments = comments.ColumnComments;
         var noneStates = new[]
@@ -264,7 +261,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
     public async Task GetTableComments_PropertyGetForColumnComments_ReturnsCorrectCommentValue()
     {
         const string expectedComment = "This is a column comment.";
-        var comments = await GetTableCommentsAsync("TABLE_COMMENT_TABLE_2").ConfigureAwait(false);
+        var comments = await GetTableCommentsAsync("TABLE_COMMENT_TABLE_2");
 
         var comment = comments.ColumnComments["TEST_COLUMN_2"].UnwrapSome();
 
