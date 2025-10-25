@@ -63,7 +63,7 @@ internal sealed class TestCommand : AsyncCommand<TestCommand.Settings>
         catch (Exception ex)
         {
             _console.MarkupLine("[red]Failed to connect to the database.[/red]");
-            _console.MarkupLine("    [red]" + ex.Message + "[/]");
+            _console.MarkupLineInterpolated($"    [red]{ex.Message}[/]");
 
             return ErrorCode.Error;
         }

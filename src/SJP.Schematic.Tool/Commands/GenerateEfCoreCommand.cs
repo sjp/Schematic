@@ -50,7 +50,7 @@ internal sealed class GenerateEfCoreCommand : AsyncCommand<GenerateEfCoreCommand
         var generator = new EFCoreDataAccessGenerator(_fileSystem, database, commentProvider, nameTranslator);
         await generator.GenerateAsync(settings.ProjectPath!.FullName, settings.BaseNamespace!, cancellationToken);
 
-        _console.MarkupLine("[green]Project generated at: " + settings.ProjectPath.FullName + "[/]");
+        _console.MarkupLineInterpolated($"[green]Project generated at: {settings.ProjectPath.FullName}[/]");
         return ErrorCode.Success;
     }
 }
