@@ -34,10 +34,8 @@ internal sealed class GeneratePocoCommand : AsyncCommand<GeneratePocoCommand.Set
         _dependencyProviderFactory = dependencyProviderFactory;
     }
 
-    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var cancellationToken = CancellationToken.None;
-
         var dependencyProvider = _dependencyProviderFactory.GetDbDependencies(settings.ConfigFile!.FullName);
         var connection = dependencyProvider.GetSchematicConnection();
         var nameTranslator = dependencyProvider.GetNameTranslator(settings.NamingConvention);
