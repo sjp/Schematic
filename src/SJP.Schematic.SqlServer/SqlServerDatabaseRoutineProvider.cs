@@ -50,7 +50,7 @@ public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
         return Connection.QueryEnumerableAsync<GetAllRoutineNames.Result>(GetAllRoutineNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName)
-            .SelectAwait(routineName => LoadRoutineAsyncCore(routineName, cancellationToken).ToValue());
+            .SelectAwait(routineName => LoadRoutineAsyncCore(routineName, cancellationToken));
     }
 
     /// <summary>

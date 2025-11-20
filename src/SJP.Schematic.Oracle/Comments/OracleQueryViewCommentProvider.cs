@@ -59,7 +59,7 @@ public class OracleQueryViewCommentProvider : IDatabaseViewCommentProvider
         return Connection.QueryEnumerableAsync<GetAllViewNames.Result>(GetAllViewNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName)
-            .SelectAwait(viewName => LoadViewCommentsAsyncCore(viewName, cancellationToken).ToValue());
+            .SelectAwait(viewName => LoadViewCommentsAsyncCore(viewName, cancellationToken));
     }
 
     /// <summary>

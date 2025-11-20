@@ -85,7 +85,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             )
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
             .Select(QualifyTableName)
-            .SelectAwait(tableName => LoadTableAsyncCore(tableName, queryCache, cancellationToken).ToValue());
+            .SelectAwait(tableName => LoadTableAsyncCore(tableName, queryCache, cancellationToken));
     }
 
     /// <summary>

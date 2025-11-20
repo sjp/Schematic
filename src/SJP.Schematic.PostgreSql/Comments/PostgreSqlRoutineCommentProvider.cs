@@ -59,7 +59,7 @@ public class PostgreSqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
         return Connection.QueryEnumerableAsync<GetAllRoutineNames.Result>(GetAllRoutineNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName)
-            .SelectAwait(routineName => LoadRoutineCommentsAsyncCore(routineName, cancellationToken).ToValue());
+            .SelectAwait(routineName => LoadRoutineCommentsAsyncCore(routineName, cancellationToken));
     }
 
     /// <summary>

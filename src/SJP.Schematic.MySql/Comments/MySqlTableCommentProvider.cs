@@ -56,7 +56,7 @@ public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
             )
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
             .Select(QualifyTableName)
-            .SelectAwait(tableName => LoadTableCommentsAsyncCore(tableName, cancellationToken).ToValue());
+            .SelectAwait(tableName => LoadTableCommentsAsyncCore(tableName, cancellationToken));
     }
 
     /// <summary>
