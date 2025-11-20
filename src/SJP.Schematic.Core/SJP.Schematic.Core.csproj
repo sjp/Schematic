@@ -14,7 +14,6 @@
     <PackageReference Include="Polly" />
     <PackageReference Include="Polly.Contrib.WaitAndRetry" />
     <PackageReference Include="QuikGraph" />
-    <PackageReference Include="System.Linq.Async" />
   </ItemGroup>
 
 </Project>

@@ -19,9 +19,6 @@
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
     <PackageReference Include="RazorLight" />
-    <PackageReference Include="System.Text.Encodings.Web">
-      <TreatAsUsed>true</TreatAsUsed>
-    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

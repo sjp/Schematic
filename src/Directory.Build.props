@@ -1,6 +1,6 @@
 <Project>
     <PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
         <RootDirectory>$([System.IO.Path]::GetDirectoryName($([System.IO.Path]::GetDirectoryName($(MSBuildThisFileDirectory)))))</RootDirectory>
         <LangVersion>latest</LangVersion>
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
@@ -22,6 +22,8 @@
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <TestingPlatformDotnetTestSupport>false</TestingPlatformDotnetTestSupport>
+        <!-- hopefully temporary, until RazorLight bumps to secure version -->
+        <NoWarn>NU1903</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
