@@ -70,7 +70,7 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
         return DbConnection.QueryEnumerableAsync<GetAllMaterializedViewNames.Result>(GetAllMaterializedViewNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName)
-            .SelectAwait(viewName => LoadViewAsyncCore(viewName, cancellationToken));
+            .SelectAwait(viewName => LoadViewAsyncCore(viewName, cancellationToken), cancellationToken);
     }
 
     /// <summary>

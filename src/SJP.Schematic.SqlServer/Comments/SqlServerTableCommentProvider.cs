@@ -57,7 +57,7 @@ public class SqlServerTableCommentProvider : IRelationalDatabaseTableCommentProv
         return Connection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
             .Select(QualifyTableName)
-            .SelectAwait(tableName => LoadTableCommentsAsyncCore(tableName, cancellationToken));
+            .SelectAwait(tableName => LoadTableCommentsAsyncCore(tableName, cancellationToken), cancellationToken);
     }
 
     /// <summary>

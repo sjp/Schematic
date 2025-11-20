@@ -68,7 +68,7 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
         return queryResult
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName)
-            .SelectAwait(viewName => LoadViewAsyncCore(viewName, cancellationToken));
+            .SelectAwait(viewName => LoadViewAsyncCore(viewName, cancellationToken), cancellationToken);
     }
 
     /// <summary>

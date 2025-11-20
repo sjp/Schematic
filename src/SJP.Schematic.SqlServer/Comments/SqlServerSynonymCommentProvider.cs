@@ -58,7 +58,7 @@ public class SqlServerSynonymCommentProvider : IDatabaseSynonymCommentProvider
         return Connection.QueryEnumerableAsync<GetAllSynonymNames.Result>(GetAllSynonymNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.SynonymName))
             .Select(QualifySynonymName)
-            .SelectAwait(synonymName => LoadSynonymCommentsAsyncCore(synonymName, cancellationToken));
+            .SelectAwait(synonymName => LoadSynonymCommentsAsyncCore(synonymName, cancellationToken), cancellationToken);
     }
 
     /// <summary>
