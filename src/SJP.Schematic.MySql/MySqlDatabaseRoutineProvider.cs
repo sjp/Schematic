@@ -60,7 +60,7 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
             )
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName)
-            .SelectAwait(routineName => LoadRoutineAsyncCore(routineName, cancellationToken), cancellationToken);
+            .SelectAwait(LoadRoutineAsyncCore);
     }
 
     /// <summary>

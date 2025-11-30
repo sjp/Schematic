@@ -60,7 +60,7 @@ public class OracleTableCommentProvider : IRelationalDatabaseTableCommentProvide
         return Connection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
             .Select(QualifyTableName)
-            .SelectAwait(tableName => LoadTableCommentsAsyncCore(tableName, cancellationToken), cancellationToken);
+            .SelectAwait(LoadTableCommentsAsyncCore);
     }
 
     /// <summary>

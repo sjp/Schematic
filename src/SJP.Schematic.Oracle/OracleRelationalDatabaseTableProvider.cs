@@ -92,7 +92,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         return DbConnection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
             .Select(QualifyTableName)
-            .SelectAwait(tableName => LoadTableAsyncCore(tableName, queryCache, cancellationToken), cancellationToken);
+            .SelectAwait((tableName, ct) => LoadTableAsyncCore(tableName, queryCache, ct));
     }
 
     /// <summary>

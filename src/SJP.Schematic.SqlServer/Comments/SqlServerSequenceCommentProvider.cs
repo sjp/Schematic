@@ -57,7 +57,7 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
         return Connection.QueryEnumerableAsync<GetAllSequenceNames.Result>(GetAllSequenceNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.SequenceName))
             .Select(QualifySequenceName)
-            .SelectAwait(sequenceName => LoadSequenceCommentsAsyncCore(sequenceName, cancellationToken), cancellationToken);
+            .SelectAwait(LoadSequenceCommentsAsyncCore);
     }
 
     /// <summary>

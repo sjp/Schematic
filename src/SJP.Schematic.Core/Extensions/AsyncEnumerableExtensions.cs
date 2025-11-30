@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt;
 
 namespace SJP.Schematic.Core.Extensions;
 
@@ -20,21 +20,14 @@ public static class AsyncEnumerableExtensions
     /// <typeparam name="TResult">The type of the elements in the result sequence, obtained by running the selector function for each element in the source sequence and awaiting the result.</typeparam>
     /// <param name="source">A sequence of elements to invoke a transform function on.</param>
     /// <param name="selector">An asynchronous transform function to apply to each source element.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An async-enumerable sequence whose elements are the result of invoking the transform function on each element of the source sequence and awaiting the result.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="selector"/> is null.</exception>
-    public static IAsyncEnumerable<TResult> SelectAwait<TSource, TResult>(this IAsyncEnumerable<TSource> source, Func<TSource, ValueTask<TResult>> selector, CancellationToken cancellationToken = default)
+    public static IAsyncEnumerable<TResult> SelectAwait<TSource, TResult>(this IAsyncEnumerable<TSource> source, Func<TSource, ValueTask<TResult>> selector)
     {
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(selector);
 
-        return SelectAwaitCore(cancellationToken);
-
-        async IAsyncEnumerable<TResult> SelectAwaitCore([EnumeratorCancellation] CancellationToken cancellationToken)
-        {
-            await foreach (var element in source.WithCancellation(cancellationToken))
-                yield return await selector(element).ConfigureAwait(false);
-        }
+        return source.Select((TSource element, CancellationToken _) => selector(element));
     }
 
     /// <summary>
@@ -44,21 +37,14 @@ public static class AsyncEnumerableExtensions
     /// <typeparam name="TResult">The type of the elements in the result sequence, obtained by running the selector function for each element in the source sequence and awaiting the result.</typeparam>
     /// <param name="source">A sequence of elements to invoke a transform function on.</param>
     /// <param name="selector">An asynchronous transform function to apply to each source element.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An async-enumerable sequence whose elements are the result of invoking the transform function on each element of the source sequence and awaiting the result.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="selector"/> is null.</exception>
-    public static IAsyncEnumerable<TResult> SelectAwait<TSource, TResult>(this IAsyncEnumerable<TSource> source, Func<TSource, CancellationToken, ValueTask<TResult>> selector, CancellationToken cancellationToken = default)
+    public static IAsyncEnumerable<TResult> SelectAwait<TSource, TResult>(this IAsyncEnumerable<TSource> source, Func<TSource, CancellationToken, ValueTask<TResult>> selector)
     {
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(selector);
 
-        return SelectAwaitCore(cancellationToken);
-
-        async IAsyncEnumerable<TResult> SelectAwaitCore([EnumeratorCancellation] CancellationToken cancellationToken)
-        {
-            await foreach (var element in source.WithCancellation(cancellationToken))
-                yield return await selector(element, cancellationToken).ConfigureAwait(false);
-        }
+        return source.Select(selector);
     }
 
     /// <summary>
@@ -68,21 +54,14 @@ public static class AsyncEnumerableExtensions
     /// <typeparam name="TResult">The type of the elements in the result sequence, obtained by running the selector function for each element in the source sequence and awaiting the result.</typeparam>
     /// <param name="source">A sequence of elements to invoke a transform function on.</param>
     /// <param name="selector">An asynchronous transform function to apply to each source element.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An async-enumerable sequence whose elements are the result of invoking the transform function on each element of the source sequence and awaiting the result.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="selector"/> is null.</exception>
-    public static IAsyncEnumerable<TResult> SelectAwait<TSource, TResult>(this IAsyncEnumerable<TSource> source, Func<TSource, Task<TResult>> selector, CancellationToken cancellationToken = default)
+    public static IAsyncEnumerable<TResult> SelectAwait<TSource, TResult>(this IAsyncEnumerable<TSource> source, Func<TSource, Task<TResult>> selector)
     {
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(selector);
 
-        return SelectAwaitCore(cancellationToken);
-
-        async IAsyncEnumerable<TResult> SelectAwaitCore([EnumeratorCancellation] CancellationToken cancellationToken)
-        {
-            await foreach (var element in source.WithCancellation(cancellationToken))
-                yield return await selector(element).ConfigureAwait(false);
-        }
+        return source.Select((TSource element, CancellationToken _) => selector(element).ToValue());
     }
 
     /// <summary>
@@ -92,20 +71,13 @@ public static class AsyncEnumerableExtensions
     /// <typeparam name="TResult">The type of the elements in the result sequence, obtained by running the selector function for each element in the source sequence and awaiting the result.</typeparam>
     /// <param name="source">A sequence of elements to invoke a transform function on.</param>
     /// <param name="selector">An asynchronous transform function to apply to each source element.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An async-enumerable sequence whose elements are the result of invoking the transform function on each element of the source sequence and awaiting the result.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="selector"/> is null.</exception>
-    public static IAsyncEnumerable<TResult> SelectAwait<TSource, TResult>(this IAsyncEnumerable<TSource> source, Func<TSource, CancellationToken, Task<TResult>> selector, CancellationToken cancellationToken = default)
+    public static IAsyncEnumerable<TResult> SelectAwait<TSource, TResult>(this IAsyncEnumerable<TSource> source, Func<TSource, CancellationToken, Task<TResult>> selector)
     {
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(selector);
 
-        return SelectAwaitCore(cancellationToken);
-
-        async IAsyncEnumerable<TResult> SelectAwaitCore([EnumeratorCancellation] CancellationToken cancellationToken)
-        {
-            await foreach (var element in source.WithCancellation(cancellationToken))
-                yield return await selector(element, cancellationToken).ConfigureAwait(false);
-        }
+        return source.Select((element, ct) => selector(element, ct).ToValue());
     }
 }

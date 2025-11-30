@@ -57,7 +57,7 @@ public class SqlServerRoutineCommentProvider : IDatabaseRoutineCommentProvider
         return Connection.QueryEnumerableAsync<GetAllRoutineNames.Result>(GetAllRoutineNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName)
-            .SelectAwait(routineName => LoadRoutineCommentsAsyncCore(routineName, cancellationToken), cancellationToken);
+            .SelectAwait(LoadRoutineCommentsAsyncCore);
     }
 
     /// <summary>

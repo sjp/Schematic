@@ -70,7 +70,7 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
         return DbConnection.QueryEnumerableAsync<GetAllViewNames.Result>(GetAllViewNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName)
-            .SelectAwait(viewName => LoadViewAsyncCore(viewName, cancellationToken), cancellationToken);
+            .SelectAwait(LoadViewAsyncCore);
     }
 
     /// <summary>

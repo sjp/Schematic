@@ -59,7 +59,7 @@ public class PostgreSqlTableCommentProvider : IRelationalDatabaseTableCommentPro
         return Connection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
             .Select(QualifyTableName)
-            .SelectAwait(tableName => LoadTableCommentsAsyncCore(tableName, cancellationToken), cancellationToken);
+            .SelectAwait(LoadTableCommentsAsyncCore);
     }
 
     /// <summary>

@@ -59,7 +59,7 @@ public class PostgreSqlMaterializedViewCommentProvider : IDatabaseViewCommentPro
         return Connection.QueryEnumerableAsync<GetAllMaterializedViewNames.Result>(GetAllMaterializedViewNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName)
-            .SelectAwait(viewName => LoadViewCommentsAsyncCore(viewName, cancellationToken), cancellationToken);
+            .SelectAwait(LoadViewCommentsAsyncCore);
     }
 
     /// <summary>
