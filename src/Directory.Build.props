@@ -21,7 +21,6 @@
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <EnableNUnitRunner>true</EnableNUnitRunner>
         <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
         <!-- hopefully temporary, until RazorLight bumps to secure version -->
         <NoWarn>NU1903</NoWarn>
