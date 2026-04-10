@@ -23,7 +23,7 @@ internal sealed class OrmCommand : Command<OrmCommand.Settings>
         public string? BaseNamespace { get; init; }
     }
 
-    public override int Execute(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override int Execute(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
         return 0; // This command acts as a group for subcommands, so it doesn't have direct execution logic.
     }

@@ -16,11 +16,6 @@ internal sealed class GenerateOrmLiteCommand : AsyncCommand<GenerateOrmLiteComma
     {
     }
 
-    public override ValidationResult Validate(CommandContext context, Settings settings)
-    {
-        return base.Validate(context, settings);
-    }
-
     private readonly IFileSystem _fileSystem;
     private readonly IAnsiConsole _console;
     private readonly IDatabaseCommandDependencyProviderFactory _dependencyProviderFactory;
@@ -39,7 +34,7 @@ internal sealed class GenerateOrmLiteCommand : AsyncCommand<GenerateOrmLiteComma
         _dependencyProviderFactory = dependencyProviderFactory;
     }
 
-    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
         var dependencyProvider = _dependencyProviderFactory.GetDbDependencies(settings.ConfigFile!.FullName);
         var connection = dependencyProvider.GetSchematicConnection();

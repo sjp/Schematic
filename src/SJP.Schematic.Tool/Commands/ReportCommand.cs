@@ -35,7 +35,7 @@ internal sealed class ReportCommand : AsyncCommand<ReportCommand.Settings>
         _dependencyProviderFactory = dependencyProviderFactory;
     }
 
-    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
         var dependencyProvider = _dependencyProviderFactory.GetDbDependencies(settings.ConfigFile!.FullName);
         ConfigureDotPath(dependencyProvider.Configuration);
