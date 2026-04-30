@@ -39,7 +39,7 @@
     <PackageVersion Include="Spectre.Console.Analyzer" Version="1.0.0" />
     <PackageVersion Include="Spectre.Console.Cli" Version="0.55.0" />
     <PackageVersion Include="Spectre.Console.Cli.Extensions.DependencyInjection" Version="0.24.0" />
-    <PackageVersion Include="Superpower" Version="3.2.0" />
+    <PackageVersion Include="Superpower" Version="3.2.1" />
     <PackageVersion Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
     <PackageVersion Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-beta4.22272.1" />
     <PackageVersion Include="System.IO.Abstractions" Version="22.1.1" />
