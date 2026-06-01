@@ -1,30 +1,29 @@
-﻿using System;
+using System;
+using System.Text.Json.Serialization;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels;
 
 /// <summary>
-/// Internal. Not intended to be used outside of this assembly. Only required for templating.
+/// The per-routine detail payload (<c>data/routines/&lt;safeKey&gt;.json</c>): the routine's
+/// name and definition.
 /// </summary>
 public sealed class Routine : ITemplateParameter
 {
     public Routine(
         Identifier routine,
-        string rootPath,
         string definition
     )
     {
         ArgumentNullException.ThrowIfNull(routine);
 
         Name = routine.ToVisibleName();
-        RoutineUrl = routine.ToSafeKey();
-        RootPath = rootPath ?? throw new ArgumentNullException(nameof(rootPath));
+        RoutineUrl = UrlRouter.GetRoutineUrl(routine);
         Definition = definition ?? throw new ArgumentNullException(nameof(definition));
     }
 
+    [JsonIgnore]
     public ReportTemplate Template { get; } = ReportTemplate.Routine;
-
-    public string RootPath { get; }
 
     public string Name { get; }
 

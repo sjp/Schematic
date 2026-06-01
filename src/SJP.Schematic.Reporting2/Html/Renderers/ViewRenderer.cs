@@ -1,71 +1,63 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Reporting.Html.ViewModels;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
+using SJP.Schematic.Reporting.Serialization;
 
 namespace SJP.Schematic.Reporting.Html.Renderers;
 
-internal sealed class ViewRenderer : ITemplateRenderer
+internal sealed class ViewRenderer : IDataRenderer
 {
     public ViewRenderer(
-        IIdentifierDefaults identifierDefaults,
-        IHtmlFormatter formatter,
         IEnumerable<IDatabaseView> views,
         ReferencedObjectTargets referencedObjectTargets,
+        JsonDataWriter jsonWriter,
+        BundleBuilder bundle,
         DirectoryInfo exportDirectory
     )
     {
         Views = views ?? throw new ArgumentNullException(nameof(views));
-        IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
-        Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
         ReferencedObjectTargets = referencedObjectTargets ?? throw new ArgumentNullException(nameof(referencedObjectTargets));
+        JsonWriter = jsonWriter ?? throw new ArgumentNullException(nameof(jsonWriter));
+        Bundle = bundle ?? throw new ArgumentNullException(nameof(bundle));
 
         ArgumentNullException.ThrowIfNull(exportDirectory);
-
-        ExportDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "views"));
+        DataDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "data", "views"));
     }
-
-    private IIdentifierDefaults IdentifierDefaults { get; }
-
-    private IHtmlFormatter Formatter { get; }
 
     private IEnumerable<IDatabaseView> Views { get; }
 
     private ReferencedObjectTargets ReferencedObjectTargets { get; }
 
-    private DirectoryInfo ExportDirectory { get; }
+    private JsonDataWriter JsonWriter { get; }
+
+    private BundleBuilder Bundle { get; }
+
+    private DirectoryInfo DataDirectory { get; }
 
     public Task RenderAsync(CancellationToken cancellationToken = default)
     {
         var mapper = new ViewModelMapper();
 
-        var viewTasks = Views.Select(async view =>
-        {
-            var viewModel = mapper.Map(view, ReferencedObjectTargets);
-            var renderedView = await Formatter.RenderTemplateAsync(viewModel, cancellationToken);
-
-            var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
-                ? IdentifierDefaults.Database + " Database"
-                : "Database";
-            var pageTitle = view.Name.ToVisibleName() + " · View · " + databaseName;
-            var viewContainer = new Container(renderedView, pageTitle, "../");
-            var renderedPage = await Formatter.RenderTemplateAsync(viewContainer, cancellationToken);
-
-            var outputPath = Path.Combine(ExportDirectory.FullName, view.Name.ToSafeKey() + ".html");
-            if (!ExportDirectory.Exists)
-                ExportDirectory.Create();
-
-            await using var writer = File.CreateText(outputPath);
-            await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken);
-            await writer.FlushAsync(cancellationToken);
-        });
+        var viewTasks = new List<Task>();
+        foreach (var view in Views)
+            viewTasks.Add(RenderViewAsync(view, mapper, cancellationToken));
 
         return Task.WhenAll(viewTasks);
+    }
+
+    private async Task RenderViewAsync(IDatabaseView view, ViewModelMapper mapper, CancellationToken cancellationToken)
+    {
+        var viewModel = mapper.Map(view, ReferencedObjectTargets);
+
+        var safeKey = view.Name.ToSafeKey();
+        var json = JsonWriter.Serialize(viewModel);
+        Bundle.AddDetail("view", safeKey, json);
+
+        var outputFile = new FileInfo(Path.Combine(DataDirectory.FullName, safeKey + ".json"));
+        await JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
     }
 }

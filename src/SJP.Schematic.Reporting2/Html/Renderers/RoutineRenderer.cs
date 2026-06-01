@@ -1,67 +1,59 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Reporting.Html.ViewModels;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
+using SJP.Schematic.Reporting.Serialization;
 
 namespace SJP.Schematic.Reporting.Html.Renderers;
 
-internal sealed class RoutineRenderer : ITemplateRenderer
+internal sealed class RoutineRenderer : IDataRenderer
 {
     public RoutineRenderer(
-        IIdentifierDefaults identifierDefaults,
-        IHtmlFormatter formatter,
         IEnumerable<IDatabaseRoutine> routines,
+        JsonDataWriter jsonWriter,
+        BundleBuilder bundle,
         DirectoryInfo exportDirectory
     )
     {
         Routines = routines ?? throw new ArgumentNullException(nameof(routines));
-        IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
-        Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
+        JsonWriter = jsonWriter ?? throw new ArgumentNullException(nameof(jsonWriter));
+        Bundle = bundle ?? throw new ArgumentNullException(nameof(bundle));
 
         ArgumentNullException.ThrowIfNull(exportDirectory);
-
-        ExportDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "routines"));
+        DataDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "data", "routines"));
     }
-
-    private IIdentifierDefaults IdentifierDefaults { get; }
-
-    private IHtmlFormatter Formatter { get; }
 
     private IEnumerable<IDatabaseRoutine> Routines { get; }
 
-    private DirectoryInfo ExportDirectory { get; }
+    private JsonDataWriter JsonWriter { get; }
+
+    private BundleBuilder Bundle { get; }
+
+    private DirectoryInfo DataDirectory { get; }
 
     public Task RenderAsync(CancellationToken cancellationToken = default)
     {
         var mapper = new RoutineModelMapper();
 
-        var routineTasks = Routines.Select(async routine =>
-        {
-            var viewModel = mapper.Map(routine);
-            var renderedRoutine = await Formatter.RenderTemplateAsync(viewModel, cancellationToken);
-
-            var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
-                ? IdentifierDefaults.Database + " Database"
-                : "Database";
-            var pageTitle = routine.Name.ToVisibleName() + " · Routine · " + databaseName;
-            var routineContainer = new Container(renderedRoutine, pageTitle, "../");
-            var renderedPage = await Formatter.RenderTemplateAsync(routineContainer, cancellationToken);
-
-            var outputPath = Path.Combine(ExportDirectory.FullName, routine.Name.ToSafeKey() + ".html");
-            if (!ExportDirectory.Exists)
-                ExportDirectory.Create();
-
-            await using var writer = File.CreateText(outputPath);
-            await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken);
-            await writer.FlushAsync(cancellationToken);
-        });
+        var routineTasks = new List<Task>();
+        foreach (var routine in Routines)
+            routineTasks.Add(RenderRoutineAsync(routine, mapper, cancellationToken));
 
         return Task.WhenAll(routineTasks);
+    }
+
+    private async Task RenderRoutineAsync(IDatabaseRoutine routine, RoutineModelMapper mapper, CancellationToken cancellationToken)
+    {
+        var viewModel = mapper.Map(routine);
+
+        var safeKey = routine.Name.ToSafeKey();
+        var json = JsonWriter.Serialize(viewModel);
+        Bundle.AddDetail("routine", safeKey, json);
+
+        var outputFile = new FileInfo(Path.Combine(DataDirectory.FullName, safeKey + ".json"));
+        await JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
     }
 }

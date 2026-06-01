@@ -111,7 +111,7 @@ public sealed class Main : ITemplateParameter
     }
 
     /// <summary>
-    /// Internal. Not intended to be used outside of this assembly. Converted to JSON by issue 07.
+    /// A row in the views summary list (<c>data/views.json</c>). Shared by <see cref="Views"/>.
     /// </summary>
     public sealed class View
     {
@@ -122,7 +122,7 @@ public sealed class Main : ITemplateParameter
             Name = viewName.ToVisibleName();
             ViewUrl = UrlRouter.GetViewUrl(viewName);
             ColumnCount = columnCount;
-            MaterializedText = isMaterialized ? "✓" : "✗";
+            IsMaterialized = isMaterialized;
         }
 
         public string Name { get; }
@@ -131,7 +131,7 @@ public sealed class Main : ITemplateParameter
 
         public uint ColumnCount { get; }
 
-        public string MaterializedText { get; }
+        public bool IsMaterialized { get; }
     }
 
     /// <summary>
@@ -207,7 +207,7 @@ public sealed class Main : ITemplateParameter
     }
 
     /// <summary>
-    /// Internal. Not intended to be used outside of this assembly. Converted to JSON by issue 07.
+    /// A row in the routines summary list (<c>data/routines.json</c>). Shared by <see cref="Routines"/>.
     /// </summary>
     public sealed class Routine
     {

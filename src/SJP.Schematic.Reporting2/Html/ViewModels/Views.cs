@@ -1,11 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels;
 
 /// <summary>
-/// Internal. Not intended to be used outside of this assembly. Only required for templating.
+/// The views summary payload (<c>data/views.json</c>): the list of views rendered by the
+/// views listing page.
 /// </summary>
 public sealed class Views : ITemplateParameter
 {
@@ -15,15 +17,13 @@ public sealed class Views : ITemplateParameter
             throw new ArgumentNullException(nameof(views));
 
         ViewsCount = views.UCount();
-        ViewsTableClass = ViewsCount > 0 ? CssClasses.DataTableClass : string.Empty;
         AllViews = views;
     }
 
+    [JsonIgnore]
     public ReportTemplate Template { get; } = ReportTemplate.Views;
 
     public uint ViewsCount { get; }
-
-    public HtmlString ViewsTableClass { get; }
 
     public IEnumerable<Main.View> AllViews { get; }
 }

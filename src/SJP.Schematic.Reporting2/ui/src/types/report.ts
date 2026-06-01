@@ -109,6 +109,66 @@ export interface TableDiagram {
   svgFile: string
 }
 
+/** A row in `data/views.json`. */
+export interface ViewSummary {
+  name: string
+  /** Hash route, e.g. `#/views/<safeKey>`. */
+  viewUrl: string
+  columnCount: number
+  isMaterialized: boolean
+}
+
+/** `data/views.json`. */
+export interface ViewsSummary {
+  viewsCount: number
+  allViews: ViewSummary[]
+}
+
+export interface ViewColumn {
+  ordinal: number
+  columnName: string
+  isNullable: boolean
+  type: string
+  defaultValue: string
+}
+
+/** A link from a view to an object it references (hash route into the SPA). */
+export interface ReferencedObject {
+  name: string
+  url: string
+}
+
+/** `data/views/<safeKey>.json`. */
+export interface ViewDetail {
+  name: string
+  viewUrl: string
+  definition: string
+  columns: ViewColumn[]
+  columnsCount: number
+  referencedObjects: ReferencedObject[]
+  referencedObjectsCount: number
+}
+
+/** A row in `data/routines.json`. */
+export interface RoutineSummary {
+  name: string
+  /** Hash route, e.g. `#/routines/<safeKey>`. */
+  routineUrl: string
+}
+
+/** `data/routines.json`. */
+export interface RoutinesSummary {
+  routinesCount: number
+  allRoutines: RoutineSummary[]
+}
+
+/** `data/routines/<safeKey>.json`. */
+export interface RoutineDetail {
+  name: string
+  routineUrl: string
+  definition: string
+}
+
 /** `data/tables/<safeKey>.json`. */
 export interface TableDetail {
   name: string

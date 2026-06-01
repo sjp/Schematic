@@ -69,6 +69,12 @@ public sealed class JsonDataWriter
 // "TableDetail" disambiguates the top-level Table from the nested Main.Table (both simple name
 // "Table"), which the source generator would otherwise map to the same TypeInfo property.
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Table), TypeInfoPropertyName = "TableDetail")]
+[JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Views))]
+// "ViewDetail"/"RoutineDetail" disambiguate the top-level View/Routine from the nested
+// Main.View/Main.Routine (same simple names), which the source generator would otherwise collide.
+[JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.View), TypeInfoPropertyName = "ViewDetail")]
+[JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Routines))]
+[JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Routine), TypeInfoPropertyName = "RoutineDetail")]
 public partial class ReportingJsonContext : JsonSerializerContext
 {
 }

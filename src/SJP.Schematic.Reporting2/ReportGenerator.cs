@@ -8,6 +8,7 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Reporting.Html;
 using SJP.Schematic.Reporting.Html.Renderers;
+using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 using SJP.Schematic.Reporting.Serialization;
 
 namespace SJP.Schematic.Reporting;
@@ -119,16 +120,32 @@ public class ReportGenerator
         // Non-app artifacts (.dbml/.sql) go under exports/; the app data goes under data/.
         var exportsDirectory = new DirectoryInfo(Path.Combine(ExportDirectory.FullName, "exports"));
 
+        // Referenced-object resolution (used by view detail) maps a dependency expression to the
+        // owning object's hash route, across every object type.
+        var tableNames = tables.Select(static t => t.Name).ToList();
+        var viewNames = views.Select(static v => v.Name).ToList();
+        var sequenceNames = sequences.Select(static s => s.Name).ToList();
+        var synonymNames = synonyms.Select(static s => s.Name).ToList();
+        var routineNames = routines.Select(static r => r.Name).ToList();
+
+        var dependencyProvider = Connection.Dialect.GetDependencyProvider();
+        var referencedObjectTargets = new ReferencedObjectTargets(dependencyProvider, tableNames, viewNames, sequenceNames, synonymNames, routineNames);
+
         return
         [
             // Tables reference slice (issue 06): dashboard summary, tables list, and per-table
-            // detail. Further per-type data renderers (views/sequences/... -> data/*.json) are
-            // added here by issues 07-11; the SearchRenderer (-> data/search.json) slot is filled
+            // detail. Further per-type data renderers (sequences/synonyms/... -> data/*.json) are
+            // added here by issues 08-11; the SearchRenderer (-> data/search.json) slot is filled
             // in issue 12. Until then only the converted renderers run, so each milestone builds
             // and is verifiable on its own.
             new MainRenderer(Database, tables, views, sequences, synonyms, routines, databaseVersion, jsonWriter, bundle, ExportDirectory),
             new TablesRenderer(tables, rowCounts, jsonWriter, bundle, ExportDirectory),
             new TableRenderer(Database.IdentifierDefaults, tables, rowCounts, jsonWriter, bundle, ExportDirectory),
+            // Views & Routines (issue 07).
+            new ViewsRenderer(views, jsonWriter, bundle, ExportDirectory),
+            new ViewRenderer(views, referencedObjectTargets, jsonWriter, bundle, ExportDirectory),
+            new RoutinesRenderer(routines, jsonWriter, bundle, ExportDirectory),
+            new RoutineRenderer(routines, jsonWriter, bundle, ExportDirectory),
             new TableOrderingRenderer(Connection.Dialect, tables, exportsDirectory),
             new DbmlRenderer(tables, exportsDirectory),
         ];
