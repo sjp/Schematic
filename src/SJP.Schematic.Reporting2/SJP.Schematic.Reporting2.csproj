@@ -18,11 +18,10 @@
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
+    <!-- RazorLight is still referenced by HtmlFormatter.cs and ReportingRazorProject*.cs,
+         which are deleted in issue 14. The package reference is removed there too, once
+         nothing consumes it; removing it earlier would break compilation. -->
     <PackageReference Include="RazorLight" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Html\Templates\*.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -68,6 +67,23 @@
     <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm run build" WorkingDirectory="$(UiContentDir)" />
     <Touch Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Files="$(ViteBuildStampFile)" AlwaysCreate="true" />
     <Message Condition="'$(NpmExitCode)' != '$(NpmExpectedExitCode)'" Text="npm is not available. A vite build will not occur." />
+  </Target>
+
+  <!-- Embed the Vite build output (ui/dist) as assembly resources so AssetExporter's
+       EmbeddedFileProvider(assembly, "SJP.Schematic.Reporting2.assets") can extract the
+       React shell and assets at generate time. Mirrors the original Reporting.csproj Gulp
+       trick. The Link maps each ui/dist file under an "assets/" prefix, so resource names
+       resolve to "SJP.Schematic.Reporting2.assets.<path>" (ui/dist/index.html becomes
+       ...assets.index.html; ui/dist/assets/app-[hash].js becomes ...assets.assets.app-[hash].js).
+       Runs after ViteBuild (before CoreCompile) and is gated on npm being available, so an
+       npm-less build is a no-op (the embed is simply skipped); flag for CI. -->
+  <Target Name="EmbedUiDist" AfterTargets="ViteBuild">
+    <ItemGroup Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'">
+      <_UiDist Include="ui/dist/**/*.*" />
+      <EmbeddedResource Include="@(_UiDist)">
+        <Link>assets/%(RecursiveDir)%(Filename)%(Extension)</Link>
+      </EmbeddedResource>
+    </ItemGroup>
   </Target>
 
 </Project>
