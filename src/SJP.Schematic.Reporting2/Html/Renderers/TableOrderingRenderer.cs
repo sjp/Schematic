@@ -8,7 +8,7 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Reporting.Html.Renderers;
 
-internal sealed class TableOrderingRenderer : ITemplateRenderer
+internal sealed class TableOrderingRenderer : IDataRenderer
 {
     public TableOrderingRenderer(
         IDatabaseDialect dialect,

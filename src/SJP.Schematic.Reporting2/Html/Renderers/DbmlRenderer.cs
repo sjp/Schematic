@@ -8,7 +8,7 @@ using SJP.Schematic.Dbml;
 
 namespace SJP.Schematic.Reporting.Html.Renderers;
 
-internal sealed class DbmlRenderer : ITemplateRenderer
+internal sealed class DbmlRenderer : IDataRenderer
 {
     public DbmlRenderer(
         IReadOnlyCollection<IRelationalDatabaseTable> tables,
