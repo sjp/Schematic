@@ -87,6 +87,8 @@ public sealed class JsonDataWriter
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Constraints))]
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Indexes))]
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Orphans))]
+// Lint page (issue 10): lint messages grouped by rule.
+[JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.LintResults))]
 public partial class ReportingJsonContext : JsonSerializerContext
 {
 }

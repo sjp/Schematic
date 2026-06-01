@@ -22,6 +22,7 @@ import { ColumnsPage } from '@/routes/columns'
 import { ConstraintsPage } from '@/routes/constraints'
 import { IndexesPage } from '@/routes/indexes'
 import { OrphansPage } from '@/routes/orphans'
+import { LintPage } from '@/routes/lint'
 import { ensureDetail, ensureSummary } from '@/hooks/useReportData'
 
 const rootRoute = createRootRoute({
@@ -141,6 +142,13 @@ const orphansRoute = createRoute({
   loader: () => ensureSummary('orphans'),
 })
 
+const lintRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/lint',
+  component: LintPage,
+  loader: () => ensureSummary('lint'),
+})
+
 // Child routes for each object type are registered here by later waves.
 const routeTree = rootRoute.addChildren([
   dashboardRoute,
@@ -159,6 +167,7 @@ const routeTree = rootRoute.addChildren([
   constraintsRoute,
   indexesRoute,
   orphansRoute,
+  lintRoute,
 ])
 
 // Hash history is mandatory so deep links survive `file://` (no server to

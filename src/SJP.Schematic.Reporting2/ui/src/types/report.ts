@@ -328,6 +328,19 @@ export interface OrphansSummary {
   tables: OrphanTable[]
 }
 
+/** A group of lint messages produced by a single rule, in `data/lint.json`. */
+export interface LintRule {
+  ruleTitle: string
+  messages: string[]
+  messageCount: number
+}
+
+/** `data/lint.json`. */
+export interface LintSummary {
+  lintRulesCount: number
+  lintRules: LintRule[]
+}
+
 /** `data/tables/<safeKey>.json`. */
 export interface TableDetail {
   name: string

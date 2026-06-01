@@ -6,7 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Lint;
 using SJP.Schematic.Reporting.Html;
+using SJP.Schematic.Reporting.Html.Lint;
 using SJP.Schematic.Reporting.Html.Renderers;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 using SJP.Schematic.Reporting.Serialization;
@@ -134,6 +136,12 @@ public class ReportGenerator
         // Synonym target resolution maps an aliased object name to its owning object's hash route.
         var synonymTargets = new SynonymTargets(tableNames, viewNames, sequenceNames, synonymNames, routineNames);
 
+        // Lint analysis (issue 10): the rule providers + 24 rules are kept as-is; only the output
+        // shape changes (data/lint.json instead of lint.html).
+        var ruleProvider = new ReportingRuleProvider();
+        var rules = ruleProvider.GetRules(Connection, RuleLevel.Warning);
+        var linter = new RelationalDatabaseLinter(rules);
+
         return
         [
             // Tables reference slice (issue 06): dashboard summary, tables list, and per-table
@@ -160,6 +168,8 @@ public class ReportGenerator
             new ConstraintsRenderer(tables, jsonWriter, bundle, ExportDirectory),
             new IndexesRenderer(tables, jsonWriter, bundle, ExportDirectory),
             new OrphansRenderer(tables, rowCounts, jsonWriter, bundle, ExportDirectory),
+            // Lint page (issue 10).
+            new LintRenderer(linter, tables, views, sequences, synonyms, routines, jsonWriter, bundle, ExportDirectory),
             new TableOrderingRenderer(Connection.Dialect, tables, exportsDirectory),
             new DbmlRenderer(tables, exportsDirectory),
         ];
