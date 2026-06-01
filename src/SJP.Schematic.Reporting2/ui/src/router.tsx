@@ -17,6 +17,11 @@ import { SequencesPage } from '@/routes/sequences'
 import { SequenceDetailPage } from '@/routes/sequence-detail'
 import { SynonymsPage } from '@/routes/synonyms'
 import { SynonymDetailPage } from '@/routes/synonym-detail'
+import { TriggersPage } from '@/routes/triggers'
+import { ColumnsPage } from '@/routes/columns'
+import { ConstraintsPage } from '@/routes/constraints'
+import { IndexesPage } from '@/routes/indexes'
+import { OrphansPage } from '@/routes/orphans'
 import { ensureDetail, ensureSummary } from '@/hooks/useReportData'
 
 const rootRoute = createRootRoute({
@@ -101,6 +106,41 @@ const synonymDetailRoute = createRoute({
   loader: ({ params }) => ensureDetail('synonym', params.synonymKey),
 })
 
+const triggersRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/triggers',
+  component: TriggersPage,
+  loader: () => ensureSummary('triggers'),
+})
+
+const columnsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/columns',
+  component: ColumnsPage,
+  loader: () => ensureSummary('columns'),
+})
+
+const constraintsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/constraints',
+  component: ConstraintsPage,
+  loader: () => ensureSummary('constraints'),
+})
+
+const indexesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/indexes',
+  component: IndexesPage,
+  loader: () => ensureSummary('indexes'),
+})
+
+const orphansRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/orphans',
+  component: OrphansPage,
+  loader: () => ensureSummary('orphans'),
+})
+
 // Child routes for each object type are registered here by later waves.
 const routeTree = rootRoute.addChildren([
   dashboardRoute,
@@ -114,6 +154,11 @@ const routeTree = rootRoute.addChildren([
   sequenceDetailRoute,
   synonymsRoute,
   synonymDetailRoute,
+  triggersRoute,
+  columnsRoute,
+  constraintsRoute,
+  indexesRoute,
+  orphansRoute,
 ])
 
 // Hash history is mandatory so deep links survive `file://` (no server to

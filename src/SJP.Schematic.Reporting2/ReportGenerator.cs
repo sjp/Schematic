@@ -154,6 +154,12 @@ public class ReportGenerator
             new SequenceRenderer(sequences, jsonWriter, bundle, ExportDirectory),
             new SynonymsRenderer(synonyms, synonymTargets, jsonWriter, bundle, ExportDirectory),
             new SynonymRenderer(synonyms, synonymTargets, jsonWriter, bundle, ExportDirectory),
+            // Summary-only pages (issue 09): no per-object detail.
+            new TriggersRenderer(tables, jsonWriter, bundle, ExportDirectory),
+            new ColumnsRenderer(tables, views, jsonWriter, bundle, ExportDirectory),
+            new ConstraintsRenderer(tables, jsonWriter, bundle, ExportDirectory),
+            new IndexesRenderer(tables, jsonWriter, bundle, ExportDirectory),
+            new OrphansRenderer(tables, rowCounts, jsonWriter, bundle, ExportDirectory),
             new TableOrderingRenderer(Connection.Dialect, tables, exportsDirectory),
             new DbmlRenderer(tables, exportsDirectory),
         ];

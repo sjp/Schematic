@@ -212,6 +212,122 @@ export interface SynonymsSummary {
 /** `data/synonyms/<safeKey>.json`. Structurally identical to a summary row. */
 export type SynonymDetail = SynonymSummary
 
+/** A row in `data/triggers.json`. */
+export interface TriggerRow {
+  name: string
+  tableName: string
+  /** Hash route to the owning table. */
+  tableUrl: string
+  definition: string
+  queryTiming: string
+  events: string
+}
+
+/** `data/triggers.json`. */
+export interface TriggersSummary {
+  triggersCount: number
+  allTriggers: TriggerRow[]
+}
+
+export type ColumnParentType = 'Table' | 'View'
+
+/** A row in `data/columns.json` (a column of a table or view). */
+export interface ColumnRow {
+  /** Parent table/view name. */
+  name: string
+  parentType: ColumnParentType
+  /** Hash route to the parent table/view. */
+  parentUrl: string
+  ordinal: number
+  columnName: string
+  type: string
+  isNullable: boolean
+  defaultValue: string
+  isPrimaryKey: boolean
+  isUniqueKey: boolean
+  isForeignKey: boolean
+}
+
+/** `data/columns.json`. */
+export interface ColumnsSummary {
+  columnsCount: number
+  tableColumns: ColumnRow[]
+}
+
+/** Fields shared by every constraint row in `data/constraints.json`. */
+interface ConstraintBase {
+  tableName: string
+  /** Hash route to the owning table. */
+  tableUrl: string
+  constraintName: string
+}
+
+export interface PrimaryKeyConstraintRow extends ConstraintBase {
+  columnNames: string
+}
+
+export interface UniqueKeyRow extends ConstraintBase {
+  columnNames: string
+}
+
+export interface ForeignKeyRow extends ConstraintBase {
+  childColumnNames: string
+  parentConstraintName: string
+  parentTableName: string
+  /** Hash route to the referenced (parent) table. */
+  parentTableUrl: string
+  parentColumnNames: string
+  deleteActionDescription: string
+  updateActionDescription: string
+}
+
+export interface CheckConstraintRow extends ConstraintBase {
+  definition: string
+}
+
+/** `data/constraints.json`. */
+export interface ConstraintsSummary {
+  primaryKeys: PrimaryKeyConstraintRow[]
+  primaryKeysCount: number
+  uniqueKeys: UniqueKeyRow[]
+  uniqueKeysCount: number
+  foreignKeys: ForeignKeyRow[]
+  foreignKeysCount: number
+  checkConstraints: CheckConstraintRow[]
+  checkConstraintsCount: number
+}
+
+/** A row in `data/indexes.json`. */
+export interface IndexRow {
+  name: string
+  tableName: string
+  /** Hash route to the owning table. */
+  tableUrl: string
+  isUnique: boolean
+  columnsText: string
+  includedColumnsText: string
+}
+
+/** `data/indexes.json`. */
+export interface IndexesSummary {
+  indexesCount: number
+  tableIndexes: IndexRow[]
+}
+
+/** A row in `data/orphans.json` (a table with no relationships). */
+export interface OrphanTable {
+  name: string
+  tableUrl: string
+  columnCount: number
+  rowCount: number
+}
+
+/** `data/orphans.json`. */
+export interface OrphansSummary {
+  tablesCount: number
+  tables: OrphanTable[]
+}
+
 /** `data/tables/<safeKey>.json`. */
 export interface TableDetail {
   name: string

@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 internal sealed class ConstraintsModelMapper
 {
-    public Constraints.PrimaryKeyConstraint MapPrimaryKey(Identifier tableName, IDatabaseKey primaryKey)
+    public Constraints.PrimaryKeyConstraintRow MapPrimaryKey(Identifier tableName, IDatabaseKey primaryKey)
     {
         ArgumentNullException.ThrowIfNull(tableName);
         ArgumentNullException.ThrowIfNull(primaryKey);
@@ -14,14 +14,14 @@ internal sealed class ConstraintsModelMapper
         var pkConstraintName = primaryKey.Name.Match(static pkName => pkName.LocalName, static () => string.Empty);
         var columnNames = primaryKey.Columns.Select(static c => c.Name.LocalName).ToList();
 
-        return new Constraints.PrimaryKeyConstraint(
+        return new Constraints.PrimaryKeyConstraintRow(
             tableName,
             pkConstraintName,
             columnNames
         );
     }
 
-    public Constraints.UniqueKey MapUniqueKey(Identifier tableName, IDatabaseKey uniqueKey)
+    public Constraints.UniqueKeyRow MapUniqueKey(Identifier tableName, IDatabaseKey uniqueKey)
     {
         ArgumentNullException.ThrowIfNull(tableName);
         ArgumentNullException.ThrowIfNull(uniqueKey);
@@ -29,14 +29,14 @@ internal sealed class ConstraintsModelMapper
         var ukConstraintName = uniqueKey.Name.Match(static ukName => ukName.LocalName, static () => string.Empty);
         var columnNames = uniqueKey.Columns.Select(static c => c.Name.LocalName).ToList();
 
-        return new Constraints.UniqueKey(
+        return new Constraints.UniqueKeyRow(
             tableName,
             ukConstraintName,
             columnNames
         );
     }
 
-    public Constraints.ForeignKey MapForeignKey(IDatabaseRelationalKey foreignKey)
+    public Constraints.ForeignKeyRow MapForeignKey(IDatabaseRelationalKey foreignKey)
     {
         ArgumentNullException.ThrowIfNull(foreignKey);
 
@@ -45,7 +45,7 @@ internal sealed class ConstraintsModelMapper
         var parentKeyName = foreignKey.ParentKey.Name.Match(static pkName => pkName.LocalName, static () => string.Empty);
         var parentColumnNames = foreignKey.ParentKey.Columns.Select(static c => c.Name.LocalName).ToList();
 
-        return new Constraints.ForeignKey(
+        return new Constraints.ForeignKeyRow(
             foreignKey.ChildTable,
             childKeyName,
             childColumnNames,
@@ -57,14 +57,14 @@ internal sealed class ConstraintsModelMapper
         );
     }
 
-    public Constraints.CheckConstraint MapCheckConstraint(Identifier tableName, IDatabaseCheckConstraint check)
+    public Constraints.CheckConstraintRow MapCheckConstraint(Identifier tableName, IDatabaseCheckConstraint check)
     {
         ArgumentNullException.ThrowIfNull(tableName);
         ArgumentNullException.ThrowIfNull(check);
 
         var constraintName = check.Name.Match(static name => name.LocalName, static () => string.Empty);
 
-        return new Constraints.CheckConstraint(
+        return new Constraints.CheckConstraintRow(
             tableName,
             constraintName,
             check.Definition

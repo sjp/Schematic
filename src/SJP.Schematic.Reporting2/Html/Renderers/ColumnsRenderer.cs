@@ -1,39 +1,39 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Reporting.Html.ViewModels;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
+using SJP.Schematic.Reporting.Serialization;
 
 namespace SJP.Schematic.Reporting.Html.Renderers;
 
-internal sealed class ColumnsRenderer : ITemplateRenderer
+internal sealed class ColumnsRenderer : IDataRenderer
 {
     public ColumnsRenderer(
-        IIdentifierDefaults identifierDefaults,
-        IHtmlFormatter formatter,
         IEnumerable<IRelationalDatabaseTable> tables,
         IEnumerable<IDatabaseView> views,
+        JsonDataWriter jsonWriter,
+        BundleBuilder bundle,
         DirectoryInfo exportDirectory)
     {
-        IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
-        Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
         Tables = tables ?? throw new ArgumentNullException(nameof(tables));
         Views = views ?? throw new ArgumentNullException(nameof(views));
+        JsonWriter = jsonWriter ?? throw new ArgumentNullException(nameof(jsonWriter));
+        Bundle = bundle ?? throw new ArgumentNullException(nameof(bundle));
         ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
     }
-
-    private IIdentifierDefaults IdentifierDefaults { get; }
-
-    private IHtmlFormatter Formatter { get; }
 
     private IEnumerable<IRelationalDatabaseTable> Tables { get; }
 
     private IEnumerable<IDatabaseView> Views { get; }
+
+    private JsonDataWriter JsonWriter { get; }
+
+    private BundleBuilder Bundle { get; }
 
     private DirectoryInfo ExportDirectory { get; }
 
@@ -41,31 +41,21 @@ internal sealed class ColumnsRenderer : ITemplateRenderer
     {
         var mapper = new ColumnsModelMapper();
 
-        var tableColumnViewModels = Tables.SelectMany(mapper.Map).Select(static vm => vm as Columns.Column);
-        var viewColumnViewModels = Views.SelectMany(mapper.Map).Select(static vm => vm as Columns.Column);
+        var tableColumns = Tables.SelectMany(mapper.Map);
+        var viewColumns = Views.SelectMany(mapper.Map);
 
-        var orderedColumns = tableColumnViewModels
-            .Concat(viewColumnViewModels)
+        var orderedColumns = tableColumns
+            .Concat(viewColumns)
             .OrderBy(static c => c.Name, StringComparer.Ordinal)
             .ThenBy(static c => c.Ordinal)
             .ToList();
 
-        var templateParameter = new Columns(orderedColumns);
-        var renderedColumns = await Formatter.RenderTemplateAsync(templateParameter, cancellationToken);
+        var columnsVm = new Columns(orderedColumns);
 
-        var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
-            ? IdentifierDefaults.Database + " Database"
-            : "Database";
-        var pageTitle = "Columns · " + databaseName;
-        var columnsContainer = new Container(renderedColumns, pageTitle, string.Empty);
-        var renderedPage = await Formatter.RenderTemplateAsync(columnsContainer, cancellationToken);
+        var json = JsonWriter.Serialize(columnsVm);
+        Bundle.AddSummary("columns", json);
 
-        if (!ExportDirectory.Exists)
-            ExportDirectory.Create();
-        var outputPath = Path.Combine(ExportDirectory.FullName, "columns.html");
-
-        await using var writer = File.CreateText(outputPath);
-        await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken);
-        await writer.FlushAsync(cancellationToken);
+        var outputFile = new FileInfo(Path.Combine(ExportDirectory.FullName, "data", "columns.json"));
+        await JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
     }
 }

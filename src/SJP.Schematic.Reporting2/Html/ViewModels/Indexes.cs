@@ -1,37 +1,34 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels;
 
 /// <summary>
-/// Internal. Not intended to be used outside of this assembly. Only required for templating.
+/// The indexes summary payload (<c>data/indexes.json</c>): every index across all tables, each with
+/// a hash-route link to its owning table.
 /// </summary>
 public sealed class Indexes : ITemplateParameter
 {
-    public Indexes(IEnumerable<Index> indexes)
+    public Indexes(IEnumerable<IndexRow> indexes)
     {
         TableIndexes = indexes ?? throw new ArgumentNullException(nameof(indexes));
         IndexesCount = indexes.UCount();
-        IndexesTableClass = IndexesCount > 0 ? CssClasses.DataTableClass : string.Empty;
     }
 
+    [JsonIgnore]
     public ReportTemplate Template { get; } = ReportTemplate.Indexes;
 
-    public IEnumerable<Index> TableIndexes { get; }
+    public IEnumerable<IndexRow> TableIndexes { get; }
 
     public uint IndexesCount { get; }
 
-    public HtmlString IndexesTableClass { get; }
-
-    /// <summary>
-    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
-    /// </summary>
-    public sealed class Index
+    public sealed class IndexRow
     {
-        public Index(
+        public IndexRow(
             string? indexName,
             Identifier tableName,
             bool isUnique,
@@ -51,7 +48,7 @@ public sealed class Indexes : ITemplateParameter
             TableName = tableName.ToVisibleName();
             TableUrl = UrlRouter.GetTableUrl(tableName);
 
-            UniqueText = isUnique ? "✓" : "✗";
+            IsUnique = isUnique;
 
             ColumnsText = columnNames.Zip(
                 columnSorts.Select(SortToString),
@@ -66,7 +63,7 @@ public sealed class Indexes : ITemplateParameter
 
         public string TableUrl { get; }
 
-        public string UniqueText { get; }
+        public bool IsUnique { get; }
 
         public string ColumnsText { get; }
 

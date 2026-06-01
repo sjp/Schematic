@@ -6,12 +6,12 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 internal sealed class IndexesModelMapper
 {
-    public Indexes.Index Map(Identifier parent, IDatabaseIndex index)
+    public Indexes.IndexRow Map(Identifier parent, IDatabaseIndex index)
     {
         ArgumentNullException.ThrowIfNull(parent);
         ArgumentNullException.ThrowIfNull(index);
 
-        return new Indexes.Index(
+        return new Indexes.IndexRow(
             index.Name?.LocalName,
             parent,
             index.IsUnique,

@@ -81,6 +81,12 @@ public sealed class JsonDataWriter
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Sequence), TypeInfoPropertyName = "SequenceDetail")]
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Synonyms))]
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Synonym), TypeInfoPropertyName = "SynonymDetail")]
+// Summary-only pages (issue 09): each is a schema-wide list with no per-object detail.
+[JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Triggers))]
+[JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Columns))]
+[JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Constraints))]
+[JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Indexes))]
+[JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Orphans))]
 public partial class ReportingJsonContext : JsonSerializerContext
 {
 }
