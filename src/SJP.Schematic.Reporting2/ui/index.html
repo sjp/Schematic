@@ -4,6 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Schematic Report</title>
+    <script>
+      // The disk (file://) build needs all report data inlined via bundle.js because
+      // fetch() of local files is blocked there. Served (http) mode fetches the .json
+      // files lazily, so it skips the (potentially large) bundle. document.write keeps
+      // the bundle loading synchronously, before the deferred app script runs.
+      if (location.protocol === 'file:') {
+        document.write('<scr' + 'ipt src="data/bundle.js"></scr' + 'ipt>')
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
