@@ -170,6 +170,8 @@ public class ReportGenerator
             new OrphansRenderer(tables, rowCounts, jsonWriter, bundle, ExportDirectory),
             // Lint page (issue 10).
             new LintRenderer(linter, tables, views, sequences, synonyms, routines, jsonWriter, bundle, ExportDirectory),
+            // Relationships & schema-wide diagrams (issue 11).
+            new RelationshipsRenderer(Database.IdentifierDefaults, tables, rowCounts, jsonWriter, bundle, ExportDirectory),
             new TableOrderingRenderer(Connection.Dialect, tables, exportsDirectory),
             new DbmlRenderer(tables, exportsDirectory),
         ];

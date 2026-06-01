@@ -89,6 +89,8 @@ public sealed class JsonDataWriter
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Orphans))]
 // Lint page (issue 10): lint messages grouped by rule.
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.LintResults))]
+// Relationships (issue 11): schema-wide diagram levels referencing data/diagrams/*.svg.
+[JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Relationships))]
 public partial class ReportingJsonContext : JsonSerializerContext
 {
 }

@@ -341,6 +341,21 @@ export interface LintSummary {
   lintRules: LintRule[]
 }
 
+/** A schema-level relationship diagram in `data/relationships.json`. */
+export interface RelationshipDiagram {
+  name: string
+  containerId: string
+  isActive: boolean
+  /** Path relative to the report root, e.g. `data/diagrams/<id>.svg`. */
+  svgFile: string
+}
+
+/** `data/relationships.json`. */
+export interface RelationshipsSummary {
+  diagramsCount: number
+  diagrams: RelationshipDiagram[]
+}
+
 /** `data/tables/<safeKey>.json`. */
 export interface TableDetail {
   name: string
