@@ -60,10 +60,15 @@ public sealed class JsonDataWriter
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     UseStringEnumConverter = true,
     WriteIndented = false)]
-// At least one serializable type is required for the source generator to emit the context.
-// string[] is genuinely used (lint messages). Concrete viewmodel types are added by the
-// renderer-conversion issues (06–12).
+// string[] is genuinely used (lint messages). Concrete viewmodel types are registered as the
+// renderer-conversion issues (06–12) convert them; nested types reachable from these roots are
+// discovered automatically by the source generator.
 [JsonSerializable(typeof(string[]))]
+[JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Main))]
+[JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Tables))]
+// "TableDetail" disambiguates the top-level Table from the nested Main.Table (both simple name
+// "Table"), which the source generator would otherwise map to the same TypeInfo property.
+[JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Table), TypeInfoPropertyName = "TableDetail")]
 public partial class ReportingJsonContext : JsonSerializerContext
 {
 }

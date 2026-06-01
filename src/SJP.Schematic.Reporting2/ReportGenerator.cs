@@ -121,10 +121,14 @@ public class ReportGenerator
 
         return
         [
-            // The per-type data renderers (Main/Tables/Table/... -> data/*.json) are converted to
-            // IDataRenderer and added here incrementally by issues 06-11; the SearchRenderer
-            // (-> data/search.json) slot is filled in issue 12. Until then only the export
-            // artifacts run, so each milestone builds and is verifiable on its own.
+            // Tables reference slice (issue 06): dashboard summary, tables list, and per-table
+            // detail. Further per-type data renderers (views/sequences/... -> data/*.json) are
+            // added here by issues 07-11; the SearchRenderer (-> data/search.json) slot is filled
+            // in issue 12. Until then only the converted renderers run, so each milestone builds
+            // and is verifiable on its own.
+            new MainRenderer(Database, tables, views, sequences, synonyms, routines, databaseVersion, jsonWriter, bundle, ExportDirectory),
+            new TablesRenderer(tables, rowCounts, jsonWriter, bundle, ExportDirectory),
+            new TableRenderer(Database.IdentifierDefaults, tables, rowCounts, jsonWriter, bundle, ExportDirectory),
             new TableOrderingRenderer(Connection.Dialect, tables, exportsDirectory),
             new DbmlRenderer(tables, exportsDirectory),
         ];

@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text.Json.Serialization;
 using System.Web;
 using LanguageExt;
 using SJP.Schematic.Core;
@@ -8,7 +9,9 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.Reporting.Html.ViewModels;
 
 /// <summary>
-/// Internal. Not intended to be used outside of this assembly. Only required for templating.
+/// The dashboard summary payload (<c>data/main.json</c>): database name/version plus the
+/// schema-wide object counts. The per-type lists live in their own summary files
+/// (<c>tables.json</c>, <c>views.json</c>, …); this only carries what the dashboard renders.
 /// </summary>
 public sealed class Main : ITemplateParameter
 {
@@ -18,12 +21,12 @@ public sealed class Main : ITemplateParameter
         uint columnsCount,
         uint constraintsCount,
         uint indexesCount,
-        IEnumerable<string> schemas,
-        IEnumerable<Table> tables,
-        IEnumerable<View> views,
-        IEnumerable<Sequence> sequences,
-        IEnumerable<Synonym> synonyms,
-        IEnumerable<Routine> routines
+        IReadOnlyCollection<string> schemas,
+        uint tablesCount,
+        uint viewsCount,
+        uint sequencesCount,
+        uint synonymsCount,
+        uint routinesCount
     )
     {
         DatabaseName = databaseName ?? "Unnamed Database";
@@ -34,36 +37,21 @@ public sealed class Main : ITemplateParameter
         IndexesCount = indexesCount;
 
         Schemas = schemas ?? throw new ArgumentNullException(nameof(schemas));
-        SchemasCount = schemas.UCount();
+        SchemasCount = (uint)schemas.Count;
 
-        Tables = tables ?? throw new ArgumentNullException(nameof(tables));
-        TablesCount = tables.UCount();
-        TablesTableClass = TablesCount > 0 ? CssClasses.DataTableClass : string.Empty;
-
-        Views = views ?? throw new ArgumentNullException(nameof(views));
-        ViewsCount = views.UCount();
-        ViewsTableClass = ViewsCount > 0 ? CssClasses.DataTableClass : string.Empty;
-
-        Sequences = sequences ?? throw new ArgumentNullException(nameof(sequences));
-        SequencesCount = sequences.UCount();
-        SequencesTableClass = SequencesCount > 0 ? CssClasses.DataTableClass : string.Empty;
-
-        Synonyms = synonyms ?? throw new ArgumentNullException(nameof(synonyms));
-        SynonymsCount = synonyms.UCount();
-        SynonymsTableClass = SynonymsCount > 0 ? CssClasses.DataTableClass : string.Empty;
-
-        Routines = routines ?? throw new ArgumentNullException(nameof(routines));
-        RoutinesCount = routines.UCount();
-        RoutinesTableClass = RoutinesCount > 0 ? CssClasses.DataTableClass : string.Empty;
+        TablesCount = tablesCount;
+        ViewsCount = viewsCount;
+        SequencesCount = sequencesCount;
+        SynonymsCount = synonymsCount;
+        RoutinesCount = routinesCount;
     }
 
+    [JsonIgnore]
     public ReportTemplate Template { get; } = ReportTemplate.Main;
 
     public string DatabaseName { get; }
 
     public string DatabaseVersion { get; }
-
-    public DateTime GenerationTime => DateTime.Now;
 
     public uint ColumnsCount { get; }
 
@@ -71,42 +59,22 @@ public sealed class Main : ITemplateParameter
 
     public uint IndexesCount { get; }
 
-    public IEnumerable<string> Schemas { get; }
+    public IReadOnlyCollection<string> Schemas { get; }
 
     public uint SchemasCount { get; }
 
-    public IEnumerable<Table> Tables { get; }
-
     public uint TablesCount { get; }
-
-    public HtmlString TablesTableClass { get; }
-
-    public IEnumerable<View> Views { get; }
 
     public uint ViewsCount { get; }
 
-    public HtmlString ViewsTableClass { get; }
-
-    public IEnumerable<Sequence> Sequences { get; }
-
     public uint SequencesCount { get; }
-
-    public HtmlString SequencesTableClass { get; }
-
-    public IEnumerable<Synonym> Synonyms { get; }
 
     public uint SynonymsCount { get; }
 
-    public HtmlString SynonymsTableClass { get; }
-
-    public IEnumerable<Routine> Routines { get; }
-
     public uint RoutinesCount { get; }
 
-    public HtmlString RoutinesTableClass { get; }
-
     /// <summary>
-    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// A row in the tables summary list (<c>data/tables.json</c>). Shared by <see cref="Tables"/>.
     /// </summary>
     public sealed class Table
     {
@@ -143,7 +111,7 @@ public sealed class Main : ITemplateParameter
     }
 
     /// <summary>
-    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// Internal. Not intended to be used outside of this assembly. Converted to JSON by issue 07.
     /// </summary>
     public sealed class View
     {
@@ -167,7 +135,7 @@ public sealed class Main : ITemplateParameter
     }
 
     /// <summary>
-    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// Internal. Not intended to be used outside of this assembly. Converted to JSON by issue 08.
     /// </summary>
     public sealed class Sequence
     {
@@ -212,7 +180,7 @@ public sealed class Main : ITemplateParameter
     }
 
     /// <summary>
-    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// Internal. Not intended to be used outside of this assembly. Converted to JSON by issue 08.
     /// </summary>
     public sealed class Synonym
     {
@@ -239,7 +207,7 @@ public sealed class Main : ITemplateParameter
     }
 
     /// <summary>
-    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// Internal. Not intended to be used outside of this assembly. Converted to JSON by issue 07.
     /// </summary>
     public sealed class Routine
     {
