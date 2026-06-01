@@ -170,7 +170,7 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
             LoadDefinitionAsync(viewName, cancellationToken)
         ).WhenAll();
 
-        return new DatabaseMaterializedView(viewName, definition, columns);
+        return new DatabaseMaterializedView(viewName, definition!, columns);
     }
     /// <summary>
     /// Retrieves the definition of a materialized view.

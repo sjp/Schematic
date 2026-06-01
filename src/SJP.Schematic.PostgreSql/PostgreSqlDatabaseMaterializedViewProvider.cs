@@ -170,7 +170,7 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
             LoadDefinitionAsync(viewName, cancellationToken)
         ).WhenAll();
 
-        return new DatabaseMaterializedView(viewName, definition, columns);
+        return new DatabaseMaterializedView(viewName, definition!, columns);
     }
 
     /// <summary>

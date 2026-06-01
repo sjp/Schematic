@@ -154,7 +154,7 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
             LoadDefinitionAsync(viewName, cancellationToken)
         ).WhenAll();
 
-        return new DatabaseView(viewName, definition, columns);
+        return new DatabaseView(viewName, definition!, columns);
     }
 
     /// <summary>

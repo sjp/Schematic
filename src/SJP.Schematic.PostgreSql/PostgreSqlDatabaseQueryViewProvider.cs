@@ -170,7 +170,7 @@ public class PostgreSqlDatabaseQueryViewProvider : IDatabaseViewProvider
             LoadDefinitionAsync(viewName, cancellationToken)
         ).WhenAll();
 
-        return new DatabaseView(viewName, definition, columns);
+        return new DatabaseView(viewName, definition!, columns);
     }
 
     /// <summary>

@@ -148,8 +148,8 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
         ).WhenAll();
 
         return isMaterialized
-            ? new DatabaseMaterializedView(viewName, definition, columns)
-            : new DatabaseView(viewName, definition, columns);
+            ? new DatabaseMaterializedView(viewName, definition!, columns)
+            : new DatabaseView(viewName, definition!, columns);
     }
 
     /// <summary>
