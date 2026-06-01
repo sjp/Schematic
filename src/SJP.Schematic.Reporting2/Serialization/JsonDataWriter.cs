@@ -75,6 +75,12 @@ public sealed class JsonDataWriter
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.View), TypeInfoPropertyName = "ViewDetail")]
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Routines))]
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Routine), TypeInfoPropertyName = "RoutineDetail")]
+[JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Sequences))]
+// "SequenceDetail"/"SynonymDetail" disambiguate the top-level Sequence/Synonym detail payloads
+// from the nested Main.Sequence/Main.Synonym summary rows (same simple names).
+[JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Sequence), TypeInfoPropertyName = "SequenceDetail")]
+[JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Synonyms))]
+[JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Synonym), TypeInfoPropertyName = "SynonymDetail")]
 public partial class ReportingJsonContext : JsonSerializerContext
 {
 }

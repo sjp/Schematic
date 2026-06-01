@@ -13,6 +13,10 @@ import { ViewsPage } from '@/routes/views'
 import { ViewDetailPage } from '@/routes/view-detail'
 import { RoutinesPage } from '@/routes/routines'
 import { RoutineDetailPage } from '@/routes/routine-detail'
+import { SequencesPage } from '@/routes/sequences'
+import { SequenceDetailPage } from '@/routes/sequence-detail'
+import { SynonymsPage } from '@/routes/synonyms'
+import { SynonymDetailPage } from '@/routes/synonym-detail'
 import { ensureDetail, ensureSummary } from '@/hooks/useReportData'
 
 const rootRoute = createRootRoute({
@@ -69,6 +73,34 @@ const routineDetailRoute = createRoute({
   loader: ({ params }) => ensureDetail('routine', params.routineKey),
 })
 
+const sequencesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/sequences',
+  component: SequencesPage,
+  loader: () => ensureSummary('sequences'),
+})
+
+const sequenceDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/sequences/$sequenceKey',
+  component: SequenceDetailPage,
+  loader: ({ params }) => ensureDetail('sequence', params.sequenceKey),
+})
+
+const synonymsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/synonyms',
+  component: SynonymsPage,
+  loader: () => ensureSummary('synonyms'),
+})
+
+const synonymDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/synonyms/$synonymKey',
+  component: SynonymDetailPage,
+  loader: ({ params }) => ensureDetail('synonym', params.synonymKey),
+})
+
 // Child routes for each object type are registered here by later waves.
 const routeTree = rootRoute.addChildren([
   dashboardRoute,
@@ -78,6 +110,10 @@ const routeTree = rootRoute.addChildren([
   viewDetailRoute,
   routinesRoute,
   routineDetailRoute,
+  sequencesRoute,
+  sequenceDetailRoute,
+  synonymsRoute,
+  synonymDetailRoute,
 ])
 
 // Hash history is mandatory so deep links survive `file://` (no server to

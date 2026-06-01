@@ -1,11 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels;
 
 /// <summary>
-/// Internal. Not intended to be used outside of this assembly. Only required for templating.
+/// The sequences summary payload (<c>data/sequences.json</c>): the schema's sequences and their
+/// generation parameters.
 /// </summary>
 public sealed class Sequences : ITemplateParameter
 {
@@ -15,15 +17,13 @@ public sealed class Sequences : ITemplateParameter
             throw new ArgumentNullException(nameof(sequences));
 
         SequencesCount = sequences.UCount();
-        SequencesTableClass = SequencesCount > 0 ? CssClasses.DataTableClass : string.Empty;
         AllSequences = sequences;
     }
 
+    [JsonIgnore]
     public ReportTemplate Template { get; } = ReportTemplate.Sequences;
 
     public uint SequencesCount { get; }
-
-    public HtmlString SequencesTableClass { get; }
 
     public IEnumerable<Main.Sequence> AllSequences { get; }
 }

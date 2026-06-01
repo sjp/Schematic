@@ -169,6 +169,49 @@ export interface RoutineDetail {
   definition: string
 }
 
+/** A row in `data/sequences.json`; also the per-sequence detail (`data/sequences/<safeKey>.json`). */
+export interface SequenceSummary {
+  name: string
+  /** Hash route, e.g. `#/sequences/<safeKey>`. */
+  sequenceUrl: string
+  start: number
+  increment: number
+  /** Omitted from the JSON when the sequence has no minimum. */
+  minValue?: number
+  /** Omitted from the JSON when the sequence has no maximum. */
+  maxValue?: number
+  cache: number
+  cycle: boolean
+}
+
+/** `data/sequences.json`. */
+export interface SequencesSummary {
+  sequencesCount: number
+  allSequences: SequenceSummary[]
+}
+
+/** `data/sequences/<safeKey>.json`. Structurally identical to a summary row. */
+export type SequenceDetail = SequenceSummary
+
+/** A row in `data/synonyms.json`; also the per-synonym detail (`data/synonyms/<safeKey>.json`). */
+export interface SynonymSummary {
+  name: string
+  /** Hash route, e.g. `#/synonyms/<safeKey>`. */
+  synonymUrl: string
+  targetName: string
+  /** Target's hash route; omitted from the JSON when the target is not a known object. */
+  targetUrl?: string
+}
+
+/** `data/synonyms.json`. */
+export interface SynonymsSummary {
+  synonymsCount: number
+  allSynonyms: SynonymSummary[]
+}
+
+/** `data/synonyms/<safeKey>.json`. Structurally identical to a summary row. */
+export type SynonymDetail = SynonymSummary
+
 /** `data/tables/<safeKey>.json`. */
 export interface TableDetail {
   name: string

@@ -1,39 +1,39 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Reporting.Html.ViewModels;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
+using SJP.Schematic.Reporting.Serialization;
 
 namespace SJP.Schematic.Reporting.Html.Renderers;
 
-internal sealed class SynonymsRenderer : ITemplateRenderer
+internal sealed class SynonymsRenderer : IDataRenderer
 {
     public SynonymsRenderer(
-        IIdentifierDefaults identifierDefaults,
-        IHtmlFormatter formatter,
         IEnumerable<IDatabaseSynonym> synonyms,
         SynonymTargets synonymTargets,
+        JsonDataWriter jsonWriter,
+        BundleBuilder bundle,
         DirectoryInfo exportDirectory)
     {
         Synonyms = synonyms ?? throw new ArgumentNullException(nameof(synonyms));
-        IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
-        Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
         SynonymTargets = synonymTargets ?? throw new ArgumentNullException(nameof(synonymTargets));
+        JsonWriter = jsonWriter ?? throw new ArgumentNullException(nameof(jsonWriter));
+        Bundle = bundle ?? throw new ArgumentNullException(nameof(bundle));
         ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
     }
-
-    private IIdentifierDefaults IdentifierDefaults { get; }
-
-    private IHtmlFormatter Formatter { get; }
 
     private IEnumerable<IDatabaseSynonym> Synonyms { get; }
 
     private SynonymTargets SynonymTargets { get; }
+
+    private JsonDataWriter JsonWriter { get; }
+
+    private BundleBuilder Bundle { get; }
 
     private DirectoryInfo ExportDirectory { get; }
 
@@ -44,21 +44,10 @@ internal sealed class SynonymsRenderer : ITemplateRenderer
         var synonymViewModels = Synonyms.Select(s => mapper.Map(s, SynonymTargets)).ToList();
         var synonymsVm = new Synonyms(synonymViewModels);
 
-        var renderedMain = await Formatter.RenderTemplateAsync(synonymsVm, cancellationToken);
+        var json = JsonWriter.Serialize(synonymsVm);
+        Bundle.AddSummary("synonyms", json);
 
-        var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
-            ? IdentifierDefaults.Database + " Database"
-            : "Database";
-        var pageTitle = "Synonyms · " + databaseName;
-        var mainContainer = new Container(renderedMain, pageTitle, string.Empty);
-        var renderedPage = await Formatter.RenderTemplateAsync(mainContainer, cancellationToken);
-
-        if (!ExportDirectory.Exists)
-            ExportDirectory.Create();
-        var outputPath = Path.Combine(ExportDirectory.FullName, "synonyms.html");
-
-        await using var writer = File.CreateText(outputPath);
-        await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken);
-        await writer.FlushAsync(cancellationToken);
+        var outputFile = new FileInfo(Path.Combine(ExportDirectory.FullName, "data", "synonyms.json"));
+        await JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
     }
 }

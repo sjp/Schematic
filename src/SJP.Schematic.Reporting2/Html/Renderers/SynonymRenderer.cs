@@ -1,70 +1,63 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Reporting.Html.ViewModels;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
+using SJP.Schematic.Reporting.Serialization;
 
 namespace SJP.Schematic.Reporting.Html.Renderers;
 
-internal sealed class SynonymRenderer : ITemplateRenderer
+internal sealed class SynonymRenderer : IDataRenderer
 {
     public SynonymRenderer(
-        IIdentifierDefaults identifierDefaults,
-        IHtmlFormatter formatter,
         IEnumerable<IDatabaseSynonym> synonyms,
         SynonymTargets synonymTargets,
+        JsonDataWriter jsonWriter,
+        BundleBuilder bundle,
         DirectoryInfo exportDirectory
     )
     {
-        ArgumentNullException.ThrowIfNull(exportDirectory);
-
         Synonyms = synonyms ?? throw new ArgumentNullException(nameof(synonyms));
-        IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
-        Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
         SynonymTargets = synonymTargets ?? throw new ArgumentNullException(nameof(synonymTargets));
-        ExportDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "synonyms"));
+        JsonWriter = jsonWriter ?? throw new ArgumentNullException(nameof(jsonWriter));
+        Bundle = bundle ?? throw new ArgumentNullException(nameof(bundle));
+
+        ArgumentNullException.ThrowIfNull(exportDirectory);
+        DataDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "data", "synonyms"));
     }
-
-    private IIdentifierDefaults IdentifierDefaults { get; }
-
-    private IHtmlFormatter Formatter { get; }
 
     private IEnumerable<IDatabaseSynonym> Synonyms { get; }
 
     private SynonymTargets SynonymTargets { get; }
 
-    private DirectoryInfo ExportDirectory { get; }
+    private JsonDataWriter JsonWriter { get; }
+
+    private BundleBuilder Bundle { get; }
+
+    private DirectoryInfo DataDirectory { get; }
 
     public Task RenderAsync(CancellationToken cancellationToken = default)
     {
         var mapper = new SynonymModelMapper();
 
-        var synonymTasks = Synonyms.Select(async synonym =>
-        {
-            var viewModel = mapper.Map(synonym, SynonymTargets);
-            var renderedSynonym = await Formatter.RenderTemplateAsync(viewModel, cancellationToken);
-
-            var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
-                ? IdentifierDefaults.Database + " Database"
-                : "Database";
-            var pageTitle = synonym.Name.ToVisibleName() + " · Synonym · " + databaseName;
-            var synonymContainer = new Container(renderedSynonym, pageTitle, "../");
-            var renderedPage = await Formatter.RenderTemplateAsync(synonymContainer, cancellationToken);
-
-            var outputPath = Path.Combine(ExportDirectory.FullName, synonym.Name.ToSafeKey() + ".html");
-            if (!ExportDirectory.Exists)
-                ExportDirectory.Create();
-
-            await using var writer = File.CreateText(outputPath);
-            await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken);
-            await writer.FlushAsync(cancellationToken);
-        });
+        var synonymTasks = new List<Task>();
+        foreach (var synonym in Synonyms)
+            synonymTasks.Add(RenderSynonymAsync(synonym, mapper, cancellationToken));
 
         return Task.WhenAll(synonymTasks);
+    }
+
+    private async Task RenderSynonymAsync(IDatabaseSynonym synonym, SynonymModelMapper mapper, CancellationToken cancellationToken)
+    {
+        var viewModel = mapper.Map(synonym, SynonymTargets);
+
+        var safeKey = synonym.Name.ToSafeKey();
+        var json = JsonWriter.Serialize(viewModel);
+        Bundle.AddDetail("synonym", safeKey, json);
+
+        var outputFile = new FileInfo(Path.Combine(DataDirectory.FullName, safeKey + ".json"));
+        await JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
     }
 }

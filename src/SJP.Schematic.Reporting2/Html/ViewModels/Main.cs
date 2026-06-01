@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Text.Json.Serialization;
-using System.Web;
 using LanguageExt;
 using SJP.Schematic.Core;
 
@@ -135,7 +133,7 @@ public sealed class Main : ITemplateParameter
     }
 
     /// <summary>
-    /// Internal. Not intended to be used outside of this assembly. Converted to JSON by issue 08.
+    /// A row in the sequences summary list (<c>data/sequences.json</c>). Shared by <see cref="Sequences"/>.
     /// </summary>
     public sealed class Sequence
     {
@@ -156,31 +154,33 @@ public sealed class Main : ITemplateParameter
 
             Start = start;
             Increment = increment;
-            MinValueText = minValue.Match(static mv => mv.ToString(CultureInfo.InvariantCulture), static () => string.Empty);
-            MaxValueText = maxValue.Match(static mv => mv.ToString(CultureInfo.InvariantCulture), static () => string.Empty);
+            MinValue = minValue.MatchUnsafe(static mv => mv, static () => (decimal?)null);
+            MaxValue = maxValue.MatchUnsafe(static mv => mv, static () => (decimal?)null);
             Cache = cache;
-            CycleText = cycle ? "✓" : "✗";
+            Cycle = cycle;
         }
-
-        public decimal Start { get; }
-
-        public decimal Increment { get; }
-
-        public string MinValueText { get; }
-
-        public string MaxValueText { get; }
-
-        public int Cache { get; }
 
         public string Name { get; }
 
         public string SequenceUrl { get; }
 
-        public string CycleText { get; }
+        public decimal Start { get; }
+
+        public decimal Increment { get; }
+
+        public decimal? MinValue { get; }
+
+        public decimal? MaxValue { get; }
+
+        public int Cache { get; }
+
+        public bool Cycle { get; }
     }
 
     /// <summary>
-    /// Internal. Not intended to be used outside of this assembly. Converted to JSON by issue 08.
+    /// A row in the synonyms summary list (<c>data/synonyms.json</c>). Shared by <see cref="Synonyms"/>.
+    /// The synonym target is a structured <c>{ targetName, targetUrl? }</c> pair (the hash route is
+    /// omitted when the target cannot be resolved to a known object).
     /// </summary>
     public sealed class Synonym
     {
@@ -192,18 +192,17 @@ public sealed class Main : ITemplateParameter
             Name = synonymName.ToVisibleName();
             SynonymUrl = UrlRouter.GetSynonymUrl(synonymName);
 
-            var targetName = target.ToVisibleName();
-            TargetText = targetUrl.Match(
-                uri => $"<a href=\"{uri}\">{HttpUtility.HtmlEncode(targetName)}</a>",
-                () => HttpUtility.HtmlEncode(targetName)
-            );
+            TargetName = target.ToVisibleName();
+            TargetUrl = targetUrl.MatchUnsafe(static uri => uri.ToString(), static () => (string?)null);
         }
 
         public string Name { get; }
 
         public string SynonymUrl { get; }
 
-        public HtmlString TargetText { get; }
+        public string TargetName { get; }
+
+        public string? TargetUrl { get; }
     }
 
     /// <summary>

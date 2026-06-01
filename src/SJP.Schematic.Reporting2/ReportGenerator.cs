@@ -131,6 +131,9 @@ public class ReportGenerator
         var dependencyProvider = Connection.Dialect.GetDependencyProvider();
         var referencedObjectTargets = new ReferencedObjectTargets(dependencyProvider, tableNames, viewNames, sequenceNames, synonymNames, routineNames);
 
+        // Synonym target resolution maps an aliased object name to its owning object's hash route.
+        var synonymTargets = new SynonymTargets(tableNames, viewNames, sequenceNames, synonymNames, routineNames);
+
         return
         [
             // Tables reference slice (issue 06): dashboard summary, tables list, and per-table
@@ -146,6 +149,11 @@ public class ReportGenerator
             new ViewRenderer(views, referencedObjectTargets, jsonWriter, bundle, ExportDirectory),
             new RoutinesRenderer(routines, jsonWriter, bundle, ExportDirectory),
             new RoutineRenderer(routines, jsonWriter, bundle, ExportDirectory),
+            // Sequences & Synonyms (issue 08).
+            new SequencesRenderer(sequences, jsonWriter, bundle, ExportDirectory),
+            new SequenceRenderer(sequences, jsonWriter, bundle, ExportDirectory),
+            new SynonymsRenderer(synonyms, synonymTargets, jsonWriter, bundle, ExportDirectory),
+            new SynonymRenderer(synonyms, synonymTargets, jsonWriter, bundle, ExportDirectory),
             new TableOrderingRenderer(Connection.Dialect, tables, exportsDirectory),
             new DbmlRenderer(tables, exportsDirectory),
         ];

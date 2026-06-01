@@ -13,7 +13,7 @@ internal sealed class SynonymModelMapper
         ArgumentNullException.ThrowIfNull(targets);
 
         var targetUrl = GetSynonymTargetUrl(synonym.Target, targets);
-        return new Synonym(synonym.Name, synonym.Target, targetUrl, "../");
+        return new Synonym(synonym.Name, synonym.Target, targetUrl);
     }
 
     private static Option<Uri> GetSynonymTargetUrl(Identifier identifier, SynonymTargets targets)
