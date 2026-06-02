@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Xml.Linq;
+using SJP.Schematic.Dot.Themes;
 
 namespace SJP.Schematic.Reporting;
 
@@ -62,29 +66,96 @@ internal static class XDocumentExtensions
     }
 
     /// <summary>
-    /// Injects a <c>&lt;style&gt;</c> block that recolours the diagram for dark mode. Graphviz bakes the
-    /// theme colours in as inline <c>fill</c>/<c>stroke</c> presentation attributes, and because the SVG is
-    /// embedded via an <c>&lt;object&gt;</c> it forms its own document — the surrounding app's <c>.dark</c>
-    /// class can't reach inside it. So we lean on the same signal the app's colour-scheme hook uses, the OS
-    /// <c>prefers-color-scheme</c>, via a media query; the diagram then flips in lockstep with the rest of
-    /// the UI. CSS rules outrank presentation attributes in the cascade, so each known palette colour can be
-    /// remapped to a dark-friendly equivalent without touching individual elements.
+    /// Injects a <c>&lt;style&gt;</c> block that recolours the diagram from the default light theme to its
+    /// dark counterpart under the OS dark-mode preference. Equivalent to calling
+    /// <see cref="AddDarkModeStyles(XDocument, IGraphTheme, IGraphTheme)"/> with
+    /// <see cref="GraphThemes.Default"/> and <see cref="GraphThemes.Dark"/>.
     /// </summary>
-    /// <remarks>
-    /// Text nodes carry no <c>fill</c> attribute (they default to black), so a bare <c>text</c> rule lightens
-    /// them. The colour keys mirror the default <see cref="Dot.Themes.IGraphTheme"/> palette as Graphviz emits
-    /// it (lower-cased hex, plus the <c>black</c> keyword for borders and arrowheads); attribute matching is
-    /// case-insensitive to stay robust if Graphviz ever changes the casing.
-    /// </remarks>
     public static void AddDarkModeStyles(this XDocument document)
+        => document.AddDarkModeStyles(GraphThemes.Default, GraphThemes.Dark);
+
+    /// <summary>
+    /// Injects a <c>&lt;style&gt;</c> block that recolours the diagram from <paramref name="lightTheme"/> to
+    /// <paramref name="darkTheme"/> when the OS reports a dark colour scheme. Graphviz bakes the theme
+    /// colours in as inline <c>fill</c>/<c>stroke</c> presentation attributes, and because the SVG is embedded
+    /// via an <c>&lt;object&gt;</c> it forms its own document — the surrounding app's <c>.dark</c> class can't
+    /// reach inside it. So we lean on the same signal the app's colour-scheme hook uses, the OS
+    /// <c>prefers-color-scheme</c>, via a media query; the diagram then flips in lockstep with the rest of the
+    /// UI. CSS rules outrank presentation attributes in the cascade, so the overlay recolours without touching
+    /// individual elements.
+    /// </summary>
+    /// <param name="document">The rendered Graphviz SVG.</param>
+    /// <param name="lightTheme">The theme the SVG was rendered with — its colours are the ones to override.</param>
+    /// <param name="darkTheme">The theme to switch to under a dark colour scheme.</param>
+    public static void AddDarkModeStyles(this XDocument document, IGraphTheme lightTheme, IGraphTheme darkTheme)
     {
         ArgumentNullException.ThrowIfNull(document);
+        ArgumentNullException.ThrowIfNull(lightTheme);
+        ArgumentNullException.ThrowIfNull(darkTheme);
 
         var root = document.Root;
         if (root == null)
             return;
 
-        root.AddFirst(new XElement(StyleElement, new XCData(DarkModeCss)));
+        root.AddFirst(new XElement(StyleElement, new XCData(BuildDarkModeCss(lightTheme, darkTheme))));
+    }
+
+    /// <summary>
+    /// Builds the dark-mode override stylesheet by pairing the light theme's colours with the dark theme's.
+    /// </summary>
+    /// <remarks>
+    /// Only background colours reach the SVG as theme-specific values, so those are remapped by matching the
+    /// light theme's actual colour (whatever it is) — that is what keeps this general rather than tied to one
+    /// palette. Text carries no <c>fill</c> attribute (it defaults to black) and borders/edges are drawn with
+    /// the <c>black</c> keyword regardless of theme, so those are remapped to the dark theme's representative
+    /// foreground/border/edge colours via fixed, Graphviz-shaped selectors. Attribute matching is
+    /// case-insensitive because Graphviz lower-cases hex in its output whereas <see cref="RgbColor"/> emits
+    /// upper-case.
+    /// </remarks>
+    private static string BuildDarkModeCss(IGraphTheme light, IGraphTheme dark)
+    {
+        // (light → dark) for every background the theme can paint into the SVG. Several entries share a
+        // source colour (header == footer, and graph/table/column backgrounds are usually identical), so the
+        // selectors are de-duplicated by source colour below.
+        var backgroundPairs = new[]
+        {
+            (light.BackgroundColor, dark.BackgroundColor),
+            (light.TableBackgroundColor, dark.TableBackgroundColor),
+            (light.HeaderBackgroundColor, dark.HeaderBackgroundColor),
+            (light.FooterBackgroundColor, dark.FooterBackgroundColor),
+            (light.PrimaryKeyHeaderBackgroundColor, dark.PrimaryKeyHeaderBackgroundColor),
+            (light.UniqueKeyHeaderBackgroundColor, dark.UniqueKeyHeaderBackgroundColor),
+            (light.ForeignKeyHeaderBackgroundColor, dark.ForeignKeyHeaderBackgroundColor),
+            (light.HighlightedTableBackgroundColor, dark.HighlightedTableBackgroundColor),
+            (light.HighlightedHeaderBackgroundColor, dark.HighlightedHeaderBackgroundColor),
+            (light.HighlightedFooterBackgroundColor, dark.HighlightedFooterBackgroundColor),
+            (light.HighlightedPrimaryKeyHeaderBackgroundColor, dark.HighlightedPrimaryKeyHeaderBackgroundColor),
+            (light.HighlightedUniqueKeyHeaderBackgroundColor, dark.HighlightedUniqueKeyHeaderBackgroundColor),
+            (light.HighlightedForeignKeyHeaderBackgroundColor, dark.HighlightedForeignKeyHeaderBackgroundColor),
+        };
+
+        var builder = new StringBuilder();
+        builder.AppendLine("@media (prefers-color-scheme: dark) {");
+
+        // Text, borders and relationship edges are not theme-driven in the DOT output — text has no fill and
+        // defaults to black, while borders/edges/arrowheads are drawn black — so they map to the dark theme's
+        // representative colours via fixed selectors rather than by source colour.
+        builder.AppendLine(CultureInfo.InvariantCulture, $"  text {{ fill: {dark.TableForegroundColor}; }}");
+        builder.AppendLine(CultureInfo.InvariantCulture, $"  [stroke=\"black\" i], [stroke=\"#000000\" i] {{ stroke: {dark.TableBorderColor}; }}");
+        builder.AppendLine(CultureInfo.InvariantCulture, $"  [fill=\"black\" i], [fill=\"#000000\" i] {{ fill: {dark.EdgeColor}; }}");
+
+        var mappedSources = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var (from, to) in backgroundPairs)
+        {
+            var source = from.ToString();
+            if (!mappedSources.Add(source))
+                continue;
+
+            builder.AppendLine(CultureInfo.InvariantCulture, $"  [fill=\"{source}\" i] {{ fill: {to}; }}");
+        }
+
+        builder.Append('}');
+        return builder.ToString();
     }
 
     public static void ReplaceTitlesWithTableNames(this XDocument document)
@@ -120,26 +191,6 @@ internal static class XDocumentExtensions
 
     private const string NodeClass = "node";
     private const string TableTitle = "Table";
-
-    // Dark-mode recolouring. Keys are the default-theme palette as Graphviz emits it; values are dark
-    // equivalents chosen to mirror the app's dark surfaces (neutral backgrounds) while keeping the
-    // header/key accent hues recognisable. See AddDarkModeStyles for why this is a media query.
-    private const string DarkModeCss = """
-        @media (prefers-color-scheme: dark) {
-          text { fill: #e6e6e6; }
-          [fill="#ffffff" i] { fill: #1e1e1e; }                          /* table / column / graph background */
-          [stroke="black" i], [stroke="#000000" i] { stroke: #6f6f6f; }  /* borders and relationship edges */
-          [fill="black" i], [fill="#000000" i] { fill: #6f6f6f; }        /* edge arrowheads */
-          [fill="#bfe3c6" i] { fill: #2f4f37; }                          /* header / footer */
-          [fill="#7dde90" i] { fill: #3a7d4e; }                          /* highlighted header / footer */
-          [fill="#efeba8" i] { fill: #4f4a1f; }                          /* primary key header */
-          [fill="#d7cd28" i] { fill: #6b6410; }                          /* highlighted primary key header */
-          [fill="#b8d0dd" i] { fill: #2e4651; }                          /* unique key header */
-          [fill="#8fb3c7" i] { fill: #3f6d85; }                          /* highlighted unique key header */
-          [fill="#e5e5e5" i] { fill: #3a3a3a; }                          /* foreign key header */
-          [fill="#b0b0b0" i] { fill: #5a5a5a; }                          /* highlighted foreign key header */
-        }
-        """;
 
     private static readonly XNamespace SvgNamespace = "http://www.w3.org/2000/svg";
     private static readonly XNamespace XlinkNamespace = "http://www.w3.org/1999/xlink";
