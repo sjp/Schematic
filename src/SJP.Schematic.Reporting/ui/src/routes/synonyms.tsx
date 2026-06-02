@@ -1,25 +1,25 @@
-import { useMemo } from 'react'
-import { Link } from '@tanstack/react-router'
-import { type ColumnDef } from '@tanstack/react-table'
-import { Replace } from 'lucide-react'
-import { DataTable } from '@/components/DataTable'
-import { useSummary } from '@/hooks/useReportData'
-import type { SynonymSummary, SynonymsSummary } from '@/types/report'
+import { useMemo } from "react";
+import { Link } from "@tanstack/react-router";
+import { type ColumnDef } from "@tanstack/react-table";
+import { Replace } from "lucide-react";
+import { DataTable } from "@/components/DataTable";
+import { useSummary } from "@/hooks/useReportData";
+import type { SynonymSummary, SynonymsSummary } from "@/types/report";
 
 /** Extracts the route safeKey from a `#/synonyms/<key>` hash url. */
 function keyFromUrl(synonymUrl: string): string {
-  return synonymUrl.slice(synonymUrl.lastIndexOf('/') + 1)
+  return synonymUrl.slice(synonymUrl.lastIndexOf("/") + 1);
 }
 
 export function SynonymsPage() {
   const { data, isPending, isError, error } =
-    useSummary<SynonymsSummary>('synonyms')
+    useSummary<SynonymsSummary>("synonyms");
 
   const columns = useMemo<ColumnDef<SynonymSummary>[]>(
     () => [
       {
-        accessorKey: 'name',
-        header: 'Name',
+        accessorKey: "name",
+        header: "Name",
         cell: ({ row }) => (
           <Link
             to="/synonyms/$synonymKey"
@@ -31,8 +31,8 @@ export function SynonymsPage() {
         ),
       },
       {
-        accessorKey: 'targetName',
-        header: 'Target',
+        accessorKey: "targetName",
+        header: "Target",
         cell: ({ row }) =>
           row.original.targetUrl ? (
             <a
@@ -47,17 +47,17 @@ export function SynonymsPage() {
       },
     ],
     [],
-  )
+  );
 
   if (isPending) {
-    return <p className="text-muted-foreground">Loading…</p>
+    return <p className="text-muted-foreground">Loading…</p>;
   }
   if (isError) {
     return (
       <p className="text-destructive">
         Failed to load synonyms: {(error as Error).message}
       </p>
-    )
+    );
   }
 
   return (
@@ -71,9 +71,9 @@ export function SynonymsPage() {
         columns={columns}
         data={data.allSynonyms}
         filterPlaceholder="Filter synonyms…"
-        initialSorting={[{ id: 'name', desc: false }]}
+        initialSorting={[{ id: "name", desc: false }]}
         emptyMessage="No synonyms."
       />
     </div>
-  )
+  );
 }

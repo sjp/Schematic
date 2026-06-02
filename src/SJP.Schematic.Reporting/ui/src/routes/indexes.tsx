@@ -1,20 +1,20 @@
-import { useMemo } from 'react'
-import { type ColumnDef } from '@tanstack/react-table'
-import { Check, ListTree, Minus } from 'lucide-react'
-import { DataTable } from '@/components/DataTable'
-import { IconTooltip } from '@/components/IconTooltip'
-import { useSummary } from '@/hooks/useReportData'
-import type { IndexRow, IndexesSummary } from '@/types/report'
+import { useMemo } from "react";
+import { type ColumnDef } from "@tanstack/react-table";
+import { Check, ListTree, Minus } from "lucide-react";
+import { DataTable } from "@/components/DataTable";
+import { IconTooltip } from "@/components/IconTooltip";
+import { useSummary } from "@/hooks/useReportData";
+import type { IndexRow, IndexesSummary } from "@/types/report";
 
 export function IndexesPage() {
   const { data, isPending, isError, error } =
-    useSummary<IndexesSummary>('indexes')
+    useSummary<IndexesSummary>("indexes");
 
   const columns = useMemo<ColumnDef<IndexRow>[]>(
     () => [
       {
-        accessorKey: 'tableName',
-        header: 'Table',
+        accessorKey: "tableName",
+        header: "Table",
         cell: ({ row }) => (
           <a
             href={row.original.tableUrl}
@@ -25,15 +25,15 @@ export function IndexesPage() {
         ),
       },
       {
-        accessorKey: 'name',
-        header: 'Name',
+        accessorKey: "name",
+        header: "Name",
         cell: ({ row }) => (
           <span className="font-medium">{row.original.name}</span>
         ),
       },
       {
-        accessorKey: 'isUnique',
-        header: 'Unique',
+        accessorKey: "isUnique",
+        header: "Unique",
         cell: ({ getValue }) =>
           getValue<boolean>() ? (
             <IconTooltip label="Unique index">
@@ -48,21 +48,21 @@ export function IndexesPage() {
             </IconTooltip>
           ),
       },
-      { accessorKey: 'columnsText', header: 'Columns' },
-      { accessorKey: 'includedColumnsText', header: 'Included' },
+      { accessorKey: "columnsText", header: "Columns" },
+      { accessorKey: "includedColumnsText", header: "Included" },
     ],
     [],
-  )
+  );
 
   if (isPending) {
-    return <p className="text-muted-foreground">Loading…</p>
+    return <p className="text-muted-foreground">Loading…</p>;
   }
   if (isError) {
     return (
       <p className="text-destructive">
         Failed to load indexes: {(error as Error).message}
       </p>
-    )
+    );
   }
 
   return (
@@ -76,9 +76,9 @@ export function IndexesPage() {
         columns={columns}
         data={data.tableIndexes}
         filterPlaceholder="Filter indexes…"
-        initialSorting={[{ id: 'tableName', desc: false }]}
+        initialSorting={[{ id: "tableName", desc: false }]}
         emptyMessage="No indexes."
       />
     </div>
-  )
+  );
 }

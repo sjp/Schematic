@@ -1,7 +1,7 @@
-import path from 'node:path'
-import { defineConfig, type Plugin } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
+import path from "node:path";
+import { defineConfig, type Plugin } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
 /**
  * Rewrites the generated `index.html` so it opens by double-click from disk
@@ -16,24 +16,24 @@ import tailwindcss from '@tailwindcss/vite'
  */
 function fileProtocolHtml(): Plugin {
   return {
-    name: 'file-protocol-html',
-    enforce: 'post',
+    name: "file-protocol-html",
+    enforce: "post",
     transformIndexHtml(html) {
       return html
-        .replace(/\s+crossorigin(=("|')[^"']*\2)?/g, '')
-        .replace(/<script\s+type="module"/g, '<script defer')
+        .replace(/\s+crossorigin(=("|')[^"']*\2)?/g, "")
+        .replace(/<script\s+type="module"/g, "<script defer");
     },
-  }
+  };
 }
 
 // https://vite.dev/config/
 export default defineConfig({
   // Relative asset paths are mandatory for opening the report from `file://`.
-  base: './',
+  base: "./",
   plugins: [react(), tailwindcss(), fileProtocolHtml()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
   build: {
@@ -45,11 +45,11 @@ export default defineConfig({
       output: {
         // A single self-contained IIFE bundle so the app loads as a classic
         // script over both `file://` and `http://`.
-        format: 'iife',
+        format: "iife",
         inlineDynamicImports: true,
-        entryFileNames: 'assets/app-[hash].js',
-        assetFileNames: 'assets/app-[hash][extname]',
+        entryFileNames: "assets/app-[hash].js",
+        assetFileNames: "assets/app-[hash][extname]",
       },
     },
   },
-})
+});

@@ -1,24 +1,24 @@
-import { useMemo } from 'react'
-import { Link } from '@tanstack/react-router'
-import { type ColumnDef } from '@tanstack/react-table'
-import { Check, Eye, Minus } from 'lucide-react'
-import { DataTable } from '@/components/DataTable'
-import { useSummary } from '@/hooks/useReportData'
-import type { ViewSummary, ViewsSummary } from '@/types/report'
+import { useMemo } from "react";
+import { Link } from "@tanstack/react-router";
+import { type ColumnDef } from "@tanstack/react-table";
+import { Check, Eye, Minus } from "lucide-react";
+import { DataTable } from "@/components/DataTable";
+import { useSummary } from "@/hooks/useReportData";
+import type { ViewSummary, ViewsSummary } from "@/types/report";
 
 /** Extracts the route safeKey from a `#/views/<key>` hash url. */
 function keyFromUrl(viewUrl: string): string {
-  return viewUrl.slice(viewUrl.lastIndexOf('/') + 1)
+  return viewUrl.slice(viewUrl.lastIndexOf("/") + 1);
 }
 
 export function ViewsPage() {
-  const { data, isPending, isError, error } = useSummary<ViewsSummary>('views')
+  const { data, isPending, isError, error } = useSummary<ViewsSummary>("views");
 
   const columns = useMemo<ColumnDef<ViewSummary>[]>(
     () => [
       {
-        accessorKey: 'name',
-        header: 'Name',
+        accessorKey: "name",
+        header: "Name",
         cell: ({ row }) => (
           <Link
             to="/views/$viewKey"
@@ -29,10 +29,10 @@ export function ViewsPage() {
           </Link>
         ),
       },
-      { accessorKey: 'columnCount', header: 'Columns' },
+      { accessorKey: "columnCount", header: "Columns" },
       {
-        accessorKey: 'isMaterialized',
-        header: 'Materialized',
+        accessorKey: "isMaterialized",
+        header: "Materialized",
         cell: ({ getValue }) =>
           getValue<boolean>() ? (
             <Check
@@ -48,17 +48,17 @@ export function ViewsPage() {
       },
     ],
     [],
-  )
+  );
 
   if (isPending) {
-    return <p className="text-muted-foreground">Loading…</p>
+    return <p className="text-muted-foreground">Loading…</p>;
   }
   if (isError) {
     return (
       <p className="text-destructive">
         Failed to load views: {(error as Error).message}
       </p>
-    )
+    );
   }
 
   return (
@@ -72,9 +72,9 @@ export function ViewsPage() {
         columns={columns}
         data={data.allViews}
         filterPlaceholder="Filter views…"
-        initialSorting={[{ id: 'name', desc: false }]}
+        initialSorting={[{ id: "name", desc: false }]}
         emptyMessage="No views."
       />
     </div>
-  )
+  );
 }

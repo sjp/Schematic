@@ -1,19 +1,19 @@
-import { ShieldCheck, TriangleAlert } from 'lucide-react'
-import { useSummary } from '@/hooks/useReportData'
-import type { LintSummary } from '@/types/report'
+import { ShieldCheck, TriangleAlert } from "lucide-react";
+import { useSummary } from "@/hooks/useReportData";
+import type { LintSummary } from "@/types/report";
 
 export function LintPage() {
-  const { data, isPending, isError, error } = useSummary<LintSummary>('lint')
+  const { data, isPending, isError, error } = useSummary<LintSummary>("lint");
 
   if (isPending) {
-    return <p className="text-muted-foreground">Loading…</p>
+    return <p className="text-muted-foreground">Loading…</p>;
   }
   if (isError) {
     return (
       <p className="text-destructive">
         Failed to load lint results: {(error as Error).message}
       </p>
-    )
+    );
   }
 
   return (
@@ -49,5 +49,5 @@ export function LintPage() {
         </div>
       )}
     </div>
-  )
+  );
 }

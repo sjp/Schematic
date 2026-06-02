@@ -1,4 +1,4 @@
-import { QueryClient } from '@tanstack/react-query'
+import { QueryClient } from "@tanstack/react-query";
 
 /**
  * A single QueryClient for the whole app. Report data is immutable for the
@@ -15,4 +15,4 @@ export const queryClient = new QueryClient({
       refetchOnReconnect: false,
     },
   },
-})
+});

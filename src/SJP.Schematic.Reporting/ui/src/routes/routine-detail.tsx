@@ -1,25 +1,25 @@
-import { Link, getRouteApi } from '@tanstack/react-router'
-import { useDetail } from '@/hooks/useReportData'
-import type { RoutineDetail } from '@/types/report'
+import { Link, getRouteApi } from "@tanstack/react-router";
+import { useDetail } from "@/hooks/useReportData";
+import type { RoutineDetail } from "@/types/report";
 
-const routeApi = getRouteApi('/routines/$routineKey')
+const routeApi = getRouteApi("/routines/$routineKey");
 
 export function RoutineDetailPage() {
-  const { routineKey } = routeApi.useParams()
+  const { routineKey } = routeApi.useParams();
   const { data, isPending, isError, error } = useDetail<RoutineDetail>(
-    'routine',
+    "routine",
     routineKey,
-  )
+  );
 
   if (isPending) {
-    return <p className="text-muted-foreground">Loading…</p>
+    return <p className="text-muted-foreground">Loading…</p>;
   }
   if (isError || !data) {
     return (
       <p className="text-destructive">
-        Failed to load routine: {(error as Error)?.message ?? 'not found'}
+        Failed to load routine: {(error as Error)?.message ?? "not found"}
       </p>
-    )
+    );
   }
 
   return (
@@ -42,5 +42,5 @@ export function RoutineDetailPage() {
         </pre>
       </section>
     </div>
-  )
+  );
 }

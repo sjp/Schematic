@@ -1,10 +1,10 @@
-import { useEffect } from 'react'
+import { useEffect } from "react";
 
-const DARK_QUERY = '(prefers-color-scheme: dark)'
+const DARK_QUERY = "(prefers-color-scheme: dark)";
 
 /** Toggle the `dark` class on the document root to match `prefers-color-scheme`. */
 function applyColorScheme(isDark: boolean) {
-  document.documentElement.classList.toggle('dark', isDark)
+  document.documentElement.classList.toggle("dark", isDark);
 }
 
 /**
@@ -15,11 +15,11 @@ function applyColorScheme(isDark: boolean) {
  */
 export function useColorScheme() {
   useEffect(() => {
-    const media = window.matchMedia(DARK_QUERY)
-    applyColorScheme(media.matches)
+    const media = window.matchMedia(DARK_QUERY);
+    applyColorScheme(media.matches);
 
-    const onChange = (e: MediaQueryListEvent) => applyColorScheme(e.matches)
-    media.addEventListener('change', onChange)
-    return () => media.removeEventListener('change', onChange)
-  }, [])
+    const onChange = (e: MediaQueryListEvent) => applyColorScheme(e.matches);
+    media.addEventListener("change", onChange);
+    return () => media.removeEventListener("change", onChange);
+  }, []);
 }

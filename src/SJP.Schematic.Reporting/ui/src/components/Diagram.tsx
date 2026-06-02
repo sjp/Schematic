@@ -1,10 +1,10 @@
-import { useState } from 'react'
-import { Minus, Plus, RotateCcw } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { useState } from "react";
+import { Minus, Plus, RotateCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-const MIN_ZOOM = 0.5
-const MAX_ZOOM = 4
-const ZOOM_STEP = 0.25
+const MIN_ZOOM = 0.5;
+const MAX_ZOOM = 4;
+const ZOOM_STEP = 0.25;
 
 /**
  * Renders a pre-generated diagram SVG. An `<object>` (rather than `<img>`) keeps the SVG's internal
@@ -16,13 +16,13 @@ const ZOOM_STEP = 0.25
  * deliberately avoid a drag overlay, which would intercept (and break) the in-SVG link clicks.
  */
 export function Diagram({ src, title }: { src: string; title?: string }) {
-  const [zoom, setZoom] = useState(1)
+  const [zoom, setZoom] = useState(1);
 
   const zoomIn = () =>
-    setZoom((z) => Math.min(MAX_ZOOM, +(z + ZOOM_STEP).toFixed(2)))
+    setZoom((z) => Math.min(MAX_ZOOM, +(z + ZOOM_STEP).toFixed(2)));
   const zoomOut = () =>
-    setZoom((z) => Math.max(MIN_ZOOM, +(z - ZOOM_STEP).toFixed(2)))
-  const reset = () => setZoom(1)
+    setZoom((z) => Math.max(MIN_ZOOM, +(z - ZOOM_STEP).toFixed(2)));
+  const reset = () => setZoom(1);
 
   return (
     <div className="bg-card relative rounded-md border">
@@ -66,7 +66,7 @@ export function Diagram({ src, title }: { src: string; title?: string }) {
           <object
             type="image/svg+xml"
             data={src}
-            aria-label={title ?? 'Schema diagram'}
+            aria-label={title ?? "Schema diagram"}
             className="block w-full"
           >
             <a href={src}>Open diagram</a>
@@ -74,5 +74,5 @@ export function Diagram({ src, title }: { src: string; title?: string }) {
         </div>
       </div>
     </div>
-  )
+  );
 }

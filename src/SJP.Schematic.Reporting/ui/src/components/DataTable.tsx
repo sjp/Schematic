@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState } from "react";
 import {
   type ColumnDef,
   type PaginationState,
@@ -9,7 +9,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table'
+} from "@tanstack/react-table";
 import {
   ArrowDown,
   ArrowUp,
@@ -18,9 +18,9 @@ import {
   ChevronsLeft,
   ChevronsRight,
   ChevronsUpDown,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -28,16 +28,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
-  filterPlaceholder?: string
-  initialSorting?: SortingState
-  emptyMessage?: string
-  pageSize?: number
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+  filterPlaceholder?: string;
+  initialSorting?: SortingState;
+  emptyMessage?: string;
+  pageSize?: number;
 }
 
 /**
@@ -48,17 +48,17 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
-  filterPlaceholder = 'Filter…',
+  filterPlaceholder = "Filter…",
   initialSorting = [],
-  emptyMessage = 'No results.',
+  emptyMessage = "No results.",
   pageSize = 50,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>(initialSorting)
-  const [globalFilter, setGlobalFilter] = useState('')
+  const [sorting, setSorting] = useState<SortingState>(initialSorting);
+  const [globalFilter, setGlobalFilter] = useState("");
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize,
-  })
+  });
 
   const table = useReactTable({
     data,
@@ -74,13 +74,17 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-  })
+  });
 
-  const filteredCount = table.getFilteredRowModel().rows.length
-  const pageCount = table.getPageCount()
-  const { pageIndex } = table.getState().pagination
-  const firstRow = filteredCount === 0 ? 0 : pageIndex * pagination.pageSize + 1
-  const lastRow = Math.min((pageIndex + 1) * pagination.pageSize, filteredCount)
+  const filteredCount = table.getFilteredRowModel().rows.length;
+  const pageCount = table.getPageCount();
+  const { pageIndex } = table.getState().pagination;
+  const firstRow =
+    filteredCount === 0 ? 0 : pageIndex * pagination.pageSize + 1;
+  const lastRow = Math.min(
+    (pageIndex + 1) * pagination.pageSize,
+    filteredCount,
+  );
 
   return (
     <div className="space-y-3">
@@ -103,8 +107,8 @@ export function DataTable<TData, TValue>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
-                  const canSort = header.column.getCanSort()
-                  const sorted = header.column.getIsSorted()
+                  const canSort = header.column.getCanSort();
+                  const sorted = header.column.getIsSorted();
                   return (
                     <TableHead key={header.id}>
                       {header.isPlaceholder ? null : canSort ? (
@@ -112,17 +116,17 @@ export function DataTable<TData, TValue>({
                           type="button"
                           onClick={header.column.getToggleSortingHandler()}
                           className={cn(
-                            'flex items-center gap-1 select-none hover:text-foreground',
-                            sorted && 'text-foreground',
+                            "flex items-center gap-1 select-none hover:text-foreground",
+                            sorted && "text-foreground",
                           )}
                         >
                           {flexRender(
                             header.column.columnDef.header,
                             header.getContext(),
                           )}
-                          {sorted === 'asc' ? (
+                          {sorted === "asc" ? (
                             <ArrowUp className="size-3.5" />
-                          ) : sorted === 'desc' ? (
+                          ) : sorted === "desc" ? (
                             <ArrowDown className="size-3.5" />
                           ) : (
                             <ChevronsUpDown className="size-3.5 opacity-50" />
@@ -135,7 +139,7 @@ export function DataTable<TData, TValue>({
                         )
                       )}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -216,5 +220,5 @@ export function DataTable<TData, TValue>({
         </div>
       )}
     </div>
-  )
+  );
 }

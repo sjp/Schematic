@@ -2,7 +2,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
+} from "@/components/ui/tooltip";
 
 /**
  * Wraps a small status icon (key membership, nullability, …) in a tooltip and
@@ -14,8 +14,8 @@ export function IconTooltip({
   label,
   children,
 }: {
-  label: React.ReactNode
-  children: React.ReactNode
+  label: React.ReactNode;
+  children: React.ReactNode;
 }) {
   return (
     <Tooltip>
@@ -29,5 +29,5 @@ export function IconTooltip({
       </TooltipTrigger>
       <TooltipContent>{label}</TooltipContent>
     </Tooltip>
-  )
+  );
 }

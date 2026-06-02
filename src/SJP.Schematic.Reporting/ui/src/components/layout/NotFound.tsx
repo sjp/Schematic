@@ -6,5 +6,5 @@ export function NotFound() {
         This page has not been built yet, or the link is invalid.
       </p>
     </div>
-  )
+  );
 }

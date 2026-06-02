@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Outlet, useRouterState } from '@tanstack/react-router'
+import { useEffect, useState } from "react";
+import { Outlet, useRouterState } from "@tanstack/react-router";
 import {
   Columns3,
   Database,
@@ -16,71 +16,71 @@ import {
   Table2,
   Unlink,
   Zap,
-} from 'lucide-react'
-import { SearchCommand } from '@/components/SearchCommand'
-import { cn } from '@/lib/utils'
+} from "lucide-react";
+import { SearchCommand } from "@/components/SearchCommand";
+import { cn } from "@/lib/utils";
 
 type NavItem = {
   /** Hash-route fragment (e.g. `#/tables`). */
-  href: string
+  href: string;
   /** Path the route resolves to, used for active-state matching. */
-  path: string
-  label: string
-  icon: typeof Database
-}
+  path: string;
+  label: string;
+  icon: typeof Database;
+};
 
 // Plain hash anchors keep the sidebar decoupled from the typed route tree:
 // later waves register the real routes; the links already point at them.
 const NAV: NavItem[] = [
-  { href: '#/', path: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '#/tables', path: '/tables', label: 'Tables', icon: Table2 },
-  { href: '#/views', path: '/views', label: 'Views', icon: Eye },
+  { href: "#/", path: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "#/tables", path: "/tables", label: "Tables", icon: Table2 },
+  { href: "#/views", path: "/views", label: "Views", icon: Eye },
   {
-    href: '#/sequences',
-    path: '/sequences',
-    label: 'Sequences',
+    href: "#/sequences",
+    path: "/sequences",
+    label: "Sequences",
     icon: ListOrdered,
   },
-  { href: '#/synonyms', path: '/synonyms', label: 'Synonyms', icon: Replace },
+  { href: "#/synonyms", path: "/synonyms", label: "Synonyms", icon: Replace },
   {
-    href: '#/routines',
-    path: '/routines',
-    label: 'Routines',
+    href: "#/routines",
+    path: "/routines",
+    label: "Routines",
     icon: SquareFunction,
   },
-  { href: '#/triggers', path: '/triggers', label: 'Triggers', icon: Zap },
-  { href: '#/columns', path: '/columns', label: 'Columns', icon: Columns3 },
+  { href: "#/triggers", path: "/triggers", label: "Triggers", icon: Zap },
+  { href: "#/columns", path: "/columns", label: "Columns", icon: Columns3 },
   {
-    href: '#/constraints',
-    path: '/constraints',
-    label: 'Constraints',
+    href: "#/constraints",
+    path: "/constraints",
+    label: "Constraints",
     icon: KeyRound,
   },
-  { href: '#/indexes', path: '/indexes', label: 'Indexes', icon: ListTree },
+  { href: "#/indexes", path: "/indexes", label: "Indexes", icon: ListTree },
   {
-    href: '#/relationships',
-    path: '/relationships',
-    label: 'Relationships',
+    href: "#/relationships",
+    path: "/relationships",
+    label: "Relationships",
     icon: Share2,
   },
-  { href: '#/orphans', path: '/orphans', label: 'Orphans', icon: Unlink },
-  { href: '#/lint', path: '/lint', label: 'Lint', icon: ShieldCheck },
-]
+  { href: "#/orphans", path: "/orphans", label: "Orphans", icon: Unlink },
+  { href: "#/lint", path: "/lint", label: "Lint", icon: ShieldCheck },
+];
 
 export function RootLayout() {
-  const pathname = useRouterState({ select: (s) => s.location.pathname })
-  const [searchOpen, setSearchOpen] = useState(false)
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault()
-        setSearchOpen((o) => !o)
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSearchOpen((o) => !o);
       }
     }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  }, [])
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
@@ -92,25 +92,25 @@ export function RootLayout() {
         <nav className="flex-1 space-y-0.5 overflow-y-auto p-2">
           {NAV.map((item) => {
             const isActive =
-              item.path === '/'
-                ? pathname === '/'
-                : pathname.startsWith(item.path)
-            const Icon = item.icon
+              item.path === "/"
+                ? pathname === "/"
+                : pathname.startsWith(item.path);
+            const Icon = item.icon;
             return (
               <a
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                  "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                   isActive
-                    ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                    : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                 )}
               >
                 <Icon className="size-4" />
                 {item.label}
               </a>
-            )
+            );
           })}
         </nav>
       </aside>
@@ -140,5 +140,5 @@ export function RootLayout() {
 
       <SearchCommand open={searchOpen} onOpenChange={setSearchOpen} />
     </div>
-  )
+  );
 }

@@ -1,19 +1,19 @@
-import { useMemo } from 'react'
-import { type ColumnDef } from '@tanstack/react-table'
-import { Unlink } from 'lucide-react'
-import { DataTable } from '@/components/DataTable'
-import { useSummary } from '@/hooks/useReportData'
-import type { OrphanTable, OrphansSummary } from '@/types/report'
+import { useMemo } from "react";
+import { type ColumnDef } from "@tanstack/react-table";
+import { Unlink } from "lucide-react";
+import { DataTable } from "@/components/DataTable";
+import { useSummary } from "@/hooks/useReportData";
+import type { OrphanTable, OrphansSummary } from "@/types/report";
 
 export function OrphansPage() {
   const { data, isPending, isError, error } =
-    useSummary<OrphansSummary>('orphans')
+    useSummary<OrphansSummary>("orphans");
 
   const columns = useMemo<ColumnDef<OrphanTable>[]>(
     () => [
       {
-        accessorKey: 'name',
-        header: 'Table',
+        accessorKey: "name",
+        header: "Table",
         cell: ({ row }) => (
           <a
             href={row.original.tableUrl}
@@ -23,21 +23,21 @@ export function OrphansPage() {
           </a>
         ),
       },
-      { accessorKey: 'columnCount', header: 'Columns' },
-      { accessorKey: 'rowCount', header: 'Rows' },
+      { accessorKey: "columnCount", header: "Columns" },
+      { accessorKey: "rowCount", header: "Rows" },
     ],
     [],
-  )
+  );
 
   if (isPending) {
-    return <p className="text-muted-foreground">Loading…</p>
+    return <p className="text-muted-foreground">Loading…</p>;
   }
   if (isError) {
     return (
       <p className="text-destructive">
         Failed to load orphan tables: {(error as Error).message}
       </p>
-    )
+    );
   }
 
   return (
@@ -55,9 +55,9 @@ export function OrphansPage() {
         columns={columns}
         data={data.tables}
         filterPlaceholder="Filter orphan tables…"
-        initialSorting={[{ id: 'name', desc: false }]}
+        initialSorting={[{ id: "name", desc: false }]}
         emptyMessage="No orphan tables."
       />
     </div>
-  )
+  );
 }

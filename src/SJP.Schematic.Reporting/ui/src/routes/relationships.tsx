@@ -1,34 +1,34 @@
-import { useEffect, useState } from 'react'
-import { Share2 } from 'lucide-react'
-import { Diagram } from '@/components/Diagram'
-import { Button } from '@/components/ui/button'
-import { useSummary } from '@/hooks/useReportData'
-import type { RelationshipsSummary } from '@/types/report'
+import { useEffect, useState } from "react";
+import { Share2 } from "lucide-react";
+import { Diagram } from "@/components/Diagram";
+import { Button } from "@/components/ui/button";
+import { useSummary } from "@/hooks/useReportData";
+import type { RelationshipsSummary } from "@/types/report";
 
 export function RelationshipsPage() {
   const { data, isPending, isError, error } =
-    useSummary<RelationshipsSummary>('relationships')
+    useSummary<RelationshipsSummary>("relationships");
 
   // Default to the diagram flagged active by the renderer (Compact), else the first.
-  const [activeLevel, setActiveLevel] = useState(0)
+  const [activeLevel, setActiveLevel] = useState(0);
   useEffect(() => {
-    if (!data) return
-    const idx = data.diagrams.findIndex((d) => d.isActive)
-    if (idx > 0) setActiveLevel(idx)
-  }, [data])
+    if (!data) return;
+    const idx = data.diagrams.findIndex((d) => d.isActive);
+    if (idx > 0) setActiveLevel(idx);
+  }, [data]);
 
   if (isPending) {
-    return <p className="text-muted-foreground">Loading…</p>
+    return <p className="text-muted-foreground">Loading…</p>;
   }
   if (isError) {
     return (
       <p className="text-destructive">
         Failed to load relationships: {(error as Error).message}
       </p>
-    )
+    );
   }
 
-  const diagram = data.diagrams[activeLevel] ?? data.diagrams[0]
+  const diagram = data.diagrams[activeLevel] ?? data.diagrams[0];
 
   return (
     <div className="space-y-4">
@@ -48,7 +48,7 @@ export function RelationshipsPage() {
               {data.diagrams.map((d, i) => (
                 <Button
                   key={d.containerId}
-                  variant={i === activeLevel ? 'default' : 'outline'}
+                  variant={i === activeLevel ? "default" : "outline"}
                   size="sm"
                   onClick={() => setActiveLevel(i)}
                 >
@@ -64,5 +64,5 @@ export function RelationshipsPage() {
         </>
       )}
     </div>
-  )
+  );
 }

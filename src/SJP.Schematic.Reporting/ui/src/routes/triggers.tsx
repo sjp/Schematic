@@ -1,26 +1,26 @@
-import { useMemo } from 'react'
-import { type ColumnDef } from '@tanstack/react-table'
-import { Zap } from 'lucide-react'
-import { DataTable } from '@/components/DataTable'
-import { useSummary } from '@/hooks/useReportData'
-import type { TriggerRow, TriggersSummary } from '@/types/report'
+import { useMemo } from "react";
+import { type ColumnDef } from "@tanstack/react-table";
+import { Zap } from "lucide-react";
+import { DataTable } from "@/components/DataTable";
+import { useSummary } from "@/hooks/useReportData";
+import type { TriggerRow, TriggersSummary } from "@/types/report";
 
 export function TriggersPage() {
   const { data, isPending, isError, error } =
-    useSummary<TriggersSummary>('triggers')
+    useSummary<TriggersSummary>("triggers");
 
   const columns = useMemo<ColumnDef<TriggerRow>[]>(
     () => [
       {
-        accessorKey: 'name',
-        header: 'Name',
+        accessorKey: "name",
+        header: "Name",
         cell: ({ row }) => (
           <span className="font-medium">{row.original.name}</span>
         ),
       },
       {
-        accessorKey: 'tableName',
-        header: 'Table',
+        accessorKey: "tableName",
+        header: "Table",
         cell: ({ row }) => (
           <a
             href={row.original.tableUrl}
@@ -30,21 +30,21 @@ export function TriggersPage() {
           </a>
         ),
       },
-      { accessorKey: 'queryTiming', header: 'Timing' },
-      { accessorKey: 'events', header: 'Events' },
+      { accessorKey: "queryTiming", header: "Timing" },
+      { accessorKey: "events", header: "Events" },
     ],
     [],
-  )
+  );
 
   if (isPending) {
-    return <p className="text-muted-foreground">Loading…</p>
+    return <p className="text-muted-foreground">Loading…</p>;
   }
   if (isError) {
     return (
       <p className="text-destructive">
         Failed to load triggers: {(error as Error).message}
       </p>
-    )
+    );
   }
 
   return (
@@ -58,9 +58,9 @@ export function TriggersPage() {
         columns={columns}
         data={data.allTriggers}
         filterPlaceholder="Filter triggers…"
-        initialSorting={[{ id: 'tableName', desc: false }]}
+        initialSorting={[{ id: "tableName", desc: false }]}
         emptyMessage="No triggers."
       />
     </div>
-  )
+  );
 }

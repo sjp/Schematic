@@ -1,21 +1,21 @@
-import { useMemo } from 'react'
-import { Link, getRouteApi } from '@tanstack/react-router'
-import { type ColumnDef } from '@tanstack/react-table'
-import { Check, Minus } from 'lucide-react'
-import { DataTable } from '@/components/DataTable'
-import { useDetail } from '@/hooks/useReportData'
-import type { ViewColumn, ViewDetail } from '@/types/report'
+import { useMemo } from "react";
+import { Link, getRouteApi } from "@tanstack/react-router";
+import { type ColumnDef } from "@tanstack/react-table";
+import { Check, Minus } from "lucide-react";
+import { DataTable } from "@/components/DataTable";
+import { useDetail } from "@/hooks/useReportData";
+import type { ViewColumn, ViewDetail } from "@/types/report";
 
-const routeApi = getRouteApi('/views/$viewKey')
+const routeApi = getRouteApi("/views/$viewKey");
 
 function Section({
   title,
   count,
   children,
 }: {
-  title: string
-  count?: number
-  children: React.ReactNode
+  title: string;
+  count?: number;
+  children: React.ReactNode;
 }) {
   return (
     <section className="space-y-3">
@@ -29,30 +29,30 @@ function Section({
       </h2>
       {children}
     </section>
-  )
+  );
 }
 
 export function ViewDetailPage() {
-  const { viewKey } = routeApi.useParams()
+  const { viewKey } = routeApi.useParams();
   const { data, isPending, isError, error } = useDetail<ViewDetail>(
-    'view',
+    "view",
     viewKey,
-  )
+  );
 
   const columns = useMemo<ColumnDef<ViewColumn>[]>(
     () => [
-      { accessorKey: 'ordinal', header: '#' },
+      { accessorKey: "ordinal", header: "#" },
       {
-        accessorKey: 'columnName',
-        header: 'Name',
+        accessorKey: "columnName",
+        header: "Name",
         cell: ({ row }) => (
           <span className="font-medium">{row.original.columnName}</span>
         ),
       },
-      { accessorKey: 'type', header: 'Type' },
+      { accessorKey: "type", header: "Type" },
       {
-        accessorKey: 'isNullable',
-        header: 'Nullable',
+        accessorKey: "isNullable",
+        header: "Nullable",
         cell: ({ getValue }) =>
           getValue<boolean>() ? (
             <Check className="text-emerald-500 size-4" aria-label="Nullable" />
@@ -64,26 +64,26 @@ export function ViewDetailPage() {
           ),
       },
       {
-        accessorKey: 'defaultValue',
-        header: 'Default',
+        accessorKey: "defaultValue",
+        header: "Default",
         cell: ({ getValue }) => {
-          const v = getValue<string>()
-          return v ? <code className="text-xs">{v}</code> : null
+          const v = getValue<string>();
+          return v ? <code className="text-xs">{v}</code> : null;
         },
       },
     ],
     [],
-  )
+  );
 
   if (isPending) {
-    return <p className="text-muted-foreground">Loading…</p>
+    return <p className="text-muted-foreground">Loading…</p>;
   }
   if (isError || !data) {
     return (
       <p className="text-destructive">
-        Failed to load view: {(error as Error)?.message ?? 'not found'}
+        Failed to load view: {(error as Error)?.message ?? "not found"}
       </p>
-    )
+    );
   }
 
   return (
@@ -107,7 +107,7 @@ export function ViewDetailPage() {
           columns={columns}
           data={data.columns}
           filterPlaceholder="Filter columns…"
-          initialSorting={[{ id: 'ordinal', desc: false }]}
+          initialSorting={[{ id: "ordinal", desc: false }]}
         />
       </Section>
 
@@ -134,5 +134,5 @@ export function ViewDetailPage() {
         </pre>
       </Section>
     </div>
-  )
+  );
 }

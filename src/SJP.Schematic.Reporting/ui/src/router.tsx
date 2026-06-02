@@ -3,159 +3,159 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
-} from '@tanstack/react-router'
-import { RootLayout } from '@/components/layout/RootLayout'
-import { NotFound } from '@/components/layout/NotFound'
-import { DashboardPage } from '@/routes/dashboard'
-import { TablesPage } from '@/routes/tables'
-import { TableDetailPage } from '@/routes/table-detail'
-import { ViewsPage } from '@/routes/views'
-import { ViewDetailPage } from '@/routes/view-detail'
-import { RoutinesPage } from '@/routes/routines'
-import { RoutineDetailPage } from '@/routes/routine-detail'
-import { SequencesPage } from '@/routes/sequences'
-import { SequenceDetailPage } from '@/routes/sequence-detail'
-import { SynonymsPage } from '@/routes/synonyms'
-import { SynonymDetailPage } from '@/routes/synonym-detail'
-import { TriggersPage } from '@/routes/triggers'
-import { ColumnsPage } from '@/routes/columns'
-import { ConstraintsPage } from '@/routes/constraints'
-import { IndexesPage } from '@/routes/indexes'
-import { OrphansPage } from '@/routes/orphans'
-import { LintPage } from '@/routes/lint'
-import { RelationshipsPage } from '@/routes/relationships'
-import { ensureDetail, ensureSummary } from '@/hooks/useReportData'
+} from "@tanstack/react-router";
+import { RootLayout } from "@/components/layout/RootLayout";
+import { NotFound } from "@/components/layout/NotFound";
+import { DashboardPage } from "@/routes/dashboard";
+import { TablesPage } from "@/routes/tables";
+import { TableDetailPage } from "@/routes/table-detail";
+import { ViewsPage } from "@/routes/views";
+import { ViewDetailPage } from "@/routes/view-detail";
+import { RoutinesPage } from "@/routes/routines";
+import { RoutineDetailPage } from "@/routes/routine-detail";
+import { SequencesPage } from "@/routes/sequences";
+import { SequenceDetailPage } from "@/routes/sequence-detail";
+import { SynonymsPage } from "@/routes/synonyms";
+import { SynonymDetailPage } from "@/routes/synonym-detail";
+import { TriggersPage } from "@/routes/triggers";
+import { ColumnsPage } from "@/routes/columns";
+import { ConstraintsPage } from "@/routes/constraints";
+import { IndexesPage } from "@/routes/indexes";
+import { OrphansPage } from "@/routes/orphans";
+import { LintPage } from "@/routes/lint";
+import { RelationshipsPage } from "@/routes/relationships";
+import { ensureDetail, ensureSummary } from "@/hooks/useReportData";
 
 const rootRoute = createRootRoute({
   component: RootLayout,
   notFoundComponent: NotFound,
-})
+});
 
 const dashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/',
+  path: "/",
   component: DashboardPage,
-  loader: () => ensureSummary('main'),
-})
+  loader: () => ensureSummary("main"),
+});
 
 const tablesRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/tables',
+  path: "/tables",
   component: TablesPage,
-  loader: () => ensureSummary('tables'),
-})
+  loader: () => ensureSummary("tables"),
+});
 
 const tableDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/tables/$tableKey',
+  path: "/tables/$tableKey",
   component: TableDetailPage,
-  loader: ({ params }) => ensureDetail('table', params.tableKey),
-})
+  loader: ({ params }) => ensureDetail("table", params.tableKey),
+});
 
 const viewsRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/views',
+  path: "/views",
   component: ViewsPage,
-  loader: () => ensureSummary('views'),
-})
+  loader: () => ensureSummary("views"),
+});
 
 const viewDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/views/$viewKey',
+  path: "/views/$viewKey",
   component: ViewDetailPage,
-  loader: ({ params }) => ensureDetail('view', params.viewKey),
-})
+  loader: ({ params }) => ensureDetail("view", params.viewKey),
+});
 
 const routinesRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/routines',
+  path: "/routines",
   component: RoutinesPage,
-  loader: () => ensureSummary('routines'),
-})
+  loader: () => ensureSummary("routines"),
+});
 
 const routineDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/routines/$routineKey',
+  path: "/routines/$routineKey",
   component: RoutineDetailPage,
-  loader: ({ params }) => ensureDetail('routine', params.routineKey),
-})
+  loader: ({ params }) => ensureDetail("routine", params.routineKey),
+});
 
 const sequencesRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/sequences',
+  path: "/sequences",
   component: SequencesPage,
-  loader: () => ensureSummary('sequences'),
-})
+  loader: () => ensureSummary("sequences"),
+});
 
 const sequenceDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/sequences/$sequenceKey',
+  path: "/sequences/$sequenceKey",
   component: SequenceDetailPage,
-  loader: ({ params }) => ensureDetail('sequence', params.sequenceKey),
-})
+  loader: ({ params }) => ensureDetail("sequence", params.sequenceKey),
+});
 
 const synonymsRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/synonyms',
+  path: "/synonyms",
   component: SynonymsPage,
-  loader: () => ensureSummary('synonyms'),
-})
+  loader: () => ensureSummary("synonyms"),
+});
 
 const synonymDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/synonyms/$synonymKey',
+  path: "/synonyms/$synonymKey",
   component: SynonymDetailPage,
-  loader: ({ params }) => ensureDetail('synonym', params.synonymKey),
-})
+  loader: ({ params }) => ensureDetail("synonym", params.synonymKey),
+});
 
 const triggersRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/triggers',
+  path: "/triggers",
   component: TriggersPage,
-  loader: () => ensureSummary('triggers'),
-})
+  loader: () => ensureSummary("triggers"),
+});
 
 const columnsRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/columns',
+  path: "/columns",
   component: ColumnsPage,
-  loader: () => ensureSummary('columns'),
-})
+  loader: () => ensureSummary("columns"),
+});
 
 const constraintsRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/constraints',
+  path: "/constraints",
   component: ConstraintsPage,
-  loader: () => ensureSummary('constraints'),
-})
+  loader: () => ensureSummary("constraints"),
+});
 
 const indexesRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/indexes',
+  path: "/indexes",
   component: IndexesPage,
-  loader: () => ensureSummary('indexes'),
-})
+  loader: () => ensureSummary("indexes"),
+});
 
 const orphansRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/orphans',
+  path: "/orphans",
   component: OrphansPage,
-  loader: () => ensureSummary('orphans'),
-})
+  loader: () => ensureSummary("orphans"),
+});
 
 const lintRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/lint',
+  path: "/lint",
   component: LintPage,
-  loader: () => ensureSummary('lint'),
-})
+  loader: () => ensureSummary("lint"),
+});
 
 const relationshipsRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/relationships',
+  path: "/relationships",
   component: RelationshipsPage,
-  loader: () => ensureSummary('relationships'),
-})
+  loader: () => ensureSummary("relationships"),
+});
 
 // Child routes for each object type are registered here by later waves.
 const routeTree = rootRoute.addChildren([
@@ -177,17 +177,17 @@ const routeTree = rootRoute.addChildren([
   orphansRoute,
   lintRoute,
   relationshipsRoute,
-])
+]);
 
 // Hash history is mandatory so deep links survive `file://` (no server to
 // resolve clean URLs).
 export const router = createRouter({
   routeTree,
   history: createHashHistory(),
-})
+});
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface Register {
-    router: typeof router
+    router: typeof router;
   }
 }

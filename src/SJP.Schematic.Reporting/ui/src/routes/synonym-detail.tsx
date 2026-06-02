@@ -1,25 +1,25 @@
-import { Link, getRouteApi } from '@tanstack/react-router'
-import { useDetail } from '@/hooks/useReportData'
-import type { SynonymDetail } from '@/types/report'
+import { Link, getRouteApi } from "@tanstack/react-router";
+import { useDetail } from "@/hooks/useReportData";
+import type { SynonymDetail } from "@/types/report";
 
-const routeApi = getRouteApi('/synonyms/$synonymKey')
+const routeApi = getRouteApi("/synonyms/$synonymKey");
 
 export function SynonymDetailPage() {
-  const { synonymKey } = routeApi.useParams()
+  const { synonymKey } = routeApi.useParams();
   const { data, isPending, isError, error } = useDetail<SynonymDetail>(
-    'synonym',
+    "synonym",
     synonymKey,
-  )
+  );
 
   if (isPending) {
-    return <p className="text-muted-foreground">Loading…</p>
+    return <p className="text-muted-foreground">Loading…</p>;
   }
   if (isError || !data) {
     return (
       <p className="text-destructive">
-        Failed to load synonym: {(error as Error)?.message ?? 'not found'}
+        Failed to load synonym: {(error as Error)?.message ?? "not found"}
       </p>
-    )
+    );
   }
 
   return (
@@ -48,5 +48,5 @@ export function SynonymDetailPage() {
         </dd>
       </dl>
     </div>
-  )
+  );
 }

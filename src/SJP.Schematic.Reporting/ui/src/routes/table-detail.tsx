@@ -1,11 +1,11 @@
-import { useMemo, useState } from 'react'
-import { Link, getRouteApi } from '@tanstack/react-router'
-import { type ColumnDef } from '@tanstack/react-table'
-import { Check, KeyRound, Link2, Minus, ShieldCheck } from 'lucide-react'
-import { DataTable } from '@/components/DataTable'
-import { Diagram } from '@/components/Diagram'
-import { IconTooltip } from '@/components/IconTooltip'
-import { Button } from '@/components/ui/button'
+import { useMemo, useState } from "react";
+import { Link, getRouteApi } from "@tanstack/react-router";
+import { type ColumnDef } from "@tanstack/react-table";
+import { Check, KeyRound, Link2, Minus, ShieldCheck } from "lucide-react";
+import { DataTable } from "@/components/DataTable";
+import { Diagram } from "@/components/Diagram";
+import { IconTooltip } from "@/components/IconTooltip";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -13,20 +13,20 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { useDetail } from '@/hooks/useReportData'
-import type { KeyConstraint, TableColumn, TableDetail } from '@/types/report'
+} from "@/components/ui/table";
+import { useDetail } from "@/hooks/useReportData";
+import type { KeyConstraint, TableColumn, TableDetail } from "@/types/report";
 
-const routeApi = getRouteApi('/tables/$tableKey')
+const routeApi = getRouteApi("/tables/$tableKey");
 
 function Section({
   title,
   count,
   children,
 }: {
-  title: string
-  count?: number
-  children: React.ReactNode
+  title: string;
+  count?: number;
+  children: React.ReactNode;
 }) {
   return (
     <section className="space-y-3">
@@ -40,7 +40,7 @@ function Section({
       </h2>
       {children}
     </section>
-  )
+  );
 }
 
 /** Whether `columnName` is one of a constraint's (comma-separated) columns. */
@@ -49,9 +49,9 @@ function constraintCovers(
   columnName: string,
 ): boolean {
   return constraint.columnNames
-    .split(',')
+    .split(",")
     .map((c) => c.trim())
-    .includes(columnName)
+    .includes(columnName);
 }
 
 function KeyIcons({
@@ -59,13 +59,13 @@ function KeyIcons({
   primaryKey,
   uniqueKeys,
 }: {
-  column: TableColumn
-  primaryKey?: KeyConstraint
-  uniqueKeys: KeyConstraint[]
+  column: TableColumn;
+  primaryKey?: KeyConstraint;
+  uniqueKeys: KeyConstraint[];
 }) {
   const matchedUniqueKeys = uniqueKeys.filter((uk) =>
     constraintCovers(uk, column.columnName),
-  )
+  );
   return (
     <span className="ml-1 inline-flex gap-0.5 align-middle">
       {column.isPrimaryKey && (
@@ -92,10 +92,10 @@ function KeyIcons({
               <span className="font-medium">Unique key</span>
               {matchedUniqueKeys.length > 0 && (
                 <>
-                  {' · '}
+                  {" · "}
                   {matchedUniqueKeys
-                    .map((uk) => uk.constraintName || '—')
-                    .join(', ')}
+                    .map((uk) => uk.constraintName || "—")
+                    .join(", ")}
                 </>
               )}
             </>
@@ -127,22 +127,22 @@ function KeyIcons({
         </IconTooltip>
       )}
     </span>
-  )
+  );
 }
 
 export function TableDetailPage() {
-  const { tableKey } = routeApi.useParams()
+  const { tableKey } = routeApi.useParams();
   const { data, isPending, isError, error } = useDetail<TableDetail>(
-    'table',
+    "table",
     tableKey,
-  )
+  );
 
   const columns = useMemo<ColumnDef<TableColumn>[]>(
     () => [
-      { accessorKey: 'ordinal', header: '#' },
+      { accessorKey: "ordinal", header: "#" },
       {
-        accessorKey: 'columnName',
-        header: 'Name',
+        accessorKey: "columnName",
+        header: "Name",
         cell: ({ row }) => (
           <span className="font-medium">
             {row.original.columnName}
@@ -154,10 +154,10 @@ export function TableDetailPage() {
           </span>
         ),
       },
-      { accessorKey: 'type', header: 'Type' },
+      { accessorKey: "type", header: "Type" },
       {
-        accessorKey: 'isNullable',
-        header: 'Nullable',
+        accessorKey: "isNullable",
+        header: "Nullable",
         cell: ({ getValue }) =>
           getValue<boolean>() ? (
             <Check className="text-emerald-500 size-4" aria-label="Nullable" />
@@ -169,31 +169,31 @@ export function TableDetailPage() {
           ),
       },
       {
-        accessorKey: 'defaultValue',
-        header: 'Default',
+        accessorKey: "defaultValue",
+        header: "Default",
         cell: ({ getValue }) => {
-          const v = getValue<string>()
-          return v ? <code className="text-xs">{v}</code> : null
+          const v = getValue<string>();
+          return v ? <code className="text-xs">{v}</code> : null;
         },
       },
     ],
     [data?.primaryKey, data?.uniqueKeys],
-  )
+  );
 
-  const [activeDiagram, setActiveDiagram] = useState(0)
+  const [activeDiagram, setActiveDiagram] = useState(0);
 
   if (isPending) {
-    return <p className="text-muted-foreground">Loading…</p>
+    return <p className="text-muted-foreground">Loading…</p>;
   }
   if (isError || !data) {
     return (
       <p className="text-destructive">
-        Failed to load table: {(error as Error)?.message ?? 'not found'}
+        Failed to load table: {(error as Error)?.message ?? "not found"}
       </p>
-    )
+    );
   }
 
-  const diagram = data.diagrams[activeDiagram] ?? data.diagrams[0]
+  const diagram = data.diagrams[activeDiagram] ?? data.diagrams[0];
 
   return (
     <div className="space-y-8">
@@ -216,17 +216,17 @@ export function TableDetailPage() {
           columns={columns}
           data={data.columns}
           filterPlaceholder="Filter columns…"
-          initialSorting={[{ id: 'ordinal', desc: false }]}
+          initialSorting={[{ id: "ordinal", desc: false }]}
         />
       </Section>
 
       {data.primaryKeyExists && data.primaryKey && (
         <Section title="Primary Key">
           <SimpleTable
-            head={['Constraint', 'Columns']}
+            head={["Constraint", "Columns"]}
             rows={[
               [
-                data.primaryKey.constraintName || '—',
+                data.primaryKey.constraintName || "—",
                 data.primaryKey.columnNames,
               ],
             ]}
@@ -237,9 +237,9 @@ export function TableDetailPage() {
       {data.uniqueKeysCount > 0 && (
         <Section title="Unique Keys" count={data.uniqueKeysCount}>
           <SimpleTable
-            head={['Constraint', 'Columns']}
+            head={["Constraint", "Columns"]}
             rows={data.uniqueKeys.map((uk) => [
-              uk.constraintName || '—',
+              uk.constraintName || "—",
               uk.columnNames,
             ])}
           />
@@ -262,7 +262,7 @@ export function TableDetailPage() {
             <TableBody>
               {data.foreignKeys.map((fk, i) => (
                 <TableRow key={i}>
-                  <TableCell>{fk.constraintName || '—'}</TableCell>
+                  <TableCell>{fk.constraintName || "—"}</TableCell>
                   <TableCell>{fk.childColumnNames}</TableCell>
                   <TableCell>
                     <a
@@ -285,9 +285,9 @@ export function TableDetailPage() {
       {data.checkConstraintsCount > 0 && (
         <Section title="Check Constraints" count={data.checkConstraintsCount}>
           <SimpleTable
-            head={['Constraint', 'Definition']}
+            head={["Constraint", "Definition"]}
             rows={data.checkConstraints.map((c) => [
-              c.constraintName || '—',
+              c.constraintName || "—",
               c.definition,
             ])}
           />
@@ -308,7 +308,7 @@ export function TableDetailPage() {
             <TableBody>
               {data.indexes.map((ix, i) => (
                 <TableRow key={i}>
-                  <TableCell>{ix.name || '—'}</TableCell>
+                  <TableCell>{ix.name || "—"}</TableCell>
                   <TableCell>
                     {ix.isUnique ? (
                       <IconTooltip label="Unique index">
@@ -327,7 +327,7 @@ export function TableDetailPage() {
                     )}
                   </TableCell>
                   <TableCell>{ix.columnsText}</TableCell>
-                  <TableCell>{ix.includedColumnsText || '—'}</TableCell>
+                  <TableCell>{ix.includedColumnsText || "—"}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -362,7 +362,7 @@ export function TableDetailPage() {
               {data.diagrams.map((d, i) => (
                 <Button
                   key={d.containerId}
-                  variant={i === activeDiagram ? 'default' : 'outline'}
+                  variant={i === activeDiagram ? "default" : "outline"}
                   size="sm"
                   onClick={() => setActiveDiagram(i)}
                 >
@@ -378,15 +378,15 @@ export function TableDetailPage() {
         </Section>
       )}
     </div>
-  )
+  );
 }
 
 function SimpleTable({
   head,
   rows,
 }: {
-  head: string[]
-  rows: (string | number)[][]
+  head: string[];
+  rows: (string | number)[][];
 }) {
   return (
     <Table>
@@ -407,5 +407,5 @@ function SimpleTable({
         ))}
       </TableBody>
     </Table>
-  )
+  );
 }

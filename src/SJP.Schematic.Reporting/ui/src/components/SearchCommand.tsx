@@ -1,6 +1,6 @@
-import { useMemo } from 'react'
-import * as Dialog from '@radix-ui/react-dialog'
-import { Command } from 'cmdk'
+import { useMemo } from "react";
+import * as Dialog from "@radix-ui/react-dialog";
+import { Command } from "cmdk";
 import {
   Columns3,
   Eye,
@@ -9,12 +9,19 @@ import {
   Search as SearchIcon,
   SquareFunction,
   Table2,
-} from 'lucide-react'
-import { useSummary } from '@/hooks/useReportData'
-import type { SearchEntry, SearchSummary } from '@/types/report'
+} from "lucide-react";
+import { useSummary } from "@/hooks/useReportData";
+import type { SearchEntry, SearchSummary } from "@/types/report";
 
 // Stable display order for the grouped result sections.
-const TYPE_ORDER = ['Table', 'View', 'Sequence', 'Synonym', 'Routine', 'Column']
+const TYPE_ORDER = [
+  "Table",
+  "View",
+  "Sequence",
+  "Synonym",
+  "Routine",
+  "Column",
+];
 
 const TYPE_ICON: Record<string, typeof Table2> = {
   Table: Table2,
@@ -23,35 +30,35 @@ const TYPE_ICON: Record<string, typeof Table2> = {
   Synonym: Replace,
   Routine: SquareFunction,
   Column: Columns3,
-}
+};
 
 export function SearchCommand({
   open,
   onOpenChange,
 }: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }) {
   // The query is cheap and cached; on file:// it resolves synchronously from the bundle.
-  const { data } = useSummary<SearchSummary>('search')
+  const { data } = useSummary<SearchSummary>("search");
 
   const grouped = useMemo(() => {
-    const byType = new Map<string, SearchEntry[]>()
+    const byType = new Map<string, SearchEntry[]>();
     for (const entry of data?.entries ?? []) {
-      const list = byType.get(entry.objectType) ?? []
-      list.push(entry)
-      byType.set(entry.objectType, list)
+      const list = byType.get(entry.objectType) ?? [];
+      list.push(entry);
+      byType.set(entry.objectType, list);
     }
     return [...byType.entries()].sort(
       ([a], [b]) =>
         (TYPE_ORDER.indexOf(a) + 1 || 99) - (TYPE_ORDER.indexOf(b) + 1 || 99),
-    )
-  }, [data])
+    );
+  }, [data]);
 
   function go(url: string) {
-    onOpenChange(false)
+    onOpenChange(false);
     // url is an absolute hash route (e.g. `#/tables/<key>`); hash history picks it up.
-    window.location.hash = url.startsWith('#') ? url.slice(1) : url
+    window.location.hash = url.startsWith("#") ? url.slice(1) : url;
   }
 
   return (
@@ -77,7 +84,7 @@ export function SearchCommand({
                 No results found.
               </Command.Empty>
               {grouped.map(([type, items]) => {
-                const Icon = TYPE_ICON[type] ?? SearchIcon
+                const Icon = TYPE_ICON[type] ?? SearchIcon;
                 return (
                   <Command.Group
                     key={type}
@@ -86,8 +93,8 @@ export function SearchCommand({
                   >
                     {items.map((entry, i) => (
                       <Command.Item
-                        key={`${type}:${entry.parent ?? ''}:${entry.name}:${entry.url}:${i}`}
-                        value={`${entry.name} ${entry.parent ?? ''} ${type}`}
+                        key={`${type}:${entry.parent ?? ""}:${entry.name}:${entry.url}:${i}`}
+                        value={`${entry.name} ${entry.parent ?? ""} ${type}`}
                         onSelect={() => go(entry.url)}
                         className="text-foreground data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm"
                       >
@@ -101,12 +108,12 @@ export function SearchCommand({
                       </Command.Item>
                     ))}
                   </Command.Group>
-                )
+                );
               })}
             </Command.List>
           </Command>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
-  )
+  );
 }

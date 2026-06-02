@@ -1,22 +1,22 @@
-import { useMemo } from 'react'
-import { type ColumnDef } from '@tanstack/react-table'
-import { KeyRound } from 'lucide-react'
-import { DataTable } from '@/components/DataTable'
-import { useSummary } from '@/hooks/useReportData'
+import { useMemo } from "react";
+import { type ColumnDef } from "@tanstack/react-table";
+import { KeyRound } from "lucide-react";
+import { DataTable } from "@/components/DataTable";
+import { useSummary } from "@/hooks/useReportData";
 import type {
   CheckConstraintRow,
   ConstraintsSummary,
   ForeignKeyRow,
   PrimaryKeyConstraintRow,
   UniqueKeyRow,
-} from '@/types/report'
+} from "@/types/report";
 
 function TableLink({ name, url }: { name: string; url: string }) {
   return (
     <a href={url} className="text-primary hover:underline">
       {name}
     </a>
-  )
+  );
 }
 
 function Section({
@@ -24,9 +24,9 @@ function Section({
   count,
   children,
 }: {
-  title: string
-  count: number
-  children: React.ReactNode
+  title: string;
+  count: number;
+  children: React.ReactNode;
 }) {
   return (
     <section className="space-y-3">
@@ -38,18 +38,18 @@ function Section({
       </h2>
       {children}
     </section>
-  )
+  );
 }
 
 export function ConstraintsPage() {
   const { data, isPending, isError, error } =
-    useSummary<ConstraintsSummary>('constraints')
+    useSummary<ConstraintsSummary>("constraints");
 
   const keyColumns = <T extends PrimaryKeyConstraintRow | UniqueKeyRow>() =>
     [
       {
-        accessorKey: 'tableName',
-        header: 'Table',
+        accessorKey: "tableName",
+        header: "Table",
         cell: ({ row }: { row: { original: T } }) => (
           <TableLink
             name={row.original.tableName}
@@ -57,18 +57,18 @@ export function ConstraintsPage() {
           />
         ),
       },
-      { accessorKey: 'constraintName', header: 'Constraint' },
-      { accessorKey: 'columnNames', header: 'Columns' },
-    ] as ColumnDef<T>[]
+      { accessorKey: "constraintName", header: "Constraint" },
+      { accessorKey: "columnNames", header: "Columns" },
+    ] as ColumnDef<T>[];
 
-  const pkColumns = useMemo(() => keyColumns<PrimaryKeyConstraintRow>(), [])
-  const ukColumns = useMemo(() => keyColumns<UniqueKeyRow>(), [])
+  const pkColumns = useMemo(() => keyColumns<PrimaryKeyConstraintRow>(), []);
+  const ukColumns = useMemo(() => keyColumns<UniqueKeyRow>(), []);
 
   const fkColumns = useMemo<ColumnDef<ForeignKeyRow>[]>(
     () => [
       {
-        accessorKey: 'tableName',
-        header: 'Table',
+        accessorKey: "tableName",
+        header: "Table",
         cell: ({ row }) => (
           <TableLink
             name={row.original.tableName}
@@ -76,11 +76,11 @@ export function ConstraintsPage() {
           />
         ),
       },
-      { accessorKey: 'constraintName', header: 'Constraint' },
-      { accessorKey: 'childColumnNames', header: 'Columns' },
+      { accessorKey: "constraintName", header: "Constraint" },
+      { accessorKey: "childColumnNames", header: "Columns" },
       {
-        accessorKey: 'parentTableName',
-        header: 'Parent Table',
+        accessorKey: "parentTableName",
+        header: "Parent Table",
         cell: ({ row }) => (
           <TableLink
             name={row.original.parentTableName}
@@ -88,18 +88,18 @@ export function ConstraintsPage() {
           />
         ),
       },
-      { accessorKey: 'parentColumnNames', header: 'Parent Columns' },
-      { accessorKey: 'deleteActionDescription', header: 'On Delete' },
-      { accessorKey: 'updateActionDescription', header: 'On Update' },
+      { accessorKey: "parentColumnNames", header: "Parent Columns" },
+      { accessorKey: "deleteActionDescription", header: "On Delete" },
+      { accessorKey: "updateActionDescription", header: "On Update" },
     ],
     [],
-  )
+  );
 
   const checkColumns = useMemo<ColumnDef<CheckConstraintRow>[]>(
     () => [
       {
-        accessorKey: 'tableName',
-        header: 'Table',
+        accessorKey: "tableName",
+        header: "Table",
         cell: ({ row }) => (
           <TableLink
             name={row.original.tableName}
@@ -107,27 +107,27 @@ export function ConstraintsPage() {
           />
         ),
       },
-      { accessorKey: 'constraintName', header: 'Constraint' },
+      { accessorKey: "constraintName", header: "Constraint" },
       {
-        accessorKey: 'definition',
-        header: 'Definition',
+        accessorKey: "definition",
+        header: "Definition",
         cell: ({ getValue }) => (
           <code className="text-xs">{getValue<string>()}</code>
         ),
       },
     ],
     [],
-  )
+  );
 
   if (isPending) {
-    return <p className="text-muted-foreground">Loading…</p>
+    return <p className="text-muted-foreground">Loading…</p>;
   }
   if (isError) {
     return (
       <p className="text-destructive">
         Failed to load constraints: {(error as Error).message}
       </p>
-    )
+    );
   }
 
   return (
@@ -142,7 +142,7 @@ export function ConstraintsPage() {
           columns={pkColumns}
           data={data.primaryKeys}
           filterPlaceholder="Filter primary keys…"
-          initialSorting={[{ id: 'tableName', desc: false }]}
+          initialSorting={[{ id: "tableName", desc: false }]}
           emptyMessage="No primary keys."
         />
       </Section>
@@ -152,7 +152,7 @@ export function ConstraintsPage() {
           columns={ukColumns}
           data={data.uniqueKeys}
           filterPlaceholder="Filter unique keys…"
-          initialSorting={[{ id: 'tableName', desc: false }]}
+          initialSorting={[{ id: "tableName", desc: false }]}
           emptyMessage="No unique keys."
         />
       </Section>
@@ -162,7 +162,7 @@ export function ConstraintsPage() {
           columns={fkColumns}
           data={data.foreignKeys}
           filterPlaceholder="Filter foreign keys…"
-          initialSorting={[{ id: 'tableName', desc: false }]}
+          initialSorting={[{ id: "tableName", desc: false }]}
           emptyMessage="No foreign keys."
         />
       </Section>
@@ -172,10 +172,10 @@ export function ConstraintsPage() {
           columns={checkColumns}
           data={data.checkConstraints}
           filterPlaceholder="Filter check constraints…"
-          initialSorting={[{ id: 'tableName', desc: false }]}
+          initialSorting={[{ id: "tableName", desc: false }]}
           emptyMessage="No check constraints."
         />
       </Section>
     </div>
-  )
+  );
 }
