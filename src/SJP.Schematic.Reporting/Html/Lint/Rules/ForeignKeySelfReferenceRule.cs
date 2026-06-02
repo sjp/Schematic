@@ -30,7 +30,7 @@ internal sealed class ForeignKeySelfReferenceRule : Schematic.Lint.Rules.Foreign
         var foreignKeyColumnNames = foreignKey.Columns
             .Select(c => Dialect.QuoteIdentifier(c.Name.LocalName));
         var fkNameSuffix = foreignKey.Name.Match(
-            fkName => $"{Dialect.QuoteName(fkName)}",
+            fkName => $"{Dialect.QuoteName(fkName)} ",
             () => string.Empty
         );
         var foreignKeyMessage = $"foreign key {fkNameSuffix}({foreignKeyColumnNames.Join(", ")})";
