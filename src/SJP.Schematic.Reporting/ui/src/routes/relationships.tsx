@@ -38,7 +38,9 @@ export function RelationshipsPage() {
       </div>
 
       {data.diagrams.length === 0 || !diagram ? (
-        <p className="text-muted-foreground">No relationship diagrams available.</p>
+        <p className="text-muted-foreground">
+          No relationship diagrams available.
+        </p>
       ) : (
         <>
           {data.diagrams.length > 1 && (
@@ -55,7 +57,10 @@ export function RelationshipsPage() {
               ))}
             </div>
           )}
-          <Diagram src={diagram.svgFile} title={`Relationships — ${diagram.name}`} />
+          <Diagram
+            src={diagram.svgFile}
+            title={`Relationships — ${diagram.name}`}
+          />
         </>
       )}
     </div>

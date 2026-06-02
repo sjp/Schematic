@@ -1,4 +1,8 @@
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 /**
  * Wraps a small status icon (key membership, nullability, …) in a tooltip and

@@ -35,9 +35,15 @@ export function ViewsPage() {
         header: 'Materialized',
         cell: ({ getValue }) =>
           getValue<boolean>() ? (
-            <Check className="text-emerald-500 size-4" aria-label="Materialized" />
+            <Check
+              className="text-emerald-500 size-4"
+              aria-label="Materialized"
+            />
           ) : (
-            <Minus className="text-muted-foreground size-4" aria-label="Not materialized" />
+            <Minus
+              className="text-muted-foreground size-4"
+              aria-label="Not materialized"
+            />
           ),
       },
     ],

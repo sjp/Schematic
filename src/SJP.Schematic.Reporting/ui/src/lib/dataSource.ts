@@ -51,7 +51,9 @@ export async function loadDetail<T>(type: string, key: string): Promise<T> {
   }
   const response = await fetch(`data/${type}/${key}.json`)
   if (!response.ok) {
-    throw new Error(`Failed to load data/${type}/${key}.json (${response.status})`)
+    throw new Error(
+      `Failed to load data/${type}/${key}.json (${response.status})`,
+    )
   }
   return (await response.json()) as T
 }

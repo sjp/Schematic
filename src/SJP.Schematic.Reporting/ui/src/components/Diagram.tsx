@@ -18,8 +18,10 @@ const ZOOM_STEP = 0.25
 export function Diagram({ src, title }: { src: string; title?: string }) {
   const [zoom, setZoom] = useState(1)
 
-  const zoomIn = () => setZoom((z) => Math.min(MAX_ZOOM, +(z + ZOOM_STEP).toFixed(2)))
-  const zoomOut = () => setZoom((z) => Math.max(MIN_ZOOM, +(z - ZOOM_STEP).toFixed(2)))
+  const zoomIn = () =>
+    setZoom((z) => Math.min(MAX_ZOOM, +(z + ZOOM_STEP).toFixed(2)))
+  const zoomOut = () =>
+    setZoom((z) => Math.max(MIN_ZOOM, +(z - ZOOM_STEP).toFixed(2)))
   const reset = () => setZoom(1)
 
   return (

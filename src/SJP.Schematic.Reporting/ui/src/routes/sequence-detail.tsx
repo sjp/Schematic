@@ -34,7 +34,10 @@ export function SequenceDetailPage() {
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <Link to="/sequences" className="text-muted-foreground text-sm hover:underline">
+        <Link
+          to="/sequences"
+          className="text-muted-foreground text-sm hover:underline"
+        >
           Sequences
         </Link>
         <span className="text-muted-foreground">/</span>

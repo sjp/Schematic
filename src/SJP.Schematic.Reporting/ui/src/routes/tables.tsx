@@ -12,7 +12,8 @@ function keyFromUrl(tableUrl: string): string {
 }
 
 export function TablesPage() {
-  const { data, isPending, isError, error } = useSummary<TablesSummary>('tables')
+  const { data, isPending, isError, error } =
+    useSummary<TablesSummary>('tables')
 
   const columns = useMemo<ColumnDef<TableSummary>[]>(
     () => [
@@ -35,7 +36,7 @@ export function TablesPage() {
       {
         accessorKey: 'rowCount',
         header: 'Rows',
-        cell: ({ getValue }) => (getValue<number>()).toLocaleString(),
+        cell: ({ getValue }) => getValue<number>().toLocaleString(),
       },
     ],
     [],

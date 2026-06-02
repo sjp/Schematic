@@ -25,7 +25,10 @@ export function RoutineDetailPage() {
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <Link to="/routines" className="text-muted-foreground text-sm hover:underline">
+        <Link
+          to="/routines"
+          className="text-muted-foreground text-sm hover:underline"
+        >
           Routines
         </Link>
         <span className="text-muted-foreground">/</span>
@@ -34,7 +37,9 @@ export function RoutineDetailPage() {
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">Definition</h2>
-        <pre className="overflow-x-auto rounded-md border p-3 text-xs">{data.definition}</pre>
+        <pre className="overflow-x-auto rounded-md border p-3 text-xs">
+          {data.definition}
+        </pre>
       </section>
     </div>
   )

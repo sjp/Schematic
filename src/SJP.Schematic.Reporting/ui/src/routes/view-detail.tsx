@@ -34,7 +34,10 @@ function Section({
 
 export function ViewDetailPage() {
   const { viewKey } = routeApi.useParams()
-  const { data, isPending, isError, error } = useDetail<ViewDetail>('view', viewKey)
+  const { data, isPending, isError, error } = useDetail<ViewDetail>(
+    'view',
+    viewKey,
+  )
 
   const columns = useMemo<ColumnDef<ViewColumn>[]>(
     () => [
@@ -42,7 +45,9 @@ export function ViewDetailPage() {
       {
         accessorKey: 'columnName',
         header: 'Name',
-        cell: ({ row }) => <span className="font-medium">{row.original.columnName}</span>,
+        cell: ({ row }) => (
+          <span className="font-medium">{row.original.columnName}</span>
+        ),
       },
       { accessorKey: 'type', header: 'Type' },
       {
@@ -52,7 +57,10 @@ export function ViewDetailPage() {
           getValue<boolean>() ? (
             <Check className="text-emerald-500 size-4" aria-label="Nullable" />
           ) : (
-            <Minus className="text-muted-foreground size-4" aria-label="Not nullable" />
+            <Minus
+              className="text-muted-foreground size-4"
+              aria-label="Not nullable"
+            />
           ),
       },
       {
@@ -81,12 +89,17 @@ export function ViewDetailPage() {
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <Link to="/views" className="text-muted-foreground text-sm hover:underline">
+        <Link
+          to="/views"
+          className="text-muted-foreground text-sm hover:underline"
+        >
           Views
         </Link>
         <span className="text-muted-foreground">/</span>
         <h1 className="text-2xl font-semibold">{data.name}</h1>
-        <span className="text-muted-foreground text-sm">{data.columnsCount} columns</span>
+        <span className="text-muted-foreground text-sm">
+          {data.columnsCount} columns
+        </span>
       </div>
 
       <Section title="Columns" count={data.columnsCount}>
@@ -116,7 +129,9 @@ export function ViewDetailPage() {
       )}
 
       <Section title="Definition">
-        <pre className="overflow-x-auto rounded-md border p-3 text-xs">{data.definition}</pre>
+        <pre className="overflow-x-auto rounded-md border p-3 text-xs">
+          {data.definition}
+        </pre>
       </Section>
     </div>
   )

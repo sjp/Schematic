@@ -14,13 +14,18 @@ export function TriggersPage() {
       {
         accessorKey: 'name',
         header: 'Name',
-        cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+        cell: ({ row }) => (
+          <span className="font-medium">{row.original.name}</span>
+        ),
       },
       {
         accessorKey: 'tableName',
         header: 'Table',
         cell: ({ row }) => (
-          <a href={row.original.tableUrl} className="text-primary hover:underline">
+          <a
+            href={row.original.tableUrl}
+            className="text-primary hover:underline"
+          >
             {row.original.tableName}
           </a>
         ),

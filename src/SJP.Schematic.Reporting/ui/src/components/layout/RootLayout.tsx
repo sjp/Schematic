@@ -35,14 +35,34 @@ const NAV: NavItem[] = [
   { href: '#/', path: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '#/tables', path: '/tables', label: 'Tables', icon: Table2 },
   { href: '#/views', path: '/views', label: 'Views', icon: Eye },
-  { href: '#/sequences', path: '/sequences', label: 'Sequences', icon: ListOrdered },
+  {
+    href: '#/sequences',
+    path: '/sequences',
+    label: 'Sequences',
+    icon: ListOrdered,
+  },
   { href: '#/synonyms', path: '/synonyms', label: 'Synonyms', icon: Replace },
-  { href: '#/routines', path: '/routines', label: 'Routines', icon: SquareFunction },
+  {
+    href: '#/routines',
+    path: '/routines',
+    label: 'Routines',
+    icon: SquareFunction,
+  },
   { href: '#/triggers', path: '/triggers', label: 'Triggers', icon: Zap },
   { href: '#/columns', path: '/columns', label: 'Columns', icon: Columns3 },
-  { href: '#/constraints', path: '/constraints', label: 'Constraints', icon: KeyRound },
+  {
+    href: '#/constraints',
+    path: '/constraints',
+    label: 'Constraints',
+    icon: KeyRound,
+  },
   { href: '#/indexes', path: '/indexes', label: 'Indexes', icon: ListTree },
-  { href: '#/relationships', path: '/relationships', label: 'Relationships', icon: Share2 },
+  {
+    href: '#/relationships',
+    path: '/relationships',
+    label: 'Relationships',
+    icon: Share2,
+  },
   { href: '#/orphans', path: '/orphans', label: 'Orphans', icon: Unlink },
   { href: '#/lint', path: '/lint', label: 'Lint', icon: ShieldCheck },
 ]
@@ -72,7 +92,9 @@ export function RootLayout() {
         <nav className="flex-1 space-y-0.5 overflow-y-auto p-2">
           {NAV.map((item) => {
             const isActive =
-              item.path === '/' ? pathname === '/' : pathname.startsWith(item.path)
+              item.path === '/'
+                ? pathname === '/'
+                : pathname.startsWith(item.path)
             const Icon = item.icon
             return (
               <a

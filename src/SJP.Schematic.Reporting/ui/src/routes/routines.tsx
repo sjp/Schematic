@@ -12,7 +12,8 @@ function keyFromUrl(routineUrl: string): string {
 }
 
 export function RoutinesPage() {
-  const { data, isPending, isError, error } = useSummary<RoutinesSummary>('routines')
+  const { data, isPending, isError, error } =
+    useSummary<RoutinesSummary>('routines')
 
   const columns = useMemo<ColumnDef<RoutineSummary>[]>(
     () => [

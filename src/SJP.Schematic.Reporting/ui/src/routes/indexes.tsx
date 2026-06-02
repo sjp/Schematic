@@ -16,7 +16,10 @@ export function IndexesPage() {
         accessorKey: 'tableName',
         header: 'Table',
         cell: ({ row }) => (
-          <a href={row.original.tableUrl} className="text-primary hover:underline">
+          <a
+            href={row.original.tableUrl}
+            className="text-primary hover:underline"
+          >
             {row.original.tableName}
           </a>
         ),
@@ -24,7 +27,9 @@ export function IndexesPage() {
       {
         accessorKey: 'name',
         header: 'Name',
-        cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+        cell: ({ row }) => (
+          <span className="font-medium">{row.original.name}</span>
+        ),
       },
       {
         accessorKey: 'isUnique',
@@ -36,7 +41,10 @@ export function IndexesPage() {
             </IconTooltip>
           ) : (
             <IconTooltip label="Non-unique index">
-              <Minus className="text-muted-foreground size-4" aria-label="Not unique" />
+              <Minus
+                className="text-muted-foreground size-4"
+                aria-label="Not unique"
+              />
             </IconTooltip>
           ),
       },

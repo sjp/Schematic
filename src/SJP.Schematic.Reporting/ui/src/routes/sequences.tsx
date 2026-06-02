@@ -50,7 +50,10 @@ export function SequencesPage() {
           getValue<boolean>() ? (
             <Check className="text-emerald-500 size-4" aria-label="Cycles" />
           ) : (
-            <Minus className="text-muted-foreground size-4" aria-label="Does not cycle" />
+            <Minus
+              className="text-muted-foreground size-4"
+              aria-label="Does not cycle"
+            />
           ),
       },
     ],

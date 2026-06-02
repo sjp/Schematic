@@ -25,7 +25,10 @@ export function SynonymDetailPage() {
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <Link to="/synonyms" className="text-muted-foreground text-sm hover:underline">
+        <Link
+          to="/synonyms"
+          className="text-muted-foreground text-sm hover:underline"
+        >
           Synonyms
         </Link>
         <span className="text-muted-foreground">/</span>

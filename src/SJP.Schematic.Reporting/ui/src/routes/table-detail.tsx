@@ -44,7 +44,10 @@ function Section({
 }
 
 /** Whether `columnName` is one of a constraint's (comma-separated) columns. */
-function constraintCovers(constraint: KeyConstraint, columnName: string): boolean {
+function constraintCovers(
+  constraint: KeyConstraint,
+  columnName: string,
+): boolean {
   return constraint.columnNames
     .split(',')
     .map((c) => c.trim())
@@ -70,11 +73,16 @@ function KeyIcons({
           label={
             <>
               <span className="font-medium">Primary key</span>
-              {primaryKey?.constraintName && <> · {primaryKey.constraintName}</>}
+              {primaryKey?.constraintName && (
+                <> · {primaryKey.constraintName}</>
+              )}
             </>
           }
         >
-          <KeyRound className="text-amber-500 size-3.5" aria-label="Primary key" />
+          <KeyRound
+            className="text-amber-500 size-3.5"
+            aria-label="Primary key"
+          />
         </IconTooltip>
       )}
       {column.isUniqueKey && (
@@ -93,7 +101,10 @@ function KeyIcons({
             </>
           }
         >
-          <ShieldCheck className="text-sky-500 size-3.5" aria-label="Unique key" />
+          <ShieldCheck
+            className="text-sky-500 size-3.5"
+            aria-label="Unique key"
+          />
         </IconTooltip>
       )}
       {column.isForeignKey && (
@@ -109,7 +120,10 @@ function KeyIcons({
             </div>
           }
         >
-          <Link2 className="text-emerald-500 size-3.5" aria-label="Foreign key" />
+          <Link2
+            className="text-emerald-500 size-3.5"
+            aria-label="Foreign key"
+          />
         </IconTooltip>
       )}
     </span>
@@ -148,7 +162,10 @@ export function TableDetailPage() {
           getValue<boolean>() ? (
             <Check className="text-emerald-500 size-4" aria-label="Nullable" />
           ) : (
-            <Minus className="text-muted-foreground size-4" aria-label="Not nullable" />
+            <Minus
+              className="text-muted-foreground size-4"
+              aria-label="Not nullable"
+            />
           ),
       },
       {
@@ -181,7 +198,10 @@ export function TableDetailPage() {
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <Link to="/tables" className="text-muted-foreground text-sm hover:underline">
+        <Link
+          to="/tables"
+          className="text-muted-foreground text-sm hover:underline"
+        >
           Tables
         </Link>
         <span className="text-muted-foreground">/</span>
@@ -204,7 +224,12 @@ export function TableDetailPage() {
         <Section title="Primary Key">
           <SimpleTable
             head={['Constraint', 'Columns']}
-            rows={[[data.primaryKey.constraintName || '—', data.primaryKey.columnNames]]}
+            rows={[
+              [
+                data.primaryKey.constraintName || '—',
+                data.primaryKey.columnNames,
+              ],
+            ]}
           />
         </Section>
       )}
@@ -213,7 +238,10 @@ export function TableDetailPage() {
         <Section title="Unique Keys" count={data.uniqueKeysCount}>
           <SimpleTable
             head={['Constraint', 'Columns']}
-            rows={data.uniqueKeys.map((uk) => [uk.constraintName || '—', uk.columnNames])}
+            rows={data.uniqueKeys.map((uk) => [
+              uk.constraintName || '—',
+              uk.columnNames,
+            ])}
           />
         </Section>
       )}
@@ -237,7 +265,10 @@ export function TableDetailPage() {
                   <TableCell>{fk.constraintName || '—'}</TableCell>
                   <TableCell>{fk.childColumnNames}</TableCell>
                   <TableCell>
-                    <a href={fk.parentTableUrl} className="text-primary hover:underline">
+                    <a
+                      href={fk.parentTableUrl}
+                      className="text-primary hover:underline"
+                    >
                       {fk.parentTableName}
                     </a>
                   </TableCell>
@@ -255,7 +286,10 @@ export function TableDetailPage() {
         <Section title="Check Constraints" count={data.checkConstraintsCount}>
           <SimpleTable
             head={['Constraint', 'Definition']}
-            rows={data.checkConstraints.map((c) => [c.constraintName || '—', c.definition])}
+            rows={data.checkConstraints.map((c) => [
+              c.constraintName || '—',
+              c.definition,
+            ])}
           />
         </Section>
       )}
@@ -312,7 +346,9 @@ export function TableDetailPage() {
                     {tr.queryTiming} {tr.events}
                   </span>
                 </div>
-                <pre className="overflow-x-auto p-3 text-xs">{tr.definition}</pre>
+                <pre className="overflow-x-auto p-3 text-xs">
+                  {tr.definition}
+                </pre>
               </div>
             ))}
           </div>
@@ -335,7 +371,10 @@ export function TableDetailPage() {
               ))}
             </div>
           )}
-          <Diagram src={diagram.svgFile} title={`${data.name} — ${diagram.name}`} />
+          <Diagram
+            src={diagram.svgFile}
+            title={`${data.name} — ${diagram.name}`}
+          />
         </Section>
       )}
     </div>

@@ -15,7 +15,10 @@ export function OrphansPage() {
         accessorKey: 'name',
         header: 'Table',
         cell: ({ row }) => (
-          <a href={row.original.tableUrl} className="text-primary font-medium hover:underline">
+          <a
+            href={row.original.tableUrl}
+            className="text-primary font-medium hover:underline"
+          >
             {row.original.name}
           </a>
         ),
@@ -45,7 +48,8 @@ export function OrphansPage() {
         <span className="text-muted-foreground">({data.tablesCount})</span>
       </div>
       <p className="text-muted-foreground text-sm">
-        Tables that participate in no relationships (no foreign keys to or from them).
+        Tables that participate in no relationships (no foreign keys to or from
+        them).
       </p>
       <DataTable
         columns={columns}

@@ -34,14 +34,49 @@ export function DashboardPage() {
   }
 
   const stats: Stat[] = [
-    { label: 'Tables', value: data.tablesCount, icon: Table2, href: '#/tables' },
+    {
+      label: 'Tables',
+      value: data.tablesCount,
+      icon: Table2,
+      href: '#/tables',
+    },
     { label: 'Views', value: data.viewsCount, icon: Eye, href: '#/views' },
-    { label: 'Columns', value: data.columnsCount, icon: Columns3, href: '#/columns' },
-    { label: 'Constraints', value: data.constraintsCount, icon: KeyRound, href: '#/constraints' },
-    { label: 'Indexes', value: data.indexesCount, icon: ListTree, href: '#/indexes' },
-    { label: 'Sequences', value: data.sequencesCount, icon: ListOrdered, href: '#/sequences' },
-    { label: 'Synonyms', value: data.synonymsCount, icon: Replace, href: '#/synonyms' },
-    { label: 'Routines', value: data.routinesCount, icon: SquareFunction, href: '#/routines' },
+    {
+      label: 'Columns',
+      value: data.columnsCount,
+      icon: Columns3,
+      href: '#/columns',
+    },
+    {
+      label: 'Constraints',
+      value: data.constraintsCount,
+      icon: KeyRound,
+      href: '#/constraints',
+    },
+    {
+      label: 'Indexes',
+      value: data.indexesCount,
+      icon: ListTree,
+      href: '#/indexes',
+    },
+    {
+      label: 'Sequences',
+      value: data.sequencesCount,
+      icon: ListOrdered,
+      href: '#/sequences',
+    },
+    {
+      label: 'Synonyms',
+      value: data.synonymsCount,
+      icon: Replace,
+      href: '#/synonyms',
+    },
+    {
+      label: 'Routines',
+      value: data.routinesCount,
+      icon: SquareFunction,
+      href: '#/routines',
+    },
   ]
 
   return (
@@ -50,7 +85,9 @@ export function DashboardPage() {
         <Database className="text-primary size-7" />
         <div>
           <h1 className="text-2xl font-semibold">{data.databaseName}</h1>
-          <p className="text-muted-foreground text-sm">{data.databaseVersion}</p>
+          <p className="text-muted-foreground text-sm">
+            {data.databaseVersion}
+          </p>
         </div>
       </div>
 
@@ -61,8 +98,12 @@ export function DashboardPage() {
             <div className="bg-card flex items-center gap-3 rounded-lg border p-4 transition-colors hover:bg-accent/40">
               <Icon className="text-muted-foreground size-6" />
               <div>
-                <div className="text-2xl font-semibold tabular-nums">{stat.value}</div>
-                <div className="text-muted-foreground text-sm">{stat.label}</div>
+                <div className="text-2xl font-semibold tabular-nums">
+                  {stat.value}
+                </div>
+                <div className="text-muted-foreground text-sm">
+                  {stat.label}
+                </div>
               </div>
             </div>
           )

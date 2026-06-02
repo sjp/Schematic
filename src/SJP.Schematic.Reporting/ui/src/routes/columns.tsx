@@ -44,7 +44,10 @@ export function ColumnsPage() {
         accessorKey: 'name',
         header: 'Parent',
         cell: ({ row }) => (
-          <a href={row.original.parentUrl} className="text-primary hover:underline">
+          <a
+            href={row.original.parentUrl}
+            className="text-primary hover:underline"
+          >
             {row.original.name}
           </a>
         ),
@@ -54,7 +57,9 @@ export function ColumnsPage() {
       {
         accessorKey: 'columnName',
         header: 'Column',
-        cell: ({ row }) => <span className="font-medium">{row.original.columnName}</span>,
+        cell: ({ row }) => (
+          <span className="font-medium">{row.original.columnName}</span>
+        ),
       },
       { accessorKey: 'type', header: 'Data Type' },
       {
@@ -64,7 +69,10 @@ export function ColumnsPage() {
           getValue<boolean>() ? (
             <Check className="text-emerald-500 size-4" aria-label="Nullable" />
           ) : (
-            <Minus className="text-muted-foreground size-4" aria-label="Not nullable" />
+            <Minus
+              className="text-muted-foreground size-4"
+              aria-label="Not nullable"
+            />
           ),
       },
       {

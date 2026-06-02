@@ -32,7 +32,9 @@ function Section({
     <section className="space-y-3">
       <h2 className="text-lg font-semibold">
         {title}
-        <span className="text-muted-foreground ml-2 text-sm font-normal">({count})</span>
+        <span className="text-muted-foreground ml-2 text-sm font-normal">
+          ({count})
+        </span>
       </h2>
       {children}
     </section>
@@ -49,7 +51,10 @@ export function ConstraintsPage() {
         accessorKey: 'tableName',
         header: 'Table',
         cell: ({ row }: { row: { original: T } }) => (
-          <TableLink name={row.original.tableName} url={row.original.tableUrl} />
+          <TableLink
+            name={row.original.tableName}
+            url={row.original.tableUrl}
+          />
         ),
       },
       { accessorKey: 'constraintName', header: 'Constraint' },
@@ -65,7 +70,10 @@ export function ConstraintsPage() {
         accessorKey: 'tableName',
         header: 'Table',
         cell: ({ row }) => (
-          <TableLink name={row.original.tableName} url={row.original.tableUrl} />
+          <TableLink
+            name={row.original.tableName}
+            url={row.original.tableUrl}
+          />
         ),
       },
       { accessorKey: 'constraintName', header: 'Constraint' },
@@ -93,14 +101,19 @@ export function ConstraintsPage() {
         accessorKey: 'tableName',
         header: 'Table',
         cell: ({ row }) => (
-          <TableLink name={row.original.tableName} url={row.original.tableUrl} />
+          <TableLink
+            name={row.original.tableName}
+            url={row.original.tableUrl}
+          />
         ),
       },
       { accessorKey: 'constraintName', header: 'Constraint' },
       {
         accessorKey: 'definition',
         header: 'Definition',
-        cell: ({ getValue }) => <code className="text-xs">{getValue<string>()}</code>,
+        cell: ({ getValue }) => (
+          <code className="text-xs">{getValue<string>()}</code>
+        ),
       },
     ],
     [],
