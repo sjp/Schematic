@@ -43,11 +43,19 @@ export async function loadSummary<T>(key: string): Promise<T> {
 /** Loads a per-object detail payload (e.g. type `table`, key `actor_a1b2c3d4`). */
 export async function loadDetail<T>(type: string, key: string): Promise<T> {
   if (fromDisk) {
-    const typeMap = bundle()[type] as Record<string, T> | undefined;
+    const typeMap = bundle()[type] as Record<string, T | undefined> | undefined;
     if (typeMap === undefined) {
       throw new Error(`No "${type}" details present in window.__schematic.`);
     }
-    return typeMap[key];
+    const detail = typeMap[key];
+    // Mirror the http path, which throws on a missing (404) detail, so an unknown/stale key never
+    // resolves to a successful `undefined` that violates the Promise<T> contract.
+    if (detail === undefined) {
+      throw new Error(
+        `No "${type}" detail for key "${key}" in window.__schematic.`,
+      );
+    }
+    return detail;
   }
   const response = await fetch(`data/${type}/${key}.json`);
   if (!response.ok) {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   type ColumnDef,
   type PaginationState,
@@ -54,11 +54,20 @@ export function DataTable<TData, TValue>({
   pageSize = 50,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>(initialSorting);
+  // `filterInput` keeps the text box responsive on every keystroke; `globalFilter` (the value the
+  // table actually filters/sorts on) is updated on a short debounce so a large dataset isn't
+  // re-filtered and re-sorted synchronously on each character.
+  const [filterInput, setFilterInput] = useState("");
   const [globalFilter, setGlobalFilter] = useState("");
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize,
   });
+
+  useEffect(() => {
+    const handle = setTimeout(() => setGlobalFilter(filterInput), 200);
+    return () => clearTimeout(handle);
+  }, [filterInput]);
 
   const table = useReactTable({
     data,
@@ -90,8 +99,8 @@ export function DataTable<TData, TValue>({
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
         <Input
-          value={globalFilter}
-          onChange={(e) => setGlobalFilter(e.target.value)}
+          value={filterInput}
+          onChange={(e) => setFilterInput(e.target.value)}
           placeholder={filterPlaceholder}
           className="max-w-sm"
         />

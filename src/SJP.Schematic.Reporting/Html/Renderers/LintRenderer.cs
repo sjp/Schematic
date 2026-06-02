@@ -79,6 +79,9 @@ internal sealed class LintRenderer : IDataRenderer
 
         var groupedRules = messages
             .GroupAsDictionary(static m => m.RuleId)
+            // Order by rule id so lint.json (and the bundle) is reproducible across runs; dictionary
+            // iteration order is otherwise unspecified.
+            .OrderBy(static m => m.Key, StringComparer.Ordinal)
             .Select(static m => new LintResults.LintRule(m.Value[0].Title, m.Value.ConvertAll(static r => r.Message)))
             .ToList();
 
