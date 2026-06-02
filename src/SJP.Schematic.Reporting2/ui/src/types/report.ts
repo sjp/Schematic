@@ -356,6 +356,22 @@ export interface RelationshipsSummary {
   diagrams: RelationshipDiagram[]
 }
 
+/** A single entry in `data/search.json`. */
+export interface SearchEntry {
+  name: string
+  objectType: string
+  /** In-app hash route, e.g. `#/tables/<safeKey>`. */
+  url: string
+  /** Owning object's name for column entries; omitted for top-level objects. */
+  parent?: string
+}
+
+/** `data/search.json`. */
+export interface SearchSummary {
+  entriesCount: number
+  entries: SearchEntry[]
+}
+
 /** `data/tables/<safeKey>.json`. */
 export interface TableDetail {
   name: string

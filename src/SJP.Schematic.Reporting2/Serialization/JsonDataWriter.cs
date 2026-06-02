@@ -91,6 +91,8 @@ public sealed class JsonDataWriter
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.LintResults))]
 // Relationships (issue 11): schema-wide diagram levels referencing data/diagrams/*.svg.
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Relationships))]
+// Search (issue 12): flat index of every object + column for the Cmd/Ctrl-K palette.
+[JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Search))]
 public partial class ReportingJsonContext : JsonSerializerContext
 {
 }

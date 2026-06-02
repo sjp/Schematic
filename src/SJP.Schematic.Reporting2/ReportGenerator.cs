@@ -172,6 +172,8 @@ public class ReportGenerator
             new LintRenderer(linter, tables, views, sequences, synonyms, routines, jsonWriter, bundle, ExportDirectory),
             // Relationships & schema-wide diagrams (issue 11).
             new RelationshipsRenderer(Database.IdentifierDefaults, tables, rowCounts, jsonWriter, bundle, ExportDirectory),
+            // Search index (issue 12).
+            new SearchRenderer(tables, views, sequences, synonyms, routines, jsonWriter, bundle, ExportDirectory),
             new TableOrderingRenderer(Connection.Dialect, tables, exportsDirectory),
             new DbmlRenderer(tables, exportsDirectory),
         ];

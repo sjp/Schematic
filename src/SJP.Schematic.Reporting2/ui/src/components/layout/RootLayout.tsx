@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Outlet, useRouterState } from '@tanstack/react-router'
 import {
   Columns3,
@@ -8,6 +9,7 @@ import {
   ListOrdered,
   ListTree,
   Replace,
+  Search,
   ShieldCheck,
   Share2,
   SquareFunction,
@@ -15,6 +17,7 @@ import {
   Unlink,
   Zap,
 } from 'lucide-react'
+import { SearchCommand } from '@/components/SearchCommand'
 import { cn } from '@/lib/utils'
 
 type NavItem = {
@@ -46,6 +49,18 @@ const NAV: NavItem[] = [
 
 export function RootLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
+  const [searchOpen, setSearchOpen] = useState(false)
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setSearchOpen((o) => !o)
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [])
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
@@ -83,11 +98,25 @@ export function RootLayout() {
           <div className="text-sm text-muted-foreground">
             Database schema report
           </div>
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            className="text-muted-foreground hover:text-foreground flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition-colors"
+            aria-label="Search schema"
+          >
+            <Search className="size-4" />
+            <span>Search</span>
+            <kbd className="bg-muted text-muted-foreground ml-2 rounded px-1.5 py-0.5 text-xs font-medium">
+              ⌘K
+            </kbd>
+          </button>
         </header>
         <main className="min-w-0 flex-1 overflow-y-auto p-6">
           <Outlet />
         </main>
       </div>
+
+      <SearchCommand open={searchOpen} onOpenChange={setSearchOpen} />
     </div>
   )
 }
