@@ -55,7 +55,7 @@ export function SynonymsPage() {
   if (isError) {
     return (
       <p className="text-destructive">
-        Failed to load synonyms: {(error as Error).message}
+        Failed to load synonyms: {error.message}
       </p>
     );
   }

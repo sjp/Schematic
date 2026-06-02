@@ -17,7 +17,7 @@ export function RoutineDetailPage() {
   if (isError || !data) {
     return (
       <p className="text-destructive">
-        Failed to load routine: {(error as Error)?.message ?? "not found"}
+        Failed to load routine: {error?.message ?? "not found"}
       </p>
     );
   }

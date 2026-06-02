@@ -15,9 +15,9 @@ function applyColorScheme(isDark: boolean) {
  */
 export function useColorScheme() {
   useEffect(() => {
+    // The initial class is already applied pre-paint by the inline script in index.html, so we
+    // only need to track subsequent changes to the OS preference here.
     const media = window.matchMedia(DARK_QUERY);
-    applyColorScheme(media.matches);
-
     const onChange = (e: MediaQueryListEvent) => applyColorScheme(e.matches);
     media.addEventListener("change", onChange);
     return () => media.removeEventListener("change", onChange);

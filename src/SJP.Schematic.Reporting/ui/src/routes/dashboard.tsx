@@ -28,7 +28,7 @@ export function DashboardPage() {
   if (isError) {
     return (
       <p className="text-destructive">
-        Failed to load schema summary: {(error as Error).message}
+        Failed to load schema summary: {error.message}
       </p>
     );
   }

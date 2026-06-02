@@ -55,9 +55,7 @@ export function ViewsPage() {
   }
   if (isError) {
     return (
-      <p className="text-destructive">
-        Failed to load views: {(error as Error).message}
-      </p>
+      <p className="text-destructive">Failed to load views: {error.message}</p>
     );
   }
 

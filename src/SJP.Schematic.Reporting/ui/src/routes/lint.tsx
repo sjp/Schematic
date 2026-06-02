@@ -11,7 +11,7 @@ export function LintPage() {
   if (isError) {
     return (
       <p className="text-destructive">
-        Failed to load lint results: {(error as Error).message}
+        Failed to load lint results: {error.message}
       </p>
     );
   }

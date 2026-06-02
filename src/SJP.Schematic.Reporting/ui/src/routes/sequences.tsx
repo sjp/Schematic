@@ -66,7 +66,7 @@ export function SequencesPage() {
   if (isError) {
     return (
       <p className="text-destructive">
-        Failed to load sequences: {(error as Error).message}
+        Failed to load sequences: {error.message}
       </p>
     );
   }

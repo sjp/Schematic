@@ -188,7 +188,7 @@ export function TableDetailPage() {
   if (isError || !data) {
     return (
       <p className="text-destructive">
-        Failed to load table: {(error as Error)?.message ?? "not found"}
+        Failed to load table: {error?.message ?? "not found"}
       </p>
     );
   }

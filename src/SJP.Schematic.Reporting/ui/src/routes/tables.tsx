@@ -47,9 +47,7 @@ export function TablesPage() {
   }
   if (isError) {
     return (
-      <p className="text-destructive">
-        Failed to load tables: {(error as Error).message}
-      </p>
+      <p className="text-destructive">Failed to load tables: {error.message}</p>
     );
   }
 

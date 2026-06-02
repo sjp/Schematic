@@ -81,7 +81,7 @@ export function ViewDetailPage() {
   if (isError || !data) {
     return (
       <p className="text-destructive">
-        Failed to load view: {(error as Error)?.message ?? "not found"}
+        Failed to load view: {error?.message ?? "not found"}
       </p>
     );
   }

@@ -17,7 +17,7 @@ export function SynonymDetailPage() {
   if (isError || !data) {
     return (
       <p className="text-destructive">
-        Failed to load synonym: {(error as Error)?.message ?? "not found"}
+        Failed to load synonym: {error?.message ?? "not found"}
       </p>
     );
   }

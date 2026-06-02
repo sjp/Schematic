@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { Share2 } from "lucide-react";
 import { Diagram } from "@/components/Diagram";
 import { Button } from "@/components/ui/button";
@@ -9,13 +9,14 @@ export function RelationshipsPage() {
   const { data, isPending, isError, error } =
     useSummary<RelationshipsSummary>("relationships");
 
-  // Default to the diagram flagged active by the renderer (Compact), else the first.
-  const [activeLevel, setActiveLevel] = useState(0);
-  useEffect(() => {
-    if (!data) return;
-    const idx = data.diagrams.findIndex((d) => d.isActive);
-    if (idx > 0) setActiveLevel(idx);
+  // Default to the diagram flagged active by the renderer (Compact), else the first; an explicit
+  // user selection takes precedence over the data-derived default.
+  const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
+  const defaultLevel = useMemo(() => {
+    const idx = data?.diagrams.findIndex((d) => d.isActive) ?? -1;
+    return idx > 0 ? idx : 0;
   }, [data]);
+  const activeLevel = selectedLevel ?? defaultLevel;
 
   if (isPending) {
     return <p className="text-muted-foreground">Loading…</p>;
@@ -23,7 +24,7 @@ export function RelationshipsPage() {
   if (isError) {
     return (
       <p className="text-destructive">
-        Failed to load relationships: {(error as Error).message}
+        Failed to load relationships: {error.message}
       </p>
     );
   }
@@ -50,7 +51,7 @@ export function RelationshipsPage() {
                   key={d.containerId}
                   variant={i === activeLevel ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setActiveLevel(i)}
+                  onClick={() => setSelectedLevel(i)}
                 >
                   {d.name}
                 </Button>

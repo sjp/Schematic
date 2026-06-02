@@ -26,7 +26,7 @@ export function SequenceDetailPage() {
   if (isError || !data) {
     return (
       <p className="text-destructive">
-        Failed to load sequence: {(error as Error)?.message ?? "not found"}
+        Failed to load sequence: {error?.message ?? "not found"}
       </p>
     );
   }

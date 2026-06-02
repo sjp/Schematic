@@ -125,7 +125,7 @@ export function ConstraintsPage() {
   if (isError) {
     return (
       <p className="text-destructive">
-        Failed to load constraints: {(error as Error).message}
+        Failed to load constraints: {error.message}
       </p>
     );
   }

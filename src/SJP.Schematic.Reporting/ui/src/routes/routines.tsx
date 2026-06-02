@@ -40,7 +40,7 @@ export function RoutinesPage() {
   if (isError) {
     return (
       <p className="text-destructive">
-        Failed to load routines: {(error as Error).message}
+        Failed to load routines: {error.message}
       </p>
     );
   }

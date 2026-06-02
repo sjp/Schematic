@@ -35,7 +35,7 @@ export function OrphansPage() {
   if (isError) {
     return (
       <p className="text-destructive">
-        Failed to load orphan tables: {(error as Error).message}
+        Failed to load orphan tables: {error.message}
       </p>
     );
   }

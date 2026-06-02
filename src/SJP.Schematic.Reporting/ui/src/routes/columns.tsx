@@ -98,7 +98,7 @@ export function ColumnsPage() {
   if (isError) {
     return (
       <p className="text-destructive">
-        Failed to load columns: {(error as Error).message}
+        Failed to load columns: {error.message}
       </p>
     );
   }

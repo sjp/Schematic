@@ -42,7 +42,7 @@ export function TriggersPage() {
   if (isError) {
     return (
       <p className="text-destructive">
-        Failed to load triggers: {(error as Error).message}
+        Failed to load triggers: {error.message}
       </p>
     );
   }

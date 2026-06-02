@@ -60,7 +60,7 @@ export function IndexesPage() {
   if (isError) {
     return (
       <p className="text-destructive">
-        Failed to load indexes: {(error as Error).message}
+        Failed to load indexes: {error.message}
       </p>
     );
   }
