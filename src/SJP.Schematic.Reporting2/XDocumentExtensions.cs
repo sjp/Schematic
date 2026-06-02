@@ -61,6 +61,32 @@ internal static class XDocumentExtensions
         }
     }
 
+    /// <summary>
+    /// Injects a <c>&lt;style&gt;</c> block that recolours the diagram for dark mode. Graphviz bakes the
+    /// theme colours in as inline <c>fill</c>/<c>stroke</c> presentation attributes, and because the SVG is
+    /// embedded via an <c>&lt;object&gt;</c> it forms its own document — the surrounding app's <c>.dark</c>
+    /// class can't reach inside it. So we lean on the same signal the app's colour-scheme hook uses, the OS
+    /// <c>prefers-color-scheme</c>, via a media query; the diagram then flips in lockstep with the rest of
+    /// the UI. CSS rules outrank presentation attributes in the cascade, so each known palette colour can be
+    /// remapped to a dark-friendly equivalent without touching individual elements.
+    /// </summary>
+    /// <remarks>
+    /// Text nodes carry no <c>fill</c> attribute (they default to black), so a bare <c>text</c> rule lightens
+    /// them. The colour keys mirror the default <see cref="Dot.Themes.IGraphTheme"/> palette as Graphviz emits
+    /// it (lower-cased hex, plus the <c>black</c> keyword for borders and arrowheads); attribute matching is
+    /// case-insensitive to stay robust if Graphviz ever changes the casing.
+    /// </remarks>
+    public static void AddDarkModeStyles(this XDocument document)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+
+        var root = document.Root;
+        if (root == null)
+            return;
+
+        root.AddFirst(new XElement(StyleElement, new XCData(DarkModeCss)));
+    }
+
     public static void ReplaceTitlesWithTableNames(this XDocument document)
     {
         ArgumentNullException.ThrowIfNull(document);
@@ -94,6 +120,27 @@ internal static class XDocumentExtensions
 
     private const string NodeClass = "node";
     private const string TableTitle = "Table";
+
+    // Dark-mode recolouring. Keys are the default-theme palette as Graphviz emits it; values are dark
+    // equivalents chosen to mirror the app's dark surfaces (neutral backgrounds) while keeping the
+    // header/key accent hues recognisable. See AddDarkModeStyles for why this is a media query.
+    private const string DarkModeCss = """
+        @media (prefers-color-scheme: dark) {
+          text { fill: #e6e6e6; }
+          [fill="#ffffff" i] { fill: #1e1e1e; }                          /* table / column / graph background */
+          [stroke="black" i], [stroke="#000000" i] { stroke: #6f6f6f; }  /* borders and relationship edges */
+          [fill="black" i], [fill="#000000" i] { fill: #6f6f6f; }        /* edge arrowheads */
+          [fill="#bfe3c6" i] { fill: #2f4f37; }                          /* header / footer */
+          [fill="#7dde90" i] { fill: #3a7d4e; }                          /* highlighted header / footer */
+          [fill="#efeba8" i] { fill: #4f4a1f; }                          /* primary key header */
+          [fill="#d7cd28" i] { fill: #6b6410; }                          /* highlighted primary key header */
+          [fill="#b8d0dd" i] { fill: #2e4651; }                          /* unique key header */
+          [fill="#8fb3c7" i] { fill: #3f6d85; }                          /* highlighted unique key header */
+          [fill="#e5e5e5" i] { fill: #3a3a3a; }                          /* foreign key header */
+          [fill="#b0b0b0" i] { fill: #5a5a5a; }                          /* highlighted foreign key header */
+        }
+        """;
+
     private static readonly XNamespace SvgNamespace = "http://www.w3.org/2000/svg";
     private static readonly XNamespace XlinkNamespace = "http://www.w3.org/1999/xlink";
     private static readonly XName ClassAttribute = "class";
@@ -101,6 +148,7 @@ internal static class XDocumentExtensions
     private static readonly XName TitleElement = SvgNamespace + "title";
     private static readonly XName TextElement = SvgNamespace + "text";
     private static readonly XName AnchorElement = SvgNamespace + "a";
+    private static readonly XName StyleElement = SvgNamespace + "style";
     private static readonly XName XlinkHrefAttribute = XlinkNamespace + "href";
     private static readonly XName HrefAttribute = "href";
     private static readonly XName TargetAttribute = "target";

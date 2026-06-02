@@ -94,6 +94,9 @@ internal sealed class TableRenderer : IDataRenderer
             svgRoot.Attribute("width")?.Remove();
             svgRoot.Attribute("height")?.Remove();
 
+            // Recolour for dark mode in-place; the embedded SVG can't see the app's theme class.
+            doc.AddDarkModeStyles();
+
             await using var svgFileStream = File.Create(svgFilePath);
             await doc.SaveAsync(svgFileStream, SaveOptions.DisableFormatting, cancellationToken).ConfigureAwait(false);
         }
