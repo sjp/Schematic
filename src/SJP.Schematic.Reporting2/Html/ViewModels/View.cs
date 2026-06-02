@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -11,7 +10,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels;
 /// The per-view detail payload (<c>data/views/&lt;safeKey&gt;.json</c>): columns, the view
 /// definition, and links to the objects the view references.
 /// </summary>
-public sealed class View : ITemplateParameter
+public sealed class View
 {
     public View(
         Identifier viewName,
@@ -33,9 +32,6 @@ public sealed class View : ITemplateParameter
         ReferencedObjects = referencedObjects;
         ReferencedObjectsCount = referencedObjects.UCount();
     }
-
-    [JsonIgnore]
-    public ReportTemplate Template { get; } = ReportTemplate.View;
 
     public string Name { get; }
 

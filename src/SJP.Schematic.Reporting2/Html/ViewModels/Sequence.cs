@@ -1,5 +1,4 @@
 using System;
-using System.Text.Json.Serialization;
 using LanguageExt;
 using SJP.Schematic.Core;
 
@@ -9,7 +8,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels;
 /// The per-sequence detail payload (<c>data/sequences/&lt;safeKey&gt;.json</c>): the sequence's
 /// generation parameters.
 /// </summary>
-public sealed class Sequence : ITemplateParameter
+public sealed class Sequence
 {
     public Sequence(
         Identifier sequenceName,
@@ -33,9 +32,6 @@ public sealed class Sequence : ITemplateParameter
         Cache = cache;
         Cycle = cycle;
     }
-
-    [JsonIgnore]
-    public ReportTemplate Template { get; } = ReportTemplate.Sequence;
 
     public string Name { get; }
 

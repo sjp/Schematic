@@ -1,5 +1,4 @@
 using System;
-using System.Text.Json.Serialization;
 using LanguageExt;
 using SJP.Schematic.Core;
 
@@ -10,7 +9,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels;
 /// object it aliases. <see cref="TargetUrl"/> is the target's hash route, omitted from the JSON
 /// when the target cannot be resolved to a known object.
 /// </summary>
-public sealed class Synonym : ITemplateParameter
+public sealed class Synonym
 {
     public Synonym(
         Identifier synonymName,
@@ -26,9 +25,6 @@ public sealed class Synonym : ITemplateParameter
         TargetName = targetName.ToVisibleName();
         TargetUrl = targetUrl.MatchUnsafe(static uri => uri.ToString(), static () => (string?)null);
     }
-
-    [JsonIgnore]
-    public ReportTemplate Template { get; } = ReportTemplate.Synonym;
 
     public string Name { get; }
 

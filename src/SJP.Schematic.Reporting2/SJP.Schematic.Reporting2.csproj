@@ -18,10 +18,6 @@
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
-    <!-- RazorLight is still referenced by HtmlFormatter.cs and ReportingRazorProject*.cs,
-         which are deleted in issue 14. The package reference is removed there too, once
-         nothing consumes it; removing it earlier would break compilation. -->
-    <PackageReference Include="RazorLight" />
   </ItemGroup>
 
   <ItemGroup>

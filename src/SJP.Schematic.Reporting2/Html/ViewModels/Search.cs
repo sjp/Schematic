@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels;

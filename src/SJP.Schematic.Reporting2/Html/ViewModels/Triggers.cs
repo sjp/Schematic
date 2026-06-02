@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json.Serialization;
 using EnumsNET;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -13,7 +12,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels;
 /// owning table, timing, events, and definition. Triggers have no per-object detail page — they
 /// also fold into the owning table's detail payload.
 /// </summary>
-public sealed class Triggers : ITemplateParameter
+public sealed class Triggers
 {
     public Triggers(IEnumerable<TriggerRow> triggers)
     {
@@ -23,9 +22,6 @@ public sealed class Triggers : ITemplateParameter
         TriggersCount = triggers.UCount();
         AllTriggers = triggers;
     }
-
-    [JsonIgnore]
-    public ReportTemplate Template { get; } = ReportTemplate.Triggers;
 
     public uint TriggersCount { get; }
 

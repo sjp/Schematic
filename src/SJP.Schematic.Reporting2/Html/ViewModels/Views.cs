@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels;
@@ -9,7 +8,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels;
 /// The views summary payload (<c>data/views.json</c>): the list of views rendered by the
 /// views listing page.
 /// </summary>
-public sealed class Views : ITemplateParameter
+public sealed class Views
 {
     public Views(IEnumerable<Main.View> views)
     {
@@ -19,9 +18,6 @@ public sealed class Views : ITemplateParameter
         ViewsCount = views.UCount();
         AllViews = views;
     }
-
-    [JsonIgnore]
-    public ReportTemplate Template { get; } = ReportTemplate.Views;
 
     public uint ViewsCount { get; }
 

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -11,16 +10,13 @@ namespace SJP.Schematic.Reporting.Html.ViewModels;
 /// The columns summary payload (<c>data/columns.json</c>): every column across all tables and views,
 /// each carrying a hash-route link to its parent object and key-membership flags.
 /// </summary>
-public sealed class Columns : ITemplateParameter
+public sealed class Columns
 {
     public Columns(IEnumerable<ColumnSummary> columns)
     {
         TableColumns = columns ?? throw new ArgumentNullException(nameof(columns));
         ColumnsCount = columns.UCount();
     }
-
-    [JsonIgnore]
-    public ReportTemplate Template { get; } = ReportTemplate.Columns;
 
     public IEnumerable<ColumnSummary> TableColumns { get; }
 

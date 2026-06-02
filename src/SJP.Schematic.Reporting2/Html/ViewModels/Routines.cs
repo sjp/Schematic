@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels;
@@ -9,7 +8,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels;
 /// The routines summary payload (<c>data/routines.json</c>): the list of routines rendered by
 /// the routines listing page.
 /// </summary>
-public sealed class Routines : ITemplateParameter
+public sealed class Routines
 {
     public Routines(IEnumerable<Main.Routine> routines)
     {
@@ -19,9 +18,6 @@ public sealed class Routines : ITemplateParameter
         RoutinesCount = routines.UCount();
         AllRoutines = routines;
     }
-
-    [JsonIgnore]
-    public ReportTemplate Template { get; } = ReportTemplate.Routines;
 
     public uint RoutinesCount { get; }
 

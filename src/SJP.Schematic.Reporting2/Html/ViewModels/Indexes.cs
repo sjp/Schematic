@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json.Serialization;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -11,16 +10,13 @@ namespace SJP.Schematic.Reporting.Html.ViewModels;
 /// The indexes summary payload (<c>data/indexes.json</c>): every index across all tables, each with
 /// a hash-route link to its owning table.
 /// </summary>
-public sealed class Indexes : ITemplateParameter
+public sealed class Indexes
 {
     public Indexes(IEnumerable<IndexRow> indexes)
     {
         TableIndexes = indexes ?? throw new ArgumentNullException(nameof(indexes));
         IndexesCount = indexes.UCount();
     }
-
-    [JsonIgnore]
-    public ReportTemplate Template { get; } = ReportTemplate.Indexes;
 
     public IEnumerable<IndexRow> TableIndexes { get; }
 

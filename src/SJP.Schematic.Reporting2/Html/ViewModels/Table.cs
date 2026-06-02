@@ -13,7 +13,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels;
 /// The per-table detail payload (<c>data/tables/&lt;safeKey&gt;.json</c>): columns, keys,
 /// constraints, indexes, triggers, and diagram references for one table.
 /// </summary>
-public sealed class Table : ITemplateParameter
+public sealed class Table
 {
     public Table(
         Identifier tableName,
@@ -57,9 +57,6 @@ public sealed class Table : ITemplateParameter
 
         Diagrams = diagrams ?? throw new ArgumentNullException(nameof(diagrams));
     }
-
-    [JsonIgnore]
-    public ReportTemplate Template { get; } = ReportTemplate.Table;
 
     public string Name { get; }
 

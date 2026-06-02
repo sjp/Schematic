@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using LanguageExt;
 using SJP.Schematic.Core;
 
@@ -11,7 +10,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels;
 /// schema-wide object counts. The per-type lists live in their own summary files
 /// (<c>tables.json</c>, <c>views.json</c>, …); this only carries what the dashboard renders.
 /// </summary>
-public sealed class Main : ITemplateParameter
+public sealed class Main
 {
     public Main(
         string? databaseName,
@@ -43,9 +42,6 @@ public sealed class Main : ITemplateParameter
         SynonymsCount = synonymsCount;
         RoutinesCount = routinesCount;
     }
-
-    [JsonIgnore]
-    public ReportTemplate Template { get; } = ReportTemplate.Main;
 
     public string DatabaseName { get; }
 

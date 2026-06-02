@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels;
@@ -9,16 +8,13 @@ namespace SJP.Schematic.Reporting.Html.ViewModels;
 /// The lint summary payload (<c>data/lint.json</c>): lint messages grouped by the rule that
 /// produced them. Each rule carries its title and the plain-text messages it raised.
 /// </summary>
-public sealed class LintResults : ITemplateParameter
+public sealed class LintResults
 {
     public LintResults(IEnumerable<LintRule> lintRules)
     {
         LintRules = lintRules ?? throw new ArgumentNullException(nameof(lintRules));
         LintRulesCount = lintRules.UCount();
     }
-
-    [JsonIgnore]
-    public ReportTemplate Template { get; } = ReportTemplate.Lint;
 
     public IEnumerable<LintRule> LintRules { get; }
 

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using EnumsNET;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -12,7 +11,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels;
 /// foreign keys, and check constraints across the schema. Each row links to its owning table (and,
 /// for foreign keys, the referenced table) via hash routes.
 /// </summary>
-public sealed class Constraints : ITemplateParameter
+public sealed class Constraints
 {
     public Constraints(
         IEnumerable<PrimaryKeyConstraintRow> primaryKeys,
@@ -31,9 +30,6 @@ public sealed class Constraints : ITemplateParameter
         ForeignKeysCount = foreignKeys.UCount();
         CheckConstraintsCount = checks.UCount();
     }
-
-    [JsonIgnore]
-    public ReportTemplate Template { get; } = ReportTemplate.Constraints;
 
     public IEnumerable<PrimaryKeyConstraintRow> PrimaryKeys { get; }
 

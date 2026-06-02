@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels;
@@ -9,7 +8,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels;
 /// The sequences summary payload (<c>data/sequences.json</c>): the schema's sequences and their
 /// generation parameters.
 /// </summary>
-public sealed class Sequences : ITemplateParameter
+public sealed class Sequences
 {
     public Sequences(IEnumerable<Main.Sequence> sequences)
     {
@@ -19,9 +18,6 @@ public sealed class Sequences : ITemplateParameter
         SequencesCount = sequences.UCount();
         AllSequences = sequences;
     }
-
-    [JsonIgnore]
-    public ReportTemplate Template { get; } = ReportTemplate.Sequences;
 
     public uint SequencesCount { get; }
 

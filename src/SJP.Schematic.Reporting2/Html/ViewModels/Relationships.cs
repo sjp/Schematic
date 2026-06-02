@@ -9,16 +9,13 @@ namespace SJP.Schematic.Reporting.Html.ViewModels;
 /// The schema-wide relationships payload (<c>data/relationships.json</c>): one entry per diagram
 /// "level" (Compact / Large), each referencing a pre-rendered SVG under <c>data/diagrams/</c>.
 /// </summary>
-public sealed class Relationships : ITemplateParameter
+public sealed class Relationships
 {
     public Relationships(IEnumerable<RelationshipDiagram> diagrams)
     {
         Diagrams = diagrams ?? throw new ArgumentNullException(nameof(diagrams));
         DiagramsCount = diagrams.UCount();
     }
-
-    [JsonIgnore]
-    public ReportTemplate Template { get; } = ReportTemplate.Relationships;
 
     public IEnumerable<RelationshipDiagram> Diagrams { get; }
 

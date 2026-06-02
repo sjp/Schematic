@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -10,16 +9,13 @@ namespace SJP.Schematic.Reporting.Html.ViewModels;
 /// The orphan-tables summary payload (<c>data/orphans.json</c>): tables that participate in no
 /// relationships (no parent or child keys), each with a hash-route link to its detail page.
 /// </summary>
-public sealed class Orphans : ITemplateParameter
+public sealed class Orphans
 {
     public Orphans(IEnumerable<OrphanTable> tables)
     {
         Tables = tables ?? throw new ArgumentNullException(nameof(tables));
         TablesCount = tables.UCount();
     }
-
-    [JsonIgnore]
-    public ReportTemplate Template { get; } = ReportTemplate.Orphans;
 
     public IEnumerable<OrphanTable> Tables { get; }
 

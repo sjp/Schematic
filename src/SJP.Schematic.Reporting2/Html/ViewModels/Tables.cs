@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels;
@@ -9,7 +8,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels;
 /// The tables summary payload (<c>data/tables.json</c>): the full list of tables for the
 /// client-side <c>DataTable</c> on the Tables page.
 /// </summary>
-public sealed class Tables : ITemplateParameter
+public sealed class Tables
 {
     public Tables(IReadOnlyCollection<Main.Table> tables)
     {
@@ -19,9 +18,6 @@ public sealed class Tables : ITemplateParameter
         TablesCount = (uint)tables.Count;
         AllTables = tables;
     }
-
-    [JsonIgnore]
-    public ReportTemplate Template { get; } = ReportTemplate.Tables;
 
     public uint TablesCount { get; }
 
