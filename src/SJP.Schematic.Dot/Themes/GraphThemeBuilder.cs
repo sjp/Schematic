@@ -130,7 +130,7 @@ internal sealed class GraphThemeBuilder : IGraphTheme
 
     public RgbColor HighlightedHeaderBackgroundColor
     {
-        get => _highlightedHeaderBackgroundColor ??= Default.HighlightedFooterBackgroundColor;
+        get => _highlightedHeaderBackgroundColor ??= Default.HighlightedHeaderBackgroundColor;
         set => _highlightedHeaderBackgroundColor = value ?? Default.HighlightedHeaderBackgroundColor;
     }
 
@@ -236,7 +236,7 @@ internal sealed class GraphThemeBuilder : IGraphTheme
     private RgbColor _tableForegroundColor = Default.TableForegroundColor;
     private RgbColor _headerForegroundColor = Default.HeaderForegroundColor;
     private RgbColor _footerForegroundColor = Default.FooterForegroundColor;
-    private RgbColor _primaryKeyHeaderForegroundColor = Default.PrimaryKeyHeaderBackgroundColor;
+    private RgbColor _primaryKeyHeaderForegroundColor = Default.PrimaryKeyHeaderForegroundColor;
     private RgbColor _uniqueKeyHeaderForegroundColor = Default.UniqueKeyHeaderForegroundColor;
     private RgbColor _foreignKeyHeaderForegroundColor = Default.ForeignKeyHeaderForegroundColor;
     private RgbColor _highlightedTableForegroundColor = Default.HighlightedTableForegroundColor;
