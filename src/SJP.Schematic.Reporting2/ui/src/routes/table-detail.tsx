@@ -4,6 +4,7 @@ import { type ColumnDef } from '@tanstack/react-table'
 import { Check, KeyRound, Link2, Minus, ShieldCheck } from 'lucide-react'
 import { DataTable } from '@/components/DataTable'
 import { Diagram } from '@/components/Diagram'
+import { IconTooltip } from '@/components/IconTooltip'
 import { Button } from '@/components/ui/button'
 import {
   Table,
@@ -14,7 +15,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { useDetail } from '@/hooks/useReportData'
-import type { TableColumn, TableDetail } from '@/types/report'
+import type { KeyConstraint, TableColumn, TableDetail } from '@/types/report'
 
 const routeApi = getRouteApi('/tables/$tableKey')
 
@@ -42,17 +43,74 @@ function Section({
   )
 }
 
-function KeyIcons({ column }: { column: TableColumn }) {
+/** Whether `columnName` is one of a constraint's (comma-separated) columns. */
+function constraintCovers(constraint: KeyConstraint, columnName: string): boolean {
+  return constraint.columnNames
+    .split(',')
+    .map((c) => c.trim())
+    .includes(columnName)
+}
+
+function KeyIcons({
+  column,
+  primaryKey,
+  uniqueKeys,
+}: {
+  column: TableColumn
+  primaryKey?: KeyConstraint
+  uniqueKeys: KeyConstraint[]
+}) {
+  const matchedUniqueKeys = uniqueKeys.filter((uk) =>
+    constraintCovers(uk, column.columnName),
+  )
   return (
     <span className="ml-1 inline-flex gap-0.5 align-middle">
       {column.isPrimaryKey && (
-        <KeyRound className="text-amber-500 size-3.5" aria-label="Primary key" />
+        <IconTooltip
+          label={
+            <>
+              <span className="font-medium">Primary key</span>
+              {primaryKey?.constraintName && <> · {primaryKey.constraintName}</>}
+            </>
+          }
+        >
+          <KeyRound className="text-amber-500 size-3.5" aria-label="Primary key" />
+        </IconTooltip>
       )}
       {column.isUniqueKey && (
-        <ShieldCheck className="text-sky-500 size-3.5" aria-label="Unique key" />
+        <IconTooltip
+          label={
+            <>
+              <span className="font-medium">Unique key</span>
+              {matchedUniqueKeys.length > 0 && (
+                <>
+                  {' · '}
+                  {matchedUniqueKeys
+                    .map((uk) => uk.constraintName || '—')
+                    .join(', ')}
+                </>
+              )}
+            </>
+          }
+        >
+          <ShieldCheck className="text-sky-500 size-3.5" aria-label="Unique key" />
+        </IconTooltip>
       )}
       {column.isForeignKey && (
-        <Link2 className="text-emerald-500 size-3.5" aria-label="Foreign key" />
+        <IconTooltip
+          label={
+            <div className="space-y-0.5">
+              <div className="font-medium">Foreign key</div>
+              {column.parentKeys.map((pk, i) => (
+                <div key={i} className="opacity-90">
+                  {pk.constraintDescription}
+                </div>
+              ))}
+            </div>
+          }
+        >
+          <Link2 className="text-emerald-500 size-3.5" aria-label="Foreign key" />
+        </IconTooltip>
       )}
     </span>
   )
@@ -74,7 +132,11 @@ export function TableDetailPage() {
         cell: ({ row }) => (
           <span className="font-medium">
             {row.original.columnName}
-            <KeyIcons column={row.original} />
+            <KeyIcons
+              column={row.original}
+              primaryKey={data?.primaryKey}
+              uniqueKeys={data?.uniqueKeys ?? []}
+            />
           </span>
         ),
       },
@@ -98,7 +160,7 @@ export function TableDetailPage() {
         },
       },
     ],
-    [],
+    [data?.primaryKey, data?.uniqueKeys],
   )
 
   const [activeDiagram, setActiveDiagram] = useState(0)
@@ -215,9 +277,19 @@ export function TableDetailPage() {
                   <TableCell>{ix.name || '—'}</TableCell>
                   <TableCell>
                     {ix.isUnique ? (
-                      <Check className="text-emerald-500 size-4" />
+                      <IconTooltip label="Unique index">
+                        <Check
+                          className="text-emerald-500 size-4"
+                          aria-label="Unique index"
+                        />
+                      </IconTooltip>
                     ) : (
-                      <Minus className="text-muted-foreground size-4" />
+                      <IconTooltip label="Non-unique index">
+                        <Minus
+                          className="text-muted-foreground size-4"
+                          aria-label="Non-unique index"
+                        />
+                      </IconTooltip>
                     )}
                   </TableCell>
                   <TableCell>{ix.columnsText}</TableCell>

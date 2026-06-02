@@ -2,22 +2,33 @@ import { useMemo } from 'react'
 import { type ColumnDef } from '@tanstack/react-table'
 import { Check, Columns3, Minus } from 'lucide-react'
 import { DataTable } from '@/components/DataTable'
+import { IconTooltip } from '@/components/IconTooltip'
 import { useSummary } from '@/hooks/useReportData'
 import type { ColumnRow, ColumnsSummary } from '@/types/report'
 
+const KEY_BADGES = [
+  { key: 'isPrimaryKey', abbr: 'PK', label: 'Primary key' },
+  { key: 'isUniqueKey', abbr: 'UK', label: 'Unique key' },
+  { key: 'isForeignKey', abbr: 'FK', label: 'Foreign key' },
+] as const
+
 /** A compact key-membership badge (PK / UK / FK). */
 function KeyBadges({ row }: { row: ColumnRow }) {
-  const badges: string[] = []
-  if (row.isPrimaryKey) badges.push('PK')
-  if (row.isUniqueKey) badges.push('UK')
-  if (row.isForeignKey) badges.push('FK')
-  if (badges.length === 0) return <Minus className="text-muted-foreground size-4" />
+  const badges = KEY_BADGES.filter((b) => row[b.key])
+  if (badges.length === 0)
+    return (
+      <IconTooltip label="No key membership">
+        <Minus className="text-muted-foreground size-4" aria-label="No key" />
+      </IconTooltip>
+    )
   return (
     <span className="flex gap-1">
       {badges.map((b) => (
-        <span key={b} className="bg-muted rounded px-1.5 py-0.5 text-xs font-medium">
-          {b}
-        </span>
+        <IconTooltip key={b.abbr} label={b.label}>
+          <span className="bg-muted rounded px-1.5 py-0.5 text-xs font-medium">
+            {b.abbr}
+          </span>
+        </IconTooltip>
       ))}
     </span>
   )

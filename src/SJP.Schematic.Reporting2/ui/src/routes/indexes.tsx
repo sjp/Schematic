@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { type ColumnDef } from '@tanstack/react-table'
 import { Check, ListTree, Minus } from 'lucide-react'
 import { DataTable } from '@/components/DataTable'
+import { IconTooltip } from '@/components/IconTooltip'
 import { useSummary } from '@/hooks/useReportData'
 import type { IndexRow, IndexesSummary } from '@/types/report'
 
@@ -30,9 +31,13 @@ export function IndexesPage() {
         header: 'Unique',
         cell: ({ getValue }) =>
           getValue<boolean>() ? (
-            <Check className="text-emerald-500 size-4" aria-label="Unique" />
+            <IconTooltip label="Unique index">
+              <Check className="text-emerald-500 size-4" aria-label="Unique" />
+            </IconTooltip>
           ) : (
-            <Minus className="text-muted-foreground size-4" aria-label="Not unique" />
+            <IconTooltip label="Non-unique index">
+              <Minus className="text-muted-foreground size-4" aria-label="Not unique" />
+            </IconTooltip>
           ),
       },
       { accessorKey: 'columnsText', header: 'Columns' },
