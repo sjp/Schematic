@@ -23,9 +23,7 @@
   <Project Path="SJP.Schematic.Oracle/SJP.Schematic.Oracle.csproj" />
   <Project Path="SJP.Schematic.PostgreSql.Tests/SJP.Schematic.PostgreSql.Tests.csproj" />
   <Project Path="SJP.Schematic.PostgreSql/SJP.Schematic.PostgreSql.csproj" />
-  <Project Path="SJP.Schematic.Reporting.Tests/SJP.Schematic.Reporting.Tests.csproj" />
   <Project Path="SJP.Schematic.Reporting/SJP.Schematic.Reporting.csproj" />
-  <Project Path="SJP.Schematic.Reporting2/SJP.Schematic.Reporting2.csproj" />
   <Project Path="SJP.Schematic.Serialization.Tests/SJP.Schematic.Serialization.Tests.csproj" />
   <Project Path="SJP.Schematic.Serialization/SJP.Schematic.Serialization.csproj" />
   <Project Path="SJP.Schematic.Sqlite.Tests/SJP.Schematic.Sqlite.Tests.csproj" />

@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using EnumsNET;
 using LanguageExt;
 using SJP.Schematic.Core;
@@ -9,9 +10,10 @@ using SJP.Schematic.Core.Extensions;
 namespace SJP.Schematic.Reporting.Html.ViewModels;
 
 /// <summary>
-/// Internal. Not intended to be used outside of this assembly. Only required for templating.
+/// The per-table detail payload (<c>data/tables/&lt;safeKey&gt;.json</c>): columns, keys,
+/// constraints, indexes, triggers, and diagram references for one table.
 /// </summary>
-public sealed class Table : ITemplateParameter
+public sealed class Table
 {
     public Table(
         Identifier tableName,
@@ -23,52 +25,38 @@ public sealed class Table : ITemplateParameter
         IEnumerable<Index> indexes,
         IEnumerable<Trigger> triggers,
         IEnumerable<Diagram> diagrams,
-        string rootPath,
         ulong rowCount
     )
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
         Name = tableName.ToVisibleName();
-        TableUrl = tableName.ToSafeKey();
+        TableUrl = UrlRouter.GetTableUrl(tableName);
         RowCount = rowCount;
 
         Columns = columns ?? throw new ArgumentNullException(nameof(columns));
         ColumnsCount = columns.UCount();
-        ColumnsTableClass = ColumnsCount > 0 ? CssClasses.DataTableClass : string.Empty;
 
         PrimaryKey = primaryKey.MatchUnsafe(static pk => pk, static () => (PrimaryKeyConstraint?)null);
         PrimaryKeyExists = primaryKey.IsSome;
-        PrimaryKeyTableClass = primaryKey.Match(static _ => CssClasses.DataTableClass, static () => string.Empty);
 
         UniqueKeys = uniqueKeys ?? throw new ArgumentNullException(nameof(uniqueKeys));
         UniqueKeysCount = uniqueKeys.UCount();
-        UniqueKeysTableClass = UniqueKeysCount > 0 ? CssClasses.DataTableClass : string.Empty;
 
         ForeignKeys = foreignKeys ?? throw new ArgumentNullException(nameof(foreignKeys));
         ForeignKeysCount = foreignKeys.UCount();
-        ForeignKeysTableClass = ForeignKeysCount > 0 ? CssClasses.DataTableClass : string.Empty;
 
         CheckConstraints = checks ?? throw new ArgumentNullException(nameof(checks));
         CheckConstraintsCount = checks.UCount();
-        CheckConstraintsTableClass = CheckConstraintsCount > 0 ? CssClasses.DataTableClass : string.Empty;
 
-        Indexes = indexes ?? throw new ArgumentNullException(nameof(checks));
+        Indexes = indexes ?? throw new ArgumentNullException(nameof(indexes));
         IndexesCount = indexes.UCount();
-        IndexesTableClass = IndexesCount > 0 ? CssClasses.DataTableClass : string.Empty;
 
         Triggers = triggers ?? throw new ArgumentNullException(nameof(triggers));
         TriggersCount = triggers.UCount();
-        TriggersTableClass = TriggersCount > 0 ? CssClasses.DataTableClass : string.Empty;
 
         Diagrams = diagrams ?? throw new ArgumentNullException(nameof(diagrams));
-
-        RootPath = rootPath ?? throw new ArgumentNullException(nameof(rootPath));
     }
-
-    public ReportTemplate Template { get; } = ReportTemplate.Table;
-
-    public string RootPath { get; }
 
     public string Name { get; }
 
@@ -80,43 +68,29 @@ public sealed class Table : ITemplateParameter
 
     public uint ColumnsCount { get; }
 
-    public HtmlString ColumnsTableClass { get; }
-
     public PrimaryKeyConstraint? PrimaryKey { get; }
 
     public bool PrimaryKeyExists { get; }
-
-    public HtmlString PrimaryKeyTableClass { get; }
 
     public IEnumerable<UniqueKey> UniqueKeys { get; }
 
     public uint UniqueKeysCount { get; }
 
-    public HtmlString UniqueKeysTableClass { get; }
-
     public IEnumerable<ForeignKey> ForeignKeys { get; }
 
     public uint ForeignKeysCount { get; }
-
-    public HtmlString ForeignKeysTableClass { get; }
 
     public IEnumerable<CheckConstraint> CheckConstraints { get; }
 
     public uint CheckConstraintsCount { get; }
 
-    public HtmlString CheckConstraintsTableClass { get; }
-
     public IEnumerable<Index> Indexes { get; }
 
     public uint IndexesCount { get; }
 
-    public HtmlString IndexesTableClass { get; }
-
     public IEnumerable<Trigger> Triggers { get; }
 
     public uint TriggersCount { get; }
-
-    public HtmlString TriggersTableClass { get; }
 
     public IEnumerable<Diagram> Diagrams { get; }
 
@@ -140,14 +114,13 @@ public sealed class Table : ITemplateParameter
         {
             ColumnName = columnName ?? throw new ArgumentNullException(nameof(columnName));
             Ordinal = ordinal;
-            TitleNullable = isNullable ? "Nullable" : string.Empty;
-            NullableText = isNullable ? "✓" : "✗";
+            IsNullable = isNullable;
             Type = typeDefinition ?? string.Empty;
             DefaultValue = defaultValue.Match(static def => def ?? string.Empty, static () => string.Empty);
 
-            ColumnClass = BuildColumnClass(isPrimaryKeyColumn, isUniqueKeyColumn, isForeignKeyColumn);
-            ColumnIcon = BuildColumnIcon(isPrimaryKeyColumn, isUniqueKeyColumn, isForeignKeyColumn);
-            ColumnTitle = BuildColumnTitle(isPrimaryKeyColumn, isUniqueKeyColumn, isForeignKeyColumn);
+            IsPrimaryKey = isPrimaryKeyColumn;
+            IsUniqueKey = isUniqueKeyColumn;
+            IsForeignKey = isForeignKeyColumn;
 
             ChildKeys = childKeys ?? throw new ArgumentNullException(nameof(childKeys));
             ChildKeysCount = childKeys.UCount();
@@ -160,19 +133,17 @@ public sealed class Table : ITemplateParameter
 
         public string ColumnName { get; }
 
-        public string TitleNullable { get; }
-
-        public string NullableText { get; }
+        public bool IsNullable { get; }
 
         public string Type { get; }
 
         public string DefaultValue { get; }
 
-        public HtmlString ColumnClass { get; }
+        public bool IsPrimaryKey { get; }
 
-        public HtmlString ColumnIcon { get; }
+        public bool IsUniqueKey { get; }
 
-        public string ColumnTitle { get; }
+        public bool IsForeignKey { get; }
 
         public IEnumerable<ParentKey> ParentKeys { get; }
 
@@ -181,51 +152,6 @@ public sealed class Table : ITemplateParameter
         public IEnumerable<ChildKey> ChildKeys { get; }
 
         public uint ChildKeysCount { get; }
-
-        private static HtmlString BuildColumnClass(bool isPrimaryKeyColumn, bool isUniqueKeyColumn, bool isForeignKeyColumn)
-        {
-            var isKey = isPrimaryKeyColumn || isUniqueKeyColumn || isForeignKeyColumn;
-            return isKey ? @"class=""is-key-column""" : string.Empty;
-        }
-
-        private static HtmlString BuildColumnIcon(bool isPrimaryKeyColumn, bool isUniqueKeyColumn, bool isForeignKeyColumn)
-        {
-            var iconPieces = new List<string>();
-
-            if (isPrimaryKeyColumn)
-            {
-                const string iconText = @"<i title=""Primary Key"" class=""fa fa-key icon-primary-key"" style=""padding-left: 5px; padding-right: 5px;"" aria-hidden=""true""></i>";
-                iconPieces.Add(iconText);
-            }
-
-            if (isUniqueKeyColumn)
-            {
-                const string iconText = @"<i title=""Unique Key"" class=""fa fa-key icon-unique-key"" style=""padding-left: 5px; padding-right: 5px;"" aria-hidden=""true""></i>";
-                iconPieces.Add(iconText);
-            }
-
-            if (isForeignKeyColumn)
-            {
-                const string iconText = @"<i title=""Foreign Key"" class=""fa fa-key icon-foreign-key"" style=""padding-left: 5px; padding-right: 5px;"" aria-hidden=""true""></i>";
-                iconPieces.Add(iconText);
-            }
-
-            return string.Concat(iconPieces);
-        }
-
-        private static string BuildColumnTitle(bool isPrimaryKeyColumn, bool isUniqueKeyColumn, bool isForeignKeyColumn)
-        {
-            var titlePieces = new List<string>();
-
-            if (isPrimaryKeyColumn)
-                titlePieces.Add("Primary Key");
-            if (isUniqueKeyColumn)
-                titlePieces.Add("Unique Key");
-            if (isForeignKeyColumn)
-                titlePieces.Add("Foreign Key");
-
-            return titlePieces.Join(", ");
-        }
     }
 
     /// <summary>
@@ -287,8 +213,7 @@ public sealed class Table : ITemplateParameter
             string parentConstraintName,
             IEnumerable<string> parentColumnNames,
             ReferentialAction deleteAction,
-            ReferentialAction updateAction,
-            string rootPath
+            ReferentialAction updateAction
         ) : base(constraintName)
         {
             if (columnNames.NullOrEmpty())
@@ -300,12 +225,11 @@ public sealed class Table : ITemplateParameter
                 throw new ArgumentException($"The {nameof(ReferentialAction)} provided must be a valid enum.", nameof(deleteAction));
             if (!updateAction.IsValid())
                 throw new ArgumentException($"The {nameof(ReferentialAction)} provided must be a valid enum.", nameof(updateAction));
-            ArgumentNullException.ThrowIfNull(rootPath);
 
             ChildColumnNames = columnNames.Join(", ");
             ParentConstraintName = parentConstraintName;
             ParentTableName = parentTableName.ToVisibleName();
-            ParentTableUrl = rootPath + UrlRouter.GetTableUrl(parentTableName);
+            ParentTableUrl = UrlRouter.GetTableUrl(parentTableName);
             ParentColumnNames = parentColumnNames.Join(", ");
 
             DeleteActionDescription = _actionDescription[deleteAction];
@@ -366,7 +290,7 @@ public sealed class Table : ITemplateParameter
         )
         {
             Name = indexName ?? string.Empty;
-            UniqueText = isUnique ? "✓" : "✗";
+            IsUnique = isUnique;
 
             ColumnsText = columnNames.Zip(
                 columnSorts.Select(SortToString),
@@ -377,7 +301,7 @@ public sealed class Table : ITemplateParameter
 
         public string Name { get; }
 
-        public string UniqueText { get; }
+        public bool IsUnique { get; }
 
         public string ColumnsText { get; }
 
@@ -397,21 +321,17 @@ public sealed class Table : ITemplateParameter
     public sealed class Trigger
     {
         public Trigger(
-            Identifier tableName,
             Identifier triggerName,
             string definition,
             TriggerQueryTiming queryTiming,
             TriggerEvent triggerEvent
         )
         {
-            ArgumentNullException.ThrowIfNull(tableName);
             ArgumentNullException.ThrowIfNull(triggerName);
             ArgumentException.ThrowIfNullOrWhiteSpace(definition);
 
             TriggerName = triggerName.LocalName;
             Definition = definition;
-
-            TriggerUrl = "../" + UrlRouter.GetTriggerUrl(tableName, triggerName);
 
             var queryFlags = queryTiming.GetFlags()
                 .Select(static qt => TimingDescriptions[qt])
@@ -427,8 +347,6 @@ public sealed class Table : ITemplateParameter
         }
 
         public string TriggerName { get; }
-
-        public string TriggerUrl { get; }
 
         public string Definition { get; }
 
@@ -456,15 +374,14 @@ public sealed class Table : ITemplateParameter
     /// </summary>
     public sealed class ParentKey
     {
-        public ParentKey(string constraintName, Identifier parentTableName, string parentColumnName, string qualifiedChildColumnName, string rootPath)
+        public ParentKey(string constraintName, Identifier parentTableName, string parentColumnName, string qualifiedChildColumnName)
         {
             ArgumentNullException.ThrowIfNull(parentTableName);
             ArgumentException.ThrowIfNullOrWhiteSpace(parentColumnName);
             ArgumentException.ThrowIfNullOrWhiteSpace(qualifiedChildColumnName);
-            ArgumentNullException.ThrowIfNull(rootPath);
 
             ParentTableName = parentTableName.ToVisibleName();
-            ParentTableUrl = rootPath + UrlRouter.GetTableUrl(parentTableName);
+            ParentTableUrl = UrlRouter.GetTableUrl(parentTableName);
             ParentColumnName = parentColumnName;
 
             var qualifiedParentColumnName = ParentTableName + "." + parentColumnName;
@@ -488,15 +405,14 @@ public sealed class Table : ITemplateParameter
     /// </summary>
     public sealed class ChildKey
     {
-        public ChildKey(string constraintName, Identifier childTableName, string childColumnName, string qualifiedParentColumnName, string rootPath)
+        public ChildKey(string constraintName, Identifier childTableName, string childColumnName, string qualifiedParentColumnName)
         {
             ArgumentNullException.ThrowIfNull(childTableName);
             ArgumentException.ThrowIfNullOrWhiteSpace(childColumnName);
             ArgumentException.ThrowIfNullOrWhiteSpace(qualifiedParentColumnName);
-            ArgumentNullException.ThrowIfNull(rootPath);
 
             ChildTableName = childTableName.ToVisibleName();
-            ChildTableUrl = rootPath + UrlRouter.GetTableUrl(childTableName);
+            ChildTableUrl = UrlRouter.GetTableUrl(childTableName);
             ChildColumnName = childColumnName;
 
             var qualifiedChildColumnName = ChildTableName + "." + ChildColumnName;
@@ -516,7 +432,7 @@ public sealed class Table : ITemplateParameter
     }
 
     /// <summary>
-    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// A reference to a pre-rendered diagram SVG written under <c>data/diagrams/</c>.
     /// </summary>
     public sealed class Diagram
     {
@@ -529,21 +445,21 @@ public sealed class Table : ITemplateParameter
             Name = diagramName;
             Dot = dotDefinition;
             ContainerId = tableName.ToSafeKey() + "-" + Name.ToLowerInvariant().Replace(' ', '-') + "-chart";
-            ActiveClass = isActive ? "active" : string.Empty;
-            Selected = isActive ? "true" : "false";
+            IsActive = isActive;
+            SvgFile = "data/diagrams/" + ContainerId + ".svg";
         }
 
         public string Name { get; }
 
         public string ContainerId { get; }
 
-        public string ActiveClass { get; }
+        public bool IsActive { get; }
 
-        public string Selected { get; }
+        public string SvgFile { get; }
 
+        // The DOT source is consumed by the renderer to produce the SVG file; it is not part
+        // of the JSON payload.
+        [JsonIgnore]
         public string Dot { get; }
-
-        // a bit hacky, needed to render image directly instead of via file
-        public string Svg { get; set; } = string.Empty;
     }
 }

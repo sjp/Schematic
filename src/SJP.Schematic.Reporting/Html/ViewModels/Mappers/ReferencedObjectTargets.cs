@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -38,9 +37,12 @@ internal sealed class ReferencedObjectTargets
 
     private IEnumerable<Identifier> RoutineNames { get; }
 
-    public IReadOnlyCollection<HtmlString> GetReferencedObjectLinks(string rootPath, Identifier objectName, string expression)
+    /// <summary>
+    /// Resolves the objects referenced by <paramref name="expression"/> to structured links
+    /// (name + absolute hash route) for the JSON payload.
+    /// </summary>
+    public IReadOnlyCollection<View.ReferencedObject> GetReferencedObjects(Identifier objectName, string expression)
     {
-        ArgumentNullException.ThrowIfNull(rootPath);
         ArgumentNullException.ThrowIfNull(objectName);
         if (expression.IsNullOrWhiteSpace())
             return [];
@@ -49,8 +51,8 @@ internal sealed class ReferencedObjectTargets
         if (referencedNames.Count == 0)
             return [];
 
-        var referencedUris = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        var result = new List<HtmlString>();
+        var seenUrls = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var result = new List<View.ReferencedObject>();
 
         var orderedNames = referencedNames
             .OrderBy(static name => name.Schema ?? string.Empty, StringComparer.OrdinalIgnoreCase)
@@ -59,20 +61,19 @@ internal sealed class ReferencedObjectTargets
         foreach (var name in orderedNames)
         {
             var qualifiedName = QualifyReferenceName(objectName, name);
-            var targetLinks = GetReferenceTargetLinks(rootPath, objectName, qualifiedName);
-            var linkTexts = targetLinks
-                .Where(link => referencedUris.Add(link.TargetUri.ToString()))
-                .Select(static link => new HtmlString($"<a href=\"{link.TargetUri}\">{HttpUtility.HtmlEncode(link.ObjectName.ToVisibleName())}</a>"))
-                .ToList();
-            result.AddRange(linkTexts);
+            var targetLinks = GetReferenceTargetLinks(objectName, qualifiedName);
+            foreach (var link in targetLinks)
+            {
+                if (seenUrls.Add(link.Url))
+                    result.Add(link);
+            }
         }
 
         return result;
     }
 
-    private IReadOnlyCollection<Link> GetReferenceTargetLinks(string rootPath, Identifier objectName, Identifier referenceName)
+    private IReadOnlyCollection<View.ReferencedObject> GetReferenceTargetLinks(Identifier objectName, Identifier referenceName)
     {
-        ArgumentNullException.ThrowIfNull(rootPath);
         ArgumentNullException.ThrowIfNull(objectName);
         ArgumentNullException.ThrowIfNull(referenceName);
 
@@ -82,27 +83,18 @@ internal sealed class ReferencedObjectTargets
         if (isSelfReference)
             return [];
 
-        var result = new List<Link>();
+        var result = new List<View.ReferencedObject>();
 
-        var matchingTables = GetMatchingObjects(TableNames, qualifiedReference)
-            .Select(name => new Link(name, new Uri(rootPath + UrlRouter.GetTableUrl(name), UriKind.Relative)));
-        result.AddRange(matchingTables);
-
-        var matchingViews = GetMatchingObjects(ViewNames, qualifiedReference)
-            .Select(name => new Link(name, new Uri(rootPath + UrlRouter.GetViewUrl(name), UriKind.Relative)));
-        result.AddRange(matchingViews);
-
-        var matchingSequences = GetMatchingObjects(SequenceNames, qualifiedReference)
-            .Select(name => new Link(name, new Uri(rootPath + UrlRouter.GetSequenceUrl(name), UriKind.Relative)));
-        result.AddRange(matchingSequences);
-
-        var matchingSynonyms = GetMatchingObjects(SynonymNames, qualifiedReference)
-            .Select(name => new Link(name, new Uri(rootPath + UrlRouter.GetSynonymUrl(name), UriKind.Relative)));
-        result.AddRange(matchingSynonyms);
-
-        var matchingRoutines = GetMatchingObjects(RoutineNames, qualifiedReference)
-            .Select(name => new Link(name, new Uri(rootPath + UrlRouter.GetRoutineUrl(name), UriKind.Relative)));
-        result.AddRange(matchingRoutines);
+        result.AddRange(GetMatchingObjects(TableNames, qualifiedReference)
+            .Select(static name => new View.ReferencedObject(name.ToVisibleName(), UrlRouter.GetTableUrl(name))));
+        result.AddRange(GetMatchingObjects(ViewNames, qualifiedReference)
+            .Select(static name => new View.ReferencedObject(name.ToVisibleName(), UrlRouter.GetViewUrl(name))));
+        result.AddRange(GetMatchingObjects(SequenceNames, qualifiedReference)
+            .Select(static name => new View.ReferencedObject(name.ToVisibleName(), UrlRouter.GetSequenceUrl(name))));
+        result.AddRange(GetMatchingObjects(SynonymNames, qualifiedReference)
+            .Select(static name => new View.ReferencedObject(name.ToVisibleName(), UrlRouter.GetSynonymUrl(name))));
+        result.AddRange(GetMatchingObjects(RoutineNames, qualifiedReference)
+            .Select(static name => new View.ReferencedObject(name.ToVisibleName(), UrlRouter.GetRoutineUrl(name))));
 
         return result;
     }
@@ -127,20 +119,5 @@ internal sealed class ReferencedObjectTargets
             referenceName.Schema ?? objectName.Schema,
             referenceName.LocalName ?? objectName.LocalName
         );
-    }
-
-    private sealed class Link
-    {
-        public Link(Identifier objectName, Uri targetUri)
-        {
-            ObjectName = objectName ?? throw new ArgumentNullException(nameof(objectName));
-            TargetUri = targetUri ?? throw new ArgumentNullException(nameof(targetUri));
-        }
-
-        public Identifier ObjectName { get; }
-
-        public Uri TargetUri { get; }
-
-        public override string ToString() => string.Empty;
     }
 }

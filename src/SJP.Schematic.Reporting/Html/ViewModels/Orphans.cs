@@ -1,35 +1,33 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels;
 
 /// <summary>
-/// Internal. Not intended to be used outside of this assembly. Only required for templating.
+/// The orphan-tables summary payload (<c>data/orphans.json</c>): tables that participate in no
+/// relationships (no parent or child keys), each with a hash-route link to its detail page.
 /// </summary>
-public sealed class Orphans : ITemplateParameter
+public sealed class Orphans
 {
-    public Orphans(IEnumerable<Table> tables)
+    public Orphans(IEnumerable<OrphanTable> tables)
     {
         Tables = tables ?? throw new ArgumentNullException(nameof(tables));
         TablesCount = tables.UCount();
-        TablesTableClass = TablesCount > 0 ? CssClasses.DataTableClass : string.Empty;
     }
 
-    public ReportTemplate Template { get; } = ReportTemplate.Orphans;
-
-    public IEnumerable<Table> Tables { get; }
+    public IEnumerable<OrphanTable> Tables { get; }
 
     public uint TablesCount { get; }
 
-    public HtmlString TablesTableClass { get; }
-
     /// <summary>
-    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// An orphan-table row. Named distinctly from <see cref="Main.Table"/> so the JSON source
+    /// generator emits non-colliding metadata.
     /// </summary>
-    public sealed class Table
+    public sealed class OrphanTable
     {
-        public Table(Identifier tableName, uint columnCount, ulong rowCount)
+        public OrphanTable(Identifier tableName, uint columnCount, ulong rowCount)
         {
             ArgumentNullException.ThrowIfNull(tableName);
 

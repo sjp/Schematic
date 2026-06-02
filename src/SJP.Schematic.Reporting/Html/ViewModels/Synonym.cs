@@ -1,40 +1,36 @@
-﻿using System;
-using System.Web;
+using System;
 using LanguageExt;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels;
 
 /// <summary>
-/// Internal. Not intended to be used outside of this assembly. Only required for templating.
+/// The per-synonym detail payload (<c>data/synonyms/&lt;safeKey&gt;.json</c>): the synonym and the
+/// object it aliases. <see cref="TargetUrl"/> is the target's hash route, omitted from the JSON
+/// when the target cannot be resolved to a known object.
 /// </summary>
-public sealed class Synonym : ITemplateParameter
+public sealed class Synonym
 {
     public Synonym(
         Identifier synonymName,
         Identifier targetName,
-        Option<Uri> targetUrl,
-        string rootPath
+        Option<Uri> targetUrl
     )
     {
         ArgumentNullException.ThrowIfNull(synonymName);
         ArgumentNullException.ThrowIfNull(targetName);
 
-        RootPath = rootPath ?? throw new ArgumentNullException(nameof(rootPath));
-
         Name = synonymName.ToVisibleName();
-        var targetNameText = targetName.ToVisibleName();
-        TargetText = targetUrl.Match(
-            uri => $"<a href=\"{new Uri(rootPath + uri.ToString(), UriKind.Relative)}\">{HttpUtility.HtmlEncode(targetNameText)}</a>",
-            () => HttpUtility.HtmlEncode(targetNameText)
-        );
+        SynonymUrl = UrlRouter.GetSynonymUrl(synonymName);
+        TargetName = targetName.ToVisibleName();
+        TargetUrl = targetUrl.MatchUnsafe(static uri => uri.ToString(), static () => (string?)null);
     }
-
-    public ReportTemplate Template { get; } = ReportTemplate.Synonym;
 
     public string Name { get; }
 
-    public HtmlString TargetText { get; }
+    public string SynonymUrl { get; }
 
-    public string RootPath { get; }
+    public string TargetName { get; }
+
+    public string? TargetUrl { get; }
 }

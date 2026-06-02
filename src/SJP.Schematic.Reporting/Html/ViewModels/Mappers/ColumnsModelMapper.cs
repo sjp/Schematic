@@ -1,13 +1,14 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using LanguageExt;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 internal sealed class ColumnsModelMapper
 {
-    public IEnumerable<Columns.TableColumn> Map(IRelationalDatabaseTable table)
+    public IEnumerable<Columns.ColumnSummary> Map(IRelationalDatabaseTable table)
     {
         ArgumentNullException.ThrowIfNull(table);
 
@@ -16,6 +17,7 @@ internal sealed class ColumnsModelMapper
         var parentKeys = table.ParentKeys.ToList();
 
         var columns = table.Columns.ToList();
+        var tableUrl = UrlRouter.GetTableUrl(table.Name);
 
         return columns.Select((column, i) =>
         {
@@ -23,8 +25,10 @@ internal sealed class ColumnsModelMapper
             var isUniqueKeyColumn = uniqueKeys.Exists(uk => uk.Columns.Any(ukc => string.Equals(ukc.Name.LocalName, column.Name.LocalName, StringComparison.Ordinal)));
             var isForeignKeyColumn = parentKeys.Exists(fk => fk.ChildKey.Columns.Any(fkc => string.Equals(fkc.Name.LocalName, column.Name.LocalName, StringComparison.Ordinal)));
 
-            return new Columns.TableColumn(
+            return new Columns.ColumnSummary(
                 table.Name,
+                Columns.ParentObjectType.Table,
+                tableUrl,
                 i + 1,
                 column.Name.LocalName,
                 column.Type.Definition,
@@ -37,19 +41,26 @@ internal sealed class ColumnsModelMapper
         }).ToList();
     }
 
-    public IEnumerable<Columns.ViewColumn> Map(IDatabaseView view)
+    public IEnumerable<Columns.ColumnSummary> Map(IDatabaseView view)
     {
         ArgumentNullException.ThrowIfNull(view);
 
         var columns = view.Columns.ToList();
+        var viewUrl = UrlRouter.GetViewUrl(view.Name);
 
         return columns.Select((c, i) =>
-            new Columns.ViewColumn(
+            new Columns.ColumnSummary(
                 view.Name,
+                Columns.ParentObjectType.View,
+                viewUrl,
                 i + 1,
                 c.Name.LocalName,
                 c.Type.Definition,
-                c.IsNullable
+                c.IsNullable,
+                Option<string>.None,
+                false,
+                false,
+                false
             )
         ).ToList();
     }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using SJP.Schematic.Core;
 
@@ -11,12 +11,11 @@ internal sealed class ViewModelMapper
         ArgumentNullException.ThrowIfNull(view);
         ArgumentNullException.ThrowIfNull(referencedObjectTargets);
 
-        const string rootPath = "../";
-        var links = referencedObjectTargets.GetReferencedObjectLinks(rootPath, view.Name, view.Definition);
+        var referencedObjects = referencedObjectTargets.GetReferencedObjects(view.Name, view.Definition);
 
         var viewColumns = view.Columns.ToList();
         var columns = viewColumns.Select(static (vc, i) =>
-            new View.Column(
+            new View.ViewColumn(
                 vc.Name?.LocalName ?? string.Empty,
                 i + 1,
                 vc.IsNullable,
@@ -26,10 +25,9 @@ internal sealed class ViewModelMapper
 
         return new View(
             view.Name,
-            rootPath,
             view.Definition,
             columns,
-            links
+            referencedObjects
         );
     }
 }

@@ -9,6 +9,6 @@ internal sealed class RoutineModelMapper
     {
         ArgumentNullException.ThrowIfNull(routine);
 
-        return new Routine(routine.Name, "../", routine.Definition);
+        return new Routine(routine.Name, routine.Definition);
     }
 }

@@ -1,35 +1,35 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Reporting.Html.ViewModels;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
+using SJP.Schematic.Reporting.Serialization;
 
 namespace SJP.Schematic.Reporting.Html.Renderers;
 
-internal sealed class TriggersRenderer : ITemplateRenderer
+internal sealed class TriggersRenderer : IDataRenderer
 {
     public TriggersRenderer(
-        IIdentifierDefaults identifierDefaults,
-        IHtmlFormatter formatter,
         IEnumerable<IRelationalDatabaseTable> tables,
+        JsonDataWriter jsonWriter,
+        BundleBuilder bundle,
         DirectoryInfo exportDirectory)
     {
         Tables = tables ?? throw new ArgumentNullException(nameof(tables));
-        IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
-        Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
+        JsonWriter = jsonWriter ?? throw new ArgumentNullException(nameof(jsonWriter));
+        Bundle = bundle ?? throw new ArgumentNullException(nameof(bundle));
         ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
     }
 
-    private IIdentifierDefaults IdentifierDefaults { get; }
-
-    private IHtmlFormatter Formatter { get; }
-
     private IEnumerable<IRelationalDatabaseTable> Tables { get; }
+
+    private JsonDataWriter JsonWriter { get; }
+
+    private BundleBuilder Bundle { get; }
 
     private DirectoryInfo ExportDirectory { get; }
 
@@ -37,24 +37,17 @@ internal sealed class TriggersRenderer : ITemplateRenderer
     {
         var mapper = new TriggerModelMapper();
 
-        var triggers = Tables.SelectMany(t => t.Triggers.Select(tr => mapper.Map(t.Name, tr))).ToList();
+        var triggers = Tables
+            .SelectMany(t => t.Triggers.Select(tr => mapper.Map(t.Name, tr)))
+            .OrderBy(static t => t.TableName, StringComparer.Ordinal)
+            .ThenBy(static t => t.Name, StringComparer.Ordinal)
+            .ToList();
         var triggersVm = new Triggers(triggers);
 
-        var renderedTriggers = await Formatter.RenderTemplateAsync(triggersVm, cancellationToken);
+        var json = JsonWriter.Serialize(triggersVm);
+        Bundle.AddSummary("triggers", json);
 
-        var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
-            ? IdentifierDefaults.Database + " Database"
-            : "Database";
-        var pageTitle = "Triggers · " + databaseName;
-        var mainContainer = new Container(renderedTriggers, pageTitle, string.Empty);
-        var renderedPage = await Formatter.RenderTemplateAsync(mainContainer, cancellationToken);
-
-        if (!ExportDirectory.Exists)
-            ExportDirectory.Create();
-        var outputPath = Path.Combine(ExportDirectory.FullName, "triggers.html");
-
-        await using var writer = File.CreateText(outputPath);
-        await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken);
-        await writer.FlushAsync(cancellationToken);
+        var outputFile = new FileInfo(Path.Combine(ExportDirectory.FullName, "data", "triggers.json"));
+        await JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
     }
 }

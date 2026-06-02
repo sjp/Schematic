@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using EnumsNET;
 using SJP.Schematic.Core;
@@ -7,15 +7,17 @@ using SJP.Schematic.Core.Extensions;
 namespace SJP.Schematic.Reporting.Html.ViewModels;
 
 /// <summary>
-/// Internal. Not intended to be used outside of this assembly. Only required for templating.
+/// The constraints summary payload (<c>data/constraints.json</c>): primary keys, unique keys,
+/// foreign keys, and check constraints across the schema. Each row links to its owning table (and,
+/// for foreign keys, the referenced table) via hash routes.
 /// </summary>
-public sealed class Constraints : ITemplateParameter
+public sealed class Constraints
 {
     public Constraints(
-        IEnumerable<PrimaryKeyConstraint> primaryKeys,
-        IEnumerable<UniqueKey> uniqueKeys,
-        IEnumerable<ForeignKey> foreignKeys,
-        IEnumerable<CheckConstraint> checks
+        IEnumerable<PrimaryKeyConstraintRow> primaryKeys,
+        IEnumerable<UniqueKeyRow> uniqueKeys,
+        IEnumerable<ForeignKeyRow> foreignKeys,
+        IEnumerable<CheckConstraintRow> checks
     )
     {
         PrimaryKeys = primaryKeys ?? throw new ArgumentNullException(nameof(primaryKeys));
@@ -24,46 +26,29 @@ public sealed class Constraints : ITemplateParameter
         CheckConstraints = checks ?? throw new ArgumentNullException(nameof(checks));
 
         PrimaryKeysCount = primaryKeys.UCount();
-        PrimaryKeysTableClass = PrimaryKeysCount > 0 ? CssClasses.DataTableClass : string.Empty;
-
         UniqueKeysCount = uniqueKeys.UCount();
-        UniqueKeysTableClass = UniqueKeysCount > 0 ? CssClasses.DataTableClass : string.Empty;
-
         ForeignKeysCount = foreignKeys.UCount();
-        ForeignKeysTableClass = ForeignKeysCount > 0 ? CssClasses.DataTableClass : string.Empty;
-
         CheckConstraintsCount = checks.UCount();
-        CheckConstraintsTableClass = CheckConstraintsCount > 0 ? CssClasses.DataTableClass : string.Empty;
     }
 
-    public ReportTemplate Template { get; } = ReportTemplate.Constraints;
-
-    public IEnumerable<PrimaryKeyConstraint> PrimaryKeys { get; }
+    public IEnumerable<PrimaryKeyConstraintRow> PrimaryKeys { get; }
 
     public uint PrimaryKeysCount { get; }
 
-    public HtmlString PrimaryKeysTableClass { get; }
-
-    public IEnumerable<UniqueKey> UniqueKeys { get; }
+    public IEnumerable<UniqueKeyRow> UniqueKeys { get; }
 
     public uint UniqueKeysCount { get; }
 
-    public HtmlString UniqueKeysTableClass { get; }
-
-    public IEnumerable<ForeignKey> ForeignKeys { get; }
+    public IEnumerable<ForeignKeyRow> ForeignKeys { get; }
 
     public uint ForeignKeysCount { get; }
 
-    public HtmlString ForeignKeysTableClass { get; }
-
-    public IEnumerable<CheckConstraint> CheckConstraints { get; }
+    public IEnumerable<CheckConstraintRow> CheckConstraints { get; }
 
     public uint CheckConstraintsCount { get; }
 
-    public HtmlString CheckConstraintsTableClass { get; }
-
     /// <summary>
-    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// Common fields shared by every constraint row: the owning table and a hash-route link to it.
     /// </summary>
     public abstract class TableConstraint
     {
@@ -83,12 +68,9 @@ public sealed class Constraints : ITemplateParameter
         public string ConstraintName { get; }
     }
 
-    /// <summary>
-    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
-    /// </summary>
-    public sealed class PrimaryKeyConstraint : TableConstraint
+    public sealed class PrimaryKeyConstraintRow : TableConstraint
     {
-        public PrimaryKeyConstraint(Identifier tableName, string constraintName, IEnumerable<string> columnNames)
+        public PrimaryKeyConstraintRow(Identifier tableName, string constraintName, IEnumerable<string> columnNames)
             : base(tableName, constraintName)
         {
             if (columnNames.NullOrEmpty())
@@ -100,12 +82,9 @@ public sealed class Constraints : ITemplateParameter
         public string ColumnNames { get; }
     }
 
-    /// <summary>
-    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
-    /// </summary>
-    public sealed class UniqueKey : TableConstraint
+    public sealed class UniqueKeyRow : TableConstraint
     {
-        public UniqueKey(Identifier tableName, string constraintName, IEnumerable<string> columnNames)
+        public UniqueKeyRow(Identifier tableName, string constraintName, IEnumerable<string> columnNames)
             : base(tableName, constraintName)
         {
             if (columnNames.NullOrEmpty())
@@ -117,12 +96,9 @@ public sealed class Constraints : ITemplateParameter
         public string ColumnNames { get; }
     }
 
-    /// <summary>
-    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
-    /// </summary>
-    public sealed class ForeignKey : TableConstraint
+    public sealed class ForeignKeyRow : TableConstraint
     {
-        public ForeignKey(
+        public ForeignKeyRow(
             Identifier childTableName,
             string childConstraintName,
             IEnumerable<string> childColumnNames,
@@ -180,11 +156,12 @@ public sealed class Constraints : ITemplateParameter
     }
 
     /// <summary>
-    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// A check-constraint row. Named distinctly from <see cref="Table.CheckConstraint"/> so the JSON
+    /// source generator emits non-colliding metadata.
     /// </summary>
-    public sealed class CheckConstraint : TableConstraint
+    public sealed class CheckConstraintRow : TableConstraint
     {
-        public CheckConstraint(Identifier tableName, string constraintName, string definition)
+        public CheckConstraintRow(Identifier tableName, string constraintName, string definition)
             : base(tableName, constraintName)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(definition);

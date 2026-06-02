@@ -1,29 +1,25 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels;
 
 /// <summary>
-/// Internal. Not intended to be used outside of this assembly. Only required for templating.
+/// The tables summary payload (<c>data/tables.json</c>): the full list of tables for the
+/// client-side <c>DataTable</c> on the Tables page.
 /// </summary>
-public sealed class Tables : ITemplateParameter
+public sealed class Tables
 {
-    public Tables(IEnumerable<Main.Table> tables)
+    public Tables(IReadOnlyCollection<Main.Table> tables)
     {
         if (tables.NullOrAnyNull())
             throw new ArgumentNullException(nameof(tables));
 
-        TablesCount = tables.UCount();
-        TablesTableClass = TablesCount > 0 ? CssClasses.DataTableClass : string.Empty;
+        TablesCount = (uint)tables.Count;
         AllTables = tables;
     }
 
-    public ReportTemplate Template { get; } = ReportTemplate.Tables;
-
     public uint TablesCount { get; }
 
-    public HtmlString TablesTableClass { get; }
-
-    public IEnumerable<Main.Table> AllTables { get; }
+    public IReadOnlyCollection<Main.Table> AllTables { get; }
 }

@@ -1,12 +1,14 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels;
 
 /// <summary>
-/// Internal. Not intended to be used outside of this assembly. Only required for templating.
+/// The lint summary payload (<c>data/lint.json</c>): lint messages grouped by the rule that
+/// produced them. Each rule carries its title and the plain-text messages it raised.
 /// </summary>
-public sealed class LintResults : ITemplateParameter
+public sealed class LintResults
 {
     public LintResults(IEnumerable<LintRule> lintRules)
     {
@@ -14,18 +16,16 @@ public sealed class LintResults : ITemplateParameter
         LintRulesCount = lintRules.UCount();
     }
 
-    public ReportTemplate Template { get; } = ReportTemplate.Lint;
-
     public IEnumerable<LintRule> LintRules { get; }
 
     public uint LintRulesCount { get; }
 
     /// <summary>
-    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// A group of lint messages produced by a single rule.
     /// </summary>
     public sealed class LintRule
     {
-        public LintRule(string ruleTitle, IEnumerable<HtmlString> messages)
+        public LintRule(string ruleTitle, IEnumerable<string> messages)
         {
             RuleTitle = ruleTitle ?? throw new ArgumentNullException(nameof(ruleTitle));
             Messages = messages ?? throw new ArgumentNullException(nameof(messages));
@@ -34,7 +34,7 @@ public sealed class LintResults : ITemplateParameter
 
         public string RuleTitle { get; }
 
-        public IEnumerable<HtmlString> Messages { get; }
+        public IEnumerable<string> Messages { get; }
 
         public uint MessageCount { get; }
     }

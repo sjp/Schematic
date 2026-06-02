@@ -1,14 +1,14 @@
-﻿using System;
-using System.Globalization;
+using System;
 using LanguageExt;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels;
 
 /// <summary>
-/// Internal. Not intended to be used outside of this assembly. Only required for templating.
+/// The per-sequence detail payload (<c>data/sequences/&lt;safeKey&gt;.json</c>): the sequence's
+/// generation parameters.
 /// </summary>
-public sealed class Sequence : ITemplateParameter
+public sealed class Sequence
 {
     public Sequence(
         Identifier sequenceName,
@@ -17,37 +17,35 @@ public sealed class Sequence : ITemplateParameter
         Option<decimal> minValue,
         Option<decimal> maxValue,
         int cache,
-        bool cycle,
-        string rootPath
+        bool cycle
     )
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
 
         Name = sequenceName.ToVisibleName();
-        RootPath = rootPath ?? throw new ArgumentNullException(nameof(rootPath));
+        SequenceUrl = UrlRouter.GetSequenceUrl(sequenceName);
+
         Start = start;
         Increment = increment;
-        MinValueText = minValue.Match(static mv => mv.ToString(CultureInfo.InvariantCulture), static () => string.Empty);
-        MaxValueText = maxValue.Match(static mv => mv.ToString(CultureInfo.InvariantCulture), static () => string.Empty);
+        MinValue = minValue.MatchUnsafe(static mv => mv, static () => (decimal?)null);
+        MaxValue = maxValue.MatchUnsafe(static mv => mv, static () => (decimal?)null);
         Cache = cache;
-        CycleText = cycle ? "✓" : "✗";
+        Cycle = cycle;
     }
 
-    public ReportTemplate Template { get; } = ReportTemplate.Sequence;
-
-    public string RootPath { get; }
-
     public string Name { get; }
+
+    public string SequenceUrl { get; }
 
     public decimal Start { get; }
 
     public decimal Increment { get; }
 
-    public string MinValueText { get; }
+    public decimal? MinValue { get; }
 
-    public string MaxValueText { get; }
+    public decimal? MaxValue { get; }
 
     public int Cache { get; }
 
-    public string CycleText { get; }
+    public bool Cycle { get; }
 }

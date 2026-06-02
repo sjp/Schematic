@@ -18,11 +18,6 @@
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
-    <PackageReference Include="RazorLight" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Html\Templates\*.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,16 +27,18 @@
   </ItemGroup>
 
   <PropertyGroup>
+    <UiContentDir>$(MSBuildThisFileDirectory)/ui</UiContentDir>
+
     <!-- File with mtime of last successful npm install -->
-    <NpmInstallStampFile>node_modules/.install-stamp</NpmInstallStampFile>
-    <GulpBuildStampFile>node_modules/.gulp-build-stamp</GulpBuildStampFile>
+    <NpmInstallStampFile>$(UiContentDir)/node_modules/.install-stamp</NpmInstallStampFile>
+    <ViteBuildStampFile>$(UiContentDir)/node_modules/.vite-build-stamp</ViteBuildStampFile>
 
     <NpmExitCode></NpmExitCode>
     <NpmExpectedExitCode>1</NpmExpectedExitCode>
   </PropertyGroup>
 
   <ItemGroup>
-    <GulpSourceFiles Include="package.json;package-lock.json;gulpfile.babel.js;Source/**/*.*" />
+    <ViteSourceFiles Include="package.json;package-lock.json;ui/**/*.*" />
   </ItemGroup>
 
   <Target Name="CheckNpmExists">
@@ -51,24 +48,37 @@
   </Target>
 
   <Target Name="NpmClean" BeforeTargets="BeforeClean" DependsOnTargets="CheckNpmExists">
-    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm ci" WorkingDirectory="$(MSBuildThisFileDirectory)" />
-    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm run clean" WorkingDirectory="$(MSBuildThisFileDirectory)" />
+    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm ci" WorkingDirectory="$(UiContentDir)" />
+    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm run clean" WorkingDirectory="$(UiContentDir)" />
     <Message Condition="'$(NpmExitCode)' != '$(NpmExpectedExitCode)'" Text="npm is not available. Cleaning of front-end code will not occur." />
   </Target>
 
-  <Target Name="NpmBuild" BeforeTargets="GulpBuild" DependsOnTargets="CheckNpmExists" Inputs="package.json" Outputs="$(NpmInstallStampFile)">
-    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm ci" WorkingDirectory="$(MSBuildThisFileDirectory)" />
+  <Target Name="NpmCi" BeforeTargets="ViteBuild" DependsOnTargets="CheckNpmExists" Inputs="package.json" Outputs="$(NpmInstallStampFile)">
+    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm ci" WorkingDirectory="$(UiContentDir)" />
     <Touch Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Files="$(NpmInstallStampFile)" AlwaysCreate="true" />
     <Message Condition="'$(NpmExitCode)' != '$(NpmExpectedExitCode)'" Text="npm is not available. Building of front-end code will not occur." />
   </Target>
 
-  <Target Name="GulpBuild" BeforeTargets="BeforeBuild" Inputs="@(GulpSourceFiles)" Outputs="$(GulpBuildStampFile)">
-    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm run build" WorkingDirectory="$(MSBuildThisFileDirectory)" />
-    <Touch Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Files="$(GulpBuildStampFile)" AlwaysCreate="true" />
-    <Message Condition="'$(NpmExitCode)' != '$(NpmExpectedExitCode)'" Text="npm and gulp are not available. A gulp build will not occur." />
+  <Target Name="ViteBuild" BeforeTargets="BeforeBuild" Inputs="@(ViteSourceFiles)" Outputs="$(ViteBuildStampFile)">
+    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm run build" WorkingDirectory="$(UiContentDir)" />
+    <Touch Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Files="$(ViteBuildStampFile)" AlwaysCreate="true" />
+    <Message Condition="'$(NpmExitCode)' != '$(NpmExpectedExitCode)'" Text="npm is not available. A vite build will not occur." />
+  </Target>
 
+  <!-- Embed the Vite build output (ui/dist) as assembly resources so AssetExporter's
+       EmbeddedFileProvider(assembly, "SJP.Schematic.Reporting.assets") can extract the
+       React shell and assets at generate time. Mirrors the original Gulp
+       trick. The Link maps each ui/dist file under an "assets/" prefix, so resource names
+       resolve to "SJP.Schematic.Reporting.assets.<path>" (ui/dist/index.html becomes
+       ...assets.index.html; ui/dist/assets/app-[hash].js becomes ...assets.assets.app-[hash].js).
+       Runs after ViteBuild (before CoreCompile) and is gated on npm being available, so an
+       npm-less build is a no-op (the embed is simply skipped); flag for CI. -->
+  <Target Name="EmbedUiDist" AfterTargets="ViteBuild">
     <ItemGroup Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'">
-      <EmbeddedResource Include="assets\**\*.*" />
+      <_UiDist Include="ui/dist/**/*.*" />
+      <EmbeddedResource Include="@(_UiDist)">
+        <Link>assets/%(RecursiveDir)%(Filename)%(Extension)</Link>
+      </EmbeddedResource>
     </ItemGroup>
   </Target>
 

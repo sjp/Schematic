@@ -1,16 +1,16 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Web;
 using LanguageExt;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels;
 
 /// <summary>
-/// Internal. Not intended to be used outside of this assembly. Only required for templating.
+/// The dashboard summary payload (<c>data/main.json</c>): database name/version plus the
+/// schema-wide object counts. The per-type lists live in their own summary files
+/// (<c>tables.json</c>, <c>views.json</c>, …); this only carries what the dashboard renders.
 /// </summary>
-public sealed class Main : ITemplateParameter
+public sealed class Main
 {
     public Main(
         string? databaseName,
@@ -18,12 +18,12 @@ public sealed class Main : ITemplateParameter
         uint columnsCount,
         uint constraintsCount,
         uint indexesCount,
-        IEnumerable<string> schemas,
-        IEnumerable<Table> tables,
-        IEnumerable<View> views,
-        IEnumerable<Sequence> sequences,
-        IEnumerable<Synonym> synonyms,
-        IEnumerable<Routine> routines
+        IReadOnlyCollection<string> schemas,
+        uint tablesCount,
+        uint viewsCount,
+        uint sequencesCount,
+        uint synonymsCount,
+        uint routinesCount
     )
     {
         DatabaseName = databaseName ?? "Unnamed Database";
@@ -34,36 +34,18 @@ public sealed class Main : ITemplateParameter
         IndexesCount = indexesCount;
 
         Schemas = schemas ?? throw new ArgumentNullException(nameof(schemas));
-        SchemasCount = schemas.UCount();
+        SchemasCount = (uint)schemas.Count;
 
-        Tables = tables ?? throw new ArgumentNullException(nameof(tables));
-        TablesCount = tables.UCount();
-        TablesTableClass = TablesCount > 0 ? CssClasses.DataTableClass : string.Empty;
-
-        Views = views ?? throw new ArgumentNullException(nameof(views));
-        ViewsCount = views.UCount();
-        ViewsTableClass = ViewsCount > 0 ? CssClasses.DataTableClass : string.Empty;
-
-        Sequences = sequences ?? throw new ArgumentNullException(nameof(sequences));
-        SequencesCount = sequences.UCount();
-        SequencesTableClass = SequencesCount > 0 ? CssClasses.DataTableClass : string.Empty;
-
-        Synonyms = synonyms ?? throw new ArgumentNullException(nameof(synonyms));
-        SynonymsCount = synonyms.UCount();
-        SynonymsTableClass = SynonymsCount > 0 ? CssClasses.DataTableClass : string.Empty;
-
-        Routines = routines ?? throw new ArgumentNullException(nameof(routines));
-        RoutinesCount = routines.UCount();
-        RoutinesTableClass = RoutinesCount > 0 ? CssClasses.DataTableClass : string.Empty;
+        TablesCount = tablesCount;
+        ViewsCount = viewsCount;
+        SequencesCount = sequencesCount;
+        SynonymsCount = synonymsCount;
+        RoutinesCount = routinesCount;
     }
-
-    public ReportTemplate Template { get; } = ReportTemplate.Main;
 
     public string DatabaseName { get; }
 
     public string DatabaseVersion { get; }
-
-    public DateTime GenerationTime => DateTime.Now;
 
     public uint ColumnsCount { get; }
 
@@ -71,42 +53,22 @@ public sealed class Main : ITemplateParameter
 
     public uint IndexesCount { get; }
 
-    public IEnumerable<string> Schemas { get; }
+    public IReadOnlyCollection<string> Schemas { get; }
 
     public uint SchemasCount { get; }
 
-    public IEnumerable<Table> Tables { get; }
-
     public uint TablesCount { get; }
-
-    public HtmlString TablesTableClass { get; }
-
-    public IEnumerable<View> Views { get; }
 
     public uint ViewsCount { get; }
 
-    public HtmlString ViewsTableClass { get; }
-
-    public IEnumerable<Sequence> Sequences { get; }
-
     public uint SequencesCount { get; }
-
-    public HtmlString SequencesTableClass { get; }
-
-    public IEnumerable<Synonym> Synonyms { get; }
 
     public uint SynonymsCount { get; }
 
-    public HtmlString SynonymsTableClass { get; }
-
-    public IEnumerable<Routine> Routines { get; }
-
     public uint RoutinesCount { get; }
 
-    public HtmlString RoutinesTableClass { get; }
-
     /// <summary>
-    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// A row in the tables summary list (<c>data/tables.json</c>). Shared by <see cref="Tables"/>.
     /// </summary>
     public sealed class Table
     {
@@ -143,7 +105,7 @@ public sealed class Main : ITemplateParameter
     }
 
     /// <summary>
-    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// A row in the views summary list (<c>data/views.json</c>). Shared by <see cref="Views"/>.
     /// </summary>
     public sealed class View
     {
@@ -154,7 +116,7 @@ public sealed class Main : ITemplateParameter
             Name = viewName.ToVisibleName();
             ViewUrl = UrlRouter.GetViewUrl(viewName);
             ColumnCount = columnCount;
-            MaterializedText = isMaterialized ? "✓" : "✗";
+            IsMaterialized = isMaterialized;
         }
 
         public string Name { get; }
@@ -163,11 +125,11 @@ public sealed class Main : ITemplateParameter
 
         public uint ColumnCount { get; }
 
-        public string MaterializedText { get; }
+        public bool IsMaterialized { get; }
     }
 
     /// <summary>
-    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// A row in the sequences summary list (<c>data/sequences.json</c>). Shared by <see cref="Sequences"/>.
     /// </summary>
     public sealed class Sequence
     {
@@ -188,31 +150,33 @@ public sealed class Main : ITemplateParameter
 
             Start = start;
             Increment = increment;
-            MinValueText = minValue.Match(static mv => mv.ToString(CultureInfo.InvariantCulture), static () => string.Empty);
-            MaxValueText = maxValue.Match(static mv => mv.ToString(CultureInfo.InvariantCulture), static () => string.Empty);
+            MinValue = minValue.MatchUnsafe(static mv => mv, static () => (decimal?)null);
+            MaxValue = maxValue.MatchUnsafe(static mv => mv, static () => (decimal?)null);
             Cache = cache;
-            CycleText = cycle ? "✓" : "✗";
+            Cycle = cycle;
         }
-
-        public decimal Start { get; }
-
-        public decimal Increment { get; }
-
-        public string MinValueText { get; }
-
-        public string MaxValueText { get; }
-
-        public int Cache { get; }
 
         public string Name { get; }
 
         public string SequenceUrl { get; }
 
-        public string CycleText { get; }
+        public decimal Start { get; }
+
+        public decimal Increment { get; }
+
+        public decimal? MinValue { get; }
+
+        public decimal? MaxValue { get; }
+
+        public int Cache { get; }
+
+        public bool Cycle { get; }
     }
 
     /// <summary>
-    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// A row in the synonyms summary list (<c>data/synonyms.json</c>). Shared by <see cref="Synonyms"/>.
+    /// The synonym target is a structured <c>{ targetName, targetUrl? }</c> pair (the hash route is
+    /// omitted when the target cannot be resolved to a known object).
     /// </summary>
     public sealed class Synonym
     {
@@ -224,22 +188,21 @@ public sealed class Main : ITemplateParameter
             Name = synonymName.ToVisibleName();
             SynonymUrl = UrlRouter.GetSynonymUrl(synonymName);
 
-            var targetName = target.ToVisibleName();
-            TargetText = targetUrl.Match(
-                uri => $"<a href=\"{uri}\">{HttpUtility.HtmlEncode(targetName)}</a>",
-                () => HttpUtility.HtmlEncode(targetName)
-            );
+            TargetName = target.ToVisibleName();
+            TargetUrl = targetUrl.MatchUnsafe(static uri => uri.ToString(), static () => (string?)null);
         }
 
         public string Name { get; }
 
         public string SynonymUrl { get; }
 
-        public HtmlString TargetText { get; }
+        public string TargetName { get; }
+
+        public string? TargetUrl { get; }
     }
 
     /// <summary>
-    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// A row in the routines summary list (<c>data/routines.json</c>). Shared by <see cref="Routines"/>.
     /// </summary>
     public sealed class Routine
     {

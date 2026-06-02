@@ -25,8 +25,6 @@ internal sealed class TableModelMapper
 
     private RelationshipFinder RelationshipFinder { get; }
 
-    private const string RootPath = "../";
-
     public Table Map(IRelationalDatabaseTable table)
     {
         ArgumentNullException.ThrowIfNull(table);
@@ -70,8 +68,7 @@ internal sealed class TableModelMapper
                         childKeyName,
                         parentKey.ParentTable,
                         colName,
-                        qualifiedColumnName,
-                        RootPath
+                        qualifiedColumnName
                     ));
 
                 columnParentKeys.AddRange(columnFks);
@@ -97,8 +94,7 @@ internal sealed class TableModelMapper
                         childKeyName,
                         childKey.ChildTable,
                         colName,
-                        qualifiedColumnName,
-                        RootPath
+                        qualifiedColumnName
                     ));
 
                 columnChildKeys.AddRange(columnFks);
@@ -149,8 +145,7 @@ internal sealed class TableModelMapper
                 pk.ParentKey.Name.Match(static name => name.LocalName, static () => string.Empty),
                 pk.ParentKey.Columns.Select(static c => c.Name.LocalName).ToList(),
                 pk.DeleteAction,
-                pk.UpdateAction,
-                RootPath
+                pk.UpdateAction
             ));
 
         var renderChecks = checks.ConvertAll(c =>
@@ -161,8 +156,7 @@ internal sealed class TableModelMapper
 
         var renderTriggers = triggers.ConvertAll(tr =>
             new Table.Trigger(
-                table.Name,
-                tr.Name.LocalName,
+                tr.Name,
                 tr.Definition,
                 tr.QueryTiming,
                 tr.TriggerEvent
@@ -195,7 +189,6 @@ internal sealed class TableModelMapper
             renderIndexes,
             renderTriggers,
             diagrams,
-            RootPath,
             rowCount
         );
     }

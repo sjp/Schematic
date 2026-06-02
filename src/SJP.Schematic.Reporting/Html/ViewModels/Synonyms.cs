@@ -1,13 +1,14 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels;
 
 /// <summary>
-/// Internal. Not intended to be used outside of this assembly. Only required for templating.
+/// The synonyms summary payload (<c>data/synonyms.json</c>): the schema's synonyms and the objects
+/// they alias.
 /// </summary>
-public sealed class Synonyms : ITemplateParameter
+public sealed class Synonyms
 {
     public Synonyms(IEnumerable<Main.Synonym> synonyms)
     {
@@ -15,15 +16,10 @@ public sealed class Synonyms : ITemplateParameter
             throw new ArgumentNullException(nameof(synonyms));
 
         SynonymsCount = synonyms.UCount();
-        SynonymsTableClass = SynonymsCount > 0 ? CssClasses.DataTableClass : string.Empty;
         AllSynonyms = synonyms;
     }
 
-    public ReportTemplate Template { get; } = ReportTemplate.Synonyms;
-
     public uint SynonymsCount { get; }
-
-    public HtmlString SynonymsTableClass { get; }
 
     public IEnumerable<Main.Synonym> AllSynonyms { get; }
 }

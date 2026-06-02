@@ -16,8 +16,7 @@ internal sealed class SequenceModelMapper
             sequence.MinValue,
             sequence.MaxValue,
             sequence.Cache,
-            sequence.Cycle,
-            "../"
+            sequence.Cycle
         );
     }
 }

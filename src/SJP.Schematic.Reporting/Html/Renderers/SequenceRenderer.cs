@@ -1,67 +1,59 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Reporting.Html.ViewModels;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
+using SJP.Schematic.Reporting.Serialization;
 
 namespace SJP.Schematic.Reporting.Html.Renderers;
 
-internal sealed class SequenceRenderer : ITemplateRenderer
+internal sealed class SequenceRenderer : IDataRenderer
 {
     public SequenceRenderer(
-        IIdentifierDefaults identifierDefaults,
-        IHtmlFormatter formatter,
         IEnumerable<IDatabaseSequence> sequences,
+        JsonDataWriter jsonWriter,
+        BundleBuilder bundle,
         DirectoryInfo exportDirectory
     )
     {
         Sequences = sequences ?? throw new ArgumentNullException(nameof(sequences));
-        IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
-        Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
+        JsonWriter = jsonWriter ?? throw new ArgumentNullException(nameof(jsonWriter));
+        Bundle = bundle ?? throw new ArgumentNullException(nameof(bundle));
 
         ArgumentNullException.ThrowIfNull(exportDirectory);
-
-        ExportDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "sequences"));
+        DataDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "data", "sequences"));
     }
-
-    private IIdentifierDefaults IdentifierDefaults { get; }
-
-    private IHtmlFormatter Formatter { get; }
 
     private IEnumerable<IDatabaseSequence> Sequences { get; }
 
-    private DirectoryInfo ExportDirectory { get; }
+    private JsonDataWriter JsonWriter { get; }
+
+    private BundleBuilder Bundle { get; }
+
+    private DirectoryInfo DataDirectory { get; }
 
     public Task RenderAsync(CancellationToken cancellationToken = default)
     {
         var mapper = new SequenceModelMapper();
 
-        var sequenceTasks = Sequences.Select(async sequence =>
-        {
-            var viewModel = mapper.Map(sequence);
-            var renderedSequence = await Formatter.RenderTemplateAsync(viewModel, cancellationToken);
-
-            var databaseName = !IdentifierDefaults.Database.IsNullOrWhiteSpace()
-                ? IdentifierDefaults.Database + " Database"
-                : "Database";
-            var pageTitle = sequence.Name.ToVisibleName() + " · Sequence · " + databaseName;
-            var sequenceContainer = new Container(renderedSequence, pageTitle, "../");
-            var renderedPage = await Formatter.RenderTemplateAsync(sequenceContainer, cancellationToken);
-
-            var outputPath = Path.Combine(ExportDirectory.FullName, sequence.Name.ToSafeKey() + ".html");
-            if (!ExportDirectory.Exists)
-                ExportDirectory.Create();
-
-            await using var writer = File.CreateText(outputPath);
-            await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken);
-            await writer.FlushAsync(cancellationToken);
-        });
+        var sequenceTasks = new List<Task>();
+        foreach (var sequence in Sequences)
+            sequenceTasks.Add(RenderSequenceAsync(sequence, mapper, cancellationToken));
 
         return Task.WhenAll(sequenceTasks);
+    }
+
+    private async Task RenderSequenceAsync(IDatabaseSequence sequence, SequenceModelMapper mapper, CancellationToken cancellationToken)
+    {
+        var viewModel = mapper.Map(sequence);
+
+        var safeKey = sequence.Name.ToSafeKey();
+        var json = JsonWriter.Serialize(viewModel);
+        Bundle.AddDetail("sequence", safeKey, json);
+
+        var outputFile = new FileInfo(Path.Combine(DataDirectory.FullName, safeKey + ".json"));
+        await JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
     }
 }

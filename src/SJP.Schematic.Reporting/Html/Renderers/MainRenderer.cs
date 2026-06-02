@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,40 +7,37 @@ using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Reporting.Html.ViewModels;
-using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
+using SJP.Schematic.Reporting.Serialization;
 
 namespace SJP.Schematic.Reporting.Html.Renderers;
 
-internal sealed class MainRenderer : ITemplateRenderer
+internal sealed class MainRenderer : IDataRenderer
 {
     public MainRenderer(
         IRelationalDatabase database,
-        IHtmlFormatter formatter,
         IEnumerable<IRelationalDatabaseTable> tables,
         IEnumerable<IDatabaseView> views,
         IEnumerable<IDatabaseSequence> sequences,
         IEnumerable<IDatabaseSynonym> synonyms,
         IEnumerable<IDatabaseRoutine> routines,
-        IReadOnlyDictionary<Identifier, ulong> rowCounts,
         string dbVersion,
+        JsonDataWriter jsonWriter,
+        BundleBuilder bundle,
         DirectoryInfo exportDirectory)
     {
+        Database = database ?? throw new ArgumentNullException(nameof(database));
         Tables = tables ?? throw new ArgumentNullException(nameof(tables));
         Views = views ?? throw new ArgumentNullException(nameof(views));
         Sequences = sequences ?? throw new ArgumentNullException(nameof(sequences));
         Synonyms = synonyms ?? throw new ArgumentNullException(nameof(synonyms));
         Routines = routines ?? throw new ArgumentNullException(nameof(routines));
-
-        Database = database ?? throw new ArgumentNullException(nameof(database));
-        Formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
-        RowCounts = rowCounts ?? throw new ArgumentNullException(nameof(rowCounts));
         DatabaseDisplayVersion = dbVersion;
+        JsonWriter = jsonWriter ?? throw new ArgumentNullException(nameof(jsonWriter));
+        Bundle = bundle ?? throw new ArgumentNullException(nameof(bundle));
         ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
     }
 
     private IRelationalDatabase Database { get; }
-
-    private IHtmlFormatter Formatter { get; }
 
     private IEnumerable<IRelationalDatabaseTable> Tables { get; }
 
@@ -52,83 +49,53 @@ internal sealed class MainRenderer : ITemplateRenderer
 
     private IEnumerable<IDatabaseRoutine> Routines { get; }
 
-    private IReadOnlyDictionary<Identifier, ulong> RowCounts { get; }
-
     private string DatabaseDisplayVersion { get; }
+
+    private JsonDataWriter JsonWriter { get; }
+
+    private BundleBuilder Bundle { get; }
 
     private DirectoryInfo ExportDirectory { get; }
 
     public async Task RenderAsync(CancellationToken cancellationToken = default)
     {
-        var mapper = new MainModelMapper();
-
         var columns = 0U;
         var constraints = 0U;
         var indexesCount = 0U;
-        var tableViewModels = new List<Main.Table>();
+        var tablesCount = 0U;
 
         var tableNames = new List<Identifier>();
-
         foreach (var table in Tables)
         {
-            if (!RowCounts.TryGetValue(table.Name, out var rowCount))
-                rowCount = 0;
+            tablesCount++;
 
-            var renderTable = mapper.Map(table, rowCount);
+            var uniqueKeyCount = table.GetUniqueKeyLookup().UCount();
+            var checksCount = table.GetCheckLookup().UCount();
+            indexesCount += table.GetIndexLookup().UCount();
 
-            var uniqueKeyLookup = table.GetUniqueKeyLookup();
-            var uniqueKeyCount = uniqueKeyLookup.UCount();
-
-            var checksLookup = table.GetCheckLookup();
-            var checksCount = checksLookup.UCount();
-
-            var indexesLookup = table.GetIndexLookup();
-            var indexCount = indexesLookup.UCount();
-            indexesCount += indexCount;
-
-            await table.PrimaryKey.IfSomeAsync(_ => constraints++);
+            await table.PrimaryKey.IfSomeAsync(_ => constraints++).ConfigureAwait(false);
 
             constraints += uniqueKeyCount;
-            constraints += renderTable.ParentsCount;
+            constraints += table.ParentKeys.UCount();
             constraints += checksCount;
 
-            columns += renderTable.ColumnCount;
+            columns += table.Columns.UCount();
 
-            tableViewModels.Add(renderTable);
             tableNames.Add(table.Name);
         }
 
         var viewNames = new List<Identifier>();
-        var viewViewModels = new List<Main.View>();
+        var viewsCount = 0U;
         foreach (var view in Views)
         {
-            var vm = mapper.Map(view);
-            viewViewModels.Add(vm);
+            viewsCount++;
+            columns += view.Columns.UCount();
             viewNames.Add(view.Name);
         }
-        columns += (uint)viewViewModels.Sum(static v => v.ColumnCount);
 
-        var sequenceNames = new List<Identifier>();
-        var sequenceViewModels = new List<Main.Sequence>();
-        foreach (var sequence in Sequences)
-        {
-            var vm = mapper.Map(sequence);
-            sequenceViewModels.Add(vm);
-            sequenceNames.Add(sequence.Name);
-        }
-
-        var routineNames = new List<Identifier>();
-        var routineViewModels = new List<Main.Routine>();
-        foreach (var routine in Routines)
-        {
-            var vm = mapper.Map(routine);
-            routineViewModels.Add(vm);
-            routineNames.Add(routine.Name);
-        }
-
+        var sequenceNames = Sequences.Select(static s => s.Name).ToList();
+        var routineNames = Routines.Select(static r => r.Name).ToList();
         var synonymNames = Synonyms.Select(static s => s.Name).ToList();
-        var synonymTargets = new SynonymTargets(tableNames, viewNames, sequenceNames, synonymNames, routineNames);
-        var synonymViewModels = Synonyms.Select(s => mapper.Map(s, synonymTargets)).ToList();
 
         var schemas = tableNames
             .Union(viewNames)
@@ -138,40 +105,28 @@ internal sealed class MainRenderer : ITemplateRenderer
             .Select(static n => n.Schema)
             .Where(static n => n != null)
             .Distinct(StringComparer.Ordinal)
-            .Where(static s => s != null)
             .Select(static s => s!)
             .Order(StringComparer.Ordinal)
             .ToList();
 
-        var templateParameter = new Main(
+        var mainModel = new Main(
             Database.IdentifierDefaults.Database,
             DatabaseDisplayVersion ?? string.Empty,
             columns,
             constraints,
             indexesCount,
             schemas,
-            tableViewModels,
-            viewViewModels,
-            sequenceViewModels,
-            synonymViewModels,
-            routineViewModels
+            tablesCount,
+            viewsCount,
+            (uint)sequenceNames.Count,
+            (uint)synonymNames.Count,
+            (uint)routineNames.Count
         );
 
-        var renderedMain = await Formatter.RenderTemplateAsync(templateParameter, cancellationToken);
+        var json = JsonWriter.Serialize(mainModel);
+        Bundle.AddSummary("main", json);
 
-        var databaseName = !Database.IdentifierDefaults.Database.IsNullOrWhiteSpace()
-            ? Database.IdentifierDefaults.Database + " Database"
-            : "Database";
-        var pageTitle = "Home · " + databaseName;
-        var mainContainer = new Container(renderedMain, pageTitle, string.Empty);
-        var renderedPage = await Formatter.RenderTemplateAsync(mainContainer, cancellationToken);
-
-        if (!ExportDirectory.Exists)
-            ExportDirectory.Create();
-        var outputPath = Path.Combine(ExportDirectory.FullName, "index.html");
-
-        await using var writer = File.CreateText(outputPath);
-        await writer.WriteAsync(renderedPage.AsMemory(), cancellationToken);
-        await writer.FlushAsync(cancellationToken);
+        var outputFile = new FileInfo(Path.Combine(ExportDirectory.FullName, "data", "main.json"));
+        await JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
     }
 }

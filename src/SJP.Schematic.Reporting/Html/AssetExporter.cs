@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -38,14 +36,6 @@ internal sealed class AssetExporter
             var relativePath = FileNameToRelativePath(resourceFile.Name);
             var qualifiedPath = Path.Combine(directory.FullName, relativePath);
             var targetFile = new FileInfo(qualifiedPath);
-            var isGzipped = string.Equals(targetFile.Extension, ".gz", StringComparison.OrdinalIgnoreCase);
-            if (isGzipped)
-            {
-                var gzRemovedFileName = Path.GetFileNameWithoutExtension(targetFile.Name);
-                var dirName = Path.GetDirectoryName(targetFile.FullName) ?? Path.GetPathRoot(targetFile.FullName) ?? string.Empty;
-                var fullPath = Path.Combine(dirName, gzRemovedFileName);
-                targetFile = new FileInfo(fullPath);
-            }
 
             if (targetFile.Exists && overwrite)
                 targetFile.Delete();
@@ -55,17 +45,8 @@ internal sealed class AssetExporter
 
             await using var stream = targetFile.OpenWrite();
             await using var resourceStream = resourceFile.CreateReadStream();
-            if (isGzipped)
-            {
-                await using var gzipStream = new GZipStream(resourceStream, CompressionMode.Decompress);
-                await gzipStream.CopyToAsync(stream, cancellationToken);
-                await stream.FlushAsync(cancellationToken);
-            }
-            else
-            {
-                await resourceStream.CopyToAsync(stream, cancellationToken);
-                await stream.FlushAsync(cancellationToken);
-            }
+            await resourceStream.CopyToAsync(stream, cancellationToken);
+            await stream.FlushAsync(cancellationToken);
         }
     }
 
@@ -73,9 +54,13 @@ internal sealed class AssetExporter
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
 
-        var pieces = fileName.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+        // The embedded resource name (after the assembly's "...assets" base namespace) flattens
+        // subdirectories into dots, e.g. "assets.app-<hash>.js". Vite emits content-hashed names
+        // with a single dot before the extension, so the last two pieces are always the file name
+        // and extension, and any leading pieces are directory segments.
+        var pieces = fileName.Split('.', StringSplitOptions.RemoveEmptyEntries);
 
-        // not a file path, only a file name
+        // not a file path, only a file name (e.g. "index.html")
         if (pieces.Length < 3)
             return fileName;
 
@@ -83,27 +68,8 @@ internal sealed class AssetExporter
         var dirName = Path.Combine(dirNamePieces);
         var fileNameWithExtension = pieces[^2] + "." + pieces[^1];
 
-        // assuming no more than 2 extensions -- refactor if more are needed
-        if (!_nonStandardExtensions.Contains("." + fileNameWithExtension, StringComparer.OrdinalIgnoreCase))
-            return Path.Combine(dirName, fileNameWithExtension);
-
-        dirNamePieces = pieces.Take(pieces.Length - 3).ToArray();
-        dirName = Path.Combine(dirNamePieces);
-        fileNameWithExtension = pieces[^3] + "." + pieces[^2] + "." + pieces[^1];
-
         return Path.Combine(dirName, fileNameWithExtension);
     }
-
-    private static readonly IEnumerable<string> _nonStandardExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    {
-        ".render.js", // for viz.js
-        ".otf.woff",
-        ".ttf.woff",
-        ".otf.woff2",
-        ".ttf.woff2",
-        ".css.gz",
-        ".js.gz",
-    };
 
     private static readonly IFileProvider _fileProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly(), Assembly.GetExecutingAssembly().GetName().Name + ".assets");
 }
