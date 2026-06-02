@@ -52,17 +52,21 @@ internal sealed class TableRenderer : IDataRenderer
         var diagramsDirectory = new DirectoryInfo(Path.Combine(DataDirectory.FullName, "diagrams"));
         var tablesDataDirectory = new DirectoryInfo(Path.Combine(DataDirectory.FullName, "tables"));
 
+        // Create the shared diagrams directory once, before fanning out, rather than racing on it
+        // from every concurrent table task.
+        if (!diagramsDirectory.Exists)
+            diagramsDirectory.Create();
+
         var graphvizFactory = new GraphvizExecutableFactory();
         using var graphviz = graphvizFactory.GetExecutable();
         var dotRenderer = new DotSvgRenderer(graphviz.DotPath);
 
-        var tableTasks = new List<Task>();
-        foreach (var table in Tables)
-        {
-            tableTasks.Add(RenderTableAsync(table, mapper, dotRenderer, diagramsDirectory, tablesDataDirectory, cancellationToken));
-        }
-
-        await Task.WhenAll(tableTasks).ConfigureAwait(false);
+        // Awaited (not returned) so the graphviz executable stays alive until every table is done.
+        await RenderTaskRunner.RunAllAsync(
+            Tables,
+            static t => $"table '{t.Name.ToVisibleName()}'",
+            (table, ct) => RenderTableAsync(table, mapper, dotRenderer, diagramsDirectory, tablesDataDirectory, ct),
+            cancellationToken).ConfigureAwait(false);
     }
 
     private async Task RenderTableAsync(
@@ -74,9 +78,6 @@ internal sealed class TableRenderer : IDataRenderer
         CancellationToken cancellationToken)
     {
         var tableModel = mapper.Map(table);
-
-        if (!diagramsDirectory.Exists)
-            diagramsDirectory.Create();
 
         foreach (var diagram in tableModel.Diagrams)
         {

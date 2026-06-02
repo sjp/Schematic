@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -61,8 +62,15 @@ public class ReportGenerator
         // Each renderer serializes its viewmodel(s), writes the .json file(s), and registers the
         // same payload string with the shared bundle.
         var renderers = GetRenderers(tables, views, sequences, synonyms, routines, rowCounts, dbVersion, jsonWriter, bundle);
-        var renderTasks = renderers.Select(r => r.RenderAsync(cancellationToken)).ToArray();
+
+        // Render every section, isolating failures so one bad object/section doesn't hide the rest.
+        var failures = new ConcurrentBag<RenderException>();
+        var renderTasks = renderers.Select(r => RenderIsolatedAsync(r, failures, cancellationToken)).ToArray();
         await Task.WhenAll(renderTasks);
+
+        // A partial report would silently omit objects, so surface every failure together and stop
+        // before writing the shell rather than emitting a misleading report.
+        RenderTaskRunner.ThrowIfAnyFailed(failures);
 
         // Write the file:// shim once every payload has been registered, then extract the React shell.
         var bundleFile = new FileInfo(Path.Combine(ExportDirectory.FullName, "data", "bundle.js"));
@@ -70,6 +78,38 @@ public class ReportGenerator
 
         var assetExporter = new AssetExporter();
         await assetExporter.SaveAssetsAsync(ExportDirectory, true, cancellationToken);
+    }
+
+    // Runs a single renderer, recording any failure (rather than throwing) so that sibling
+    // renderers still run. Detail renderers report per-object failures as an AggregateException of
+    // RenderExceptions; those are spliced in flat (prefixed with the renderer) instead of being
+    // re-nested, so the final report is a flat list of every failed object/section. Cancellation is
+    // allowed to propagate so it is not misreported as a render failure.
+    private static async Task RenderIsolatedAsync(IDataRenderer renderer, ConcurrentBag<RenderException> failures, CancellationToken cancellationToken)
+    {
+        var rendererName = renderer.GetType().Name;
+        try
+        {
+            await renderer.RenderAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (AggregateException aggregate)
+        {
+            foreach (var inner in aggregate.InnerExceptions)
+            {
+                if (inner is RenderException re)
+                    failures.Add(new RenderException($"{rendererName}: {re.Target}", re.InnerException!));
+                else
+                    failures.Add(new RenderException(rendererName, inner));
+            }
+        }
+        catch (Exception ex)
+        {
+            failures.Add(new RenderException(rendererName, ex));
+        }
     }
 
     private async Task<IReadOnlyDictionary<Identifier, ulong>> GetRowCountsAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken)

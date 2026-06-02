@@ -54,33 +54,49 @@ internal sealed class RelationshipsRenderer : IDataRenderer
             diagramsDirectory.Create();
 
         var graphvizFactory = new GraphvizExecutableFactory();
+        // Isolate each diagram so a single failed diagram reports its own error and the rest still
+        // render; the summary json references these SVGs, so don't write it if any diagram failed.
+        var failures = new List<RenderException>();
         using (var graphviz = graphvizFactory.GetExecutable())
         {
             var dotRenderer = new DotSvgRenderer(graphviz.DotPath);
 
             foreach (var diagram in viewModel.Diagrams)
             {
-                var svgFilePath = Path.Combine(diagramsDirectory.FullName, diagram.ContainerId + ".svg");
-                var svg = await dotRenderer.RenderToSvgAsync(diagram.Dot, cancellationToken).ConfigureAwait(false);
+                try
+                {
+                    var svgFilePath = Path.Combine(diagramsDirectory.FullName, diagram.ContainerId + ".svg");
+                    var svg = await dotRenderer.RenderToSvgAsync(diagram.Dot, cancellationToken).ConfigureAwait(false);
 
-                var doc = XDocument.Parse(svg, LoadOptions.PreserveWhitespace);
-                // Add hash-route links to nodes first; this reads the safe-key node titles that
-                // ReplaceTitlesWithTableNames then overwrites with the visible table names.
-                doc.RewriteTableNodeUrls();
-                doc.ReplaceTitlesWithTableNames();
+                    var doc = XDocument.Parse(svg, LoadOptions.PreserveWhitespace);
+                    // Add hash-route links to nodes first; this reads the safe-key node titles that
+                    // ReplaceTitlesWithTableNames then overwrites with the visible table names.
+                    doc.RewriteTableNodeUrls();
+                    doc.ReplaceTitlesWithTableNames();
 
-                // The diagram is embedded responsively via <object>, so drop the fixed dimensions.
-                var svgRoot = doc.Root!;
-                svgRoot.Attribute("width")?.Remove();
-                svgRoot.Attribute("height")?.Remove();
+                    // The diagram is embedded responsively via <object>, so drop the fixed dimensions.
+                    var svgRoot = doc.Root!;
+                    svgRoot.Attribute("width")?.Remove();
+                    svgRoot.Attribute("height")?.Remove();
 
-                // Recolour for dark mode in-place; the embedded SVG can't see the app's theme class.
-                doc.AddDarkModeStyles();
+                    // Recolour for dark mode in-place; the embedded SVG can't see the app's theme class.
+                    doc.AddDarkModeStyles();
 
-                await using var svgFileStream = File.Create(svgFilePath);
-                await doc.SaveAsync(svgFileStream, SaveOptions.DisableFormatting, cancellationToken).ConfigureAwait(false);
+                    await using var svgFileStream = File.Create(svgFilePath);
+                    await doc.SaveAsync(svgFileStream, SaveOptions.DisableFormatting, cancellationToken).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    failures.Add(new RenderException($"relationship diagram '{diagram.ContainerId}'", ex));
+                }
             }
         }
+
+        RenderTaskRunner.ThrowIfAnyFailed(failures);
 
         var json = JsonWriter.Serialize(viewModel);
         Bundle.AddSummary("relationships", json);

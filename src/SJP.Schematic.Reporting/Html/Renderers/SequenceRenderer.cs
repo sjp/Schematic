@@ -38,11 +38,11 @@ internal sealed class SequenceRenderer : IDataRenderer
     {
         var mapper = new SequenceModelMapper();
 
-        var sequenceTasks = new List<Task>();
-        foreach (var sequence in Sequences)
-            sequenceTasks.Add(RenderSequenceAsync(sequence, mapper, cancellationToken));
-
-        return Task.WhenAll(sequenceTasks);
+        return RenderTaskRunner.RunAllAsync(
+            Sequences,
+            static s => $"sequence '{s.Name.ToVisibleName()}'",
+            (sequence, ct) => RenderSequenceAsync(sequence, mapper, ct),
+            cancellationToken);
     }
 
     private async Task RenderSequenceAsync(IDatabaseSequence sequence, SequenceModelMapper mapper, CancellationToken cancellationToken)

@@ -42,11 +42,11 @@ internal sealed class SynonymRenderer : IDataRenderer
     {
         var mapper = new SynonymModelMapper();
 
-        var synonymTasks = new List<Task>();
-        foreach (var synonym in Synonyms)
-            synonymTasks.Add(RenderSynonymAsync(synonym, mapper, cancellationToken));
-
-        return Task.WhenAll(synonymTasks);
+        return RenderTaskRunner.RunAllAsync(
+            Synonyms,
+            static s => $"synonym '{s.Name.ToVisibleName()}'",
+            (synonym, ct) => RenderSynonymAsync(synonym, mapper, ct),
+            cancellationToken);
     }
 
     private async Task RenderSynonymAsync(IDatabaseSynonym synonym, SynonymModelMapper mapper, CancellationToken cancellationToken)

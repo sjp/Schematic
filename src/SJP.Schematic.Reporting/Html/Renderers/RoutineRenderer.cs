@@ -38,11 +38,11 @@ internal sealed class RoutineRenderer : IDataRenderer
     {
         var mapper = new RoutineModelMapper();
 
-        var routineTasks = new List<Task>();
-        foreach (var routine in Routines)
-            routineTasks.Add(RenderRoutineAsync(routine, mapper, cancellationToken));
-
-        return Task.WhenAll(routineTasks);
+        return RenderTaskRunner.RunAllAsync(
+            Routines,
+            static r => $"routine '{r.Name.ToVisibleName()}'",
+            (routine, ct) => RenderRoutineAsync(routine, mapper, ct),
+            cancellationToken);
     }
 
     private async Task RenderRoutineAsync(IDatabaseRoutine routine, RoutineModelMapper mapper, CancellationToken cancellationToken)

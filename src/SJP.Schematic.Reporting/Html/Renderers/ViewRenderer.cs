@@ -42,11 +42,11 @@ internal sealed class ViewRenderer : IDataRenderer
     {
         var mapper = new ViewModelMapper();
 
-        var viewTasks = new List<Task>();
-        foreach (var view in Views)
-            viewTasks.Add(RenderViewAsync(view, mapper, cancellationToken));
-
-        return Task.WhenAll(viewTasks);
+        return RenderTaskRunner.RunAllAsync(
+            Views,
+            static v => $"view '{v.Name.ToVisibleName()}'",
+            (view, ct) => RenderViewAsync(view, mapper, ct),
+            cancellationToken);
     }
 
     private async Task RenderViewAsync(IDatabaseView view, ViewModelMapper mapper, CancellationToken cancellationToken)
