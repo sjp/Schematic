@@ -64,10 +64,12 @@ internal sealed class RelationshipsRenderer : IDataRenderer
                 var svg = await dotRenderer.RenderToSvgAsync(diagram.Dot, cancellationToken).ConfigureAwait(false);
 
                 var doc = XDocument.Parse(svg, LoadOptions.PreserveWhitespace);
+                // Add hash-route links to nodes first; this reads the safe-key node titles that
+                // ReplaceTitlesWithTableNames then overwrites with the visible table names.
+                doc.RewriteTableNodeUrls();
                 doc.ReplaceTitlesWithTableNames();
 
                 // The diagram is embedded responsively via <object>, so drop the fixed dimensions.
-                // In-SVG href rewriting (to hash routes) is handled by issue 13.
                 var svgRoot = doc.Root!;
                 svgRoot.Attribute("width")?.Remove();
                 svgRoot.Attribute("height")?.Remove();
