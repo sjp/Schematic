@@ -4,6 +4,9 @@
     <Description>A reporting engine for Schematic. Generates schema reports for databases.</Description>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <Nullable>enable</Nullable>
+    <!-- Emit a manifest of embedded resources so AssetExporter can read the embedded Vite build
+         via ManifestEmbeddedFileProvider, which preserves real relative paths (no dot-flattening). -->
+    <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
   </PropertyGroup>
 
   <ItemGroup>
@@ -66,18 +69,19 @@
   </Target>
 
   <!-- Embed the Vite build output (ui/dist) as assembly resources so AssetExporter's
-       EmbeddedFileProvider(assembly, "SJP.Schematic.Reporting.assets") can extract the
-       React shell and assets at generate time. Mirrors the original Gulp
-       trick. The Link maps each ui/dist file under an "assets/" prefix, so resource names
-       resolve to "SJP.Schematic.Reporting.assets.<path>" (ui/dist/index.html becomes
-       ...assets.index.html; ui/dist/assets/app-[hash].js becomes ...assets.assets.app-[hash].js).
-       Runs after ViteBuild (before CoreCompile) and is gated on npm being available, so an
-       npm-less build is a no-op (the embed is simply skipped); flag for CI. -->
+       ManifestEmbeddedFileProvider can extract the React shell and assets at generate time.
+       The Link sets each resource's logical path relative to the report root, mirroring the
+       ui/dist layout (ui/dist/index.html -> "index.html"; ui/dist/assets/app-[hash].js ->
+       "assets/app-[hash].js"). GenerateEmbeddedFilesManifest records those paths in the
+       embedded manifest, so the provider reconstructs the directory tree exactly — no path
+       parsing required on extraction.
+       Runs after ViteBuild (before the resource pipeline / CoreCompile) and is gated on npm
+       being available, so an npm-less build is a no-op (the embed is simply skipped); flag for CI. -->
   <Target Name="EmbedUiDist" AfterTargets="ViteBuild">
     <ItemGroup Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'">
       <_UiDist Include="ui/dist/**/*.*" />
       <EmbeddedResource Include="@(_UiDist)">
-        <Link>assets/%(RecursiveDir)%(Filename)%(Extension)</Link>
+        <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
       </EmbeddedResource>
     </ItemGroup>
   </Target>

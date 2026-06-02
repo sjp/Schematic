@@ -1,6 +1,5 @@
-﻿using System;
+using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,46 +29,54 @@ internal sealed class AssetExporter
         if (!directory.Exists)
             directory.Create();
 
-        var resourceFiles = _fileProvider.GetDirectoryContents("/");
-        foreach (var resourceFile in resourceFiles)
+        await SaveDirectoryAsync("/", directory.FullName, overwrite, cancellationToken).ConfigureAwait(false);
+    }
+
+    // Recursively copies the embedded Vite build, preserving its directory structure. The manifest
+    // file provider exposes the original relative paths (e.g. "index.html", "assets/app-<hash>.js"),
+    // so the layout maps one-to-one onto the output directory with no path reconstruction.
+    private static async Task SaveDirectoryAsync(string sourcePath, string targetDirectory, bool overwrite, CancellationToken cancellationToken)
+    {
+        foreach (var entry in _fileProvider.GetDirectoryContents(sourcePath))
         {
-            var relativePath = FileNameToRelativePath(resourceFile.Name);
-            var qualifiedPath = Path.Combine(directory.FullName, relativePath);
-            var targetFile = new FileInfo(qualifiedPath);
+            cancellationToken.ThrowIfCancellationRequested();
 
-            if (targetFile.Exists && overwrite)
-                targetFile.Delete();
+            // The provider surfaces its own manifest at the root; it is an implementation detail
+            // of the embedding, not part of the report, so don't copy it out.
+            if (string.Equals(entry.Name, ManifestFileName, StringComparison.Ordinal))
+                continue;
 
-            if (targetFile.Directory != null && !targetFile.Directory.Exists)
-                targetFile.Directory!.Create();
+            // File provider paths are always '/'-separated, independent of the host OS.
+            var childSourcePath = sourcePath == "/"
+                ? "/" + entry.Name
+                : sourcePath + "/" + entry.Name;
 
-            await using var stream = targetFile.OpenWrite();
-            await using var resourceStream = resourceFile.CreateReadStream();
-            await resourceStream.CopyToAsync(stream, cancellationToken);
-            await stream.FlushAsync(cancellationToken);
+            if (entry.IsDirectory)
+            {
+                var childTargetDirectory = Path.Combine(targetDirectory, entry.Name);
+                Directory.CreateDirectory(childTargetDirectory);
+                await SaveDirectoryAsync(childSourcePath, childTargetDirectory, overwrite, cancellationToken).ConfigureAwait(false);
+                continue;
+            }
+
+            var targetFile = new FileInfo(Path.Combine(targetDirectory, entry.Name));
+
+            // overwrite == false means leave an existing file untouched.
+            if (targetFile.Exists && !overwrite)
+                continue;
+
+            if (targetFile.Directory is { Exists: false } parent)
+                parent.Create();
+
+            // FileMode.Create truncates, so a shorter asset never leaves stale trailing bytes.
+            await using var resourceStream = entry.CreateReadStream();
+            await using var fileStream = new FileStream(targetFile.FullName, FileMode.Create, FileAccess.Write, FileShare.None);
+            await resourceStream.CopyToAsync(fileStream, cancellationToken).ConfigureAwait(false);
         }
     }
 
-    private static string FileNameToRelativePath(string fileName)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
+    // Default name emitted by GenerateEmbeddedFilesManifest (see EmbeddedFilesManifestFileName).
+    private const string ManifestFileName = "Microsoft.Extensions.FileProviders.Embedded.Manifest.xml";
 
-        // The embedded resource name (after the assembly's "...assets" base namespace) flattens
-        // subdirectories into dots, e.g. "assets.app-<hash>.js". Vite emits content-hashed names
-        // with a single dot before the extension, so the last two pieces are always the file name
-        // and extension, and any leading pieces are directory segments.
-        var pieces = fileName.Split('.', StringSplitOptions.RemoveEmptyEntries);
-
-        // not a file path, only a file name (e.g. "index.html")
-        if (pieces.Length < 3)
-            return fileName;
-
-        var dirNamePieces = pieces.Take(pieces.Length - 2).ToArray();
-        var dirName = Path.Combine(dirNamePieces);
-        var fileNameWithExtension = pieces[^2] + "." + pieces[^1];
-
-        return Path.Combine(dirName, fileNameWithExtension);
-    }
-
-    private static readonly IFileProvider _fileProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly(), Assembly.GetExecutingAssembly().GetName().Name + ".assets");
+    private static readonly IFileProvider _fileProvider = new ManifestEmbeddedFileProvider(Assembly.GetExecutingAssembly());
 }
