@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+using SJP.Schematic.Dot;
 using SJP.Schematic.Dot.Themes;
 
 namespace SJP.Schematic.Reporting;
@@ -104,20 +105,18 @@ internal static class XDocumentExtensions
     /// Builds the dark-mode override stylesheet by pairing the light theme's colours with the dark theme's.
     /// </summary>
     /// <remarks>
-    /// Only background colours reach the SVG as theme-specific values, so those are remapped by matching the
-    /// light theme's actual colour (whatever it is) — that is what keeps this general rather than tied to one
-    /// palette. Text carries no <c>fill</c> attribute (it defaults to black) and borders/edges are drawn with
-    /// the <c>black</c> keyword regardless of theme, so those are remapped to the dark theme's representative
-    /// foreground/border/edge colours via fixed, Graphviz-shaped selectors. Attribute matching is
-    /// case-insensitive because Graphviz lower-cases hex in its output whereas <see cref="RgbColor"/> emits
-    /// upper-case.
+    /// The recolouring is driven entirely by the two themes: every colour the light theme paints into the SVG
+    /// is matched by its actual value and remapped to the dark theme's equivalent, which is what keeps this
+    /// general rather than tied to one palette. Backgrounds (and edge arrowheads, which Graphviz fills with the
+    /// edge colour) are matched on <c>fill</c>; cell borders and edge lines are matched on <c>stroke</c>. Text
+    /// carries no <c>fill</c> attribute (it defaults to black) so it is lightened with a bare <c>text</c> rule.
+    /// Attribute matching is case-insensitive because Graphviz lower-cases hex in its output whereas
+    /// <see cref="RgbColor"/> emits upper-case.
     /// </remarks>
     private static string BuildDarkModeCss(IGraphTheme light, IGraphTheme dark)
     {
-        // (light → dark) for every background the theme can paint into the SVG. Several entries share a
-        // source colour (header == footer, and graph/table/column backgrounds are usually identical), so the
-        // selectors are de-duplicated by source colour below.
-        var backgroundPairs = new[]
+        // Colours Graphviz emits as `fill`: every background, plus the edge colour (arrowheads are filled).
+        var fillPairs = new[]
         {
             (light.BackgroundColor, dark.BackgroundColor),
             (light.TableBackgroundColor, dark.TableBackgroundColor),
@@ -132,30 +131,42 @@ internal static class XDocumentExtensions
             (light.HighlightedPrimaryKeyHeaderBackgroundColor, dark.HighlightedPrimaryKeyHeaderBackgroundColor),
             (light.HighlightedUniqueKeyHeaderBackgroundColor, dark.HighlightedUniqueKeyHeaderBackgroundColor),
             (light.HighlightedForeignKeyHeaderBackgroundColor, dark.HighlightedForeignKeyHeaderBackgroundColor),
+            (light.EdgeColor, dark.EdgeColor),
+        };
+
+        // Colours Graphviz emits as `stroke`: the table border colours applied to cells, plus the edge lines.
+        var strokePairs = new[]
+        {
+            (light.TableBorderColor, dark.TableBorderColor),
+            (light.HighlightedTableBorderColor, dark.HighlightedTableBorderColor),
+            (light.EdgeColor, dark.EdgeColor),
         };
 
         var builder = new StringBuilder();
         builder.AppendLine("@media (prefers-color-scheme: dark) {");
-
-        // Text, borders and relationship edges are not theme-driven in the DOT output — text has no fill and
-        // defaults to black, while borders/edges/arrowheads are drawn black — so they map to the dark theme's
-        // representative colours via fixed selectors rather than by source colour.
         builder.AppendLine(CultureInfo.InvariantCulture, $"  text {{ fill: {dark.TableForegroundColor}; }}");
-        builder.AppendLine(CultureInfo.InvariantCulture, $"  [stroke=\"black\" i], [stroke=\"#000000\" i] {{ stroke: {dark.TableBorderColor}; }}");
-        builder.AppendLine(CultureInfo.InvariantCulture, $"  [fill=\"black\" i], [fill=\"#000000\" i] {{ fill: {dark.EdgeColor}; }}");
+        AppendColorRules(builder, "fill", fillPairs);
+        AppendColorRules(builder, "stroke", strokePairs);
+        builder.Append('}');
+        return builder.ToString();
+    }
 
+    /// <summary>
+    /// Appends one <c>[property="from" i] { property: to; }</c> rule per colour pair, de-duplicating by source
+    /// colour. Several theme slots commonly share a colour (header == footer; the graph, table and column
+    /// backgrounds are often identical), and the same source must not be emitted twice.
+    /// </summary>
+    private static void AppendColorRules(StringBuilder builder, string property, IEnumerable<(RgbColor From, RgbColor To)> pairs)
+    {
         var mappedSources = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var (from, to) in backgroundPairs)
+        foreach (var (from, to) in pairs)
         {
             var source = from.ToString();
             if (!mappedSources.Add(source))
                 continue;
 
-            builder.AppendLine(CultureInfo.InvariantCulture, $"  [fill=\"{source}\" i] {{ fill: {to}; }}");
+            builder.AppendLine(CultureInfo.InvariantCulture, $"  [{property}=\"{source}\" i] {{ {property}: {to}; }}");
         }
-
-        builder.Append('}');
-        return builder.ToString();
     }
 
     public static void ReplaceTitlesWithTableNames(this XDocument document)

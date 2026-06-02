@@ -55,10 +55,17 @@ internal sealed class TableNode : DotNode
             ? _options.Theme.HighlightedTableBackgroundColor
             : _options.Theme.TableBackgroundColor;
 
+        // Border colour for every cell in this node (Graphviz applies the table's COLOR to all cell
+        // borders). The focal table gets its highlighted border so it stands out from its neighbours.
+        var tableBorderColor = _options.IsHighlighted
+            ? _options.Theme.HighlightedTableBorderColor
+            : _options.Theme.TableBorderColor;
+
         var table = new XElement(HtmlElement.Table,
             new XAttribute(HtmlAttribute.Border, borderSizeText),
             new XAttribute(HtmlAttribute.CellBorder, 1),
             new XAttribute(HtmlAttribute.CellSpacing, 0),
+            new XAttribute(HtmlAttribute.Color, tableBorderColor),
             new XAttribute(HtmlAttribute.BackgroundColor, tableBgColor)
         );
 
@@ -199,6 +206,7 @@ internal sealed class TableNode : DotNode
                 new XAttribute(HtmlAttribute.CellBorder, 1),
                 new XAttribute(HtmlAttribute.CellSpacing, 0),
                 new XAttribute(HtmlAttribute.CellPadding, 4),
+                new XAttribute(HtmlAttribute.Color, tableBorderColor),
                 new XAttribute(HtmlAttribute.BackgroundColor, tableBgColor)
             );
             constraintWrapperCell.Add(constraintTable);

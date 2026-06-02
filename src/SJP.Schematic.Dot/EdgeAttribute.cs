@@ -59,6 +59,14 @@ internal sealed class EdgeAttribute : IEquatable<EdgeAttribute>
         return new EdgeAttribute("arrowtail", arrowStyleStr);
     }
 
+    public static EdgeAttribute Color(RgbColor color)
+    {
+        ArgumentNullException.ThrowIfNull(color);
+
+        // Quote the value (e.g. color="#64748b") to match the convention used elsewhere for colours.
+        return new EdgeAttribute("color", "\"" + color + "\"");
+    }
+
     public static EdgeAttribute Direction(EdgeDirection direction)
     {
         if (!direction.IsValid())

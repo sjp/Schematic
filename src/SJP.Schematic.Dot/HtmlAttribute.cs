@@ -14,6 +14,8 @@ internal static class HtmlAttribute
 
     public static string CellSpacing { get; } = "CELLSPACING";
 
+    public static string Color { get; } = "COLOR";
+
     public static string ColumnSpan { get; } = "COLSPAN";
 
     public static string FontFace { get; } = "FACE";

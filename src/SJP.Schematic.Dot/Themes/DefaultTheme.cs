@@ -1,10 +1,16 @@
-﻿namespace SJP.Schematic.Dot.Themes;
+namespace SJP.Schematic.Dot.Themes;
 
+/// <summary>
+/// The default light theme. Tables sit on a faint slate canvas with white bodies; the header/footer form a
+/// blue "chrome", and the key sections use distinct accent hues (amber for primary, violet for unique, grey
+/// for foreign) so none of them collide with the header blue. Borders and edges are a soft slate rather than
+/// black. The focal (highlighted) table uses punchier versions of the same hues.
+/// </summary>
 internal sealed class DefaultTheme : IGraphTheme
 {
-    public RgbColor BackgroundColor { get; } = new RgbColor("#FFFFFF");
+    public RgbColor BackgroundColor { get; } = new RgbColor("#F8FAFC");
 
-    public RgbColor EdgeColor { get; } = new RgbColor("#000000");
+    public RgbColor EdgeColor { get; } = new RgbColor("#64748B");
 
     public RgbColor TableForegroundColor { get; } = new RgbColor("#000000");
 
@@ -32,49 +38,49 @@ internal sealed class DefaultTheme : IGraphTheme
 
     public RgbColor TableBackgroundColor { get; } = new RgbColor("#FFFFFF");
 
-    public RgbColor HeaderBackgroundColor { get; } = new RgbColor("#BFE3C6");
+    public RgbColor HeaderBackgroundColor { get; } = new RgbColor("#BBDEFB");
 
-    public RgbColor FooterBackgroundColor { get; } = new RgbColor("#BFE3C6");
+    public RgbColor FooterBackgroundColor { get; } = new RgbColor("#E3F0FB");
 
-    public RgbColor PrimaryKeyHeaderBackgroundColor { get; } = new RgbColor("#EFEBA8");
+    public RgbColor PrimaryKeyHeaderBackgroundColor { get; } = new RgbColor("#FDE68A");
 
-    public RgbColor UniqueKeyHeaderBackgroundColor { get; } = new RgbColor("#B8D0DD");
+    public RgbColor UniqueKeyHeaderBackgroundColor { get; } = new RgbColor("#DDD6FE");
 
-    public RgbColor ForeignKeyHeaderBackgroundColor { get; } = new RgbColor("#E5E5E5");
+    public RgbColor ForeignKeyHeaderBackgroundColor { get; } = new RgbColor("#E5E7EB");
 
     public RgbColor HighlightedTableBackgroundColor { get; } = new RgbColor("#FFFFFF");
 
-    public RgbColor HighlightedHeaderBackgroundColor { get; } = new RgbColor("#7DDE90");
+    public RgbColor HighlightedHeaderBackgroundColor { get; } = new RgbColor("#64B5F6");
 
-    public RgbColor HighlightedFooterBackgroundColor { get; } = new RgbColor("#7DDE90");
+    public RgbColor HighlightedFooterBackgroundColor { get; } = new RgbColor("#90CAF9");
 
-    public RgbColor HighlightedPrimaryKeyHeaderBackgroundColor { get; } = new RgbColor("#D7CD28");
+    public RgbColor HighlightedPrimaryKeyHeaderBackgroundColor { get; } = new RgbColor("#FCD34D");
 
-    public RgbColor HighlightedUniqueKeyHeaderBackgroundColor { get; } = new RgbColor("#8FB3C7");
+    public RgbColor HighlightedUniqueKeyHeaderBackgroundColor { get; } = new RgbColor("#C4B5FD");
 
-    public RgbColor HighlightedForeignKeyHeaderBackgroundColor { get; } = new RgbColor("#B0B0B0");
+    public RgbColor HighlightedForeignKeyHeaderBackgroundColor { get; } = new RgbColor("#D1D5DB");
 
-    public RgbColor TableBorderColor { get; } = new RgbColor("#000000");
+    public RgbColor TableBorderColor { get; } = new RgbColor("#94A3B8");
 
-    public RgbColor HeaderBorderColor { get; } = new RgbColor("#000000");
+    public RgbColor HeaderBorderColor { get; } = new RgbColor("#94A3B8");
 
-    public RgbColor FooterBorderColor { get; } = new RgbColor("#000000");
+    public RgbColor FooterBorderColor { get; } = new RgbColor("#94A3B8");
 
-    public RgbColor PrimaryKeyHeaderBorderColor { get; } = new RgbColor("#000000");
+    public RgbColor PrimaryKeyHeaderBorderColor { get; } = new RgbColor("#94A3B8");
 
-    public RgbColor UniqueKeyHeaderBorderColor { get; } = new RgbColor("#000000");
+    public RgbColor UniqueKeyHeaderBorderColor { get; } = new RgbColor("#94A3B8");
 
-    public RgbColor ForeignKeyHeaderBorderColor { get; } = new RgbColor("#000000");
+    public RgbColor ForeignKeyHeaderBorderColor { get; } = new RgbColor("#94A3B8");
 
-    public RgbColor HighlightedTableBorderColor { get; } = new RgbColor("#000000");
+    public RgbColor HighlightedTableBorderColor { get; } = new RgbColor("#64748B");
 
-    public RgbColor HighlightedHeaderBorderColor { get; } = new RgbColor("#000000");
+    public RgbColor HighlightedHeaderBorderColor { get; } = new RgbColor("#64748B");
 
-    public RgbColor HighlightedFooterBorderColor { get; } = new RgbColor("#000000");
+    public RgbColor HighlightedFooterBorderColor { get; } = new RgbColor("#64748B");
 
-    public RgbColor HighlightedPrimaryKeyHeaderBorderColor { get; } = new RgbColor("#000000");
+    public RgbColor HighlightedPrimaryKeyHeaderBorderColor { get; } = new RgbColor("#64748B");
 
-    public RgbColor HighlightedUniqueKeyHeaderBorderColor { get; } = new RgbColor("#000000");
+    public RgbColor HighlightedUniqueKeyHeaderBorderColor { get; } = new RgbColor("#64748B");
 
-    public RgbColor HighlightedForeignKeyHeaderBorderColor { get; } = new RgbColor("#000000");
+    public RgbColor HighlightedForeignKeyHeaderBorderColor { get; } = new RgbColor("#64748B");
 }
