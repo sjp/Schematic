@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,21 +10,17 @@ internal static class CollectionExtensions
     {
         ArgumentNullException.ThrowIfNull(collection);
 
-        var count = collection.Count;
-        if (count < 0)
-            throw new ArgumentException("The given collection has a negative count. This is not supported.", nameof(collection));
-
-        return (uint)count;
+        return (uint)collection.Count;
     }
 
+    /// <summary>
+    /// Returns the element count as a <see cref="uint"/>. This overload fully enumerates the
+    /// sequence; prefer the <see cref="IReadOnlyCollection{T}"/> overload when the count is known.
+    /// </summary>
     public static uint UCount<T>(this IEnumerable<T> collection)
     {
         ArgumentNullException.ThrowIfNull(collection);
 
-        var count = collection.Count();
-        if (count < 0)
-            throw new ArgumentException("The given collection has a negative count. This is not supported.", nameof(collection));
-
-        return (uint)count;
+        return (uint)collection.Count();
     }
 }

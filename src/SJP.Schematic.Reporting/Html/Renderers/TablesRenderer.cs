@@ -13,7 +13,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers;
 internal sealed class TablesRenderer : IDataRenderer
 {
     public TablesRenderer(
-        IEnumerable<IRelationalDatabaseTable> tables,
+        IReadOnlyCollection<IRelationalDatabaseTable> tables,
         IReadOnlyDictionary<Identifier, ulong> rowCounts,
         JsonDataWriter jsonWriter,
         BundleBuilder bundle,
@@ -26,7 +26,7 @@ internal sealed class TablesRenderer : IDataRenderer
         ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
     }
 
-    private IEnumerable<IRelationalDatabaseTable> Tables { get; }
+    private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
 
     private IReadOnlyDictionary<Identifier, ulong> RowCounts { get; }
 

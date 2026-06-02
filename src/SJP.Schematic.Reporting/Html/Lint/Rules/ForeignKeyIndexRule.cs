@@ -19,8 +19,9 @@ internal sealed class ForeignKeyIndexRule : Schematic.Lint.Rules.ForeignKeyIndex
     protected override IRuleMessage BuildMessage(Option<Identifier> foreignKeyName, Identifier tableName, IEnumerable<string> columnNames)
     {
         ArgumentNullException.ThrowIfNull(tableName);
-        if (columnNames.NullOrEmpty())
-            throw new ArgumentNullException(nameof(columnNames));
+        ArgumentNullException.ThrowIfNull(columnNames);
+        if (columnNames.Empty())
+            throw new ArgumentException("At least one column name is required.", nameof(columnNames));
 
         var builder = StringBuilderCache.Acquire();
         builder.Append("The table ")

@@ -35,18 +35,17 @@ internal sealed class TableOrderingRenderer : IDataRenderer
         var cycles = cycleDetector.GetCyclePaths(Tables);
         var hasCycles = cycles.Count > 0;
 
-        await ExportInsertionOrderAsync(hasCycles, cancellationToken);
-        await ExportDeletionOrderAsync(hasCycles, cancellationToken);
+        var orderer = new TableRelationshipOrderer();
+        await ExportOrderAsync("insertion", orderer.GetInsertionOrder(Tables), hasCycles, cancellationToken);
+        await ExportOrderAsync("deletion", orderer.GetDeletionOrder(Tables), hasCycles, cancellationToken);
     }
 
-    private async Task ExportInsertionOrderAsync(bool hasCycles, CancellationToken cancellationToken)
+    private async Task ExportOrderAsync(string orderName, IEnumerable<Identifier> order, bool hasCycles, CancellationToken cancellationToken)
     {
-        var orderer = new TableRelationshipOrderer();
-        var insertionOrder = orderer.GetInsertionOrder(Tables);
-        var insertionOutputPath = Path.Combine(ExportDirectory.FullName, "insertion-order.sql");
-        var insertionOrderDoc = BuildOrderDocument(insertionOrder);
-        await using var writer = File.CreateText(insertionOutputPath);
-        await writer.WriteLineAsync("-- This is the insertion order for the database.".AsMemory(), cancellationToken);
+        var outputPath = Path.Combine(ExportDirectory.FullName, $"{orderName}-order.sql");
+        var orderDoc = BuildOrderDocument(order);
+        await using var writer = File.CreateText(outputPath);
+        await writer.WriteLineAsync($"-- This is the {orderName} order for the database.".AsMemory(), cancellationToken);
         await writer.WriteLineAsync("-- This may not be correct for your database or data relationships.".AsMemory(), cancellationToken);
         await writer.WriteLineAsync("-- Please check before relying upon this information.".AsMemory(), cancellationToken);
         await writer.WriteLineAsync();
@@ -57,29 +56,7 @@ internal sealed class TableOrderingRenderer : IDataRenderer
             await writer.WriteLineAsync();
         }
 
-        await writer.WriteAsync(insertionOrderDoc.AsMemory(), cancellationToken);
-        await writer.FlushAsync(cancellationToken);
-    }
-
-    private async Task ExportDeletionOrderAsync(bool hasCycles, CancellationToken cancellationToken)
-    {
-        var orderer = new TableRelationshipOrderer();
-        var deletionOrder = orderer.GetDeletionOrder(Tables);
-        var deletionOutputPath = Path.Combine(ExportDirectory.FullName, "deletion-order.sql");
-        var deletionOrderDoc = BuildOrderDocument(deletionOrder);
-        await using var writer = File.CreateText(deletionOutputPath);
-        await writer.WriteLineAsync("-- This is the deletion order for the database.".AsMemory(), cancellationToken);
-        await writer.WriteLineAsync("-- This may not be correct for your database or data relationships.".AsMemory(), cancellationToken);
-        await writer.WriteLineAsync("-- Please check before relying upon this information.".AsMemory(), cancellationToken);
-        await writer.WriteLineAsync();
-
-        if (hasCycles)
-        {
-            await writer.WriteLineAsync("-- NOTE: There are relationship cycles present in the database. This ordering is not guaranteed.".AsMemory(), cancellationToken);
-            await writer.WriteLineAsync();
-        }
-
-        await writer.WriteAsync(deletionOrderDoc.AsMemory(), cancellationToken);
+        await writer.WriteAsync(orderDoc.AsMemory(), cancellationToken);
         await writer.FlushAsync(cancellationToken);
     }
 

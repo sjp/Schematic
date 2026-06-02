@@ -14,7 +14,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers;
 internal sealed class ViewsRenderer : IDataRenderer
 {
     public ViewsRenderer(
-        IEnumerable<IDatabaseView> views,
+        IReadOnlyCollection<IDatabaseView> views,
         JsonDataWriter jsonWriter,
         BundleBuilder bundle,
         DirectoryInfo exportDirectory)
@@ -25,7 +25,7 @@ internal sealed class ViewsRenderer : IDataRenderer
         ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
     }
 
-    private IEnumerable<IDatabaseView> Views { get; }
+    private IReadOnlyCollection<IDatabaseView> Views { get; }
 
     private JsonDataWriter JsonWriter { get; }
 

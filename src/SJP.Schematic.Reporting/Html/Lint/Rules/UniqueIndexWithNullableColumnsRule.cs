@@ -18,8 +18,9 @@ internal sealed class UniqueIndexWithNullableColumnsRule : Schematic.Lint.Rules.
     protected override IRuleMessage BuildMessage(Identifier tableName, string? indexName, IEnumerable<string> columnNames)
     {
         ArgumentNullException.ThrowIfNull(tableName);
-        if (columnNames.NullOrEmpty())
-            throw new ArgumentNullException(nameof(columnNames));
+        ArgumentNullException.ThrowIfNull(columnNames);
+        if (columnNames.Empty())
+            throw new ArgumentException("At least one column name is required.", nameof(columnNames));
 
         var builder = StringBuilderCache.Acquire();
         builder.Append("The table ")

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Reporting.Html.ViewModels;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 using SJP.Schematic.Reporting.Serialization;
@@ -15,22 +14,19 @@ namespace SJP.Schematic.Reporting.Html.Renderers;
 internal sealed class ConstraintsRenderer : IDataRenderer
 {
     public ConstraintsRenderer(
-        IEnumerable<IRelationalDatabaseTable> tables,
+        IReadOnlyCollection<IRelationalDatabaseTable> tables,
         JsonDataWriter jsonWriter,
         BundleBuilder bundle,
         DirectoryInfo exportDirectory
     )
     {
-        if (tables.NullOrAnyNull())
-            throw new ArgumentNullException(nameof(tables));
-
-        Tables = tables;
+        Tables = tables ?? throw new ArgumentNullException(nameof(tables));
         JsonWriter = jsonWriter ?? throw new ArgumentNullException(nameof(jsonWriter));
         Bundle = bundle ?? throw new ArgumentNullException(nameof(bundle));
         ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
     }
 
-    private IEnumerable<IRelationalDatabaseTable> Tables { get; }
+    private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
 
     private JsonDataWriter JsonWriter { get; }
 

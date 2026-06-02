@@ -12,7 +12,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers;
 internal sealed class RoutineRenderer : IDataRenderer
 {
     public RoutineRenderer(
-        IEnumerable<IDatabaseRoutine> routines,
+        IReadOnlyCollection<IDatabaseRoutine> routines,
         JsonDataWriter jsonWriter,
         BundleBuilder bundle,
         DirectoryInfo exportDirectory
@@ -26,7 +26,7 @@ internal sealed class RoutineRenderer : IDataRenderer
         DataDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "data", "routines"));
     }
 
-    private IEnumerable<IDatabaseRoutine> Routines { get; }
+    private IReadOnlyCollection<IDatabaseRoutine> Routines { get; }
 
     private JsonDataWriter JsonWriter { get; }
 

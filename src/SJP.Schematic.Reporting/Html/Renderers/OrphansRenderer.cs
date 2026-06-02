@@ -15,7 +15,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers;
 internal sealed class OrphansRenderer : IDataRenderer
 {
     public OrphansRenderer(
-        IEnumerable<IRelationalDatabaseTable> tables,
+        IReadOnlyCollection<IRelationalDatabaseTable> tables,
         IReadOnlyDictionary<Identifier, ulong> rowCounts,
         JsonDataWriter jsonWriter,
         BundleBuilder bundle,
@@ -29,7 +29,7 @@ internal sealed class OrphansRenderer : IDataRenderer
         ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
     }
 
-    private IEnumerable<IRelationalDatabaseTable> Tables { get; }
+    private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
 
     private IReadOnlyDictionary<Identifier, ulong> RowCounts { get; }
 

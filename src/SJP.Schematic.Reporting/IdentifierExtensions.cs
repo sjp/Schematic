@@ -65,10 +65,20 @@ internal static partial class IdentifierExtensions
         var invalidChars = Path.GetInvalidFileNameChars();
         var validChars = result.Where(c => !invalidChars.Contains(c)).ToArray();
 
-        return new string(validChars);
+        var slug = new string(validChars);
+
+        // An all-symbol / non-ASCII name (e.g. "日本語", "+++") reduces to an empty slug. Fall back to a
+        // placeholder so ToSafeKey never emits a key that starts with the '-' separator and has no
+        // readable part; the appended hash still disambiguates such names from one another.
+        return slug.Length == 0 ? EmptySlugPlaceholder : slug;
     }
 
-    [GeneratedRegex(@"[^a-z0-9\s-_.]", RegexOptions.Compiled, matchTimeoutMilliseconds: 100)]
+    private const string EmptySlugPlaceholder = "unnamed";
+
+    // Strips everything except letters, digits, whitespace, and '_' '.' '-'. The '_' and '.' are
+    // kept intentionally — later passes collapse them (and whitespace) into '-'. The '-' is placed
+    // last so it is unambiguously a literal rather than a range endpoint.
+    [GeneratedRegex(@"[^a-z0-9\s_.-]", RegexOptions.Compiled, matchTimeoutMilliseconds: 100)]
     private static partial Regex InvalidCharRegex();
 
     [GeneratedRegex(@"\s+", RegexOptions.Compiled, matchTimeoutMilliseconds: 100)]
@@ -92,7 +102,7 @@ internal static partial class IdentifierExtensions
     private static string Truncate(string input, int maxChars)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(input);
-        if (maxChars < 0)
+        if (maxChars <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxChars), "The number of characters to truncate to must be at least 1.");
 
         return input[..Math.Min(input.Length, maxChars)];
@@ -133,7 +143,7 @@ internal static partial class IdentifierExtensions
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(input);
 
-    var bytes = Encoding.Unicode.GetBytes(input);
+        var bytes = Encoding.Unicode.GetBytes(input);
         var hash = SHA512.HashData(bytes);
 
         var builder = StringBuilderCache.Acquire(hash.Length);

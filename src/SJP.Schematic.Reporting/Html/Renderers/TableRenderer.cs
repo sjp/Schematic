@@ -15,7 +15,7 @@ internal sealed class TableRenderer : IDataRenderer
 {
     public TableRenderer(
         IIdentifierDefaults identifierDefaults,
-        IEnumerable<IRelationalDatabaseTable> tables,
+        IReadOnlyCollection<IRelationalDatabaseTable> tables,
         IReadOnlyDictionary<Identifier, ulong> rowCounts,
         JsonDataWriter jsonWriter,
         BundleBuilder bundle,
@@ -34,7 +34,7 @@ internal sealed class TableRenderer : IDataRenderer
 
     private IIdentifierDefaults IdentifierDefaults { get; }
 
-    private IEnumerable<IRelationalDatabaseTable> Tables { get; }
+    private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
 
     private IReadOnlyDictionary<Identifier, ulong> RowCounts { get; }
 

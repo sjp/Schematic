@@ -176,8 +176,8 @@ public class ReportGenerator
         // Synonym target resolution maps an aliased object name to its owning object's hash route.
         var synonymTargets = new SynonymTargets(tableNames, viewNames, sequenceNames, synonymNames, routineNames);
 
-        // Lint analysis: the rule providers + 24 rules are kept as-is; the output is data/lint.json.
-        var ruleProvider = new ReportingRuleProvider();
+        // Lint analysis produces data/lint.json from the default HTML rule set.
+        var ruleProvider = new DefaultHtmlRuleProvider();
         var rules = ruleProvider.GetRules(Connection, RuleLevel.Warning);
         var linter = new RelationalDatabaseLinter(rules);
 

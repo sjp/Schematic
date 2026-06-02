@@ -15,11 +15,11 @@ internal sealed class MainRenderer : IDataRenderer
 {
     public MainRenderer(
         IRelationalDatabase database,
-        IEnumerable<IRelationalDatabaseTable> tables,
-        IEnumerable<IDatabaseView> views,
-        IEnumerable<IDatabaseSequence> sequences,
-        IEnumerable<IDatabaseSynonym> synonyms,
-        IEnumerable<IDatabaseRoutine> routines,
+        IReadOnlyCollection<IRelationalDatabaseTable> tables,
+        IReadOnlyCollection<IDatabaseView> views,
+        IReadOnlyCollection<IDatabaseSequence> sequences,
+        IReadOnlyCollection<IDatabaseSynonym> synonyms,
+        IReadOnlyCollection<IDatabaseRoutine> routines,
         string dbVersion,
         JsonDataWriter jsonWriter,
         BundleBuilder bundle,
@@ -39,15 +39,15 @@ internal sealed class MainRenderer : IDataRenderer
 
     private IRelationalDatabase Database { get; }
 
-    private IEnumerable<IRelationalDatabaseTable> Tables { get; }
+    private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
 
-    private IEnumerable<IDatabaseView> Views { get; }
+    private IReadOnlyCollection<IDatabaseView> Views { get; }
 
-    private IEnumerable<IDatabaseSequence> Sequences { get; }
+    private IReadOnlyCollection<IDatabaseSequence> Sequences { get; }
 
-    private IEnumerable<IDatabaseSynonym> Synonyms { get; }
+    private IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; }
 
-    private IEnumerable<IDatabaseRoutine> Routines { get; }
+    private IReadOnlyCollection<IDatabaseRoutine> Routines { get; }
 
     private string DatabaseDisplayVersion { get; }
 

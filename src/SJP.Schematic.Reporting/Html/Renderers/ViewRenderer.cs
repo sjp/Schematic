@@ -12,7 +12,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers;
 internal sealed class ViewRenderer : IDataRenderer
 {
     public ViewRenderer(
-        IEnumerable<IDatabaseView> views,
+        IReadOnlyCollection<IDatabaseView> views,
         ReferencedObjectTargets referencedObjectTargets,
         JsonDataWriter jsonWriter,
         BundleBuilder bundle,
@@ -28,7 +28,7 @@ internal sealed class ViewRenderer : IDataRenderer
         DataDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "data", "views"));
     }
 
-    private IEnumerable<IDatabaseView> Views { get; }
+    private IReadOnlyCollection<IDatabaseView> Views { get; }
 
     private ReferencedObjectTargets ReferencedObjectTargets { get; }
 

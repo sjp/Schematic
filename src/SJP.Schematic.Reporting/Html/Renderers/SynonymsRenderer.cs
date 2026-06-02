@@ -14,7 +14,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers;
 internal sealed class SynonymsRenderer : IDataRenderer
 {
     public SynonymsRenderer(
-        IEnumerable<IDatabaseSynonym> synonyms,
+        IReadOnlyCollection<IDatabaseSynonym> synonyms,
         SynonymTargets synonymTargets,
         JsonDataWriter jsonWriter,
         BundleBuilder bundle,
@@ -27,7 +27,7 @@ internal sealed class SynonymsRenderer : IDataRenderer
         ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
     }
 
-    private IEnumerable<IDatabaseSynonym> Synonyms { get; }
+    private IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; }
 
     private SynonymTargets SynonymTargets { get; }
 

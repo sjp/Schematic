@@ -14,7 +14,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers;
 internal sealed class IndexesRenderer : IDataRenderer
 {
     public IndexesRenderer(
-        IEnumerable<IRelationalDatabaseTable> tables,
+        IReadOnlyCollection<IRelationalDatabaseTable> tables,
         JsonDataWriter jsonWriter,
         BundleBuilder bundle,
         DirectoryInfo exportDirectory
@@ -26,7 +26,7 @@ internal sealed class IndexesRenderer : IDataRenderer
         ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
     }
 
-    private IEnumerable<IRelationalDatabaseTable> Tables { get; }
+    private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
 
     private JsonDataWriter JsonWriter { get; }
 

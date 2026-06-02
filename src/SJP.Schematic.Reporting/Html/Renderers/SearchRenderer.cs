@@ -4,7 +4,6 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Reporting.Html.ViewModels;
 using SJP.Schematic.Reporting.Serialization;
 
@@ -13,11 +12,11 @@ namespace SJP.Schematic.Reporting.Html.Renderers;
 internal sealed class SearchRenderer : IDataRenderer
 {
     public SearchRenderer(
-        IEnumerable<IRelationalDatabaseTable> tables,
-        IEnumerable<IDatabaseView> views,
-        IEnumerable<IDatabaseSequence> sequences,
-        IEnumerable<IDatabaseSynonym> synonyms,
-        IEnumerable<IDatabaseRoutine> routines,
+        IReadOnlyCollection<IRelationalDatabaseTable> tables,
+        IReadOnlyCollection<IDatabaseView> views,
+        IReadOnlyCollection<IDatabaseSequence> sequences,
+        IReadOnlyCollection<IDatabaseSynonym> synonyms,
+        IReadOnlyCollection<IDatabaseRoutine> routines,
         JsonDataWriter jsonWriter,
         BundleBuilder bundle,
         DirectoryInfo exportDirectory
@@ -33,15 +32,15 @@ internal sealed class SearchRenderer : IDataRenderer
         ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
     }
 
-    private IEnumerable<IRelationalDatabaseTable> Tables { get; }
+    private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
 
-    private IEnumerable<IDatabaseView> Views { get; }
+    private IReadOnlyCollection<IDatabaseView> Views { get; }
 
-    private IEnumerable<IDatabaseSequence> Sequences { get; }
+    private IReadOnlyCollection<IDatabaseSequence> Sequences { get; }
 
-    private IEnumerable<IDatabaseSynonym> Synonyms { get; }
+    private IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; }
 
-    private IEnumerable<IDatabaseRoutine> Routines { get; }
+    private IReadOnlyCollection<IDatabaseRoutine> Routines { get; }
 
     private JsonDataWriter JsonWriter { get; }
 

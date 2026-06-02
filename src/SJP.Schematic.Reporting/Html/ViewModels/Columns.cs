@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using LanguageExt;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels;
 
