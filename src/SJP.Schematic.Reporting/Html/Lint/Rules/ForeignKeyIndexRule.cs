@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -23,18 +22,16 @@ internal sealed class ForeignKeyIndexRule : Schematic.Lint.Rules.ForeignKeyIndex
         if (columnNames.NullOrEmpty())
             throw new ArgumentNullException(nameof(columnNames));
 
-        var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
         var builder = StringBuilderCache.Acquire();
         builder.Append("The table ")
-            .Append(tableLink)
+            .Append(tableName.ToVisibleName())
             .Append(" has a foreign key");
 
         foreignKeyName.IfSome(fkName =>
         {
-            builder.Append(" <code>")
-                .Append(HttpUtility.HtmlEncode(fkName.LocalName))
-                .Append("</code>");
+            builder.Append(" '")
+                .Append(fkName.LocalName)
+                .Append('\'');
         });
 
         builder.Append(" which is missing an index on the column");
@@ -43,10 +40,8 @@ internal sealed class ForeignKeyIndexRule : Schematic.Lint.Rules.ForeignKeyIndex
         if (columnNames.Skip(1).Any())
             builder.Append('s');
 
-        var formattedColumnNames = columnNames
-            .Select(columnName => "<code>" + HttpUtility.HtmlEncode(columnName) + "</code>");
         builder.Append(' ')
-            .AppendJoin(", ", formattedColumnNames);
+            .AppendJoin(", ", columnNames.Select(static columnName => $"'{columnName}'"));
 
         var messageText = builder.GetStringAndRelease();
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);

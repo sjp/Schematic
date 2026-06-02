@@ -1,5 +1,4 @@
-﻿using System;
-using System.Web;
+using System;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint;
 
@@ -17,9 +16,7 @@ internal sealed class ColumnWithNullDefaultValueRule : Schematic.Lint.Rules.Colu
         ArgumentNullException.ThrowIfNull(tableName);
         ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
-        var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
-        var messageText = $"The table {tableLink} has a column <code>{HttpUtility.HtmlEncode(columnName)}</code> whose default value is <code>NULL</code>. Consider removing the default value on the column.";
+        var messageText = $"The table {tableName.ToVisibleName()} has a column '{columnName}' whose default value is NULL. Consider removing the default value on the column.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 }

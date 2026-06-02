@@ -1,5 +1,4 @@
-﻿using System;
-using System.Web;
+using System;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint;
 
@@ -16,12 +15,9 @@ internal sealed class OnlyOneColumnPresentRule : Schematic.Lint.Rules.OnlyOneCol
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
-        var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
-
         var messageText = columnCount == 0
-            ? $"The table {tableLink} has too few columns. It has no columns, consider adding more."
-            : $"The table {tableLink} has too few columns. It has one column, consider adding more.";
+            ? $"The table {tableName.ToVisibleName()} has too few columns. It has no columns, consider adding more."
+            : $"The table {tableName.ToVisibleName()} has too few columns. It has one column, consider adding more.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 }

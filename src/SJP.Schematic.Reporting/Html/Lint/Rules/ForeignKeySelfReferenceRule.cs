@@ -1,6 +1,5 @@
-﻿using System;
+using System;
 using System.Linq;
-using System.Web;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint;
@@ -20,30 +19,23 @@ internal sealed class ForeignKeySelfReferenceRule : Schematic.Lint.Rules.Foreign
         ArgumentNullException.ThrowIfNull(primaryKey);
         ArgumentNullException.ThrowIfNull(foreignKey);
 
-        var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
-
         var primaryKeyColumnNames = primaryKey.Columns
-            .Select(c => Dialect.QuoteIdentifier(c.Name.LocalName))
-            .Select(HttpUtility.HtmlEncode)
-            .Select(c => "<code>" + c + "</code>");
+            .Select(c => Dialect.QuoteIdentifier(c.Name.LocalName));
         var pkNameSuffix = primaryKey.Name.Match(
-            pkName => $"<code>{HttpUtility.HtmlEncode(Dialect.QuoteName(pkName))}</code> ",
+            pkName => $"{Dialect.QuoteName(pkName)} ",
             () => string.Empty
         );
         var primaryKeyMessage = $"primary key {pkNameSuffix}({primaryKeyColumnNames.Join(", ")})";
 
         var foreignKeyColumnNames = foreignKey.Columns
-            .Select(c => Dialect.QuoteIdentifier(c.Name.LocalName))
-            .Select(HttpUtility.HtmlEncode)
-            .Select(c => "<code>" + c + "</code>");
+            .Select(c => Dialect.QuoteIdentifier(c.Name.LocalName));
         var fkNameSuffix = foreignKey.Name.Match(
-            fkName => $"<code>{HttpUtility.HtmlEncode(Dialect.QuoteName(fkName))}</code>",
+            fkName => $"{Dialect.QuoteName(fkName)}",
             () => string.Empty
         );
         var foreignKeyMessage = $"foreign key {fkNameSuffix}({foreignKeyColumnNames.Join(", ")})";
 
-        var messageText = $"The table {tableLink} contains a row where the {foreignKeyMessage} self-references the {primaryKeyMessage}. Consider removing the row by removing the foreign key first, then reintroducing after row removal.";
+        var messageText = $"The table {tableName.ToVisibleName()} contains a row where the {foreignKeyMessage} self-references the {primaryKeyMessage}. Consider removing the row by removing the foreign key first, then reintroducing after row removal.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 }

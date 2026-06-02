@@ -1,5 +1,4 @@
-﻿using System;
-using System.Web;
+using System;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint;
 
@@ -16,9 +15,7 @@ internal sealed class NoSurrogatePrimaryKeyRule : Schematic.Lint.Rules.NoSurroga
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
-        var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
-        var messageText = $"The table {tableLink} has a multi-column primary key. Consider introducing a surrogate primary key.";
+        var messageText = $"The table {tableName.ToVisibleName()} has a multi-column primary key. Consider introducing a surrogate primary key.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 }

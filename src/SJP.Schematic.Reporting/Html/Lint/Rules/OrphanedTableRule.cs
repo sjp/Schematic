@@ -1,5 +1,4 @@
-﻿using System;
-using System.Web;
+using System;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint;
 
@@ -16,9 +15,7 @@ internal sealed class OrphanedTableRule : Schematic.Lint.Rules.OrphanedTableRule
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
-        var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
-        var messageText = $"The table {tableLink} is not related to any other table. Consider adding relations or removing the table.";
+        var messageText = $"The table {tableName.ToVisibleName()} is not related to any other table. Consider adding relations or removing the table.";
 
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }

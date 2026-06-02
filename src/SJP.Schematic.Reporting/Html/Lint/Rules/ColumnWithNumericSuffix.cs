@@ -1,5 +1,4 @@
-﻿using System;
-using System.Web;
+using System;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint;
 
@@ -17,9 +16,7 @@ internal sealed class ColumnWithNumericSuffix : Schematic.Lint.Rules.ColumnWithN
         ArgumentNullException.ThrowIfNull(tableName);
         ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
-        var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
-        var messageText = $"The table {tableLink} has a column <code>{HttpUtility.HtmlEncode(columnName)}</code> with a numeric suffix, indicating denormalization.";
+        var messageText = $"The table {tableName.ToVisibleName()} has a column '{columnName}' with a numeric suffix, indicating denormalization.";
 
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }

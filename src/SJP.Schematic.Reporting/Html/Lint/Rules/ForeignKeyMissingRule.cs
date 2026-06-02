@@ -1,5 +1,4 @@
-﻿using System;
-using System.Web;
+using System;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Lint;
@@ -20,18 +19,12 @@ internal sealed class ForeignKeyMissingRule : Schematic.Lint.Rules.ForeignKeyMis
         ArgumentNullException.ThrowIfNull(targetTableName);
 
         var builder = StringBuilderCache.Acquire();
-
-        var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
-        var targetTableUrl = UrlRouter.GetTableUrl(targetTableName);
-        var targetTableLink = $"<a href=\"{targetTableUrl}\">{HttpUtility.HtmlEncode(targetTableName.ToVisibleName())}</a>";
-
         builder.Append("The table ")
-            .Append(tableLink)
-            .Append(" has a column <code>")
+            .Append(tableName.ToVisibleName())
+            .Append(" has a column '")
             .Append(columnName)
-            .Append("</code> implying a relationship to ")
-            .Append(targetTableLink)
+            .Append("' implying a relationship to ")
+            .Append(targetTableName.ToVisibleName())
             .Append(" which is missing a foreign key constraint.");
 
         var messageText = builder.GetStringAndRelease();

@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
@@ -14,20 +12,8 @@ using SJP.Schematic.Reporting.Serialization;
 
 namespace SJP.Schematic.Reporting.Html.Renderers;
 
-internal sealed partial class LintRenderer : IDataRenderer
+internal sealed class LintRenderer : IDataRenderer
 {
-    // The kept Html/Lint rule providers produce messages containing HTML (anchors to object pages,
-    // <code> spans, entities like &rarr;). The JSON payload must be markup-free plain text, so each
-    // message is stripped of tags and HTML-decoded before serialization.
-    [GeneratedRegex("<[^>]+>")]
-    private static partial Regex HtmlTagRegex();
-
-    private static string StripHtml(string message)
-    {
-        var withoutTags = HtmlTagRegex().Replace(message, string.Empty);
-        return WebUtility.HtmlDecode(withoutTags);
-    }
-
     public LintRenderer(
         IRelationalDatabaseLinter linter,
         IReadOnlyCollection<IRelationalDatabaseTable> tables,
@@ -93,7 +79,7 @@ internal sealed partial class LintRenderer : IDataRenderer
 
         var groupedRules = messages
             .GroupAsDictionary(static m => m.RuleId)
-            .Select(static m => new LintResults.LintRule(m.Value[0].Title, m.Value.ConvertAll(static r => StripHtml(r.Message))))
+            .Select(static m => new LintResults.LintRule(m.Value[0].Title, m.Value.ConvertAll(static r => r.Message)))
             .ToList();
 
         var lintVm = new LintResults(groupedRules);

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Web;
+using System;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -17,39 +16,33 @@ internal sealed class DisabledObjectsRule : Schematic.Lint.Rules.DisabledObjects
     protected override IRuleMessage BuildDisabledForeignKeyMessage(Identifier tableName, Option<Identifier> foreignKeyName)
     {
         var messageKeyName = foreignKeyName.Match(
-            static name => " <code>" + HttpUtility.HtmlEncode(name.LocalName) + "</code>",
+            static name => " '" + name.LocalName + "'",
             static () => string.Empty
         );
 
-        var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
-        var messageText = $"The table {tableLink} contains a disabled foreign key{messageKeyName}. Consider enabling or removing the foreign key.";
+        var messageText = $"The table {tableName.ToVisibleName()} contains a disabled foreign key{messageKeyName}. Consider enabling or removing the foreign key.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
     protected override IRuleMessage BuildDisabledPrimaryKeyMessage(Identifier tableName, Option<Identifier> primaryKeyName)
     {
         var messageKeyName = primaryKeyName.Match(
-               static name => " <code>" + HttpUtility.HtmlEncode(name.LocalName) + "</code>",
+               static name => " '" + name.LocalName + "'",
                static () => string.Empty
            );
 
-        var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
-        var messageText = $"The table {tableLink} contains a disabled primary key{messageKeyName}. Consider enabling or removing the primary key.";
+        var messageText = $"The table {tableName.ToVisibleName()} contains a disabled primary key{messageKeyName}. Consider enabling or removing the primary key.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
     protected override IRuleMessage BuildDisabledUniqueKeyMessage(Identifier tableName, Option<Identifier> uniqueKeyName)
     {
         var messageKeyName = uniqueKeyName.Match(
-            static name => " <code>" + HttpUtility.HtmlEncode(name.LocalName) + "</code>",
+            static name => " '" + name.LocalName + "'",
             static () => string.Empty
         );
 
-        var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
-        var messageText = $"The table {tableLink} contains a disabled unique key{messageKeyName}. Consider enabling or removing the unique key.";
+        var messageText = $"The table {tableName.ToVisibleName()} contains a disabled unique key{messageKeyName}. Consider enabling or removing the unique key.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
@@ -58,13 +51,11 @@ internal sealed class DisabledObjectsRule : Schematic.Lint.Rules.DisabledObjects
         ArgumentNullException.ThrowIfNull(tableName);
 
         var messageCheckName = checkName.Match(
-            static name => " <code>" + HttpUtility.HtmlEncode(name.LocalName) + "</code>",
+            static name => " '" + name.LocalName + "'",
             static () => string.Empty
         );
 
-        var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
-        var messageText = $"The table {tableLink} contains a disabled check constraint{messageCheckName}. Consider enabling or removing the check constraint.";
+        var messageText = $"The table {tableName.ToVisibleName()} contains a disabled check constraint{messageCheckName}. Consider enabling or removing the check constraint.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
@@ -73,12 +64,10 @@ internal sealed class DisabledObjectsRule : Schematic.Lint.Rules.DisabledObjects
         ArgumentNullException.ThrowIfNull(tableName);
 
         var messageIndexName = !indexName.IsNullOrWhiteSpace()
-            ? " <code>" + HttpUtility.HtmlEncode(indexName) + "</code>"
+            ? " '" + indexName + "'"
             : string.Empty;
 
-        var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
-        var messageText = $"The table {tableLink} contains a disabled index{messageIndexName}. Consider enabling or removing the index.";
+        var messageText = $"The table {tableName.ToVisibleName()} contains a disabled index{messageIndexName}. Consider enabling or removing the index.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
@@ -87,12 +76,10 @@ internal sealed class DisabledObjectsRule : Schematic.Lint.Rules.DisabledObjects
         ArgumentNullException.ThrowIfNull(tableName);
 
         var messageTriggerName = !triggerName.IsNullOrWhiteSpace()
-            ? " <code>" + HttpUtility.HtmlEncode(triggerName) + "</code>"
+            ? " '" + triggerName + "'"
             : string.Empty;
 
-        var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
-        var messageText = $"The table {tableLink} contains a disabled trigger{messageTriggerName}. Consider enabling or removing the trigger.";
+        var messageText = $"The table {tableName.ToVisibleName()} contains a disabled trigger{messageTriggerName}. Consider enabling or removing the trigger.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 }

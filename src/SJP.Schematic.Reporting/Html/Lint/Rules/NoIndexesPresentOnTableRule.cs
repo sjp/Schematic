@@ -1,5 +1,4 @@
-﻿using System;
-using System.Web;
+using System;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint;
 
@@ -16,9 +15,7 @@ internal sealed class NoIndexesPresentOnTableRule : Schematic.Lint.Rules.NoIndex
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
-        var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
-        var messageText = $"The table {tableLink} does not have any indexes present, requiring table scans to access records. Consider introducing an index or a primary key or a unique key constraint.";
+        var messageText = $"The table {tableName.ToVisibleName()} does not have any indexes present, requiring table scans to access records. Consider introducing an index or a primary key or a unique key constraint.";
 
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }

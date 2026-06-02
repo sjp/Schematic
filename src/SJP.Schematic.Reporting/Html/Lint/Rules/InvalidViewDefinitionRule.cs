@@ -1,5 +1,4 @@
-﻿using System;
-using System.Web;
+using System;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint;
 
@@ -16,9 +15,7 @@ internal sealed class InvalidViewDefinitionRule : Schematic.Lint.Rules.InvalidVi
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
-        var viewUrl = UrlRouter.GetViewUrl(viewName);
-        var viewLink = $"<a href=\"{viewUrl}\">{HttpUtility.HtmlEncode(viewName.ToVisibleName())}</a>";
-        var messageText = $"The view {viewLink} was unable to be queried. This may indicate an incorrect view definition.";
+        var messageText = $"The view {viewName.ToVisibleName()} was unable to be queried. This may indicate an incorrect view definition.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 }

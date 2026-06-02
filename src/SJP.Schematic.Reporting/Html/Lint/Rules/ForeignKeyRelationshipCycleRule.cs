@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint;
@@ -20,12 +19,8 @@ internal sealed class ForeignKeyRelationshipCycleRule : Schematic.Lint.Rules.For
         ArgumentNullException.ThrowIfNull(cyclePath);
 
         var tableNames = cyclePath
-            .Select(static tableName =>
-            {
-                var tableUrl = UrlRouter.GetTableUrl(tableName);
-                return $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
-            })
-            .Join(" &rarr; ");
+            .Select(static tableName => tableName.ToVisibleName())
+            .Join(" → ");
         var message = "Cycle found for the following path: " + tableNames;
 
         return new RuleMessage(RuleId, RuleTitle, Level, message);

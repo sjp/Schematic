@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
@@ -22,19 +21,16 @@ internal sealed class UniqueIndexWithNullableColumnsRule : Schematic.Lint.Rules.
         if (columnNames.NullOrEmpty())
             throw new ArgumentNullException(nameof(columnNames));
 
-        var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
-
         var builder = StringBuilderCache.Acquire();
         builder.Append("The table ")
-            .Append(tableLink)
+            .Append(tableName.ToVisibleName())
             .Append(" has a unique index");
 
         if (!indexName.IsNullOrWhiteSpace())
         {
-            builder.Append(" <code>")
-                .Append(HttpUtility.HtmlEncode(indexName))
-                .Append("</code>");
+            builder.Append(" '")
+                .Append(indexName)
+                .Append('\'');
         }
 
         var pluralText = columnNames.Skip(1).Any()
@@ -42,9 +38,7 @@ internal sealed class UniqueIndexWithNullableColumnsRule : Schematic.Lint.Rules.
             : " which contains a nullable column: ";
         builder.Append(pluralText);
 
-        var formattedColumnNames = columnNames
-            .Select(static columnName => "<code>" + HttpUtility.HtmlEncode(columnName) + "</code>");
-        builder.AppendJoin(", ", formattedColumnNames);
+        builder.AppendJoin(", ", columnNames.Select(static columnName => $"'{columnName}'"));
 
         var messageText = builder.GetStringAndRelease();
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);

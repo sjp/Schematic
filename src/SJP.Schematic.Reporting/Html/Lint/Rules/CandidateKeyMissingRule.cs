@@ -1,5 +1,4 @@
-﻿using System;
-using System.Web;
+using System;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint;
 
@@ -16,9 +15,7 @@ internal sealed class CandidateKeyMissingRule : Schematic.Lint.Rules.CandidateKe
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
-        var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
-        var messageText = $"The table {tableLink} has no candidate (primary or unique) keys. Consider adding one to ensure records are unique.";
+        var messageText = $"The table {tableName.ToVisibleName()} has no candidate (primary or unique) keys. Consider adding one to ensure records are unique.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 }

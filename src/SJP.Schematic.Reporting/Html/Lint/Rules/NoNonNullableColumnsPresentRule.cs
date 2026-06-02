@@ -1,5 +1,4 @@
-﻿using System;
-using System.Web;
+using System;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint;
 
@@ -16,9 +15,7 @@ internal sealed class NoNonNullableColumnsPresentRule : Schematic.Lint.Rules.NoN
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
-        var tableUrl = UrlRouter.GetTableUrl(tableName);
-        var tableLink = $"<a href=\"{tableUrl}\">{HttpUtility.HtmlEncode(tableName.ToVisibleName())}</a>";
-        var messageText = $"The table {tableLink} has no not-nullable columns present. Consider adding one to ensure that each record contains data.";
+        var messageText = $"The table {tableName.ToVisibleName()} has no not-nullable columns present. Consider adding one to ensure that each record contains data.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 }

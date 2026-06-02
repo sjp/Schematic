@@ -1,5 +1,4 @@
-﻿using System;
-using System.Web;
+using System;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Utilities;
@@ -24,20 +23,15 @@ internal sealed class ForeignKeyColumnTypeMismatchRule : Schematic.Lint.Rules.Fo
 
         foreignKeyName.IfSome(fkName =>
         {
-            builder.Append(" <code>")
-                .Append(HttpUtility.HtmlEncode(fkName.LocalName))
-                .Append("</code>");
+            builder.Append(" '")
+                .Append(fkName.LocalName)
+                .Append('\'');
         });
 
-        var childTableUrl = UrlRouter.GetTableUrl(childTableName);
-        var childTableLink = $"<a href=\"{childTableUrl}\">{HttpUtility.HtmlEncode(childTableName.ToVisibleName())}</a>";
-        var parentTableUrl = UrlRouter.GetTableUrl(parentTableName);
-        var parentTableLink = $"<a href=\"{parentTableUrl}\">{HttpUtility.HtmlEncode(parentTableName.ToVisibleName())}</a>";
-
         builder.Append(" from ")
-            .Append(childTableLink)
+            .Append(childTableName.ToVisibleName())
             .Append(" to ")
-            .Append(parentTableLink)
+            .Append(parentTableName.ToVisibleName())
             .Append(" contains mismatching column types. These should be the same in order to ensure that foreign keys can always hold the same information as the target key.");
 
         var messageText = builder.GetStringAndRelease();

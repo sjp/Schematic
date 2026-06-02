@@ -1,5 +1,4 @@
-﻿using System;
-using System.Web;
+using System;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Utilities;
@@ -23,15 +22,13 @@ internal sealed class ForeignKeyIsPrimaryKeyRule : Schematic.Lint.Rules.ForeignK
 
         foreignKeyName.IfSome(fkName =>
         {
-            builder.Append(" <code>")
-                .Append(HttpUtility.HtmlEncode(fkName.LocalName))
-                .Append("</code>");
+            builder.Append(" '")
+                .Append(fkName.LocalName)
+                .Append('\'');
         });
 
-        var childTableUrl = UrlRouter.GetTableUrl(childTableName);
-        var childTableLink = $"<a href=\"{childTableUrl}\">{HttpUtility.HtmlEncode(childTableName.ToVisibleName())}</a>";
         builder.Append(" on ")
-            .Append(childTableLink)
+            .Append(childTableName.ToVisibleName())
             .Append(" contains the same column set as the target key.");
 
         var message = builder.GetStringAndRelease();
