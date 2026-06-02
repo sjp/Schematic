@@ -1,7 +1,7 @@
 /**
  * Dual-mode data loader. A report must work both when opened from disk
  * (`file://`, where `fetch()` of local files is blocked) and when served over
- * `http://`. See REWRITE_PLAN "Frontend (`ui/`)".
+ * `http://`.
  *
  *  - From disk: data is read from `window.__schematic`, populated by the
  *    `data/bundle.js` shim that `index.html` loads.

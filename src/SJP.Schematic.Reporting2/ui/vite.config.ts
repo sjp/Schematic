@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 /**
  * Rewrites the generated `index.html` so it opens by double-click from disk
- * (`file://`). See REWRITE_PLAN "Frontend (`ui/`)":
+ * (`file://`):
  *  - Strip `crossorigin`: it makes the browser refuse same-origin-but-opaque
  *    (`file://`) assets.
  *  - Swap `type="module"` for `defer` on the entry script: ES-module scripts

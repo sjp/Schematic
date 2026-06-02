@@ -136,43 +136,38 @@ public class ReportGenerator
         // Synonym target resolution maps an aliased object name to its owning object's hash route.
         var synonymTargets = new SynonymTargets(tableNames, viewNames, sequenceNames, synonymNames, routineNames);
 
-        // Lint analysis (issue 10): the rule providers + 24 rules are kept as-is; only the output
-        // shape changes (data/lint.json instead of lint.html).
+        // Lint analysis: the rule providers + 24 rules are kept as-is; the output is data/lint.json.
         var ruleProvider = new ReportingRuleProvider();
         var rules = ruleProvider.GetRules(Connection, RuleLevel.Warning);
         var linter = new RelationalDatabaseLinter(rules);
 
         return
         [
-            // Tables reference slice (issue 06): dashboard summary, tables list, and per-table
-            // detail. Further per-type data renderers (sequences/synonyms/... -> data/*.json) are
-            // added here by issues 08-11; the SearchRenderer (-> data/search.json) slot is filled
-            // in issue 12. Until then only the converted renderers run, so each milestone builds
-            // and is verifiable on its own.
+            // Dashboard summary, tables list, and per-table detail.
             new MainRenderer(Database, tables, views, sequences, synonyms, routines, databaseVersion, jsonWriter, bundle, ExportDirectory),
             new TablesRenderer(tables, rowCounts, jsonWriter, bundle, ExportDirectory),
             new TableRenderer(Database.IdentifierDefaults, tables, rowCounts, jsonWriter, bundle, ExportDirectory),
-            // Views & Routines (issue 07).
+            // Views & routines.
             new ViewsRenderer(views, jsonWriter, bundle, ExportDirectory),
             new ViewRenderer(views, referencedObjectTargets, jsonWriter, bundle, ExportDirectory),
             new RoutinesRenderer(routines, jsonWriter, bundle, ExportDirectory),
             new RoutineRenderer(routines, jsonWriter, bundle, ExportDirectory),
-            // Sequences & Synonyms (issue 08).
+            // Sequences & synonyms.
             new SequencesRenderer(sequences, jsonWriter, bundle, ExportDirectory),
             new SequenceRenderer(sequences, jsonWriter, bundle, ExportDirectory),
             new SynonymsRenderer(synonyms, synonymTargets, jsonWriter, bundle, ExportDirectory),
             new SynonymRenderer(synonyms, synonymTargets, jsonWriter, bundle, ExportDirectory),
-            // Summary-only pages (issue 09): no per-object detail.
+            // Summary-only pages: no per-object detail.
             new TriggersRenderer(tables, jsonWriter, bundle, ExportDirectory),
             new ColumnsRenderer(tables, views, jsonWriter, bundle, ExportDirectory),
             new ConstraintsRenderer(tables, jsonWriter, bundle, ExportDirectory),
             new IndexesRenderer(tables, jsonWriter, bundle, ExportDirectory),
             new OrphansRenderer(tables, rowCounts, jsonWriter, bundle, ExportDirectory),
-            // Lint page (issue 10).
+            // Lint page.
             new LintRenderer(linter, tables, views, sequences, synonyms, routines, jsonWriter, bundle, ExportDirectory),
-            // Relationships & schema-wide diagrams (issue 11).
+            // Relationships & schema-wide diagrams.
             new RelationshipsRenderer(Database.IdentifierDefaults, tables, rowCounts, jsonWriter, bundle, ExportDirectory),
-            // Search index (issue 12).
+            // Search index.
             new SearchRenderer(tables, views, sequences, synonyms, routines, jsonWriter, bundle, ExportDirectory),
             new TableOrderingRenderer(Connection.Dialect, tables, exportsDirectory),
             new DbmlRenderer(tables, exportsDirectory),

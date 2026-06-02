@@ -52,16 +52,14 @@ public sealed class JsonDataWriter
 /// <summary>
 /// System.Text.Json source-generation context for the reporting viewmodels: camelCase
 /// property names, enums as strings, nulls omitted, not indented. Concrete viewmodel types
-/// are registered with <c>[JsonSerializable(typeof(T))]</c> as renderers are converted
-/// (issues 06–12).
+/// are registered with <c>[JsonSerializable(typeof(T))]</c>.
 /// </summary>
 [JsonSourceGenerationOptions(
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     UseStringEnumConverter = true,
     WriteIndented = false)]
-// string[] is genuinely used (lint messages). Concrete viewmodel types are registered as the
-// renderer-conversion issues (06–12) convert them; nested types reachable from these roots are
+// string[] is genuinely used (lint messages). Nested types reachable from these roots are
 // discovered automatically by the source generator.
 [JsonSerializable(typeof(string[]))]
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Main))]
@@ -81,17 +79,17 @@ public sealed class JsonDataWriter
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Sequence), TypeInfoPropertyName = "SequenceDetail")]
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Synonyms))]
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Synonym), TypeInfoPropertyName = "SynonymDetail")]
-// Summary-only pages (issue 09): each is a schema-wide list with no per-object detail.
+// Summary-only pages: each is a schema-wide list with no per-object detail.
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Triggers))]
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Columns))]
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Constraints))]
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Indexes))]
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Orphans))]
-// Lint page (issue 10): lint messages grouped by rule.
+// Lint page: lint messages grouped by rule.
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.LintResults))]
-// Relationships (issue 11): schema-wide diagram levels referencing data/diagrams/*.svg.
+// Relationships: schema-wide diagram levels referencing data/diagrams/*.svg.
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Relationships))]
-// Search (issue 12): flat index of every object + column for the Cmd/Ctrl-K palette.
+// Search: flat index of every object + column for the Cmd/Ctrl-K palette.
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Search))]
 public partial class ReportingJsonContext : JsonSerializerContext
 {
