@@ -23,8 +23,6 @@
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
         <EnableNUnitRunner>true</EnableNUnitRunner>
-        <!-- hopefully temporary, until RazorLight bumps to secure version -->
-        <NoWarn>NU1903</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
