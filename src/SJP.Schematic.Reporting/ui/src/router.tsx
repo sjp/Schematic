@@ -25,17 +25,37 @@ import { OrphansPage } from "@/routes/orphans";
 import { LintPage } from "@/routes/lint";
 import { RelationshipsPage } from "@/routes/relationships";
 import { ensureDetail, ensureSummary } from "@/hooks/useReportData";
+import type {
+  MainSummary,
+  RoutineDetail,
+  SequenceDetail,
+  SynonymDetail,
+  TableDetail,
+  ViewDetail,
+} from "@/types/report";
+
+const BRAND = "Schematic";
+/** Browser-tab title for a page, e.g. `pageTitle("Lint")` → "Lint · Schematic". */
+const pageTitle = (name: string) => `${name} · ${BRAND}`;
+// Falls back to the bare brand if no name is available (e.g. loader data not yet
+// resolved), avoiding a "· Schematic" title with an empty leading segment.
+const titleMeta = (name?: string) => ({
+  meta: [{ title: name ? pageTitle(name) : BRAND }],
+});
 
 const rootRoute = createRootRoute({
   component: RootLayout,
   notFoundComponent: NotFound,
+  // Default title for unmatched routes (NotFound); child routes override it.
+  head: () => ({ meta: [{ title: BRAND }] }),
 });
 
 const dashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
   component: DashboardPage,
-  loader: () => ensureSummary("main"),
+  loader: () => ensureSummary<MainSummary>("main"),
+  head: ({ loaderData }) => titleMeta(loaderData?.databaseName),
 });
 
 const tablesRoute = createRoute({
@@ -43,13 +63,15 @@ const tablesRoute = createRoute({
   path: "/tables",
   component: TablesPage,
   loader: () => ensureSummary("tables"),
+  head: () => titleMeta("Tables"),
 });
 
 const tableDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/tables/$tableKey",
   component: TableDetailPage,
-  loader: ({ params }) => ensureDetail("table", params.tableKey),
+  loader: ({ params }) => ensureDetail<TableDetail>("table", params.tableKey),
+  head: ({ loaderData }) => titleMeta(loaderData?.name),
 });
 
 const viewsRoute = createRoute({
@@ -57,13 +79,15 @@ const viewsRoute = createRoute({
   path: "/views",
   component: ViewsPage,
   loader: () => ensureSummary("views"),
+  head: () => titleMeta("Views"),
 });
 
 const viewDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/views/$viewKey",
   component: ViewDetailPage,
-  loader: ({ params }) => ensureDetail("view", params.viewKey),
+  loader: ({ params }) => ensureDetail<ViewDetail>("view", params.viewKey),
+  head: ({ loaderData }) => titleMeta(loaderData?.name),
 });
 
 const routinesRoute = createRoute({
@@ -71,13 +95,16 @@ const routinesRoute = createRoute({
   path: "/routines",
   component: RoutinesPage,
   loader: () => ensureSummary("routines"),
+  head: () => titleMeta("Routines"),
 });
 
 const routineDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/routines/$routineKey",
   component: RoutineDetailPage,
-  loader: ({ params }) => ensureDetail("routine", params.routineKey),
+  loader: ({ params }) =>
+    ensureDetail<RoutineDetail>("routine", params.routineKey),
+  head: ({ loaderData }) => titleMeta(loaderData?.name),
 });
 
 const sequencesRoute = createRoute({
@@ -85,13 +112,16 @@ const sequencesRoute = createRoute({
   path: "/sequences",
   component: SequencesPage,
   loader: () => ensureSummary("sequences"),
+  head: () => titleMeta("Sequences"),
 });
 
 const sequenceDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/sequences/$sequenceKey",
   component: SequenceDetailPage,
-  loader: ({ params }) => ensureDetail("sequence", params.sequenceKey),
+  loader: ({ params }) =>
+    ensureDetail<SequenceDetail>("sequence", params.sequenceKey),
+  head: ({ loaderData }) => titleMeta(loaderData?.name),
 });
 
 const synonymsRoute = createRoute({
@@ -99,13 +129,16 @@ const synonymsRoute = createRoute({
   path: "/synonyms",
   component: SynonymsPage,
   loader: () => ensureSummary("synonyms"),
+  head: () => titleMeta("Synonyms"),
 });
 
 const synonymDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/synonyms/$synonymKey",
   component: SynonymDetailPage,
-  loader: ({ params }) => ensureDetail("synonym", params.synonymKey),
+  loader: ({ params }) =>
+    ensureDetail<SynonymDetail>("synonym", params.synonymKey),
+  head: ({ loaderData }) => titleMeta(loaderData?.name),
 });
 
 const triggersRoute = createRoute({
@@ -113,6 +146,7 @@ const triggersRoute = createRoute({
   path: "/triggers",
   component: TriggersPage,
   loader: () => ensureSummary("triggers"),
+  head: () => titleMeta("Triggers"),
 });
 
 const columnsRoute = createRoute({
@@ -120,6 +154,7 @@ const columnsRoute = createRoute({
   path: "/columns",
   component: ColumnsPage,
   loader: () => ensureSummary("columns"),
+  head: () => titleMeta("Columns"),
 });
 
 const constraintsRoute = createRoute({
@@ -127,6 +162,7 @@ const constraintsRoute = createRoute({
   path: "/constraints",
   component: ConstraintsPage,
   loader: () => ensureSummary("constraints"),
+  head: () => titleMeta("Constraints"),
 });
 
 const indexesRoute = createRoute({
@@ -134,6 +170,7 @@ const indexesRoute = createRoute({
   path: "/indexes",
   component: IndexesPage,
   loader: () => ensureSummary("indexes"),
+  head: () => titleMeta("Indexes"),
 });
 
 const orphansRoute = createRoute({
@@ -141,6 +178,7 @@ const orphansRoute = createRoute({
   path: "/orphans",
   component: OrphansPage,
   loader: () => ensureSummary("orphans"),
+  head: () => titleMeta("Orphans"),
 });
 
 const lintRoute = createRoute({
@@ -148,6 +186,7 @@ const lintRoute = createRoute({
   path: "/lint",
   component: LintPage,
   loader: () => ensureSummary("lint"),
+  head: () => titleMeta("Lint"),
 });
 
 const relationshipsRoute = createRoute({
@@ -155,6 +194,7 @@ const relationshipsRoute = createRoute({
   path: "/relationships",
   component: RelationshipsPage,
   loader: () => ensureSummary("relationships"),
+  head: () => titleMeta("Relationships"),
 });
 
 // Child routes for each object type are registered here by later waves.
