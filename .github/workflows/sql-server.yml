@@ -48,7 +48,7 @@ jobs:
       working-directory: src/SJP.Schematic.SqlServer.Tests
 
     - name: Test
-      run: dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage"
+      run: dotnet test --no-restore --verbosity normal -- --coverage --coverage-output-format cobertura
       working-directory: src/SJP.Schematic.SqlServer.Tests
       env:
         ConnectionStrings__SqlServer_TestDb: Data Source=localhost,1433; User Id=sa; Password=Schematic0123!; MultipleActiveResultSets=True; TrustServerCertificate=True;

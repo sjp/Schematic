@@ -35,7 +35,7 @@ jobs:
       working-directory: src
 
     - name: Test
-      run: dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage"
+      run: dotnet test --no-restore --verbosity normal -- --coverage --coverage-output-format cobertura
       working-directory: src
 
     - name: Coverage
