@@ -108,4 +108,18 @@ internal static class ForeignKeyColumnCollationMismatchRuleTests
 
         Assert.That(messages, Is.Not.Empty);
     }
+
+    [Test]
+    public static async Task AnalyseTables_GivenCollationOnOnlyOneColumn_ProducesMessages()
+    {
+        var rule = new ForeignKeyColumnCollationMismatchRule(RuleLevel.Error);
+        var childColumn = CreateColumn("name", "Latin1_General_CI_AS");
+        var parentColumn = CreateColumn("name", null);
+        var table = CreateChildTable(childColumn, parentColumn);
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Is.Not.Empty);
+    }
 }

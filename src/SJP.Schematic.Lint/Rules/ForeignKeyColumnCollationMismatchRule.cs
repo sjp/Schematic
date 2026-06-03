@@ -68,8 +68,8 @@ public class ForeignKeyColumnCollationMismatchRule : Rule, ITableRule
 
     private static bool CollationsEqual(IDatabaseColumn childColumn, IDatabaseColumn parentColumn)
     {
-        var childCollation = childColumn.Type.Collation.Match(static c => c.ToString(), static () => (string?)null);
-        var parentCollation = parentColumn.Type.Collation.Match(static c => c.ToString(), static () => (string?)null);
+        var childCollation = childColumn.Type.Collation.Match(static c => c.ToString(), static () => string.Empty);
+        var parentCollation = parentColumn.Type.Collation.Match(static c => c.ToString(), static () => string.Empty);
 
         return string.Equals(childCollation, parentCollation, StringComparison.Ordinal);
     }
