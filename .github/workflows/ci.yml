@@ -16,7 +16,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - name: Install Graphviz # required for reporting
       run: sudo apt install -y graphviz
