@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -163,5 +164,21 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         var column = table.Columns[table.Columns.Count - 1];
 
         Assert.That(column.AutoIncrement.UnwrapSome().Increment, Is.EqualTo(5));
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenTableWithJsonColumn_ReturnsColumnWithJsonDataType()
+    {
+        if (!await Dialect.SupportsJsonDataType(Connection))
+        {
+            Assert.Pass();
+            return;
+        }
+
+        const string tableName = "table_test_table_37";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "json_column", StringComparison.Ordinal));
+
+        Assert.That(column.Type.DataType, Is.EqualTo(DataType.Json));
     }
 }
