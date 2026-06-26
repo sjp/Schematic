@@ -8,7 +8,7 @@
         <TreatSpecificWarningsAsErrors />
         <Features>strict</Features>
         <AnalysisLevel>latest</AnalysisLevel>
-        <Copyright>Copyright © Simon Potter 2025</Copyright>
+        <Copyright>Copyright © Simon Potter 2026</Copyright>
         <RepositoryUrl>https://github.com/sjp/Schematic.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <NeutralLanguage>en-US</NeutralLanguage>
@@ -23,6 +23,9 @@
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
         <EnableNUnitRunner>true</EnableNUnitRunner>
+        <!-- The checked-in ANTLR generated parser emits [CLSCompliant(false)] attributes which
+         trigger CS3021 (redundant because the assembly is not CLS-compliant). Harmless. -->
+    <NoWarn>$(NoWarn);CS3021</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

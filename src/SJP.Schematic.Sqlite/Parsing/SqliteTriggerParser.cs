@@ -1,7 +1,6 @@
-﻿using System;
-using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
-using Superpower.Model;
+using System;
+using SJP.Schematic.Sqlite.Exceptions;
+using SJP.Schematic.Sqlite.Parsing.Antlr;
 
 namespace SJP.Schematic.Sqlite.Parsing;
 
@@ -11,38 +10,24 @@ namespace SJP.Schematic.Sqlite.Parsing;
 public class SqliteTriggerParser
 {
     /// <summary>
-    /// Parses the tokens into structured trigger definition.
+    /// Parses a <c>CREATE TRIGGER</c> definition into structured trigger information.
     /// </summary>
-    /// <param name="tokens">A collection of tokens from the trigger definition.</param>
+    /// <param name="definition">The textual definition of the <c>CREATE TRIGGER</c> statement.</param>
     /// <returns>Parsed data for a <c>CREATE TRIGGER</c> definition.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tokens"/> is empty.</exception>
-    public ParsedTriggerData ParseTokens(TokenList<SqliteToken> tokens)
+    /// <exception cref="ArgumentException"><paramref name="definition"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="SqliteTriggerParsingException">The definition could not be parsed.</exception>
+    public ParsedTriggerData Parse(string definition)
     {
-        if (tokens == default || tokens.Empty())
-            throw new ArgumentNullException(nameof(tokens));
+        ArgumentException.ThrowIfNullOrWhiteSpace(definition);
 
-        var timing = TriggerQueryTiming.After;
-        var evt = TriggerEvent.None;
-
-        var triggerDef = SqliteTokenParsers.TriggerDefinition(tokens);
-        if (triggerDef.HasValue)
+        try
         {
-            timing = triggerDef.Value.timing;
-            evt = triggerDef.Value.evt;
+            var parseTree = SqliteDdlParser.ParseTriggerDefinition(definition);
+            return SqliteTriggerDefinitionBuilder.Build(parseTree);
         }
-
-        return new ParsedTriggerData(timing, evt);
+        catch (SqliteSyntaxErrorException ex)
+        {
+            throw new SqliteTriggerParsingException(ex.Message, ex);
+        }
     }
-
-    /// <summary>
-    /// Gets the timing of when the trigger will execute.
-    /// </summary>
-    /// <value>The trigger timing.</value>
-    public TriggerQueryTiming Timing { get; }
-
-    /// <summary>
-    /// Gets the table events that cause the event to fire.
-    /// </summary>
-    /// <value>The table DML events.</value>
-    public TriggerEvent Event { get; }
 }

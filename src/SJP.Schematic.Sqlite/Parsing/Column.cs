@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System;
 using EnumsNET;
-using Superpower.Model;
 
 namespace SJP.Schematic.Sqlite.Parsing;
 
@@ -22,16 +19,15 @@ public class Column
     /// <param name="defaultValue">The default value.</param>
     /// <param name="computedDefinition">The computed definition.</param>
     /// <param name="computedColumnType">The computed column type.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <see langword="null" />, empty or whitespace.</exception>
-    /// <exception cref="ArgumentException"><paramref name="collation"/> or <paramref name="computedColumnType"/> are invalid enum values.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columnName"/> is <see langword="null" />, empty or whitespace. Alternatively if <paramref name="collation"/> or <paramref name="computedColumnType"/> are invalid enum values.</exception>
     public Column(
         string columnName,
-        IEnumerable<Token<SqliteToken>> typeDefinition,
+        string typeDefinition,
         bool nullable,
         bool autoIncrement,
         SqliteCollation collation,
-        IEnumerable<Token<SqliteToken>> defaultValue,
-        IEnumerable<Token<SqliteToken>> computedDefinition,
+        string defaultValue,
+        string computedDefinition,
         SqliteGeneratedColumnType computedColumnType
     )
     {
@@ -42,12 +38,12 @@ public class Column
             throw new ArgumentException($"The {nameof(SqliteGeneratedColumnType)} provided must be a valid enum.", nameof(computedColumnType));
 
         Name = columnName;
-        TypeDefinition = typeDefinition?.ToList() ?? Enumerable.Empty<Token<SqliteToken>>();
+        TypeDefinition = typeDefinition ?? string.Empty;
         Nullable = nullable;
         IsAutoIncrement = autoIncrement;
         Collation = collation;
-        DefaultValue = defaultValue?.ToList() ?? Enumerable.Empty<Token<SqliteToken>>();
-        ComputedDefinition = computedDefinition?.ToList() ?? Enumerable.Empty<Token<SqliteToken>>();
+        DefaultValue = defaultValue ?? string.Empty;
+        ComputedDefinition = computedDefinition ?? string.Empty;
         ComputedColumnType = computedColumnType;
     }
 
@@ -60,8 +56,8 @@ public class Column
     /// <summary>
     /// A type definition for the column type.
     /// </summary>
-    /// <value>A collection of tokens representing the column type definition.</value>
-    public IEnumerable<Token<SqliteToken>> TypeDefinition { get; }
+    /// <value>The column type definition.</value>
+    public string TypeDefinition { get; }
 
     /// <summary>
     /// Gets a value indicating whether this <see cref="Column"/> is nullable.
@@ -85,14 +81,14 @@ public class Column
     /// <summary>
     /// Gets the default value.
     /// </summary>
-    /// <value>A collection of tokens representing the default value definition.</value>
-    public IEnumerable<Token<SqliteToken>> DefaultValue { get; }
+    /// <value>The default value definition.</value>
+    public string DefaultValue { get; }
 
     /// <summary>
     /// Gets the computed definition.
     /// </summary>
-    /// <value>A collection of tokens representing the computed column definition.</value>
-    public IEnumerable<Token<SqliteToken>> ComputedDefinition { get; }
+    /// <value>The computed column definition.</value>
+    public string ComputedDefinition { get; }
 
     /// <summary>
     /// Determines how the column value is stored.

@@ -617,13 +617,8 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         foreach (var ck in checks)
         {
-            var startIndex = ck.Definition.First().Position.Absolute;
-            var lastToken = ck.Definition.Last();
-            var endIndex = lastToken.Position.Absolute + lastToken.ToStringValue().Length;
-
-            var definition = parsedTable.Definition[startIndex..endIndex];
             var checkName = ck.Name.Map(Identifier.CreateQualifiedIdentifier);
-            var check = new SqliteCheckConstraint(checkName, definition);
+            var check = new SqliteCheckConstraint(checkName, ck.Definition);
             result.Add(check);
         }
 
@@ -814,13 +809,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             }
             else
             {
-                var startIndex = parsedColumnInfo.ComputedDefinition.First().Position.Absolute;
-                var lastToken = parsedColumnInfo.ComputedDefinition.Last();
-                var endIndex = lastToken.Position.Absolute + lastToken.ToStringValue().Length;
-
-                var definition = parsedTable.Definition[startIndex..endIndex];
-
-                var column = new DatabaseComputedColumn(tableInfo.name, columnType, !tableInfo.notnull, defaultValue, definition);
+                var column = new DatabaseComputedColumn(tableInfo.name, columnType, !tableInfo.notnull, defaultValue, parsedColumnInfo.ComputedDefinition);
                 result.Add(column);
             }
         }
@@ -914,12 +903,14 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             var triggerSql = triggerInfo.Sql;
             var parsedTrigger = _triggerParserCache.GetOrAdd(triggerSql, sql => new Lazy<ParsedTriggerData>(() =>
             {
-                var tokenizeResult = Tokenizer.TryTokenize(sql);
-                if (!tokenizeResult.HasValue)
-                    throw new SqliteTriggerParsingException(tableName, sql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
-
-                var tokens = tokenizeResult.Value;
-                return TriggerParser.ParseTokens(tokens);
+                try
+                {
+                    return TriggerParser.Parse(sql);
+                }
+                catch (SqliteTriggerParsingException ex)
+                {
+                    throw new SqliteTriggerParsingException(tableName, sql, ex.Message);
+                }
             })).Value;
 
             var trigger = new SqliteDatabaseTrigger(triggerInfo.Name, triggerSql, parsedTrigger.Timing, parsedTrigger.Event);
@@ -978,12 +969,14 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         return _tableParserCache.GetOrAdd(tableSql!, sql => new Lazy<ParsedTableData>(() =>
         {
-            var tokenizeResult = Tokenizer.TryTokenize(sql);
-            if (!tokenizeResult.HasValue)
-                throw new SqliteTableParsingException(tableName, sql, tokenizeResult.ErrorMessage + " at " + tokenizeResult.ErrorPosition.ToString());
-
-            var tokens = tokenizeResult.Value;
-            return TableParser.ParseTokens(sql, tokens);
+            try
+            {
+                return TableParser.Parse(sql);
+            }
+            catch (SqliteTableParsingException ex)
+            {
+                throw new SqliteTableParsingException(tableName, sql, ex.Message);
+            }
         })).Value;
     }
 

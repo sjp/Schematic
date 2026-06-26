@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System;
 using LanguageExt;
-using SJP.Schematic.Core.Extensions;
-using Superpower.Model;
 
 namespace SJP.Schematic.Sqlite.Parsing;
 
@@ -17,14 +13,13 @@ public class Check
     /// </summary>
     /// <param name="constraintName">A parsed constraint name.</param>
     /// <param name="definition">The check definition.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <see langword="null" />, or has no tokens.</exception>
-    public Check(Option<string> constraintName, IEnumerable<Token<SqliteToken>> definition)
+    /// <exception cref="ArgumentException"><paramref name="definition"/> is <see langword="null" />, empty or whitespace.</exception>
+    public Check(Option<string> constraintName, string definition)
     {
-        if (definition.NullOrEmpty())
-            throw new ArgumentNullException(nameof(definition));
+        ArgumentException.ThrowIfNullOrWhiteSpace(definition);
 
         Name = constraintName;
-        Definition = definition.ToList();
+        Definition = definition;
     }
 
     /// <summary>
@@ -37,5 +32,5 @@ public class Check
     /// The parsed check constraint definition.
     /// </summary>
     /// <value>A check constraint definition.</value>
-    public IEnumerable<Token<SqliteToken>> Definition { get; }
+    public string Definition { get; }
 }

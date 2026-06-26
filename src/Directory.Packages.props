@@ -3,6 +3,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
+    <PackageVersion Include="Antlr4.Runtime.Standard" Version="4.13.0" />
     <PackageVersion Include="Boxed.Mapping" Version="7.0.0" />
     <PackageVersion Include="Dapper" Version="2.1.79" />
     <PackageVersion Include="Enums.NET" Version="5.0.0" />
