@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using SJP.Schematic.Sqlite.Parsing;
-using Superpower.Model;
+using Antlr4.Runtime;
+using SJP.Schematic.Sqlite.Parsing.Antlr;
 
 namespace SJP.Schematic.Sqlite;
 
@@ -41,28 +40,15 @@ public sealed class SqliteExpressionComparer : IEqualityComparer<string>
         if (x is null || y is null)
             return false;
 
-        var tokenizer = new SqliteTokenizer();
-
-        var xParseResult = tokenizer.TryTokenize(x);
-        if (!xParseResult.HasValue)
-            throw new ArgumentException($"Could not parse the '{nameof(x)}' string as a SQL expression. Given: {x}", nameof(x));
-
-        var yParseResult = tokenizer.TryTokenize(y);
-        if (!yParseResult.HasValue)
-            throw new ArgumentException($"Could not parse the '{nameof(y)}' string as a SQL expression. Given: {y}", nameof(y));
-
-        var xTokens = xParseResult.Value.ToList();
-        var yTokens = yParseResult.Value.ToList();
+        var xTokens = Tokenize(x, nameof(x));
+        var yTokens = Tokenize(y, nameof(y));
 
         if (xTokens.Count != yTokens.Count)
             return false;
 
         for (var i = 0; i < xTokens.Count; i++)
         {
-            var xToken = xTokens[i];
-            var yToken = yTokens[i];
-
-            if (!TokensEqual(xToken, yToken))
+            if (!TokensEqual(xTokens[i], yTokens[i]))
                 return false;
         }
 
@@ -76,31 +62,26 @@ public sealed class SqliteExpressionComparer : IEqualityComparer<string>
     /// <returns>A hash code for a SQL expression, suitable for use in hashing algorithms and data structures like a hash table.</returns>
     public int GetHashCode(string obj) => Comparer.GetHashCode(obj);
 
-    private bool TokensEqual(Token<SqliteToken> x, Token<SqliteToken> y)
+    private static IReadOnlyList<IToken> Tokenize(string expression, string paramName)
     {
-        if (x.Kind != y.Kind)
-            return false;
-
-        var isStringX = IsStringToken(x);
-        var isStringY = IsStringToken(y);
-        if (isStringX ^ isStringY)
-            return false;
-
-        var comparer = isStringX ? SqlStringComparer : Comparer;
-
-        var xString = x.ToStringValue();
-        var yString = y.ToStringValue();
-
-        return comparer.Equals(xString, yString);
+        try
+        {
+            return SqliteLexing.GetSignificantTokens(expression);
+        }
+        catch (SqliteSyntaxErrorException ex)
+        {
+            throw new ArgumentException($"Could not parse the '{paramName}' string as a SQL expression. Given: {expression}", paramName, ex);
+        }
     }
 
-    private static bool IsStringToken(Token<SqliteToken> token)
+    private bool TokensEqual(IToken x, IToken y)
     {
-        if (token.Kind != SqliteToken.String)
+        if (x.Type != y.Type)
             return false;
 
-        var tokenValue = token.ToStringValue();
-        var lastCharIndex = tokenValue.Length - 1;
-        return tokenValue[0] == '\'' && tokenValue[lastCharIndex] == '\'';
+        var isStringToken = x.Type == SQLiteLexer.STRING_LITERAL;
+        var comparer = isStringToken ? SqlStringComparer : Comparer;
+
+        return comparer.Equals(x.Text, y.Text);
     }
 }

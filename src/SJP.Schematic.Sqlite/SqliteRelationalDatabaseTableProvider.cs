@@ -12,6 +12,7 @@ using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Sqlite.Exceptions;
 using SJP.Schematic.Sqlite.Parsing;
+using SJP.Schematic.Sqlite.Parsing.Antlr;
 using SJP.Schematic.Sqlite.Pragma;
 using SJP.Schematic.Sqlite.Queries;
 
@@ -434,32 +435,42 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 cancellationToken
             );
 
-            var filterDefinition = Option<string>.None;
-            if (indexSchema != null)
-            {
-                var tokens = Tokenizer.TryTokenize(indexSchema);
-                if (tokens.HasValue)
-                {
-                    var whereToken = tokens.Value.FirstOrDefault(t => t.Kind == SqliteToken.Where);
-                    var postWhereToken = whereToken.HasValue
-                        ? tokens.Value.FirstOrDefault(t => t.Position.Absolute > whereToken.Position.Absolute)
-                        : default;
-                    if (postWhereToken.Kind != SqliteToken.None)
-                    {
-                        var location = postWhereToken.Position.Absolute;
-                        var definition = indexSchema[location..];
-                        filterDefinition = !definition.IsNullOrWhiteSpace()
-                            ? Option<string>.Some(definition)
-                            : Option<string>.None;
-                    }
-                }
-            }
+            var filterDefinition = indexSchema != null
+                ? GetIndexFilterDefinition(indexSchema)
+                : Option<string>.None;
 
             var index = new SqliteDatabaseIndex(indexList.name, indexList.unique, indexColumns, includedColumns, filterDefinition);
             result.Add(index);
         }
 
         return result;
+    }
+
+    private static Option<string> GetIndexFilterDefinition(string indexSchema)
+    {
+        try
+        {
+            var tokens = SqliteLexing.GetSignificantTokens(indexSchema);
+
+            // The filter expression is everything following the WHERE keyword.
+            for (var i = 0; i < tokens.Count - 1; i++)
+            {
+                if (tokens[i].Type != SQLiteLexer.WHERE_)
+                    continue;
+
+                var definition = indexSchema[tokens[i + 1].StartIndex..];
+                return !definition.IsNullOrWhiteSpace()
+                    ? Option<string>.Some(definition)
+                    : Option<string>.None;
+            }
+
+            return Option<string>.None;
+        }
+        catch (SqliteSyntaxErrorException)
+        {
+            // Unable to lex the index definition; treat it as having no filter expression.
+            return Option<string>.None;
+        }
     }
 
     /// <summary>
@@ -1053,7 +1064,6 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     };
 
     private static readonly SqliteTypeAffinityParser AffinityParser = new();
-    private static readonly SqliteTokenizer Tokenizer = new();
     private static readonly SqliteTableParser TableParser = new();
     private static readonly SqliteTriggerParser TriggerParser = new();
 

@@ -12,7 +12,6 @@
     <!-- Pin the SQLitePCLRaw stack to a patched build; the version brought in transitively
          by Microsoft.Data.SQLite has a known native SQLite vulnerability (GHSA-2m69-gcr7-jv3q). -->
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" />
-    <PackageReference Include="Superpower" />
   </ItemGroup>
 
   <ItemGroup>

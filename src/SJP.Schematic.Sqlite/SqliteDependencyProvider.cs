@@ -76,21 +76,9 @@ public sealed class SqliteDependencyProvider : IDependencyProvider
 
     private static IReadOnlyList<IToken> GetSignificantTokens(string expression)
     {
-        var inputStream = new AntlrInputStream(expression);
-        var lexer = new SQLiteLexer(inputStream);
-        lexer.RemoveErrorListeners();
-        lexer.AddErrorListener(ThrowingErrorListener.Instance);
-
         try
         {
-            var tokenStream = new CommonTokenStream(lexer);
-            tokenStream.Fill();
-
-            // Comments and whitespace are emitted on the hidden channel; restrict to the
-            // default channel so that qualified-name parts remain adjacent.
-            return tokenStream.GetTokens()
-                .Where(static t => t.Channel == Lexer.DefaultTokenChannel && t.Type != TokenConstants.EOF)
-                .ToList();
+            return SqliteLexing.GetSignificantTokens(expression);
         }
         catch (SqliteSyntaxErrorException ex)
         {
