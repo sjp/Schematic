@@ -35,7 +35,7 @@ create table cycle_table_4 (
 create table cycle_table_2 (
     column_1 integer not null primary key autoincrement,
     column_2 integer,
-    constraint test_fk_1 foreign key (column_2) references cycle_table_3 (column_1)
+    constraint test_fk_1 foreign key (column_2) references cycle_table_3 (column_1),
     constraint test_fk_2 foreign key (column_2) references cycle_table_4 (column_1)
 )", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table no_cycle_table_1 ( column_1 integer not null primary key autoincrement )", CancellationToken.None);
