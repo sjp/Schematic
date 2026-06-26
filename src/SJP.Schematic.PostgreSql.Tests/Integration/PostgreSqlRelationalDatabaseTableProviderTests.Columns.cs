@@ -194,6 +194,26 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     }
 
     [Test]
+    public async Task Columns_WhenGivenTableWithJsonColumn_ReturnsColumnWithJsonDataType()
+    {
+        const string tableName = "table_test_table_39";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "json_column", StringComparison.Ordinal));
+
+        Assert.That(column.Type.DataType, Is.EqualTo(DataType.Json));
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenTableWithJsonbColumn_ReturnsColumnWithJsonDataType()
+    {
+        const string tableName = "table_test_table_39";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "jsonb_column", StringComparison.Ordinal));
+
+        Assert.That(column.Type.DataType, Is.EqualTo(DataType.Json));
+    }
+
+    [Test]
     public async Task Columns_WhenGivenTableWithGeneratedColumns_ReturnsExpectedComputedColumnDefinition()
     {
         var dbVersion = await Dialect.GetDatabaseVersionAsync(Connection);
