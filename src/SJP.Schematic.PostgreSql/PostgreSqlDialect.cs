@@ -168,6 +168,12 @@ public class PostgreSqlDialect : DatabaseDialect
     }
 
     /// <summary>
+    /// Retrieves a dependency provider for PostgreSQL expressions.
+    /// </summary>
+    /// <returns>A dependency provider.</returns>
+    public override IDependencyProvider GetDependencyProvider() => new PostgreSqlDependencyProvider();
+
+    /// <summary>
     /// Determines whether the given text is a reserved keyword.
     /// </summary>
     /// <param name="text">A piece of text.</param>

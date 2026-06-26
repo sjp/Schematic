@@ -1,0 +1,216 @@
+using System;
+using NUnit.Framework;
+
+namespace SJP.Schematic.PostgreSql.Tests;
+
+[TestFixture]
+internal static class PostgreSqlExpressionComparerTests
+{
+    [Test]
+    public static void Ctor_GivenNullComparer_CreatesWithoutError()
+    {
+        var argComparer = StringComparer.Ordinal;
+        Assert.That(() => new PostgreSqlExpressionComparer(sqlStringComparer: argComparer), Throws.Nothing);
+    }
+
+    [Test]
+    public static void Ctor_GivenNullSqlStringComparer_CreatesWithoutError()
+    {
+        var argComparer = StringComparer.Ordinal;
+        Assert.That(() => new PostgreSqlExpressionComparer(argComparer), Throws.Nothing);
+    }
+
+    [Test]
+    public static void Ctor_GivenNoComparers_CreatesWithoutError()
+    {
+        Assert.That(() => new PostgreSqlExpressionComparer(), Throws.Nothing);
+    }
+
+    [Test]
+    public static void Equals_GivenEqualSqlStringArguments_ReturnsTrue()
+    {
+        const string input = "'test'";
+        var comparer = new PostgreSqlExpressionComparer();
+
+        var equals = comparer.Equals(input, input);
+
+        Assert.That(equals, Is.True);
+    }
+
+    [Test]
+    public static void Equals_GivenDifferentSqlStringArguments_ReturnsFalse()
+    {
+        const string inputX = "'test'";
+        const string inputY = "'alternative'";
+        var comparer = new PostgreSqlExpressionComparer();
+
+        var equals = comparer.Equals(inputX, inputY);
+
+        Assert.That(equals, Is.False);
+    }
+
+    [Test]
+    public static void Equals_GivenEqualSqlStringArgumentsWrappedInParens_ReturnsTrue()
+    {
+        const string input = "('test')";
+        var comparer = new PostgreSqlExpressionComparer();
+
+        var equals = comparer.Equals(input, input);
+
+        Assert.That(equals, Is.True);
+    }
+
+    [Test]
+    public static void Equals_GivenEqualSqlStringsWithOneWrappedInParens_ReturnsTrue()
+    {
+        const string inputX = "('test')";
+        const string inputY = "'test'";
+        var comparer = new PostgreSqlExpressionComparer();
+
+        var equals = comparer.Equals(inputX, inputY);
+
+        Assert.That(equals, Is.True);
+    }
+
+    [Test]
+    public static void Equals_GivenEqualNumberArguments_ReturnsTrue()
+    {
+        const string input = "123";
+        var comparer = new PostgreSqlExpressionComparer();
+
+        var equals = comparer.Equals(input, input);
+
+        Assert.That(equals, Is.True);
+    }
+
+    [Test]
+    public static void Equals_GivenDifferentNumberArguments_ReturnsFalse()
+    {
+        const string inputX = "123";
+        const string inputY = "456";
+        var comparer = new PostgreSqlExpressionComparer();
+
+        var equals = comparer.Equals(inputX, inputY);
+
+        Assert.That(equals, Is.False);
+    }
+
+    [Test]
+    public static void Equals_GivenEqualNumbersWithOneWrappedInParens_ReturnsTrue()
+    {
+        const string inputX = "(123)";
+        const string inputY = "123";
+        var comparer = new PostgreSqlExpressionComparer();
+
+        var equals = comparer.Equals(inputX, inputY);
+
+        Assert.That(equals, Is.True);
+    }
+
+    [Test]
+    public static void Equals_GivenEqualNumbersWithOneWrappedTwiceInParens_ReturnsTrue()
+    {
+        const string inputX = "((123))";
+        const string inputY = "123";
+        var comparer = new PostgreSqlExpressionComparer();
+
+        var equals = comparer.Equals(inputX, inputY);
+
+        Assert.That(equals, Is.True);
+    }
+
+    [Test]
+    public static void Equals_GivenEqualComplexExpressions_ReturnsTrue()
+    {
+        const string input = "\"test_column_1\" > length(left(\"test\", 50))";
+        var comparer = new PostgreSqlExpressionComparer();
+
+        var equals = comparer.Equals(input, input);
+
+        Assert.That(equals, Is.True);
+    }
+
+    [Test]
+    public static void Equals_GivenDifferentComplexExpressions_ReturnsFalse()
+    {
+        const string inputX = "\"test_column_1\" > length(left(\"test\", 50))";
+        const string inputY = "\"test_column_2\" < length(left(\"test\", 50))";
+        var comparer = new PostgreSqlExpressionComparer();
+
+        var equals = comparer.Equals(inputX, inputY);
+
+        Assert.That(equals, Is.False);
+    }
+
+    [Test]
+    public static void Equals_GivenEqualComplexExpressionsOneWithParenWrappedNumericValue_ReturnsTrue()
+    {
+        const string inputX = "(\"test_column_1\" > length(left(\"test\", (50))))";
+        const string inputY = "\"test_column_1\" > length(left(\"test\", 50))";
+        var comparer = new PostgreSqlExpressionComparer();
+
+        var equals = comparer.Equals(inputX, inputY);
+
+        Assert.That(equals, Is.True);
+    }
+
+    [Test]
+    public static void Equals_GivenEqualComplexExpressionsOneWithWhitespaceRemoved_ReturnsTrue()
+    {
+        const string inputX = "(\"test_column_1\" > length(left(\"test\", (50))))";
+        const string inputY = "\"test_column_1\">length(left(\"test\",50))";
+        var comparer = new PostgreSqlExpressionComparer();
+
+        var equals = comparer.Equals(inputX, inputY);
+
+        Assert.That(equals, Is.True);
+    }
+
+    [Test]
+    public static void Equals_GivenDefaultTextComparerAndEqualComplexExpressionsButDifferentCase_ReturnsFalse()
+    {
+        const string inputX = "(\"test_column_1\" > length(left(\"test\", (50))))";
+        const string inputY = "(\"TEST_Column_1\" > length(left(\"test\", (50))))";
+        var comparer = new PostgreSqlExpressionComparer();
+
+        var equals = comparer.Equals(inputX, inputY);
+
+        Assert.That(equals, Is.False);
+    }
+
+    [Test]
+    public static void Equals_GivenIgnoreCaseTextComparerAndEqualComplexExpressionsButDifferentCase_ReturnsTrue()
+    {
+        const string inputX = "(\"test_column_1\" > length(left(\"test\", (50))))";
+        const string inputY = "(\"TEST_Column_1\" > length(left(\"test\", (50))))";
+        var comparer = new PostgreSqlExpressionComparer(StringComparer.OrdinalIgnoreCase);
+
+        var equals = comparer.Equals(inputX, inputY);
+
+        Assert.That(equals, Is.True);
+    }
+
+    [Test]
+    public static void Equals_GivenDefaultTextComparerAndEqualComplexExpressionsButDifferentStringCase_ReturnsFalse()
+    {
+        const string inputX = "(\"test_column_1\" > length(left('test', (50))))";
+        const string inputY = "(\"test_column_1\" > length(left('TEST', (50))))";
+        var comparer = new PostgreSqlExpressionComparer();
+
+        var equals = comparer.Equals(inputX, inputY);
+
+        Assert.That(equals, Is.False);
+    }
+
+    [Test]
+    public static void Equals_GivenIgnoreCaseStringComparerAndEqualComplexExpressionsButDifferentStringCase_ReturnsTrue()
+    {
+        const string inputX = "(\"test_column_1\" > length(left('test', (50))))";
+        const string inputY = "(\"test_column_1\" > length(left('TEST', (50))))";
+        var comparer = new PostgreSqlExpressionComparer(sqlStringComparer: StringComparer.OrdinalIgnoreCase);
+
+        var equals = comparer.Equals(inputX, inputY);
+
+        Assert.That(equals, Is.True);
+    }
+}

@@ -7,11 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Antlr4.Runtime.Standard" />
     <PackageReference Include="Npgsql" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SJP.Schematic.Core\SJP.Schematic.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Parsing\Antlr\Grammar\PostgreSQLLexer.g4" />
+    <None Include="Parsing\Antlr\Grammar\PostgreSQLParser.g4" />
   </ItemGroup>
 
 </Project>
