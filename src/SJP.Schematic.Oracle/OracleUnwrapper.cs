@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
-using SJP.Schematic.Oracle.Parsing;
+using SJP.Schematic.Oracle.Parsing.Antlr;
 
 namespace SJP.Schematic.Oracle;
 
@@ -108,20 +108,19 @@ public static class OracleUnwrapper
             return false;
 
         var textToTokenize = input[..(lastIndex + wrappedKeyword.Length)];
-        var tokens = Tokenizer.TryTokenize(textToTokenize);
-        if (!tokens.HasValue || tokens.Value.Empty())
+        var tokens = OracleLexing.GetSignificantTokensSafe(textToTokenize);
+        if (tokens.Count == 0)
             return false;
 
         // Note that currently we are not validating the object type.
         // Valid object types are: FUNCTION, PROCEDURE, PACKAGE, PACKAGE BODY, TYPE, TYPE BODY
-        // Additionally, it can contain comments which need to be removed
-        var lastTokenValue = tokens.Value.Last();
-        var hasWrappedToken = lastTokenValue.Kind == OracleToken.Identifier
-                && lastTokenValue.Span.ToStringValue().Equals(wrappedKeyword, StringComparison.OrdinalIgnoreCase);
+        // Comments are emitted on the hidden channel and so are already excluded.
+        var lastTokenValue = tokens[^1];
+        var hasWrappedToken = lastTokenValue.Text.Equals(wrappedKeyword, StringComparison.OrdinalIgnoreCase);
         if (!hasWrappedToken)
             return false;
 
-        var currentIndex = lastTokenValue.Span.Position.Absolute + lastTokenValue.Span.Length;
+        var currentIndex = lastTokenValue.StopIndex + 1;
         const string magicPrefix = "a000000";
 
         var magicPrefixIndex = input.IndexOf(magicPrefix, currentIndex, StringComparison.Ordinal);
@@ -335,5 +334,4 @@ public static class OracleUnwrapper
     private const char CarriageReturn = '\r';
     private static readonly char[] SpaceChar = [' '];
     private static readonly char[] NewlineChars = ['\r', '\n'];
-    private static readonly OracleTokenizer Tokenizer = new();
 }

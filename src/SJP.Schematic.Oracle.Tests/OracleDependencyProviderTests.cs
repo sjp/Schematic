@@ -122,6 +122,47 @@ SELECT * from client.FunctionName('test')
     }
 
     [Test]
+    public static void GetDependencies_GivenExpressionWithNonReservedKeywordAsName_ReturnsNameAsDependency()
+    {
+        // 'client' is a non-reserved keyword in Oracle and so is valid as an object name.
+        var provider = new OracleDependencyProvider();
+        Identifier objectName = "test";
+        const string expression = "select * from client";
+
+        var dependencies = provider.GetDependencies(objectName, expression);
+        var dependency = dependencies.Single();
+
+        Assert.That(dependency.LocalName, Is.EqualTo("client"));
+    }
+
+    [Test]
+    public static void GetDependencies_GivenQuotedIdentifier_ReturnsUnquotedName()
+    {
+        var provider = new OracleDependencyProvider();
+        Identifier objectName = "test";
+        const string expression = "select * from \"Other_Table\"";
+
+        var dependencies = provider.GetDependencies(objectName, expression);
+        var dependency = dependencies.Single();
+
+        Assert.That(dependency.LocalName, Is.EqualTo("Other_Table"));
+    }
+
+    [Test]
+    public static void GetDependencies_GivenThreePartQualifiedName_ReturnsQualifiedDependency()
+    {
+        var provider = new OracleDependencyProvider();
+        Identifier objectName = "test";
+        const string expression = "select * from myschema.mypackage.myfunction(1)";
+
+        var dependencies = provider.GetDependencies(objectName, expression);
+        var dependency = dependencies.Single();
+        var expected = Identifier.CreateQualifiedIdentifier("myschema", "mypackage", "myfunction");
+
+        Assert.That(dependency, Is.EqualTo(expected));
+    }
+
+    [Test]
     public static void GetDependencies_GivenExpressionForViewWithDuplicateNames_ReturnsUniqueDependencies()
     {
         var provider = new OracleDependencyProvider();

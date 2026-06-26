@@ -1,9 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using Antlr4.Runtime;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Oracle.Parsing;
-using Superpower.Model;
+using SJP.Schematic.Oracle.Parsing.Antlr;
 
 namespace SJP.Schematic.Oracle;
 
@@ -42,18 +41,8 @@ public sealed class OracleExpressionComparer : IEqualityComparer<string>
         if (x is null || y is null)
             return false;
 
-        var tokenizer = new OracleTokenizer();
-
-        var xParseResult = tokenizer.TryTokenize(x);
-        if (!xParseResult.HasValue)
-            throw new ArgumentException($"Could not parse the '{nameof(x)}' string as a SQL expression. Given: {x}", nameof(x));
-
-        var yParseResult = tokenizer.TryTokenize(y);
-        if (!yParseResult.HasValue)
-            throw new ArgumentException($"Could not parse the '{nameof(y)}' string as a SQL expression. Given: {y}", nameof(y));
-
-        var xTokens = xParseResult.Value.ToList();
-        var yTokens = yParseResult.Value.ToList();
+        var xTokens = Tokenize(x, nameof(x));
+        var yTokens = Tokenize(y, nameof(y));
 
         var xCleanedTokens = StripWrappingParens(xTokens);
         var yCleanedTokens = StripWrappingParens(yTokens);
@@ -63,10 +52,7 @@ public sealed class OracleExpressionComparer : IEqualityComparer<string>
 
         for (var i = 0; i < xCleanedTokens.Count; i++)
         {
-            var xToken = xCleanedTokens[i];
-            var yToken = yCleanedTokens[i];
-
-            if (!TokensEqual(xToken, yToken))
+            if (!TokensEqual(xCleanedTokens[i], yCleanedTokens[i]))
                 return false;
         }
 
@@ -80,34 +66,39 @@ public sealed class OracleExpressionComparer : IEqualityComparer<string>
     /// <returns>A hash code for a SQL expression, suitable for use in hashing algorithms and data structures like a hash table.</returns>
     public int GetHashCode(string obj) => Comparer.GetHashCode(obj);
 
-    private bool TokensEqual(Token<OracleToken> x, Token<OracleToken> y)
+    private static IReadOnlyList<IToken> Tokenize(string expression, string paramName)
     {
-        if (x.Kind != y.Kind)
+        try
+        {
+            return OracleLexing.GetSignificantTokens(expression);
+        }
+        catch (OracleSyntaxErrorException ex)
+        {
+            throw new ArgumentException($"Could not parse the '{paramName}' string as a SQL expression. Given: {expression}", paramName, ex);
+        }
+    }
+
+    private bool TokensEqual(IToken x, IToken y)
+    {
+        if (x.Type != y.Type)
             return false;
 
-        var comparer = x.Kind == OracleToken.String
+        var comparer = IsStringLiteral(x.Type)
             ? SqlStringComparer
             : Comparer;
 
-        var xString = x.ToStringValue();
-        var yString = y.ToStringValue();
-
-        return comparer.Equals(xString, yString);
+        return comparer.Equals(x.Text, y.Text);
     }
 
-    private static IReadOnlyList<Token<OracleToken>> StripWrappingParens(IReadOnlyList<Token<OracleToken>> tokens)
+    private static IReadOnlyList<IToken> StripWrappingParens(IReadOnlyList<IToken> tokens)
     {
-        ArgumentNullException.ThrowIfNull(tokens);
-
-        // copy to mutable result set
         if (tokens.Empty())
             return [];
 
-        var result = new List<Token<OracleToken>>();
-        result.AddRange(tokens);
+        var result = new List<IToken>(tokens);
 
-        var lastIndex = tokens.Count - 1;
-        if (result[0].Kind == OracleToken.LParen && result[lastIndex].Kind == OracleToken.RParen)
+        var lastIndex = result.Count - 1;
+        if (result[0].Type == PlSqlLexer.LEFT_PAREN && result[lastIndex].Type == PlSqlLexer.RIGHT_PAREN)
         {
             result.RemoveAt(lastIndex);
             result.RemoveAt(0);
@@ -115,8 +106,7 @@ public sealed class OracleExpressionComparer : IEqualityComparer<string>
 
         for (var i = 0; i < result.Count; i++)
         {
-            var token = result[i];
-            if (token.Kind != OracleToken.Number)
+            if (!IsNumber(result[i].Type))
                 continue;
 
             // can't unwrap first char, no prefix to strip
@@ -126,8 +116,8 @@ public sealed class OracleExpressionComparer : IEqualityComparer<string>
 
             var prevToken = result[i - 1];
             var nextToken = result[i + 1];
-            if (prevToken.Kind == OracleToken.LParen
-                && nextToken.Kind == OracleToken.RParen)
+            if (prevToken.Type == PlSqlLexer.LEFT_PAREN
+                && nextToken.Type == PlSqlLexer.RIGHT_PAREN)
             {
                 // remove next first
                 result.RemoveAt(i + 1);
@@ -138,4 +128,10 @@ public sealed class OracleExpressionComparer : IEqualityComparer<string>
 
         return result;
     }
+
+    private static bool IsStringLiteral(int tokenType)
+        => tokenType is PlSqlLexer.CHAR_STRING or PlSqlLexer.NATIONAL_CHAR_STRING_LIT;
+
+    private static bool IsNumber(int tokenType)
+        => tokenType is PlSqlLexer.UNSIGNED_INTEGER or PlSqlLexer.APPROXIMATE_NUM_LIT;
 }

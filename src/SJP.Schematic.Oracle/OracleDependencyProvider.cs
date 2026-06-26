@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Antlr4.Runtime;
 using SJP.Schematic.Core;
-using SJP.Schematic.Oracle.Parsing;
+using SJP.Schematic.Oracle.Parsing.Antlr;
+using static SJP.Schematic.Oracle.Parsing.Antlr.AntlrParsingExtensions;
 
 namespace SJP.Schematic.Oracle;
 
@@ -28,40 +30,58 @@ public sealed class OracleDependencyProvider : IDependencyProvider
     /// <param name="objectName">The name of an object defined by an expression (e.g. a computed column definition).</param>
     /// <param name="expression">A SQL expression that may contain dependent object names.</param>
     /// <returns>A collection of identifiers found in the expression.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <see langword="null" />. Alternatively, if <paramref name="expression"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="expression"/> could not be tokenized as a valid SQL expression.</exception>
     /// <remarks>This will also return unqualified identifiers, which may cause ambiguity between object names and column names. Additionally it may return other identifiers, such as aliases or type names.</remarks>
     public IReadOnlyCollection<Identifier> GetDependencies(Identifier objectName, string expression)
     {
         ArgumentNullException.ThrowIfNull(objectName);
         ArgumentException.ThrowIfNullOrWhiteSpace(expression);
 
-        var tokenizer = new OracleTokenizer();
+        var tokens = GetSignificantTokens(expression);
 
-        var tokenizeResult = tokenizer.TryTokenize(expression);
-        if (!tokenizeResult.HasValue)
-            throw new ArgumentException($"Could not parse the given expression as a SQL expression. Given: {expression}", nameof(expression));
+        var seen = new HashSet<Identifier>(Comparer);
+        var result = new List<Identifier>();
 
-        var result = new HashSet<Identifier>(Comparer);
-
-        var tokens = tokenizeResult.Value;
-
-        var next = tokens.ConsumeToken();
-        while (next.HasValue)
+        var i = 0;
+        while (i < tokens.Count)
         {
-            var sqlIdentifier = OracleTokenParsers.QualifiedName(next.Location);
-            if (sqlIdentifier.HasValue)
+            if (!IsIdentifier(tokens[i]))
             {
-                var dependentIdentifier = sqlIdentifier.Value;
-                if (!Comparer.Equals(dependentIdentifier.Value, objectName))
-                    result.Add(dependentIdentifier.Value);
+                i++;
+                continue;
+            }
 
-                next = sqlIdentifier.Remainder.ConsumeToken();
-            }
-            else
+            // Stitch together qualified names of the form identifier (PERIOD identifier)*,
+            // e.g. schema.table or schema.table.column.
+            var parts = new List<string> { UnquoteIdentifier(tokens[i].Text) };
+            while (i + 2 < tokens.Count
+                && tokens[i + 1].Type == PlSqlLexer.PERIOD
+                && IsIdentifier(tokens[i + 2]))
             {
-                next = next.Remainder.ConsumeToken();
+                parts.Add(UnquoteIdentifier(tokens[i + 2].Text));
+                i += 2;
             }
+
+            var identifier = BuildIdentifier(parts);
+            if (!Comparer.Equals(identifier, objectName) && seen.Add(identifier))
+                result.Add(identifier);
+
+            i++;
         }
 
         return result;
+    }
+
+    private static IReadOnlyList<IToken> GetSignificantTokens(string expression)
+    {
+        try
+        {
+            return OracleLexing.GetSignificantTokens(expression);
+        }
+        catch (OracleSyntaxErrorException ex)
+        {
+            throw new ArgumentException($"Could not parse the given expression as a SQL expression. Given: {expression}", nameof(expression), ex);
+        }
     }
 }
