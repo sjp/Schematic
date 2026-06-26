@@ -53,6 +53,11 @@ public enum DataType
     Interval,
 
     /// <summary>
+    /// A type which stores JSON (JavaScript Object Notation) documents.
+    /// </summary>
+    Json,
+
+    /// <summary>
     /// A large binary data type. Corresponds to a large and/or un-lengthed binary type for the target platform.
     /// </summary>
     LargeBinary,
