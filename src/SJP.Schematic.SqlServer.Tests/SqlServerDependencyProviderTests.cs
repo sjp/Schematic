@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -119,6 +122,49 @@ SELECT * from client.FunctionName('test')
         };
 
         Assert.That(dependencies, Is.EqualTo(expectedNames));
+    }
+
+    [Test]
+    public static void GetDependencies_GivenDoubleQuotedIdentifier_ReturnsUnquotedName()
+    {
+        // Under SET QUOTED_IDENTIFIER ON, a double-quoted name is a delimited identifier, not a string literal.
+        var provider = new SqlServerDependencyProvider();
+        Identifier objectName = "test";
+        const string expression = "select * from \"other_table\"";
+
+        var dependencies = provider.GetDependencies(objectName, expression);
+        var dependency = dependencies.Single();
+
+        Assert.That(dependency.LocalName, Is.EqualTo("other_table"));
+    }
+
+    [Test]
+    public static void GetDependencies_WhenInvokedConcurrently_ReturnsConsistentResults()
+    {
+        // Guards against sharing a non-thread-safe ScriptDom parser across concurrent callers,
+        // which the reporting layer does when rendering views in parallel.
+        var provider = new SqlServerDependencyProvider();
+        Identifier objectName = "test_view";
+        const string expression = @"
+CREATE VIEW [test_view] AS
+SELECT 'test' AS FIRST_COL, 1 AS SECOND_COL
+FROM FIRST_TABLE
+UNION
+SELECT * from client.FunctionName('test')
+";
+        var expectedNames = new[]
+        {
+            new Identifier("FIRST_COL"),
+            new Identifier("SECOND_COL"),
+            new Identifier("FIRST_TABLE"),
+            new Identifier("client", "FunctionName"),
+        };
+
+        var results = new ConcurrentBag<IReadOnlyCollection<Identifier>>();
+        Parallel.For(0, 200, _ => results.Add(provider.GetDependencies(objectName, expression)));
+
+        Assert.That(results, Has.Count.EqualTo(200));
+        Assert.That(results, Has.All.EqualTo(expectedNames));
     }
 
     [Test]

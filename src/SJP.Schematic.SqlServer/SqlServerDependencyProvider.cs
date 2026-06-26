@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using Identifier = SJP.Schematic.Core.Identifier;
+using ScriptDom = Microsoft.SqlServer.TransactSql.ScriptDom;
 
 namespace SJP.Schematic.SqlServer;
 
@@ -15,8 +14,6 @@ namespace SJP.Schematic.SqlServer;
 /// </summary>
 public class SqlServerDependencyProvider : IDependencyProvider
 {
-    private static readonly TSql160Parser _parser = new(true, SqlEngineType.All);
-
     /// <summary>
     /// Initializes a new instance of the <see cref="SqlServerDependencyProvider"/> class.
     /// </summary>
@@ -42,15 +39,7 @@ public class SqlServerDependencyProvider : IDependencyProvider
         ArgumentNullException.ThrowIfNull(objectName);
         ArgumentException.ThrowIfNullOrWhiteSpace(expression);
 
-        using var reader = new StringReader(expression);
-        var tokens = _parser.GetTokenStream(reader, out var errors);
-
-        var sqlErrors = errors ?? [];
-        if (sqlErrors.Count > 0)
-        {
-            var parserErrorMessages = sqlErrors.Select(e => e.Message ?? string.Empty).Join(", ");
-            throw new ArgumentException($"Could not parse the given expression as a SQL expression. Given: {expression}. Error: {parserErrorMessages}", nameof(expression));
-        }
+        var tokens = ScriptDomTokenizer.Tokenize(expression, nameof(expression));
 
         var result = new HashSet<Identifier>(Comparer);
 
@@ -122,27 +111,24 @@ public class SqlServerDependencyProvider : IDependencyProvider
 
     private static bool IsWhitespace(TSqlParserToken token) => token.TokenType == TSqlTokenType.WhiteSpace || token.TokenType == TSqlTokenType.EndOfFile;
 
-    private static bool IsIdentifier(TSqlParserToken token) => token.TokenType == TSqlTokenType.Identifier || token.TokenType == TSqlTokenType.QuotedIdentifier;
+    private static bool IsIdentifier(TSqlParserToken token) =>
+        token.TokenType == TSqlTokenType.Identifier
+        || token.TokenType == TSqlTokenType.QuotedIdentifier
+        // A double-quoted name lexes to this ambiguous type; under QUOTED_IDENTIFIER ON (how the
+        // parser is configured) it is always a delimited identifier rather than a string literal.
+        || token.TokenType == TSqlTokenType.AsciiStringOrQuotedIdentifier;
 
     private static bool IsEven(int i) => i % 2 == 0;
 
     private static string GetIdentifierValue(TSqlParserToken token)
     {
         if (!IsIdentifier(token))
-            throw new ArgumentException($"Expected a token of type {nameof(TSqlTokenType.Identifier)} or {nameof(TSqlTokenType.QuotedIdentifier)}. Received {token.TokenType}.", nameof(token));
+            throw new ArgumentException($"Expected an identifier token. Received {token.TokenType}.", nameof(token));
 
-        if (token.TokenType == TSqlTokenType.QuotedIdentifier)
-        {
-            // trim off any '[', ']', i.e. the reverse of $"[{identifier.Replace("]", "]]")}]"
-            if (token.Text.StartsWith('[') && token.Text.EndsWith(']'))
-            {
-                var trimmed = token.Text[1..^1];
-                return trimmed.Replace("]]", "]", StringComparison.Ordinal);
-            }
-
-            return token.Text;
-        }
-
-        return token.Text;
+        // A plain identifier carries no delimiters; quoted forms ([foo], "foo") are decoded,
+        // auto-detecting the quoting style (and unescaping ]] / "") from the token text.
+        return token.TokenType == TSqlTokenType.Identifier
+            ? token.Text
+            : ScriptDom.Identifier.DecodeIdentifier(token.Text, out _);
     }
 }
