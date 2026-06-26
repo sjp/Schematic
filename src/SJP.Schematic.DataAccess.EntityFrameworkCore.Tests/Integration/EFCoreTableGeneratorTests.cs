@@ -99,7 +99,7 @@ create table test_table_7 (
 create table test_table_8 (
     test_pk integer not null primary key autoincrement,
     test_table_8_fk1 integer not null,
-    constraint fk_test_table_8_test_table_6_fk1 foreign key (test_table_8_fk1) references test_table_6 (test_pk)
+    constraint fk_test_table_8_test_table_6_fk1 foreign key (test_table_8_fk1) references test_table_6 (test_pk),
     constraint test_table_8_uk1 unique (test_table_8_fk1)
 )", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
