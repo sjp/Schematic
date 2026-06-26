@@ -164,4 +164,14 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
 
         Assert.That(column.AutoIncrement.UnwrapSome().Increment, Is.EqualTo(1));
     }
+
+    [Test]
+    public async Task Columns_WhenGivenTableWithJsonColumn_ReturnsColumnWithJsonDataType()
+    {
+        const string tableName = "table_test_table_36";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "json_column", StringComparison.Ordinal));
+
+        Assert.That(column.Type.DataType, Is.EqualTo(DataType.Json));
+    }
 }

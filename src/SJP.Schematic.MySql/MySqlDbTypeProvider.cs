@@ -103,6 +103,7 @@ public class MySqlDbTypeProvider : IDbTypeProvider
             DataType.Float => "double",
             DataType.Integer => "int",
             DataType.Interval => "timestamp",
+            DataType.Json => "json",
             DataType.Numeric => "numeric",
             DataType.SmallInteger => "smallint",
             DataType.String or DataType.Unicode => typeMetadata.IsFixedLength ? "char" : "varchar",
@@ -213,6 +214,7 @@ public class MySqlDbTypeProvider : IDbTypeProvider
         "text",
         "mediumtext",
         "longtext",
+        "json",
     };
 
     private static readonly IReadOnlyDictionary<string, DataType> StringToDataTypeMap = new Dictionary<string, DataType>(StringComparer.OrdinalIgnoreCase)
@@ -244,6 +246,7 @@ public class MySqlDbTypeProvider : IDbTypeProvider
         ["text"] = DataType.UnicodeText,
         ["mediumtext"] = DataType.UnicodeText,
         ["longtext"] = DataType.UnicodeText,
+        ["json"] = DataType.Json,
     };
 
     private static readonly IReadOnlyDictionary<string, Type> StringToClrTypeMap = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
@@ -275,5 +278,6 @@ public class MySqlDbTypeProvider : IDbTypeProvider
         ["blob"] = typeof(byte[]),
         ["mediumblob"] = typeof(byte[]),
         ["largeblob"] = typeof(byte[]),
+        ["json"] = typeof(string),
     };
 }
