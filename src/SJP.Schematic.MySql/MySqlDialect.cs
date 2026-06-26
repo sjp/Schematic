@@ -130,6 +130,12 @@ public class MySqlDialect : DatabaseDialect
         return new MySqlDatabaseCommentProvider(connection.DbConnection, identifierDefaults);
     }
 
+    /// <summary>
+    /// Gets a dependency provider for MySQL expressions.
+    /// </summary>
+    /// <returns>A dependency provider.</returns>
+    public override IDependencyProvider GetDependencyProvider() => new MySqlDependencyProvider();
+
     private static Version ParseMySqlVersion(string versionStr)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(versionStr);

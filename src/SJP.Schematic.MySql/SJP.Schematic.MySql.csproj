@@ -7,11 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Antlr4.Runtime.Standard" />
     <PackageReference Include="MySqlConnector" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SJP.Schematic.Core\SJP.Schematic.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Vendored grammar kept for provenance / regeneration; not compiled. See Parsing/Antlr/README.md. -->
+    <None Include="Parsing\Antlr\Grammar\MySQLLexer.g4" />
+    <None Include="Parsing\Antlr\Grammar\MySQLParser.g4" />
   </ItemGroup>
 
 </Project>

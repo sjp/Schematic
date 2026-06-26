@@ -1,0 +1,4 @@
+# Generated ANTLR lexer and vendored grammar support classes. Treat as generated code and exclude from analysis.
+[*.cs]
+generated_code = true
+dotnet_analyzer_diagnostic.severity = none
