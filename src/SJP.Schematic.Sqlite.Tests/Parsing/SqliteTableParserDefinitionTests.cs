@@ -18,11 +18,11 @@ internal static class SqliteTableParserDefinitionTests
 
         Assert.That(result.PrimaryKey.IsSome, Is.True);
         var pk = result.PrimaryKey.IfNone(() => null!);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(pk.Name.IsNone, Is.True);
             Assert.That(pk.Columns.Select(c => c.Name), Is.EqualTo(new[] { "id" }));
-        });
+        }
     }
 
     [Test]
@@ -31,11 +31,11 @@ internal static class SqliteTableParserDefinitionTests
         var result = Parse("create table t (a int, b int, constraint pk_t primary key (a, b))");
 
         var pk = result.PrimaryKey.IfNone(() => null!);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(pk.Name.IfNone(string.Empty), Is.EqualTo("pk_t"));
             Assert.That(pk.Columns.Select(c => c.Name), Is.EqualTo(new[] { "a", "b" }));
-        });
+        }
     }
 
     [Test]
@@ -44,11 +44,11 @@ internal static class SqliteTableParserDefinitionTests
         var result = Parse("create table t (a int unique)");
 
         var uk = result.UniqueKeys.Single();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(uk.Name.IsNone, Is.True);
             Assert.That(uk.Columns.Select(c => c.Name), Is.EqualTo(new[] { "a" }));
-        });
+        }
     }
 
     [Test]
@@ -57,11 +57,11 @@ internal static class SqliteTableParserDefinitionTests
         var result = Parse("create table t (a int, b int, constraint uq_t unique (a, b))");
 
         var uk = result.UniqueKeys.Single();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(uk.Name.IfNone(string.Empty), Is.EqualTo("uq_t"));
             Assert.That(uk.Columns.Select(c => c.Name), Is.EqualTo(new[] { "a", "b" }));
-        });
+        }
     }
 
     [Test]
@@ -70,13 +70,13 @@ internal static class SqliteTableParserDefinitionTests
         var result = Parse("create table t (a int, constraint fk_t foreign key (a) references p (b) on delete cascade)");
 
         var fk = result.ParentKeys.Single();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(fk.Name.IfNone(string.Empty), Is.EqualTo("fk_t"));
             Assert.That(fk.Columns, Is.EqualTo(new[] { "a" }));
             Assert.That(fk.ParentTable.LocalName, Is.EqualTo("p"));
             Assert.That(fk.ParentColumns, Is.EqualTo(new[] { "b" }));
-        });
+        }
     }
 
     [Test]
@@ -85,11 +85,11 @@ internal static class SqliteTableParserDefinitionTests
         var result = Parse("create table t (a int, b int, foreign key (a, b) references p (c, d))");
 
         var fk = result.ParentKeys.Single();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(fk.Columns, Is.EqualTo(new[] { "a", "b" }));
             Assert.That(fk.ParentColumns, Is.EqualTo(new[] { "c", "d" }));
-        });
+        }
     }
 
     [Test]
@@ -98,12 +98,12 @@ internal static class SqliteTableParserDefinitionTests
         var result = Parse("create table t (a int references p (b))");
 
         var fk = result.ParentKeys.Single();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(fk.Columns, Is.EqualTo(new[] { "a" }));
             Assert.That(fk.ParentTable.LocalName, Is.EqualTo("p"));
             Assert.That(fk.ParentColumns, Is.EqualTo(new[] { "b" }));
-        });
+        }
     }
 
     [Test]
@@ -112,11 +112,11 @@ internal static class SqliteTableParserDefinitionTests
         var result = Parse("create table t (a int, b int generated always as (a * a) stored)");
 
         var column = result.Columns.Single(c => c.Name == "b");
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(column.ComputedColumnType, Is.EqualTo(SqliteGeneratedColumnType.Stored));
             Assert.That(column.ComputedDefinition, Is.EqualTo("(a * a)"));
-        });
+        }
     }
 
     [Test]
@@ -125,11 +125,11 @@ internal static class SqliteTableParserDefinitionTests
         var result = Parse("create table t (a int, b int as (a * 2))");
 
         var column = result.Columns.Single(c => c.Name == "b");
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(column.ComputedColumnType, Is.EqualTo(SqliteGeneratedColumnType.Virtual));
             Assert.That(column.ComputedDefinition, Is.EqualTo("(a * 2)"));
-        });
+        }
     }
 
     [TestCase("nocase", SqliteCollation.NoCase)]
@@ -187,11 +187,11 @@ internal static class SqliteTableParserDefinitionTests
     {
         var result = Parse("create table t (a int primary key, b text) without rowid");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Columns.Select(c => c.Name), Is.EqualTo(new[] { "a", "b" }));
             Assert.That(result.PrimaryKey.IsSome, Is.True);
-        });
+        }
     }
 
     [TestCase("create table t (a double precision)", "double precision")]
@@ -219,11 +219,11 @@ internal static class SqliteTableParserDefinitionTests
         var result = Parse("create table t (a int, constraint ck_t check (a > (1)))");
 
         var check = result.Checks.Single();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(check.Name.IfNone(string.Empty), Is.EqualTo("ck_t"));
             Assert.That(check.Definition, Is.EqualTo("(a > (1))"));
-        });
+        }
     }
 
     [Test]
@@ -232,10 +232,10 @@ internal static class SqliteTableParserDefinitionTests
         const string definition = "create table t as select 1 as x";
         var result = Parse(definition);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Columns, Is.Empty);
             Assert.That(result.Definition, Is.EqualTo(definition));
-        });
+        }
     }
 }

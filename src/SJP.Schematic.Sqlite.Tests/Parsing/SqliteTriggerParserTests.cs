@@ -30,10 +30,10 @@ internal static class SqliteTriggerParserTests
 
         var result = parser.Parse(definition);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Timing, Is.EqualTo(expectedTiming));
             Assert.That(result.Event, Is.EqualTo(expectedEvent));
-        });
+        }
     }
 }
