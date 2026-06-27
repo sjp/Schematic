@@ -132,6 +132,8 @@ public class OracleDbTypeProvider : IDbTypeProvider
             DataType.Unicode or DataType.UnicodeText => typeMetadata.IsFixedLength
                 ? new Identifier("SYS", "NCHAR")
                 : new Identifier("SYS", "NVARCHAR2"),
+            // Oracle has no native GUID type; UUIDs are conventionally stored as RAW(16).
+            DataType.UniqueIdentifier => new Identifier("SYS", "RAW"),
             DataType.Xml => new Identifier("SYS", "XMLTYPE"),
             DataType.Unknown => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for an unknown data type."),
             _ => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for data type: " + typeMetadata.DataType.ToString()),
