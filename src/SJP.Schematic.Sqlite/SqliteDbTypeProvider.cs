@@ -66,7 +66,7 @@ public class SqliteDbTypeProvider : IDbTypeProvider
 
         return dataType switch
         {
-            DataType.Binary or DataType.LargeBinary => "BLOB",
+            DataType.Binary or DataType.LargeBinary or DataType.Geometry => "BLOB",
             DataType.SmallInteger or DataType.BigInteger or DataType.Boolean or DataType.Integer => "INTEGER",
             DataType.Float => "REAL",
             DataType.Date or DataType.DateTime or DataType.Interval or DataType.Time or DataType.Numeric => "NUMERIC",

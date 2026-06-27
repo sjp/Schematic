@@ -40,4 +40,18 @@ internal static class SqliteDbTypeProviderTests
             Assert.That(columnType.DataType, Is.EqualTo(DataType.UnicodeText));
         }
     }
+
+    [Test]
+    public static void CreateColumnType_GivenGeometryDataType_ReturnsBlobAffinityColumnType()
+    {
+        var provider = new SqliteDbTypeProvider();
+        var columnType = provider.CreateColumnType(new ColumnTypeMetadata { DataType = DataType.Geometry });
+
+        // SQLite has no dedicated spatial type; geometry is stored using blob affinity.
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columnType.TypeName.LocalName, Is.EqualTo("BLOB"));
+            Assert.That(columnType.DataType, Is.EqualTo(DataType.LargeBinary));
+        }
+    }
 }
