@@ -46,7 +46,7 @@ jobs:
       working-directory: src/SJP.Schematic.MySql.Tests
 
     - name: Test
-      run: dotnet test --no-restore --verbosity normal -- --coverage --coverage-output-format cobertura
+      run: dotnet test --no-restore --verbosity normal -- --coverage --coverage-output-format cobertura --coverage-output coverage.cobertura.xml
       working-directory: src/SJP.Schematic.MySql.Tests
       env:
         ConnectionStrings__MySql_TestDb: Server=localhost; Port=3306; Database=schematic; Uid=root; Pwd=Schematic1234; ConnectionTimeout=2

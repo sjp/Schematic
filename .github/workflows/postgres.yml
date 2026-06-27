@@ -45,7 +45,7 @@ jobs:
       working-directory: src/SJP.Schematic.PostgreSql.Tests
 
     - name: Test
-      run: dotnet test --no-restore --verbosity normal -- --coverage --coverage-output-format cobertura
+      run: dotnet test --no-restore --verbosity normal -- --coverage --coverage-output-format cobertura --coverage-output coverage.cobertura.xml
       working-directory: src/SJP.Schematic.PostgreSql.Tests
       env:
         ConnectionStrings__PostgreSql_TestDb: Server=localhost; Port=5432; Database=postgres; User Id=postgres; Password=postgres; Timeout=2
