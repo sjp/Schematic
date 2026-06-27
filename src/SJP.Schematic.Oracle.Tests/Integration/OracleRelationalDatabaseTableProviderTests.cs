@@ -156,6 +156,7 @@ create table table_test_table_32 (
         await DbConnection.ExecuteAsync("create table table_test_table_35 ( test_column number primary key )", CancellationToken.None);
         if (await Dialect.SupportsJsonDataType(Connection, CancellationToken.None))
             await DbConnection.ExecuteAsync("create table table_test_table_36 ( json_column json )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table table_test_table_37 ( xml_column xmltype )", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table trigger_test_table_1 (table_id number primary key not null)", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table trigger_test_table_2 (table_id number primary key not null)", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
@@ -249,6 +250,7 @@ end;
         await DbConnection.ExecuteAsync("drop table table_test_table_35", CancellationToken.None);
         if (supportsJsonDataType)
             await DbConnection.ExecuteAsync("drop table table_test_table_36", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_test_table_37", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_1", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_2", CancellationToken.None);
     }

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -149,5 +150,15 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var column = table.Columns.Single();
 
         Assert.That(column.Type.DataType, Is.EqualTo(DataType.Json));
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenTableWithXmlColumn_ReturnsColumnWithXmlDataType()
+    {
+        const string tableName = "TABLE_TEST_TABLE_37";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "XML_COLUMN", StringComparison.Ordinal));
+
+        Assert.That(column.Type.DataType, Is.EqualTo(DataType.Xml));
     }
 }
