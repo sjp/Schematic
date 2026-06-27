@@ -42,6 +42,7 @@ internal static class MySqlDbTypeProviderTests
     [TestCase(DataType.Date, "date")]
     [TestCase(DataType.DateTime, "datetime")]
     [TestCase(DataType.Float, "double")]
+    [TestCase(DataType.Geometry, "geometry")]
     [TestCase(DataType.Integer, "int")]
     [TestCase(DataType.Interval, "timestamp")]
     [TestCase(DataType.Json, "json")]
@@ -110,6 +111,14 @@ internal static class MySqlDbTypeProviderTests
     [TestCase("blob", DataType.LargeBinary)]
     [TestCase("longtext", DataType.UnicodeText)]
     [TestCase("json", DataType.Json)]
+    [TestCase("geometry", DataType.Geometry)]
+    [TestCase("point", DataType.Geometry)]
+    [TestCase("linestring", DataType.Geometry)]
+    [TestCase("polygon", DataType.Geometry)]
+    [TestCase("multipoint", DataType.Geometry)]
+    [TestCase("multilinestring", DataType.Geometry)]
+    [TestCase("multipolygon", DataType.Geometry)]
+    [TestCase("geometrycollection", DataType.Geometry)]
     public static void CreateColumnType_GivenTypeNameWithUnknownDataType_ResolvesExpectedDataType(string typeName, DataType expectedDataType)
     {
         var metadata = new ColumnTypeMetadata { TypeName = typeName, DataType = DataType.Unknown };
@@ -143,6 +152,8 @@ internal static class MySqlDbTypeProviderTests
     [TestCase("json", typeof(string))]
     [TestCase("blob", typeof(byte[]))]
     [TestCase("varbinary", typeof(byte[]))]
+    [TestCase("geometry", typeof(object))]
+    [TestCase("point", typeof(object))]
     public static void CreateColumnType_GivenTypeName_ResolvesExpectedClrType(string typeName, Type expectedClrType)
     {
         var metadata = new ColumnTypeMetadata { TypeName = typeName, DataType = DataType.Unknown };
@@ -183,6 +194,19 @@ internal static class MySqlDbTypeProviderTests
         {
             Assert.That(columnType.TypeName.LocalName, Is.EqualTo("longtext"));
             Assert.That(columnType.DataType, Is.EqualTo(DataType.Xml));
+        }
+    }
+
+    [Test]
+    public static void CreateColumnType_GivenGeometryDataType_ReturnsGeometryColumnType()
+    {
+        var columnType = Provider.CreateColumnType(new ColumnTypeMetadata { DataType = DataType.Geometry });
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columnType.TypeName.LocalName, Is.EqualTo("geometry"));
+            Assert.That(columnType.DataType, Is.EqualTo(DataType.Geometry));
+            Assert.That(columnType.ClrType, Is.EqualTo(typeof(object)));
         }
     }
 

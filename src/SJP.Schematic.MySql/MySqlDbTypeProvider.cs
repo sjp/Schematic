@@ -101,6 +101,7 @@ public class MySqlDbTypeProvider : IDbTypeProvider
             DataType.Date => "date",
             DataType.DateTime => "datetime",
             DataType.Float => "double",
+            DataType.Geometry => "geometry",
             DataType.Integer => "int",
             DataType.Interval => "timestamp",
             DataType.Json => "json",
@@ -217,6 +218,14 @@ public class MySqlDbTypeProvider : IDbTypeProvider
         "mediumtext",
         "longtext",
         "json",
+        "geometry",
+        "point",
+        "linestring",
+        "polygon",
+        "multipoint",
+        "multilinestring",
+        "multipolygon",
+        "geometrycollection",
     };
 
     private static readonly IReadOnlyDictionary<string, DataType> StringToDataTypeMap = new Dictionary<string, DataType>(StringComparer.OrdinalIgnoreCase)
@@ -249,6 +258,14 @@ public class MySqlDbTypeProvider : IDbTypeProvider
         ["mediumtext"] = DataType.UnicodeText,
         ["longtext"] = DataType.UnicodeText,
         ["json"] = DataType.Json,
+        ["geometry"] = DataType.Geometry,
+        ["point"] = DataType.Geometry,
+        ["linestring"] = DataType.Geometry,
+        ["polygon"] = DataType.Geometry,
+        ["multipoint"] = DataType.Geometry,
+        ["multilinestring"] = DataType.Geometry,
+        ["multipolygon"] = DataType.Geometry,
+        ["geometrycollection"] = DataType.Geometry,
     };
 
     private static readonly IReadOnlyDictionary<string, Type> StringToClrTypeMap = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
@@ -281,5 +298,13 @@ public class MySqlDbTypeProvider : IDbTypeProvider
         ["mediumblob"] = typeof(byte[]),
         ["largeblob"] = typeof(byte[]),
         ["json"] = typeof(string),
+        ["geometry"] = typeof(object),
+        ["point"] = typeof(object),
+        ["linestring"] = typeof(object),
+        ["polygon"] = typeof(object),
+        ["multipoint"] = typeof(object),
+        ["multilinestring"] = typeof(object),
+        ["multipolygon"] = typeof(object),
+        ["geometrycollection"] = typeof(object),
     };
 }
