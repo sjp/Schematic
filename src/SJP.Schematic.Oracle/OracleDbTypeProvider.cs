@@ -122,6 +122,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
             DataType.Float => new Identifier("SYS", "FLOAT"),
             DataType.Integer => new Identifier("SYS", "NUMBER"),
             DataType.Interval => new Identifier("sys", "TIMESTAMP WITH LOCAL TIME ZONE"),
+            DataType.Json => new Identifier("SYS", "JSON"),
             DataType.Numeric or DataType.SmallInteger => new Identifier("SYS", "NUMBER"),
             DataType.String or DataType.Text => typeMetadata.IsFixedLength
                 ? new Identifier("SYS", "CHAR")
@@ -264,6 +265,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
         "BLOB",
         "CLOB",
         "DATE",
+        "JSON",
         "LONG",
         "LONG RAW",
         "NCLOB",
@@ -285,6 +287,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
         ["INTEGER"] = DataType.BigInteger,
         ["INTERVAL YEAR TO MONTH"] = DataType.Integer,
         ["INTERVAL DAY TO SECOND"] = DataType.Time,
+        ["JSON"] = DataType.Json,
         ["LONG"] = DataType.String,
         ["LONG RAW"] = DataType.LargeBinary,
         ["NCHAR"] = DataType.Unicode,
@@ -319,6 +322,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
         ["INTEGER"] = typeof(decimal),
         ["INTERVAL YEAR TO MONTH"] = typeof(int),
         ["INTERVAL DAY TO SECOND"] = typeof(TimeSpan),
+        ["JSON"] = typeof(string),
         ["LONG"] = typeof(string),
         ["LONG RAW"] = typeof(byte[]),
         ["NCHAR"] = typeof(string),

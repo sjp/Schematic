@@ -134,4 +134,20 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
 
         Assert.That(column.AutoIncrement, OptionIs.None);
     }
+
+    [Test]
+    public async Task Columns_WhenGivenTableWithJsonColumn_ReturnsColumnWithJsonDataType()
+    {
+        if (!await Dialect.SupportsJsonDataType(Connection))
+        {
+            Assert.Pass();
+            return;
+        }
+
+        const string tableName = "TABLE_TEST_TABLE_36";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single();
+
+        Assert.That(column.Type.DataType, Is.EqualTo(DataType.Json));
+    }
 }
