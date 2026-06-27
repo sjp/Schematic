@@ -43,6 +43,11 @@ public enum DataType
     Float,
 
     /// <summary>
+    /// A spatial data type which stores geometric or geographic values.
+    /// </summary>
+    Geometry,
+
+    /// <summary>
     /// A type which stores common integers, typically 32-bit integers.
     /// </summary>
     Integer,
