@@ -211,4 +211,14 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
 
         Assert.That(column.Type.DataType, Is.EqualTo(DataType.Geometry));
     }
+
+    [Test]
+    public async Task Columns_WhenGivenTableWithUniqueIdentifierColumn_ReturnsColumnWithUniqueIdentifierDataType()
+    {
+        const string tableName = "table_test_table_41";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "uniqueidentifier_column", StringComparison.Ordinal));
+
+        Assert.That(column.Type.DataType, Is.EqualTo(DataType.UniqueIdentifier));
+    }
 }

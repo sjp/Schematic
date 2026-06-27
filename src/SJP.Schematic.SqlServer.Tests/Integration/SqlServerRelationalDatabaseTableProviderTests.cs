@@ -234,6 +234,7 @@ create table table_test_table_32 (
         await DbConnection.ExecuteAsync("create table table_test_table_38 ( xml_column xml )", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table table_test_table_39 ( geometry_column geometry )", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table table_test_table_40 ( geography_column geography )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table table_test_table_41 ( uniqueidentifier_column uniqueidentifier )", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table trigger_test_table_1 (table_id int primary key not null)", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table trigger_test_table_2 (table_id int primary key not null)", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
@@ -367,6 +368,7 @@ end
         await DbConnection.ExecuteAsync("drop table table_test_table_38", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_39", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_40", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_test_table_41", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_1", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_2", CancellationToken.None);
     }
