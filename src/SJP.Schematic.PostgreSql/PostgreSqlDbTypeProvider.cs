@@ -114,6 +114,7 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
                 ? new Identifier("pg_catalog", "char")
                 : new Identifier("pg_catalog", "varchar"),
             DataType.Text or DataType.UnicodeText => new Identifier("pg_catalog", "text"),
+            DataType.Xml => new Identifier("pg_catalog", "xml"),
             DataType.Unknown => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for an unknown data type."),
             _ => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for data type: " + typeMetadata.DataType.ToString()),
         };
@@ -330,7 +331,7 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
         [new Identifier("pg_catalog", "timetz")] = DataType.Time,
         [new Identifier("pg_catalog", "timestamp")] = DataType.DateTime,
         [new Identifier("pg_catalog", "timestamptz")] = DataType.DateTime,
-        [new Identifier("pg_catalog", "xml")] = DataType.UnicodeText,
+        [new Identifier("pg_catalog", "xml")] = DataType.Xml,
         [new Identifier("pg_catalog", "box")] = DataType.Unknown,
         [new Identifier("pg_catalog", "cidr")] = DataType.Unknown,
         [new Identifier("pg_catalog", "circle")] = DataType.Unknown,

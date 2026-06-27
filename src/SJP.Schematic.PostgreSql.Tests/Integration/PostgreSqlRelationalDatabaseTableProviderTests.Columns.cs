@@ -214,6 +214,16 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     }
 
     [Test]
+    public async Task Columns_WhenGivenTableWithXmlColumn_ReturnsColumnWithXmlDataType()
+    {
+        const string tableName = "table_test_table_40";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "xml_column", StringComparison.Ordinal));
+
+        Assert.That(column.Type.DataType, Is.EqualTo(DataType.Xml));
+    }
+
+    [Test]
     public async Task Columns_WhenGivenTableWithGeneratedColumns_ReturnsExpectedComputedColumnDefinition()
     {
         var dbVersion = await Dialect.GetDatabaseVersionAsync(Connection);
