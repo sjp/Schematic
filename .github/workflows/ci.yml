@@ -18,9 +18,6 @@ jobs:
     steps:
     - uses: actions/checkout@v7
 
-    - name: Install Graphviz # required for reporting
-      run: sudo apt install -y graphviz
-
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v5
       with:

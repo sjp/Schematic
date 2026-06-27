@@ -8,8 +8,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 /// <summary>
 /// Builds a <see cref="RelationshipGraph"/> (table nodes + foreign-key edges) from a set of tables.
-/// Replaces the DOT generation that previously fed Graphviz; the column key-flag derivation and the
-/// "only connect tables present in the set" edge rule mirror the old <c>DotFormatter</c> behaviour so
+/// Replaces the Graphviz/DOT generation that previously produced these diagrams; the column key-flag
+/// derivation and the "only connect tables present in the set" edge rule mirror that old behaviour so
 /// the diagrams stay equivalent.
 /// </summary>
 internal static class RelationshipGraphMapper

@@ -1,5 +1,0 @@
-﻿{
-  "ConnectionStrings": {
-    "Dot_TestDb": "Data Source=file:InMemory_91066551_9310_4a30_833d_3e8dd3afeeaf?mode=memory&cache=shared&uri=true"
-  }
-}

@@ -1,9 +1,0 @@
-.sidebar {
-    max-height: 80vh;
-    overflow-y: scroll;
-}
-
-.diagram svg {
-    max-height: 80vh;
-    max-width: 100%;
-}

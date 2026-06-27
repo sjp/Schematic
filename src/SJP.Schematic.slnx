@@ -11,10 +11,6 @@
   <Project Path="SJP.Schematic.DataAccess/SJP.Schematic.DataAccess.csproj" />
   <Project Path="SJP.Schematic.Dbml.Tests/SJP.Schematic.Dbml.Tests.csproj" />
   <Project Path="SJP.Schematic.Dbml/SJP.Schematic.Dbml.csproj" />
-  <Project Path="SJP.Schematic.Dot.Tests/SJP.Schematic.Dot.Tests.csproj" />
-  <Project Path="SJP.Schematic.Dot/SJP.Schematic.Dot.csproj" />
-  <Project Path="SJP.Schematic.Graphviz.Tests/SJP.Schematic.Graphviz.Tests.csproj" />
-  <Project Path="SJP.Schematic.Graphviz/SJP.Schematic.Graphviz.csproj" />
   <Project Path="SJP.Schematic.Lint.Tests/SJP.Schematic.Lint.Tests.csproj" />
   <Project Path="SJP.Schematic.Lint/SJP.Schematic.Lint.csproj" />
   <Project Path="SJP.Schematic.MySql.Tests/SJP.Schematic.MySql.Tests.csproj" />
