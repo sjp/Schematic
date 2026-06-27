@@ -191,4 +191,24 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
 
         Assert.That(column.Type.DataType, Is.EqualTo(DataType.Xml));
     }
+
+    [Test]
+    public async Task Columns_WhenGivenTableWithGeometryColumn_ReturnsColumnWithGeometryDataType()
+    {
+        const string tableName = "table_test_table_39";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "geometry_column", StringComparison.Ordinal));
+
+        Assert.That(column.Type.DataType, Is.EqualTo(DataType.Geometry));
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenTableWithGeographyColumn_ReturnsColumnWithGeometryDataType()
+    {
+        const string tableName = "table_test_table_40";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "geography_column", StringComparison.Ordinal));
+
+        Assert.That(column.Type.DataType, Is.EqualTo(DataType.Geometry));
+    }
 }
