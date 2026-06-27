@@ -51,6 +51,7 @@ internal static class MySqlDbTypeProviderTests
     [TestCase(DataType.Text, "longtext")]
     [TestCase(DataType.Time, "time")]
     [TestCase(DataType.UnicodeText, "longtext")]
+    [TestCase(DataType.UniqueIdentifier, "char")]
     [TestCase(DataType.Xml, "longtext")]
     public static void CreateColumnType_GivenDataTypeWithoutTypeName_ReturnsExpectedTypeName(DataType dataType, string expectedTypeName)
     {
@@ -194,6 +195,19 @@ internal static class MySqlDbTypeProviderTests
         {
             Assert.That(columnType.TypeName.LocalName, Is.EqualTo("longtext"));
             Assert.That(columnType.DataType, Is.EqualTo(DataType.Xml));
+        }
+    }
+
+    [Test]
+    public static void CreateColumnType_GivenUniqueIdentifierDataType_ReturnsCharColumnType()
+    {
+        var columnType = Provider.CreateColumnType(new ColumnTypeMetadata { DataType = DataType.UniqueIdentifier });
+
+        // MySQL has no dedicated GUID type; UUIDs are conventionally stored as CHAR(36).
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columnType.TypeName.LocalName, Is.EqualTo("char"));
+            Assert.That(columnType.DataType, Is.EqualTo(DataType.UniqueIdentifier));
         }
     }
 

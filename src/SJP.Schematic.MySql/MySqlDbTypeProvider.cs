@@ -110,6 +110,8 @@ public class MySqlDbTypeProvider : IDbTypeProvider
             DataType.String or DataType.Unicode => typeMetadata.IsFixedLength ? "char" : "varchar",
             DataType.Text or DataType.UnicodeText => "longtext",
             DataType.Time => "time",
+            // MySQL has no native GUID type; UUIDs are conventionally stored as CHAR(36).
+            DataType.UniqueIdentifier => "char",
             // MySQL has no native XML type; XML documents are stored as unbounded text.
             DataType.Xml => "longtext",
             DataType.Unknown => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for an unknown data type."),
