@@ -101,4 +101,9 @@ public enum DataType
     /// Stores data that are unique identifiers, e.g. <see cref="Guid"/> values.
     /// </summary>
     UniqueIdentifier,
+
+    /// <summary>
+    /// A type which stores XML (eXtensible Markup Language) documents.
+    /// </summary>
+    Xml,
 }
