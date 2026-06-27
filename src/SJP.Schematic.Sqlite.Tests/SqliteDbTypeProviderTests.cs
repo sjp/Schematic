@@ -26,4 +26,18 @@ internal static class SqliteDbTypeProviderTests
             Assert.That(columnType.DataType, Is.EqualTo(DataType.UnicodeText));
         }
     }
+
+    [Test]
+    public static void CreateColumnType_GivenXmlDataType_ReturnsTextAffinityColumnType()
+    {
+        var provider = new SqliteDbTypeProvider();
+        var columnType = provider.CreateColumnType(new ColumnTypeMetadata { DataType = DataType.Xml });
+
+        // SQLite has no dedicated XML type; XML is stored using text affinity.
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columnType.TypeName.LocalName, Is.EqualTo("TEXT"));
+            Assert.That(columnType.DataType, Is.EqualTo(DataType.UnicodeText));
+        }
+    }
 }
