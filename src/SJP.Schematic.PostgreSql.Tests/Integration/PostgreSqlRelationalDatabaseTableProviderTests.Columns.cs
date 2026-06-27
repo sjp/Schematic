@@ -240,6 +240,16 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     }
 
     [Test]
+    public async Task Columns_WhenGivenTableWithUuidColumn_ReturnsColumnWithUniqueIdentifierDataType()
+    {
+        const string tableName = "table_test_table_42";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "uuid_column", StringComparison.Ordinal));
+
+        Assert.That(column.Type.DataType, Is.EqualTo(DataType.UniqueIdentifier));
+    }
+
+    [Test]
     public async Task Columns_WhenGivenTableWithGeneratedColumns_ReturnsExpectedComputedColumnDefinition()
     {
         var dbVersion = await Dialect.GetDatabaseVersionAsync(Connection);

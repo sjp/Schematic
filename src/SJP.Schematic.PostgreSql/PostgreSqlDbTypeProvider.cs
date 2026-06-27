@@ -115,6 +115,7 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
                 ? new Identifier("pg_catalog", "char")
                 : new Identifier("pg_catalog", "varchar"),
             DataType.Text or DataType.UnicodeText => new Identifier("pg_catalog", "text"),
+            DataType.UniqueIdentifier => new Identifier("pg_catalog", "uuid"),
             DataType.Xml => new Identifier("pg_catalog", "xml"),
             DataType.Unknown => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for an unknown data type."),
             _ => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for data type: " + typeMetadata.DataType.ToString()),
@@ -349,7 +350,7 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
         [new Identifier("pg_catalog", "tsquery")] = DataType.Unknown,
         [new Identifier("pg_catalog", "tsvector")] = DataType.Unknown,
         [new Identifier("pg_catalog", "txid_snapshot")] = DataType.Unknown,
-        [new Identifier("pg_catalog", "uuid")] = DataType.Unknown,
+        [new Identifier("pg_catalog", "uuid")] = DataType.UniqueIdentifier,
     };
 
     private static readonly IReadOnlyDictionary<Identifier, Type> StringToClrTypeMap = new Dictionary<Identifier, Type>(IdentifierComparer.Ordinal)
@@ -410,6 +411,6 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
         [new Identifier("pg_catalog", "tsquery")] = typeof(object),
         [new Identifier("pg_catalog", "tsvector")] = typeof(object),
         [new Identifier("pg_catalog", "txid_snapshot")] = typeof(object),
-        [new Identifier("pg_catalog", "uuid")] = typeof(object),
+        [new Identifier("pg_catalog", "uuid")] = typeof(Guid),
     };
 }

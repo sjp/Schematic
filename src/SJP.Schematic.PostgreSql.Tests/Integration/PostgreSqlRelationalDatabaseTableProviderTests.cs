@@ -251,6 +251,7 @@ create table table_test_table_41 (
     polygon_column polygon,
     circle_column circle
 )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table table_test_table_42 ( uuid_column uuid )", CancellationToken.None);
 
         await DbConnection.ExecuteAsync("create table trigger_test_table_1 (table_id int primary key not null)", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table trigger_test_table_2 (table_id int primary key not null)", CancellationToken.None);
@@ -342,6 +343,7 @@ execute procedure test_trigger_fn()", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_39", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_40", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_41", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_test_table_42", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_1", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_2", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop function test_trigger_fn()", CancellationToken.None);
