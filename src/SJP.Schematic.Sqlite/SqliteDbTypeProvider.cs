@@ -70,7 +70,7 @@ public class SqliteDbTypeProvider : IDbTypeProvider
             DataType.SmallInteger or DataType.BigInteger or DataType.Boolean or DataType.Integer => "INTEGER",
             DataType.Float => "REAL",
             DataType.Date or DataType.DateTime or DataType.Interval or DataType.Time or DataType.Numeric => "NUMERIC",
-            DataType.String or DataType.Text or DataType.Unicode or DataType.UnicodeText or DataType.Json or DataType.Xml => "TEXT",
+            DataType.String or DataType.Text or DataType.Unicode or DataType.UnicodeText or DataType.Json or DataType.Xml or DataType.UniqueIdentifier => "TEXT",
             _ => "NUMERIC",
         };
     }

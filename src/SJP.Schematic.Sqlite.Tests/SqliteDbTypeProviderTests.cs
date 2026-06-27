@@ -42,6 +42,20 @@ internal static class SqliteDbTypeProviderTests
     }
 
     [Test]
+    public static void CreateColumnType_GivenUniqueIdentifierDataType_ReturnsTextAffinityColumnType()
+    {
+        var provider = new SqliteDbTypeProvider();
+        var columnType = provider.CreateColumnType(new ColumnTypeMetadata { DataType = DataType.UniqueIdentifier });
+
+        // SQLite has no dedicated GUID type; UUIDs are stored using text affinity.
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columnType.TypeName.LocalName, Is.EqualTo("TEXT"));
+            Assert.That(columnType.DataType, Is.EqualTo(DataType.UnicodeText));
+        }
+    }
+
+    [Test]
     public static void CreateColumnType_GivenGeometryDataType_ReturnsBlobAffinityColumnType()
     {
         var provider = new SqliteDbTypeProvider();
