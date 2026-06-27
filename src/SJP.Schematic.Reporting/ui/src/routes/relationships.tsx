@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Share2 } from "lucide-react";
-import { Diagram } from "@/components/Diagram";
+import { RelationshipDiagram } from "@/components/RelationshipDiagram";
 import { Button } from "@/components/ui/button";
 import { useSummary } from "@/hooks/useReportData";
 import type { RelationshipsSummary } from "@/types/report";
@@ -9,14 +9,9 @@ export function RelationshipsPage() {
   const { data, isPending, isError, error } =
     useSummary<RelationshipsSummary>("relationships");
 
-  // Default to the diagram flagged active by the renderer (Compact), else the first; an explicit
-  // user selection takes precedence over the data-derived default.
-  const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
-  const defaultLevel = useMemo(() => {
-    const idx = data?.diagrams.findIndex((d) => d.isActive) ?? -1;
-    return idx > 0 ? idx : 0;
-  }, [data]);
-  const activeLevel = selectedLevel ?? defaultLevel;
+  // "Compact" shows key columns only; "Large" shows every column. Both are views over the same
+  // graph payload, toggled client-side.
+  const [compact, setCompact] = useState(true);
 
   if (isPending) {
     return <p className="text-muted-foreground">Loading…</p>;
@@ -29,8 +24,6 @@ export function RelationshipsPage() {
     );
   }
 
-  const diagram = data.diagrams[activeLevel] ?? data.diagrams[0];
-
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
@@ -38,30 +31,29 @@ export function RelationshipsPage() {
         <h1 className="text-2xl font-semibold">Relationships</h1>
       </div>
 
-      {data.diagrams.length === 0 || !diagram ? (
+      {data.graph.nodes.length === 0 ? (
         <p className="text-muted-foreground">
           No relationship diagrams available.
         </p>
       ) : (
         <>
-          {data.diagrams.length > 1 && (
-            <div className="flex gap-2">
-              {data.diagrams.map((d, i) => (
-                <Button
-                  key={d.containerId}
-                  variant={i === activeLevel ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedLevel(i)}
-                >
-                  {d.name}
-                </Button>
-              ))}
-            </div>
-          )}
-          <Diagram
-            src={diagram.svgFile}
-            title={`Relationships — ${diagram.name}`}
-          />
+          <div className="flex gap-2">
+            <Button
+              variant={compact ? "default" : "outline"}
+              size="sm"
+              onClick={() => setCompact(true)}
+            >
+              Compact
+            </Button>
+            <Button
+              variant={compact ? "outline" : "default"}
+              size="sm"
+              onClick={() => setCompact(false)}
+            >
+              Large
+            </Button>
+          </div>
+          <RelationshipDiagram graph={data.graph} compact={compact} />
         </>
       )}
     </div>

@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Reporting;
 using SJP.Schematic.Tool.Handlers;
@@ -38,7 +37,6 @@ internal sealed class ReportCommand : AsyncCommand<ReportCommand.Settings>
     protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
         var dependencyProvider = _dependencyProviderFactory.GetDbDependencies(settings.ConfigFile!.FullName);
-        ConfigureDotPath(dependencyProvider.Configuration);
         var connection = dependencyProvider.GetSchematicConnection();
         var database = await connection.Dialect.GetRelationalDatabaseAsync(connection, cancellationToken);
 
@@ -49,12 +47,5 @@ internal sealed class ReportCommand : AsyncCommand<ReportCommand.Settings>
 
         _console.Write("Report generated to: " + settings.OutputDirectory!.FullName);
         return ErrorCode.Success;
-    }
-
-    private static void ConfigureDotPath(IConfiguration configuration)
-    {
-        var dotPath = configuration["Graphviz:Dot"];
-        if (!dotPath.IsNullOrWhiteSpace())
-            Environment.SetEnvironmentVariable("SCHEMATIC_GRAPHVIZ_DOT", dotPath, EnvironmentVariableTarget.Process);
     }
 }

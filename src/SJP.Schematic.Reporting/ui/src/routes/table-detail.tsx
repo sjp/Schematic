@@ -3,7 +3,7 @@ import { Link, getRouteApi } from "@tanstack/react-router";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Check, KeyRound, Link2, Minus, ShieldCheck } from "lucide-react";
 import { DataTable } from "@/components/DataTable";
-import { Diagram } from "@/components/Diagram";
+import { RelationshipDiagram } from "@/components/RelationshipDiagram";
 import { IconTooltip } from "@/components/IconTooltip";
 import { Button } from "@/components/ui/button";
 import {
@@ -371,10 +371,7 @@ export function TableDetailPage() {
               ))}
             </div>
           )}
-          <Diagram
-            src={diagram.svgFile}
-            title={`${data.name} — ${diagram.name}`}
-          />
+          <RelationshipDiagram graph={diagram.graph} />
         </Section>
       )}
     </div>

@@ -186,7 +186,7 @@ public class ReportGenerator
             // Dashboard summary, tables list, and per-table detail.
             new MainRenderer(Database, tables, views, sequences, synonyms, routines, databaseVersion, jsonWriter, bundle, ExportDirectory),
             new TablesRenderer(tables, rowCounts, jsonWriter, bundle, ExportDirectory),
-            new TableRenderer(Database.IdentifierDefaults, tables, rowCounts, jsonWriter, bundle, ExportDirectory),
+            new TableRenderer(tables, rowCounts, jsonWriter, bundle, ExportDirectory),
             // Views & routines.
             new ViewsRenderer(views, jsonWriter, bundle, ExportDirectory),
             new ViewRenderer(views, referencedObjectTargets, jsonWriter, bundle, ExportDirectory),
@@ -206,7 +206,7 @@ public class ReportGenerator
             // Lint page.
             new LintRenderer(linter, tables, views, sequences, synonyms, routines, jsonWriter, bundle, ExportDirectory),
             // Relationships & schema-wide diagrams.
-            new RelationshipsRenderer(Database.IdentifierDefaults, tables, rowCounts, jsonWriter, bundle, ExportDirectory),
+            new RelationshipsRenderer(tables, rowCounts, jsonWriter, bundle, ExportDirectory),
             // Search index.
             new SearchRenderer(tables, views, sequences, synonyms, routines, jsonWriter, bundle, ExportDirectory),
             new TableOrderingRenderer(Connection.Dialect, tables, exportsDirectory),

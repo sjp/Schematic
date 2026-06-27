@@ -101,12 +101,56 @@ export interface TableTrigger {
   events: string;
 }
 
+/** A column row shown inside a table node; carries key flags so the UI can filter to a compact view. */
+export interface GraphColumn {
+  name: string;
+  type: string;
+  isNullable: boolean;
+  isPrimaryKey: boolean;
+  isUniqueKey: boolean;
+  isForeignKey: boolean;
+  /** True when the column participates in any key — the "compact" view filter. */
+  isKey: boolean;
+}
+
+/** A table node in a relationship diagram. `id` is the table's safe key (its SPA route param). */
+export interface GraphTable {
+  id: string;
+  name: string;
+  /** Hash route to the table's detail page, e.g. `#/tables/<safeKey>`. */
+  tableUrl: string;
+  columns: GraphColumn[];
+  columnsCount: number;
+  parentKeysCount: number;
+  childKeysCount: number;
+  rowCount: number;
+  /** The focal table of a per-table diagram; drawn with the highlight palette. */
+  isHighlighted: boolean;
+}
+
+/** A directed foreign-key edge, pointing from the child (referencing) table to the parent. */
+export interface GraphEdge {
+  id: string;
+  childTableId: string;
+  parentTableId: string;
+  constraintName: string;
+  childColumns: string[];
+  parentColumns: string[];
+}
+
+/** A relationship diagram as plain data — table nodes and the foreign-key edges between them. */
+export interface RelationshipGraph {
+  nodes: GraphTable[];
+  nodesCount: number;
+  edges: GraphEdge[];
+  edgesCount: number;
+}
+
 export interface TableDiagram {
   name: string;
   containerId: string;
   isActive: boolean;
-  /** Path relative to the report root, e.g. `data/diagrams/<id>.svg`. */
-  svgFile: string;
+  graph: RelationshipGraph;
 }
 
 /** A row in `data/views.json`. */
@@ -341,19 +385,9 @@ export interface LintSummary {
   lintRules: LintRule[];
 }
 
-/** A schema-level relationship diagram in `data/relationships.json`. */
-export interface RelationshipDiagram {
-  name: string;
-  containerId: string;
-  isActive: boolean;
-  /** Path relative to the report root, e.g. `data/diagrams/<id>.svg`. */
-  svgFile: string;
-}
-
-/** `data/relationships.json`. */
+/** `data/relationships.json` — the schema-wide relationship graph (laid out and drawn client-side). */
 export interface RelationshipsSummary {
-  diagramsCount: number;
-  diagrams: RelationshipDiagram[];
+  graph: RelationshipGraph;
 }
 
 /** A single entry in `data/search.json`. */

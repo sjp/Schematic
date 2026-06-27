@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using SJP.Schematic.Core;
-using SJP.Schematic.Graphviz;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 using SJP.Schematic.Reporting.Serialization;
 
@@ -14,7 +12,6 @@ namespace SJP.Schematic.Reporting.Html.Renderers;
 internal sealed class RelationshipsRenderer : IDataRenderer
 {
     public RelationshipsRenderer(
-        IIdentifierDefaults identifierDefaults,
         IReadOnlyCollection<IRelationalDatabaseTable> tables,
         IReadOnlyDictionary<Identifier, ulong> rowCounts,
         JsonDataWriter jsonWriter,
@@ -22,7 +19,6 @@ internal sealed class RelationshipsRenderer : IDataRenderer
         DirectoryInfo exportDirectory
     )
     {
-        IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         Tables = tables ?? throw new ArgumentNullException(nameof(tables));
         RowCounts = rowCounts ?? throw new ArgumentNullException(nameof(rowCounts));
         JsonWriter = jsonWriter ?? throw new ArgumentNullException(nameof(jsonWriter));
@@ -31,8 +27,6 @@ internal sealed class RelationshipsRenderer : IDataRenderer
         ArgumentNullException.ThrowIfNull(exportDirectory);
         DataDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "data"));
     }
-
-    private IIdentifierDefaults IdentifierDefaults { get; }
 
     private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
 
@@ -46,58 +40,11 @@ internal sealed class RelationshipsRenderer : IDataRenderer
 
     public async Task RenderAsync(CancellationToken cancellationToken = default)
     {
-        var mapper = new RelationshipsModelMapper(IdentifierDefaults);
+        var mapper = new RelationshipsModelMapper();
         var viewModel = mapper.Map(Tables, RowCounts);
 
-        var diagramsDirectory = new DirectoryInfo(Path.Combine(DataDirectory.FullName, "diagrams"));
-        if (!diagramsDirectory.Exists)
-            diagramsDirectory.Create();
-
-        var graphvizFactory = new GraphvizExecutableFactory();
-        // Isolate each diagram so a single failed diagram reports its own error and the rest still
-        // render; the summary json references these SVGs, so don't write it if any diagram failed.
-        var failures = new List<RenderException>();
-        using (var graphviz = graphvizFactory.GetExecutable())
-        {
-            var dotRenderer = new DotSvgRenderer(graphviz.DotPath);
-
-            foreach (var diagram in viewModel.Diagrams)
-            {
-                try
-                {
-                    var svgFilePath = Path.Combine(diagramsDirectory.FullName, diagram.ContainerId + ".svg");
-                    var svg = await dotRenderer.RenderToSvgAsync(diagram.Dot, cancellationToken).ConfigureAwait(false);
-
-                    var doc = XDocument.Parse(svg, LoadOptions.PreserveWhitespace);
-                    // Add hash-route links to nodes first; this reads the safe-key node titles that
-                    // ReplaceTitlesWithTableNames then overwrites with the visible table names.
-                    doc.RewriteTableNodeUrls();
-                    doc.ReplaceTitlesWithTableNames();
-
-                    // The diagram is embedded responsively via <object>, so drop the fixed dimensions.
-                    var svgRoot = doc.Root!;
-                    svgRoot.Attribute("width")?.Remove();
-                    svgRoot.Attribute("height")?.Remove();
-
-                    // Recolour for dark mode in-place; the embedded SVG can't see the app's theme class.
-                    doc.AddDarkModeStyles();
-
-                    await using var svgFileStream = File.Create(svgFilePath);
-                    await doc.SaveAsync(svgFileStream, SaveOptions.DisableFormatting, cancellationToken).ConfigureAwait(false);
-                }
-                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    failures.Add(new RenderException($"relationship diagram '{diagram.ContainerId}'", ex));
-                }
-            }
-        }
-
-        RenderTaskRunner.ThrowIfAnyFailed(failures);
-
+        // The diagram is now a graph payload laid out and drawn in the browser, so there is no SVG to
+        // render here — just serialize the graph alongside the other report data.
         var json = JsonWriter.Serialize(viewModel);
         Bundle.AddSummary("relationships", json);
 

@@ -2,24 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using SJP.Schematic.Core;
-using SJP.Schematic.Dot;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 internal sealed class TableModelMapper
 {
     public TableModelMapper(
-        IIdentifierDefaults identifierDefaults,
         IReadOnlyDictionary<Identifier, ulong> rowCounts,
         RelationshipFinder relationship
     )
     {
-        IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         RowCounts = rowCounts ?? throw new ArgumentNullException(nameof(rowCounts));
         RelationshipFinder = relationship ?? throw new ArgumentNullException(nameof(relationship));
     }
-
-    private IIdentifierDefaults IdentifierDefaults { get; }
 
     private IReadOnlyDictionary<Identifier, ulong> RowCounts { get; }
 
@@ -165,15 +160,13 @@ internal sealed class TableModelMapper
         var oneDegreeTables = RelationshipFinder.GetTablesByDegrees(table, 1);
         var twoDegreeTables = RelationshipFinder.GetTablesByDegrees(table, 2);
 
-        var dotFormatter = new DotFormatter(IdentifierDefaults);
-        var renderOptions = new DotRenderOptions { HighlightedTable = table.Name };
-        var oneDegreeDot = dotFormatter.RenderTables(oneDegreeTables, RowCounts, renderOptions);
-        var twoDegreeDot = dotFormatter.RenderTables(twoDegreeTables, RowCounts, renderOptions);
+        var oneDegreeGraph = RelationshipGraphMapper.Map(oneDegreeTables, RowCounts, table.Name);
+        var twoDegreeGraph = RelationshipGraphMapper.Map(twoDegreeTables, RowCounts, table.Name);
 
         var diagrams = new[]
         {
-            new Table.Diagram(table.Name, "One Degree", oneDegreeDot, true),
-            new Table.Diagram(table.Name, "Two Degrees", twoDegreeDot, false),
+            new Table.Diagram(table.Name, "One Degree", oneDegreeGraph, true),
+            new Table.Diagram(table.Name, "Two Degrees", twoDegreeGraph, false),
         };
 
         if (!RowCounts.TryGetValue(table.Name, out var rowCount))

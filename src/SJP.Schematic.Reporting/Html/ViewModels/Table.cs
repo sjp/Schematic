@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json.Serialization;
 using EnumsNET;
 using LanguageExt;
 using SJP.Schematic.Core;
@@ -432,21 +431,21 @@ public sealed class Table
     }
 
     /// <summary>
-    /// A reference to a pre-rendered diagram SVG written under <c>data/diagrams/</c>.
+    /// A per-table relationship diagram (e.g. "One Degree" / "Two Degrees") as graph data laid out and
+    /// drawn client-side. The two levels differ in which neighbouring tables they include, so each
+    /// carries its own <see cref="RelationshipGraph"/>.
     /// </summary>
     public sealed class Diagram
     {
-        public Diagram(Identifier tableName, string diagramName, string dotDefinition, bool isActive)
+        public Diagram(Identifier tableName, string diagramName, RelationshipGraph graph, bool isActive)
         {
             ArgumentNullException.ThrowIfNull(tableName);
             ArgumentException.ThrowIfNullOrWhiteSpace(diagramName);
-            ArgumentException.ThrowIfNullOrWhiteSpace(dotDefinition);
 
             Name = diagramName;
-            Dot = dotDefinition;
+            Graph = graph ?? throw new ArgumentNullException(nameof(graph));
             ContainerId = tableName.ToSafeKey() + "-" + Name.ToLowerInvariant().Replace(' ', '-') + "-chart";
             IsActive = isActive;
-            SvgFile = "data/diagrams/" + ContainerId + ".svg";
         }
 
         public string Name { get; }
@@ -455,11 +454,6 @@ public sealed class Table
 
         public bool IsActive { get; }
 
-        public string SvgFile { get; }
-
-        // The DOT source is consumed by the renderer to produce the SVG file; it is not part
-        // of the JSON payload.
-        [JsonIgnore]
-        public string Dot { get; }
+        public RelationshipGraph Graph { get; }
     }
 }

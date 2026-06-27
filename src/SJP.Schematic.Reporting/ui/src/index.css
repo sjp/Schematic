@@ -118,3 +118,18 @@
     @apply bg-background text-foreground;
   }
 }
+
+/*
+ * React Flow's zoom in/out/reset control panel defaults to a near-white button
+ * background with inherited icon colour. In dark mode that left the panel and
+ * its icons both light, with no contrast. Mapping the panel's documented
+ * override variables to our theme tokens makes it follow light/dark like the
+ * rest of the report, instead of hardcoding dark-mode colours.
+ */
+.react-flow__controls {
+  --xy-controls-button-background-color: var(--card);
+  --xy-controls-button-background-color-hover: var(--muted);
+  --xy-controls-button-color: var(--foreground);
+  --xy-controls-button-color-hover: var(--foreground);
+  --xy-controls-button-border-color: var(--border);
+}
