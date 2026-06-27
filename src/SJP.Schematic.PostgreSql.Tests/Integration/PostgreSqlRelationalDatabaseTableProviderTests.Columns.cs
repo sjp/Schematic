@@ -223,6 +223,22 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         Assert.That(column.Type.DataType, Is.EqualTo(DataType.Xml));
     }
 
+    [TestCase("point_column")]
+    [TestCase("line_column")]
+    [TestCase("lseg_column")]
+    [TestCase("box_column")]
+    [TestCase("path_column")]
+    [TestCase("polygon_column")]
+    [TestCase("circle_column")]
+    public async Task Columns_WhenGivenTableWithGeometricColumn_ReturnsColumnWithGeometryDataType(string columnName)
+    {
+        const string tableName = "table_test_table_41";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, columnName, StringComparison.Ordinal));
+
+        Assert.That(column.Type.DataType, Is.EqualTo(DataType.Geometry));
+    }
+
     [Test]
     public async Task Columns_WhenGivenTableWithGeneratedColumns_ReturnsExpectedComputedColumnDefinition()
     {
