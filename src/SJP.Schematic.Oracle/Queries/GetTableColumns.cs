@@ -48,7 +48,7 @@ select
     CHARACTER_SET_NAME as "{nameof(Result.Collation)}",
     VIRTUAL_COLUMN as "{nameof(Result.IsComputed)}"
 from SYS.ALL_TAB_COLS
-where OWNER = :{nameof(Query.SchemaName)} and TABLE_NAME = :{nameof(Query.TableName)}
+where OWNER = :{nameof(Query.SchemaName)} and TABLE_NAME = :{nameof(Query.TableName)} and HIDDEN_COLUMN = 'NO'
 order by COLUMN_ID
 """;
 }

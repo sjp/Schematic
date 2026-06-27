@@ -147,7 +147,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
 
         const string tableName = "TABLE_TEST_TABLE_36";
         var table = await GetTableAsync(tableName);
-        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "JSON_COLUMN", StringComparison.Ordinal));
+        var column = table.Columns.Single();
 
         Assert.That(column.Type.DataType, Is.EqualTo(DataType.Json));
     }
@@ -157,7 +157,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     {
         const string tableName = "TABLE_TEST_TABLE_37";
         var table = await GetTableAsync(tableName);
-        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "XML_COLUMN", StringComparison.Ordinal));
+        var column = table.Columns.Single();
 
         Assert.That(column.Type.DataType, Is.EqualTo(DataType.Xml));
     }
@@ -167,7 +167,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     {
         const string tableName = "TABLE_TEST_TABLE_38";
         var table = await GetTableAsync(tableName);
-        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "GEOMETRY_COLUMN", StringComparison.Ordinal));
+        var column = table.Columns.Single();
 
         Assert.That(column.Type.DataType, Is.EqualTo(DataType.Geometry));
     }
