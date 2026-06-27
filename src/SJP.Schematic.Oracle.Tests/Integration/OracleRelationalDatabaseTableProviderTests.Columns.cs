@@ -161,4 +161,14 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
 
         Assert.That(column.Type.DataType, Is.EqualTo(DataType.Xml));
     }
+
+    [Test]
+    public async Task Columns_WhenGivenTableWithGeometryColumn_ReturnsColumnWithGeometryDataType()
+    {
+        const string tableName = "TABLE_TEST_TABLE_38";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "GEOMETRY_COLUMN", StringComparison.Ordinal));
+
+        Assert.That(column.Type.DataType, Is.EqualTo(DataType.Geometry));
+    }
 }

@@ -120,6 +120,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
             DataType.Date => new Identifier("SYS", "DATE"),
             DataType.DateTime => new Identifier("SYS", "TIMESTAMP WITH LOCAL TIME ZONE"),
             DataType.Float => new Identifier("SYS", "FLOAT"),
+            DataType.Geometry => new Identifier("MDSYS", "SDO_GEOMETRY"),
             DataType.Integer => new Identifier("SYS", "NUMBER"),
             DataType.Interval => new Identifier("sys", "TIMESTAMP WITH LOCAL TIME ZONE"),
             DataType.Json => new Identifier("SYS", "JSON"),
@@ -271,6 +272,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
         "LONG RAW",
         "NCLOB",
         "ROWID",
+        "SDO_GEOMETRY",
         "XMLTYPE",
     };
 
@@ -300,6 +302,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
         ["RAW"] = DataType.LargeBinary,
         ["REAL"] = DataType.Float,
         ["ROWID"] = DataType.String,
+        ["SDO_GEOMETRY"] = DataType.Geometry,
         ["TIMESTAMP"] = DataType.DateTime,
         ["TIMESTAMP WITH TIME ZONE"] = DataType.DateTime,
         ["TIMESTAMP WITH LOCAL TIME ZONE"] = DataType.DateTime,
@@ -335,6 +338,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
         ["RAW"] = typeof(byte[]),
         ["REAL"] = typeof(decimal),
         ["ROWID"] = typeof(string),
+        ["SDO_GEOMETRY"] = typeof(object),
         ["TIMESTAMP"] = typeof(DateTime),
         ["TIMESTAMP WITH TIME ZONE"] = typeof(DateTime),
         ["TIMESTAMP WITH LOCAL TIME ZONE"] = typeof(DateTime),
