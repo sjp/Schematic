@@ -114,6 +114,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
             DataType.Unicode or DataType.UnicodeText => typeMetadata.IsFixedLength
                 ? new Identifier("sys", "nchar")
                 : new Identifier("sys", "nvarchar"),
+            DataType.Xml => new Identifier("sys", "xml"),
             DataType.Unknown => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for an unknown data type."),
             _ => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for data type: " + typeMetadata.DataType.ToString()),
         };
@@ -305,7 +306,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
         [new Identifier("sys", "uniqueidentifier")] = DataType.Unknown,
         [new Identifier("sys", "varbinary")] = DataType.Binary,
         [new Identifier("sys", "varchar")] = DataType.String,
-        [new Identifier("sys", "xml")] = DataType.Unicode,
+        [new Identifier("sys", "xml")] = DataType.Xml,
     };
 
     private static readonly IReadOnlyDictionary<Identifier, Type> StringToClrTypeMap = new Dictionary<Identifier, Type>(IdentifierComparer.OrdinalIgnoreCase)

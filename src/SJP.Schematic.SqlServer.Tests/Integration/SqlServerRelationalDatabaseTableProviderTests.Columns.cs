@@ -181,4 +181,14 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
 
         Assert.That(column.Type.DataType, Is.EqualTo(DataType.Json));
     }
+
+    [Test]
+    public async Task Columns_WhenGivenTableWithXmlColumn_ReturnsColumnWithXmlDataType()
+    {
+        const string tableName = "table_test_table_38";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "xml_column", StringComparison.Ordinal));
+
+        Assert.That(column.Type.DataType, Is.EqualTo(DataType.Xml));
+    }
 }
