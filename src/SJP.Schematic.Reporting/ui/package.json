@@ -13,10 +13,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@radix-ui/react-dialog": "^1.1.17",
-    "@radix-ui/react-tooltip": "^1.2.10",
-    "@tailwindcss/vite": "^4.3.1",
-    "@tanstack/react-query": "^5.101.1",
+    "@radix-ui/react-dialog": "^1.1.18",
+    "@radix-ui/react-tooltip": "^1.2.11",
+    "@tailwindcss/vite": "^4.3.2",
+    "@tanstack/react-query": "^5.101.2",
     "@tanstack/react-router": "^1.170.16",
     "@tanstack/react-table": "^8.21.3",
     "@xyflow/react": "^12.11.1",
@@ -24,7 +24,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "elkjs": "^0.11.1",
-    "lucide-react": "^1.21.0",
+    "lucide-react": "^1.22.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "tailwind-merge": "^3.6.0",
@@ -34,18 +34,18 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@tanstack/router-plugin": "^1.168.18",
-    "@types/node": "^26.0.0",
+    "@types/node": "^26.0.1",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
-    "eslint": "^10.5.0",
+    "eslint": "^10.6.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^17.7.0",
-    "prettier": "^3.8.4",
+    "prettier": "^3.9.4",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.62.0",
-    "vite": "^8.1.0"
+    "typescript-eslint": "^8.62.1",
+    "vite": "^8.1.2"
   }
 }
