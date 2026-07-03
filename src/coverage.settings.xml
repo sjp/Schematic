@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+  <!--
+    Microsoft.Testing.Platform code coverage settings, passed via the coverage-settings
+    command line option (see the dotnet test invocations in .github/workflows).
+
+    Excludes the checked-in ANTLR generated lexers and parsers, which live under
+    */Parsing/Antlr/Generated/, from coverage statistics. This generated code is not
+    hand-written and should not count towards (or drag down) the numbers reported to Codecov.
+
+    Only a source exclusion is added here; the code coverage engine's default exclusions
+    (test assemblies, third-party modules, generated-code attributes, etc.) are preserved.
+
+    NOTE: the settings parser rejects comments before the Configuration root element, and
+    rejects angle brackets, square brackets and double hyphens inside a comment, so keep any
+    documentation here plain.
+  -->
+  <CodeCoverage>
+    <Sources>
+      <Exclude>
+        <Source>.*[\\/]Parsing[\\/]Antlr[\\/]Generated[\\/].*</Source>
+      </Exclude>
+    </Sources>
+  </CodeCoverage>
+</Configuration>
