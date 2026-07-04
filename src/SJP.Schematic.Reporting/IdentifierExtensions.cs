@@ -101,7 +101,10 @@ internal static partial class IdentifierExtensions
 
     private static string Truncate(string input, int maxChars)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(input);
+        // Deliberately permits empty (but not null) input: ToSlug calls this on a name that may
+        // have already been reduced to nothing by invalid-character stripping (e.g. "+++",
+        // "日本語"), before its own empty-slug fallback runs further down.
+        ArgumentNullException.ThrowIfNull(input);
         if (maxChars <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxChars), "The number of characters to truncate to must be at least 1.");
 
