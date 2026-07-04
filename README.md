@@ -33,11 +33,58 @@ dotnet tool install --global dotnet-schematic
 
 The `schematic` command exposes the following sub-commands:
 
+* `init` — interactively create a configuration file (see below).
 * `orm efcore` / `orm ormlite` / `orm poco` — generate ORM projects for a database.
 * `lint` — analyse a database schema for potential issues.
 * `report` — generate an HTML report of a database schema.
 * `test` — test a database connection to see whether it is available.
 * `completion` — generate shell completion scripts (see below).
+
+### Configuring a connection
+
+Every database command needs to know two things: which **dialect** to use (one of `mysql`, `oracle`,
+`postgresql`, `sqlserver`, `sqlite`) and a **connection string**. There are three ways to supply them.
+
+**1. Inline, no file needed.** Pass `--dialect` and `--connection-string` directly. This is the quickest
+way to run a one-off report or lint:
+
+```sh
+schematic report --dialect sqlite --connection-string "Data Source=app.db" --output ./report
+schematic lint   --dialect sqlite --connection-string "Data Source=app.db"
+```
+
+**2. Scaffold a configuration file with `init`.** For a repeatable setup, run the interactive wizard.
+It prompts for the dialect and connection details (entering them field-by-field, or pasting a full
+connection string), optionally tests the connection, and writes a `schematic.json`:
+
+```sh
+schematic init                       # writes ./schematic.json
+schematic init --output db.json      # or a path of your choosing
+```
+
+**3. Use a configuration file.** A configuration file is JSON with a `Dialect` and a connection string
+named `Schematic`:
+
+```json
+{
+  "Dialect": "sqlserver",
+  "ConnectionStrings": {
+    "Schematic": "Server=localhost,1433;Database=MyDb;User Id=sa;Password=<password>"
+  }
+}
+```
+
+Point any command at it with `--config` (or `-c`). If you omit `--config`, a `schematic.json` in the
+current directory is picked up automatically:
+
+```sh
+schematic report --config schematic.json --output ./report
+schematic lint                       # uses ./schematic.json if present
+```
+
+Values can also be overridden via environment variables (for example, keeping secrets out of the file):
+set `Dialect` and `ConnectionStrings__Schematic`. Inline `--dialect` / `--connection-string` options take
+precedence over both the file and environment variables.
 
 ### Shell completions
 

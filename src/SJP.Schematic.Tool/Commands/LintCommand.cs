@@ -32,7 +32,7 @@ internal sealed class LintCommand : AsyncCommand<LintCommand.Settings>
 
     protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var dependencyProvider = _dependencyProviderFactory.GetDbDependencies(settings.ConfigFile!.FullName);
+        var dependencyProvider = _dependencyProviderFactory.GetDbDependencies(settings);
         var connection = dependencyProvider.GetSchematicConnection();
         var database = await connection.Dialect.GetRelationalDatabaseAsync(connection, cancellationToken);
 

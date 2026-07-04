@@ -35,7 +35,7 @@ internal sealed class TestCommand : AsyncCommand<TestCommand.Settings>
 
     protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var dependencyProvider = _dependencyProviderFactory.GetDbDependencies(settings.ConfigFile!.FullName);
+        var dependencyProvider = _dependencyProviderFactory.GetDbDependencies(settings);
         var connectionFactory = dependencyProvider.GetConnectionFactory();
 
         try
@@ -61,7 +61,7 @@ internal sealed class TestCommand : AsyncCommand<TestCommand.Settings>
         }
         catch (Exception ex)
         {
-            _console.MarkupLine("[red]Failed to connect to the database.[/red]");
+            _console.MarkupLine("[red]Failed to connect to the database.[/]");
             _console.MarkupLineInterpolated($"    [red]{ex.Message}[/]");
 
             return ErrorCode.Error;

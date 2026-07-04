@@ -36,7 +36,7 @@ internal sealed class GenerateOrmLiteCommand : AsyncCommand<GenerateOrmLiteComma
 
     protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var dependencyProvider = _dependencyProviderFactory.GetDbDependencies(settings.ConfigFile!.FullName);
+        var dependencyProvider = _dependencyProviderFactory.GetDbDependencies(settings);
         var connection = dependencyProvider.GetSchematicConnection();
         var nameTranslator = dependencyProvider.GetNameTranslator(settings.NamingConvention);
 

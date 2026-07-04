@@ -34,17 +34,24 @@ internal static class Program
                 orm.AddCommand<GenerateOrmLiteCommand>("ormlite");
                 orm.AddCommand<GeneratePocoCommand>("poco");
             });
+            config.AddCommand<InitCommand>("init");
             config.AddCommand<LintCommand>("lint");
             config.AddCommand<ReportCommand>("report");
             config.AddCommand<TestCommand>("test");
             config.AddCommand<CompletionCommand>("completion")
                 .WithExample("completion", "bash");
 
-            config.PropagateExceptions();
             config.ValidateExamples();
             config.SetExceptionHandler((ex, _) =>
             {
-                AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
+                // Parse/validation failures carry a user-actionable message; render it plainly
+                // rather than dumping a stack trace. Anything else is unexpected, so show detail.
+                if (ex is CommandParseException or CommandRuntimeException)
+                    AnsiConsole.MarkupLineInterpolated($"[red]{ex.Message}[/]");
+                else
+                    AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
+
+                return ErrorCode.Error;
             });
         });
 

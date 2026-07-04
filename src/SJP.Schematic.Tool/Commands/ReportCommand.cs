@@ -18,6 +18,17 @@ internal sealed class ReportCommand : AsyncCommand<ReportCommand.Settings>
         [CommandOption("--output <DIRECTORY>")]
         [Description("The directory to save the generated report.")]
         public DirectoryInfo? OutputDirectory { get; init; }
+
+        public override ValidationResult Validate()
+        {
+            var baseResult = base.Validate();
+            if (!baseResult.Successful)
+                return baseResult;
+
+            return OutputDirectory == null
+                ? ValidationResult.Error("An output directory must be specified with --output.")
+                : ValidationResult.Success();
+        }
     }
 
     private readonly IAnsiConsole _console;
@@ -36,7 +47,7 @@ internal sealed class ReportCommand : AsyncCommand<ReportCommand.Settings>
 
     protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var dependencyProvider = _dependencyProviderFactory.GetDbDependencies(settings.ConfigFile!.FullName);
+        var dependencyProvider = _dependencyProviderFactory.GetDbDependencies(settings);
         var connection = dependencyProvider.GetSchematicConnection();
         var database = await connection.Dialect.GetRelationalDatabaseAsync(connection, cancellationToken);
 

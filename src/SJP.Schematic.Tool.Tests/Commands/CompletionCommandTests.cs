@@ -31,6 +31,7 @@ internal static class CompletionCommandTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(script, Does.Contain("orm"));
+            Assert.That(script, Does.Contain("init"));
             Assert.That(script, Does.Contain("lint"));
             Assert.That(script, Does.Contain("report"));
             Assert.That(script, Does.Contain("test"));

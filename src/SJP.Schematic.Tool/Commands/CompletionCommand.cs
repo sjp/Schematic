@@ -59,7 +59,8 @@ internal sealed class CompletionCommand : Command<CompletionCommand.Settings>
             local cur cmd subcmd i w
             cur="${COMP_WORDS[COMP_CWORD]}"
 
-            local commands="orm lint report test completion"
+            local commands="orm init lint report test completion"
+            local conn="-d --dialect --connection-string"
             local global="-h --help"
 
             cmd=""
@@ -82,17 +83,20 @@ internal sealed class CompletionCommand : Command<CompletionCommand.Settings>
                     if [[ -z "$subcmd" ]]; then
                         COMPREPLY=( $(compgen -W "efcore ormlite poco $global" -- "$cur") )
                     else
-                        COMPREPLY=( $(compgen -W "-c --config --convention --project-path --base-namespace $global" -- "$cur") )
+                        COMPREPLY=( $(compgen -W "-c --config $conn --convention --project-path --base-namespace $global" -- "$cur") )
                     fi
                     ;;
+                init)
+                    COMPREPLY=( $(compgen -W "-o --output --force $global" -- "$cur") )
+                    ;;
                 lint)
-                    COMPREPLY=( $(compgen -W "-c --config $global" -- "$cur") )
+                    COMPREPLY=( $(compgen -W "-c --config $conn $global" -- "$cur") )
                     ;;
                 report)
-                    COMPREPLY=( $(compgen -W "-c --config --output $global" -- "$cur") )
+                    COMPREPLY=( $(compgen -W "-c --config $conn --output $global" -- "$cur") )
                     ;;
                 test)
-                    COMPREPLY=( $(compgen -W "-c --config -t --timeout $global" -- "$cur") )
+                    COMPREPLY=( $(compgen -W "-c --config $conn -t --timeout $global" -- "$cur") )
                     ;;
                 completion)
                     COMPREPLY=( $(compgen -W "bash zsh fish powershell $global" -- "$cur") )
@@ -133,6 +137,7 @@ internal sealed class CompletionCommand : Command<CompletionCommand.Settings>
                     local -a commands
                     commands=(
                         'orm:Generate ORM projects to interact with a database.'
+                        'init:Interactively create a schematic configuration file.'
                         'lint:Analyse a database schema for potential issues.'
                         'report:Generate an HTML report of a database schema.'
                         'test:Test a database connection to see whether it is available.'
@@ -175,6 +180,7 @@ internal sealed class CompletionCommand : Command<CompletionCommand.Settings>
 
         # Top-level commands
         complete -c schematic -f -n '__fish_use_subcommand' -a orm -d 'Generate ORM projects to interact with a database.'
+        complete -c schematic -f -n '__fish_use_subcommand' -a init -d 'Interactively create a schematic configuration file.'
         complete -c schematic -f -n '__fish_use_subcommand' -a lint -d 'Analyse a database schema for potential issues.'
         complete -c schematic -f -n '__fish_use_subcommand' -a report -d 'Generate an HTML report of a database schema.'
         complete -c schematic -f -n '__fish_use_subcommand' -a test -d 'Test a database connection to see whether it is available.'
@@ -190,6 +196,9 @@ internal sealed class CompletionCommand : Command<CompletionCommand.Settings>
 
         # Options
         complete -c schematic -s c -l config -r -d 'Path to a configuration file.'
+        complete -c schematic -s d -l dialect -r -d 'The database dialect to connect to.'
+        complete -c schematic -l connection-string -r -d 'A connection string used to connect to the database.'
+        complete -c schematic -l force -d 'Overwrite the output file if it already exists.'
         complete -c schematic -l output -r -d 'The directory to save the generated report.'
         complete -c schematic -s t -l timeout -r -d 'A timeout (in seconds) to wait for.'
         complete -c schematic -l convention -r -d 'The naming convention to use.'
@@ -230,6 +239,7 @@ internal sealed class CompletionCommand : Command<CompletionCommand.Settings>
             $completions = @(switch ($command) {
                 'schematic' {
                     [CompletionResult]::new('orm', 'orm', [CompletionResultType]::ParameterValue, 'Generate ORM projects to interact with a database.')
+                    [CompletionResult]::new('init', 'init', [CompletionResultType]::ParameterValue, 'Interactively create a schematic configuration file.')
                     [CompletionResult]::new('lint', 'lint', [CompletionResultType]::ParameterValue, 'Analyse a database schema for potential issues.')
                     [CompletionResult]::new('report', 'report', [CompletionResultType]::ParameterValue, 'Generate an HTML report of a database schema.')
                     [CompletionResult]::new('test', 'test', [CompletionResultType]::ParameterValue, 'Test a database connection to see whether it is available.')

@@ -18,14 +18,6 @@ public class DatabaseCommandDependencyProvider : IDatabaseCommandDependencyProvi
 
     public IConfiguration Configuration { get; }
 
-    protected static IConfiguration GetConfig(string filePath)
-    {
-        return new ConfigurationBuilder()
-            .AddJsonFile(filePath)
-            .AddEnvironmentVariables()
-            .Build();
-    }
-
     private IDatabaseDialect GetDialect()
     {
         var dialect = Configuration.GetValue<string>("Dialect");

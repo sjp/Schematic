@@ -1,6 +1,8 @@
-﻿namespace SJP.Schematic.Tool.Handlers;
+using SJP.Schematic.Tool.Commands;
+
+namespace SJP.Schematic.Tool.Handlers;
 
 public interface IDatabaseCommandDependencyProviderFactory
 {
-    IDatabaseCommandDependencyProvider GetDbDependencies(string filePath);
+    IDatabaseCommandDependencyProvider GetDbDependencies(CommonSettings settings);
 }
