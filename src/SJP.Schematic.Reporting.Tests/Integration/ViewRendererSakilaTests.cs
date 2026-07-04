@@ -1,0 +1,69 @@
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using NUnit.Framework;
+using SJP.Schematic.Reporting.Html.Renderers;
+using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
+using SJP.Schematic.Reporting.Serialization;
+using SJP.Schematic.Tests.Utilities;
+using SJP.Schematic.Tests.Utilities.Integration;
+
+namespace SJP.Schematic.Reporting.Tests.Integration;
+
+internal sealed class ViewRendererSakilaTests : SakilaTest
+{
+    [Test]
+    public void Ctor_GivenNullViews_ThrowsArgumentNullException()
+    {
+        using var tempDir = new TemporaryDirectory();
+        Assert.That(
+            () => new ViewRenderer(null!, EmptyTargets(), new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath)),
+            Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public void Ctor_GivenNullReferencedObjectTargets_ThrowsArgumentNullException()
+    {
+        using var tempDir = new TemporaryDirectory();
+        Assert.That(
+            () => new ViewRenderer([], null!, new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath)),
+            Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public async Task RenderAsync_GivenSakilaViews_WritesDetailFilePerViewUnderViewsSubdirectory()
+    {
+        using var tempDir = new TemporaryDirectory();
+        var database = GetDatabase();
+        var views = await database.GetAllViews();
+
+        var renderer = new ViewRenderer(views, EmptyTargets(), new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath));
+        await renderer.RenderAsync();
+
+        var firstView = views.First();
+        var expectedFile = Path.Combine(tempDir.DirectoryPath, "data", "views", firstView.Name.ToSafeKey() + ".json");
+
+        Assert.That(File.Exists(expectedFile), Is.True);
+    }
+
+    [Test]
+    public async Task RenderAsync_GivenSakilaViews_RegistersDetailPayloadPerViewUnderViewBundleKey()
+    {
+        using var tempDir = new TemporaryDirectory();
+        var database = GetDatabase();
+        var views = await database.GetAllViews();
+        var bundle = new BundleBuilder();
+
+        var renderer = new ViewRenderer(views, EmptyTargets(), new JsonDataWriter(), bundle, new DirectoryInfo(tempDir.DirectoryPath));
+        await renderer.RenderAsync();
+
+        var firstView = views.First();
+        var bundleFile = new FileInfo(Path.Combine(tempDir.DirectoryPath, "bundle.js"));
+        await bundle.WriteBundleAsync(bundleFile);
+        var bundleContent = await File.ReadAllTextAsync(bundleFile.FullName);
+
+        Assert.That(bundleContent, Does.Contain($"window.__schematic[\"view\"][\"{firstView.Name.ToSafeKey()}\"]"));
+    }
+
+    private ReferencedObjectTargets EmptyTargets() => new(Connection.Dialect.GetDependencyProvider(), [], [], [], [], []);
+}
