@@ -1,12 +1,41 @@
 using System;
+using System.IO;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Tool.Commands;
+using Spectre.Console.Cli;
 
 namespace SJP.Schematic.Tool.Tests.Commands;
 
 [TestFixture]
 internal static class CompletionCommandTests
 {
+    [Test]
+    public static async Task Execute_GivenBashShell_WritesScriptToStandardOutput()
+    {
+        var registrar = new CommandAppHarness.InstanceRegistrar();
+        var app = new CommandApp(registrar);
+        app.Configure(config => config.AddCommand<CompletionCommand>("completion"));
+
+        var originalOut = Console.Out;
+        var writer = new StringWriter();
+        Console.SetOut(writer);
+        try
+        {
+            var exitCode = await app.RunAsync(["completion", "bash"]);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(exitCode, Is.Zero);
+                Assert.That(writer.ToString(), Does.Contain("_schematic"));
+            }
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
+    }
+
     [Test]
     public static void GetCompletionScript_GivenUnknownShell_ThrowsArgumentOutOfRangeException()
     {

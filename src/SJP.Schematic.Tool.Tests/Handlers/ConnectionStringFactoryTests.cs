@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using NUnit.Framework;
 using SJP.Schematic.Tool.Handlers;
@@ -72,5 +73,71 @@ internal static class ConnectionStringFactoryTests
         Assert.That(
             () => ConnectionStringFactory.BuildGuided("db2", details),
             Throws.InstanceOf<NotSupportedException>());
+    }
+
+    [TestCase(null)]
+    [TestCase("")]
+    [TestCase("   ")]
+    public static void ForSqlite_GivenNullOrWhiteSpacePath_ThrowsArgumentException(string? path)
+    {
+        Assert.That(() => ConnectionStringFactory.ForSqlite(path!), Throws.InstanceOf<ArgumentException>());
+    }
+
+    [TestCase(null)]
+    [TestCase("")]
+    [TestCase("   ")]
+    public static void BuildGuided_GivenNullOrWhiteSpaceDialect_ThrowsArgumentException(string? dialect)
+    {
+        var details = new ConnectionStringFactory.ConnectionDetails("localhost", null, null, null, null);
+
+        Assert.That(() => ConnectionStringFactory.BuildGuided(dialect!, details), Throws.InstanceOf<ArgumentException>());
+    }
+
+    [Test]
+    public static void BuildGuided_GivenDialectIgnoringCase_IsSupported()
+    {
+        var details = new ConnectionStringFactory.ConnectionDetails("localhost", 5432, null, null, null);
+
+        var result = ConnectionStringFactory.BuildGuided("PostgreSQL", details);
+
+        Assert.That(result, Does.Contain("Host=localhost"));
+    }
+
+    [Test]
+    public static void BuildGuided_GivenSqliteDialect_UsesHostAsDataSource()
+    {
+        var details = new ConnectionStringFactory.ConnectionDetails("app.db", null, null, null, null);
+
+        var result = ConnectionStringFactory.BuildGuided("sqlite", details);
+
+        Assert.That(result, Does.Contain("Data Source=app.db"));
+    }
+
+    [Test]
+    public static void BuildGuided_GivenSqlServerWithoutPort_OmitsPortFromDataSource()
+    {
+        var details = new ConnectionStringFactory.ConnectionDetails("localhost", null, "sa", "secret", "MyDb");
+
+        var result = ConnectionStringFactory.BuildGuided("sqlserver", details);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result, Does.Contain("localhost"));
+            Assert.That(result, Does.Not.Contain("localhost,"));
+        }
+    }
+
+    [Test]
+    public static void BuildGuided_GivenPostgreSqlWithoutCredentials_OmitsUserAndPassword()
+    {
+        var details = new ConnectionStringFactory.ConnectionDetails("localhost", 5432, null, null, "MyDb");
+
+        var result = ConnectionStringFactory.BuildGuided("postgresql", details);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result, Does.Not.Contain("Username="));
+            Assert.That(result, Does.Not.Contain("Password="));
+        }
     }
 }
