@@ -37,6 +37,8 @@ internal static class Program
             config.AddCommand<LintCommand>("lint");
             config.AddCommand<ReportCommand>("report");
             config.AddCommand<TestCommand>("test");
+            config.AddCommand<CompletionCommand>("completion")
+                .WithExample("completion", "bash");
 
             config.PropagateExceptions();
             config.ValidateExamples();
