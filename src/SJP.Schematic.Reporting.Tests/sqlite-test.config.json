@@ -1,0 +1,5 @@
+{
+  "ConnectionStrings": {
+    "Reporting_Lint_TestDb": "Data Source=file:InMemory_a2021619_404a_4973_97e3_a53a36a770c5?mode=memory&cache=shared&uri=true"
+  }
+}

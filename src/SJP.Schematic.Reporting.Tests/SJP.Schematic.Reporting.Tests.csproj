@@ -7,6 +7,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Moq" />
     <PackageReference Include="NUnit" />
@@ -20,6 +23,12 @@
   <ItemGroup>
     <ProjectReference Include="..\SJP.Schematic.Reporting\SJP.Schematic.Reporting.csproj" />
     <ProjectReference Include="..\SJP.Schematic.Tests.Utilities\SJP.Schematic.Tests.Utilities.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="sqlite-test.config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
