@@ -26,7 +26,7 @@ internal static class NoNonNullableColumnsPresentRuleTests
     [Test]
     public static async Task AnalyseTables_GivenTableWithNotNullableColumns_ProducesNoMessages()
     {
-        var rule = new OnlyOneColumnPresentRule(RuleLevel.Error);
+        var rule = new NoNonNullableColumnsPresentRule(RuleLevel.Error);
 
         var testColumn1 = new DatabaseColumn(
             "test_column_1",
@@ -73,7 +73,7 @@ internal static class NoNonNullableColumnsPresentRuleTests
     [Test]
     public static async Task AnalyseTables_GivenTableWithNoNullableColumns_ProducesMessages()
     {
-        var rule = new OnlyOneColumnPresentRule(RuleLevel.Error);
+        var rule = new NoNonNullableColumnsPresentRule(RuleLevel.Error);
 
         var testColumn = new DatabaseColumn(
             "test_column",

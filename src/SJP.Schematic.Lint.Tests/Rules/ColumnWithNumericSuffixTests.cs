@@ -26,7 +26,7 @@ internal static class ColumnWithNumericSuffixTests
     [Test]
     public static async Task AnalyseTables_GivenTableWithoutColumnsContainingNumericSuffix_ProducesNoMessages()
     {
-        var rule = new ColumnWithNullDefaultValueRule(RuleLevel.Error);
+        var rule = new ColumnWithNumericSuffix(RuleLevel.Error);
 
         var testColumn = new DatabaseColumn(
             "test_column",
@@ -57,7 +57,7 @@ internal static class ColumnWithNumericSuffixTests
     [Test]
     public static async Task AnalyseTables_GivenTableWithColumnsContainingNumericSuffix_ProducesMessages()
     {
-        var rule = new ColumnWithNullDefaultValueRule(RuleLevel.Error);
+        var rule = new ColumnWithNumericSuffix(RuleLevel.Error);
 
         var testColumn = new DatabaseColumn(
             "test_column_1",
