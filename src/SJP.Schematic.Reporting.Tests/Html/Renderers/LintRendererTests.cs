@@ -19,19 +19,7 @@ internal static class LintRendererTests
     [Test]
     public static void Ctor_GivenNullLinter_ThrowsArgumentNullException()
     {
-        using var tempDir = new TemporaryDirectory();
-        Assert.That(
-            () => new LintRenderer(null!, [], [], [], [], [], new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath)),
-            Throws.ArgumentNullException);
-    }
-
-    [Test]
-    public static void Ctor_GivenNullExportDirectory_ThrowsArgumentNullException()
-    {
-        var mockLinter = new Mock<IRelationalDatabaseLinter>();
-        Assert.That(
-            () => new LintRenderer(mockLinter.Object, [], [], [], [], [], new JsonDataWriter(), new BundleBuilder(), null!),
-            Throws.ArgumentNullException);
+        Assert.That(() => new LintRenderer(null!), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -40,8 +28,10 @@ internal static class LintRendererTests
         using var tempDir = new TemporaryDirectory();
         var mockLinter = CreateMockLinter([]);
 
-        var renderer = new LintRenderer(mockLinter.Object, [], [], [], [], [], new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath));
-        await renderer.RenderAsync();
+        var renderer = new LintRenderer(mockLinter.Object);
+        var data = ReportDataFactory.Create();
+        var context = new RenderContext(new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath));
+        await renderer.RenderAsync(data, context);
 
         var outputFile = Path.Combine(tempDir.DirectoryPath, "data", "lint.json");
         var content = await File.ReadAllTextAsync(outputFile);
@@ -60,8 +50,10 @@ internal static class LintRendererTests
         };
         var mockLinter = CreateMockLinter(tableMessages);
 
-        var renderer = new LintRenderer(mockLinter.Object, [], [], [], [], [], new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath));
-        await renderer.RenderAsync();
+        var renderer = new LintRenderer(mockLinter.Object);
+        var data = ReportDataFactory.Create();
+        var context = new RenderContext(new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath));
+        await renderer.RenderAsync(data, context);
 
         var outputFile = Path.Combine(tempDir.DirectoryPath, "data", "lint.json");
         var content = await File.ReadAllTextAsync(outputFile);
@@ -81,8 +73,10 @@ internal static class LintRendererTests
         var mockLinter = CreateMockLinter([]);
         var bundle = new BundleBuilder();
 
-        var renderer = new LintRenderer(mockLinter.Object, [], [], [], [], [], new JsonDataWriter(), bundle, new DirectoryInfo(tempDir.DirectoryPath));
-        await renderer.RenderAsync();
+        var renderer = new LintRenderer(mockLinter.Object);
+        var data = ReportDataFactory.Create();
+        var context = new RenderContext(new JsonDataWriter(), bundle, new DirectoryInfo(tempDir.DirectoryPath));
+        await renderer.RenderAsync(data, context);
 
         var bundleFile = new FileInfo(Path.Combine(tempDir.DirectoryPath, "bundle.js"));
         await bundle.WriteBundleAsync(bundleFile);

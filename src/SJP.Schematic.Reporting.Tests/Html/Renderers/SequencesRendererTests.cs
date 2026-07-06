@@ -13,31 +13,16 @@ namespace SJP.Schematic.Reporting.Tests.Html.Renderers;
 internal static class SequencesRendererTests
 {
     [Test]
-    public static void Ctor_GivenNullSequences_ThrowsArgumentNullException()
-    {
-        using var tempDir = new TemporaryDirectory();
-        Assert.That(
-            () => new SequencesRenderer(null!, new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath)),
-            Throws.ArgumentNullException);
-    }
-
-    [Test]
-    public static void Ctor_GivenNullExportDirectory_ThrowsArgumentNullException()
-    {
-        Assert.That(
-            () => new SequencesRenderer([], new JsonDataWriter(), new BundleBuilder(), null!),
-            Throws.ArgumentNullException);
-    }
-
-    [Test]
     public static async Task RenderAsync_GivenSequences_WritesSummaryFileWithExpectedCount()
     {
         using var tempDir = new TemporaryDirectory();
         var first = new DatabaseSequence(new Identifier("seq_one"), 1M, 1M, Option<decimal>.None, Option<decimal>.None, false, 0);
         var second = new DatabaseSequence(new Identifier("seq_two"), 1M, 1M, Option<decimal>.None, Option<decimal>.None, false, 0);
 
-        var renderer = new SequencesRenderer([first, second], new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath));
-        await renderer.RenderAsync();
+        var renderer = new SequencesRenderer();
+        var data = ReportDataFactory.Create(sequences: [first, second]);
+        var context = new RenderContext(new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath));
+        await renderer.RenderAsync(data, context);
 
         var outputFile = Path.Combine(tempDir.DirectoryPath, "data", "sequences.json");
         var content = await File.ReadAllTextAsync(outputFile);
@@ -52,8 +37,10 @@ internal static class SequencesRendererTests
         var sequence = new DatabaseSequence(new Identifier("seq_one"), 1M, 1M, Option<decimal>.None, Option<decimal>.None, false, 0);
         var bundle = new BundleBuilder();
 
-        var renderer = new SequencesRenderer([sequence], new JsonDataWriter(), bundle, new DirectoryInfo(tempDir.DirectoryPath));
-        await renderer.RenderAsync();
+        var renderer = new SequencesRenderer();
+        var data = ReportDataFactory.Create(sequences: [sequence]);
+        var context = new RenderContext(new JsonDataWriter(), bundle, new DirectoryInfo(tempDir.DirectoryPath));
+        await renderer.RenderAsync(data, context);
 
         var bundleFile = new FileInfo(Path.Combine(tempDir.DirectoryPath, "bundle.js"));
         await bundle.WriteBundleAsync(bundleFile);

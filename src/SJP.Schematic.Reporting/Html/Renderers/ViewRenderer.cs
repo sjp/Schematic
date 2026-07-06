@@ -1,63 +1,44 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
-using SJP.Schematic.Reporting.Serialization;
 
 namespace SJP.Schematic.Reporting.Html.Renderers;
 
 internal sealed class ViewRenderer : IDataRenderer
 {
-    public ViewRenderer(
-        IReadOnlyCollection<IDatabaseView> views,
-        ReferencedObjectTargets referencedObjectTargets,
-        JsonDataWriter jsonWriter,
-        BundleBuilder bundle,
-        DirectoryInfo exportDirectory
-    )
+    public Task RenderAsync(ReportData data, RenderContext context, CancellationToken cancellationToken = default)
     {
-        Views = views ?? throw new ArgumentNullException(nameof(views));
-        ReferencedObjectTargets = referencedObjectTargets ?? throw new ArgumentNullException(nameof(referencedObjectTargets));
-        JsonWriter = jsonWriter ?? throw new ArgumentNullException(nameof(jsonWriter));
-        Bundle = bundle ?? throw new ArgumentNullException(nameof(bundle));
+        ArgumentNullException.ThrowIfNull(data);
+        ArgumentNullException.ThrowIfNull(context);
 
-        ArgumentNullException.ThrowIfNull(exportDirectory);
-        DataDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "data", "views"));
-    }
-
-    private IReadOnlyCollection<IDatabaseView> Views { get; }
-
-    private ReferencedObjectTargets ReferencedObjectTargets { get; }
-
-    private JsonDataWriter JsonWriter { get; }
-
-    private BundleBuilder Bundle { get; }
-
-    private DirectoryInfo DataDirectory { get; }
-
-    public Task RenderAsync(CancellationToken cancellationToken = default)
-    {
         var mapper = new ViewModelMapper();
+        var dataDirectory = new DirectoryInfo(Path.Combine(context.ExportDirectory.FullName, "data", "views"));
 
         return RenderTaskRunner.RunAllAsync(
-            Views,
+            data.Views,
             static v => $"view '{v.Name.ToVisibleName()}'",
-            (view, ct) => RenderViewAsync(view, mapper, ct),
+            (view, ct) => RenderViewAsync(view, mapper, data.ReferencedObjectTargets, context, dataDirectory, ct),
             cancellationToken);
     }
 
-    private async Task RenderViewAsync(IDatabaseView view, ViewModelMapper mapper, CancellationToken cancellationToken)
+    private static async Task RenderViewAsync(
+        IDatabaseView view,
+        ViewModelMapper mapper,
+        ReferencedObjectTargets referencedObjectTargets,
+        RenderContext context,
+        DirectoryInfo dataDirectory,
+        CancellationToken cancellationToken)
     {
-        var viewModel = mapper.Map(view, ReferencedObjectTargets);
+        var viewModel = mapper.Map(view, referencedObjectTargets);
 
         var safeKey = view.Name.ToSafeKey();
-        var json = JsonWriter.Serialize(viewModel);
-        Bundle.AddDetail("view", safeKey, json);
+        var json = context.JsonWriter.Serialize(viewModel);
+        context.Bundle.AddDetail("view", safeKey, json);
 
-        var outputFile = new FileInfo(Path.Combine(DataDirectory.FullName, safeKey + ".json"));
-        await JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
+        var outputFile = new FileInfo(Path.Combine(dataDirectory.FullName, safeKey + ".json"));
+        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
     }
 }

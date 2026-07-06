@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using SJP.Schematic.Reporting.Html.Renderers;
 
 namespace SJP.Schematic.Reporting.Html;
 
@@ -9,10 +10,13 @@ namespace SJP.Schematic.Reporting.Html;
 /// bundle so the served (<c>fetch</c>) and disk (<c>bundle.js</c>) sources cannot drift.
 /// </summary>
 /// <remarks>
-/// Concrete renderers receive a <see cref="Serialization.JsonDataWriter"/> and the shared
-/// <see cref="Serialization.BundleBuilder"/> via their constructors.
+/// <paramref name="data"/> and <paramref name="context"/> supply everything renderers need to know
+/// per call: <see cref="ReportData"/> is what to render, <see cref="Renderers.RenderContext"/> is
+/// where/how to write it. Constructors are reserved for genuine collaborators — e.g. the
+/// dialect-specific <c>IRelationalDatabaseLinter</c> used by <c>LintRenderer</c> — that are not
+/// part of the report's data and would not vary between calls.
 /// </remarks>
-public interface IDataRenderer
+internal interface IDataRenderer
 {
-    Task RenderAsync(CancellationToken cancellationToken = default);
+    Task RenderAsync(ReportData data, RenderContext context, CancellationToken cancellationToken = default);
 }

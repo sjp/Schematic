@@ -7,65 +7,23 @@ using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Reporting.Html.ViewModels;
-using SJP.Schematic.Reporting.Serialization;
 
 namespace SJP.Schematic.Reporting.Html.Renderers;
 
 internal sealed class MainRenderer : IDataRenderer
 {
-    public MainRenderer(
-        IRelationalDatabase database,
-        IReadOnlyCollection<IRelationalDatabaseTable> tables,
-        IReadOnlyCollection<IDatabaseView> views,
-        IReadOnlyCollection<IDatabaseSequence> sequences,
-        IReadOnlyCollection<IDatabaseSynonym> synonyms,
-        IReadOnlyCollection<IDatabaseRoutine> routines,
-        string dbVersion,
-        JsonDataWriter jsonWriter,
-        BundleBuilder bundle,
-        DirectoryInfo exportDirectory)
+    public async Task RenderAsync(ReportData data, RenderContext context, CancellationToken cancellationToken = default)
     {
-        Database = database ?? throw new ArgumentNullException(nameof(database));
-        Tables = tables ?? throw new ArgumentNullException(nameof(tables));
-        Views = views ?? throw new ArgumentNullException(nameof(views));
-        Sequences = sequences ?? throw new ArgumentNullException(nameof(sequences));
-        Synonyms = synonyms ?? throw new ArgumentNullException(nameof(synonyms));
-        Routines = routines ?? throw new ArgumentNullException(nameof(routines));
-        DatabaseDisplayVersion = dbVersion;
-        JsonWriter = jsonWriter ?? throw new ArgumentNullException(nameof(jsonWriter));
-        Bundle = bundle ?? throw new ArgumentNullException(nameof(bundle));
-        ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
-    }
+        ArgumentNullException.ThrowIfNull(data);
+        ArgumentNullException.ThrowIfNull(context);
 
-    private IRelationalDatabase Database { get; }
-
-    private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
-
-    private IReadOnlyCollection<IDatabaseView> Views { get; }
-
-    private IReadOnlyCollection<IDatabaseSequence> Sequences { get; }
-
-    private IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; }
-
-    private IReadOnlyCollection<IDatabaseRoutine> Routines { get; }
-
-    private string DatabaseDisplayVersion { get; }
-
-    private JsonDataWriter JsonWriter { get; }
-
-    private BundleBuilder Bundle { get; }
-
-    private DirectoryInfo ExportDirectory { get; }
-
-    public async Task RenderAsync(CancellationToken cancellationToken = default)
-    {
         var columns = 0U;
         var constraints = 0U;
         var indexesCount = 0U;
         var tablesCount = 0U;
 
         var tableNames = new List<Identifier>();
-        foreach (var table in Tables)
+        foreach (var table in data.Tables)
         {
             tablesCount++;
 
@@ -86,16 +44,16 @@ internal sealed class MainRenderer : IDataRenderer
 
         var viewNames = new List<Identifier>();
         var viewsCount = 0U;
-        foreach (var view in Views)
+        foreach (var view in data.Views)
         {
             viewsCount++;
             columns += view.Columns.UCount();
             viewNames.Add(view.Name);
         }
 
-        var sequenceNames = Sequences.Select(static s => s.Name).ToList();
-        var routineNames = Routines.Select(static r => r.Name).ToList();
-        var synonymNames = Synonyms.Select(static s => s.Name).ToList();
+        var sequenceNames = data.Sequences.Select(static s => s.Name).ToList();
+        var routineNames = data.Routines.Select(static r => r.Name).ToList();
+        var synonymNames = data.Synonyms.Select(static s => s.Name).ToList();
 
         var schemas = tableNames
             .Union(viewNames)
@@ -110,8 +68,8 @@ internal sealed class MainRenderer : IDataRenderer
             .ToList();
 
         var mainModel = new Main(
-            Database.IdentifierDefaults.Database,
-            DatabaseDisplayVersion ?? string.Empty,
+            data.Database.IdentifierDefaults.Database,
+            data.DatabaseVersion ?? string.Empty,
             columns,
             constraints,
             indexesCount,
@@ -123,10 +81,10 @@ internal sealed class MainRenderer : IDataRenderer
             (uint)routineNames.Count
         );
 
-        var json = JsonWriter.Serialize(mainModel);
-        Bundle.AddSummary("main", json);
+        var json = context.JsonWriter.Serialize(mainModel);
+        context.Bundle.AddSummary("main", json);
 
-        var outputFile = new FileInfo(Path.Combine(ExportDirectory.FullName, "data", "main.json"));
-        await JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
+        var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "main.json"));
+        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
     }
 }

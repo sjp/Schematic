@@ -3,47 +3,24 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using SJP.Schematic.Core;
 using SJP.Schematic.Reporting.Html.ViewModels;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
-using SJP.Schematic.Reporting.Serialization;
 
 namespace SJP.Schematic.Reporting.Html.Renderers;
 
 internal sealed class TablesRenderer : IDataRenderer
 {
-    public TablesRenderer(
-        IReadOnlyCollection<IRelationalDatabaseTable> tables,
-        IReadOnlyDictionary<Identifier, ulong> rowCounts,
-        JsonDataWriter jsonWriter,
-        BundleBuilder bundle,
-        DirectoryInfo exportDirectory)
+    public async Task RenderAsync(ReportData data, RenderContext context, CancellationToken cancellationToken = default)
     {
-        Tables = tables ?? throw new ArgumentNullException(nameof(tables));
-        RowCounts = rowCounts ?? throw new ArgumentNullException(nameof(rowCounts));
-        JsonWriter = jsonWriter ?? throw new ArgumentNullException(nameof(jsonWriter));
-        Bundle = bundle ?? throw new ArgumentNullException(nameof(bundle));
-        ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
-    }
+        ArgumentNullException.ThrowIfNull(data);
+        ArgumentNullException.ThrowIfNull(context);
 
-    private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
-
-    private IReadOnlyDictionary<Identifier, ulong> RowCounts { get; }
-
-    private JsonDataWriter JsonWriter { get; }
-
-    private BundleBuilder Bundle { get; }
-
-    private DirectoryInfo ExportDirectory { get; }
-
-    public async Task RenderAsync(CancellationToken cancellationToken = default)
-    {
         var mapper = new MainModelMapper();
 
         var tableViewModels = new List<Main.Table>();
-        foreach (var table in Tables)
+        foreach (var table in data.Tables)
         {
-            if (!RowCounts.TryGetValue(table.Name, out var rowCount))
+            if (!data.RowCounts.TryGetValue(table.Name, out var rowCount))
                 rowCount = 0;
 
             tableViewModels.Add(mapper.Map(table, rowCount));
@@ -51,10 +28,10 @@ internal sealed class TablesRenderer : IDataRenderer
 
         var tablesVm = new Tables(tableViewModels);
 
-        var json = JsonWriter.Serialize(tablesVm);
-        Bundle.AddSummary("tables", json);
+        var json = context.JsonWriter.Serialize(tablesVm);
+        context.Bundle.AddSummary("tables", json);
 
-        var outputFile = new FileInfo(Path.Combine(ExportDirectory.FullName, "data", "tables.json"));
-        await JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
+        var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "tables.json"));
+        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
     }
 }

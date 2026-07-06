@@ -12,31 +12,16 @@ namespace SJP.Schematic.Reporting.Tests.Html.Renderers;
 internal static class RoutinesRendererTests
 {
     [Test]
-    public static void Ctor_GivenNullRoutines_ThrowsArgumentNullException()
-    {
-        using var tempDir = new TemporaryDirectory();
-        Assert.That(
-            () => new RoutinesRenderer(null!, new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath)),
-            Throws.ArgumentNullException);
-    }
-
-    [Test]
-    public static void Ctor_GivenNullExportDirectory_ThrowsArgumentNullException()
-    {
-        Assert.That(
-            () => new RoutinesRenderer([], new JsonDataWriter(), new BundleBuilder(), null!),
-            Throws.ArgumentNullException);
-    }
-
-    [Test]
     public static async Task RenderAsync_GivenRoutines_WritesSummaryFileWithExpectedCount()
     {
         using var tempDir = new TemporaryDirectory();
         var first = new DatabaseRoutine(new Identifier("routine_one"), "select 1");
         var second = new DatabaseRoutine(new Identifier("routine_two"), "select 2");
 
-        var renderer = new RoutinesRenderer([first, second], new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath));
-        await renderer.RenderAsync();
+        var renderer = new RoutinesRenderer();
+        var data = ReportDataFactory.Create(routines: [first, second]);
+        var context = new RenderContext(new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath));
+        await renderer.RenderAsync(data, context);
 
         var outputFile = Path.Combine(tempDir.DirectoryPath, "data", "routines.json");
         var content = await File.ReadAllTextAsync(outputFile);
@@ -51,8 +36,10 @@ internal static class RoutinesRendererTests
         var routine = new DatabaseRoutine(new Identifier("routine_one"), "select 1");
         var bundle = new BundleBuilder();
 
-        var renderer = new RoutinesRenderer([routine], new JsonDataWriter(), bundle, new DirectoryInfo(tempDir.DirectoryPath));
-        await renderer.RenderAsync();
+        var renderer = new RoutinesRenderer();
+        var data = ReportDataFactory.Create(routines: [routine]);
+        var context = new RenderContext(new JsonDataWriter(), bundle, new DirectoryInfo(tempDir.DirectoryPath));
+        await renderer.RenderAsync(data, context);
 
         var bundleFile = new FileInfo(Path.Combine(tempDir.DirectoryPath, "bundle.js"));
         await bundle.WriteBundleAsync(bundleFile);

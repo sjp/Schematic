@@ -4,42 +4,22 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using SJP.Schematic.Core;
 using SJP.Schematic.Reporting.Html.ViewModels;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
-using SJP.Schematic.Reporting.Serialization;
 
 namespace SJP.Schematic.Reporting.Html.Renderers;
 
 internal sealed class IndexesRenderer : IDataRenderer
 {
-    public IndexesRenderer(
-        IReadOnlyCollection<IRelationalDatabaseTable> tables,
-        JsonDataWriter jsonWriter,
-        BundleBuilder bundle,
-        DirectoryInfo exportDirectory
-    )
+    public async Task RenderAsync(ReportData data, RenderContext context, CancellationToken cancellationToken = default)
     {
-        Tables = tables ?? throw new ArgumentNullException(nameof(tables));
-        JsonWriter = jsonWriter ?? throw new ArgumentNullException(nameof(jsonWriter));
-        Bundle = bundle ?? throw new ArgumentNullException(nameof(bundle));
-        ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
-    }
+        ArgumentNullException.ThrowIfNull(data);
+        ArgumentNullException.ThrowIfNull(context);
 
-    private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
-
-    private JsonDataWriter JsonWriter { get; }
-
-    private BundleBuilder Bundle { get; }
-
-    private DirectoryInfo ExportDirectory { get; }
-
-    public async Task RenderAsync(CancellationToken cancellationToken = default)
-    {
         var mapper = new IndexesModelMapper();
         var allIndexes = new List<Indexes.IndexRow>();
 
-        foreach (var table in Tables)
+        foreach (var table in data.Tables)
         {
             var mappedIndexes = table.Indexes.Select(i => mapper.Map(table.Name, i));
             allIndexes.AddRange(mappedIndexes);
@@ -52,10 +32,10 @@ internal sealed class IndexesRenderer : IDataRenderer
 
         var indexesVm = new Indexes(indexes);
 
-        var json = JsonWriter.Serialize(indexesVm);
-        Bundle.AddSummary("indexes", json);
+        var json = context.JsonWriter.Serialize(indexesVm);
+        context.Bundle.AddSummary("indexes", json);
 
-        var outputFile = new FileInfo(Path.Combine(ExportDirectory.FullName, "data", "indexes.json"));
-        await JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
+        var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "indexes.json"));
+        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
     }
 }

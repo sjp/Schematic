@@ -1,35 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using SJP.Schematic.Core;
 using SJP.Schematic.Dbml;
 
 namespace SJP.Schematic.Reporting.Html.Renderers;
 
 internal sealed class DbmlRenderer : IDataRenderer
 {
-    public DbmlRenderer(
-        IReadOnlyCollection<IRelationalDatabaseTable> tables,
-        DirectoryInfo exportDirectory)
+    public async Task RenderAsync(ReportData data, RenderContext context, CancellationToken cancellationToken = default)
     {
-        Tables = tables ?? throw new ArgumentNullException(nameof(tables));
-        ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
-    }
+        ArgumentNullException.ThrowIfNull(data);
+        ArgumentNullException.ThrowIfNull(context);
 
-    private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
-
-    private DirectoryInfo ExportDirectory { get; }
-
-    public async Task RenderAsync(CancellationToken cancellationToken = default)
-    {
-        if (!ExportDirectory.Exists)
-            ExportDirectory.Create();
+        var exportsDirectory = new DirectoryInfo(Path.Combine(context.ExportDirectory.FullName, "exports"));
+        if (!exportsDirectory.Exists)
+            exportsDirectory.Create();
 
         var formatter = new DbmlFormatter();
-        var dbmlDocument = formatter.RenderTables(Tables);
-        var dbmlOutputPath = Path.Combine(ExportDirectory.FullName, "relationships.dbml");
+        var dbmlDocument = formatter.RenderTables(data.Tables);
+        var dbmlOutputPath = Path.Combine(exportsDirectory.FullName, "relationships.dbml");
         await using var writer = File.CreateText(dbmlOutputPath);
         await writer.WriteAsync(dbmlDocument.AsMemory(), cancellationToken);
         await writer.FlushAsync(cancellationToken);

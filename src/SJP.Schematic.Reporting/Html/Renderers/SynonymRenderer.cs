@@ -1,63 +1,44 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
-using SJP.Schematic.Reporting.Serialization;
 
 namespace SJP.Schematic.Reporting.Html.Renderers;
 
 internal sealed class SynonymRenderer : IDataRenderer
 {
-    public SynonymRenderer(
-        IReadOnlyCollection<IDatabaseSynonym> synonyms,
-        SynonymTargets synonymTargets,
-        JsonDataWriter jsonWriter,
-        BundleBuilder bundle,
-        DirectoryInfo exportDirectory
-    )
+    public Task RenderAsync(ReportData data, RenderContext context, CancellationToken cancellationToken = default)
     {
-        Synonyms = synonyms ?? throw new ArgumentNullException(nameof(synonyms));
-        SynonymTargets = synonymTargets ?? throw new ArgumentNullException(nameof(synonymTargets));
-        JsonWriter = jsonWriter ?? throw new ArgumentNullException(nameof(jsonWriter));
-        Bundle = bundle ?? throw new ArgumentNullException(nameof(bundle));
+        ArgumentNullException.ThrowIfNull(data);
+        ArgumentNullException.ThrowIfNull(context);
 
-        ArgumentNullException.ThrowIfNull(exportDirectory);
-        DataDirectory = new DirectoryInfo(Path.Combine(exportDirectory.FullName, "data", "synonyms"));
-    }
-
-    private IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; }
-
-    private SynonymTargets SynonymTargets { get; }
-
-    private JsonDataWriter JsonWriter { get; }
-
-    private BundleBuilder Bundle { get; }
-
-    private DirectoryInfo DataDirectory { get; }
-
-    public Task RenderAsync(CancellationToken cancellationToken = default)
-    {
         var mapper = new SynonymModelMapper();
+        var dataDirectory = new DirectoryInfo(Path.Combine(context.ExportDirectory.FullName, "data", "synonyms"));
 
         return RenderTaskRunner.RunAllAsync(
-            Synonyms,
+            data.Synonyms,
             static s => $"synonym '{s.Name.ToVisibleName()}'",
-            (synonym, ct) => RenderSynonymAsync(synonym, mapper, ct),
+            (synonym, ct) => RenderSynonymAsync(synonym, mapper, data.SynonymTargets, context, dataDirectory, ct),
             cancellationToken);
     }
 
-    private async Task RenderSynonymAsync(IDatabaseSynonym synonym, SynonymModelMapper mapper, CancellationToken cancellationToken)
+    private static async Task RenderSynonymAsync(
+        IDatabaseSynonym synonym,
+        SynonymModelMapper mapper,
+        SynonymTargets synonymTargets,
+        RenderContext context,
+        DirectoryInfo dataDirectory,
+        CancellationToken cancellationToken)
     {
-        var viewModel = mapper.Map(synonym, SynonymTargets);
+        var viewModel = mapper.Map(synonym, synonymTargets);
 
         var safeKey = synonym.Name.ToSafeKey();
-        var json = JsonWriter.Serialize(viewModel);
-        Bundle.AddDetail("synonym", safeKey, json);
+        var json = context.JsonWriter.Serialize(viewModel);
+        context.Bundle.AddDetail("synonym", safeKey, json);
 
-        var outputFile = new FileInfo(Path.Combine(DataDirectory.FullName, safeKey + ".json"));
-        await JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
+        var outputFile = new FileInfo(Path.Combine(dataDirectory.FullName, safeKey + ".json"));
+        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
     }
 }

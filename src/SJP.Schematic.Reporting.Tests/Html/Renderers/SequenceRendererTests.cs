@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -14,47 +13,14 @@ namespace SJP.Schematic.Reporting.Tests.Html.Renderers;
 internal static class SequenceRendererTests
 {
     [Test]
-    public static void Ctor_GivenNullSequences_ThrowsArgumentNullException()
-    {
-        using var tempDir = new TemporaryDirectory();
-        Assert.That(
-            () => new SequenceRenderer(null!, new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath)),
-            Throws.ArgumentNullException);
-    }
-
-    [Test]
-    public static void Ctor_GivenNullJsonWriter_ThrowsArgumentNullException()
-    {
-        using var tempDir = new TemporaryDirectory();
-        Assert.That(
-            () => new SequenceRenderer([], null!, new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath)),
-            Throws.ArgumentNullException);
-    }
-
-    [Test]
-    public static void Ctor_GivenNullBundle_ThrowsArgumentNullException()
-    {
-        using var tempDir = new TemporaryDirectory();
-        Assert.That(
-            () => new SequenceRenderer([], new JsonDataWriter(), null!, new DirectoryInfo(tempDir.DirectoryPath)),
-            Throws.ArgumentNullException);
-    }
-
-    [Test]
-    public static void Ctor_GivenNullExportDirectory_ThrowsArgumentNullException()
-    {
-        Assert.That(
-            () => new SequenceRenderer([], new JsonDataWriter(), new BundleBuilder(), null!),
-            Throws.ArgumentNullException);
-    }
-
-    [Test]
     public static async Task RenderAsync_GivenNoSequences_CompletesWithoutThrowing()
     {
         using var tempDir = new TemporaryDirectory();
-        var renderer = new SequenceRenderer([], new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath));
+        var renderer = new SequenceRenderer();
+        var data = ReportDataFactory.Create();
+        var context = new RenderContext(new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath));
 
-        Assert.That(async () => await renderer.RenderAsync(), Throws.Nothing);
+        Assert.That(async () => await renderer.RenderAsync(data, context), Throws.Nothing);
     }
 
     [Test]
@@ -64,8 +30,10 @@ internal static class SequenceRendererTests
         var sequenceName = new Identifier("test_sequence");
         var sequence = new DatabaseSequence(sequenceName, 1M, 1M, Option<decimal>.None, Option<decimal>.None, false, 0);
 
-        var renderer = new SequenceRenderer([sequence], new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath));
-        await renderer.RenderAsync();
+        var renderer = new SequenceRenderer();
+        var data = ReportDataFactory.Create(sequences: [sequence]);
+        var context = new RenderContext(new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath));
+        await renderer.RenderAsync(data, context);
 
         var expectedFile = Path.Combine(tempDir.DirectoryPath, "data", "sequences", sequenceName.ToSafeKey() + ".json");
         Assert.That(File.Exists(expectedFile), Is.True);
@@ -79,8 +47,10 @@ internal static class SequenceRendererTests
         var sequence = new DatabaseSequence(sequenceName, 1M, 1M, Option<decimal>.None, Option<decimal>.None, false, 0);
         var bundle = new BundleBuilder();
 
-        var renderer = new SequenceRenderer([sequence], new JsonDataWriter(), bundle, new DirectoryInfo(tempDir.DirectoryPath));
-        await renderer.RenderAsync();
+        var renderer = new SequenceRenderer();
+        var data = ReportDataFactory.Create(sequences: [sequence]);
+        var context = new RenderContext(new JsonDataWriter(), bundle, new DirectoryInfo(tempDir.DirectoryPath));
+        await renderer.RenderAsync(data, context);
 
         var bundleFile = new FileInfo(Path.Combine(tempDir.DirectoryPath, "bundle.js"));
         await bundle.WriteBundleAsync(bundleFile);

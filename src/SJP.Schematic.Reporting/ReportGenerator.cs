@@ -56,16 +56,16 @@ public class ReportGenerator
 
         var dbVersion = await Connection.Dialect.GetDatabaseDisplayVersionAsync(Connection, cancellationToken);
 
-        var jsonWriter = new JsonDataWriter();
-        var bundle = new BundleBuilder();
+        var reportData = BuildReportData(tables, views, sequences, synonyms, routines, rowCounts, dbVersion);
+        var renderContext = new RenderContext(new JsonDataWriter(), new BundleBuilder(), ExportDirectory);
 
         // Each renderer serializes its viewmodel(s), writes the .json file(s), and registers the
         // same payload string with the shared bundle.
-        var renderers = GetRenderers(tables, views, sequences, synonyms, routines, rowCounts, dbVersion, jsonWriter, bundle);
+        var renderers = GetRenderers();
 
         // Render every section, isolating failures so one bad object/section doesn't hide the rest.
         var failures = new ConcurrentBag<RenderException>();
-        var renderTasks = renderers.Select(r => RenderIsolatedAsync(r, failures, cancellationToken)).ToArray();
+        var renderTasks = renderers.Select(r => RenderIsolatedAsync(r, reportData, renderContext, failures, cancellationToken)).ToArray();
         await Task.WhenAll(renderTasks);
 
         // A partial report would silently omit objects, so surface every failure together and stop
@@ -74,7 +74,7 @@ public class ReportGenerator
 
         // Write the file:// shim once every payload has been registered, then extract the React shell.
         var bundleFile = new FileInfo(Path.Combine(ExportDirectory.FullName, "data", "bundle.js"));
-        await bundle.WriteBundleAsync(bundleFile, cancellationToken);
+        await renderContext.Bundle.WriteBundleAsync(bundleFile, cancellationToken);
 
         var assetExporter = new AssetExporter();
         await assetExporter.SaveAssetsAsync(ExportDirectory, true, cancellationToken);
@@ -85,12 +85,12 @@ public class ReportGenerator
     // RenderExceptions; those are spliced in flat (prefixed with the renderer) instead of being
     // re-nested, so the final report is a flat list of every failed object/section. Cancellation is
     // allowed to propagate so it is not misreported as a render failure.
-    private static async Task RenderIsolatedAsync(IDataRenderer renderer, ConcurrentBag<RenderException> failures, CancellationToken cancellationToken)
+    private static async Task RenderIsolatedAsync(IDataRenderer renderer, ReportData data, RenderContext context, ConcurrentBag<RenderException> failures, CancellationToken cancellationToken)
     {
         var rendererName = renderer.GetType().Name;
         try
         {
-            await renderer.RenderAsync(cancellationToken).ConfigureAwait(false);
+            await renderer.RenderAsync(data, context, cancellationToken).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -138,16 +138,16 @@ public class ReportGenerator
         return new KeyValuePair<Identifier, ulong>(tableName, rowCount);
     }
 
-    private IEnumerable<IDataRenderer> GetRenderers(
+    // Assembles the full set of database objects for this run, plus the lookups derived from them,
+    // into the single object every renderer's RenderAsync call receives as its "what to render".
+    private ReportData BuildReportData(
         IReadOnlyCollection<IRelationalDatabaseTable> tables,
         IReadOnlyCollection<IDatabaseView> views,
         IReadOnlyCollection<IDatabaseSequence> sequences,
         IReadOnlyCollection<IDatabaseSynonym> synonyms,
         IReadOnlyCollection<IDatabaseRoutine> routines,
         IReadOnlyDictionary<Identifier, ulong> rowCounts,
-        string databaseVersion,
-        JsonDataWriter jsonWriter,
-        BundleBuilder bundle
+        string databaseVersion
     )
     {
         ArgumentNullException.ThrowIfNull(tables);
@@ -156,11 +156,6 @@ public class ReportGenerator
         ArgumentNullException.ThrowIfNull(synonyms);
         ArgumentNullException.ThrowIfNull(routines);
         ArgumentNullException.ThrowIfNull(rowCounts);
-        ArgumentNullException.ThrowIfNull(jsonWriter);
-        ArgumentNullException.ThrowIfNull(bundle);
-
-        // Non-app artifacts (.dbml/.sql) go under exports/; the app data goes under data/.
-        var exportsDirectory = new DirectoryInfo(Path.Combine(ExportDirectory.FullName, "exports"));
 
         // Referenced-object resolution (used by view detail) maps a dependency expression to the
         // owning object's hash route, across every object type.
@@ -176,6 +171,14 @@ public class ReportGenerator
         // Synonym target resolution maps an aliased object name to its owning object's hash route.
         var synonymTargets = new SynonymTargets(tableNames, viewNames, sequenceNames, synonymNames, routineNames);
 
+        return new ReportData(Database, tables, views, sequences, synonyms, routines, rowCounts, databaseVersion, referencedObjectTargets, synonymTargets);
+    }
+
+    // The renderer list is fixed for every run: each renderer's constructor only takes genuine
+    // collaborators (e.g. the dialect-specific linter) that wouldn't vary between calls. What to
+    // render and where to write it flow in through RenderAsync instead — see IDataRenderer.
+    private IEnumerable<IDataRenderer> GetRenderers()
+    {
         // Lint analysis produces data/lint.json from the default HTML rule set.
         var ruleProvider = new DefaultHtmlRuleProvider();
         var rules = ruleProvider.GetRules(Connection, RuleLevel.Warning);
@@ -184,33 +187,33 @@ public class ReportGenerator
         return
         [
             // Dashboard summary, tables list, and per-table detail.
-            new MainRenderer(Database, tables, views, sequences, synonyms, routines, databaseVersion, jsonWriter, bundle, ExportDirectory),
-            new TablesRenderer(tables, rowCounts, jsonWriter, bundle, ExportDirectory),
-            new TableRenderer(tables, rowCounts, jsonWriter, bundle, ExportDirectory),
+            new MainRenderer(),
+            new TablesRenderer(),
+            new TableRenderer(),
             // Views & routines.
-            new ViewsRenderer(views, jsonWriter, bundle, ExportDirectory),
-            new ViewRenderer(views, referencedObjectTargets, jsonWriter, bundle, ExportDirectory),
-            new RoutinesRenderer(routines, jsonWriter, bundle, ExportDirectory),
-            new RoutineRenderer(routines, jsonWriter, bundle, ExportDirectory),
+            new ViewsRenderer(),
+            new ViewRenderer(),
+            new RoutinesRenderer(),
+            new RoutineRenderer(),
             // Sequences & synonyms.
-            new SequencesRenderer(sequences, jsonWriter, bundle, ExportDirectory),
-            new SequenceRenderer(sequences, jsonWriter, bundle, ExportDirectory),
-            new SynonymsRenderer(synonyms, synonymTargets, jsonWriter, bundle, ExportDirectory),
-            new SynonymRenderer(synonyms, synonymTargets, jsonWriter, bundle, ExportDirectory),
+            new SequencesRenderer(),
+            new SequenceRenderer(),
+            new SynonymsRenderer(),
+            new SynonymRenderer(),
             // Summary-only pages: no per-object detail.
-            new TriggersRenderer(tables, jsonWriter, bundle, ExportDirectory),
-            new ColumnsRenderer(tables, views, jsonWriter, bundle, ExportDirectory),
-            new ConstraintsRenderer(tables, jsonWriter, bundle, ExportDirectory),
-            new IndexesRenderer(tables, jsonWriter, bundle, ExportDirectory),
-            new OrphansRenderer(tables, rowCounts, jsonWriter, bundle, ExportDirectory),
+            new TriggersRenderer(),
+            new ColumnsRenderer(),
+            new ConstraintsRenderer(),
+            new IndexesRenderer(),
+            new OrphansRenderer(),
             // Lint page.
-            new LintRenderer(linter, tables, views, sequences, synonyms, routines, jsonWriter, bundle, ExportDirectory),
+            new LintRenderer(linter),
             // Relationships & schema-wide diagrams.
-            new RelationshipsRenderer(tables, rowCounts, jsonWriter, bundle, ExportDirectory),
+            new RelationshipsRenderer(),
             // Search index.
-            new SearchRenderer(tables, views, sequences, synonyms, routines, jsonWriter, bundle, ExportDirectory),
-            new TableOrderingRenderer(Connection.Dialect, tables, exportsDirectory),
-            new DbmlRenderer(tables, exportsDirectory),
+            new SearchRenderer(),
+            new TableOrderingRenderer(Connection.Dialect),
+            new DbmlRenderer(),
         ];
     }
 }

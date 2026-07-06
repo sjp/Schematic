@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -10,39 +10,34 @@ namespace SJP.Schematic.Reporting.Html.Renderers;
 
 internal sealed class TableOrderingRenderer : IDataRenderer
 {
-    public TableOrderingRenderer(
-        IDatabaseDialect dialect,
-        IReadOnlyCollection<IRelationalDatabaseTable> tables,
-        DirectoryInfo exportDirectory)
+    public TableOrderingRenderer(IDatabaseDialect dialect)
     {
-        Tables = tables ?? throw new ArgumentNullException(nameof(tables));
         Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
-        ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
     }
 
     private IDatabaseDialect Dialect { get; }
 
-    private IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; }
-
-    private DirectoryInfo ExportDirectory { get; }
-
-    public async Task RenderAsync(CancellationToken cancellationToken = default)
+    public async Task RenderAsync(ReportData data, RenderContext context, CancellationToken cancellationToken = default)
     {
-        if (!ExportDirectory.Exists)
-            ExportDirectory.Create();
+        ArgumentNullException.ThrowIfNull(data);
+        ArgumentNullException.ThrowIfNull(context);
+
+        var exportsDirectory = new DirectoryInfo(Path.Combine(context.ExportDirectory.FullName, "exports"));
+        if (!exportsDirectory.Exists)
+            exportsDirectory.Create();
 
         var cycleDetector = new CycleDetector();
-        var cycles = cycleDetector.GetCyclePaths(Tables);
+        var cycles = cycleDetector.GetCyclePaths(data.Tables);
         var hasCycles = cycles.Count > 0;
 
         var orderer = new TableRelationshipOrderer();
-        await ExportOrderAsync("insertion", orderer.GetInsertionOrder(Tables), hasCycles, cancellationToken);
-        await ExportOrderAsync("deletion", orderer.GetDeletionOrder(Tables), hasCycles, cancellationToken);
+        await ExportOrderAsync(exportsDirectory, "insertion", orderer.GetInsertionOrder(data.Tables), hasCycles, cancellationToken);
+        await ExportOrderAsync(exportsDirectory, "deletion", orderer.GetDeletionOrder(data.Tables), hasCycles, cancellationToken);
     }
 
-    private async Task ExportOrderAsync(string orderName, IEnumerable<Identifier> order, bool hasCycles, CancellationToken cancellationToken)
+    private async Task ExportOrderAsync(DirectoryInfo exportsDirectory, string orderName, IEnumerable<Identifier> order, bool hasCycles, CancellationToken cancellationToken)
     {
-        var outputPath = Path.Combine(ExportDirectory.FullName, $"{orderName}-order.sql");
+        var outputPath = Path.Combine(exportsDirectory.FullName, $"{orderName}-order.sql");
         var orderDoc = BuildOrderDocument(order);
         await using var writer = File.CreateText(outputPath);
         await writer.WriteLineAsync($"-- This is the {orderName} order for the database.".AsMemory(), cancellationToken);

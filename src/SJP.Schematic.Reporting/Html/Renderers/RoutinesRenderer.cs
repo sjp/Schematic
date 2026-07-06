@@ -1,49 +1,29 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using SJP.Schematic.Core;
 using SJP.Schematic.Reporting.Html.ViewModels;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
-using SJP.Schematic.Reporting.Serialization;
 
 namespace SJP.Schematic.Reporting.Html.Renderers;
 
 internal sealed class RoutinesRenderer : IDataRenderer
 {
-    public RoutinesRenderer(
-        IReadOnlyCollection<IDatabaseRoutine> routines,
-        JsonDataWriter jsonWriter,
-        BundleBuilder bundle,
-        DirectoryInfo exportDirectory)
+    public async Task RenderAsync(ReportData data, RenderContext context, CancellationToken cancellationToken = default)
     {
-        Routines = routines ?? throw new ArgumentNullException(nameof(routines));
-        JsonWriter = jsonWriter ?? throw new ArgumentNullException(nameof(jsonWriter));
-        Bundle = bundle ?? throw new ArgumentNullException(nameof(bundle));
-        ExportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
-    }
+        ArgumentNullException.ThrowIfNull(data);
+        ArgumentNullException.ThrowIfNull(context);
 
-    private IReadOnlyCollection<IDatabaseRoutine> Routines { get; }
-
-    private JsonDataWriter JsonWriter { get; }
-
-    private BundleBuilder Bundle { get; }
-
-    private DirectoryInfo ExportDirectory { get; }
-
-    public async Task RenderAsync(CancellationToken cancellationToken = default)
-    {
         var mapper = new MainModelMapper();
 
-        var routineViewModels = Routines.Select(mapper.Map).ToList();
+        var routineViewModels = data.Routines.Select(mapper.Map).ToList();
         var routinesVm = new Routines(routineViewModels);
 
-        var json = JsonWriter.Serialize(routinesVm);
-        Bundle.AddSummary("routines", json);
+        var json = context.JsonWriter.Serialize(routinesVm);
+        context.Bundle.AddSummary("routines", json);
 
-        var outputFile = new FileInfo(Path.Combine(ExportDirectory.FullName, "data", "routines.json"));
-        await JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
+        var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "routines.json"));
+        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
     }
 }

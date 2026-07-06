@@ -2,6 +2,8 @@ using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Reporting.Html.Renderers;
+using SJP.Schematic.Reporting.Serialization;
+using SJP.Schematic.Reporting.Tests.Html.Renderers;
 using SJP.Schematic.Tests.Utilities;
 using SJP.Schematic.Tests.Utilities.Integration;
 
@@ -10,46 +12,34 @@ namespace SJP.Schematic.Reporting.Tests.Integration;
 internal sealed class DbmlRendererSakilaTests : SakilaTest
 {
     [Test]
-    public void Ctor_GivenNullTables_ThrowsArgumentNullException()
-    {
-        using var tempDir = new TemporaryDirectory();
-        Assert.That(
-            () => new DbmlRenderer(null!, new DirectoryInfo(tempDir.DirectoryPath)),
-            Throws.ArgumentNullException);
-    }
-
-    [Test]
-    public void Ctor_GivenNullExportDirectory_ThrowsArgumentNullException()
-    {
-        Assert.That(() => new DbmlRenderer([], null!), Throws.ArgumentNullException);
-    }
-
-    [Test]
     public async Task RenderAsync_GivenSakilaTables_WritesNonEmptyDbmlFile()
     {
         using var tempDir = new TemporaryDirectory();
         var database = GetDatabase();
         var tables = await database.GetAllTables();
 
-        var exportDirectory = new DirectoryInfo(Path.Combine(tempDir.DirectoryPath, "exports"));
-        var renderer = new DbmlRenderer(tables, exportDirectory);
-        await renderer.RenderAsync();
+        var renderer = new DbmlRenderer();
+        var data = ReportDataFactory.Create(tables: tables);
+        var context = new RenderContext(new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath));
+        await renderer.RenderAsync(data, context);
 
-        var outputFile = Path.Combine(exportDirectory.FullName, "relationships.dbml");
+        var outputFile = Path.Combine(tempDir.DirectoryPath, "exports", "relationships.dbml");
         var content = await File.ReadAllTextAsync(outputFile);
 
         Assert.That(content, Is.Not.Empty);
     }
 
     [Test]
-    public async Task RenderAsync_GivenMissingExportDirectory_CreatesDirectory()
+    public async Task RenderAsync_GivenMissingExportDirectory_CreatesExportsDirectory()
     {
         using var tempDir = new TemporaryDirectory();
-        var exportDirectory = new DirectoryInfo(Path.Combine(tempDir.DirectoryPath, "does-not-exist-yet"));
 
-        var renderer = new DbmlRenderer([], exportDirectory);
-        await renderer.RenderAsync();
+        var renderer = new DbmlRenderer();
+        var data = ReportDataFactory.Create();
+        var context = new RenderContext(new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath));
+        await renderer.RenderAsync(data, context);
 
-        Assert.That(exportDirectory.Exists, Is.True);
+        var exportsDirectory = new DirectoryInfo(Path.Combine(tempDir.DirectoryPath, "exports"));
+        Assert.That(exportsDirectory.Exists, Is.True);
     }
 }
