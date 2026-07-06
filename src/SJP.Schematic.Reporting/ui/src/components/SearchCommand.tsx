@@ -58,6 +58,8 @@ export function SearchCommand({
   function go(url: string) {
     onOpenChange(false);
     // url is an absolute hash route (e.g. `#/tables/<key>`); hash history picks it up.
+    // Browser navigation from a user-interaction handler, not a React value mutated during render.
+    // eslint-disable-next-line react-hooks/immutability
     window.location.hash = url.startsWith("#") ? url.slice(1) : url;
   }
 

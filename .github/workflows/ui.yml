@@ -1,0 +1,48 @@
+name: ui
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  ui:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/SJP.Schematic.Reporting/ui
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '26'
+        cache: npm
+        cache-dependency-path: src/SJP.Schematic.Reporting/ui/package-lock.json
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Lint
+      run: npm run lint
+
+    - name: Format check
+      run: npm run format:check
+
+    - name: Build
+      run: npm run build
+
+    - name: Test
+      run: npm run test:coverage
+
+    - name: Coverage
+      uses: codecov/codecov-action@v7
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        flags: ui
+        files: src/SJP.Schematic.Reporting/ui/coverage/cobertura-coverage.xml
