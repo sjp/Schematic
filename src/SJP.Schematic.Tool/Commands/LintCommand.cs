@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core.Extensions;
@@ -14,6 +14,10 @@ internal sealed class LintCommand : AsyncCommand<LintCommand.Settings>
 {
     public sealed class Settings : CommonSettings
     {
+        [CommandOption("--format <FORMAT>")]
+        [Description("The format to render lint results in. One of: text, json, sarif.")]
+        [DefaultValue(LintOutputFormat.Text)]
+        public LintOutputFormat Format { get; init; }
     }
 
     private readonly IAnsiConsole _console;
@@ -42,34 +46,14 @@ internal sealed class LintCommand : AsyncCommand<LintCommand.Settings>
 
         var snapshotDb = await database.SnapshotAsync(cancellationToken);
         var dbResults = await linter.AnalyseDatabase(snapshotDb, cancellationToken);
-        var groupedResults = dbResults
-            .GroupAsDictionary(static r => r.RuleId, StringComparer.Ordinal)
-            .ToList();
 
-        var hasDisplayedResults = false;
-
-        foreach (var ruleGroup in groupedResults.Select(r => r.Value))
+        ILintResultWriter writer = settings.Format switch
         {
-            var ruleTitle = "Rule: " + ruleGroup[0].Title;
-            var underline = new string('-', ruleTitle.Length);
-
-            if (hasDisplayedResults)
-            {
-                _console.WriteLine();
-                _console.WriteLine();
-            }
-            hasDisplayedResults = true;
-
-            _console.WriteLine(underline);
-            _console.WriteLine(ruleTitle);
-            _console.WriteLine(underline);
-            _console.WriteLine();
-
-            foreach (var message in ruleGroup)
-            {
-                _console.WriteLine(" * " + message.Message);
-            }
-        }
+            LintOutputFormat.Json => new JsonLintResultWriter(),
+            LintOutputFormat.Sarif => new SarifLintResultWriter(),
+            _ => new TextLintResultWriter(),
+        };
+        writer.Write(_console, dbResults);
 
         return ErrorCode.Success;
     }
