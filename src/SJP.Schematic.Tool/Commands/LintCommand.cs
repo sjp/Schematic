@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core.Extensions;
@@ -18,6 +19,10 @@ internal sealed class LintCommand : AsyncCommand<LintCommand.Settings>
         [Description("The format to render lint results in. One of: text, json, sarif.")]
         [DefaultValue(LintOutputFormat.Text)]
         public LintOutputFormat Format { get; init; }
+
+        [CommandOption("--fail-on <LEVEL>")]
+        [Description("The minimum rule level that causes the command to exit with a non-zero exit code. One of: information, warning, error. If not set, the command always exits successfully.")]
+        public RuleLevel? FailOn { get; init; }
     }
 
     private readonly IAnsiConsole _console;
@@ -54,6 +59,9 @@ internal sealed class LintCommand : AsyncCommand<LintCommand.Settings>
             _ => new TextLintResultWriter(),
         };
         writer.Write(_console, dbResults);
+
+        if (settings.FailOn.HasValue && dbResults.Any(r => r.Level >= settings.FailOn.Value))
+            return ErrorCode.Error;
 
         return ErrorCode.Success;
     }
