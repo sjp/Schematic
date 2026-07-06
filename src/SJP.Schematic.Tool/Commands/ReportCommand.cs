@@ -19,6 +19,11 @@ internal sealed class ReportCommand : AsyncCommand<ReportCommand.Settings>
         [Description("The directory to save the generated report.")]
         public DirectoryInfo? OutputDirectory { get; init; }
 
+        [CommandOption("--open")]
+        [Description("Open the generated report in the default browser once it's ready.")]
+        [DefaultValue(false)]
+        public bool Open { get; init; }
+
         public override ValidationResult Validate()
         {
             var baseResult = base.Validate();
@@ -33,16 +38,20 @@ internal sealed class ReportCommand : AsyncCommand<ReportCommand.Settings>
 
     private readonly IAnsiConsole _console;
     private readonly IDatabaseCommandDependencyProviderFactory _dependencyProviderFactory;
+    private readonly IFileLauncher _fileLauncher;
 
     public ReportCommand(
         IAnsiConsole console,
-        IDatabaseCommandDependencyProviderFactory dependencyProviderFactory)
+        IDatabaseCommandDependencyProviderFactory dependencyProviderFactory,
+        IFileLauncher fileLauncher)
     {
         ArgumentNullException.ThrowIfNull(console);
         ArgumentNullException.ThrowIfNull(dependencyProviderFactory);
+        ArgumentNullException.ThrowIfNull(fileLauncher);
 
         _console = console;
         _dependencyProviderFactory = dependencyProviderFactory;
+        _fileLauncher = fileLauncher;
     }
 
     protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
@@ -57,6 +66,14 @@ internal sealed class ReportCommand : AsyncCommand<ReportCommand.Settings>
         await reportGenerator.GenerateAsync(cancellationToken);
 
         _console.Write("Report generated to: " + settings.OutputDirectory!.FullName);
+
+        if (settings.Open)
+        {
+            var indexPath = Path.Combine(settings.OutputDirectory!.FullName, "index.html");
+            if (!_fileLauncher.TryOpen(indexPath))
+                _console.MarkupLine("[yellow]Report was generated, but could not be opened automatically.[/]");
+        }
+
         return ErrorCode.Success;
     }
 }

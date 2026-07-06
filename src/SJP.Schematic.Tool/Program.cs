@@ -16,6 +16,7 @@ internal static class Program
     {
         var services = new ServiceCollection();
         services.AddSingleton<IFileSystem, FileSystem>();
+        services.AddSingleton<IFileLauncher, FileLauncher>();
         services.AddSingleton<IDatabaseCommandDependencyProvider, DatabaseCommandDependencyProvider>();
         services.AddSingleton<IDatabaseCommandDependencyProviderFactory, DatabaseCommandDependencyProviderFactory>();
         var registrar = new DependencyInjectionRegistrar(services);
