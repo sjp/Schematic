@@ -86,6 +86,24 @@ Values can also be overridden via environment variables (for example, keeping se
 set `Dialect` and `ConnectionStrings__Schematic`. Inline `--dialect` / `--connection-string` options take
 precedence over both the file and environment variables.
 
+Values inside the configuration file (and inline `--dialect` / `--connection-string` options) can also
+reference environment variables with `${NAME}` placeholders, so the file itself can be committed to
+source control without leaking secrets:
+
+```json
+{
+  "Dialect": "sqlserver",
+  "ConnectionStrings": {
+    "Schematic": "Server=localhost,1433;Database=MyDb;User Id=sa;Password=${DB_PASSWORD}"
+  }
+}
+```
+
+`${NAME}` is the only supported syntax — there's no nesting or default-value fallback. If a referenced
+variable isn't set, the command fails immediately with a clear error rather than silently using a blank
+value. `schematic init` can offer to write a placeholder like this for you instead of the literal
+password when you choose the guided setup.
+
 ### Shell completions
 
 The `completion` command prints a tab-completion script for a given shell to standard output. Supported shells are `bash`, `zsh`, `fish`, and `powershell`.
