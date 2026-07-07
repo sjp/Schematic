@@ -35,6 +35,7 @@ internal static class Program
                 orm.AddCommand<GenerateOrmLiteCommand>("ormlite");
                 orm.AddCommand<GeneratePocoCommand>("poco");
             });
+            config.AddCommand<ExportCommand>("export");
             config.AddCommand<InitCommand>("init");
             config.AddCommand<LintCommand>("lint");
             config.AddCommand<ReportCommand>("report");
