@@ -68,6 +68,7 @@ internal sealed class InitCommand : AsyncCommand<InitCommand.Settings>
 
         _console.MarkupLineInterpolated($"[green]Configuration written to {settings.OutputPath}[/]");
         _console.MarkupLineInterpolated($"Run a report with: [grey]schematic report -c {settings.OutputPath} --output ./report[/]");
+        _console.MarkupLine("[grey]Tip: values in the configuration file may reference environment variables using ${NAME} placeholders, e.g. \"Password=${DB_PASSWORD}\", to keep secrets out of source control.[/]");
         return ErrorCode.Success;
     }
 
@@ -95,6 +96,14 @@ internal sealed class InitCommand : AsyncCommand<InitCommand.Settings>
         var user = _console.Prompt(new TextPrompt<string>("User:").AllowEmpty());
         var password = _console.Prompt(new TextPrompt<string>("Password:").Secret().AllowEmpty());
 
+        if (!string.IsNullOrEmpty(password)
+            && _console.Confirm("Store the password as an environment-variable placeholder instead of the literal value?", false))
+        {
+            var variableName = _console.Prompt(
+                new TextPrompt<string>("Environment variable name:").DefaultValue("DB_PASSWORD"));
+            password = $"${{{variableName}}}";
+        }
+
         var databaseLabel = string.Equals(dialect, "oracle", StringComparison.Ordinal) ? "Service name:" : "Database:";
         var database = _console.Prompt(new TextPrompt<string>(databaseLabel).AllowEmpty());
 
@@ -105,18 +114,22 @@ internal sealed class InitCommand : AsyncCommand<InitCommand.Settings>
 
     private async Task TestConnectionAsync(string dialect, string connectionString, CancellationToken cancellationToken)
     {
-        var config = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                ["Dialect"] = dialect,
-                ["ConnectionStrings:Schematic"] = connectionString,
-            })
-            .Build();
-
-        var connectionFactory = new DatabaseCommandDependencyProvider(config).GetConnectionFactory();
-
         try
         {
+            // Resolve any ${NAME} placeholder (e.g. one just offered in the guided flow) so the
+            // test connects with the real value, the same way a loaded schematic.json would.
+            var resolvedConnectionString = EnvironmentVariableSubstitution.Resolve(connectionString);
+
+            var config = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["Dialect"] = dialect,
+                    ["ConnectionStrings:Schematic"] = resolvedConnectionString,
+                })
+                .Build();
+
+            var connectionFactory = new DatabaseCommandDependencyProvider(config).GetConnectionFactory();
+
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cts.CancelAfter(TimeSpan.FromSeconds(10));
 
