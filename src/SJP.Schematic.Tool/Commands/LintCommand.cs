@@ -20,6 +20,11 @@ internal sealed class LintCommand : AsyncCommand<LintCommand.Settings>
         [DefaultValue(LintOutputFormat.Text)]
         public LintOutputFormat Format { get; init; }
 
+        [CommandOption("--level <LEVEL>")]
+        [Description("The reporting level applied to all lint rules. One of: information, warning, error. Defaults to information.")]
+        [DefaultValue(RuleLevel.Information)]
+        public RuleLevel Level { get; init; }
+
         [CommandOption("--fail-on <LEVEL>")]
         [Description("The minimum rule level that causes the command to exit with a non-zero exit code. One of: information, warning, error. If not set, the command always exits successfully.")]
         public RuleLevel? FailOn { get; init; }
@@ -46,7 +51,7 @@ internal sealed class LintCommand : AsyncCommand<LintCommand.Settings>
         var database = await connection.Dialect.GetRelationalDatabaseAsync(connection, cancellationToken);
 
         var ruleProvider = new DefaultRuleProvider();
-        var rules = ruleProvider.GetRules(connection, RuleLevel.Information);
+        var rules = ruleProvider.GetRules(connection, settings.Level);
         var linter = new RelationalDatabaseLinter(rules);
 
         var snapshotDb = await database.SnapshotAsync(cancellationToken);

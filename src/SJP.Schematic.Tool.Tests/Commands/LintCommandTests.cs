@@ -160,7 +160,7 @@ internal static class LintCommandTests
             var app = new CommandApp(registrar);
             app.Configure(config => config.AddCommand<LintCommand>("lint"));
 
-            // All rules are currently constructed at RuleLevel.Information (see LintCommand.ExecuteAsync),
+            // Rules default to RuleLevel.Information (see LintCommand.Settings.Level),
             // so the sample database's foreign-key-index issue is reported at that level.
             var exitCode = await app.RunAsync(["lint", "--dialect", "sqlite", "--connection-string", $"Data Source={dbPath}", "--fail-on", "information"]);
 
@@ -195,6 +195,106 @@ internal static class LintCommandTests
         {
             CommandAppHarness.DeleteSqliteDatabase(dbPath);
         }
+    }
+
+    [Test]
+    public static async Task ExecuteAsync_GivenLevelWarning_ReportsIssuesAtWarningLevel()
+    {
+        var dbPath = CommandAppHarness.CreateSampleSqliteDatabase();
+        try
+        {
+            var (console, _) = CommandAppHarness.CreateCapturingConsole();
+
+            var registrar = new CommandAppHarness.InstanceRegistrar();
+            registrar.RegisterInstance(typeof(IAnsiConsole), console);
+            registrar.RegisterInstance(typeof(IDatabaseCommandDependencyProviderFactory), new DatabaseCommandDependencyProviderFactory());
+
+            var app = new CommandApp(registrar);
+            app.Configure(config => config.AddCommand<LintCommand>("lint"));
+
+            // --level relabels every rule's reporting level (it does not filter rules), so
+            // --fail-on warning only trips once issues are actually reported at Warning or above.
+            var exitCode = await app.RunAsync(["lint", "--dialect", "sqlite", "--connection-string", $"Data Source={dbPath}", "--level", "warning", "--fail-on", "warning"]);
+
+            Assert.That(exitCode, Is.EqualTo(1));
+        }
+        finally
+        {
+            CommandAppHarness.DeleteSqliteDatabase(dbPath);
+        }
+    }
+
+    [Test]
+    public static async Task ExecuteAsync_GivenLevelError_ReportsIssuesAtErrorLevel()
+    {
+        var dbPath = CommandAppHarness.CreateSampleSqliteDatabase();
+        try
+        {
+            var (console, _) = CommandAppHarness.CreateCapturingConsole();
+
+            var registrar = new CommandAppHarness.InstanceRegistrar();
+            registrar.RegisterInstance(typeof(IAnsiConsole), console);
+            registrar.RegisterInstance(typeof(IDatabaseCommandDependencyProviderFactory), new DatabaseCommandDependencyProviderFactory());
+
+            var app = new CommandApp(registrar);
+            app.Configure(config => config.AddCommand<LintCommand>("lint"));
+
+            var exitCode = await app.RunAsync(["lint", "--dialect", "sqlite", "--connection-string", $"Data Source={dbPath}", "--level", "error", "--fail-on", "error"]);
+
+            Assert.That(exitCode, Is.EqualTo(1));
+        }
+        finally
+        {
+            CommandAppHarness.DeleteSqliteDatabase(dbPath);
+        }
+    }
+
+    [Test]
+    public static async Task ExecuteAsync_GivenNoLevel_DefaultsToInformation()
+    {
+        var dbPath = CommandAppHarness.CreateSampleSqliteDatabase();
+        try
+        {
+            var (console, writer) = CommandAppHarness.CreateCapturingConsole();
+
+            var registrar = new CommandAppHarness.InstanceRegistrar();
+            registrar.RegisterInstance(typeof(IAnsiConsole), console);
+            registrar.RegisterInstance(typeof(IDatabaseCommandDependencyProviderFactory), new DatabaseCommandDependencyProviderFactory());
+
+            var app = new CommandApp(registrar);
+            app.Configure(config => config.AddCommand<LintCommand>("lint"));
+
+            var exitCode = await app.RunAsync(["lint", "--dialect", "sqlite", "--connection-string", $"Data Source={dbPath}", "--level", "information"]);
+
+            var output = writer.ToString();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(exitCode, Is.Zero);
+                Assert.That(output, Does.Contain("Rule:"));
+                Assert.That(output, Does.Contain("foreign key"));
+            }
+        }
+        finally
+        {
+            CommandAppHarness.DeleteSqliteDatabase(dbPath);
+        }
+    }
+
+    [Test]
+    public static async Task ExecuteAsync_GivenInvalidLevel_ReturnsParseError()
+    {
+        var (console, _) = CommandAppHarness.CreateCapturingConsole();
+
+        var registrar = new CommandAppHarness.InstanceRegistrar();
+        registrar.RegisterInstance(typeof(IAnsiConsole), console);
+        registrar.RegisterInstance(typeof(IDatabaseCommandDependencyProviderFactory), new DatabaseCommandDependencyProviderFactory());
+
+        var app = new CommandApp(registrar);
+        app.Configure(config => config.AddCommand<LintCommand>("lint"));
+
+        var exitCode = await app.RunAsync(["lint", "--dialect", "sqlite", "--connection-string", "Data Source=unused.db", "--level", "bogus"]);
+
+        Assert.That(exitCode, Is.Not.Zero);
     }
 
     [Test]
