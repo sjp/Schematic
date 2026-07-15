@@ -34,7 +34,6 @@
     <PackageVersion Include="Polly" Version="8.7.0" />
     <PackageVersion Include="Polly.Contrib.WaitAndRetry" Version="1.1.1" />
     <PackageVersion Include="QuikGraph" Version="2.5.0" />
-    <PackageVersion Include="RazorLight" Version="2.3.1" />
     <PackageVersion Include="Roslyn.System.IO.Abstractions.Analyzers" Version="12.2.19" />
     <PackageVersion Include="Roslynator.Analyzers" Version="4.15.0" />
     <PackageVersion Include="ServiceStack.OrmLite" Version="10.0.8" />
@@ -44,7 +43,5 @@
     <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
     <PackageVersion Include="System.IO.Abstractions" Version="22.2.0" />
     <PackageVersion Include="System.IO.Abstractions.TestingHelpers" Version="22.2.0" />
-    <PackageVersion Include="System.Text.Encodings.Web" Version="10.0.0" />
-    <PackageVersion Include="System.Text.Json" Version="10.0.0" />
   </ItemGroup>
 </Project>
