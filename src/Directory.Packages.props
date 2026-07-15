@@ -11,18 +11,18 @@
     <PackageVersion Include="LanguageExt.Core" Version="4.4.9" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.6.0" />
     <PackageVersion Include="Microsoft.Data.SqlClient" Version="7.0.2" />
-    <PackageVersion Include="Microsoft.Data.SQLite" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.FileProviders.Embedded" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.7.0" />
-    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.300" />
+    <PackageVersion Include="Microsoft.Data.SQLite" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.FileProviders.Embedded" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.301" />
     <PackageVersion Include="Microsoft.SqlServer.TransactSql.ScriptDom" Version="180.37.3" />
-    <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.8.0" />
+    <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.9.0" />
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="MySqlConnector" Version="2.6.1" />
     <PackageVersion Include="Nito.AsyncEx" Version="5.1.2" />
@@ -40,10 +40,10 @@
     <PackageVersion Include="ServiceStack.OrmLite" Version="10.0.8" />
     <PackageVersion Include="Spectre.Console.Analyzer" Version="1.0.0" />
     <PackageVersion Include="Spectre.Console.Cli" Version="0.55.0" />
-    <PackageVersion Include="Spectre.Console.Cli.Extensions.DependencyInjection" Version="0.26.0" />
+    <PackageVersion Include="Spectre.Console.Cli.Extensions.DependencyInjection" Version="0.27.0" />
     <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
-    <PackageVersion Include="System.IO.Abstractions" Version="22.1.1" />
-    <PackageVersion Include="System.IO.Abstractions.TestingHelpers" Version="22.1.1" />
+    <PackageVersion Include="System.IO.Abstractions" Version="22.2.0" />
+    <PackageVersion Include="System.IO.Abstractions.TestingHelpers" Version="22.2.0" />
     <PackageVersion Include="System.Text.Encodings.Web" Version="10.0.0" />
     <PackageVersion Include="System.Text.Json" Version="10.0.0" />
   </ItemGroup>
