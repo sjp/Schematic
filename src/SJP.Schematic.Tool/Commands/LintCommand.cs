@@ -48,7 +48,8 @@ internal sealed class LintCommand : AsyncCommand<LintCommand.Settings>
     {
         var dependencyProvider = _dependencyProviderFactory.GetDbDependencies(settings);
         var connection = dependencyProvider.GetSchematicConnection();
-        var database = await connection.Dialect.GetRelationalDatabaseAsync(connection, cancellationToken);
+        var databaseProvider = dependencyProvider.GetRelationalDatabaseProvider(connection);
+        var database = await databaseProvider.GetRelationalDatabaseAsync(cancellationToken);
 
         var ruleProvider = new DefaultRuleProvider();
         var rules = ruleProvider.GetRules(connection, settings.Level);

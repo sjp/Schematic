@@ -1046,7 +1046,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             : ReferentialAction.NoAction;
     }
 
-    private Task<Version> LoadDbVersionAsync() => Dialect.GetDatabaseVersionAsync(Connection);
+    private Task<Version> LoadDbVersionAsync() => new SqliteDatabaseProvider(Connection).GetDatabaseVersionAsync();
 
     private readonly ConcurrentDictionary<string, Lazy<ParsedTableData>> _tableParserCache = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, Lazy<ParsedTriggerData>> _triggerParserCache = new(StringComparer.Ordinal);

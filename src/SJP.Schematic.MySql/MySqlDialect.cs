@@ -1,14 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.MySql.Comments;
-using SJP.Schematic.MySql.Queries;
 
 namespace SJP.Schematic.MySql;
 
@@ -32,123 +26,10 @@ public class MySqlDialect : DatabaseDialect
     }
 
     /// <summary>
-    /// Retrieves the set of identifier defaults for the given database connection.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A set of identifier defaults.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(connection);
-
-        return GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
-    }
-
-    private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
-    {
-        return await connection.DbConnection.QuerySingleAsync<GetIdentifierDefaults.Result>(GetIdentifierDefaults.Sql, cancellationToken);
-    }
-
-    /// <summary>
-    /// Gets the database display version. Usually a more user-friendly form of the database version.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A descriptive version.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public override Task<string> GetDatabaseDisplayVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(connection);
-
-        return GetDatabaseDisplayVersionAsyncCore(connection, cancellationToken);
-    }
-
-    private static async Task<string> GetDatabaseDisplayVersionAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
-    {
-        var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken);
-        return "MySQL " + versionStr;
-    }
-
-    /// <summary>
-    /// Gets the database version.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A version.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public override Task<Version> GetDatabaseVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(connection);
-
-        return GetDatabaseVersionAsyncCore(connection, cancellationToken);
-    }
-
-    private static async Task<Version> GetDatabaseVersionAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
-    {
-        var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken);
-        return ParseMySqlVersion(versionStr!);
-    }
-
-    /// <summary>
-    /// Retrieves a relational database for the given dialect.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A relational database.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public override Task<IRelationalDatabase> GetRelationalDatabaseAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(connection);
-
-        return GetRelationalDatabaseAsyncCore(connection, cancellationToken);
-    }
-
-    private static async Task<IRelationalDatabase> GetRelationalDatabaseAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
-    {
-        var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
-        return new MySqlRelationalDatabase(connection, identifierDefaults);
-    }
-
-    /// <summary>
-    /// Retrieves a relational database comment provider for the given dialect.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A comment provider.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(connection);
-
-        return GetRelationalDatabaseCommentProviderAsyncCore(connection, cancellationToken);
-    }
-
-    private static async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
-    {
-        var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
-        return new MySqlDatabaseCommentProvider(connection.DbConnection, identifierDefaults);
-    }
-
-    /// <summary>
     /// Gets a dependency provider for MySQL expressions.
     /// </summary>
     /// <returns>A dependency provider.</returns>
     public override IDependencyProvider GetDependencyProvider() => new MySqlDependencyProvider();
-
-    private static Version ParseMySqlVersion(string versionStr)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(versionStr);
-
-        var versionPieces = versionStr
-            .Split(['.', '-'], StringSplitOptions.RemoveEmptyEntries)
-            .TakeWhile(piece => int.TryParse(piece, NumberStyles.Integer, CultureInfo.InvariantCulture, out _));
-
-        var saferVersionStr = versionPieces.Join(".");
-        return Version.Parse(saferVersionStr);
-    }
-
-    private const string DatabaseVersionQuerySql = "select version() as DatabaseVersion";
 
     // https://dev.mysql.com/doc/refman/5.7/en/keywords.html
     private static readonly IEnumerable<string> Keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)

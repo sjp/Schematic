@@ -103,12 +103,4 @@ internal static class SqlServerDialectTests
 
         Assert.That(result, Is.EqualTo(expected));
     }
-
-    [Test]
-    public static void GetCompatibilityLevel_GivenNullConnection_ThrowsArgumentNullException()
-    {
-        var dialect = new SqlServerDialect();
-
-        Assert.That(() => dialect.GetCompatibilityLevel(null), Throws.ArgumentNullException);
-    }
 }

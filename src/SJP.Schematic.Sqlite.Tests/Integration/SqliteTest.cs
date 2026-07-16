@@ -29,7 +29,9 @@ internal abstract class SqliteTest
 
     protected IDatabaseDialect Dialect => Connection.Dialect;
 
-    protected IIdentifierDefaults IdentifierDefaults { get; } = new SqliteDialect().GetIdentifierDefaultsAsync(Config.Connection).GetAwaiter().GetResult();
+    protected SqliteDatabaseProvider DatabaseProvider { get; } = new(Config.Connection);
+
+    protected IIdentifierDefaults IdentifierDefaults { get; } = new SqliteDatabaseProvider(Config.Connection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
 
     protected ISqliteConnectionPragma Pragma { get; } = new ConnectionPragma(Config.Connection);
 

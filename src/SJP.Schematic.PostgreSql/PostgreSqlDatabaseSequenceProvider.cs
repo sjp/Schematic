@@ -112,7 +112,7 @@ public class PostgreSqlDatabaseSequenceProvider : IDatabaseSequenceProvider
 
     private async Task<Option<IDatabaseSequenceProvider>> LoadVersionedSequenceProvider()
     {
-        var version = await Dialect.GetDatabaseVersionAsync(Connection, CancellationToken.None);
+        var version = await new PostgreSqlDatabaseProvider(Connection).GetDatabaseVersionAsync(CancellationToken.None);
 
         var factories = new Dictionary<Version, Func<IDatabaseSequenceProvider>>
         {

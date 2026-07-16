@@ -13,15 +13,14 @@ internal static class OracleDialectExtensions
     /// <summary>
     /// Determines whether the connected Oracle instance supports the native <c>JSON</c> data type.
     /// </summary>
-    /// <param name="dialect">An Oracle dialect.</param>
-    /// <param name="connection">A connection to an Oracle database.</param>
+    /// <param name="databaseProvider">An Oracle database provider.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns><see langword="true" /> if the native <c>JSON</c> data type is supported; otherwise <see langword="false" />.</returns>
-    public static async Task<bool> SupportsJsonDataType(this IDatabaseDialect dialect, ISchematicConnection connection, CancellationToken cancellationToken = default)
+    public static async Task<bool> SupportsJsonDataType(this IRelationalDatabaseProvider databaseProvider, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(dialect);
+        ArgumentNullException.ThrowIfNull(databaseProvider);
 
-        var dbVersion = await dialect.GetDatabaseVersionAsync(connection, cancellationToken).ConfigureAwait(false);
+        var dbVersion = await databaseProvider.GetDatabaseVersionAsync(cancellationToken).ConfigureAwait(false);
         return dbVersion >= MinJsonDataTypeVersion;
     }
 }

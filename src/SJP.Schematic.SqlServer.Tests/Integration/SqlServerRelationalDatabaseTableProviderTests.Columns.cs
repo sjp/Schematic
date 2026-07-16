@@ -169,7 +169,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task Columns_WhenGivenTableWithJsonColumn_ReturnsColumnWithJsonDataType()
     {
-        if (!await Dialect.SupportsJsonDataType(Connection))
+        if (!await DatabaseProvider.SupportsJsonDataType())
         {
             Assert.Pass();
             return;

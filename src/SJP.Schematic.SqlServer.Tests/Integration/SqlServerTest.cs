@@ -31,10 +31,11 @@ internal abstract class SqlServerTest
 
     protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
-    protected ISqlServerDialect Dialect => Connection.Dialect as ISqlServerDialect;
+    protected ISqlServerDatabaseProvider DatabaseProvider => _databaseProvider.Value;
 
     protected IIdentifierDefaults IdentifierDefaults => _defaults.Value;
 
     private readonly Lazy<ISchematicConnection> _connection = new(() => Config.SchematicConnection);
-    private readonly Lazy<IIdentifierDefaults> _defaults = new(() => Config.SchematicConnection.Dialect.GetIdentifierDefaultsAsync(Config.SchematicConnection).GetAwaiter().GetResult());
+    private readonly Lazy<ISqlServerDatabaseProvider> _databaseProvider = new(() => new SqlServerDatabaseProvider(Config.SchematicConnection));
+    private readonly Lazy<IIdentifierDefaults> _defaults = new(() => new SqlServerDatabaseProvider(Config.SchematicConnection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult());
 }

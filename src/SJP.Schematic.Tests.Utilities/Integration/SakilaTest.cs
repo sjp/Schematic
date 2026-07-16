@@ -60,10 +60,16 @@ public abstract class SakilaTest
     protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
     /// <summary>
+    /// A database provider for accessing the Sakila database and its metadata.
+    /// </summary>
+    /// <value>A relational database provider.</value>
+    protected SqliteDatabaseProvider DatabaseProvider { get; } = new(Config.SchematicConnection);
+
+    /// <summary>
     /// The identifier defaults for the Sakila database.
     /// </summary>
     /// <value>A set of identifier defaults.</value>
-    protected IIdentifierDefaults IdentifierDefaults => Connection.Dialect.GetIdentifierDefaultsAsync(Config.SchematicConnection).GetAwaiter().GetResult();
+    protected IIdentifierDefaults IdentifierDefaults => new SqliteDatabaseProvider(Connection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
 
     /// <summary>
     /// A pragma accessor for the database.

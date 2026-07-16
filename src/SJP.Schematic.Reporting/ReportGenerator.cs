@@ -18,19 +18,22 @@ namespace SJP.Schematic.Reporting;
 
 public class ReportGenerator
 {
-    public ReportGenerator(ISchematicConnection connection, IRelationalDatabase database, string directory)
-        : this(connection, database, new DirectoryInfo(directory))
+    public ReportGenerator(ISchematicConnection connection, IRelationalDatabaseProvider databaseProvider, IRelationalDatabase database, string directory)
+        : this(connection, databaseProvider, database, new DirectoryInfo(directory))
     {
     }
 
-    public ReportGenerator(ISchematicConnection connection, IRelationalDatabase database, DirectoryInfo directory)
+    public ReportGenerator(ISchematicConnection connection, IRelationalDatabaseProvider databaseProvider, IRelationalDatabase database, DirectoryInfo directory)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
+        DatabaseProvider = databaseProvider ?? throw new ArgumentNullException(nameof(databaseProvider));
         Database = database ?? throw new ArgumentNullException(nameof(database));
         ExportDirectory = directory ?? throw new ArgumentNullException(nameof(directory));
     }
 
     protected ISchematicConnection Connection { get; }
+
+    protected IRelationalDatabaseProvider DatabaseProvider { get; }
 
     protected IRelationalDatabase Database { get; }
 
@@ -54,7 +57,7 @@ public class ReportGenerator
 
         var rowCounts = await GetRowCountsAsync(tables, cancellationToken);
 
-        var dbVersion = await Connection.Dialect.GetDatabaseDisplayVersionAsync(Connection, cancellationToken);
+        var dbVersion = await DatabaseProvider.GetDatabaseDisplayVersionAsync(cancellationToken);
 
         var reportData = BuildReportData(tables, views, sequences, synonyms, routines, rowCounts, dbVersion);
         var renderContext = new RenderContext(new JsonDataWriter(), new BundleBuilder(), ExportDirectory);

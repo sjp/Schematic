@@ -15,27 +15,34 @@ internal sealed class ReportGeneratorSakilaTests : SakilaTest
     public void Ctor_GivenNullConnection_ThrowsArgumentNullException()
     {
         using var tempDir = new TemporaryDirectory();
-        Assert.That(() => new ReportGenerator(null!, GetDatabase(), tempDir.DirectoryPath), Throws.ArgumentNullException);
+        Assert.That(() => new ReportGenerator(null!, DatabaseProvider, GetDatabase(), tempDir.DirectoryPath), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public void Ctor_GivenNullDatabaseProvider_ThrowsArgumentNullException()
+    {
+        using var tempDir = new TemporaryDirectory();
+        Assert.That(() => new ReportGenerator(Connection, null!, GetDatabase(), tempDir.DirectoryPath), Throws.ArgumentNullException);
     }
 
     [Test]
     public void Ctor_GivenNullDatabase_ThrowsArgumentNullException()
     {
         using var tempDir = new TemporaryDirectory();
-        Assert.That(() => new ReportGenerator(Connection, null!, tempDir.DirectoryPath), Throws.ArgumentNullException);
+        Assert.That(() => new ReportGenerator(Connection, DatabaseProvider, null!, tempDir.DirectoryPath), Throws.ArgumentNullException);
     }
 
     [Test]
     public void Ctor_GivenNullDirectory_ThrowsArgumentNullException()
     {
-        Assert.That(() => new ReportGenerator(Connection, GetDatabase(), (string)null!), Throws.ArgumentNullException);
+        Assert.That(() => new ReportGenerator(Connection, DatabaseProvider, GetDatabase(), (string)null!), Throws.ArgumentNullException);
     }
 
     [Test]
     public async Task GenerateAsync_GivenSakilaDatabase_CompletesWithoutThrowing()
     {
         using var tempDir = new TemporaryDirectory();
-        var generator = new ReportGenerator(Connection, GetDatabase(), tempDir.DirectoryPath);
+        var generator = new ReportGenerator(Connection, DatabaseProvider, GetDatabase(), tempDir.DirectoryPath);
 
         Assert.That(async () => await generator.GenerateAsync(), Throws.Nothing);
     }
@@ -44,7 +51,7 @@ internal sealed class ReportGeneratorSakilaTests : SakilaTest
     public async Task GenerateAsync_GivenSakilaDatabase_WritesExpectedDataFiles()
     {
         using var tempDir = new TemporaryDirectory();
-        var generator = new ReportGenerator(Connection, GetDatabase(), tempDir.DirectoryPath);
+        var generator = new ReportGenerator(Connection, DatabaseProvider, GetDatabase(), tempDir.DirectoryPath);
 
         await generator.GenerateAsync();
 
@@ -64,7 +71,7 @@ internal sealed class ReportGeneratorSakilaTests : SakilaTest
     public async Task GenerateAsync_GivenSakilaDatabase_ExtractsReportShell()
     {
         using var tempDir = new TemporaryDirectory();
-        var generator = new ReportGenerator(Connection, GetDatabase(), tempDir.DirectoryPath);
+        var generator = new ReportGenerator(Connection, DatabaseProvider, GetDatabase(), tempDir.DirectoryPath);
 
         await generator.GenerateAsync();
 
@@ -75,7 +82,7 @@ internal sealed class ReportGeneratorSakilaTests : SakilaTest
     public async Task GenerateAsync_GivenSakilaDatabase_BundleContainsAccumulatedPayloads()
     {
         using var tempDir = new TemporaryDirectory();
-        var generator = new ReportGenerator(Connection, GetDatabase(), tempDir.DirectoryPath);
+        var generator = new ReportGenerator(Connection, DatabaseProvider, GetDatabase(), tempDir.DirectoryPath);
 
         await generator.GenerateAsync();
 

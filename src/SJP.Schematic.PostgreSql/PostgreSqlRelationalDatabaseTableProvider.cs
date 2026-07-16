@@ -118,7 +118,7 @@ public class PostgreSqlRelationalDatabaseTableProvider : IRelationalDatabaseTabl
 
     private async Task<Option<IRelationalDatabaseTableProvider>> LoadVersionedTableProvider()
     {
-        var version = await Dialect.GetDatabaseVersionAsync(Connection, CancellationToken.None);
+        var version = await new PostgreSqlDatabaseProvider(Connection).GetDatabaseVersionAsync(CancellationToken.None);
 
         var factories = new Dictionary<Version, Func<IRelationalDatabaseTableProvider>>
         {

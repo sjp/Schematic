@@ -13,15 +13,14 @@ internal static class SqlServerDialectExtensions
     /// <summary>
     /// Determines whether the connected SQL Server instance supports the native <c>json</c> data type.
     /// </summary>
-    /// <param name="dialect">A SQL Server dialect.</param>
-    /// <param name="connection">A connection to a SQL Server database.</param>
+    /// <param name="databaseProvider">A SQL Server database provider.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns><see langword="true" /> if the native <c>json</c> data type is supported; otherwise <see langword="false" />.</returns>
-    public static async Task<bool> SupportsJsonDataType(this ISqlServerDialect dialect, ISchematicConnection connection, CancellationToken cancellationToken = default)
+    public static async Task<bool> SupportsJsonDataType(this IRelationalDatabaseProvider databaseProvider, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(dialect);
+        ArgumentNullException.ThrowIfNull(databaseProvider);
 
-        var dbVersion = await dialect.GetDatabaseVersionAsync(connection, cancellationToken).ConfigureAwait(false);
+        var dbVersion = await databaseProvider.GetDatabaseVersionAsync(cancellationToken).ConfigureAwait(false);
         return dbVersion >= MinJsonDataTypeVersion;
     }
 }

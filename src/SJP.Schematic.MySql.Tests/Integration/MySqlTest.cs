@@ -35,5 +35,7 @@ internal abstract class MySqlTest
 
     protected IDatabaseDialect Dialect => Connection.Dialect;
 
-    protected IIdentifierDefaults IdentifierDefaults { get; } = Config.SchematicConnection.Dialect.GetIdentifierDefaultsAsync(Config.SchematicConnection).GetAwaiter().GetResult();
+    protected MySqlDatabaseProvider DatabaseProvider { get; } = new(Config.SchematicConnection);
+
+    protected IIdentifierDefaults IdentifierDefaults { get; } = new MySqlDatabaseProvider(Config.SchematicConnection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
 }

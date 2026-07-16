@@ -1,19 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using LanguageExt;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Oracle.Comments;
-using SJP.Schematic.Oracle.Queries;
 
 namespace SJP.Schematic.Oracle;
 
 /// <summary>
-/// A database dialect specific to SQL Server.
+/// A database dialect specific to Oracle.
 /// </summary>
 /// <seealso cref="DatabaseDialect" />
 public class OracleDialect : DatabaseDialect
@@ -59,141 +53,6 @@ public class OracleDialect : DatabaseDialect
             pieces.Add(QuoteIdentifier(name.LocalName));
 
         return pieces.Join(".");
-    }
-
-    /// <summary>
-    /// Retrieves the set of identifier defaults for the given database connection.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A set of identifier defaults.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(connection);
-
-        return GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
-    }
-
-    private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
-    {
-        var hostInfoOption = connection.DbConnection.QueryFirstOrNone<GetIdentifierDefaults.Result>(GetIdentifierDefaults.Sql, cancellationToken);
-        var qualifiedServerName = await hostInfoOption
-            .Bind(static dbHost => dbHost.ServerHost != null && dbHost.ServerSid != null
-                ? OptionAsync<GetIdentifierDefaults.Result>.Some(dbHost)
-                : OptionAsync<GetIdentifierDefaults.Result>.None
-            )
-            .MatchUnsafe(
-                static dbHost => dbHost.ServerHost + "/" + dbHost.ServerSid,
-                static () => (string?)null
-            );
-        var dbName = await hostInfoOption.MatchUnsafe(h => h.DatabaseName, () => null);
-        var defaultSchema = await hostInfoOption.MatchUnsafe(h => h.DefaultSchema, () => null);
-
-        return new IdentifierDefaults(qualifiedServerName, dbName, defaultSchema);
-    }
-
-    /// <summary>
-    /// Gets the database display version. Usually a more user-friendly form of the database version.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A descriptive version.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public override Task<string> GetDatabaseDisplayVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(connection);
-
-        var versionInfoOption = connection.DbConnection.QueryFirstOrNone<GetDatabaseVersion.Result>(GetDatabaseVersion.Sql, cancellationToken);
-        return versionInfoOption.MatchUnsafe(
-            static vInfo => vInfo.ProductName + vInfo.VersionNumber,
-            static () => string.Empty
-        );
-    }
-
-    /// <summary>
-    /// Gets the database version.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A version.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public override Task<Version> GetDatabaseVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(connection);
-
-        var versionInfoOption = connection.DbConnection.QueryFirstOrNone<GetDatabaseVersion.Result>(GetDatabaseVersion.Sql, cancellationToken);
-        return versionInfoOption
-            .Bind(static dbv => TryParseLongVersionString(dbv.VersionNumber).ToAsync())
-            .MatchUnsafeAsync(
-                v => v,
-                static () => Task.FromResult(new Version(0, 0))
-            );
-    }
-
-    private static Option<Version> TryParseLongVersionString(string? version)
-    {
-        if (version.IsNullOrWhiteSpace())
-            return Option<Version>.None;
-
-        var dotCount = version.Count(static c => c == '.');
-        if (dotCount < 4)
-        {
-            return Version.TryParse(version, out var validVersion)
-                ? Option<Version>.Some(validVersion)
-                : Option<Version>.None;
-        }
-
-        // only take the first 4 version numbers and try again
-        var versionStr = version
-            .Split(['.'], 5, StringSplitOptions.RemoveEmptyEntries)
-            .Take(4)
-            .Join(".");
-        return Version.TryParse(versionStr, out var v)
-                ? Option<Version>.Some(v)
-                : Option<Version>.None;
-    }
-
-    /// <summary>
-    /// Retrieves a relational database for the given dialect.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A relational database.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public override Task<IRelationalDatabase> GetRelationalDatabaseAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(connection);
-
-        return GetRelationalDatabaseAsyncCore(connection, cancellationToken);
-    }
-
-    private static async Task<IRelationalDatabase> GetRelationalDatabaseAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
-    {
-        var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
-        var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
-        return new OracleRelationalDatabase(connection, identifierDefaults, identifierResolver);
-    }
-
-    /// <summary>
-    /// Retrieves a relational database comment provider for the given dialect.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A comment provider.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(connection);
-
-        return GetRelationalDatabaseCommentProviderAsyncCore(connection, cancellationToken);
-    }
-
-    private static async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
-    {
-        var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
-        var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
-        return new OracleDatabaseCommentProvider(connection.DbConnection, identifierDefaults, identifierResolver);
     }
 
     /// <summary>

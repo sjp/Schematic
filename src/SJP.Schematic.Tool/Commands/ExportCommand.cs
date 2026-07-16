@@ -73,7 +73,8 @@ internal sealed class ExportCommand : AsyncCommand<ExportCommand.Settings>
     {
         var dependencyProvider = _dependencyProviderFactory.GetDbDependencies(settings);
         var connection = dependencyProvider.GetSchematicConnection();
-        var database = await connection.Dialect.GetRelationalDatabaseAsync(connection, cancellationToken);
+        var databaseProvider = dependencyProvider.GetRelationalDatabaseProvider(connection);
+        var database = await databaseProvider.GetRelationalDatabaseAsync(cancellationToken);
 
         var snapshotDb = await database.SnapshotAsync(cancellationToken);
         var sortedDb = await SortDatabaseAsync(snapshotDb, cancellationToken);

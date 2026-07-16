@@ -63,6 +63,26 @@ public class DatabaseCommandDependencyProvider : IDatabaseCommandDependencyProvi
         return new SchematicConnection(connectionFactory, dialect);
     }
 
+    public IRelationalDatabaseProvider GetRelationalDatabaseProvider(ISchematicConnection connection)
+    {
+        ArgumentNullException.ThrowIfNull(connection);
+
+        var dialect = Configuration.GetValue<string>("Dialect");
+        if (dialect.IsNullOrWhiteSpace())
+            throw new InvalidOperationException(nameof(dialect));
+
+        dialect = dialect.ToLowerInvariant();
+        return dialect switch
+        {
+            "mysql" => new MySql.MySqlDatabaseProvider(connection),
+            "oracle" => new Oracle.OracleDatabaseProvider(connection),
+            "postgresql" => new PostgreSql.PostgreSqlDatabaseProvider(connection),
+            "sqlserver" => new SqlServer.SqlServerDatabaseProvider(connection),
+            "sqlite" => new Sqlite.SqliteDatabaseProvider(connection),
+            _ => throw new NotSupportedException($"The given dialect is not supported {dialect}, expected one of: ..."),
+        };
+    }
+
     public string GetConnectionString()
     {
         var connectionString = Configuration.GetConnectionString("Schematic");

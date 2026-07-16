@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Comments;
-using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.Sqlite.Pragma;
 
 namespace SJP.Schematic.Sqlite;
 
@@ -16,103 +11,6 @@ namespace SJP.Schematic.Sqlite;
 /// <seealso cref="DatabaseDialect" />
 public class SqliteDialect : DatabaseDialect
 {
-    /// <summary>
-    /// Retrieves the set of identifier defaults for the given database connection.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A set of identifier defaults.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(connection);
-
-        return GetIdentifierDefaultsAsyncCore();
-    }
-
-    private static Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore()
-    {
-        var identifierDefaults = new IdentifierDefaults(null, null, DefaultSchema);
-        return Task.FromResult<IIdentifierDefaults>(identifierDefaults);
-    }
-
-    private const string DefaultSchema = "main";
-
-    /// <summary>
-    /// Gets the database display version. Usually a more user-friendly form of the database version.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A descriptive version.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public override Task<string> GetDatabaseDisplayVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(connection);
-
-        return GetDatabaseDisplayVersionAsyncCore(connection, cancellationToken);
-    }
-
-    private static async Task<string> GetDatabaseDisplayVersionAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
-    {
-        var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken);
-        return "SQLite " + versionStr;
-    }
-
-    /// <summary>
-    /// Gets the database version.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A version.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public override Task<Version> GetDatabaseVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(connection);
-
-        return GetDatabaseVersionAsyncCore(connection, cancellationToken);
-    }
-
-    private static async Task<Version> GetDatabaseVersionAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
-    {
-        var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken);
-        return Version.Parse(versionStr!);
-    }
-
-    private const string DatabaseDisplayVersionQuerySql = "select sqlite_version()";
-
-    /// <summary>
-    /// Retrieves a relational database for the given dialect.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A relational database.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public override Task<IRelationalDatabase> GetRelationalDatabaseAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(connection);
-
-        return GetRelationalDatabaseAsyncCore(connection);
-    }
-
-    private static async Task<IRelationalDatabase> GetRelationalDatabaseAsyncCore(ISchematicConnection connection)
-    {
-        var identifierDefaults = await GetIdentifierDefaultsAsyncCore();
-        return new SqliteRelationalDatabase(connection, identifierDefaults, new ConnectionPragma(connection));
-    }
-
-    /// <summary>
-    /// Retrieves a relational database comment provider for the given dialect.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A comment provider.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public override async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
-    {
-        var identifierDefaults = await GetIdentifierDefaultsAsyncCore();
-        return new EmptyRelationalDatabaseCommentProvider(identifierDefaults);
-    }
-
     /// <summary>
     /// Gets a dependency provider that retrieves dependencies for SQLite statements.
     /// </summary>

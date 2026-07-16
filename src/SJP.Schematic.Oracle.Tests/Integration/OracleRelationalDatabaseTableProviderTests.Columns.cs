@@ -139,7 +139,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     [Test]
     public async Task Columns_WhenGivenTableWithJsonColumn_ReturnsColumnWithJsonDataType()
     {
-        if (!await Dialect.SupportsJsonDataType(Connection))
+        if (!await DatabaseProvider.SupportsJsonDataType())
         {
             Assert.Pass();
             return;

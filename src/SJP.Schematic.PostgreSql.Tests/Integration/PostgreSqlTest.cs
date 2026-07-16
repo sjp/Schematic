@@ -32,7 +32,9 @@ internal abstract class PostgreSqlTest
 
     protected IDatabaseDialect Dialect => Connection.Dialect;
 
-    protected IIdentifierDefaults IdentifierDefaults { get; } = Config.SchematicConnection.Dialect.GetIdentifierDefaultsAsync(Config.SchematicConnection).GetAwaiter().GetResult();
+    protected PostgreSqlDatabaseProvider DatabaseProvider { get; } = new(Config.SchematicConnection);
+
+    protected IIdentifierDefaults IdentifierDefaults { get; } = new PostgreSqlDatabaseProvider(Config.SchematicConnection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
 
     protected IIdentifierResolutionStrategy IdentifierResolver { get; } = new DefaultPostgreSqlIdentifierResolutionStrategy();
 }

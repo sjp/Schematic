@@ -11,5 +11,6 @@ public interface IDatabaseCommandDependencyProvider
     string GetConnectionString();
     INameTranslator GetNameTranslator(NamingConvention convention);
     ISchematicConnection GetSchematicConnection();
+    IRelationalDatabaseProvider GetRelationalDatabaseProvider(ISchematicConnection connection);
     IConfiguration Configuration { get; }
 }

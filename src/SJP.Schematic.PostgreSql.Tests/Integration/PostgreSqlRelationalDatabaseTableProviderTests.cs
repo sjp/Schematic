@@ -18,7 +18,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [OneTimeSetUp]
     public async Task Init()
     {
-        var dbVersion = await Dialect.GetDatabaseVersionAsync(Connection, CancellationToken.None);
+        var dbVersion = await DatabaseProvider.GetDatabaseVersionAsync(CancellationToken.None);
 
         await DbConnection.ExecuteAsync("create table db_test_table_1 ( title varchar(200) )", CancellationToken.None);
 
@@ -298,7 +298,7 @@ execute procedure test_trigger_fn()", CancellationToken.None);
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        var dbVersion = await Dialect.GetDatabaseVersionAsync(Connection, CancellationToken.None);
+        var dbVersion = await DatabaseProvider.GetDatabaseVersionAsync(CancellationToken.None);
 
         await DbConnection.ExecuteAsync("drop table db_test_table_1", CancellationToken.None);
 

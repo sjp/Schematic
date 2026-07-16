@@ -252,7 +252,7 @@ internal sealed class PostgreSqlDatabaseViewProviderTests : PostgreSqlTest
         var view = await GetViewAsync(viewName);
 
         var definition = view.Definition;
-        var version = await Dialect.GetDatabaseVersionAsync(Connection);
+        var version = await DatabaseProvider.GetDatabaseVersionAsync();
 
         var expected = version.Major >= 16
             ? @" SELECT table_id AS test

@@ -30,7 +30,7 @@ internal abstract class SqliteRuleTestBase
 
     protected IDbConnectionFactory DbConnection => Connection.DbConnection;
 
-    protected IIdentifierDefaults IdentifierDefaults { get; } = new SqliteDialect().GetIdentifierDefaultsAsync(SqliteRuleTestConfig.Connection).GetAwaiter().GetResult();
+    protected IIdentifierDefaults IdentifierDefaults { get; } = new SqliteDatabaseProvider(SqliteRuleTestConfig.Connection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
 
     protected ISqliteConnectionPragma Pragma { get; } = new ConnectionPragma(SqliteRuleTestConfig.Connection);
 

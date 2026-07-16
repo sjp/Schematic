@@ -9,7 +9,7 @@ internal sealed class OracleDialectTests : OracleTest
     [Test]
     public async Task GetDatabaseDisplayVersionAsync_WhenInvoked_ReturnsNonEmptyString()
     {
-        var versionStr = await Dialect.GetDatabaseDisplayVersionAsync(Connection);
+        var versionStr = await DatabaseProvider.GetDatabaseDisplayVersionAsync();
         var validStr = !versionStr.IsNullOrWhiteSpace();
 
         Assert.That(validStr, Is.True);
@@ -18,7 +18,7 @@ internal sealed class OracleDialectTests : OracleTest
     [Test]
     public async Task GetDatabaseVersionAsync_WhenInvoked_ReturnsNonNullVersion()
     {
-        var version = await Dialect.GetDatabaseVersionAsync(Connection);
+        var version = await DatabaseProvider.GetDatabaseVersionAsync();
 
         Assert.That(version, Is.Not.Null);
     }

@@ -154,7 +154,7 @@ create table table_test_table_32 (
     test_column_3 as (test_column_1 + test_column_2)
 )", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table table_test_table_35 ( test_column number primary key )", CancellationToken.None);
-        if (await Dialect.SupportsJsonDataType(Connection, CancellationToken.None))
+        if (await DatabaseProvider.SupportsJsonDataType(CancellationToken.None))
             await DbConnection.ExecuteAsync("create table table_test_table_36 ( json_column json )", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table table_test_table_37 ( xml_column xmltype )", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table table_test_table_38 ( geometry_column mdsys.sdo_geometry )", CancellationToken.None);
@@ -221,7 +221,7 @@ end;
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        var supportsJsonDataType = await Dialect.SupportsJsonDataType(Connection, CancellationToken.None);
+        var supportsJsonDataType = await DatabaseProvider.SupportsJsonDataType(CancellationToken.None);
 
         await DbConnection.ExecuteAsync("drop table db_test_table_1", CancellationToken.None);
 

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core;
@@ -70,46 +67,4 @@ public abstract class DatabaseDialect : IDatabaseDialect
     public virtual IDependencyProvider GetDependencyProvider() => _emptyDependencyProvider;
 
     private static readonly IDependencyProvider _emptyDependencyProvider = new EmptyDependencyProvider();
-
-    /// <summary>
-    /// Retrieves the set of identifier defaults for the given database connection.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A set of identifier defaults.</returns>
-    public abstract Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(ISchematicConnection connection, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Gets the database version.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A version.</returns>
-    public abstract Task<Version> GetDatabaseVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Gets the database display version. Usually a more user-friendly form of the database version.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>
-    /// A descriptive version.
-    /// </returns>
-    public abstract Task<string> GetDatabaseDisplayVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Retrieves a relational database for the given dialect.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A relational database.</returns>
-    public abstract Task<IRelationalDatabase> GetRelationalDatabaseAsync(ISchematicConnection connection, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Retrieves a relational database comment provider for the given dialect.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A comment provider.</returns>
-    public abstract Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(ISchematicConnection connection, CancellationToken cancellationToken = default);
 }

@@ -32,5 +32,5 @@ internal abstract class SqliteTest
 
     protected ISqliteConnectionPragma Pragma { get; } = new ConnectionPragma(Config.Connection);
 
-    protected IIdentifierDefaults IdentifierDefaults { get; } = new SqliteDialect().GetIdentifierDefaultsAsync(Config.Connection).GetAwaiter().GetResult();
+    protected IIdentifierDefaults IdentifierDefaults { get; } = new SqliteDatabaseProvider(Config.Connection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
 }

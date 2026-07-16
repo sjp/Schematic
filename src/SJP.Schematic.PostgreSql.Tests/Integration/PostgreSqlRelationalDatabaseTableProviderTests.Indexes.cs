@@ -111,7 +111,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Indexes_WhenGivenTableWithIncludedColumnIndex_ReturnsIndexWithIncludedColumn()
     {
-        var dbVersion = await Dialect.GetDatabaseVersionAsync(Connection);
+        var dbVersion = await DatabaseProvider.GetDatabaseVersionAsync();
         if (dbVersion < new Version(11, 0))
         {
             Assert.Pass();
@@ -144,7 +144,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Indexes_WhenGivenTableWithMultipleIncludedColumnIndex_ReturnsIndexWithIncludedColumnsInCorrectOrder()
     {
-        var dbVersion = await Dialect.GetDatabaseVersionAsync(Connection);
+        var dbVersion = await DatabaseProvider.GetDatabaseVersionAsync();
         if (dbVersion < new Version(11, 0))
         {
             Assert.Pass();

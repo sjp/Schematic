@@ -161,7 +161,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Columns_WhenGivenTableWithGeneratedColumns_ReturnsExpectedComputedColumnCount()
     {
-        var dbVersion = await Dialect.GetDatabaseVersionAsync(Connection);
+        var dbVersion = await DatabaseProvider.GetDatabaseVersionAsync();
         if (dbVersion < new Version(12, 0))
         {
             Assert.Pass();
@@ -178,7 +178,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Columns_WhenGivenTableWithGeneratedColumns_ReturnsExpectedComputedColumnNames()
     {
-        var dbVersion = await Dialect.GetDatabaseVersionAsync(Connection);
+        var dbVersion = await DatabaseProvider.GetDatabaseVersionAsync();
         if (dbVersion < new Version(12, 0))
         {
             Assert.Pass();
@@ -252,7 +252,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Columns_WhenGivenTableWithGeneratedColumns_ReturnsExpectedComputedColumnDefinition()
     {
-        var dbVersion = await Dialect.GetDatabaseVersionAsync(Connection);
+        var dbVersion = await DatabaseProvider.GetDatabaseVersionAsync();
         if (dbVersion < new Version(12, 0))
         {
             Assert.Pass();

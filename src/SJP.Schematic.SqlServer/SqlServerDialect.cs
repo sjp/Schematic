@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
-using SJP.Schematic.SqlServer.Comments;
-using SJP.Schematic.SqlServer.Queries;
 
 namespace SJP.Schematic.SqlServer;
 
@@ -15,103 +10,8 @@ namespace SJP.Schematic.SqlServer;
 /// A database dialect specific to SQL Server.
 /// </summary>
 /// <seealso cref="DatabaseDialect" />
-public class SqlServerDialect : DatabaseDialect, ISqlServerDialect
+public class SqlServerDialect : DatabaseDialect
 {
-    /// <summary>
-    /// Retrieves the set of identifier defaults for the given database connection.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A set of identifier defaults.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public override Task<IIdentifierDefaults> GetIdentifierDefaultsAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(connection);
-
-        return GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
-    }
-
-    private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
-    {
-        return await connection.DbConnection.QuerySingleAsync<GetIdentifierDefaults.Result>(GetIdentifierDefaults.Sql, cancellationToken);
-    }
-
-    /// <summary>
-    /// Gets the database display version. Usually a more user-friendly form of the database version.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A descriptive version.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public override Task<string> GetDatabaseDisplayVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(connection);
-
-        return connection.DbConnection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken)!;
-    }
-
-    private const string DatabaseDisplayVersionQuerySql = "select @@version as DatabaseVersion";
-
-    /// <summary>
-    /// Gets the database version.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A version.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public override Task<Version> GetDatabaseVersionAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(connection);
-
-        return GetDatabaseVersionAsyncCore(connection, cancellationToken);
-    }
-
-    private static async Task<Version> GetDatabaseVersionAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
-    {
-        var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(GetDatabaseVersion.Sql, cancellationToken);
-        return Version.Parse(versionStr!);
-    }
-
-    /// <summary>
-    /// Retrieves a relational database for the given dialect.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A relational database.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public override Task<IRelationalDatabase> GetRelationalDatabaseAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(connection);
-
-        return GetRelationalDatabaseAsyncCore(connection, cancellationToken);
-    }
-
-    private static async Task<IRelationalDatabase> GetRelationalDatabaseAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
-    {
-        var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
-        return new SqlServerRelationalDatabase(connection, identifierDefaults);
-    }
-
-    /// <summary>
-    /// Retrieves a relational database comment provider for the given dialect.
-    /// </summary>
-    /// <param name="connection">A database connection.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A comment provider.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public override Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(ISchematicConnection connection, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(connection);
-
-        return GetRelationalDatabaseCommentProviderAsyncCore(connection, cancellationToken);
-    }
-
-    private static async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
-    {
-        var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
-        return new SqlServerDatabaseCommentProvider(connection.DbConnection, identifierDefaults);
-    }
-
     /// <summary>
     /// Gets a dependency provider for SQL Server expressions.
     /// </summary>
@@ -129,26 +29,6 @@ public class SqlServerDialect : DatabaseDialect, ISqlServerDialect
         ArgumentException.ThrowIfNullOrWhiteSpace(text);
 
         return Keywords.Contains(text, StringComparer.OrdinalIgnoreCase);
-    }
-
-    /// <summary>
-    /// Retrieve the assigned compatibility level for a given database.
-    /// </summary>
-    /// <param name="connection">A connection to a SQL Server database.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A representation of the compatibility level assigned to the database.</returns>
-    /// <exception cref="ArgumentNullException">When <paramref name="connection"/> is <see langword="null" /></exception>
-    public Task<CompatibilityLevel> GetCompatibilityLevel(ISchematicConnection connection, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(connection);
-
-        return GetCompatibilityLevelCore(connection, cancellationToken);
-    }
-
-    private static async Task<CompatibilityLevel> GetCompatibilityLevelCore(ISchematicConnection connection, CancellationToken cancellationToken)
-    {
-        var dbResult = await connection.DbConnection.QuerySingleAsync<GetCompatibilityLevel.Result>(Queries.GetCompatibilityLevel.Sql, cancellationToken);
-        return new CompatibilityLevel(dbResult.CompatibilityLevel);
     }
 
     // https://docs.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql

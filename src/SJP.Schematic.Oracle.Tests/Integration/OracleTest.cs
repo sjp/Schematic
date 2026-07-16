@@ -35,7 +35,9 @@ internal abstract class OracleTest
 
     protected IDatabaseDialect Dialect => Connection.Dialect;
 
-    protected IIdentifierDefaults IdentifierDefaults { get; } = Config.SchematicConnection.Dialect.GetIdentifierDefaultsAsync(Config.SchematicConnection).GetAwaiter().GetResult();
+    protected OracleDatabaseProvider DatabaseProvider { get; } = new(Config.SchematicConnection);
+
+    protected IIdentifierDefaults IdentifierDefaults { get; } = new OracleDatabaseProvider(Config.SchematicConnection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
 
     protected IIdentifierResolutionStrategy IdentifierResolver { get; } = new DefaultOracleIdentifierResolutionStrategy();
 }
