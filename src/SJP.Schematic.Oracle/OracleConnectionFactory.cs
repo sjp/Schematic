@@ -19,12 +19,18 @@ public class OracleConnectionFactory : IDbConnectionFactory
     /// Initializes a new instance of the <see cref="OracleConnectionFactory"/> class.
     /// </summary>
     /// <param name="connectionString">The connection string.</param>
+    /// <param name="connectionConfiguration">
+    /// An optional callback used to configure each <see cref="OracleConnection"/> before it is opened.
+    /// Use this to authenticate via a mechanism other than the connection string, e.g. from an
+    /// environment variable or an external credential provider.
+    /// </param>
     /// <exception cref="ArgumentNullException"><paramref name="connectionString"/> is <see langword="null" />, empty or whitespace.</exception>
-    public OracleConnectionFactory(string connectionString)
+    public OracleConnectionFactory(string connectionString, Action<OracleConnection>? connectionConfiguration = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
         ConnectionString = connectionString;
+        ConnectionConfiguration = connectionConfiguration;
     }
 
     /// <summary>
@@ -34,10 +40,22 @@ public class OracleConnectionFactory : IDbConnectionFactory
     protected string ConnectionString { get; }
 
     /// <summary>
+    /// Gets the optional callback used to configure each connection before it is opened.
+    /// </summary>
+    /// <value>A connection configuration callback, or <see langword="null" /> if none was provided.</value>
+    protected Action<OracleConnection>? ConnectionConfiguration { get; }
+
+    /// <summary>
     /// Creates a database connection instance, but does not open the connection.
     /// </summary>
     /// <returns>An object representing a database connection.</returns>
-    public DbConnection CreateConnection() => new OracleConnection(ConnectionString);
+    public DbConnection CreateConnection()
+    {
+        var connection = new OracleConnection(ConnectionString);
+        ConnectionConfiguration?.Invoke(connection);
+
+        return connection;
+    }
 
     /// <summary>
     /// Creates and opens a database connection.
@@ -45,7 +63,7 @@ public class OracleConnectionFactory : IDbConnectionFactory
     /// <returns>An object representing a database connection.</returns>
     public DbConnection OpenConnection()
     {
-        var connection = new OracleConnection(ConnectionString);
+        var connection = CreateConnection();
 
         if (connection.State != ConnectionState.Open)
             connection.Open();
@@ -60,7 +78,7 @@ public class OracleConnectionFactory : IDbConnectionFactory
     /// <returns>A task containing an object representing a database connection when completed.</returns>
     public async Task<DbConnection> OpenConnectionAsync(CancellationToken cancellationToken = default)
     {
-        var connection = new OracleConnection(ConnectionString);
+        var connection = CreateConnection();
 
         if (connection.State != ConnectionState.Open)
             await connection.OpenAsync(cancellationToken);

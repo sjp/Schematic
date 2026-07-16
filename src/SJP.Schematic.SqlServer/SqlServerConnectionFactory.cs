@@ -20,12 +20,20 @@ public class SqlServerConnectionFactory : IDbConnectionFactory
     /// Initializes a new instance of the <see cref="SqlServerConnectionFactory"/> class.
     /// </summary>
     /// <param name="connectionString">The connection string.</param>
+    /// <param name="connectionConfiguration">
+    /// An optional callback used to configure each <see cref="SqlConnection"/> before it is opened.
+    /// Use this to authenticate via a mechanism other than the connection string, e.g. by setting
+    /// <see cref="SqlConnection.AccessToken"/> or <see cref="SqlConnection.AccessTokenCallback"/>
+    /// from an <c>Azure.Identity</c> credential such as <c>DefaultAzureCredential</c>, or from an
+    /// environment variable.
+    /// </param>
     /// <exception cref="ArgumentNullException"><paramref name="connectionString"/> is <see langword="null" />, empty or whitespace.</exception>
-    public SqlServerConnectionFactory(string connectionString)
+    public SqlServerConnectionFactory(string connectionString, Action<SqlConnection>? connectionConfiguration = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
         ConnectionString = connectionString;
+        ConnectionConfiguration = connectionConfiguration;
     }
 
     /// <summary>
@@ -35,10 +43,22 @@ public class SqlServerConnectionFactory : IDbConnectionFactory
     protected string ConnectionString { get; }
 
     /// <summary>
+    /// Gets the optional callback used to configure each connection before it is opened.
+    /// </summary>
+    /// <value>A connection configuration callback, or <see langword="null" /> if none was provided.</value>
+    protected Action<SqlConnection>? ConnectionConfiguration { get; }
+
+    /// <summary>
     /// Creates a database connection instance, but does not open the connection.
     /// </summary>
     /// <returns>An object representing a database connection.</returns>
-    public DbConnection CreateConnection() => new SqlConnection(ConnectionString);
+    public DbConnection CreateConnection()
+    {
+        var connection = new SqlConnection(ConnectionString);
+        ConnectionConfiguration?.Invoke(connection);
+
+        return connection;
+    }
 
     /// <summary>
     /// Creates and opens a database connection.
@@ -61,7 +81,7 @@ public class SqlServerConnectionFactory : IDbConnectionFactory
     /// <returns>A task containing an object representing a database connection when completed.</returns>
     public async Task<DbConnection> OpenConnectionAsync(CancellationToken cancellationToken = default)
     {
-        var connection = new SqlConnection(ConnectionString);
+        var connection = CreateConnection();
 
         if (connection.State != ConnectionState.Open)
             await connection.OpenAsync(cancellationToken);
