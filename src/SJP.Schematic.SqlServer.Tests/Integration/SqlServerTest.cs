@@ -29,7 +29,7 @@ internal abstract class SqlServerTest
 {
     protected ISchematicConnection Connection => _connection.Value;
 
-    protected IDbConnectionFactory DbConnection => Connection.DbConnection;
+    protected IDbConnectionFactory DbConnection => Connection.ConnectionFactory;
 
     protected ISqlServerDatabaseProvider DatabaseProvider => _databaseProvider.Value;
 

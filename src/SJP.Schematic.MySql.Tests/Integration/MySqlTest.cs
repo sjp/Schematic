@@ -31,7 +31,7 @@ internal abstract class MySqlTest
 {
     protected ISchematicConnection Connection { get; } = Config.SchematicConnection;
 
-    protected IDbConnectionFactory DbConnection => Connection.DbConnection;
+    protected IDbConnectionFactory DbConnection => Connection.ConnectionFactory;
 
     protected IDatabaseDialect Dialect => Connection.Dialect;
 

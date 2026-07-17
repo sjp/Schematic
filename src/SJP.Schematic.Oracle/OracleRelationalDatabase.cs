@@ -26,9 +26,9 @@ public class OracleRelationalDatabase : IRelationalDatabase
 
         _tableProvider = new OracleRelationalDatabaseTableProvider(connection, identifierDefaults, identifierResolver);
         _viewProvider = new OracleDatabaseViewProvider(connection, identifierDefaults, identifierResolver);
-        _sequenceProvider = new OracleDatabaseSequenceProvider(connection.DbConnection, identifierDefaults, identifierResolver);
-        _synonymProvider = new OracleDatabaseSynonymProvider(connection.DbConnection, identifierDefaults, identifierResolver);
-        _routineProvider = new OracleDatabaseRoutineProvider(connection.DbConnection, identifierDefaults, identifierResolver);
+        _sequenceProvider = new OracleDatabaseSequenceProvider(connection.ConnectionFactory, identifierDefaults, identifierResolver);
+        _synonymProvider = new OracleDatabaseSynonymProvider(connection.ConnectionFactory, identifierDefaults, identifierResolver);
+        _routineProvider = new OracleDatabaseRoutineProvider(connection.ConnectionFactory, identifierDefaults, identifierResolver);
     }
 
     /// <summary>

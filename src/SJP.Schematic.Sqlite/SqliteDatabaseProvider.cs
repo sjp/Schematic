@@ -60,7 +60,7 @@ public class SqliteDatabaseProvider : IRelationalDatabaseProvider
 
     private static async Task<string> GetDatabaseDisplayVersionAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken);
+        var versionStr = await connection.ConnectionFactory.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken);
         return "SQLite " + versionStr;
     }
 
@@ -76,7 +76,7 @@ public class SqliteDatabaseProvider : IRelationalDatabaseProvider
 
     private static async Task<Version> GetDatabaseVersionAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken);
+        var versionStr = await connection.ConnectionFactory.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken);
         return Version.Parse(versionStr!);
     }
 

@@ -17,7 +17,7 @@ public interface ISchematicConnection
     /// Gets a database connection factory.
     /// </summary>
     /// <value>A database connection factory.</value>
-    IDbConnectionFactory DbConnection { get; }
+    IDbConnectionFactory ConnectionFactory { get; }
 
     /// <summary>
     /// Gets the database dialect.

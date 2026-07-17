@@ -45,7 +45,7 @@ public class MySqlDatabaseProvider : IRelationalDatabaseProvider
 
     private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        return await connection.DbConnection.QuerySingleAsync<GetIdentifierDefaults.Result>(GetIdentifierDefaults.Sql, cancellationToken);
+        return await connection.ConnectionFactory.QuerySingleAsync<GetIdentifierDefaults.Result>(GetIdentifierDefaults.Sql, cancellationToken);
     }
 
     /// <summary>
@@ -60,7 +60,7 @@ public class MySqlDatabaseProvider : IRelationalDatabaseProvider
 
     private static async Task<string> GetDatabaseDisplayVersionAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken);
+        var versionStr = await connection.ConnectionFactory.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken);
         return "MySQL " + versionStr;
     }
 
@@ -76,7 +76,7 @@ public class MySqlDatabaseProvider : IRelationalDatabaseProvider
 
     private static async Task<Version> GetDatabaseVersionAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken);
+        var versionStr = await connection.ConnectionFactory.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken);
         return ParseMySqlVersion(versionStr!);
     }
 
@@ -109,7 +109,7 @@ public class MySqlDatabaseProvider : IRelationalDatabaseProvider
     private static async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
         var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
-        return new MySqlDatabaseCommentProvider(connection.DbConnection, identifierDefaults);
+        return new MySqlDatabaseCommentProvider(connection.ConnectionFactory, identifierDefaults);
     }
 
     private static Version ParseMySqlVersion(string versionStr)

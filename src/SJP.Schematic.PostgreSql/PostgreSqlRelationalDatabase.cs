@@ -27,7 +27,7 @@ public class PostgreSqlRelationalDatabase : IRelationalDatabase
         _tableProvider = new PostgreSqlRelationalDatabaseTableProvider(connection, identifierDefaults, identifierResolver);
         _viewProvider = new PostgreSqlDatabaseViewProvider(connection, identifierDefaults, identifierResolver);
         _sequenceProvider = new PostgreSqlDatabaseSequenceProvider(connection, identifierDefaults, identifierResolver);
-        _routineProvider = new PostgreSqlDatabaseRoutineProvider(connection.DbConnection, identifierDefaults, identifierResolver);
+        _routineProvider = new PostgreSqlDatabaseRoutineProvider(connection.ConnectionFactory, identifierDefaults, identifierResolver);
     }
 
     /// <summary>

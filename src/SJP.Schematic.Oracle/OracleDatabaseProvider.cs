@@ -45,7 +45,7 @@ public class OracleDatabaseProvider : IRelationalDatabaseProvider
 
     private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        var hostInfoOption = connection.DbConnection.QueryFirstOrNone<GetIdentifierDefaults.Result>(GetIdentifierDefaults.Sql, cancellationToken);
+        var hostInfoOption = connection.ConnectionFactory.QueryFirstOrNone<GetIdentifierDefaults.Result>(GetIdentifierDefaults.Sql, cancellationToken);
         var qualifiedServerName = await hostInfoOption
             .Bind(static dbHost => dbHost.ServerHost != null && dbHost.ServerSid != null
                 ? OptionAsync<GetIdentifierDefaults.Result>.Some(dbHost)
@@ -68,7 +68,7 @@ public class OracleDatabaseProvider : IRelationalDatabaseProvider
     /// <returns>A descriptive version.</returns>
     public Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default)
     {
-        var versionInfoOption = Connection.DbConnection.QueryFirstOrNone<GetDatabaseVersion.Result>(GetDatabaseVersion.Sql, cancellationToken);
+        var versionInfoOption = Connection.ConnectionFactory.QueryFirstOrNone<GetDatabaseVersion.Result>(GetDatabaseVersion.Sql, cancellationToken);
         return versionInfoOption.MatchUnsafe(
             static vInfo => vInfo.ProductName + vInfo.VersionNumber,
             static () => string.Empty
@@ -82,7 +82,7 @@ public class OracleDatabaseProvider : IRelationalDatabaseProvider
     /// <returns>A version.</returns>
     public Task<Version> GetDatabaseVersionAsync(CancellationToken cancellationToken = default)
     {
-        var versionInfoOption = Connection.DbConnection.QueryFirstOrNone<GetDatabaseVersion.Result>(GetDatabaseVersion.Sql, cancellationToken);
+        var versionInfoOption = Connection.ConnectionFactory.QueryFirstOrNone<GetDatabaseVersion.Result>(GetDatabaseVersion.Sql, cancellationToken);
         return versionInfoOption
             .Bind(static dbv => TryParseLongVersionString(dbv.VersionNumber).ToAsync())
             .MatchUnsafeAsync(
@@ -145,6 +145,6 @@ public class OracleDatabaseProvider : IRelationalDatabaseProvider
     {
         var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
         var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
-        return new OracleDatabaseCommentProvider(connection.DbConnection, identifierDefaults, identifierResolver);
+        return new OracleDatabaseCommentProvider(connection.ConnectionFactory, identifierDefaults, identifierResolver);
     }
 }

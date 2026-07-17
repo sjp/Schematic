@@ -54,7 +54,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// A database connection factory used to query the database.
     /// </summary>
     /// <value>A database connection factory.</value>
-    protected IDbConnectionFactory DbConnection => Connection.DbConnection;
+    protected IDbConnectionFactory DbConnection => Connection.ConnectionFactory;
 
     /// <summary>
     /// The dialect for the associated database.

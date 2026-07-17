@@ -80,7 +80,7 @@ public class InvalidViewDefinitionRule : Rule, IViewRule
             var simpleViewName = Identifier.CreateQualifiedIdentifier(view.Name.Schema, view.Name.LocalName);
             var quotedViewName = Connection.Dialect.QuoteName(simpleViewName);
             var query = "select 1 as dummy from " + quotedViewName;
-            await Connection.DbConnection.ExecuteScalarAsync<long>(query, cancellationToken);
+            await Connection.ConnectionFactory.ExecuteScalarAsync<long>(query, cancellationToken);
 
             return [];
         }

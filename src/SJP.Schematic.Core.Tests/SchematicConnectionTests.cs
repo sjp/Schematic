@@ -56,7 +56,7 @@ internal static class SchematicConnectionTests
     }
 
     [Test]
-    public static void DbConnection_PropertyGet_ReturnsCtorArg()
+    public static void ConnectionFactory_PropertyGet_ReturnsCtorArg()
     {
         var identifier = Guid.NewGuid();
         var dbConnection = Mock.Of<IDbConnectionFactory>();
@@ -64,7 +64,7 @@ internal static class SchematicConnectionTests
 
         var connection = new SchematicConnection(identifier, dbConnection, dialect);
 
-        Assert.That(connection.DbConnection, Is.EqualTo(dbConnection));
+        Assert.That(connection.ConnectionFactory, Is.EqualTo(dbConnection));
     }
 
     [Test]

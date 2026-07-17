@@ -40,7 +40,7 @@ public class ForeignKeySelfReferenceRule : Rule, ITableRule
     /// A database connection factory.
     /// </summary>
     /// <value>The database connection factory.</value>
-    protected IDbConnectionFactory DbConnection => Connection.DbConnection;
+    protected IDbConnectionFactory DbConnection => Connection.ConnectionFactory;
 
     /// <summary>
     /// A database dialect.

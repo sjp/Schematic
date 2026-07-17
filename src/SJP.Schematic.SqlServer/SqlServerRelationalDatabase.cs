@@ -27,9 +27,9 @@ public class SqlServerRelationalDatabase : IRelationalDatabase
 
         _tableProvider = new SqlServerRelationalDatabaseTableProvider(connection, identifierDefaults);
         _viewProvider = new SqlServerDatabaseViewProvider(connection, identifierDefaults);
-        _sequenceProvider = new SqlServerDatabaseSequenceProvider(connection.DbConnection, identifierDefaults);
-        _synonymProvider = new SqlServerDatabaseSynonymProvider(connection.DbConnection, identifierDefaults);
-        _routineProvider = new SqlServerDatabaseRoutineProvider(connection.DbConnection, identifierDefaults);
+        _sequenceProvider = new SqlServerDatabaseSequenceProvider(connection.ConnectionFactory, identifierDefaults);
+        _synonymProvider = new SqlServerDatabaseSynonymProvider(connection.ConnectionFactory, identifierDefaults);
+        _routineProvider = new SqlServerDatabaseRoutineProvider(connection.ConnectionFactory, identifierDefaults);
     }
 
     /// <summary>

@@ -33,7 +33,7 @@ public class SchematicConnection : ISchematicConnection
             throw new ArgumentException("An empty connection ID was provided. Consider using Guid.NewGuid() instead.", nameof(connectionId));
 
         ConnectionId = connectionId;
-        DbConnection = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+        ConnectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
         Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
     }
 
@@ -41,7 +41,7 @@ public class SchematicConnection : ISchematicConnection
     public Guid ConnectionId { get; }
 
     /// <inheritdoc />
-    public IDbConnectionFactory DbConnection { get; }
+    public IDbConnectionFactory ConnectionFactory { get; }
 
     /// <inheritdoc />
     public IDatabaseDialect Dialect { get; }

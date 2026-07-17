@@ -28,7 +28,7 @@ internal abstract class SqliteTest
 {
     protected ISchematicConnection Connection { get; } = Config.Connection;
 
-    protected IDbConnectionFactory DbConnection => Connection.DbConnection;
+    protected IDbConnectionFactory DbConnection => Connection.ConnectionFactory;
 
     protected IIdentifierDefaults IdentifierDefaults { get; } = new SqliteDatabaseProvider(Config.Connection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
 

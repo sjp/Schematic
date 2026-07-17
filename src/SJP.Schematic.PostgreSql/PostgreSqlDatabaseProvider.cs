@@ -44,7 +44,7 @@ public class PostgreSqlDatabaseProvider : IRelationalDatabaseProvider
 
     private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        var result = await connection.DbConnection.QuerySingleAsync<GetIdentifierDefaults.Result>(GetIdentifierDefaults.Sql, cancellationToken);
+        var result = await connection.ConnectionFactory.QuerySingleAsync<GetIdentifierDefaults.Result>(GetIdentifierDefaults.Sql, cancellationToken);
 
         if (result.Server.IsNullOrWhiteSpace())
             return result with { Server = "127.0.0.1" };
@@ -59,7 +59,7 @@ public class PostgreSqlDatabaseProvider : IRelationalDatabaseProvider
     /// <returns>A descriptive version.</returns>
     public Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default)
     {
-        return Connection.DbConnection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken)!;
+        return Connection.ConnectionFactory.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken)!;
     }
 
     private const string DatabaseDisplayVersionQuerySql = "select pg_catalog.version() as DatabaseVersion";
@@ -76,7 +76,7 @@ public class PostgreSqlDatabaseProvider : IRelationalDatabaseProvider
 
     private static async Task<Version> GetDatabaseVersionAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken);
+        var versionStr = await connection.ConnectionFactory.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken);
         return ParsePostgresVersionString(versionStr!) ?? new Version(0, 0);
     }
 
@@ -158,6 +158,6 @@ public class PostgreSqlDatabaseProvider : IRelationalDatabaseProvider
     {
         var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
         var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
-        return new PostgreSqlDatabaseCommentProvider(connection.DbConnection, identifierDefaults, identifierResolver);
+        return new PostgreSqlDatabaseCommentProvider(connection.ConnectionFactory, identifierDefaults, identifierResolver);
     }
 }

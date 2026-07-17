@@ -44,7 +44,7 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
     /// A database connection factory to query the database.
     /// </summary>
     /// <value>A connection factory.</value>
-    protected IDbConnectionFactory DbConnection => Connection.DbConnection;
+    protected IDbConnectionFactory DbConnection => Connection.ConnectionFactory;
 
     /// <summary>
     /// A dialect for the MySQL connection.

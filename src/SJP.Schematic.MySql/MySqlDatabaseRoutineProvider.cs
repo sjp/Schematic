@@ -38,7 +38,7 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// A database connection factory to query the database.
     /// </summary>
     /// <value>A connection factory.</value>
-    protected IDbConnectionFactory DbConnection => Connection.DbConnection;
+    protected IDbConnectionFactory DbConnection => Connection.ConnectionFactory;
 
     /// <summary>
     /// Identifier defaults for the associated database.

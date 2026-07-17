@@ -43,7 +43,7 @@ public class SqlServerDatabaseProvider : ISqlServerDatabaseProvider
 
     private static async Task<IIdentifierDefaults> GetIdentifierDefaultsAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        return await connection.DbConnection.QuerySingleAsync<GetIdentifierDefaults.Result>(GetIdentifierDefaults.Sql, cancellationToken);
+        return await connection.ConnectionFactory.QuerySingleAsync<GetIdentifierDefaults.Result>(GetIdentifierDefaults.Sql, cancellationToken);
     }
 
     /// <summary>
@@ -53,7 +53,7 @@ public class SqlServerDatabaseProvider : ISqlServerDatabaseProvider
     /// <returns>A descriptive version.</returns>
     public Task<string> GetDatabaseDisplayVersionAsync(CancellationToken cancellationToken = default)
     {
-        return Connection.DbConnection.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken)!;
+        return Connection.ConnectionFactory.ExecuteScalarAsync<string>(DatabaseDisplayVersionQuerySql, cancellationToken)!;
     }
 
     private const string DatabaseDisplayVersionQuerySql = "select @@version as DatabaseVersion";
@@ -70,7 +70,7 @@ public class SqlServerDatabaseProvider : ISqlServerDatabaseProvider
 
     private static async Task<Version> GetDatabaseVersionAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        var versionStr = await connection.DbConnection.ExecuteScalarAsync<string>(GetDatabaseVersion.Sql, cancellationToken);
+        var versionStr = await connection.ConnectionFactory.ExecuteScalarAsync<string>(GetDatabaseVersion.Sql, cancellationToken);
         return Version.Parse(versionStr!);
     }
 
@@ -103,7 +103,7 @@ public class SqlServerDatabaseProvider : ISqlServerDatabaseProvider
     private static async Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
         var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
-        return new SqlServerDatabaseCommentProvider(connection.DbConnection, identifierDefaults);
+        return new SqlServerDatabaseCommentProvider(connection.ConnectionFactory, identifierDefaults);
     }
 
     /// <summary>
@@ -118,7 +118,7 @@ public class SqlServerDatabaseProvider : ISqlServerDatabaseProvider
 
     private static async Task<CompatibilityLevel> GetCompatibilityLevelCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
-        var dbResult = await connection.DbConnection.QuerySingleAsync<Queries.GetCompatibilityLevel.Result>(Queries.GetCompatibilityLevel.Sql, cancellationToken);
+        var dbResult = await connection.ConnectionFactory.QuerySingleAsync<Queries.GetCompatibilityLevel.Result>(Queries.GetCompatibilityLevel.Sql, cancellationToken);
         return new CompatibilityLevel(dbResult.CompatibilityLevel);
     }
 }

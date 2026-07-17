@@ -28,7 +28,7 @@ internal abstract class SqliteRuleTestBase
 {
     protected ISchematicConnection Connection { get; } = SqliteRuleTestConfig.Connection;
 
-    protected IDbConnectionFactory DbConnection => Connection.DbConnection;
+    protected IDbConnectionFactory DbConnection => Connection.ConnectionFactory;
 
     protected IIdentifierDefaults IdentifierDefaults { get; } = new SqliteDatabaseProvider(SqliteRuleTestConfig.Connection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
 

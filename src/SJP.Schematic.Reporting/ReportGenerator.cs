@@ -137,7 +137,7 @@ public class ReportGenerator
 
     private async Task<KeyValuePair<Identifier, ulong>> GetTableRowCountAsync(Identifier tableName, CancellationToken cancellationToken)
     {
-        var rowCount = await Connection.DbConnection.GetRowCountAsync(Connection.Dialect, tableName, cancellationToken);
+        var rowCount = await Connection.ConnectionFactory.GetRowCountAsync(Connection.Dialect, tableName, cancellationToken);
         return new KeyValuePair<Identifier, ulong>(tableName, rowCount);
     }
 

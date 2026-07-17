@@ -57,7 +57,7 @@ public abstract class SakilaTest
     /// A connection factory for accessing the Sakila database.
     /// </summary>
     /// <value>A database connection factory.</value>
-    protected IDbConnectionFactory DbConnection => Connection.DbConnection;
+    protected IDbConnectionFactory DbConnection => Connection.ConnectionFactory;
 
     /// <summary>
     /// A database provider for accessing the Sakila database and its metadata.

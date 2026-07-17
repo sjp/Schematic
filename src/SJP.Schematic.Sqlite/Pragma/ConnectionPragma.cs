@@ -37,7 +37,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// A database connection factory for querying the SQLite connection.
     /// </summary>
     /// <value>A database connection factory.</value>
-    protected IDbConnectionFactory DbConnection => Connection.DbConnection;
+    protected IDbConnectionFactory DbConnection => Connection.ConnectionFactory;
 
     /// <summary>
     /// A prefix for generating queries for PRAGMA.
