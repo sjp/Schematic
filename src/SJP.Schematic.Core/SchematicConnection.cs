@@ -35,8 +35,6 @@ public class SchematicConnection : ISchematicConnection
         ConnectionId = connectionId;
         DbConnection = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
         Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
-
-        ConnectionRegistry.RegisterConnection(connectionId, connectionFactory);
     }
 
     /// <inheritdoc />
