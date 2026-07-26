@@ -10,6 +10,13 @@
 		},
 		"ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {}
 	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"oxc.oxc-vscode"
+			]
+		}
+	},
 	"mounts": [
 		"source=claude-code-config,target=/home/vscode/.claude,type=volume"
 	],
