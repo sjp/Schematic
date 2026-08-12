@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Check, ListTree, Minus } from "lucide-react";
 import { DataTable } from "@/components/DataTable";
+import type { AppTableFeatures } from "@/lib/tableFeatures";
 import { IconTooltip } from "@/components/IconTooltip";
 import { useSummary } from "@/hooks/useReportData";
 import type { IndexRow, IndexesSummary } from "@/types/report";
@@ -10,7 +11,7 @@ export function IndexesPage() {
   const { data, isPending, isError, error } =
     useSummary<IndexesSummary>("indexes");
 
-  const columns = useMemo<ColumnDef<IndexRow>[]>(
+  const columns = useMemo<ColumnDef<AppTableFeatures, IndexRow>[]>(
     () => [
       {
         accessorKey: "tableName",

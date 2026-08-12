@@ -2,13 +2,10 @@ import { useEffect, useState } from "react";
 import {
   type ColumnDef,
   type PaginationState,
+  type RowData,
   type SortingState,
   flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
+  useTable,
 } from "@tanstack/react-table";
 import {
   ArrowDown,
@@ -29,10 +26,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { appTableFeatures, type AppTableFeatures } from "@/lib/tableFeatures";
 import { cn } from "@/lib/utils";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
+interface DataTableProps<TData extends RowData> {
+  columns: ColumnDef<AppTableFeatures, TData>[];
   data: TData[];
   filterPlaceholder?: string;
   initialSorting?: SortingState;
@@ -45,14 +43,14 @@ interface DataTableProps<TData, TValue> {
  * `@tanstack/react-table`, styled with the shadcn `Table` primitives. The stable shared API the
  * Wave 3 pages build on: pass `columns` (with cell renderers for links/icons) and `data`.
  */
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends RowData>({
   columns,
   data,
   filterPlaceholder = "Filter…",
   initialSorting = [],
   emptyMessage = "No results.",
   pageSize = 50,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>(initialSorting);
   // `filterInput` keeps the text box responsive on every keystroke; `globalFilter` (the value the
   // table actually filters/sorts on) is updated on a short debounce so a large dataset isn't
@@ -69,7 +67,8 @@ export function DataTable<TData, TValue>({
     return () => clearTimeout(handle);
   }, [filterInput]);
 
-  const table = useReactTable({
+  const table = useTable({
+    features: appTableFeatures,
     data,
     columns,
     state: { sorting, globalFilter, pagination },
@@ -79,15 +78,11 @@ export function DataTable<TData, TValue>({
     // Reset to the first page whenever the filter narrows the result set, so we never
     // land on a now-empty page past the end.
     autoResetPageIndex: true,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
   });
 
   const filteredCount = table.getFilteredRowModel().rows.length;
   const pageCount = table.getPageCount();
-  const { pageIndex } = table.getState().pagination;
+  const { pageIndex } = table.state.pagination;
   const firstRow =
     filteredCount === 0 ? 0 : pageIndex * pagination.pageSize + 1;
   const lastRow = Math.min(
@@ -157,7 +152,7 @@ export function DataTable<TData, TValue>({
             {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
+                  {row.getAllCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,

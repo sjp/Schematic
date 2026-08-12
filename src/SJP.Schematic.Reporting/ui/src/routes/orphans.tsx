@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Unlink } from "lucide-react";
 import { DataTable } from "@/components/DataTable";
+import type { AppTableFeatures } from "@/lib/tableFeatures";
 import { useSummary } from "@/hooks/useReportData";
 import type { OrphanTable, OrphansSummary } from "@/types/report";
 
@@ -9,7 +10,7 @@ export function OrphansPage() {
   const { data, isPending, isError, error } =
     useSummary<OrphansSummary>("orphans");
 
-  const columns = useMemo<ColumnDef<OrphanTable>[]>(
+  const columns = useMemo<ColumnDef<AppTableFeatures, OrphanTable>[]>(
     () => [
       {
         accessorKey: "name",

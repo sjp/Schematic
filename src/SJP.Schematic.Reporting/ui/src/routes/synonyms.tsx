@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Replace } from "lucide-react";
 import { DataTable } from "@/components/DataTable";
+import type { AppTableFeatures } from "@/lib/tableFeatures";
 import { useSummary } from "@/hooks/useReportData";
 import type { SynonymSummary, SynonymsSummary } from "@/types/report";
 
@@ -15,7 +16,7 @@ export function SynonymsPage() {
   const { data, isPending, isError, error } =
     useSummary<SynonymsSummary>("synonyms");
 
-  const columns = useMemo<ColumnDef<SynonymSummary>[]>(
+  const columns = useMemo<ColumnDef<AppTableFeatures, SynonymSummary>[]>(
     () => [
       {
         accessorKey: "name",

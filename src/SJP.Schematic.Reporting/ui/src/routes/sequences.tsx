@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Check, ListOrdered, Minus } from "lucide-react";
 import { DataTable } from "@/components/DataTable";
+import type { AppTableFeatures } from "@/lib/tableFeatures";
 import { useSummary } from "@/hooks/useReportData";
 import type { SequenceSummary, SequencesSummary } from "@/types/report";
 
@@ -15,7 +16,7 @@ export function SequencesPage() {
   const { data, isPending, isError, error } =
     useSummary<SequencesSummary>("sequences");
 
-  const columns = useMemo<ColumnDef<SequenceSummary>[]>(
+  const columns = useMemo<ColumnDef<AppTableFeatures, SequenceSummary>[]>(
     () => [
       {
         accessorKey: "name",

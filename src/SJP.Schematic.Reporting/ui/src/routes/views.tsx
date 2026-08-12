@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Check, Eye, Minus } from "lucide-react";
 import { DataTable } from "@/components/DataTable";
+import type { AppTableFeatures } from "@/lib/tableFeatures";
 import { useSummary } from "@/hooks/useReportData";
 import type { ViewSummary, ViewsSummary } from "@/types/report";
 
@@ -14,7 +15,7 @@ function keyFromUrl(viewUrl: string): string {
 export function ViewsPage() {
   const { data, isPending, isError, error } = useSummary<ViewsSummary>("views");
 
-  const columns = useMemo<ColumnDef<ViewSummary>[]>(
+  const columns = useMemo<ColumnDef<AppTableFeatures, ViewSummary>[]>(
     () => [
       {
         accessorKey: "name",

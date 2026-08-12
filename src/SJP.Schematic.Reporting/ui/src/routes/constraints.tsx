@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { KeyRound } from "lucide-react";
 import { DataTable } from "@/components/DataTable";
+import type { AppTableFeatures } from "@/lib/tableFeatures";
 import { useSummary } from "@/hooks/useReportData";
 import type {
   CheckConstraintRow,
@@ -59,12 +60,12 @@ export function ConstraintsPage() {
       },
       { accessorKey: "constraintName", header: "Constraint" },
       { accessorKey: "columnNames", header: "Columns" },
-    ] as ColumnDef<T>[];
+    ] as ColumnDef<AppTableFeatures, T>[];
 
   const pkColumns = useMemo(() => keyColumns<PrimaryKeyConstraintRow>(), []);
   const ukColumns = useMemo(() => keyColumns<UniqueKeyRow>(), []);
 
-  const fkColumns = useMemo<ColumnDef<ForeignKeyRow>[]>(
+  const fkColumns = useMemo<ColumnDef<AppTableFeatures, ForeignKeyRow>[]>(
     () => [
       {
         accessorKey: "tableName",
@@ -95,7 +96,9 @@ export function ConstraintsPage() {
     [],
   );
 
-  const checkColumns = useMemo<ColumnDef<CheckConstraintRow>[]>(
+  const checkColumns = useMemo<
+    ColumnDef<AppTableFeatures, CheckConstraintRow>[]
+  >(
     () => [
       {
         accessorKey: "tableName",

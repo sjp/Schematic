@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Table2 } from "lucide-react";
 import { DataTable } from "@/components/DataTable";
+import type { AppTableFeatures } from "@/lib/tableFeatures";
 import { useSummary } from "@/hooks/useReportData";
 import type { TableSummary, TablesSummary } from "@/types/report";
 
@@ -15,7 +16,7 @@ export function TablesPage() {
   const { data, isPending, isError, error } =
     useSummary<TablesSummary>("tables");
 
-  const columns = useMemo<ColumnDef<TableSummary>[]>(
+  const columns = useMemo<ColumnDef<AppTableFeatures, TableSummary>[]>(
     () => [
       {
         accessorKey: "name",
