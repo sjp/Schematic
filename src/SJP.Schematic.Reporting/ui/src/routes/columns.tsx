@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Check, Columns3, Minus } from "lucide-react";
 import { DataTable } from "@/components/DataTable";
+import type { AppTableFeatures } from "@/lib/tableFeatures";
 import { IconTooltip } from "@/components/IconTooltip";
 import { useSummary } from "@/hooks/useReportData";
 import type { ColumnRow, ColumnsSummary } from "@/types/report";
@@ -38,7 +39,7 @@ export function ColumnsPage() {
   const { data, isPending, isError, error } =
     useSummary<ColumnsSummary>("columns");
 
-  const columns = useMemo<ColumnDef<ColumnRow>[]>(
+  const columns = useMemo<ColumnDef<AppTableFeatures, ColumnRow>[]>(
     () => [
       {
         accessorKey: "name",

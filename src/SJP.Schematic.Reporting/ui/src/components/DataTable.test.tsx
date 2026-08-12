@@ -3,6 +3,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/DataTable";
+import type { AppTableFeatures } from "@/lib/tableFeatures";
 
 interface Row {
   name: string;
@@ -17,7 +18,7 @@ const rows: Row[] = [
   { name: "echo", value: 2 },
 ];
 
-const columns: ColumnDef<Row>[] = [
+const columns: ColumnDef<AppTableFeatures, Row>[] = [
   { accessorKey: "name", header: "Name" },
   { accessorKey: "value", header: "Value" },
 ];

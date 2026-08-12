@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { type ColumnDef } from "@tanstack/react-table";
 import { SquareFunction } from "lucide-react";
 import { DataTable } from "@/components/DataTable";
+import type { AppTableFeatures } from "@/lib/tableFeatures";
 import { useSummary } from "@/hooks/useReportData";
 import type { RoutineSummary, RoutinesSummary } from "@/types/report";
 
@@ -15,7 +16,7 @@ export function RoutinesPage() {
   const { data, isPending, isError, error } =
     useSummary<RoutinesSummary>("routines");
 
-  const columns = useMemo<ColumnDef<RoutineSummary>[]>(
+  const columns = useMemo<ColumnDef<AppTableFeatures, RoutineSummary>[]>(
     () => [
       {
         accessorKey: "name",

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Zap } from "lucide-react";
 import { DataTable } from "@/components/DataTable";
+import type { AppTableFeatures } from "@/lib/tableFeatures";
 import { useSummary } from "@/hooks/useReportData";
 import type { TriggerRow, TriggersSummary } from "@/types/report";
 
@@ -9,7 +10,7 @@ export function TriggersPage() {
   const { data, isPending, isError, error } =
     useSummary<TriggersSummary>("triggers");
 
-  const columns = useMemo<ColumnDef<TriggerRow>[]>(
+  const columns = useMemo<ColumnDef<AppTableFeatures, TriggerRow>[]>(
     () => [
       {
         accessorKey: "name",

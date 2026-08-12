@@ -3,6 +3,7 @@ import { Link, getRouteApi } from "@tanstack/react-router";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Check, Minus } from "lucide-react";
 import { DataTable } from "@/components/DataTable";
+import type { AppTableFeatures } from "@/lib/tableFeatures";
 import { useDetail } from "@/hooks/useReportData";
 import type { ViewColumn, ViewDetail } from "@/types/report";
 
@@ -39,7 +40,7 @@ export function ViewDetailPage() {
     viewKey,
   );
 
-  const columns = useMemo<ColumnDef<ViewColumn>[]>(
+  const columns = useMemo<ColumnDef<AppTableFeatures, ViewColumn>[]>(
     () => [
       { accessorKey: "ordinal", header: "#" },
       {

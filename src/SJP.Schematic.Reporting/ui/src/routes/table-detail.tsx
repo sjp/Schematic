@@ -3,6 +3,7 @@ import { Link, getRouteApi } from "@tanstack/react-router";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Check, KeyRound, Link2, Minus, ShieldCheck } from "lucide-react";
 import { DataTable } from "@/components/DataTable";
+import type { AppTableFeatures } from "@/lib/tableFeatures";
 import { RelationshipDiagram } from "@/components/RelationshipDiagram";
 import { IconTooltip } from "@/components/IconTooltip";
 import { Button } from "@/components/ui/button";
@@ -137,7 +138,7 @@ export function TableDetailPage() {
     tableKey,
   );
 
-  const columns = useMemo<ColumnDef<TableColumn>[]>(
+  const columns = useMemo<ColumnDef<AppTableFeatures, TableColumn>[]>(
     () => [
       { accessorKey: "ordinal", header: "#" },
       {
