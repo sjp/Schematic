@@ -55,11 +55,9 @@ public class ReportGenerator
             Database.GetAllRoutines(cancellationToken)
         ).WhenAll();
 
-        var rowCounts = await GetRowCountsAsync(tables, cancellationToken);
-
         var dbVersion = await DatabaseProvider.GetDatabaseDisplayVersionAsync(cancellationToken);
 
-        var reportData = BuildReportData(tables, views, sequences, synonyms, routines, rowCounts, dbVersion);
+        var reportData = BuildReportData(tables, views, sequences, synonyms, routines, dbVersion);
         var renderContext = new RenderContext(new JsonDataWriter(), new BundleBuilder(), ExportDirectory);
 
         // Each renderer serializes its viewmodel(s), writes the .json file(s), and registers the
@@ -115,32 +113,6 @@ public class ReportGenerator
         }
     }
 
-    private async Task<IReadOnlyDictionary<Identifier, ulong>> GetRowCountsAsync(IEnumerable<IRelationalDatabaseTable> tables, CancellationToken cancellationToken)
-    {
-        var rowCountTasks = new List<Task<KeyValuePair<Identifier, ulong>>>();
-
-        foreach (var table in tables)
-            rowCountTasks.Add(GetTableRowCountAsync(table.Name, cancellationToken));
-
-        await Task.WhenAll(rowCountTasks);
-
-        var result = new Dictionary<Identifier, ulong>();
-
-        foreach (var rowCountTask in rowCountTasks)
-        {
-            var rowCountInfo = await rowCountTask;
-            result[rowCountInfo.Key] = rowCountInfo.Value;
-        }
-
-        return result;
-    }
-
-    private async Task<KeyValuePair<Identifier, ulong>> GetTableRowCountAsync(Identifier tableName, CancellationToken cancellationToken)
-    {
-        var rowCount = await Connection.ConnectionFactory.GetRowCountAsync(Connection.Dialect, tableName, cancellationToken);
-        return new KeyValuePair<Identifier, ulong>(tableName, rowCount);
-    }
-
     // Assembles the full set of database objects for this run, plus the lookups derived from them,
     // into the single object every renderer's RenderAsync call receives as its "what to render".
     private ReportData BuildReportData(
@@ -149,7 +121,6 @@ public class ReportGenerator
         IReadOnlyCollection<IDatabaseSequence> sequences,
         IReadOnlyCollection<IDatabaseSynonym> synonyms,
         IReadOnlyCollection<IDatabaseRoutine> routines,
-        IReadOnlyDictionary<Identifier, ulong> rowCounts,
         string databaseVersion
     )
     {
@@ -158,7 +129,6 @@ public class ReportGenerator
         ArgumentNullException.ThrowIfNull(sequences);
         ArgumentNullException.ThrowIfNull(synonyms);
         ArgumentNullException.ThrowIfNull(routines);
-        ArgumentNullException.ThrowIfNull(rowCounts);
 
         // Referenced-object resolution (used by view detail) maps a dependency expression to the
         // owning object's hash route, across every object type.
@@ -174,7 +144,7 @@ public class ReportGenerator
         // Synonym target resolution maps an aliased object name to its owning object's hash route.
         var synonymTargets = new SynonymTargets(tableNames, viewNames, sequenceNames, synonymNames, routineNames);
 
-        return new ReportData(Database, tables, views, sequences, synonyms, routines, rowCounts, databaseVersion, referencedObjectTargets, synonymTargets);
+        return new ReportData(Database, tables, views, sequences, synonyms, routines, databaseVersion, referencedObjectTargets, synonymTargets);
     }
 
     // The renderer list is fixed for every run: each renderer's constructor only takes genuine

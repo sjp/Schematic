@@ -208,7 +208,7 @@ export function TableDetailPage() {
         <span className="text-muted-foreground">/</span>
         <h1 className="text-2xl font-semibold">{data.name}</h1>
         <span className="text-muted-foreground text-sm">
-          {data.rowCount.toLocaleString()} rows · {data.columnsCount} columns
+          {data.columnsCount} columns
         </span>
       </div>
 

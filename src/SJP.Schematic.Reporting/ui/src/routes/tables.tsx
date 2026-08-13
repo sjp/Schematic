@@ -34,11 +34,6 @@ export function TablesPage() {
       { accessorKey: "columnCount", header: "Columns" },
       { accessorKey: "parentsCount", header: "Parents" },
       { accessorKey: "childrenCount", header: "Children" },
-      {
-        accessorKey: "rowCount",
-        header: "Rows",
-        cell: ({ getValue }) => getValue<number>().toLocaleString(),
-      },
     ],
     [],
   );

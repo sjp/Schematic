@@ -136,7 +136,6 @@ function TableNodeComponent({ data }: NodeProps<TableFlowNode>) {
         <span title="parent keys · child keys">
           {table.parentKeysCount} ▴ {table.childKeysCount} ▾
         </span>
-        <span>{table.rowCount.toLocaleString()} rows</span>
       </div>
     </div>
   );

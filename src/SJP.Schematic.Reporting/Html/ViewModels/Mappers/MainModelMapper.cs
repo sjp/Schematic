@@ -7,7 +7,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 internal sealed class MainModelMapper
 {
-    public Main.Table Map(IRelationalDatabaseTable table, ulong rowCount)
+    public Main.Table Map(IRelationalDatabaseTable table)
     {
         ArgumentNullException.ThrowIfNull(table);
 
@@ -19,8 +19,7 @@ internal sealed class MainModelMapper
             table.Name,
             parentKeyCount,
             childKeyCount,
-            columnCount,
-            rowCount
+            columnCount
         );
     }
 

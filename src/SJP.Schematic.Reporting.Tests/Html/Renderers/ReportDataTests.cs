@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -14,7 +13,7 @@ internal static class ReportDataTests
     public static void Ctor_GivenNullDatabase_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new ReportData(null!, [], [], [], [], [], EmptyRowCounts(), "1.0", EmptyTargets(), EmptySynonymTargets()),
+            () => new ReportData(null!, [], [], [], [], [], "1.0", EmptyTargets(), EmptySynonymTargets()),
             Throws.ArgumentNullException);
     }
 
@@ -22,7 +21,7 @@ internal static class ReportDataTests
     public static void Ctor_GivenNullTables_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new ReportData(MockDatabase(), null!, [], [], [], [], EmptyRowCounts(), "1.0", EmptyTargets(), EmptySynonymTargets()),
+            () => new ReportData(MockDatabase(), null!, [], [], [], [], "1.0", EmptyTargets(), EmptySynonymTargets()),
             Throws.ArgumentNullException);
     }
 
@@ -30,7 +29,7 @@ internal static class ReportDataTests
     public static void Ctor_GivenNullViews_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new ReportData(MockDatabase(), [], null!, [], [], [], EmptyRowCounts(), "1.0", EmptyTargets(), EmptySynonymTargets()),
+            () => new ReportData(MockDatabase(), [], null!, [], [], [], "1.0", EmptyTargets(), EmptySynonymTargets()),
             Throws.ArgumentNullException);
     }
 
@@ -38,7 +37,7 @@ internal static class ReportDataTests
     public static void Ctor_GivenNullSequences_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new ReportData(MockDatabase(), [], [], null!, [], [], EmptyRowCounts(), "1.0", EmptyTargets(), EmptySynonymTargets()),
+            () => new ReportData(MockDatabase(), [], [], null!, [], [], "1.0", EmptyTargets(), EmptySynonymTargets()),
             Throws.ArgumentNullException);
     }
 
@@ -46,7 +45,7 @@ internal static class ReportDataTests
     public static void Ctor_GivenNullSynonyms_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new ReportData(MockDatabase(), [], [], [], null!, [], EmptyRowCounts(), "1.0", EmptyTargets(), EmptySynonymTargets()),
+            () => new ReportData(MockDatabase(), [], [], [], null!, [], "1.0", EmptyTargets(), EmptySynonymTargets()),
             Throws.ArgumentNullException);
     }
 
@@ -54,15 +53,7 @@ internal static class ReportDataTests
     public static void Ctor_GivenNullRoutines_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new ReportData(MockDatabase(), [], [], [], [], null!, EmptyRowCounts(), "1.0", EmptyTargets(), EmptySynonymTargets()),
-            Throws.ArgumentNullException);
-    }
-
-    [Test]
-    public static void Ctor_GivenNullRowCounts_ThrowsArgumentNullException()
-    {
-        Assert.That(
-            () => new ReportData(MockDatabase(), [], [], [], [], [], null!, "1.0", EmptyTargets(), EmptySynonymTargets()),
+            () => new ReportData(MockDatabase(), [], [], [], [], null!, "1.0", EmptyTargets(), EmptySynonymTargets()),
             Throws.ArgumentNullException);
     }
 
@@ -70,7 +61,7 @@ internal static class ReportDataTests
     public static void Ctor_GivenNullReferencedObjectTargets_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new ReportData(MockDatabase(), [], [], [], [], [], EmptyRowCounts(), "1.0", null!, EmptySynonymTargets()),
+            () => new ReportData(MockDatabase(), [], [], [], [], [], "1.0", null!, EmptySynonymTargets()),
             Throws.ArgumentNullException);
     }
 
@@ -78,7 +69,7 @@ internal static class ReportDataTests
     public static void Ctor_GivenNullSynonymTargets_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new ReportData(MockDatabase(), [], [], [], [], [], EmptyRowCounts(), "1.0", EmptyTargets(), null!),
+            () => new ReportData(MockDatabase(), [], [], [], [], [], "1.0", EmptyTargets(), null!),
             Throws.ArgumentNullException);
     }
 
@@ -86,13 +77,11 @@ internal static class ReportDataTests
     public static void Ctor_GivenNullDatabaseVersion_DoesNotThrow()
     {
         Assert.That(
-            () => new ReportData(MockDatabase(), [], [], [], [], [], EmptyRowCounts(), null, EmptyTargets(), EmptySynonymTargets()),
+            () => new ReportData(MockDatabase(), [], [], [], [], [], null, EmptyTargets(), EmptySynonymTargets()),
             Throws.Nothing);
     }
 
     private static IRelationalDatabase MockDatabase() => new Mock<IRelationalDatabase>().Object;
-
-    private static IReadOnlyDictionary<Identifier, ulong> EmptyRowCounts() => new Dictionary<Identifier, ulong>();
 
     private static ReferencedObjectTargets EmptyTargets() => new(new Mock<IDependencyProvider>().Object, [], [], [], [], []);
 

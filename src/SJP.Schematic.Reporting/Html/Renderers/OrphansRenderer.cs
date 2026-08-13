@@ -21,12 +21,7 @@ internal sealed class OrphansRenderer : IDataRenderer
             .ToList();
 
         var mapper = new OrphansModelMapper();
-        var orphanedTableViewModels = orphanedTables.ConvertAll(t =>
-        {
-            if (!data.RowCounts.TryGetValue(t.Name, out var rowCount))
-                rowCount = 0;
-            return mapper.Map(t, rowCount);
-        });
+        var orphanedTableViewModels = orphanedTables.ConvertAll(mapper.Map);
 
         var orphansVm = new Orphans(orphanedTableViewModels);
 

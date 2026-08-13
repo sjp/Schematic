@@ -19,12 +19,7 @@ internal sealed class TablesRenderer : IDataRenderer
 
         var tableViewModels = new List<Main.Table>();
         foreach (var table in data.Tables)
-        {
-            if (!data.RowCounts.TryGetValue(table.Name, out var rowCount))
-                rowCount = 0;
-
-            tableViewModels.Add(mapper.Map(table, rowCount));
-        }
+            tableViewModels.Add(mapper.Map(table));
 
         var tablesVm = new Tables(tableViewModels);
 

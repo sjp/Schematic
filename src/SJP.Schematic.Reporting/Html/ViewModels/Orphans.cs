@@ -27,14 +27,13 @@ public sealed class Orphans
     /// </summary>
     public sealed class OrphanTable
     {
-        public OrphanTable(Identifier tableName, uint columnCount, ulong rowCount)
+        public OrphanTable(Identifier tableName, uint columnCount)
         {
             ArgumentNullException.ThrowIfNull(tableName);
 
             Name = tableName.ToVisibleName();
             TableUrl = UrlRouter.GetTableUrl(tableName);
             ColumnCount = columnCount;
-            RowCount = rowCount;
         }
 
         public string Name { get; }
@@ -42,7 +41,5 @@ public sealed class Orphans
         public string TableUrl { get; }
 
         public uint ColumnCount { get; }
-
-        public ulong RowCount { get; }
     }
 }

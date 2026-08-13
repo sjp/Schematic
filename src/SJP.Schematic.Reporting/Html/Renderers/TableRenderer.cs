@@ -15,7 +15,7 @@ internal sealed class TableRenderer : IDataRenderer
         ArgumentNullException.ThrowIfNull(context);
 
         var relationshipFinder = new RelationshipFinder(data.Tables);
-        var mapper = new TableModelMapper(data.RowCounts, relationshipFinder);
+        var mapper = new TableModelMapper(relationshipFinder);
 
         var tablesDataDirectory = new DirectoryInfo(Path.Combine(context.ExportDirectory.FullName, "data", "tables"));
 

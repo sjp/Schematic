@@ -28,7 +28,6 @@ export interface TableSummary {
   parentsCount: number;
   childrenCount: number;
   columnCount: number;
-  rowCount: number;
 }
 
 /** `data/tables.json`. */
@@ -123,7 +122,6 @@ export interface GraphTable {
   columnsCount: number;
   parentKeysCount: number;
   childKeysCount: number;
-  rowCount: number;
   /** The focal table of a per-table diagram; drawn with the highlight palette. */
   isHighlighted: boolean;
 }
@@ -363,7 +361,6 @@ export interface OrphanTable {
   name: string;
   tableUrl: string;
   columnCount: number;
-  rowCount: number;
 }
 
 /** `data/orphans.json`. */
@@ -410,7 +407,6 @@ export interface SearchSummary {
 export interface TableDetail {
   name: string;
   tableUrl: string;
-  rowCount: number;
   columns: TableColumn[];
   columnsCount: number;
   /** Omitted from the JSON when the table has no primary key. */

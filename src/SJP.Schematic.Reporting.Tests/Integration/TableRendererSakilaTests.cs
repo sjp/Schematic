@@ -1,9 +1,7 @@
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using SJP.Schematic.Core;
 using SJP.Schematic.Reporting.Html.Renderers;
 using SJP.Schematic.Reporting.Serialization;
 using SJP.Schematic.Reporting.Tests.Html.Renderers;
@@ -20,10 +18,9 @@ internal sealed class TableRendererSakilaTests : SakilaTest
         using var tempDir = new TemporaryDirectory();
         var database = GetDatabase();
         var tables = await database.GetAllTables();
-        var rowCounts = new Dictionary<Identifier, ulong>();
 
         var renderer = new TableRenderer();
-        var data = ReportDataFactory.Create(tables: tables, rowCounts: rowCounts);
+        var data = ReportDataFactory.Create(tables: tables);
         var context = new RenderContext(new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath));
         await renderer.RenderAsync(data, context);
 
@@ -39,11 +36,10 @@ internal sealed class TableRendererSakilaTests : SakilaTest
         using var tempDir = new TemporaryDirectory();
         var database = GetDatabase();
         var tables = await database.GetAllTables();
-        var rowCounts = new Dictionary<Identifier, ulong>();
         var bundle = new BundleBuilder();
 
         var renderer = new TableRenderer();
-        var data = ReportDataFactory.Create(tables: tables, rowCounts: rowCounts);
+        var data = ReportDataFactory.Create(tables: tables);
         var context = new RenderContext(new JsonDataWriter(), bundle, new DirectoryInfo(tempDir.DirectoryPath));
         await renderer.RenderAsync(data, context);
 

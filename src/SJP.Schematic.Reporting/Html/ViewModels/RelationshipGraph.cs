@@ -42,7 +42,6 @@ public sealed class GraphTable
         IEnumerable<GraphColumn> columns,
         uint parentKeysCount,
         uint childKeysCount,
-        ulong rowCount,
         bool isHighlighted
     )
     {
@@ -57,7 +56,6 @@ public sealed class GraphTable
 
         ParentKeysCount = parentKeysCount;
         ChildKeysCount = childKeysCount;
-        RowCount = rowCount;
         IsHighlighted = isHighlighted;
     }
 
@@ -76,8 +74,6 @@ public sealed class GraphTable
     public uint ParentKeysCount { get; }
 
     public uint ChildKeysCount { get; }
-
-    public ulong RowCount { get; }
 
     /// <summary>The focal table of a per-table diagram; drawn with the highlight palette.</summary>
     public bool IsHighlighted { get; }

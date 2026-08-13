@@ -6,12 +6,11 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 internal sealed class RelationshipsModelMapper
 {
-    public Relationships Map(IReadOnlyCollection<IRelationalDatabaseTable> tables, IReadOnlyDictionary<Identifier, ulong> rowCounts)
+    public Relationships Map(IReadOnlyCollection<IRelationalDatabaseTable> tables)
     {
         ArgumentNullException.ThrowIfNull(tables);
-        ArgumentNullException.ThrowIfNull(rowCounts);
 
-        var graph = RelationshipGraphMapper.Map(tables, rowCounts);
+        var graph = RelationshipGraphMapper.Map(tables);
         return new Relationships(graph);
     }
 }

@@ -16,11 +16,9 @@ internal static class RelationshipGraphMapper
 {
     public static RelationshipGraph Map(
         IReadOnlyCollection<IRelationalDatabaseTable> tables,
-        IReadOnlyDictionary<Identifier, ulong> rowCounts,
         Identifier? highlightedTable = null)
     {
         ArgumentNullException.ThrowIfNull(tables);
-        ArgumentNullException.ThrowIfNull(rowCounts);
 
         var tableNames = new HashSet<Identifier>(tables.Select(static t => t.Name));
 
@@ -43,9 +41,6 @@ internal static class RelationshipGraphMapper
                 return new GraphColumn(columnName, col.Type.Definition, col.IsNullable, isPrimaryKey, isUniqueKey, isForeignKey);
             }).ToList();
 
-            if (!rowCounts.TryGetValue(table.Name, out var rowCount))
-                rowCount = 0;
-
             var isHighlighted = highlightedTable != null && table.Name == highlightedTable;
 
             nodes.Add(new GraphTable(
@@ -53,7 +48,6 @@ internal static class RelationshipGraphMapper
                 columns,
                 parentKeys.UCount(),
                 table.ChildKeys.UCount(),
-                rowCount,
                 isHighlighted
             ));
 

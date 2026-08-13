@@ -52,6 +52,7 @@ public sealed class DefaultHtmlRuleProvider : IRuleProvider
             new InvalidViewDefinitionRule(connection, level),
             new NoIndexesPresentOnTableRule(level),
             new NoNonNullableColumnsPresentRule(level),
+            new NoRowsPresentOnTableRule(connection, level),
             new NoSurrogatePrimaryKeyRule(level),
             new NoValueForNullableColumnRule(connection, level),
             new NullableBooleanColumnRule(level),

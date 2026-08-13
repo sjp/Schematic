@@ -18,7 +18,6 @@ internal static class ReportDataFactory
         IReadOnlyCollection<IDatabaseSequence> sequences = null!,
         IReadOnlyCollection<IDatabaseSynonym> synonyms = null!,
         IReadOnlyCollection<IDatabaseRoutine> routines = null!,
-        IReadOnlyDictionary<Identifier, ulong> rowCounts = null!,
         string databaseVersion = null!,
         ReferencedObjectTargets referencedObjectTargets = null!,
         SynonymTargets synonymTargets = null!)
@@ -30,7 +29,6 @@ internal static class ReportDataFactory
             sequences ?? [],
             synonyms ?? [],
             routines ?? [],
-            rowCounts ?? new Dictionary<Identifier, ulong>(),
             databaseVersion,
             referencedObjectTargets ?? new ReferencedObjectTargets(new Mock<IDependencyProvider>().Object, [], [], [], [], []),
             synonymTargets ?? new SynonymTargets([], [], [], [], []));

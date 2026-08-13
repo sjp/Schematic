@@ -23,15 +23,13 @@ public sealed class Table
         IEnumerable<CheckConstraint> checks,
         IEnumerable<Index> indexes,
         IEnumerable<Trigger> triggers,
-        IEnumerable<Diagram> diagrams,
-        ulong rowCount
+        IEnumerable<Diagram> diagrams
     )
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
         Name = tableName.ToVisibleName();
         TableUrl = UrlRouter.GetTableUrl(tableName);
-        RowCount = rowCount;
 
         Columns = columns ?? throw new ArgumentNullException(nameof(columns));
         ColumnsCount = columns.UCount();
@@ -60,8 +58,6 @@ public sealed class Table
     public string Name { get; }
 
     public string TableUrl { get; }
-
-    public ulong RowCount { get; }
 
     public IEnumerable<Column> Columns { get; }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -9,19 +9,19 @@ using SJP.Schematic.Core.Extensions;
 namespace SJP.Schematic.Lint.Rules;
 
 /// <summary>
-/// A linting rule which reports when no non-null values exist for a nullable column in a table.
+/// A linting rule which reports when a table contains no rows.
 /// </summary>
 /// <seealso cref="Rule"/>
 /// <seealso cref="ITableRule"/>
-public class NoValueForNullableColumnRule : Rule, ITableRule
+public class NoRowsPresentOnTableRule : Rule, ITableRule
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="NoValueForNullableColumnRule"/> class.
+    /// Initializes a new instance of the <see cref="NoRowsPresentOnTableRule"/> class.
     /// </summary>
     /// <param name="connection">A database connection.</param>
     /// <param name="level">The reporting level.</param>
     /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public NoValueForNullableColumnRule(ISchematicConnection connection, RuleLevel level)
+    public NoRowsPresentOnTableRule(ISchematicConnection connection, RuleLevel level)
         : base(RuleId, RuleTitle, level)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -36,19 +36,13 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     protected ISchematicConnection Connection { get; }
 
     /// <summary>
-    /// A database connection factory.
-    /// </summary>
-    /// <value>The database connection factory.</value>
-    protected IDbConnectionFactory DbConnection => Connection.ConnectionFactory;
-
-    /// <summary>
     /// A database dialect.
     /// </summary>
-    /// <value>The dialect associated with <see cref="DbConnection"/>.</value>
+    /// <value>The dialect associated with <see cref="Connection"/>.</value>
     protected IDatabaseDialect Dialect => Connection.Dialect;
 
     /// <summary>
-    /// Analyses database tables. Reports messages when no non-null values exist for a nullable column in a table.
+    /// Analyses database tables. Reports messages when a table contains no rows.
     /// </summary>
     /// <param name="tables">A set of database tables.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
@@ -69,47 +63,30 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
             .WhenAll();
 
         return messages
-            .SelectMany(_ => _)
+            .OfType<IRuleMessage>()
             .ToArray();
     }
 
     /// <summary>
-    /// Analyses a database table. Reports messages when no non-null values exist for a nullable column in a table.
+    /// Analyses a database table. Reports a message when the table contains no rows.
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
-    /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
+    /// <returns>A linting message if the table contains no rows; otherwise <see langword="null" />.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
-    protected Task<IReadOnlyCollection<IRuleMessage>> AnalyseTableAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
+    protected Task<IRuleMessage?> AnalyseTableAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(table);
 
         return AnalyseTableAsyncCore(table, cancellationToken);
     }
 
-    private async Task<IReadOnlyCollection<IRuleMessage>> AnalyseTableAsyncCore(IRelationalDatabaseTable table, CancellationToken cancellationToken)
+    private async Task<IRuleMessage?> AnalyseTableAsyncCore(IRelationalDatabaseTable table, CancellationToken cancellationToken)
     {
-        var nullableColumns = table.Columns.Where(c => c.IsNullable).ToList();
-        if (nullableColumns.Empty())
-            return [];
-
         var tableHasRows = await TableHasRowsAsync(table, cancellationToken);
-        if (!tableHasRows)
-            return [];
-
-        var result = new List<IRuleMessage>();
-
-        foreach (var nullableColumn in nullableColumns)
-        {
-            var hasValue = await NullableColumnHasValueAsync(table, nullableColumn, cancellationToken);
-            if (hasValue)
-                continue;
-
-            var message = BuildMessage(table.Name, nullableColumn.Name.LocalName);
-            result.Add(message);
-        }
-
-        return result;
+        return tableHasRows
+            ? null
+            : BuildMessage(table.Name);
     }
 
     /// <summary>
@@ -135,45 +112,16 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     }
 
     /// <summary>
-    /// Determines whether a nullable column has any non-null values.
-    /// </summary>
-    /// <param name="table">A database table.</param>
-    /// <param name="column">A column from the table provided by <paramref name="table"/>.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns><see langword="true" /> if the column has any non-null values; otherwise <see langword="false" />.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="column"/> is <see langword="null" />.</exception>
-    protected Task<bool> NullableColumnHasValueAsync(IRelationalDatabaseTable table, IDatabaseColumn column,
-        CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(table);
-        ArgumentNullException.ThrowIfNull(column);
-
-        return NullableColumnHasValueAsyncCore(table, column, cancellationToken);
-    }
-
-    private Task<bool> NullableColumnHasValueAsyncCore(IRelationalDatabaseTable table, IDatabaseColumn column,
-        CancellationToken cancellationToken)
-    {
-        var quotedTableName = Dialect.QuoteName(Identifier.CreateQualifiedIdentifier(table.Name.Schema, table.Name.LocalName));
-        var quotedColumnName = Dialect.QuoteIdentifier(column.Name.LocalName);
-        var filterSql = $"select 1 as exists_val from {quotedTableName} where {quotedColumnName} is not null";
-
-        return _existsQueryExecutor.ExistsAsync(filterSql, cancellationToken);
-    }
-
-    /// <summary>
     /// Builds the message used for reporting.
     /// </summary>
     /// <param name="tableName">The name of the table.</param>
-    /// <param name="columnName">A name of the nullable column.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />. Also thrown when <paramref name="columnName"/> is <see langword="null" />, empty or whitespace.</exception>
-    protected virtual IRuleMessage BuildMessage(Identifier tableName, string columnName)
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+    protected virtual IRuleMessage BuildMessage(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
-        ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
-        var messageText = $"The table '{tableName}' has a nullable column '{columnName}' whose values are always null. Consider removing the column.";
+        var messageText = $"The table '{tableName}' contains no rows. Consider removing it if it is unused.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 
@@ -181,13 +129,13 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0014";
+    protected static string RuleId { get; } = "SCHEMATIC0039";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "No not-null values exist for a nullable column.";
+    protected static string RuleTitle { get; } = "No rows present in table.";
 
     private readonly ExistsQueryExecutor _existsQueryExecutor;
 }

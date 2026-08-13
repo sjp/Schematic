@@ -14,7 +14,7 @@ internal sealed class RelationshipsRenderer : IDataRenderer
         ArgumentNullException.ThrowIfNull(context);
 
         var mapper = new RelationshipsModelMapper();
-        var viewModel = mapper.Map(data.Tables, data.RowCounts);
+        var viewModel = mapper.Map(data.Tables);
 
         // The diagram is now a graph payload laid out and drawn in the browser, so there is no SVG to
         // render here — just serialize the graph alongside the other report data.

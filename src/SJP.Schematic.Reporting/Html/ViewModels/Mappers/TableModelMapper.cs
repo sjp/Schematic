@@ -7,16 +7,10 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 internal sealed class TableModelMapper
 {
-    public TableModelMapper(
-        IReadOnlyDictionary<Identifier, ulong> rowCounts,
-        RelationshipFinder relationship
-    )
+    public TableModelMapper(RelationshipFinder relationship)
     {
-        RowCounts = rowCounts ?? throw new ArgumentNullException(nameof(rowCounts));
         RelationshipFinder = relationship ?? throw new ArgumentNullException(nameof(relationship));
     }
-
-    private IReadOnlyDictionary<Identifier, ulong> RowCounts { get; }
 
     private RelationshipFinder RelationshipFinder { get; }
 
@@ -160,17 +154,14 @@ internal sealed class TableModelMapper
         var oneDegreeTables = RelationshipFinder.GetTablesByDegrees(table, 1);
         var twoDegreeTables = RelationshipFinder.GetTablesByDegrees(table, 2);
 
-        var oneDegreeGraph = RelationshipGraphMapper.Map(oneDegreeTables, RowCounts, table.Name);
-        var twoDegreeGraph = RelationshipGraphMapper.Map(twoDegreeTables, RowCounts, table.Name);
+        var oneDegreeGraph = RelationshipGraphMapper.Map(oneDegreeTables, table.Name);
+        var twoDegreeGraph = RelationshipGraphMapper.Map(twoDegreeTables, table.Name);
 
         var diagrams = new[]
         {
             new Table.Diagram(table.Name, "One Degree", oneDegreeGraph, true),
             new Table.Diagram(table.Name, "Two Degrees", twoDegreeGraph, false),
         };
-
-        if (!RowCounts.TryGetValue(table.Name, out var rowCount))
-            rowCount = 0;
 
         return new Table(
             table.Name,
@@ -181,8 +172,7 @@ internal sealed class TableModelMapper
             renderChecks,
             renderIndexes,
             renderTriggers,
-            diagrams,
-            rowCount
+            diagrams
         );
     }
 }

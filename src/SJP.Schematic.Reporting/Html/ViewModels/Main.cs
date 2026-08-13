@@ -76,8 +76,7 @@ public sealed class Main
             Identifier tableName,
             uint parentsCount,
             uint childrenCount,
-            uint columnCount,
-            ulong rowCount
+            uint columnCount
         )
         {
             ArgumentNullException.ThrowIfNull(tableName);
@@ -88,7 +87,6 @@ public sealed class Main
             ParentsCount = parentsCount;
             ChildrenCount = childrenCount;
             ColumnCount = columnCount;
-            RowCount = rowCount;
         }
 
         public string Name { get; }
@@ -100,8 +98,6 @@ public sealed class Main
         public uint ChildrenCount { get; }
 
         public uint ColumnCount { get; }
-
-        public ulong RowCount { get; }
     }
 
     /// <summary>

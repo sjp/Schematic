@@ -74,7 +74,6 @@ describe("TablesPage", () => {
             parentsCount: 0,
             childrenCount: 2,
             columnCount: 4,
-            rowCount: 200,
           },
         ],
       },
@@ -84,8 +83,6 @@ describe("TablesPage", () => {
     render(<TablesPage />);
     const link = screen.getByRole("link", { name: "actor" });
     expect(link).toHaveAttribute("href", "/tables/actor-d4592e62");
-    // Large numbers are formatted with a thousands separator.
-    expect(screen.getByText("200")).toBeInTheDocument();
   });
 
   it("shows the tables count in the heading", () => {

@@ -25,7 +25,6 @@ export function OrphansPage() {
         ),
       },
       { accessorKey: "columnCount", header: "Columns" },
-      { accessorKey: "rowCount", header: "Rows" },
     ],
     [],
   );
