@@ -7,9 +7,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
 using Microsoft.Data.Sqlite;
+using Nito.AsyncEx;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite.Pragma;
+using SJP.Schematic.Sqlite.Pragma.Query;
 using SJP.Schematic.Sqlite.Queries;
 
 namespace SJP.Schematic.Sqlite;
@@ -32,7 +34,22 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
         ConnectionPragma = pragma ?? throw new ArgumentNullException(nameof(pragma));
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+
+        _databaseList = new AsyncLazy<IReadOnlyList<pragma_database_list>>(LoadDatabaseListAsync);
     }
+
+    /// <summary>
+    /// Loads the list of databases attached to the current connection. The result is cached for the
+    /// lifetime of this provider instance, as it only changes as a result of an explicit
+    /// <c>ATTACH</c>/<c>DETACH</c> against the underlying connection.
+    /// </summary>
+    private async Task<IReadOnlyList<pragma_database_list>> LoadDatabaseListAsync()
+    {
+        var databaseList = await ConnectionPragma.DatabaseListAsync();
+        return databaseList.ToList();
+    }
+
+    private readonly AsyncLazy<IReadOnlyList<pragma_database_list>> _databaseList;
 
     /// <summary>
     /// A database connection that is specific to a given SQLite database.
@@ -71,7 +88,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <returns>A collection of database views.</returns>
     public async IAsyncEnumerable<IDatabaseView> EnumerateAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var dbNamesQuery = await ConnectionPragma.DatabaseListAsync(cancellationToken);
+        var dbNamesQuery = await _databaseList.Task;
         var dbNames = dbNamesQuery
             .OrderBy(static d => d.seq)
             .Select(static d => d.name)
@@ -105,26 +122,13 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <returns>A collection of database views.</returns>
     public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default)
     {
-        var dbNamesQuery = await ConnectionPragma.DatabaseListAsync(cancellationToken);
+        var dbNamesQuery = await _databaseList.Task;
         var dbNames = dbNamesQuery
             .OrderBy(static d => d.seq)
             .Select(static d => d.name)
             .ToList();
 
-        var qualifiedViewNames = new List<Identifier>();
-
-        foreach (var dbName in dbNames)
-        {
-            var sql = GetAllViewNames.Sql(Dialect, dbName);
-            var viewNames = await DbConnection.QueryEnumerableAsync<GetAllViewNames.Result>(sql, cancellationToken)
-                .Where(static result => !IsReservedViewName(result.ViewName))
-                .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.ViewName))
-                .ToListAsync(cancellationToken);
-
-            qualifiedViewNames.AddRange(viewNames);
-        }
-
-        var qualifiedViewNameTasks = dbNames
+        var qualifiedViewNames = await dbNames
             .Select(dbName =>
             {
                 var sql = GetAllViewNames.Sql(Dialect, dbName);
@@ -134,10 +138,11 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
                     .ToListAsync(cancellationToken)
                     .AsTask();
             })
-            .ToArray();
-
+            .ToArray()
+            .WhenAll();
 
         var orderedViewNames = qualifiedViewNames
+            .SelectMany(vn => vn)
             .OrderBy(static v => v.Schema, StringComparer.Ordinal)
             .ThenBy(static v => v.LocalName, StringComparer.Ordinal)
             .ToArray();
@@ -167,7 +172,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
         if (viewName.Schema != null)
             return await LoadView(viewName, cancellationToken).ToOption();
 
-        var dbNamesResult = await ConnectionPragma.DatabaseListAsync(cancellationToken);
+        var dbNamesResult = await _databaseList.Task;
         var dbNames = dbNamesResult.OrderBy(static l => l.seq).Select(static l => l.name).ToList();
         foreach (var dbName in dbNames)
         {
@@ -209,7 +214,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
 
             if (viewLocalName != null)
             {
-                var dbList = await ConnectionPragma.DatabaseListAsync(cancellationToken);
+                var dbList = await _databaseList.Task;
                 var viewSchemaName = dbList
                     .OrderBy(static s => s.seq)
                     .Select(static s => s.name)
@@ -221,7 +226,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
             }
         }
 
-        var dbNamesResult = await ConnectionPragma.DatabaseListAsync(cancellationToken);
+        var dbNamesResult = await _databaseList.Task;
         var dbNames = dbNamesResult
             .OrderBy(static l => l.seq)
             .Select(static l => l.name)
@@ -321,17 +326,26 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
         if (tableInfos.Empty())
             return [];
 
+        var tableInfoList = tableInfos.ToList();
+        var untypedColumnNames = tableInfoList
+            .Where(static ti => ti.name != null && ti.type.IsNullOrWhiteSpace())
+            .Select(static ti => ti.name!)
+            .ToList();
+        var columnTypeLookup = untypedColumnNames.Count > 0
+            ? await GetTypeofColumnsAsync(viewName, untypedColumnNames, cancellationToken)
+            : EmptyColumnTypeLookup;
+
         var result = new List<IDatabaseColumn>();
-        foreach (var tableInfo in tableInfos)
+        foreach (var tableInfo in tableInfoList)
         {
             if (tableInfo.name == null)
                 continue;
 
             var columnName = tableInfo.name;
 
-            var columnTypeName = tableInfo.type;
+            string? columnTypeName = tableInfo.type;
             if (columnTypeName.IsNullOrWhiteSpace())
-                columnTypeName = await GetTypeofColumnAsync(viewName, columnName, cancellationToken);
+                columnTypeLookup.TryGetValue(columnName, out columnTypeName);
 
             var affinity = AffinityParser.ParseTypeName(columnTypeName);
             var columnType = new SqliteColumnType(affinity);
@@ -347,21 +361,27 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     }
 
     /// <summary>
-    /// Retrieves the runtime type of a column value.
+    /// Retrieves the runtime type of a collection of column values, in a single round-trip.
     /// </summary>
     /// <param name="viewName">A view name.</param>
-    /// <param name="columnName">A column name.</param>
+    /// <param name="columnNames">The names of the columns to retrieve types for.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The runtime type name of a column value.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> or <paramref name="columnName"/> is <see langword="null" />, empty or whitespace.</exception>
-    protected Task<string?> GetTypeofColumnAsync(Identifier viewName, Identifier columnName, CancellationToken cancellationToken)
+    /// <returns>A lookup of column name to its runtime type name.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> or <paramref name="columnNames"/> is <see langword="null" />.</exception>
+    protected async Task<IReadOnlyDictionary<string, string?>> GetTypeofColumnsAsync(Identifier viewName, IReadOnlyCollection<string> columnNames, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
-        ArgumentNullException.ThrowIfNull(columnName);
+        ArgumentNullException.ThrowIfNull(columnNames);
 
-        var sql = GetTypeofColumn.Sql(Dialect, viewName, columnName.LocalName);
-        return DbConnection.ExecuteScalarAsync<string>(sql, cancellationToken);
+        if (columnNames.Count == 0)
+            return EmptyColumnTypeLookup;
+
+        var sql = GetTypeofColumns.Sql(Dialect, viewName, columnNames);
+        var results = await DbConnection.QueryAsync<GetTypeofColumns.Result>(sql, cancellationToken);
+        return results.ToDictionary(static r => r.ColumnName, static r => r.TypeName, StringComparer.Ordinal);
     }
+
+    private static readonly IReadOnlyDictionary<string, string?> EmptyColumnTypeLookup = new Dictionary<string, string?>(0, StringComparer.Ordinal);
 
     /// <summary>
     /// Qualifies the name of the view.
@@ -387,8 +407,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(schema);
 
-    var loader = _dbPragmaCache.GetOrAdd(schema, new Lazy<ISqliteDatabasePragma>(() => new DatabasePragma(Connection, schema)));
-        return loader.Value;
+        return _dbPragmaCache.GetOrAdd(schema, s => new DatabasePragma(Connection, s));
     }
 
     /// <summary>
@@ -404,7 +423,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
         return viewName.LocalName.StartsWith("sqlite_", StringComparison.OrdinalIgnoreCase);
     }
 
-    private readonly ConcurrentDictionary<string, Lazy<ISqliteDatabasePragma>> _dbPragmaCache = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<string, ISqliteDatabasePragma> _dbPragmaCache = new(StringComparer.Ordinal);
     private static readonly SqliteTypeAffinityParser AffinityParser = new();
 
     private const int SqliteError = 1;

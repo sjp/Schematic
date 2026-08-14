@@ -13,13 +13,7 @@ internal static class GetTriggerDefinition
 
     internal sealed record Result
     {
-        public required string Type { get; init; }
-
         public required string Name { get; init; }
-
-        public required string TableName { get; init; }
-
-        public required long RootPage { get; init; }
 
         public required string Sql { get; init; }
     }
@@ -32,11 +26,8 @@ internal static class GetTriggerDefinition
         return $"""
 
 select
-    type AS "{nameof(Result.Type)}",
-    name AS "{nameof(Result.Name)}",
-    tbl_name AS "{nameof(Result.TableName)}",
-    rootpage AS "{nameof(Result.RootPage)}",
-    sql AS "{nameof(Result.Sql)}"
+    name as "{nameof(Result.Name)}",
+    sql as "{nameof(Result.Sql)}"
 from {dialect.QuoteIdentifier(schemaName)}.sqlite_master
 where type = 'trigger' and tbl_name = @{nameof(Query.TableName)}
 """;

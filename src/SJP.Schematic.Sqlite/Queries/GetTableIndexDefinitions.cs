@@ -1,14 +1,21 @@
-﻿using System;
+using System;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Sqlite.Queries;
 
-internal static class GetTableName
+internal static class GetTableIndexDefinitions
 {
-    internal sealed record Query : ISqlQuery<string>
+    internal sealed record Query : ISqlQuery<Result>
     {
         public required string TableName { get; init; }
+    }
+
+    internal sealed record Result
+    {
+        public required string IndexName { get; init; }
+
+        public required string Sql { get; init; }
     }
 
     internal static string Sql(IDatabaseDialect dialect, string schemaName)
@@ -18,10 +25,11 @@ internal static class GetTableName
 
         return $"""
 
-select name
+select
+    name as "{nameof(Result.IndexName)}",
+    sql as "{nameof(Result.Sql)}"
 from {dialect.QuoteIdentifier(schemaName)}.sqlite_master
-where type = 'table' and lower(name) = lower(@{nameof(Query.TableName)})
-limit 1
+where type = 'index' and tbl_name = @{nameof(Query.TableName)} and sql is not null
 """;
     }
 }

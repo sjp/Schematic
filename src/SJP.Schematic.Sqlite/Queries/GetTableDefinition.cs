@@ -16,6 +16,11 @@ internal static class GetTableDefinition
         ArgumentNullException.ThrowIfNull(dialect);
         ArgumentException.ThrowIfNullOrWhiteSpace(schemaName);
 
-        return $"select sql from {dialect.QuoteIdentifier(schemaName)}.sqlite_master where type = 'table' and tbl_name = @{nameof(Query.TableName)}";
+        return $"""
+
+select sql
+from {dialect.QuoteIdentifier(schemaName)}.sqlite_master
+where type = 'table' and tbl_name = @{nameof(Query.TableName)}
+""";
     }
 }
