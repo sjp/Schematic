@@ -332,4 +332,49 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
 
         Assert.That(foreignKey.ChildKey.IsEnabled, Is.False);
     }
+
+    [Test]
+    public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueIndexWithNoBackingConstraint_ContainsConstraintWithCorrectNames()
+    {
+        var table = await GetTableAsync("table_test_table_42");
+        var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_43", StringComparison.Ordinal));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(foreignKey.ChildKey.Name.UnwrapSome().LocalName, Is.EqualTo("fk_test_table_43"));
+            Assert.That(foreignKey.ParentKey.Name.UnwrapSome().LocalName, Is.EqualTo("uk_test_table_42"));
+        }
+    }
+
+    [Test]
+    public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueIndexWithNoBackingConstraint_ContainsConstraintWithCorrectKeyTypes()
+    {
+        var table = await GetTableAsync("table_test_table_42");
+        var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_43", StringComparison.Ordinal));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(foreignKey.ChildKey.KeyType, Is.EqualTo(DatabaseKeyType.Foreign));
+            Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
+        }
+    }
+
+    [Test]
+    public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToUniqueIndexWithNoBackingConstraint_ContainsConstraintWithCorrectColumns()
+    {
+        var table = await GetTableAsync("table_test_table_42");
+        var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_43", StringComparison.Ordinal));
+
+        var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
+        var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
+
+        var expectedChildColumns = new[] { "first_name_child", "last_name_child" };
+        var expectedParentColumns = new[] { "first_name_parent", "last_name_parent" };
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(childColumns, Is.EqualTo(expectedChildColumns));
+            Assert.That(parentColumns, Is.EqualTo(expectedParentColumns));
+        }
+    }
 }

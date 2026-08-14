@@ -27,21 +27,12 @@ internal static class GetViewColumns
 
         public required string? Collation { get; init; }
 
-        public required bool IsComputed { get; init; }
-
         public required bool IsNullable { get; init; }
-
-        public required bool HasDefaultValue { get; init; }
-
-        public required string? DefaultValue { get; init; }
-
-        public required string? ComputedColumnDefinition { get; init; }
-
-        public required long? IdentitySeed { get; init; }
-
-        public required long? IdentityIncrement { get; init; }
     }
 
+    // Views cannot themselves own default constraints, computed columns or identity columns
+    // (sys.default_constraints/sys.computed_columns/sys.identity_columns are only ever populated for
+    // sys.tables), so those joins are omitted here rather than always resolving to null.
     internal const string Sql = @$"
 select
     c.name as [{nameof(Result.ColumnName)}],
@@ -51,19 +42,10 @@ select
     c.precision as [{nameof(Result.Precision)}],
     c.scale as [{nameof(Result.Scale)}],
     c.collation_name as [{nameof(Result.Collation)}],
-    c.is_computed as [{nameof(Result.IsComputed)}],
-    c.is_nullable as [{nameof(Result.IsNullable)}],
-    dc.parent_column_id as [{nameof(Result.HasDefaultValue)}],
-    dc.definition as [{nameof(Result.DefaultValue)}],
-    cc.definition as [{nameof(Result.ComputedColumnDefinition)}],
-    (convert(bigint, ic.seed_value)) as [{nameof(Result.IdentitySeed)}],
-    (convert(bigint, ic.increment_value)) as [{nameof(Result.IdentityIncrement)}]
+    c.is_nullable as [{nameof(Result.IsNullable)}]
 from sys.views v
 inner join sys.columns c on v.object_id = c.object_id
-left join sys.default_constraints dc on c.object_id = dc.parent_object_id and c.column_id = dc.parent_column_id
-left join sys.computed_columns cc on c.object_id = cc.object_id and c.column_id = cc.column_id
-left join sys.identity_columns ic on c.object_id = ic.object_id and c.column_id = ic.column_id
 left join sys.types st on c.user_type_id = st.user_type_id
-where schema_name(v.schema_id) = @{nameof(Query.SchemaName)} and v.name = @{nameof(Query.ViewName)} and v.is_ms_shipped = 0
+where v.schema_id = schema_id(@{nameof(Query.SchemaName)}) and v.name = @{nameof(Query.ViewName)} and v.is_ms_shipped = 0
 order by c.column_id";
 }

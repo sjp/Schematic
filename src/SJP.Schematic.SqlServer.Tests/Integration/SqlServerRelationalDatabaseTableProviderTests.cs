@@ -235,6 +235,19 @@ create table table_test_table_32 (
         await DbConnection.ExecuteAsync("create table table_test_table_39 ( geometry_column geometry )", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table table_test_table_40 ( geography_column geography )", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table table_test_table_41 ( uniqueidentifier_column uniqueidentifier )", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create table table_test_table_42 (
+    first_name_parent nvarchar(50),
+    last_name_parent nvarchar(50)
+)", CancellationToken.None);
+        // a unique index with no backing UNIQUE constraint -- a foreign key is still permitted to reference this
+        await DbConnection.ExecuteAsync("create unique index uk_test_table_42 on table_test_table_42 (first_name_parent, last_name_parent)", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create table table_test_table_43 (
+    first_name_child nvarchar(50),
+    last_name_child nvarchar(50),
+    constraint fk_test_table_43 foreign key (first_name_child, last_name_child) references table_test_table_42 (first_name_parent, last_name_parent)
+)", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table trigger_test_table_1 (table_id int primary key not null)", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table trigger_test_table_2 (table_id int primary key not null)", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
@@ -318,6 +331,15 @@ begin
     declare @test int
 end
 ", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create trigger trigger_test_table_1_trigger_10
+on trigger_test_table_1
+for insert, update, delete
+as
+begin
+    declare @test int
+end
+", CancellationToken.None);
     }
 
     [OneTimeTearDown]
@@ -369,6 +391,8 @@ end
         await DbConnection.ExecuteAsync("drop table table_test_table_39", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_40", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_41", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_test_table_43", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_test_table_42", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_1", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_2", CancellationToken.None);
     }

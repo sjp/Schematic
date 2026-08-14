@@ -36,5 +36,5 @@ select
     cache_size as [{nameof(Result.CacheSize)}]
 from sys.sequences
 where is_ms_shipped = 0
-order by schema_name(schema_id), name";
+order by [{nameof(Result.SchemaName)}], [{nameof(Result.SequenceName)}]";
 }

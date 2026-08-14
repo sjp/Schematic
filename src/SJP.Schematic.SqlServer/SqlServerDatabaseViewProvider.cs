@@ -223,16 +223,9 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
                 var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-                var autoIncrement = row.IdentityIncrement
-                    .Match(
-                        incr => row.IdentitySeed.Match(seed => new AutoIncrement(seed, incr), () => Option<IAutoIncrement>.None),
-                        static () => Option<IAutoIncrement>.None
-                    );
-                var defaultValue = row.HasDefaultValue && row.DefaultValue != null
-                    ? Option<string>.Some(row.DefaultValue)
-                    : Option<string>.None;
 
-                return new DatabaseColumn(columnName, columnType, row.IsNullable, defaultValue, autoIncrement);
+                // views cannot own default constraints or identity columns, so these are always absent
+                return new DatabaseColumn(columnName, columnType, row.IsNullable, Option<string>.None, Option<IAutoIncrement>.None);
             })
             .ToListAsync(cancellationToken);
     }

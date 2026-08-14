@@ -13,5 +13,5 @@ internal static class GetAllTableNames
 select schema_name(schema_id) as [{nameof(Result.SchemaName)}], name as [{nameof(Result.TableName)}]
 from sys.tables
 where is_ms_shipped = 0
-order by schema_name(schema_id), name";
+order by [{nameof(Result.SchemaName)}], [{nameof(Result.TableName)}]";
 }

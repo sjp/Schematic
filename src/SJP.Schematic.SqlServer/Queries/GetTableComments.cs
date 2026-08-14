@@ -32,7 +32,7 @@ from sys.tables t
 left join sys.extended_properties ep on t.object_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)} and ep.minor_id = 0
 where t.schema_id = SCHEMA_ID(@{nameof(Query.SchemaName)}) and t.name = @{nameof(Query.TableName)} and t.is_ms_shipped = 0
 
-union
+union all
 
 -- columns
 select
@@ -44,7 +44,7 @@ inner join sys.columns c on t.object_id = c.object_id
 left join sys.extended_properties ep on t.object_id = ep.major_id and c.column_id = ep.minor_id and ep.name = @{nameof(Query.CommentProperty)}
 where t.schema_id = SCHEMA_ID(@{nameof(Query.SchemaName)}) and t.name = @{nameof(Query.TableName)} and t.is_ms_shipped = 0
 
-union
+union all
 
 -- checks
 select
@@ -53,10 +53,10 @@ select
     ep.value as [{nameof(Result.Comment)}]
 from sys.tables t
 inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
-left join sys.extended_properties ep on cc.object_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)}
+left join sys.extended_properties ep on cc.object_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)} and ep.minor_id = 0
 where t.schema_id = SCHEMA_ID(@{nameof(Query.SchemaName)}) and t.name = @{nameof(Query.TableName)} and t.is_ms_shipped = 0
 
-union
+union all
 
 -- foreign keys
 select
@@ -65,10 +65,10 @@ select
     ep.value as [{nameof(Result.Comment)}]
 from sys.tables t
 inner join sys.foreign_keys fk on t.object_id = fk.parent_object_id
-left join sys.extended_properties ep on fk.object_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)}
+left join sys.extended_properties ep on fk.object_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)} and ep.minor_id = 0
 where t.schema_id = SCHEMA_ID(@{nameof(Query.SchemaName)}) and t.name = @{nameof(Query.TableName)} and t.is_ms_shipped = 0
 
-union
+union all
 
 -- unique keys
 select
@@ -77,11 +77,11 @@ select
     ep.value as [{nameof(Result.Comment)}]
 from sys.tables t
 inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
-left join sys.extended_properties ep on kc.object_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)}
+left join sys.extended_properties ep on kc.object_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)} and ep.minor_id = 0
 where t.schema_id = SCHEMA_ID(@{nameof(Query.SchemaName)}) and t.name = @{nameof(Query.TableName)}
     and t.is_ms_shipped = 0 and kc.type = 'UQ'
 
-union
+union all
 
 -- primary key
 select
@@ -90,11 +90,11 @@ select
     ep.value as [{nameof(Result.Comment)}]
 from sys.tables t
 inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
-left join sys.extended_properties ep on kc.object_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)}
+left join sys.extended_properties ep on kc.object_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)} and ep.minor_id = 0
 where t.schema_id = SCHEMA_ID(@{nameof(Query.SchemaName)}) and t.name = @{nameof(Query.TableName)}
-    and t.is_ms_shipped = 0and kc.type = 'PK'
+    and t.is_ms_shipped = 0 and kc.type = 'PK'
 
-union
+union all
 
 -- indexes
 select
@@ -108,7 +108,7 @@ where t.schema_id = SCHEMA_ID(@{nameof(Query.SchemaName)}) and t.name = @{nameof
     and i.is_primary_key = 0 and i.is_unique_constraint = 0
     and i.is_hypothetical = 0 and i.type <> 0 -- type = 0 is a heap, ignore
 
-union
+union all
 
 -- triggers
 select
@@ -117,7 +117,7 @@ select
     ep.value as [{nameof(Result.Comment)}]
 from sys.tables t
 inner join sys.triggers tr on t.object_id = tr.parent_id
-left join sys.extended_properties ep on tr.object_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)}
+left join sys.extended_properties ep on tr.object_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)} and ep.minor_id = 0
 where t.schema_id = SCHEMA_ID(@{nameof(Query.SchemaName)}) and t.name = @{nameof(Query.TableName)} and t.is_ms_shipped = 0
 ";
 }

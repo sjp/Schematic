@@ -41,8 +41,8 @@ select
     fk.name as [{nameof(Result.ChildKeyName)}],
     c.name as [{nameof(Result.ColumnName)}],
     fkc.constraint_column_id as [{nameof(Result.ConstraintColumnId)}],
-    kc.name as [{nameof(Result.ParentKeyName)}],
-    kc.type as [{nameof(Result.ParentKeyType)}],
+    coalesce(kc.name, pi.name) as [{nameof(Result.ParentKeyName)}],
+    coalesce(kc.type, 'UQ') as [{nameof(Result.ParentKeyType)}],
     fk.delete_referential_action as [{nameof(Result.DeleteAction)}],
     fk.update_referential_action as [{nameof(Result.UpdateAction)}],
     fk.is_disabled as [{nameof(Result.IsDisabled)}]
@@ -51,7 +51,10 @@ inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
 inner join sys.tables child_t on fk.parent_object_id = child_t.object_id
 inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id
 inner join sys.columns c on fkc.parent_column_id = c.column_id and c.object_id = fkc.parent_object_id
-inner join sys.key_constraints kc on kc.unique_index_id = fk.key_index_id and kc.parent_object_id = fk.referenced_object_id
-where schema_name(child_t.schema_id) = @{nameof(Query.SchemaName)} and child_t.name = @{nameof(Query.TableName)}
+-- the referenced key may be a unique constraint (sys.key_constraints) or a bare unique index with no
+-- backing constraint; sys.indexes covers both, so it's the authoritative source and kc is an optional enrichment
+inner join sys.indexes pi on pi.object_id = fk.referenced_object_id and pi.index_id = fk.key_index_id
+left join sys.key_constraints kc on kc.unique_index_id = fk.key_index_id and kc.parent_object_id = fk.referenced_object_id
+where child_t.schema_id = schema_id(@{nameof(Query.SchemaName)}) and child_t.name = @{nameof(Query.TableName)}
      and child_t.is_ms_shipped = 0 and parent_t.is_ms_shipped = 0";
 }

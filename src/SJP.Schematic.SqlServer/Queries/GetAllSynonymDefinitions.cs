@@ -27,5 +27,5 @@ select
     PARSENAME(base_object_name, 1) as [{nameof(Result.TargetObjectName)}]
 from sys.synonyms
 where is_ms_shipped = 0
-order by schema_name(schema_id), name";
+order by [{nameof(Result.SchemaName)}], [{nameof(Result.SynonymName)}]";
 }

@@ -38,5 +38,5 @@ select
     is_cached as [{nameof(Result.IsCached)}],
     cache_size as [{nameof(Result.CacheSize)}]
 from sys.sequences
-where schema_name(schema_id) = @{nameof(Query.SchemaName)}  and name = @{nameof(Query.SequenceName)} and is_ms_shipped = 0";
+where schema_id = schema_id(@{nameof(Query.SchemaName)}) and name = @{nameof(Query.SequenceName)} and is_ms_shipped = 0";
 }

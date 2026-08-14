@@ -196,4 +196,43 @@ end
             Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
         }
     }
+
+    [Test]
+    public async Task Triggers_GivenTableWithTriggerForMultipleEvents_ReturnsCorrectEventAndTiming()
+    {
+        var table = await GetTableAsync("trigger_test_table_1");
+        var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_10");
+
+        const TriggerQueryTiming timing = TriggerQueryTiming.After;
+        const TriggerEvent events = TriggerEvent.Insert | TriggerEvent.Update | TriggerEvent.Delete;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
+            Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
+        }
+    }
+
+    [Test]
+    public async Task Triggers_GivenTableWithTriggerForMultipleEvents_ReturnsSingleTriggerWithFullDefinition()
+    {
+        var table = await GetTableAsync("trigger_test_table_1");
+        var matchingTriggers = table.Triggers.Where(t => t.Name == "trigger_test_table_1_trigger_10").ToList();
+
+        const string expectedDefinition = @"
+create trigger trigger_test_table_1_trigger_10
+on trigger_test_table_1
+for insert, update, delete
+as
+begin
+    declare @test int
+end
+";
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(matchingTriggers, Has.Count.EqualTo(1));
+            Assert.That(matchingTriggers[0].Definition, Is.EqualTo(expectedDefinition));
+        }
+    }
 }

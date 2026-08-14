@@ -32,7 +32,7 @@ from sys.views v
 left join sys.extended_properties ep on v.object_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)} and ep.minor_id = 0
 where v.schema_id = SCHEMA_ID(@{nameof(Query.SchemaName)}) and v.name = @{nameof(Query.ViewName)} and v.is_ms_shipped = 0
 
-union
+union all
 
 -- columns
 select

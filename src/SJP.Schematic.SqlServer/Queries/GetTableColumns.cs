@@ -53,7 +53,7 @@ select
     c.collation_name as [{nameof(Result.Collation)}],
     c.is_computed as [{nameof(Result.IsComputed)}],
     c.is_nullable as [{nameof(Result.IsNullable)}],
-    dc.parent_column_id as [{nameof(Result.HasDefaultValue)}],
+    case when dc.object_id is null then 0 else 1 end as [{nameof(Result.HasDefaultValue)}],
     dc.definition as [{nameof(Result.DefaultValue)}],
     cc.definition as [{nameof(Result.ComputedColumnDefinition)}],
     (convert(bigint, ic.seed_value)) as [{nameof(Result.IdentitySeed)}],
@@ -64,6 +64,6 @@ left join sys.default_constraints dc on c.object_id = dc.parent_object_id and c.
 left join sys.computed_columns cc on c.object_id = cc.object_id and c.column_id = cc.column_id
 left join sys.identity_columns ic on c.object_id = ic.object_id and c.column_id = ic.column_id
 left join sys.types st on c.user_type_id = st.user_type_id
-where schema_name(t.schema_id) = @{nameof(Query.SchemaName)} and t.name = @{nameof(Query.TableName)} and t.is_ms_shipped = 0
+where t.schema_id = schema_id(@{nameof(Query.SchemaName)}) and t.name = @{nameof(Query.TableName)} and t.is_ms_shipped = 0
 order by c.column_id";
 }
