@@ -560,10 +560,32 @@ execute procedure test_trigger_fn()", CancellationToken.None);
     }
 
     [Test]
-    public async Task GetTable_WhenGivenForeignKeyReferencingBareUniqueIndex_ReturnsEmptyParentKeys()
+    public async Task GetTable_WhenGivenForeignKeyReferencingBareUniqueIndex_ReturnsParentKeyFromIndex()
     {
         var table = await GetTableAsync("fk_bare_unique_child");
 
-        Assert.That(table.ParentKeys, Is.Empty);
+        Assert.That(table.ParentKeys, Has.Exactly(1).Items);
+
+        var parentKey = table.ParentKeys.Single().ParentKey;
+        Assert.Multiple(() =>
+        {
+            Assert.That(parentKey.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
+            Assert.That(parentKey.Name.UnwrapSome().LocalName, Is.EqualTo("ux_fk_bare_unique_parent"));
+        });
+    }
+
+    [Test]
+    public async Task GetTable_WhenGivenTableWithChildReferencingBareUniqueIndex_ReturnsChildKeyFromIndex()
+    {
+        var table = await GetTableAsync("fk_bare_unique_parent");
+
+        Assert.That(table.ChildKeys, Has.Exactly(1).Items);
+
+        var childKey = table.ChildKeys.Single();
+        Assert.Multiple(() =>
+        {
+            Assert.That(childKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
+            Assert.That(childKey.ParentKey.Name.UnwrapSome().LocalName, Is.EqualTo("ux_fk_bare_unique_parent"));
+        });
     }
 }

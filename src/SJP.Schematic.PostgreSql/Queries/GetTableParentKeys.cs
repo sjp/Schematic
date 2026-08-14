@@ -40,8 +40,8 @@ select
     child_cols.con_index as "{nameof(Result.ConstraintColumnId)}",
     pns.nspname as "{nameof(Result.ParentSchemaName)}",
     pt.relname as "{nameof(Result.ParentTableName)}",
-    pkc.contype as "{nameof(Result.ParentKeyType)}",
-    pkc.conname as "{nameof(Result.ParentKeyName)}",
+    coalesce(pkc.contype, 'u') as "{nameof(Result.ParentKeyType)}",
+    coalesce(pkc.conname, pki.relname) as "{nameof(Result.ParentKeyName)}",
     c.confupdtype as "{nameof(Result.UpdateAction)}",
     c.confdeltype as "{nameof(Result.DeleteAction)}"
 from pg_catalog.pg_namespace ns
@@ -51,8 +51,9 @@ inner join pg_catalog.pg_attribute tc on tc.attrelid = t.oid and tc.attnum = any
 inner join pg_catalog.unnest(c.conkey) with ordinality as child_cols(col_index, con_index) on child_cols.col_index = tc.attnum
 inner join pg_catalog.pg_class pt on pt.oid = c.confrelid
 inner join pg_catalog.pg_namespace pns on pns.oid = pt.relnamespace
--- a foreign key's conindid is the OID of the unique index on the *referenced*
--- table, so the backing pkey/unique constraint is one join away
+-- a foreign key's conindid is the OID of the unique index on the *referenced* table; that index may be
+-- backed by a pkey/unique constraint, or it may be a bare unique index with no backing constraint
+inner join pg_catalog.pg_class pki on pki.oid = c.conindid
 left join pg_catalog.pg_constraint pkc
     on pkc.conindid = c.conindid
     and pkc.conrelid = c.confrelid

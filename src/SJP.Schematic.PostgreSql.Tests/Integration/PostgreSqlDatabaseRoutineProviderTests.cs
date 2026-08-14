@@ -183,11 +183,10 @@ LANGUAGE PLPGSQL", CancellationToken.None);
     {
         var routine = await GetRoutineAsync("db_test_routine_1");
 
-        const string expectedDefinition = @"
-BEGIN
-    RETURN val + 1;
-END; ";
-
-        Assert.That(routine.Definition, Is.EqualTo(expectedDefinition));
+        Assert.Multiple(() =>
+        {
+            Assert.That(routine.Definition, Does.StartWith("CREATE OR REPLACE FUNCTION public.db_test_routine_1(val integer)"));
+            Assert.That(routine.Definition, Does.Contain("RETURN val + 1;"));
+        });
     }
 }

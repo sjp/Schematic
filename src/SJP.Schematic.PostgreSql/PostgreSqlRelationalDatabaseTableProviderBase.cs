@@ -78,6 +78,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, PostgreSqlTableQueryCache>((tableName, _, token) => LoadColumnsAsync(tableName, token)),
         new AsyncCache<Identifier, Option<IDatabaseKey>, PostgreSqlTableQueryCache>(LoadPrimaryKeyAsync),
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, PostgreSqlTableQueryCache>(LoadUniqueKeysAsync),
+        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, PostgreSqlTableQueryCache>(LoadIndexesAsync),
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, PostgreSqlTableQueryCache>(LoadParentKeysAsync)
     );
 
@@ -463,6 +464,8 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         var primaryKey = await queryCache.GetPrimaryKeyAsync(tableName, cancellationToken);
         var uniqueKeys = await queryCache.GetUniqueKeysAsync(tableName, cancellationToken);
         var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
+        var indexes = await queryCache.GetIndexesAsync(tableName, cancellationToken);
+        var uniqueIndexLookup = GetUniqueIndexLookup(indexes);
 
         var result = new List<IDatabaseRelationalKey>(groupedChildKeys.Count);
 
@@ -474,6 +477,9 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                 await primaryKey.IfSomeAsync(k => parentKey = k);
             else if (uniqueKeyLookup.ContainsKey(groupedChildKey.Key.ParentKeyName))
                 parentKey = uniqueKeyLookup[groupedChildKey.Key.ParentKeyName];
+            else if (uniqueIndexLookup.TryGetValue(groupedChildKey.Key.ParentKeyName, out var uniqueIndex))
+                // the foreign key references a unique index with no backing UNIQUE constraint
+                parentKey = CreateKeyFromUniqueIndex(uniqueIndex);
 
             if (parentKey == null)
                 continue;
@@ -598,8 +604,15 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                     var uniqueKeys = await queryCache.GetUniqueKeysAsync(parentTableName, cancellationToken);
                     var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
 
-                    return uniqueKeyLookup.ContainsKey(parentKeyName.LocalName)
-                        ? OptionAsync<IDatabaseKey>.Some(uniqueKeyLookup[parentKeyName.LocalName])
+                    if (uniqueKeyLookup.TryGetValue(parentKeyName.LocalName, out var uniqueKey))
+                        return OptionAsync<IDatabaseKey>.Some(uniqueKey);
+
+                    // the foreign key references a unique index with no backing UNIQUE constraint
+                    var parentIndexes = await queryCache.GetIndexesAsync(parentTableName, cancellationToken);
+                    var parentUniqueIndexLookup = GetUniqueIndexLookup(parentIndexes);
+
+                    return parentUniqueIndexLookup.TryGetValue(parentKeyName.LocalName, out var uniqueIndex)
+                        ? OptionAsync<IDatabaseKey>.Some(CreateKeyFromUniqueIndex(uniqueIndex))
                         : OptionAsync<IDatabaseKey>.None;
                 })
                 .Map(parentKey =>
@@ -792,6 +805,32 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         return result;
     }
 
+    // Builds a lookup of unique indexes by name. Used to resolve foreign keys that reference a unique index which
+    // may not appear in a table's unique keys at all. This looks up such indexes by name so they can still be
+    // resolved to a key.
+    private static IReadOnlyDictionary<Identifier, IDatabaseIndex> GetUniqueIndexLookup(IReadOnlyCollection<IDatabaseIndex> indexes)
+    {
+        ArgumentNullException.ThrowIfNull(indexes);
+
+        var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count);
+
+        foreach (var index in indexes)
+        {
+            if (index.IsUnique)
+                result[index.Name.LocalName] = index;
+        }
+
+        return result;
+    }
+
+    // Synthesizes a key from a unique index so that a foreign key referencing a bare unique index (i.e. one with
+    // no backing UNIQUE constraint) can still be represented as an IDatabaseKey.
+    private static IDatabaseKey CreateKeyFromUniqueIndex(IDatabaseIndex uniqueIndex)
+    {
+        var columns = uniqueIndex.Columns.SelectMany(static ic => ic.DependentColumns).ToList();
+        return new PostgreSqlDatabaseKey(uniqueIndex.Name, DatabaseKeyType.Unique, columns);
+    }
+
     /// <summary>
     /// Creates a numeric precision given a base.
     /// </summary>
@@ -916,6 +955,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         private readonly AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, PostgreSqlTableQueryCache> _columns;
         private readonly AsyncCache<Identifier, Option<IDatabaseKey>, PostgreSqlTableQueryCache> _primaryKeys;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, PostgreSqlTableQueryCache> _uniqueKeys;
+        private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, PostgreSqlTableQueryCache> _indexes;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, PostgreSqlTableQueryCache> _foreignKeys;
 
         /// <summary>
@@ -925,13 +965,15 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         /// <param name="columnLoader">A column cache.</param>
         /// <param name="primaryKeyLoader">A primary key cache.</param>
         /// <param name="uniqueKeyLoader">A unique key cache.</param>
+        /// <param name="indexLoader">An index cache.</param>
         /// <param name="foreignKeyLoader">A foreign key cache.</param>
-        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/> or <paramref name="foreignKeyLoader"/> are <see langword="null" />.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="indexLoader"/> or <paramref name="foreignKeyLoader"/> are <see langword="null" />.</exception>
         public PostgreSqlTableQueryCache(
             AsyncCache<Identifier, Option<Identifier>, PostgreSqlTableQueryCache> tableNameLoader,
             AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, PostgreSqlTableQueryCache> columnLoader,
             AsyncCache<Identifier, Option<IDatabaseKey>, PostgreSqlTableQueryCache> primaryKeyLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, PostgreSqlTableQueryCache> uniqueKeyLoader,
+            AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, PostgreSqlTableQueryCache> indexLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, PostgreSqlTableQueryCache> foreignKeyLoader
         )
         {
@@ -939,6 +981,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             _columns = columnLoader ?? throw new ArgumentNullException(nameof(columnLoader));
             _primaryKeys = primaryKeyLoader ?? throw new ArgumentNullException(nameof(primaryKeyLoader));
             _uniqueKeys = uniqueKeyLoader ?? throw new ArgumentNullException(nameof(uniqueKeyLoader));
+            _indexes = indexLoader ?? throw new ArgumentNullException(nameof(indexLoader));
             _foreignKeys = foreignKeyLoader ?? throw new ArgumentNullException(nameof(foreignKeyLoader));
         }
 
@@ -996,6 +1039,20 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             ArgumentNullException.ThrowIfNull(tableName);
 
             return _uniqueKeys.GetByKeyAsync(tableName, this, cancellationToken);
+        }
+
+        /// <summary>
+        /// Retrieves a table's indexes from the cache, querying the database when not populated.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of indexes.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+        public Task<IReadOnlyCollection<IDatabaseIndex>> GetIndexesAsync(Identifier tableName, CancellationToken cancellationToken)
+        {
+            ArgumentNullException.ThrowIfNull(tableName);
+
+            return _indexes.GetByKeyAsync(tableName, this, cancellationToken);
         }
 
         /// <summary>
