@@ -2,7 +2,7 @@
 
 namespace SJP.Schematic.MySql.Queries;
 
-internal sealed record GetAllViewNames
+internal static class GetAllViewNames
 {
     internal sealed record Query : ISqlQuery<Result>
     {
@@ -16,10 +16,13 @@ internal sealed record GetAllViewNames
         public required string ViewName { get; init; }
     }
 
-    internal const string Sql = @$"
+    internal const string Sql = $"""
+
 select
-    TABLE_SCHEMA as `{nameof(Result.SchemaName)}`,
-    TABLE_NAME as `{nameof(Result.ViewName)}`
+    table_schema as `{nameof(Result.SchemaName)}`,
+    table_name as `{nameof(Result.ViewName)}`
 from information_schema.views
-where TABLE_SCHEMA = @{nameof(Query.SchemaName)} order by TABLE_NAME";
+where table_schema = @{nameof(Query.SchemaName)}
+order by table_schema, table_name
+""";
 }

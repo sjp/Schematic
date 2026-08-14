@@ -275,4 +275,30 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
 
         Assert.That(foreignKey.ChildKey.IsEnabled, Is.True);
     }
+
+    [Test]
+    public async Task ParentKeys_WhenGivenTableWithForeignKeyAndUnrelatedPrimaryKey_ContainsConstraintWithCorrectColumns()
+    {
+        // regression test: the foreign key's columns must not include columns belonging to the
+        // table's own primary key, even though both constraints exist on the same table
+        var table = await GetTableAsync("table_test_table_37");
+        var foreignKey = table.ParentKeys.Single();
+
+        var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
+        var expectedChildColumns = new[] { "first_name_child" };
+
+        Assert.That(childColumns, Is.EqualTo(expectedChildColumns));
+    }
+
+    [Test]
+    public async Task ParentKeys_WhenGivenTableWithForeignKeyAndUnrelatedPrimaryKey_TablePrimaryKeyHasCorrectColumns()
+    {
+        var table = await GetTableAsync("table_test_table_37");
+        var primaryKey = table.PrimaryKey.UnwrapSome();
+
+        var primaryKeyColumns = primaryKey.Columns.Select(c => c.Name.LocalName);
+        var expectedPrimaryKeyColumns = new[] { "middle_name_child" };
+
+        Assert.That(primaryKeyColumns, Is.EqualTo(expectedPrimaryKeyColumns));
+    }
 }

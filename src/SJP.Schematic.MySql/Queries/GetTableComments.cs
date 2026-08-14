@@ -20,35 +20,34 @@ internal static class GetTableComments
         public required string? Comment { get; init; }
     }
 
-    internal const string Sql = @$"
+    internal const string Sql = $"""
+
 -- table
 select
     'TABLE' as `{nameof(Result.ObjectType)}`,
-    TABLE_NAME as `{nameof(Result.ObjectName)}`,
-    TABLE_COMMENT as `{nameof(Result.Comment)}`
-from INFORMATION_SCHEMA.TABLES
-where TABLE_SCHEMA = @{nameof(Query.SchemaName)} and TABLE_NAME = @{nameof(Query.TableName)}
+    table_name as `{nameof(Result.ObjectName)}`,
+    table_comment as `{nameof(Result.Comment)}`
+from information_schema.tables
+where table_schema = @{nameof(Query.SchemaName)} and table_name = @{nameof(Query.TableName)}
 
-union
+union all
 
 -- columns
 select
     'COLUMN' as `{nameof(Result.ObjectType)}`,
-    c.COLUMN_NAME as `{nameof(Result.ObjectName)}`,
-    c.COLUMN_COMMENT as `{nameof(Result.Comment)}`
-from INFORMATION_SCHEMA.COLUMNS c
-inner join INFORMATION_SCHEMA.TABLES t on c.TABLE_SCHEMA = t.TABLE_SCHEMA and c.TABLE_NAME = t.TABLE_NAME
-where c.TABLE_SCHEMA = @{nameof(Query.SchemaName)} and c.TABLE_NAME = @{nameof(Query.TableName)}
+    column_name as `{nameof(Result.ObjectName)}`,
+    column_comment as `{nameof(Result.Comment)}`
+from information_schema.columns
+where table_schema = @{nameof(Query.SchemaName)} and table_name = @{nameof(Query.TableName)}
 
-union
+union all
 
 -- indexes
-select
+select distinct
     'INDEX' as `{nameof(Result.ObjectType)}`,
-    s.INDEX_NAME as `{nameof(Result.ObjectName)}`,
-    s.INDEX_COMMENT as `{nameof(Result.Comment)}`
-from INFORMATION_SCHEMA.STATISTICS s
-inner join INFORMATION_SCHEMA.TABLES t on s.TABLE_SCHEMA = t.TABLE_SCHEMA and s.TABLE_NAME = t.TABLE_NAME
-where s.TABLE_SCHEMA = @{nameof(Query.SchemaName)} and s.TABLE_NAME = @{nameof(Query.TableName)}
-";
+    index_name as `{nameof(Result.ObjectName)}`,
+    index_comment as `{nameof(Result.Comment)}`
+from information_schema.statistics
+where table_schema = @{nameof(Query.SchemaName)} and table_name = @{nameof(Query.TableName)}
+""";
 }

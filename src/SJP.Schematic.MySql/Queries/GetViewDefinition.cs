@@ -11,9 +11,11 @@ internal static class GetViewDefinition
         public required string ViewName { get; init; }
     }
 
-    internal const string Sql = @$"
+    internal const string Sql = $"""
+
 select view_definition
 from information_schema.views
 where table_schema = @{nameof(Query.SchemaName)} and table_name = @{nameof(Query.ViewName)}
-";
+limit 1
+""";
 }

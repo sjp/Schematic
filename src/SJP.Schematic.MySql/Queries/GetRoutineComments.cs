@@ -11,8 +11,11 @@ internal static class GetRoutineComments
         public required string RoutineName { get; init; }
     }
 
-    internal const string Sql = @$"
-select ROUTINE_COMMENT
+    internal const string Sql = $"""
+
+select routine_comment
 from information_schema.routines
-where ROUTINE_SCHEMA = @{nameof(Query.SchemaName)} and ROUTINE_NAME = @{nameof(Query.RoutineName)}";
+where routine_schema = @{nameof(Query.SchemaName)} and routine_name = @{nameof(Query.RoutineName)}
+limit 1
+""";
 }

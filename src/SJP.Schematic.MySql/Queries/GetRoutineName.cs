@@ -18,11 +18,13 @@ internal static class GetRoutineName
         public required string RoutineName { get; init; }
     }
 
-    internal const string Sql = @$"
+    internal const string Sql = $"""
+
 select
-    ROUTINE_SCHEMA as `{nameof(Result.SchemaName)}`,
-    ROUTINE_NAME as `{nameof(Result.RoutineName)}`
+    routine_schema as `{nameof(Result.SchemaName)}`,
+    routine_name as `{nameof(Result.RoutineName)}`
 from information_schema.routines
-where ROUTINE_SCHEMA = @{nameof(Query.SchemaName)} and ROUTINE_NAME = @{nameof(Query.RoutineName)}
-limit 1";
+where routine_schema = @{nameof(Query.SchemaName)} and routine_name = @{nameof(Query.RoutineName)}
+limit 1
+""";
 }

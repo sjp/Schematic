@@ -32,10 +32,11 @@ internal static class GetTableParentKeys
         public required string UpdateAction { get; init; }
     }
 
-    internal const string Sql = @$"
+    internal const string Sql = $"""
+
 select
-    pt.table_schema as `{nameof(Result.ParentTableSchema)}`,
-    pt.table_name as `{nameof(Result.ParentTableName)}`,
+    rc.unique_constraint_schema as `{nameof(Result.ParentTableSchema)}`,
+    rc.referenced_table_name as `{nameof(Result.ParentTableName)}`,
     rc.constraint_name as `{nameof(Result.ChildKeyName)}`,
     rc.unique_constraint_name as `{nameof(Result.ParentKeyName)}`,
     kc.column_name as `{nameof(Result.ColumnName)}`,
@@ -43,10 +44,17 @@ select
     ptc.constraint_type as `{nameof(Result.ParentKeyType)}`,
     rc.delete_rule as `{nameof(Result.DeleteAction)}`,
     rc.update_rule as `{nameof(Result.UpdateAction)}`
-from information_schema.tables t
-inner join information_schema.referential_constraints rc on t.table_schema = rc.constraint_schema and t.table_name = rc.table_name
-inner join information_schema.key_column_usage kc on t.table_schema = kc.table_schema and t.table_name = kc.table_name
-inner join information_schema.tables pt on pt.table_schema = rc.unique_constraint_schema and pt.table_name = rc.referenced_table_name
-inner join information_schema.table_constraints ptc on pt.table_schema = ptc.table_schema and pt.table_name = ptc.table_name and ptc.constraint_name = rc.unique_constraint_name
-where t.table_schema = @{nameof(Query.SchemaName)} and t.table_name = @{nameof(Query.TableName)}";
+from information_schema.referential_constraints rc
+inner join information_schema.key_column_usage kc
+    on kc.constraint_schema = rc.constraint_schema
+    and kc.constraint_name = rc.constraint_name
+    and kc.table_schema = rc.constraint_schema
+    and kc.table_name = rc.table_name
+inner join information_schema.table_constraints ptc
+    on ptc.table_schema = rc.unique_constraint_schema
+    and ptc.table_name = rc.referenced_table_name
+    and ptc.constraint_name = rc.unique_constraint_name
+where rc.constraint_schema = @{nameof(Query.SchemaName)} and rc.table_name = @{nameof(Query.TableName)}
+order by rc.constraint_name, kc.ordinal_position
+""";
 }

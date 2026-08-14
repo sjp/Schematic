@@ -22,12 +22,15 @@ internal static class GetTableIndexes
         public required string ColumnName { get; init; }
     }
 
-    internal const string Sql = @$"
+    internal const string Sql = $"""
+
 select
     index_name as `{nameof(Result.IndexName)}`,
     non_unique as `{nameof(Result.IsNonUnique)}`,
     seq_in_index as `{nameof(Result.ColumnOrdinal)}`,
     column_name as `{nameof(Result.ColumnName)}`
 from information_schema.statistics
-where table_schema = @{nameof(Query.SchemaName)} and table_name = @{nameof(Query.TableName)}";
+where table_schema = @{nameof(Query.SchemaName)} and table_name = @{nameof(Query.TableName)}
+order by index_name, seq_in_index
+""";
 }

@@ -36,7 +36,8 @@ internal static class GetViewColumns
         public required string? ExtraInformation { get; init; }
     }
 
-    internal const string Sql = @$"
+    internal const string Sql = $"""
+
 select
     column_name as `{nameof(Result.ColumnName)}`,
     data_type as `{nameof(Result.DataTypeName)}`,
@@ -51,5 +52,6 @@ select
     extra as `{nameof(Result.ExtraInformation)}`
 from information_schema.columns
 where table_schema = @{nameof(Query.SchemaName)} and table_name = @{nameof(Query.ViewName)}
-order by ordinal_position";
+order by ordinal_position
+""";
 }
