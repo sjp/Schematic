@@ -19,10 +19,13 @@ internal static class GetRoutineComments
     internal const string Sql = $"""
 
 select
-    d.description as "{nameof(Result.Comment)}"
+    (pg_catalog.array_agg(d.description order by (d.description is null), p.oid))[1] as "{nameof(Result.Comment)}"
 from pg_catalog.pg_proc p
-inner join pg_namespace n on n.oid = p.pronamespace
-left join pg_catalog.pg_description d on p.oid = d.objoid
+inner join pg_catalog.pg_namespace n on n.oid = p.pronamespace
+left join pg_catalog.pg_description d
+    on d.objoid = p.oid
+    and d.classoid = 'pg_catalog.pg_proc'::regclass
+    and d.objsubid = 0
 where n.nspname = @{nameof(Query.SchemaName)} and p.proname = @{nameof(Query.RoutineName)}
     and n.nspname not in ('pg_catalog', 'information_schema')
 

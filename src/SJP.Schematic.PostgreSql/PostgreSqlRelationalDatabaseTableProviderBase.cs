@@ -309,6 +309,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                 row.IsUnique,
                 row.IsPrimary,
                 row.FilterDefinition,
+                row.KeyColumnCount,
             })
             .ToList();
         if (indexColumns.Empty())
@@ -343,14 +344,21 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                     var order = row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
                     var expression = row.Column != null
                         ? Dialect.QuoteName(row.Column.Name)
-                        : row.Expression;
+                        : row.Expression!;
                     return row.Column != null
-                        ? new PostgreSqlDatabaseIndexColumn(expression!, row.Column, order)
-                        : new PostgreSqlDatabaseIndexColumn(expression!, order);
+                        ? new PostgreSqlDatabaseIndexColumn(expression, row.Column, order)
+                        : new PostgreSqlDatabaseIndexColumn(expression, order);
                 })
+                .Take(indexInfo.Key.KeyColumnCount)
+                .ToList();
+            var includedCols = indexInfo.Value
+                .OrderBy(static row => row.IndexColumnId)
+                .Skip(indexInfo.Key.KeyColumnCount)
+                .Where(row => row.IndexColumnExpression != null && columnLookup.ContainsKey(row.IndexColumnExpression))
+                .Select(row => columnLookup[row.IndexColumnExpression!])
                 .ToList();
 
-            var index = new PostgreSqlDatabaseIndex(indexName, isUnique, indexCols, filterDefinition);
+            var index = new PostgreSqlDatabaseIndex(indexName, isUnique, indexCols, includedCols, filterDefinition);
             result.Add(index);
         }
 
@@ -502,30 +510,28 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     /// <returns>A collection of check constraints.</returns>
     protected virtual async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, CancellationToken cancellationToken)
     {
-        var checks = await DbConnection.QueryAsync(
-            GetTableChecks.Sql,
-            new GetTableChecks.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-            cancellationToken
-        );
+        const string checkPrefix = "CHECK (";
+        const string checkSuffix = ")";
 
-        if (checks.Empty())
-            return [];
+        return await DbConnection.QueryEnumerableAsync(
+                GetTableChecks.Sql,
+                new GetTableChecks.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+                cancellationToken
+            )
+            .Where(checkRow => !checkRow.Definition.IsNullOrWhiteSpace())
+            .Select(checkRow =>
+            {
+                var definition = checkRow.Definition!;
+                if (definition.StartsWith(checkPrefix, StringComparison.OrdinalIgnoreCase))
+                    definition = definition[checkPrefix.Length..];
+                if (definition.EndsWith(')') && definition.Length > 0) // check suffix
+                    definition = definition[..^checkSuffix.Length];
 
-        var result = new List<IDatabaseCheckConstraint>();
+                var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);
 
-        foreach (var checkRow in checks)
-        {
-            var definition = checkRow.Definition;
-            if (definition.IsNullOrWhiteSpace())
-                continue;
-
-            var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);
-
-            var check = new PostgreSqlCheckConstraint(constraintName, definition);
-            result.Add(check);
-        }
-
-        return result;
+                return new PostgreSqlCheckConstraint(constraintName, definition);
+            })
+            .ToListAsync(cancellationToken);
     }
 
     /// <summary>
@@ -676,7 +682,14 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                     : Option<string>.None;
                 var isNullable = string.Equals(row.IsNullable, Constants.Yes, StringComparison.Ordinal);
 
-                return new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement);
+                var isComputed = string.Equals(row.IsGenerated, Constants.Always, StringComparison.Ordinal);
+                var computedDefinition = isComputed
+                    ? Option<string>.Some(row.GenerationExpression ?? string.Empty)
+                    : Option<string>.None;
+
+                return isComputed
+                    ? new DatabaseComputedColumn(columnName, columnType, isNullable, defaultValue, computedDefinition)
+                    : new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement);
             })
             .ToListAsync(cancellationToken);
     }

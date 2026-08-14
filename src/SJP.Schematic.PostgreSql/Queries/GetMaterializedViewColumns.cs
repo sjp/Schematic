@@ -134,167 +134,78 @@ internal static class GetMaterializedViewColumns
         public string? SerialSequenceLocalName { get; init; }
     }
 
-    // taken largely from information_schema.sql for postgres (but modified to work with matviews)
+    // taken largely from information_schema.sql for postgres (but modified to work with
+    // matviews). The precision/scale/length computations that information_schema.columns
+    // performs inline are delegated to the same information_schema._pg_* helper functions
+    // that view uses internally - they ship as part of every postgresql installation.
     internal const string Sql = $"""
 
-SELECT
-    a.attname AS "{nameof(Result.ColumnName)}",
-    a.attnum AS "{nameof(Result.OrdinalPosition)}",
-    pg_catalog.pg_get_expr(ad.adbin, ad.adrelid) AS "{nameof(Result.ColumnDefault)}",
-    CASE WHEN a.attnotnull OR (t.typtype = 'd' AND t.typnotnull) THEN 'NO' ELSE 'YES' END
-        AS "{nameof(Result.IsNullable)}",
+select
+    a.attname as "{nameof(Result.ColumnName)}",
+    a.attnum as "{nameof(Result.OrdinalPosition)}",
+    pg_catalog.pg_get_expr(ad.adbin, ad.adrelid) as "{nameof(Result.ColumnDefault)}",
+    case when a.attnotnull or (t.typtype = 'd' and t.typnotnull) then 'NO' else 'YES' end as "{nameof(Result.IsNullable)}",
 
-    CASE WHEN t.typtype = 'd' THEN
-    CASE WHEN bt.typelem <> 0 AND bt.typlen = -1 THEN 'ARRAY'
-        WHEN nbt.nspname = 'pg_catalog' THEN format_type(t.typbasetype, null)
-        ELSE 'USER-DEFINED' END
-    ELSE
-    CASE WHEN t.typelem <> 0 AND t.typlen = -1 THEN 'ARRAY'
-        WHEN nt.nspname = 'pg_catalog' THEN format_type(a.atttypid, null)
-        ELSE 'USER-DEFINED' END
-    END
-    AS "{nameof(Result.DataType)}",
+    case when t.typtype = 'd' then
+        case when bt.typelem <> 0 and bt.typlen = -1 then 'ARRAY'
+             when nbt.nspname = 'pg_catalog' then pg_catalog.format_type(t.typbasetype, null)
+             else 'USER-DEFINED' end
+    else
+        case when t.typelem <> 0 and t.typlen = -1 then 'ARRAY'
+             when nt.nspname = 'pg_catalog' then pg_catalog.format_type(a.atttypid, null)
+             else 'USER-DEFINED' end
+    end as "{nameof(Result.DataType)}",
 
+    information_schema._pg_char_max_length(
+        information_schema._pg_truetypid(a, t), information_schema._pg_truetypmod(a, t)
+    ) as "{nameof(Result.CharacterMaximumLength)}",
+    information_schema._pg_char_octet_length(
+        information_schema._pg_truetypid(a, t), information_schema._pg_truetypmod(a, t)
+    ) as "{nameof(Result.CharacterOctetLength)}",
+    information_schema._pg_numeric_precision(
+        information_schema._pg_truetypid(a, t), information_schema._pg_truetypmod(a, t)
+    ) as "{nameof(Result.NumericPrecision)}",
+    information_schema._pg_numeric_precision_radix(
+        information_schema._pg_truetypid(a, t), information_schema._pg_truetypmod(a, t)
+    ) as "{nameof(Result.NumericPrecisionRadix)}",
+    information_schema._pg_numeric_scale(
+        information_schema._pg_truetypid(a, t), information_schema._pg_truetypmod(a, t)
+    ) as "{nameof(Result.NumericScale)}",
+    information_schema._pg_datetime_precision(
+        information_schema._pg_truetypid(a, t), information_schema._pg_truetypmod(a, t)
+    ) as "{nameof(Result.DatetimePrecision)}",
+    information_schema._pg_interval_type(
+        information_schema._pg_truetypid(a, t), information_schema._pg_truetypmod(a, t)
+    ) as "{nameof(Result.IntervalType)}",
 
-""" + PgCharMaxLength + $"""
+    case when nco.nspname is not null then pg_catalog.current_database() end as "{nameof(Result.CollationCatalog)}",
+    nco.nspname as "{nameof(Result.CollationSchema)}",
+    co.collname as "{nameof(Result.CollationName)}",
 
-    AS "{nameof(Result.CharacterMaximumLength)}",
+    case when t.typtype = 'd' then pg_catalog.current_database() else null end as "{nameof(Result.DomainCatalog)}",
+    case when t.typtype = 'd' then nt.nspname else null end as "{nameof(Result.DomainSchema)}",
+    case when t.typtype = 'd' then t.typname else null end as "{nameof(Result.DomainName)}",
 
+    pg_catalog.current_database() as "{nameof(Result.UdtCatalog)}",
+    coalesce(nbt.nspname, nt.nspname) as "{nameof(Result.UdtSchema)}",
+    coalesce(bt.typname, t.typname) as "{nameof(Result.UdtName)}",
 
-""" + PgCharOctetLength + $"""
+    a.attnum as "{nameof(Result.DtdIdentifier)}"
 
-    AS "{nameof(Result.CharacterOctetLength)}",
+from (pg_catalog.pg_attribute a left join pg_catalog.pg_attrdef ad on attrelid = adrelid and attnum = adnum)
+    join (pg_catalog.pg_class c join pg_catalog.pg_namespace nc on (c.relnamespace = nc.oid)) on a.attrelid = c.oid
+    join (pg_catalog.pg_type t join pg_catalog.pg_namespace nt on (t.typnamespace = nt.oid)) on a.atttypid = t.oid
+    left join (pg_catalog.pg_type bt join pg_catalog.pg_namespace nbt on (bt.typnamespace = nbt.oid))
+    on (t.typtype = 'd' and t.typbasetype = bt.oid)
+    left join (pg_catalog.pg_collation co join pg_catalog.pg_namespace nco on (co.collnamespace = nco.oid))
+    on a.attcollation = co.oid and (nco.nspname, co.collname) <> ('pg_catalog', 'default')
 
-
-""" + PgNumericPrecision + $"""
-
-    AS "{nameof(Result.NumericPrecision)}",
-
-
-""" + PgNumericPrecisionRadix + $"""
-
-    AS "{nameof(Result.NumericPrecisionRadix)}",
-
-
-""" + PgNumericScale + $"""
-
-    AS "{nameof(Result.NumericScale)}",
-
-
-""" + PgDatetimePrecision + $"""
-
-    AS "{nameof(Result.DatetimePrecision)}",
-
-
-""" + PgIntervalType + $"""
-
-    AS "{nameof(Result.IntervalType)}",
-
-    CASE WHEN nco.nspname IS NOT NULL THEN current_database() END AS "{nameof(Result.CollationCatalog)}",
-    nco.nspname AS "{nameof(Result.CollationSchema)}",
-    co.collname AS "{nameof(Result.CollationName)}",
-
-    CASE WHEN t.typtype = 'd' THEN current_database() ELSE null END
-        AS "{nameof(Result.DomainCatalog)}",
-    CASE WHEN t.typtype = 'd' THEN nt.nspname ELSE null END
-        AS "{nameof(Result.DomainSchema)}",
-    CASE WHEN t.typtype = 'd' THEN t.typname ELSE null END
-        AS "{nameof(Result.DomainName)}",
-
-    current_database() AS "{nameof(Result.UdtCatalog)}",
-    coalesce(nbt.nspname, nt.nspname) AS "{nameof(Result.UdtSchema)}",
-    coalesce(bt.typname, t.typname) AS "{nameof(Result.UdtName)}",
-
-    a.attnum AS "{nameof(Result.DtdIdentifier)}"
-
-FROM (pg_catalog.pg_attribute a LEFT JOIN pg_catalog.pg_attrdef ad ON attrelid = adrelid AND attnum = adnum)
-    JOIN (pg_catalog.pg_class c JOIN pg_catalog.pg_namespace nc ON (c.relnamespace = nc.oid)) ON a.attrelid = c.oid
-    JOIN (pg_catalog.pg_type t JOIN pg_catalog.pg_namespace nt ON (t.typnamespace = nt.oid)) ON a.atttypid = t.oid
-    LEFT JOIN (pg_catalog.pg_type bt JOIN pg_catalog.pg_namespace nbt ON (bt.typnamespace = nbt.oid))
-    ON (t.typtype = 'd' AND t.typbasetype = bt.oid)
-    LEFT JOIN (pg_catalog.pg_collation co JOIN pg_catalog.pg_namespace nco ON (co.collnamespace = nco.oid))
-    ON a.attcollation = co.oid AND (nco.nspname, co.collname) <> ('pg_catalog', 'default')
-
-WHERE (NOT pg_catalog.pg_is_other_temp_schema(nc.oid))
-
-        AND a.attnum > 0 AND NOT a.attisdropped
-        AND c.relkind = 'm' -- m = matview
-
-        AND (pg_catalog.pg_has_role(c.relowner, 'USAGE')
-            OR has_column_privilege(c.oid, a.attnum,
-                                    'SELECT, INSERT, UPDATE, REFERENCES'))
-        AND nc.nspname = @{nameof(Query.SchemaName)} and c.relname = @{nameof(Query.ViewName)}
-ORDER BY a.attnum -- ordinal_position
-""";
-
-    // In order to cleanly build up an equivalent of information_schema.columns view
-    // we also need to have some functions available. However, because we do not want
-    // to modify any existing schema, we will build up this query via string replacement.
-    // Normally this is unsafe, but we will have *no user input* for the query, and any
-    // parameters are already parameterised
-
-    private const string PgTrueTypId = "CASE WHEN t.typtype = 'd' THEN t.typbasetype ELSE a.atttypid END";
-    private const string PgTrueTypMod = "CASE WHEN t.typtype = 'd' THEN t.typtypmod ELSE a.atttypmod END";
-
-    private const string PgCharMaxLength = "CASE WHEN " + PgTrueTypMod + @" = -1 /* default typmod */
-       THEN null
-       WHEN " + PgTrueTypId + @" IN (1042, 1043) /* char, varchar */
-       THEN " + PgTrueTypMod + @" - 4
-       WHEN " + PgTrueTypId + @" IN (1560, 1562) /* bit, varbit */
-       THEN " + PgTrueTypMod + @"
-       ELSE null
-  END";
-
-    private const string PgCharOctetLength = "CASE WHEN " + PgTrueTypId + @" IN (25, 1042, 1043) /* text, char, varchar */
-       THEN CASE WHEN " + PgTrueTypMod + @" = -1 /* default typmod */
-                 THEN CAST(2^30 AS integer)
-                 ELSE " + PgCharMaxLength + @" *
-                      pg_catalog.pg_encoding_max_length((SELECT encoding FROM pg_catalog.pg_database WHERE datname = pg_catalog.current_database()))
-            END
-       ELSE null
-  END";
-
-    private const string PgNumericPrecision = "CASE " + PgTrueTypId + @"
-         WHEN 21 /*int2*/ THEN 16
-         WHEN 23 /*int4*/ THEN 32
-         WHEN 20 /*int8*/ THEN 64
-         WHEN 1700 /*numeric*/ THEN
-              CASE WHEN " + PgTrueTypMod + @" = -1
-                   THEN null
-                   ELSE ((" + PgTrueTypMod + @" - 4) >> 16) & 65535
-                   END
-         WHEN 700 /*float4*/ THEN 24 /*FLT_MANT_DIG*/
-         WHEN 701 /*float8*/ THEN 53 /*DBL_MANT_DIG*/
-         ELSE null
-  END";
-
-    private const string PgNumericPrecisionRadix = "CASE WHEN " + PgTrueTypId + @" IN (21, 23, 20, 700, 701) THEN 2
-       WHEN " + PgTrueTypId + @" IN (1700) THEN 10
-       ELSE null
-  END";
-
-    private const string PgNumericScale = "CASE WHEN " + PgTrueTypId + @" IN (21, 23, 20) THEN 0
-       WHEN " + PgTrueTypId + @" IN (1700) THEN
-            CASE WHEN " + PgTrueTypMod + @" = -1
-                 THEN null
-                 ELSE (" + PgTrueTypMod + @" - 4) & 65535
-                 END
-       ELSE null
-  END";
-
-    private const string PgDatetimePrecision = "CASE WHEN " + PgTrueTypId + @" IN (1082) /* date */
-           THEN 0
-       WHEN " + PgTrueTypId + @" IN (1083, 1114, 1184, 1266) /* time, timestamp, same + tz */
-           THEN CASE WHEN " + PgTrueTypMod + " < 0 THEN 6 ELSE " + PgTrueTypMod + @" END
-       WHEN " + PgTrueTypId + @" IN (1186) /* interval */
-           THEN CASE WHEN " + PgTrueTypMod + " < 0 OR " + PgTrueTypMod + " & 65535 = 65535 THEN 6 ELSE " + PgTrueTypMod + @" & 65535 END
-       ELSE null
-  END";
-
-    private const string PgIntervalType = "CASE WHEN " + PgTrueTypId + @" IN (1186) /* interval */
-           THEN pg_catalog.upper(substring(pg_catalog.format_type(" + PgTrueTypId + ", " + PgTrueTypMod + """
-) from 'interval[()0-9]* #" %#"' for '#'))
-       ELSE null
-  END
+where (not pg_catalog.pg_is_other_temp_schema(nc.oid))
+    and a.attnum > 0 and not a.attisdropped
+    and c.relkind = 'm' -- m = matview
+    and (pg_catalog.pg_has_role(c.relowner, 'USAGE')
+        or pg_catalog.has_column_privilege(c.oid, a.attnum, 'SELECT, INSERT, UPDATE, REFERENCES'))
+    and nc.nspname = @{nameof(Query.SchemaName)} and c.relname = @{nameof(Query.ViewName)}
+order by a.attnum -- ordinal_position
 """;
 }

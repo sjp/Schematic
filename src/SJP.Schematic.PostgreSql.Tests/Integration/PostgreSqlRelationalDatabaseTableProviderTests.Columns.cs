@@ -161,13 +161,6 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Columns_WhenGivenTableWithGeneratedColumns_ReturnsExpectedComputedColumnCount()
     {
-        var dbVersion = await DatabaseProvider.GetDatabaseVersionAsync();
-        if (dbVersion < new Version(12, 0))
-        {
-            Assert.Pass();
-            return;
-        }
-
         const string tableName = "table_test_table_37";
         var table = await GetTableAsync(tableName);
         var computedColumns = table.Columns.Where(c => c.IsComputed).ToList();
@@ -178,13 +171,6 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Columns_WhenGivenTableWithGeneratedColumns_ReturnsExpectedComputedColumnNames()
     {
-        var dbVersion = await DatabaseProvider.GetDatabaseVersionAsync();
-        if (dbVersion < new Version(12, 0))
-        {
-            Assert.Pass();
-            return;
-        }
-
         const string tableName = "table_test_table_37";
         const string expectedColumnName = "test_column_2";
         var table = await GetTableAsync(tableName);
@@ -252,13 +238,6 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Columns_WhenGivenTableWithGeneratedColumns_ReturnsExpectedComputedColumnDefinition()
     {
-        var dbVersion = await DatabaseProvider.GetDatabaseVersionAsync();
-        if (dbVersion < new Version(12, 0))
-        {
-            Assert.Pass();
-            return;
-        }
-
         const string tableName = "table_test_table_37";
         const string expectedDefinition = "(test_column_1 * 2)";
         var table = await GetTableAsync(tableName);

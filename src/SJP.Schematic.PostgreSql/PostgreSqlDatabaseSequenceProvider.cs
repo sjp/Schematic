@@ -1,13 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
-using Nito.AsyncEx;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.PostgreSql;
 
@@ -29,8 +25,6 @@ public class PostgreSqlDatabaseSequenceProvider : IDatabaseSequenceProvider
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
-
-        _sequenceProvider = new AsyncLazy<Option<IDatabaseSequenceProvider>>(LoadVersionedSequenceProvider);
     }
 
     /// <summary>
@@ -64,20 +58,20 @@ public class PostgreSqlDatabaseSequenceProvider : IDatabaseSequenceProvider
     protected IDatabaseDialect Dialect => Connection.Dialect;
 
     /// <summary>
+    /// The underlying sequence provider. Constructed lazily so that <see cref="DbConnection"/>
+    /// is only evaluated once a query is actually issued, not at construction time.
+    /// </summary>
+    /// <value>A sequence provider.</value>
+    private IDatabaseSequenceProvider SequenceProvider => new PostgreSqlDatabaseSequenceProviderBase(DbConnection, IdentifierDefaults, IdentifierResolver);
+
+    /// <summary>
     /// Enumerates all database sequences.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database sequences.</returns>
-    public async IAsyncEnumerable<IDatabaseSequence> EnumerateAllSequences([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IDatabaseSequence> EnumerateAllSequences(CancellationToken cancellationToken = default)
     {
-        var provider = await _sequenceProvider;
-        var sequences = provider.Match(
-            sp => sp.EnumerateAllSequences(cancellationToken),
-            AsyncEnumerable.Empty<IDatabaseSequence>
-        );
-
-        await foreach (var sequence in sequences.WithCancellation(cancellationToken))
-            yield return sequence;
+        return SequenceProvider.EnumerateAllSequences(cancellationToken);
     }
 
     /// <summary>
@@ -85,13 +79,9 @@ public class PostgreSqlDatabaseSequenceProvider : IDatabaseSequenceProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database sequences.</returns>
-    public async Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default)
     {
-        var provider = await _sequenceProvider;
-        return await provider.Match(
-            sp => sp.GetAllSequences(cancellationToken),
-            () => Empty.Tasks.Sequences
-        );
+        return SequenceProvider.GetAllSequences(cancellationToken);
     }
 
     /// <summary>
@@ -105,24 +95,6 @@ public class PostgreSqlDatabaseSequenceProvider : IDatabaseSequenceProvider
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
 
-        return _sequenceProvider.Task
-            .ToAsync()
-            .Bind(sp => sp.GetSequence(sequenceName, cancellationToken));
+        return SequenceProvider.GetSequence(sequenceName, cancellationToken);
     }
-
-    private async Task<Option<IDatabaseSequenceProvider>> LoadVersionedSequenceProvider()
-    {
-        var version = await new PostgreSqlDatabaseProvider(Connection).GetDatabaseVersionAsync(CancellationToken.None);
-
-        var factories = new Dictionary<Version, Func<IDatabaseSequenceProvider>>
-        {
-            [new Version(10, 0)] = () => new PostgreSqlDatabaseSequenceProviderBase(DbConnection, IdentifierDefaults, IdentifierResolver),
-        };
-        var versionLookup = new VersionResolvingFactory<IDatabaseSequenceProvider>(factories);
-        var result = versionLookup.GetValue(version);
-
-        return Option<IDatabaseSequenceProvider>.Some(result);
-    }
-
-    private readonly AsyncLazy<Option<IDatabaseSequenceProvider>> _sequenceProvider;
 }

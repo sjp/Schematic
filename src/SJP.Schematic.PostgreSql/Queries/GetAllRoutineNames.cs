@@ -1,6 +1,6 @@
-﻿namespace SJP.Schematic.PostgreSql.Queries;
+namespace SJP.Schematic.PostgreSql.Queries;
 
-internal sealed record GetAllRoutineNames
+internal static class GetAllRoutineNames
 {
     internal sealed record Result
     {
@@ -11,11 +11,13 @@ internal sealed record GetAllRoutineNames
 
     internal const string Sql = $"""
 
-select
-    ROUTINE_SCHEMA as "{nameof(Result.SchemaName)}",
-    ROUTINE_NAME as "{nameof(Result.RoutineName)}"
-from information_schema.routines
-where ROUTINE_SCHEMA not in ('pg_catalog', 'information_schema')
-order by ROUTINE_SCHEMA, ROUTINE_NAME
+select distinct
+    n.nspname as "{nameof(Result.SchemaName)}",
+    p.proname as "{nameof(Result.RoutineName)}"
+from pg_catalog.pg_proc p
+inner join pg_catalog.pg_namespace n on n.oid = p.pronamespace
+where n.nspname not in ('pg_catalog', 'information_schema')
+    and not pg_catalog.pg_is_other_temp_schema(n.oid)
+order by n.nspname, p.proname
 """;
 }

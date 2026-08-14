@@ -167,6 +167,16 @@ internal static class GetTableColumns
         /// If the column is an identity column, then <c>YES</c> if the internal sequence cycles or <c>NO</c> if it does not; otherwise <see langword="null" />.
         /// </summary>
         public string? IdentityCycle { get; init; }
+
+        /// <summary>
+        /// If the column is a generated column, then <c>ALWAYS</c>, else <c>NEVER</c>.
+        /// </summary>
+        public string? IsGenerated { get; init; }
+
+        /// <summary>
+        /// If the column is a generated column, then the generation expression, else null.
+        /// </summary>
+        public string? GenerationExpression { get; init; }
     }
 
     // a little bit convoluted due to the quote_ident() being required.
@@ -175,39 +185,49 @@ internal static class GetTableColumns
     internal const string Sql = $"""
 
 select
-    column_name as "{nameof(Result.ColumnName)}",
-    ordinal_position as "{nameof(Result.OrdinalPosition)}",
-    column_default as "{nameof(Result.ColumnDefault)}",
-    is_nullable as "{nameof(Result.IsNullable)}",
-    data_type as "{nameof(Result.DataType)}",
-    character_maximum_length as "{nameof(Result.CharacterMaximumLength)}",
-    character_octet_length as "{nameof(Result.CharacterOctetLength)}",
-    numeric_precision as "{nameof(Result.NumericPrecision)}",
-    numeric_precision_radix as "{nameof(Result.NumericPrecisionRadix)}",
-    numeric_scale as "{nameof(Result.NumericScale)}",
-    datetime_precision as "{nameof(Result.DatetimePrecision)}",
-    interval_type as "{nameof(Result.IntervalType)}",
-    collation_catalog as "{nameof(Result.CollationCatalog)}",
-    collation_schema as "{nameof(Result.CollationSchema)}",
-    collation_name as "{nameof(Result.CollationName)}",
-    domain_catalog as "{nameof(Result.DomainCatalog)}",
-    domain_schema as "{nameof(Result.DomainSchema)}",
-    domain_name as "{nameof(Result.DomainName)}",
-    udt_catalog as "{nameof(Result.UdtCatalog)}",
-    udt_schema as "{nameof(Result.UdtSchema)}",
-    udt_name as "{nameof(Result.UdtName)}",
-    dtd_identifier as "{nameof(Result.DtdIdentifier)}",
-    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[1] as "{nameof(Result.SerialSequenceSchemaName)}",
-    (pg_catalog.parse_ident(pg_catalog.pg_get_serial_sequence(quote_ident(table_schema) || '.' || quote_ident(table_name), column_name)))[2] as "{nameof(Result.SerialSequenceLocalName)}",
-    is_identity as "{nameof(Result.IsIdentity)}",
-    identity_generation as "{nameof(Result.IdentityGeneration)}",
-    identity_start as "{nameof(Result.IdentityStart)}",
-    identity_increment as "{nameof(Result.IdentityIncrement)}",
-    identity_maximum as "{nameof(Result.IdentityMaximum)}",
-    identity_minimum as "{nameof(Result.IdentityMinimum)}",
-    identity_cycle as "{nameof(Result.IdentityCycle)}"
-from information_schema.columns
-where table_schema = @{nameof(Query.SchemaName)}  and table_name = @{nameof(Query.TableName)}
-order by ordinal_position
+    c.column_name as "{nameof(Result.ColumnName)}",
+    c.ordinal_position as "{nameof(Result.OrdinalPosition)}",
+    c.column_default as "{nameof(Result.ColumnDefault)}",
+    c.is_nullable as "{nameof(Result.IsNullable)}",
+    c.data_type as "{nameof(Result.DataType)}",
+    c.character_maximum_length as "{nameof(Result.CharacterMaximumLength)}",
+    c.character_octet_length as "{nameof(Result.CharacterOctetLength)}",
+    c.numeric_precision as "{nameof(Result.NumericPrecision)}",
+    c.numeric_precision_radix as "{nameof(Result.NumericPrecisionRadix)}",
+    c.numeric_scale as "{nameof(Result.NumericScale)}",
+    c.datetime_precision as "{nameof(Result.DatetimePrecision)}",
+    c.interval_type as "{nameof(Result.IntervalType)}",
+    c.collation_catalog as "{nameof(Result.CollationCatalog)}",
+    c.collation_schema as "{nameof(Result.CollationSchema)}",
+    c.collation_name as "{nameof(Result.CollationName)}",
+    c.domain_catalog as "{nameof(Result.DomainCatalog)}",
+    c.domain_schema as "{nameof(Result.DomainSchema)}",
+    c.domain_name as "{nameof(Result.DomainName)}",
+    c.udt_catalog as "{nameof(Result.UdtCatalog)}",
+    c.udt_schema as "{nameof(Result.UdtSchema)}",
+    c.udt_name as "{nameof(Result.UdtName)}",
+    c.dtd_identifier as "{nameof(Result.DtdIdentifier)}",
+    seq.parts[1] as "{nameof(Result.SerialSequenceSchemaName)}",
+    seq.parts[2] as "{nameof(Result.SerialSequenceLocalName)}",
+    c.is_identity as "{nameof(Result.IsIdentity)}",
+    c.identity_generation as "{nameof(Result.IdentityGeneration)}",
+    c.identity_start as "{nameof(Result.IdentityStart)}",
+    c.identity_increment as "{nameof(Result.IdentityIncrement)}",
+    c.identity_maximum as "{nameof(Result.IdentityMaximum)}",
+    c.identity_minimum as "{nameof(Result.IdentityMinimum)}",
+    c.identity_cycle as "{nameof(Result.IdentityCycle)}",
+    c.is_generated as "{nameof(Result.IsGenerated)}",
+    c.generation_expression as "{nameof(Result.GenerationExpression)}"
+from information_schema.columns c
+cross join lateral (
+    select pg_catalog.parse_ident(
+        pg_catalog.pg_get_serial_sequence(
+            pg_catalog.quote_ident(c.table_schema) || '.' || pg_catalog.quote_ident(c.table_name),
+            c.column_name
+        )
+    ) as parts
+) seq
+where c.table_schema = @{nameof(Query.SchemaName)} and c.table_name = @{nameof(Query.TableName)}
+order by c.ordinal_position
 """;
 }

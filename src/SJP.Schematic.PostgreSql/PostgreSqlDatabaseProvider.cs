@@ -82,49 +82,19 @@ public class PostgreSqlDatabaseProvider : IRelationalDatabaseProvider
 
     private const string DatabaseVersionQuerySql = "select current_setting('server_version_num') as DatabaseVersion";
 
+    // server_version_num is a plain integer: major * 10000 + minor for v10 and newer
+    // (e.g. 170004 -> 17.4), or major * 10000 + minor * 100 + patch for v9 and older
+    // (e.g. 90604 -> 9.6.4).
     private static Version? ParsePostgresVersionString(string versionStr)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(versionStr);
 
-        return versionStr.Length >= 6
-            ? ParseNewPostgresVersionString(versionStr)
-            : ParseOldPostgresVersionString(versionStr);
-    }
+        if (!int.TryParse(versionStr, NumberStyles.Integer, CultureInfo.InvariantCulture, out var versionNum))
+            return null;
 
-    // for v10 or newer
-    private static Version? ParseNewPostgresVersionString(string versionStr)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(versionStr);
-        if (versionStr.Length != 6)
-            throw new ArgumentException("The version string must be 6 characters long", nameof(versionStr));
-
-        var majorVersionStr = versionStr[..2];
-        var minorVersionStr = versionStr.Substring(4, 2);
-        var parsedMajor = int.TryParse(majorVersionStr, NumberStyles.Integer, CultureInfo.InvariantCulture, out var majorVersion);
-        var parsedMinor = int.TryParse(minorVersionStr, NumberStyles.Integer, CultureInfo.InvariantCulture, out var minorVersion);
-
-        return parsedMajor && parsedMinor
-            ? new Version(majorVersion, minorVersion)
-            : null;
-    }
-
-    // for v9 or older
-    private static Version? ParseOldPostgresVersionString(string versionStr)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(versionStr);
-        if (versionStr.Length != 5)
-            throw new ArgumentException("The version string must be 5 characters long", nameof(versionStr));
-
-        var majorVersionStr = versionStr[..1];
-        var minorVersionStr = versionStr.Substring(1, 2);
-        var patchVersionStr = versionStr.Substring(3, 2);
-        var parsedMajorVersion = int.TryParse(majorVersionStr, NumberStyles.Integer, CultureInfo.InvariantCulture, out var majorVersion);
-        var parsedMinorVersion = int.TryParse(minorVersionStr, NumberStyles.Integer, CultureInfo.InvariantCulture, out var minorVersion);
-        var parsedPatchVersion = int.TryParse(patchVersionStr, NumberStyles.Integer, CultureInfo.InvariantCulture, out var patchVersion);
-
-        return parsedMajorVersion && parsedMinorVersion && parsedPatchVersion
-            ? new Version(majorVersion, minorVersion, patchVersion)
-            : null;
+        return versionNum >= 100000
+            ? new Version(versionNum / 10000, versionNum % 100)
+            : new Version(versionNum / 10000, versionNum / 100 % 100, versionNum % 100);
     }
 
     /// <summary>

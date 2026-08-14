@@ -18,30 +18,6 @@ services:
         ports:
             - 1521:1521
 
-    postgres-10:
-        image: postgres:10-alpine
-        container_name: schematic_postgresql_v10
-        env_file:
-            - ./postgres.env
-        ports:
-            - 5410:5432
-
-    postgres-11:
-        image: postgres:11-alpine
-        container_name: schematic_postgresql_v11
-        env_file:
-            - ./postgres.env
-        ports:
-            - 5411:5432
-
-    postgres-12:
-        image: postgres:12-alpine
-        container_name: schematic_postgresql_v12
-        env_file:
-            - ./postgres.env
-        ports:
-            - 5412:5432
-
     postgres-13:
         image: postgres:13-alpine
         container_name: schematic_postgresql_v13

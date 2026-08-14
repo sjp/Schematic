@@ -12,10 +12,14 @@ internal static class GetAllTableNames
     internal const string Sql = $"""
 
 select
-    schemaname as "{nameof(Result.SchemaName)}",
-    tablename as "{nameof(Result.TableName)}"
-from pg_catalog.pg_tables
-where schemaname not in ('pg_catalog', 'information_schema')
-order by schemaname, tablename
+    ns.nspname as "{nameof(Result.SchemaName)}",
+    t.relname as "{nameof(Result.TableName)}"
+from pg_catalog.pg_class t
+inner join pg_catalog.pg_namespace ns on ns.oid = t.relnamespace
+where t.relkind in ('r', 'p')
+    and not t.relispartition
+    and ns.nspname not in ('pg_catalog', 'information_schema')
+    and not pg_catalog.pg_is_other_temp_schema(ns.oid)
+order by ns.nspname, t.relname
 """;
 }

@@ -22,7 +22,7 @@ internal static class GetMaterializedViewName
 
 select schemaname as "{nameof(Result.SchemaName)}", matviewname as "{nameof(Result.ViewName)}"
 from pg_catalog.pg_matviews
-where schemaname = @{nameof(Result.SchemaName)} and matviewname = @{nameof(Result.ViewName)}
+where schemaname = @{nameof(Query.SchemaName)} and matviewname = @{nameof(Query.ViewName)}
     and schemaname not in ('pg_catalog', 'information_schema')
 limit 1
 """;

@@ -22,31 +22,40 @@ internal static class GetMaterializedViewComments
 
     internal const string Sql = $"""
 
+with rel as materialized (
+    select c.oid as reloid, c.relname
+    from pg_catalog.pg_class c
+    inner join pg_catalog.pg_namespace n on n.oid = c.relnamespace
+    where c.relkind = 'm'
+        and n.nspname = @{nameof(Query.SchemaName)}
+        and c.relname = @{nameof(Query.ViewName)}
+        and n.nspname not in ('pg_catalog', 'information_schema')
+)
 -- view
 select
     'VIEW' as "{nameof(Result.ObjectType)}",
-    c.relname as "{nameof(Result.ObjectName)}",
+    r.relname as "{nameof(Result.ObjectName)}",
     d.description as "{nameof(Result.Comment)}"
-from pg_catalog.pg_class c
-inner join pg_catalog.pg_namespace n on c.relnamespace = n.oid
-left join pg_catalog.pg_description d on c.oid = d.objoid and d.objsubid = 0
-where n.nspname = @{nameof(Query.SchemaName)} and c.relname = @{nameof(Query.ViewName)}
-    and c.relkind = 'm' and n.nspname not in ('pg_catalog', 'information_schema')
+from rel r
+left join pg_catalog.pg_description d
+    on d.objoid = r.reloid
+    and d.classoid = 'pg_catalog.pg_class'::regclass
+    and d.objsubid = 0
 
-union
+union all
 
 -- columns
 select
     'COLUMN' as "{nameof(Result.ObjectType)}",
     a.attname as "{nameof(Result.ObjectName)}",
     d.description as "{nameof(Result.Comment)}"
-from pg_catalog.pg_class c
-inner join pg_catalog.pg_namespace n on c.relnamespace = n.oid
-inner join pg_catalog.pg_attribute a on a.attrelid = c.oid
-left join pg_description d on c.oid = d.objoid and a.attnum = d.objsubid
-where n.nspname = @{nameof(Query.SchemaName)} and c.relname = @{nameof(Query.ViewName)}
-    and c.relkind = 'm' and n.nspname not in ('pg_catalog', 'information_schema')
-    and a.attnum > 0 and not a.attisdropped
+from rel r
+inner join pg_catalog.pg_attribute a
+    on a.attrelid = r.reloid and a.attnum > 0 and not a.attisdropped
+left join pg_catalog.pg_description d
+    on d.objoid = r.reloid
+    and d.classoid = 'pg_catalog.pg_class'::regclass
+    and d.objsubid = a.attnum
 
 """;
 }

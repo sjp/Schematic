@@ -20,10 +20,10 @@ internal static class GetSequenceName
 
     internal const string Sql = $"""
 
-select sequence_schema as "{nameof(Result.SchemaName)}", sequence_name as "{nameof(Result.SequenceName)}"
-from information_schema.sequences
-where sequence_schema = @{nameof(Query.SchemaName)} and sequence_name = @{nameof(Query.SequenceName)}
-    and sequence_schema not in ('pg_catalog', 'information_schema')
+select schemaname as "{nameof(Result.SchemaName)}", sequencename as "{nameof(Result.SequenceName)}"
+from pg_catalog.pg_sequences
+where schemaname = @{nameof(Query.SchemaName)} and sequencename = @{nameof(Query.SequenceName)}
+    and schemaname not in ('pg_catalog', 'information_schema')
 limit 1
 """;
 }

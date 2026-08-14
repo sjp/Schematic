@@ -21,11 +21,12 @@ internal static class GetRoutineName
     internal const string Sql = $"""
 
 select
-    ROUTINE_SCHEMA as "{nameof(Result.SchemaName)}",
-    ROUTINE_NAME as "{nameof(Result.RoutineName)}"
-from information_schema.routines
-where ROUTINE_SCHEMA = @{nameof(Query.SchemaName)} and ROUTINE_NAME = @{nameof(Query.RoutineName)}
-    and ROUTINE_SCHEMA not in ('pg_catalog', 'information_schema')
+    n.nspname as "{nameof(Result.SchemaName)}",
+    p.proname as "{nameof(Result.RoutineName)}"
+from pg_catalog.pg_proc p
+inner join pg_catalog.pg_namespace n on n.oid = p.pronamespace
+where n.nspname = @{nameof(Query.SchemaName)} and p.proname = @{nameof(Query.RoutineName)}
+    and n.nspname not in ('pg_catalog', 'information_schema')
 limit 1
 """;
 }

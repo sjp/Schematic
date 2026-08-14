@@ -39,6 +39,7 @@ select
     idx.indisunique as "{nameof(Result.IsUnique)}",
     idx.indisprimary as "{nameof(Result.IsPrimary)}",
     pg_catalog.pg_get_expr(idx.indpred, idx.indrelid) as "{nameof(Result.FilterDefinition)}",
+    idx.indnkeyatts as "{nameof(Result.KeyColumnCount)}",
     pg_catalog.generate_subscripts(idx.indkey, 1) as "{nameof(Result.IndexColumnId)}",
     pg_catalog.unnest(array(
         select pg_catalog.pg_get_indexdef(idx.indexrelid, k + 1, true)
@@ -56,7 +57,7 @@ from pg_catalog.pg_index idx
     inner join pg_catalog.pg_namespace ns on ns.oid = t.relnamespace
     inner join pg_catalog.pg_class i on i.oid = idx.indexrelid
 where
-    t.relkind = 'r'
+    t.relkind in ('r', 'p')
     and t.relname = @{nameof(Query.TableName)}
     and ns.nspname = @{nameof(Query.SchemaName)}
 """;

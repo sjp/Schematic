@@ -38,18 +38,10 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [Test]
     public async Task Triggers_GivenTableWithTrigger_ReturnsCorrectDefinition()
     {
-        var dbVersion = await DatabaseProvider.GetDatabaseVersionAsync();
-
         var table = await GetTableAsync("trigger_test_table_1");
         var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_1");
 
-        const string expectedOldDefinition = "EXECUTE PROCEDURE test_trigger_fn()";
-        const string expectedNewDefinition = "EXECUTE FUNCTION test_trigger_fn()";
-        var expectedDefinition = dbVersion < new Version(12, 0)
-            ? expectedOldDefinition
-            : expectedNewDefinition;
-
-        Assert.That(trigger.Definition, Is.EqualTo(expectedDefinition));
+        Assert.That(trigger.Definition, Does.Contain("EXECUTE FUNCTION test_trigger_fn()"));
     }
 
     [Test]

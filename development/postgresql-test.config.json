@@ -1,7 +1,5 @@
 {
     "ConnectionStrings": {
-        "PostgreSql_TestDb": "Server=127.0.0.1; Port=5414; Database=schematic; User Id=schematic; Password=schematic",
-        "PostgreSql_TestDb_11": "Server=127.0.0.1; Port=5411; Database=schematic; User Id=schematic; Password=schematic",
-        "PostgreSql_TestDb_12": "Server=127.0.0.1; Port=5412; Database=schematic; User Id=schematic; Password=schematic"
+        "PostgreSql_TestDb": "Server=127.0.0.1; Port=5414; Database=schematic; User Id=schematic; Password=schematic"
     }
   }

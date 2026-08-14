@@ -22,7 +22,7 @@ internal static class GetTableChecks
 
 select
     c.conname as "{nameof(Result.ConstraintName)}",
-    c.consrc as "{nameof(Result.Definition)}"
+    pg_catalog.pg_get_constraintdef(c.oid) as "{nameof(Result.Definition)}"
 from pg_catalog.pg_namespace ns
 inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid

@@ -18,8 +18,6 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     [OneTimeSetUp]
     public async Task Init()
     {
-        var dbVersion = await DatabaseProvider.GetDatabaseVersionAsync(CancellationToken.None);
-
         await DbConnection.ExecuteAsync("create table db_test_table_1 ( title varchar(200) )", CancellationToken.None);
 
         await DbConnection.ExecuteAsync("create table table_test_table_1 ( test_column int )", CancellationToken.None);
@@ -101,8 +99,7 @@ create table table_test_table_15 (
     constraint pk_test_table_15 primary key (first_name_parent),
     constraint uk_test_table_15 unique (last_name_parent, middle_name_parent)
 )", CancellationToken.None);
-        if (dbVersion >= new Version(11, 0))
-            await DbConnection.ExecuteAsync("create index ix_test_table_15 on table_test_table_15 (last_name_parent) include (first_name_parent)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create index ix_test_table_15 on table_test_table_15 (last_name_parent) include (first_name_parent)", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_16 (
     first_name_child varchar(50),
@@ -110,8 +107,7 @@ create table table_test_table_16 (
     last_name varchar(50),
     constraint fk_test_table_16 foreign key (first_name_child) references table_test_table_15 (first_name_parent)
 )", CancellationToken.None);
-        if (dbVersion >= new Version(11, 0))
-            await DbConnection.ExecuteAsync("create index ix_test_table_16 on table_test_table_16 (last_name) include (middle_name, first_name_child)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create index ix_test_table_16 on table_test_table_16 (last_name) include (middle_name, first_name_child)", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_17 (
     first_name varchar(50),
@@ -225,14 +221,11 @@ create table table_test_table_32 (
         await DbConnection.ExecuteAsync("create table table_test_table_33 ( test_column int not null default 1 )", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table table_test_table_35 ( test_column serial primary key )", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table table_test_table_36 ( test_column int generated always as identity (start with 123 increment by 456) )", CancellationToken.None);
-        if (dbVersion >= new Version(12, 0))
-        {
-            await DbConnection.ExecuteAsync(@"
+        await DbConnection.ExecuteAsync(@"
 create table table_test_table_37 (
     test_column_1 int,
     test_column_2 int generated always as (test_column_1 * 2) stored
 )", CancellationToken.None);
-        }
         await DbConnection.ExecuteAsync("create table table_test_table_38 ( test_column int not null )", CancellationToken.None);
         await DbConnection.ExecuteAsync("create index ix_test_table_38 on table_test_table_38 (test_column) where test_column > 100", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
@@ -252,6 +245,29 @@ create table table_test_table_41 (
     circle_column circle
 )", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table table_test_table_42 ( uuid_column uuid )", CancellationToken.None);
+
+        await DbConnection.ExecuteAsync(@"
+create table table_test_partitioned_1 (
+    part_key int not null,
+    payload varchar(50),
+    constraint pk_test_partitioned_1 primary key (part_key)
+) partition by range (part_key)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create index ix_test_partitioned_1 on table_test_partitioned_1 (payload)", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create table table_test_partitioned_1_p1
+    partition of table_test_partitioned_1 for values from (0) to (100)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("comment on table table_test_partitioned_1 is 'test partitioned table comment'", CancellationToken.None);
+        await DbConnection.ExecuteAsync("comment on column table_test_partitioned_1.payload is 'test partitioned column comment'", CancellationToken.None);
+
+        await DbConnection.ExecuteAsync(@"
+create table fk_bare_unique_parent (
+    a int
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create unique index ux_fk_bare_unique_parent on fk_bare_unique_parent (a)", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create table fk_bare_unique_child (
+    a int references fk_bare_unique_parent (a)
+)", CancellationToken.None);
 
         await DbConnection.ExecuteAsync("create table trigger_test_table_1 (table_id int primary key not null)", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table trigger_test_table_2 (table_id int primary key not null)", CancellationToken.None);
@@ -298,8 +314,6 @@ execute procedure test_trigger_fn()", CancellationToken.None);
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        var dbVersion = await DatabaseProvider.GetDatabaseVersionAsync(CancellationToken.None);
-
         await DbConnection.ExecuteAsync("drop table db_test_table_1", CancellationToken.None);
 
         await DbConnection.ExecuteAsync("drop table table_test_table_1", CancellationToken.None);
@@ -337,13 +351,15 @@ execute procedure test_trigger_fn()", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_33", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_35", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_36", CancellationToken.None);
-        if (dbVersion >= new Version(12, 0))
-            await DbConnection.ExecuteAsync("drop table table_test_table_37", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_test_table_37", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_38", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_39", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_40", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_41", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_42", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_test_partitioned_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table fk_bare_unique_child", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table fk_bare_unique_parent", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_1", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_2", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop function test_trigger_fn()", CancellationToken.None);
@@ -493,5 +509,61 @@ execute procedure test_trigger_fn()", CancellationToken.None);
         var containsTestTable = tables.Any(t => string.Equals(t.Name.LocalName, "db_test_table_1", StringComparison.Ordinal));
 
         Assert.That(containsTestTable, Is.True);
+    }
+
+    [Test]
+    public async Task GetTable_WhenGivenPartitionedTable_ReturnsTableWithColumns()
+    {
+        var table = await GetTableAsync("table_test_partitioned_1");
+
+        Assert.That(table.Columns, Has.Count.EqualTo(2));
+    }
+
+    [Test]
+    public async Task GetTable_WhenGivenPartitionedTable_ReturnsTableWithIndex()
+    {
+        var table = await GetTableAsync("table_test_partitioned_1");
+
+        var containsIndex = table.Indexes.Any(i => string.Equals(i.Name.LocalName, "ix_test_partitioned_1", StringComparison.Ordinal));
+
+        Assert.That(containsIndex, Is.True);
+    }
+
+    [Test]
+    public async Task GetTable_WhenGivenPartitionedTable_ReturnsTableWithPrimaryKey()
+    {
+        var table = await GetTableAsync("table_test_partitioned_1");
+
+        var primaryKeyIsSome = table.PrimaryKey.IsSome;
+
+        Assert.That(primaryKeyIsSome, Is.True);
+    }
+
+    [Test]
+    public async Task GetTable_WhenGivenIndividualPartition_ReturnsNone()
+    {
+        var tableIsNone = await TableProvider.GetTable("table_test_partitioned_1_p1").IsNone;
+
+        Assert.That(tableIsNone, Is.True);
+    }
+
+    [Test]
+    public async Task GetAllTables_WhenRetrieved_ContainsPartitionedParentButNotPartition()
+    {
+        var tables = await TableProvider.GetAllTables();
+
+        var containsParent = tables.Any(t => string.Equals(t.Name.LocalName, "table_test_partitioned_1", StringComparison.Ordinal));
+        var containsPartition = tables.Any(t => string.Equals(t.Name.LocalName, "table_test_partitioned_1_p1", StringComparison.Ordinal));
+
+        Assert.That(containsParent, Is.True);
+        Assert.That(containsPartition, Is.False);
+    }
+
+    [Test]
+    public async Task GetTable_WhenGivenForeignKeyReferencingBareUniqueIndex_ReturnsEmptyParentKeys()
+    {
+        var table = await GetTableAsync("fk_bare_unique_child");
+
+        Assert.That(table.ParentKeys, Is.Empty);
     }
 }
