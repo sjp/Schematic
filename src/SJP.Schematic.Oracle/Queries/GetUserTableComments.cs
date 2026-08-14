@@ -30,7 +30,7 @@ left join SYS.USER_MVIEWS mv on t.TABLE_NAME = mv.MVIEW_NAME
 left join SYS.USER_TAB_COMMENTS c on t.TABLE_NAME = c.TABLE_NAME and c.TABLE_TYPE = 'TABLE'
 where t.TABLE_NAME = :{nameof(Query.TableName)} and mv.MVIEW_NAME is null
 
-union
+union all
 
 -- columns
 select

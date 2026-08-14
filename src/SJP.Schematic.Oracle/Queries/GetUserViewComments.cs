@@ -28,7 +28,8 @@ select
 from SYS.USER_VIEWS v
 left join SYS.USER_TAB_COMMENTS c on v.VIEW_NAME = c.TABLE_NAME and c.TABLE_TYPE = 'VIEW'
 where v.VIEW_NAME = :{nameof(Query.ViewName)}
-union
+
+union all
 
 -- columns
 select

@@ -28,6 +28,7 @@ left join SYS.ALL_NESTED_TABLES nt on t.OWNER = nt.OWNER and t.TABLE_NAME = nt.T
 left join SYS.ALL_EXTERNAL_TABLES et on t.OWNER = et.OWNER and t.TABLE_NAME = et.TABLE_NAME
 where
     t.OWNER = :{nameof(Query.SchemaName)} and t.TABLE_NAME = :{nameof(Query.TableName)}
+    and o.OBJECT_TYPE = 'TABLE'
     and o.ORACLE_MAINTAINED <> 'Y'
     and o.GENERATED <> 'Y'
     and o.SECONDARY <> 'Y'

@@ -9,9 +9,11 @@ internal static class GetUserRoutineDefinition
         public required string RoutineName { get; init; }
     }
 
-    internal const string Sql = @$"
+    internal const string Sql = $"""
+
 select TEXT
 from SYS.USER_SOURCE
-where NAME = :{nameof(Query.RoutineName)} AND TYPE IN ('FUNCTION', 'PROCEDURE')
-order by LINE";
+where NAME = :{nameof(Query.RoutineName)} and TYPE in ('FUNCTION', 'PROCEDURE')
+order by LINE
+""";
 }

@@ -31,7 +31,7 @@ select
     CACHE_SIZE as "{nameof(Result.CacheSize)}"
 from SYS.ALL_SEQUENCES s
 inner join SYS.ALL_OBJECTS o on s.SEQUENCE_OWNER = o.OWNER and s.SEQUENCE_NAME = o.OBJECT_NAME
-where o.ORACLE_MAINTAINED <> 'Y'
+where o.OBJECT_TYPE = 'SEQUENCE' and o.ORACLE_MAINTAINED <> 'Y'
 order by s.SEQUENCE_OWNER, s.SEQUENCE_NAME
 """;
 }

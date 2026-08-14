@@ -29,7 +29,7 @@ from SYS.USER_MVIEWS v
 left join SYS.USER_MVIEW_COMMENTS c on v.MVIEW_NAME = c.MVIEW_NAME
 where v.MVIEW_NAME = :{nameof(Query.ViewName)}
 
-union
+union all
 
 -- columns
 select

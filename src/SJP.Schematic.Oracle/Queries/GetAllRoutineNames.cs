@@ -11,11 +11,11 @@ internal static class GetAllRoutineNames
 
     internal const string Sql = $"""
 
-SELECT
+select
     OWNER as "{nameof(Result.SchemaName)}",
     OBJECT_NAME as "{nameof(Result.RoutineName)}"
-FROM SYS.ALL_OBJECTS
-WHERE ORACLE_MAINTAINED <> 'Y' AND OBJECT_TYPE in ('FUNCTION', 'PROCEDURE')
-ORDER BY OWNER, OBJECT_NAME
+from SYS.ALL_OBJECTS
+where ORACLE_MAINTAINED <> 'Y' and OBJECT_TYPE in ('FUNCTION', 'PROCEDURE')
+order by OWNER, OBJECT_NAME
 """;
 }

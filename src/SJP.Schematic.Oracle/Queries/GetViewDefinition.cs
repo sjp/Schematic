@@ -11,8 +11,10 @@ internal static class GetViewDefinition
         public required string ViewName { get; init; }
     }
 
-    internal const string Sql = @$"
+    internal const string Sql = $"""
+
 select TEXT
 from SYS.ALL_VIEWS
-where OWNER = :{nameof(Query.SchemaName)} and VIEW_NAME = :{nameof(Query.ViewName)}";
+where OWNER = :{nameof(Query.SchemaName)} and VIEW_NAME = :{nameof(Query.ViewName)}
+""";
 }

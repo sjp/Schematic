@@ -48,7 +48,7 @@ select
     atc.CHARACTER_SET_NAME as "{nameof(Result.Collation)}",
     atc.VIRTUAL_COLUMN as "{nameof(Result.IsComputed)}"
 from SYS.ALL_TAB_COLS atc
-where OWNER = :{nameof(Query.SchemaName)} and TABLE_NAME = :{nameof(Query.ViewName)}
+where atc.OWNER = :{nameof(Query.SchemaName)} and atc.TABLE_NAME = :{nameof(Query.ViewName)}
 order by atc.COLUMN_ID
 """;
 }

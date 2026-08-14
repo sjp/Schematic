@@ -16,7 +16,7 @@ select
     v.VIEW_NAME as "{nameof(Result.ViewName)}"
 from SYS.ALL_VIEWS v
 inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.VIEW_NAME = o.OBJECT_NAME
-where o.ORACLE_MAINTAINED <> 'Y'
+where o.OBJECT_TYPE = 'VIEW' and o.ORACLE_MAINTAINED <> 'Y'
 order by v.OWNER, v.VIEW_NAME
 """;
 }

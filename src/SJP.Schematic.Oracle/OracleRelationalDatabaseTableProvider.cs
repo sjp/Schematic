@@ -74,10 +74,11 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <returns>A query cache.</returns>
     protected OracleTableQueryCache CreateQueryCache() => new(
         new AsyncCache<Identifier, Option<Identifier>, OracleTableQueryCache>((tableName, _, token) => GetResolvedTableName(tableName, token)),
-        new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, OracleTableQueryCache>((tableName, _, token) => LoadColumnsAsync(tableName, token)),
+        new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, OracleTableQueryCache>(LoadColumnsAsync),
         new AsyncCache<Identifier, Option<IDatabaseKey>, OracleTableQueryCache>(LoadPrimaryKeyAsync),
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, OracleTableQueryCache>(LoadUniqueKeysAsync),
-        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, OracleTableQueryCache>(LoadParentKeysAsync)
+        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, OracleTableQueryCache>(LoadParentKeysAsync),
+        new AsyncCache<Identifier, IReadOnlyCollection<GetTableChecks.Result>, OracleTableQueryCache>((tableName, _, token) => LoadCheckRowsAsync(tableName, token))
     );
 
     /// <summary>
@@ -480,11 +481,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
     private async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsyncCore(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var checks = await DbConnection.QueryAsync(
-            GetTableChecks.Sql,
-            new GetTableChecks.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-            cancellationToken
-        );
+        var checks = await queryCache.GetCheckRowsAsync(tableName, cancellationToken);
 
         if (checks.Empty())
             return [];
@@ -513,6 +510,32 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Retrieves the raw check constraint rows defined on a given table. Shared by <see cref="LoadChecksAsync"/> and
+    /// <see cref="GetNotNullConstrainedColumnsAsync"/> so that <c>GetTableChecks</c> is only queried once per table.
+    /// </summary>
+    /// <param name="tableName">A table name.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of raw check constraint rows.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+    internal Task<IReadOnlyCollection<GetTableChecks.Result>> LoadCheckRowsAsync(Identifier tableName, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(tableName);
+
+        return LoadCheckRowsAsyncCore(tableName, cancellationToken);
+    }
+
+    private async Task<IReadOnlyCollection<GetTableChecks.Result>> LoadCheckRowsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+    {
+        var checks = await DbConnection.QueryAsync(
+            GetTableChecks.Sql,
+            new GetTableChecks.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+            cancellationToken
+        );
+
+        return checks.ToList();
     }
 
     /// <summary>
@@ -608,17 +631,19 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// Retrieves the columns for a given table.
     /// </summary>
     /// <param name="tableName">A table name.</param>
+    /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An ordered collection of columns.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
-    protected Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier tableName, CancellationToken cancellationToken)
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
+    protected Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(queryCache);
 
-        return LoadColumnsAsyncCore(tableName, cancellationToken);
+        return LoadColumnsAsyncCore(tableName, queryCache, cancellationToken);
     }
 
-    private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+    private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         var query = await DbConnection.QueryAsync(
             GetTableColumns.Sql,
@@ -630,7 +655,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             .Where(static row => row.ColumnName != null)
             .Select(static row => row.ColumnName!)
             .ToList();
-        var notNullableColumnNames = await GetNotNullConstrainedColumnsAsync(tableName, columnNames, cancellationToken);
+        var notNullableColumnNames = await GetNotNullConstrainedColumnsAsync(tableName, columnNames, queryCache, cancellationToken);
         var result = new List<IDatabaseColumn>();
 
         foreach (var row in query)
@@ -736,24 +761,22 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// </summary>
     /// <param name="tableName">A table name.</param>
     /// <param name="columnNames">The column names for the given table.</param>
+    /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of not-null constrained column names.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="columnNames"/> are <see langword="null" />.</exception>
-    protected Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsync(Identifier tableName, IEnumerable<string> columnNames, CancellationToken cancellationToken)
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="columnNames"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
+    protected Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsync(Identifier tableName, IEnumerable<string> columnNames, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
         ArgumentNullException.ThrowIfNull(columnNames);
+        ArgumentNullException.ThrowIfNull(queryCache);
 
-        return GetNotNullConstrainedColumnsAsyncCore(tableName, columnNames, cancellationToken);
+        return GetNotNullConstrainedColumnsAsyncCore(tableName, columnNames, queryCache, cancellationToken);
     }
 
-    private async Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsyncCore(Identifier tableName, IEnumerable<string> columnNames, CancellationToken cancellationToken)
+    private async Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsyncCore(Identifier tableName, IEnumerable<string> columnNames, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var checks = await DbConnection.QueryAsync(
-            GetTableChecks.Sql,
-            new GetTableChecks.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-            cancellationToken
-        );
+        var checks = await queryCache.GetCheckRowsAsync(tableName, cancellationToken);
 
         if (checks.Empty())
             return [];
@@ -881,6 +904,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         private readonly AsyncCache<Identifier, Option<IDatabaseKey>, OracleTableQueryCache> _primaryKeys;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, OracleTableQueryCache> _uniqueKeys;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, OracleTableQueryCache> _foreignKeys;
+        private readonly AsyncCache<Identifier, IReadOnlyCollection<GetTableChecks.Result>, OracleTableQueryCache> _checkRows;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OracleTableQueryCache"/> class.
@@ -890,13 +914,15 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <param name="primaryKeyLoader">A primary key cache.</param>
         /// <param name="uniqueKeyLoader">A unique key cache.</param>
         /// <param name="foreignKeyLoader">A foreign key cache.</param>
-        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/> or <paramref name="foreignKeyLoader"/> are <see langword="null" />.</exception>
-        public OracleTableQueryCache(
+        /// <param name="checkRowsLoader">A raw check constraint row cache.</param>
+        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="foreignKeyLoader"/> or <paramref name="checkRowsLoader"/> are <see langword="null" />.</exception>
+        internal OracleTableQueryCache(
             AsyncCache<Identifier, Option<Identifier>, OracleTableQueryCache> tableNameLoader,
             AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, OracleTableQueryCache> columnLoader,
             AsyncCache<Identifier, Option<IDatabaseKey>, OracleTableQueryCache> primaryKeyLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, OracleTableQueryCache> uniqueKeyLoader,
-            AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, OracleTableQueryCache> foreignKeyLoader
+            AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, OracleTableQueryCache> foreignKeyLoader,
+            AsyncCache<Identifier, IReadOnlyCollection<GetTableChecks.Result>, OracleTableQueryCache> checkRowsLoader
         )
         {
             _tableNames = tableNameLoader ?? throw new ArgumentNullException(nameof(tableNameLoader));
@@ -904,6 +930,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             _primaryKeys = primaryKeyLoader ?? throw new ArgumentNullException(nameof(primaryKeyLoader));
             _uniqueKeys = uniqueKeyLoader ?? throw new ArgumentNullException(nameof(uniqueKeyLoader));
             _foreignKeys = foreignKeyLoader ?? throw new ArgumentNullException(nameof(foreignKeyLoader));
+            _checkRows = checkRowsLoader ?? throw new ArgumentNullException(nameof(checkRowsLoader));
         }
 
         /// <summary>
@@ -974,6 +1001,20 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             ArgumentNullException.ThrowIfNull(tableName);
 
             return _foreignKeys.GetByKeyAsync(tableName, this, cancellationToken);
+        }
+
+        /// <summary>
+        /// Retrieves a table's raw check constraint rows from the cache, querying the database when not populated.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of raw check constraint rows.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+        internal Task<IReadOnlyCollection<GetTableChecks.Result>> GetCheckRowsAsync(Identifier tableName, CancellationToken cancellationToken)
+        {
+            ArgumentNullException.ThrowIfNull(tableName);
+
+            return _checkRows.GetByKeyAsync(tableName, this, cancellationToken);
         }
     }
 }

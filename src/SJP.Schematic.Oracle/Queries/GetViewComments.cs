@@ -30,9 +30,10 @@ select
 from SYS.ALL_VIEWS v
 inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.VIEW_NAME = o.OBJECT_NAME
 left join SYS.ALL_TAB_COMMENTS c on v.OWNER = c.OWNER and v.VIEW_NAME = c.TABLE_NAME and c.TABLE_TYPE = 'VIEW'
-where v.OWNER = :{nameof(Query.SchemaName)} and v.VIEW_NAME = :{nameof(Query.ViewName)} and o.ORACLE_MAINTAINED <> 'Y'
+where v.OWNER = :{nameof(Query.SchemaName)} and v.VIEW_NAME = :{nameof(Query.ViewName)}
+    and o.OBJECT_TYPE = 'VIEW' and o.ORACLE_MAINTAINED <> 'Y'
 
-union
+union all
 
 -- columns
 select
@@ -43,7 +44,8 @@ from SYS.ALL_VIEWS v
 inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.VIEW_NAME = o.OBJECT_NAME
 inner join SYS.ALL_TAB_COLS vc on vc.OWNER = v.OWNER and vc.TABLE_NAME = v.VIEW_NAME
 left join SYS.ALL_COL_COMMENTS c on c.OWNER = vc.OWNER and c.TABLE_NAME = vc.TABLE_NAME and c.COLUMN_NAME = vc.COLUMN_NAME
-where v.OWNER = :{nameof(Query.SchemaName)} and v.VIEW_NAME = :{nameof(Query.ViewName)} and o.ORACLE_MAINTAINED <> 'Y'
+where v.OWNER = :{nameof(Query.SchemaName)} and v.VIEW_NAME = :{nameof(Query.ViewName)}
+    and o.OBJECT_TYPE = 'VIEW' and o.ORACLE_MAINTAINED <> 'Y'
 
 """;
 }

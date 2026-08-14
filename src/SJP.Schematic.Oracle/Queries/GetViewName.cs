@@ -23,6 +23,7 @@ internal static class GetViewName
 select v.OWNER as "{nameof(Result.SchemaName)}", v.VIEW_NAME as "{nameof(Result.ViewName)}"
 from SYS.ALL_VIEWS v
 inner join SYS.ALL_OBJECTS o on v.OWNER = o.OWNER and v.VIEW_NAME = o.OBJECT_NAME
-where v.OWNER = :{nameof(Query.SchemaName)} and v.VIEW_NAME = :{nameof(Query.ViewName)} and o.ORACLE_MAINTAINED <> 'Y'
+where v.OWNER = :{nameof(Query.SchemaName)} and v.VIEW_NAME = :{nameof(Query.ViewName)}
+    and o.OBJECT_TYPE = 'VIEW' and o.ORACLE_MAINTAINED <> 'Y'
 """;
 }

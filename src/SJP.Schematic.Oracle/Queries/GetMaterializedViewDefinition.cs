@@ -11,8 +11,10 @@ internal static class GetMaterializedViewDefinition
         public required string ViewName { get; init; }
     }
 
-    internal const string Sql = @$"
+    internal const string Sql = $"""
+
 select QUERY
 from SYS.ALL_MVIEWS
-where OWNER = :{nameof(Query.SchemaName)} and MVIEW_NAME = :{nameof(Query.ViewName)}";
+where OWNER = :{nameof(Query.SchemaName)} and MVIEW_NAME = :{nameof(Query.ViewName)}
+""";
 }
