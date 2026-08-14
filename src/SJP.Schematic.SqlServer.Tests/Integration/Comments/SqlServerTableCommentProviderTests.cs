@@ -399,7 +399,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         };
         var comments = await GetTableCommentsAsync("table_comment_table_3");
 
-        Assert.That(comments.ColumnComments.Keys, Is.EqualTo(columnNames));
+        Assert.That(comments.ColumnComments.Keys.Order(), Is.EqualTo(columnNames));
     }
 
     [Test]
@@ -445,7 +445,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         };
         var comments = await GetTableCommentsAsync("table_comment_table_3");
 
-        Assert.That(comments.IndexComments.Keys, Is.EqualTo(indexNames));
+        Assert.That(comments.IndexComments.Keys.Order(), Is.EqualTo(indexNames));
     }
 
     [Test]
@@ -485,7 +485,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         };
         var comments = await GetTableCommentsAsync("table_comment_table_3");
 
-        Assert.That(comments.TriggerComments.Keys, Is.EqualTo(triggerNames));
+        Assert.That(comments.TriggerComments.Keys.Order(), Is.EqualTo(triggerNames));
     }
 
     [Test]
@@ -525,7 +525,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         };
         var comments = await GetTableCommentsAsync("table_comment_table_3");
 
-        Assert.That(comments.CheckComments.Keys, Is.EqualTo(checkNames));
+        Assert.That(comments.CheckComments.Keys.Order(), Is.EqualTo(checkNames));
     }
 
     [Test]
@@ -565,7 +565,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         };
         var comments = await GetTableCommentsAsync("table_comment_table_3");
 
-        Assert.That(comments.UniqueKeyComments.Keys, Is.EqualTo(uniqueKeyNames));
+        Assert.That(comments.UniqueKeyComments.Keys.Order(), Is.EqualTo(uniqueKeyNames));
     }
 
     [Test]
@@ -605,7 +605,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         };
         var comments = await GetTableCommentsAsync("table_comment_table_3");
 
-        Assert.That(comments.ForeignKeyComments.Keys, Is.EqualTo(foreignKeyNames));
+        Assert.That(comments.ForeignKeyComments.Keys.Order(), Is.EqualTo(foreignKeyNames));
     }
 
     [Test]
