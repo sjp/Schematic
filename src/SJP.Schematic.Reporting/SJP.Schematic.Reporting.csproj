@@ -7,6 +7,13 @@
     <!-- Emit a manifest of embedded resources so AssetExporter can read the embedded Vite build
          via ManifestEmbeddedFileProvider, which preserves real relative paths (no dot-flattening). -->
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+    <!-- Keep ui/node_modules (~16k files), vite's dist output and the vitest coverage report out
+         of the SDK's default item globs (Sdk.props: <None Include="**/*" Exclude="$(DefaultItemExcludes);..." />).
+         DefaultItemExcludes has no node_modules entry by default, so without this every MSBuild
+         evaluation - including every IDE design-time build - walks the entire node_modules tree.
+         A `<None Remove="..."/>` cannot fix this: Remove filters the item list after the glob has
+         already walked the filesystem: it saves nothing. -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);ui/node_modules/**;ui/dist/**;ui/coverage/**;ui/.tsbuild/**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,67 +28,147 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Remove="node_modules\**" />
-    <EmbeddedResource Remove="node_modules\**" />
-    <None Remove="node_modules\**" />
-  </ItemGroup>
+  <!-- ============================================================================
+       Front-end (npm + vite) build
+       ============================================================================ -->
 
   <PropertyGroup>
-    <UiContentDir>$(MSBuildThisFileDirectory)/ui</UiContentDir>
+    <UiContentDir>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', 'ui'))</UiContentDir>
+    <UiDistDir>$([MSBuild]::NormalizeDirectory('$(UiContentDir)', 'dist'))</UiDistDir>
 
-    <!-- File with mtime of last successful npm install -->
-    <NpmInstallStampFile>$(UiContentDir)/node_modules/.install-stamp</NpmInstallStampFile>
-    <ViteBuildStampFile>$(UiContentDir)/node_modules/.vite-build-stamp</ViteBuildStampFile>
+    <!-- Stamps live in obj/ ($(BaseIntermediateOutputPath)), deliberately NOT under
+         ui/node_modules and NOT under a per-configuration obj/<Config>/<TFM>/ directory.
+           * Not node_modules: `npm ci` deletes that whole tree, which would destroy the stamps
+             the moment they're used to skip the very command that created them.
+           * Not per-configuration: `npm run build` is `tsc -b && vite build`, always production
+             mode - ui/dist and node_modules are configuration-independent shared artifacts. A
+             per-config stamp would make building the second configuration re-run vite, rewrite
+             ui/dist with fresh (content-identical) mtimes, and invalidate the first
+             configuration's CoreCompile - a permanent Debug/Release ping-pong. Per-config
+             correctness of the embedded manifest doesn't need this: it's already guaranteed by
+             Microsoft.Extensions.FileProviders.Embedded's own Inputs/Outputs hash cache around
+             _GenerateEmbeddedFilesManifest.
+         $(IntermediateOutputPath) is not usable here: its `$(TargetFramework)\` segment is
+         appended by a .targets file that imports after this project body, so referencing it in
+         a top-level PropertyGroup would silently evaluate to an incomplete path.
+         AlwaysCreate Touch below means a fresh clone always has to run once, which is correct. -->
+    <NpmInstallStampFile>$(BaseIntermediateOutputPath)npm-ci.stamp</NpmInstallStampFile>
+    <ViteBuildStampFile>$(BaseIntermediateOutputPath)vite-build.stamp</ViteBuildStampFile>
 
-    <NpmExitCode></NpmExitCode>
-    <NpmExpectedExitCode>1</NpmExpectedExitCode>
+    <SkipUiBuild Condition="'$(SkipUiBuild)' == ''">false</SkipUiBuild>
   </PropertyGroup>
 
   <ItemGroup>
-    <ViteSourceFiles Include="package.json;package-lock.json;ui/**/*.*" />
+    <!-- Single-level globs plus ui/src/** only: nothing here can recurse into node_modules,
+         dist or coverage, and nothing is self-referential (dist is this pipeline's own output).
+         Every entry is a WILDCARD on purpose: a literal Include creates an item even when the
+         file doesn't exist, and MSBuild treats a missing Inputs file as "rebuild completely" -
+         that dead-path mistake (package.json resolving against the project dir instead of ui/)
+         is what made the previous version of this target run on every single build. -->
+    <ViteSourceFile Include="$(UiContentDir)*.json" />   <!-- package.json, package-lock.json, tsconfig*.json, components.json -->
+    <ViteSourceFile Include="$(UiContentDir)*.html" />   <!-- index.html -->
+    <ViteSourceFile Include="$(UiContentDir)*.ts" />     <!-- vite.config.ts -->
+    <ViteSourceFile Include="$(UiContentDir)src/**/*" />
+    <!-- A dependency install must force a re-bundle even if no source file changed. -->
+    <ViteSourceFile Include="$(NpmInstallStampFile)" />
   </ItemGroup>
 
-  <Target Name="CheckNpmExists">
-    <Exec Command="npm" ContinueOnError="true" IgnoreExitCode="true" StandardErrorImportance="Low" StandardOutputImportance="Low">
-      <Output TaskParameter="ExitCode" PropertyName="NpmExitCode" />
+  <!-- npm probe: asks the shell whether `npm` resolves on PATH, rather than the previous
+       approach of spawning `npm` itself and inferring availability from its no-arg exit code
+       (an npm CLI implementation detail). `command -v`/`where` have well-defined "found/not
+       found" exit codes regardless of what the target program does.
+       (A pure-MSBuild PATH scan without any process was tried and dropped: property-function
+       results like $(PATH.Replace(':', ';')) have their ';' automatically escaped so they
+       don't get re-split into items - confirmed by direct test - so there is no process-free
+       way to enumerate PATH entries here.)
+       Override with -p:NpmAvailable=true|false if needed. -->
+  <Target Name="ResolveNpm" Condition="'$(NpmAvailable)' == ''">
+    <PropertyGroup>
+      <_NpmProbeCommand Condition="'$(OS)' == 'Windows_NT'">where npm</_NpmProbeCommand>
+      <_NpmProbeCommand Condition="'$(OS)' != 'Windows_NT'">command -v npm</_NpmProbeCommand>
+    </PropertyGroup>
+    <Exec Command="$(_NpmProbeCommand)" ContinueOnError="true" IgnoreExitCode="true" StandardOutputImportance="Low" StandardErrorImportance="Low">
+      <Output TaskParameter="ExitCode" PropertyName="_NpmProbeExitCode" />
     </Exec>
+    <PropertyGroup>
+      <NpmAvailable>false</NpmAvailable>
+      <NpmAvailable Condition="'$(_NpmProbeExitCode)' == '0'">true</NpmAvailable>
+    </PropertyGroup>
   </Target>
 
-  <Target Name="NpmClean" BeforeTargets="BeforeClean" DependsOnTargets="CheckNpmExists">
-    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm ci" WorkingDirectory="$(UiContentDir)" />
-    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm run clean" WorkingDirectory="$(UiContentDir)" />
-    <Message Condition="'$(NpmExitCode)' != '$(NpmExpectedExitCode)'" Text="npm is not available. Cleaning of front-end code will not occur." />
+  <Target Name="NpmCi"
+          Condition="'$(SkipUiBuild)' != 'true'"
+          DependsOnTargets="ResolveNpm"
+          Inputs="$(UiContentDir)package.json;$(UiContentDir)package-lock.json"
+          Outputs="$(NpmInstallStampFile);$(UiContentDir)node_modules/.package-lock.json">
+    <Message Condition="'$(NpmAvailable)' != 'true'" Importance="High" Text="npm was not found on PATH; skipping 'npm ci' in $(UiContentDir)." />
+    <Exec Condition="'$(NpmAvailable)' == 'true'" Command="npm ci" WorkingDirectory="$(UiContentDir)" />
+    <MakeDir Condition="'$(NpmAvailable)' == 'true'" Directories="$(BaseIntermediateOutputPath)" />
+    <Touch Condition="'$(NpmAvailable)' == 'true'" Files="$(NpmInstallStampFile)" AlwaysCreate="true" />
   </Target>
 
-  <Target Name="NpmCi" BeforeTargets="ViteBuild" DependsOnTargets="CheckNpmExists" Inputs="package.json" Outputs="$(NpmInstallStampFile)">
-    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm ci" WorkingDirectory="$(UiContentDir)" />
-    <Touch Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Files="$(NpmInstallStampFile)" AlwaysCreate="true" />
-    <Message Condition="'$(NpmExitCode)' != '$(NpmExpectedExitCode)'" Text="npm is not available. Building of front-end code will not occur." />
+  <Target Name="ViteBuild"
+          Condition="'$(SkipUiBuild)' != 'true'"
+          DependsOnTargets="ResolveNpm;NpmCi"
+          Inputs="@(ViteSourceFile)"
+          Outputs="$(ViteBuildStampFile);$(UiDistDir)index.html">
+    <Message Condition="'$(NpmAvailable)' != 'true'" Importance="High" Text="npm was not found on PATH; skipping 'npm run build'." />
+    <Exec Condition="'$(NpmAvailable)' == 'true'" Command="npm run build" WorkingDirectory="$(UiContentDir)" />
+    <MakeDir Condition="'$(NpmAvailable)' == 'true'" Directories="$(BaseIntermediateOutputPath)" />
+    <Touch Condition="'$(NpmAvailable)' == 'true'" Files="$(ViteBuildStampFile)" AlwaysCreate="true" />
   </Target>
 
-  <Target Name="ViteBuild" BeforeTargets="BeforeBuild" Inputs="@(ViteSourceFiles)" Outputs="$(ViteBuildStampFile)">
-    <Exec Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Command="npm run build" WorkingDirectory="$(UiContentDir)" />
-    <Touch Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'" Files="$(ViteBuildStampFile)" AlwaysCreate="true" />
-    <Message Condition="'$(NpmExitCode)' != '$(NpmExpectedExitCode)'" Text="npm is not available. A vite build will not occur." />
-  </Target>
-
-  <!-- Embed the Vite build output (ui/dist) as assembly resources so AssetExporter's
-       ManifestEmbeddedFileProvider can extract the React shell and assets at generate time.
-       The Link sets each resource's logical path relative to the report root, mirroring the
+  <!-- Embeds the Vite build output (ui/dist) as assembly resources so AssetExporter's
+       ManifestEmbeddedFileProvider can extract the React shell and assets at generate time. The
+       Link sets each resource's logical path relative to the report root, mirroring the
        ui/dist layout (ui/dist/index.html -> "index.html"; ui/dist/assets/app-[hash].js ->
-       "assets/app-[hash].js"). GenerateEmbeddedFilesManifest records those paths in the
-       embedded manifest, so the provider reconstructs the directory tree exactly — no path
-       parsing required on extraction.
-       Runs after ViteBuild (before the resource pipeline / CoreCompile) and is gated on npm
-       being available, so an npm-less build is a no-op (the embed is simply skipped); flag for CI. -->
-  <Target Name="EmbedUiDist" AfterTargets="ViteBuild">
-    <ItemGroup Condition="'$(NpmExitCode)' == '$(NpmExpectedExitCode)'">
-      <_UiDist Include="ui/dist/**/*.*" />
+       "assets/app-[hash].js"). GenerateEmbeddedFilesManifest records those paths in the embedded
+       manifest, so the provider reconstructs the directory tree exactly - no path parsing
+       required on extraction.
+
+       This target is the scheduled entry point, pulling ViteBuild in via DependsOnTargets rather
+       than following it with AfterTargets. That matters: EmbeddedResource must be populated on
+       every build, including builds where ViteBuild is skipped as up-to-date, and while
+       AfterTargets does still fire in that case, relying on it is a needless trap - it's exactly
+       the "gated on npm" pattern the previous version of this target used, which silently
+       skipped embedding (and produced an assembly with no UI assets) whenever npm looked
+       unavailable.
+
+       BeforeBuild is comfortably before the resource pipeline (BuildDependsOn =
+       BeforeBuild;CoreBuild;AfterBuild; PrepareResources sits inside CoreBuild), and the second
+       hook lands directly before Microsoft.Extensions.FileProviders.Embedded's
+       _CalculateEmbeddedFilesManifestInputs target, which is prepended to
+       PrepareResourceNamesDependsOn and snapshots @(EmbeddedResource) - the actual point past
+       which new EmbeddedResource items are too late to be picked up by the manifest. Listing
+       both is safe: a target runs at most once per build regardless of how many hooks reach it. -->
+  <Target Name="EmbedUiDist" DependsOnTargets="ViteBuild" BeforeTargets="BeforeBuild;_CalculateEmbeddedFilesManifestInputs">
+    <ItemGroup>
+      <_UiDist Include="$(UiDistDir)**/*" />
       <EmbeddedResource Include="@(_UiDist)">
         <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
       </EmbeddedResource>
     </ItemGroup>
+
+    <!-- Fail loudly rather than silently shipping an assembly with no UI: AssetExporter would
+         otherwise fail at report-generation time instead, and `dotnet pack` would ship a broken
+         package. -->
+    <Error Condition="'@(_UiDist)' == '' AND '$(SkipUiBuild)' != 'true'"
+           Code="SCHEMATIC1001"
+           Text="No front-end assets found in '$(UiDistDir)'. Install Node.js/npm so $(MSBuildProjectName) can build ui/, or build it separately ('npm ci &amp;&amp; npm run build' in $(UiContentDir)), or pass -p:SkipUiBuild=true to build the managed code without UI assets." />
+    <Warning Condition="'@(_UiDist)' == '' AND '$(SkipUiBuild)' == 'true'"
+             Text="SkipUiBuild=true and '$(UiDistDir)' is empty. The resulting assembly contains no report assets and must not be published." />
+    <Warning Condition="'@(_UiDist)' != '' AND '$(NpmAvailable)' == 'false'"
+             Text="npm was not found on PATH. Embedding the existing contents of '$(UiDistDir)' without rebuilding; they may be stale." />
+  </Target>
+
+  <!-- `npm run clean` is just `fs.rmSync('dist')` (plus .tsbuild, see ui/package.json). Doing it
+       directly in MSBuild means `dotnet clean` needs neither node nor a reinstall - the previous
+       version ran a full `npm ci` before `npm run clean`, reinstalling node_modules just to
+       delete a few files. node_modules and the npm-ci stamp are deliberately left alone here:
+       `npm ci` is a restore, not a build output, and dotnet clean shouldn't force a reinstall. -->
+  <Target Name="UiClean" AfterTargets="Clean">
+    <RemoveDir Directories="$(UiDistDir)" />
+    <Delete Files="$(ViteBuildStampFile)" />
   </Target>
 
 </Project>
