@@ -64,7 +64,9 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         new AsyncCache<Identifier, Option<IDatabaseKey>, SqlServerTableQueryCache>(LoadPrimaryKeyAsync),
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqlServerTableQueryCache>(LoadUniqueKeysAsync),
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, SqlServerTableQueryCache>(LoadIndexesAsync),
-        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqlServerTableQueryCache>(LoadParentKeysAsync)
+        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqlServerTableQueryCache>(LoadParentKeysAsync),
+        new AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, SqlServerTableQueryCache>(
+            async (tableName, cache, token) => GetColumnLookup(await cache.GetColumnsAsync(tableName, token)))
     );
 
     /// <summary>
@@ -173,7 +175,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             queryCache.GetColumnsAsync(tableName, cancellationToken),
             LoadChecksAsync(tableName, cancellationToken),
             LoadTriggersAsync(tableName, cancellationToken),
-            LoadIndexesAsync(tableName, queryCache, cancellationToken),
+            queryCache.GetIndexesAsync(tableName, cancellationToken),
             queryCache.GetPrimaryKeyAsync(tableName, cancellationToken),
             queryCache.GetUniqueKeysAsync(tableName, cancellationToken),
             queryCache.GetForeignKeysAsync(tableName, cancellationToken),
@@ -228,14 +230,11 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
 
         var isEnabled = !firstRow.Key.IsDisabled;
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
-        var columnLookup = GetColumnLookup(columns);
+        var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
 
         var keyColumns = groupedByName
             .Where(row => string.Equals(row.Key.ConstraintName, constraintName, StringComparison.Ordinal))
-            .SelectMany(g => g.Value
-                .Where(row => columnLookup.ContainsKey(row.ColumnName))
-                .Select(row => columnLookup[row.ColumnName]))
+            .SelectMany(g => ResolveColumns(g.Value.Select(static row => (Identifier)row.ColumnName), columnLookup))
             .ToList();
 
         var primaryKey = new SqlServerDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns, isEnabled);
@@ -282,8 +281,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         if (indexColumns.Empty())
             return [];
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
-        var columnLookup = GetColumnLookup(columns);
+        var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
 
         var result = new List<IDatabaseIndex>(indexColumns.Count);
         foreach (var indexInfo in indexColumns)
@@ -293,25 +291,32 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             var isEnabled = !indexInfo.Key.IsDisabled;
 
             var indexCols = indexInfo.Value
-                .Where(row => !row.IsIncludedColumn && columnLookup.ContainsKey(row.ColumnName))
+                .Where(static row => !row.IsIncludedColumn)
                 .OrderBy(static row => row.KeyOrdinal)
                 .ThenBy(static row => row.IndexColumnId)
-                .Select(row => new { row.IsDescending, Column = columnLookup[row.ColumnName] })
+                .Select(row =>
+                {
+                    columnLookup.TryGetValue(row.ColumnName, out var column);
+                    return new { row.IsDescending, Column = column };
+                })
+                .Where(static row => row.Column != null)
                 .Select(row =>
                 {
                     var order = row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
-                    var column = row.Column;
+                    var column = row.Column!;
                     var expression = Dialect.QuoteName(column.Name);
                     return new DatabaseIndexColumn(expression, column, order);
                 })
                 .ToList();
 
-            var includedCols = indexInfo.Value
-                .Where(row => row.IsIncludedColumn && columnLookup.ContainsKey(row.ColumnName))
-                .OrderBy(static row => row.KeyOrdinal)
-                .ThenBy(static row => row.ColumnName, StringComparer.Ordinal) // matches SSMS behaviour
-                .Select(row => columnLookup[row.ColumnName])
-                .ToList();
+            var includedCols = ResolveColumns(
+                indexInfo.Value
+                    .Where(static row => row.IsIncludedColumn)
+                    .OrderBy(static row => row.KeyOrdinal)
+                    .ThenBy(static row => row.ColumnName, StringComparer.Ordinal) // matches SSMS behaviour
+                    .Select(static row => (Identifier)row.ColumnName),
+                columnLookup
+            ).ToList();
 
             var filterDefinition = indexInfo.Key.IsFiltered && !indexInfo.Key.FilterDefinition.IsNullOrWhiteSpace()
                 ? Option<string>.Some(indexInfo.Key.FilterDefinition)
@@ -351,18 +356,14 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         if (uniqueKeyColumns.Empty())
             return [];
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
-        var columnLookup = GetColumnLookup(columns);
+        var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
 
         var groupedByName = uniqueKeyColumns.GroupAsDictionary(static row => new { row.ConstraintName, row.IsDisabled });
         var constraintColumns = groupedByName
             .Select(g => new
             {
                 g.Key.ConstraintName,
-                Columns = g.Value
-                    .Where(row => columnLookup.ContainsKey(row.ColumnName))
-                    .Select(row => columnLookup[row.ColumnName])
-                    .ToList(),
+                Columns = ResolveColumns(g.Value.Select(static row => (Identifier)row.ColumnName), columnLookup).ToList(),
                 IsEnabled = !g.Key.IsDisabled,
             })
             .ToList();
@@ -419,11 +420,17 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         if (groupedChildKeys.Empty())
             return [];
 
-        var primaryKey = await queryCache.GetPrimaryKeyAsync(tableName, cancellationToken);
-        var uniqueKeys = await queryCache.GetUniqueKeysAsync(tableName, cancellationToken);
+        var (primaryKey, uniqueKeys, indexes) = await (
+            queryCache.GetPrimaryKeyAsync(tableName, cancellationToken),
+            queryCache.GetUniqueKeysAsync(tableName, cancellationToken),
+            queryCache.GetIndexesAsync(tableName, cancellationToken)
+        ).WhenAll();
         var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
-        var indexes = await queryCache.GetIndexesAsync(tableName, cancellationToken);
         var uniqueIndexLookup = GetUniqueIndexLookup(indexes);
+
+        // Several child-key rows can share the same child table (e.g. it may hold more than one FK back
+        // to this table), so its foreign-key lookup is memoised here rather than rebuilt per row.
+        var childForeignKeyLookups = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseKey>>();
 
         var result = new List<IDatabaseRelationalKey>(groupedChildKeys.Count);
 
@@ -434,8 +441,8 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
 
             if (string.Equals(groupedChildKey.Key.ParentKeyType, Constants.PrimaryKeyType, StringComparison.Ordinal))
                 await primaryKey.IfSomeAsync(k => parentKey = k);
-            else if (uniqueKeyLookup.ContainsKey(groupedChildKey.Key.ParentKeyName))
-                parentKey = uniqueKeyLookup[groupedChildKey.Key.ParentKeyName];
+            else if (uniqueKeyLookup.TryGetValue(groupedChildKey.Key.ParentKeyName, out var uniqueKey))
+                parentKey = uniqueKey;
             else if (uniqueIndexLookup.TryGetValue(groupedChildKey.Key.ParentKeyName, out var uniqueIndex))
                 // the foreign key references a unique index with no backing UNIQUE constraint
                 parentKey = CreateKeyFromUniqueIndex(uniqueIndex);
@@ -450,8 +457,12 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
                 {
                     var childKeyName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildKeyName);
 
-                    var parentKeys = await queryCache.GetForeignKeysAsync(childTableName, cancellationToken);
-                    var parentKeyLookup = GetDatabaseKeyLookup(parentKeys.Select(fk => fk.ChildKey).ToList());
+                    if (!childForeignKeyLookups.TryGetValue(childTableName, out var parentKeyLookup))
+                    {
+                        var parentKeys = await queryCache.GetForeignKeysAsync(childTableName, cancellationToken);
+                        parentKeyLookup = GetDatabaseKeyLookup(parentKeys.Select(fk => fk.ChildKey).ToList());
+                        childForeignKeyLookups[childTableName] = parentKeyLookup;
+                    }
 
                     if (!parentKeyLookup.TryGetValue(childKeyName, out var childKey))
                         return OptionAsync<IDatabaseRelationalKey>.None;
@@ -533,8 +544,12 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         if (foreignKeys.Empty())
             return [];
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
-        var columnLookup = GetColumnLookup(columns);
+        var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
+
+        // Several foreign keys can reference the same parent table, so its unique-key/unique-index
+        // lookups are memoised here rather than rebuilt for every foreign key.
+        var parentUniqueKeyLookups = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseKey>>();
+        var parentUniqueIndexLookups = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseIndex>>();
 
         var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
         foreach (var fkey in foreignKeys)
@@ -554,15 +569,24 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
                     }
 
                     var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
-                    var parentUniqueKeys = await queryCache.GetUniqueKeysAsync(parentTableName, cancellationToken);
-                    var parentUniqueKeyLookup = GetDatabaseKeyLookup(parentUniqueKeys);
+
+                    if (!parentUniqueKeyLookups.TryGetValue(parentTableName, out var parentUniqueKeyLookup))
+                    {
+                        var parentUniqueKeys = await queryCache.GetUniqueKeysAsync(parentTableName, cancellationToken);
+                        parentUniqueKeyLookup = GetDatabaseKeyLookup(parentUniqueKeys);
+                        parentUniqueKeyLookups[parentTableName] = parentUniqueKeyLookup;
+                    }
 
                     if (parentUniqueKeyLookup.TryGetValue(parentKeyName.LocalName, out var uniqueKey))
                         return OptionAsync<IDatabaseKey>.Some(uniqueKey);
 
                     // the foreign key references a unique index with no backing UNIQUE constraint
-                    var parentIndexes = await queryCache.GetIndexesAsync(parentTableName, cancellationToken);
-                    var parentUniqueIndexLookup = GetUniqueIndexLookup(parentIndexes);
+                    if (!parentUniqueIndexLookups.TryGetValue(parentTableName, out var parentUniqueIndexLookup))
+                    {
+                        var parentIndexes = await queryCache.GetIndexesAsync(parentTableName, cancellationToken);
+                        parentUniqueIndexLookup = GetUniqueIndexLookup(parentIndexes);
+                        parentUniqueIndexLookups[parentTableName] = parentUniqueIndexLookup;
+                    }
 
                     return parentUniqueIndexLookup.TryGetValue(parentKeyName.LocalName, out var uniqueIndex)
                         ? OptionAsync<IDatabaseKey>.Some(CreateKeyFromUniqueIndex(uniqueIndex))
@@ -571,11 +595,12 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
                 .Map(parentKey =>
                 {
                     var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ChildKeyName);
-                    var childKeyColumns = fkey.Value
-                        .Where(row => columnLookup.ContainsKey(row.ColumnName))
-                        .OrderBy(static row => row.ConstraintColumnId)
-                        .Select(row => columnLookup[row.ColumnName])
-                        .ToList();
+                    var childKeyColumns = ResolveColumns(
+                        fkey.Value
+                            .OrderBy(static row => row.ConstraintColumnId)
+                            .Select(static row => (Identifier)row.ColumnName),
+                        columnLookup
+                    ).ToList();
 
                     var isEnabled = !fkey.Key.IsDisabled;
                     var childKey = new SqlServerDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled);
@@ -739,6 +764,17 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         return result;
     }
 
+    // Resolves a sequence of column names against a lookup, preserving order and silently skipping any
+    // name that has no corresponding column.
+    private static IEnumerable<IDatabaseColumn> ResolveColumns(IEnumerable<Identifier> columnNames, IReadOnlyDictionary<Identifier, IDatabaseColumn> columnLookup)
+    {
+        foreach (var name in columnNames)
+        {
+            if (columnLookup.TryGetValue(name, out var column))
+                yield return column;
+        }
+    }
+
     private static IReadOnlyDictionary<Identifier, IDatabaseKey> GetDatabaseKeyLookup(IReadOnlyCollection<IDatabaseKey> keys)
     {
         ArgumentNullException.ThrowIfNull(keys);
@@ -793,6 +829,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqlServerTableQueryCache> _uniqueKeys;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, SqlServerTableQueryCache> _indexes;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqlServerTableQueryCache> _foreignKeys;
+        private readonly AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, SqlServerTableQueryCache> _columnLookups;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SqlServerTableQueryCache"/> class.
@@ -803,14 +840,16 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         /// <param name="uniqueKeyLoader">A unique key cache.</param>
         /// <param name="indexLoader">An index cache.</param>
         /// <param name="foreignKeyLoader">A foreign key cache.</param>
-        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="indexLoader"/> or <paramref name="foreignKeyLoader"/> are <see langword="null" />.</exception>
+        /// <param name="columnLookupLoader">A column lookup cache.</param>
+        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="indexLoader"/>, <paramref name="foreignKeyLoader"/> or <paramref name="columnLookupLoader"/> are <see langword="null" />.</exception>
         public SqlServerTableQueryCache(
             AsyncCache<Identifier, Option<Identifier>, SqlServerTableQueryCache> tableNameLoader,
             AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqlServerTableQueryCache> columnLoader,
             AsyncCache<Identifier, Option<IDatabaseKey>, SqlServerTableQueryCache> primaryKeyLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqlServerTableQueryCache> uniqueKeyLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, SqlServerTableQueryCache> indexLoader,
-            AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqlServerTableQueryCache> foreignKeyLoader
+            AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqlServerTableQueryCache> foreignKeyLoader,
+            AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, SqlServerTableQueryCache> columnLookupLoader
         )
         {
             _tableNames = tableNameLoader ?? throw new ArgumentNullException(nameof(tableNameLoader));
@@ -819,6 +858,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             _uniqueKeys = uniqueKeyLoader ?? throw new ArgumentNullException(nameof(uniqueKeyLoader));
             _indexes = indexLoader ?? throw new ArgumentNullException(nameof(indexLoader));
             _foreignKeys = foreignKeyLoader ?? throw new ArgumentNullException(nameof(foreignKeyLoader));
+            _columnLookups = columnLookupLoader ?? throw new ArgumentNullException(nameof(columnLookupLoader));
         }
 
         /// <summary>
@@ -903,6 +943,20 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             ArgumentNullException.ThrowIfNull(tableName);
 
             return _foreignKeys.GetByKeyAsync(tableName, this, cancellationToken);
+        }
+
+        /// <summary>
+        /// Retrieves a table's column lookup from the cache, querying the database when not populated.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A lookup of a table's columns, keyed by column name.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> GetColumnLookupAsync(Identifier tableName, CancellationToken cancellationToken)
+        {
+            ArgumentNullException.ThrowIfNull(tableName);
+
+            return _columnLookups.GetByKeyAsync(tableName, this, cancellationToken);
         }
     }
 }
