@@ -29,7 +29,7 @@ select
     v.name as [{nameof(Result.ObjectName)}],
     ep.value as [{nameof(Result.Comment)}]
 from sys.views v
-left join sys.extended_properties ep on v.object_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)} and ep.minor_id = 0
+left join sys.extended_properties ep on v.object_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)} and ep.minor_id = 0 and ep.class = 1
 where v.schema_id = SCHEMA_ID(@{nameof(Query.SchemaName)}) and v.name = @{nameof(Query.ViewName)} and v.is_ms_shipped = 0
 
 union all
@@ -41,7 +41,7 @@ select
     ep.value as [{nameof(Result.Comment)}]
 from sys.views v
 inner join sys.columns c on v.object_id = c.object_id
-left join sys.extended_properties ep on v.object_id = ep.major_id and c.column_id = ep.minor_id and ep.name = @{nameof(Query.CommentProperty)}
+left join sys.extended_properties ep on v.object_id = ep.major_id and c.column_id = ep.minor_id and ep.name = @{nameof(Query.CommentProperty)} and ep.class = 1
 where v.schema_id = SCHEMA_ID(@{nameof(Query.SchemaName)}) and v.name = @{nameof(Query.ViewName)} and v.is_ms_shipped = 0
 ";
 }

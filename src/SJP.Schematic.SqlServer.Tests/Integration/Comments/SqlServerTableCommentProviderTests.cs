@@ -65,6 +65,23 @@ end
         await AddCommentForTableObject("This is a foreign key comment.", "dbo", "table_comment_table_3", "CONSTRAINT", "table_comment_table_3_fk_2");
         await AddCommentForTableObject("This is an index comment.", "dbo", "table_comment_table_3", "INDEX", "table_comment_table_3_ix_2");
         await AddCommentForTableObject("This is a trigger comment.", "dbo", "table_comment_table_3", "TRIGGER", "table_comment_table_3_trigger_2");
+
+        // Regression fixture: sys.extended_properties.minor_id is only unique within a class, so an
+        // index's minor_id (its index_id) can collide with a column's minor_id (its column_id). With no
+        // class predicate on the join, GetTableComments previously matched both rows to the column,
+        // producing a duplicate 'COLUMN' row for the same column name and throwing when the caller
+        // built a dictionary keyed by column name. test_column_2 (column_id 2) is deliberately paired
+        // with the first non-clustered index (index_id 2, immediately after the clustered PK's index_id 1).
+        await DbConnection.ExecuteAsync(@"
+CREATE TABLE table_comment_table_4
+(
+    test_column_1 INT,
+    test_column_2 INT,
+    CONSTRAINT table_comment_table_4_pk PRIMARY KEY (test_column_1)
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create index table_comment_table_4_ix_1 on table_comment_table_4 (test_column_2)", CancellationToken.None);
+        await AddCommentForTableObject("This is a column comment for a column whose id collides with an index id.", "dbo", "table_comment_table_4", "COLUMN", "test_column_2");
+        await AddCommentForTableObject("This is an index comment for an index whose id collides with a column id.", "dbo", "table_comment_table_4", "INDEX", "table_comment_table_4_ix_1");
     }
 
     [OneTimeTearDown]
@@ -73,6 +90,7 @@ end
         await DbConnection.ExecuteAsync("drop table table_comment_table_1", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_comment_table_2", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_comment_table_3", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_comment_table_4", CancellationToken.None);
     }
 
     private Task AddCommentForTable(string comment, string schemaName, string tableName)
@@ -631,6 +649,28 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
         var comments = await GetTableCommentsAsync("table_comment_table_3");
 
         var comment = comments.ForeignKeyComments["table_comment_table_3_fk_2"].UnwrapSome();
+
+        Assert.That(comment, Is.EqualTo(expectedComment));
+    }
+
+    [Test]
+    public async Task GetTableComments_WhenColumnIdCollidesWithIndexId_ReturnsCorrectColumnComment()
+    {
+        const string expectedComment = "This is a column comment for a column whose id collides with an index id.";
+        var comments = await GetTableCommentsAsync("table_comment_table_4");
+
+        var comment = comments.ColumnComments["test_column_2"].UnwrapSome();
+
+        Assert.That(comment, Is.EqualTo(expectedComment));
+    }
+
+    [Test]
+    public async Task GetTableComments_WhenColumnIdCollidesWithIndexId_ReturnsCorrectIndexComment()
+    {
+        const string expectedComment = "This is an index comment for an index whose id collides with a column id.";
+        var comments = await GetTableCommentsAsync("table_comment_table_4");
+
+        var comment = comments.IndexComments["table_comment_table_4_ix_1"].UnwrapSome();
 
         Assert.That(comment, Is.EqualTo(expectedComment));
     }

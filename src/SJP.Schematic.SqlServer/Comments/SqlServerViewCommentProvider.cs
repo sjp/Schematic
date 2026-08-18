@@ -149,31 +149,36 @@ public class SqlServerViewCommentProvider : IDatabaseViewCommentProvider
             ObjectType = r.ObjectType,
             Comment = r.Comment,
         }).ToList();
+        var commentsByType = commentData.GroupAsDictionary(static c => c.ObjectType);
 
-        var viewComment = GetFirstCommentByType(commentData, Constants.View);
-        var columnComments = GetCommentLookupByType(commentData, Constants.Column);
+        var viewComment = GetFirstCommentByType(commentsByType, Constants.View);
+        var columnComments = GetCommentLookupByType(commentsByType, Constants.Column);
 
         return new DatabaseViewComments(viewName, viewComment, columnComments);
     }
 
-    private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
+    private static Option<string> GetFirstCommentByType(IReadOnlyDictionary<string, List<CommentData>> commentsByType, string objectType)
     {
-        ArgumentNullException.ThrowIfNull(commentsData);
+        ArgumentNullException.ThrowIfNull(commentsByType);
         ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
 
-        return commentsData
-            .Where(c => string.Equals(c.ObjectType, objectType, StringComparison.Ordinal))
+        if (!commentsByType.TryGetValue(objectType, out var comments))
+            return Option<string>.None;
+
+        return comments
             .Select(static c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
             .FirstOrDefault();
     }
 
-    private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IEnumerable<CommentData> commentsData, string objectType)
+    private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IReadOnlyDictionary<string, List<CommentData>> commentsByType, string objectType)
     {
-        ArgumentNullException.ThrowIfNull(commentsData);
+        ArgumentNullException.ThrowIfNull(commentsByType);
         ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
 
-        return commentsData
-            .Where(c => string.Equals(c.ObjectType, objectType, StringComparison.Ordinal))
+        if (!commentsByType.TryGetValue(objectType, out var comments))
+            return new Dictionary<Identifier, Option<string>>(IdentifierComparer.Ordinal);
+
+        return comments
             .Select(static c => new KeyValuePair<Identifier, Option<string>>(
                 Identifier.CreateQualifiedIdentifier(c.ObjectName),
                 !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None

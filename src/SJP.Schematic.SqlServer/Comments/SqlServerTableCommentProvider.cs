@@ -149,16 +149,17 @@ public class SqlServerTableCommentProvider : IRelationalDatabaseTableCommentProv
             ObjectType = r.ObjectType,
             Comment = r.Comment,
         }).ToList();
+        var commentsByType = commentData.GroupAsDictionary(static c => c.ObjectType);
 
-        var tableComment = GetFirstCommentByType(commentData, Constants.Table);
-        var primaryKeyComment = GetFirstCommentByType(commentData, Constants.Primary);
+        var tableComment = GetFirstCommentByType(commentsByType, Constants.Table);
+        var primaryKeyComment = GetFirstCommentByType(commentsByType, Constants.Primary);
 
-        var columnComments = GetCommentLookupByType(commentData, Constants.Column);
-        var checkComments = GetCommentLookupByType(commentData, Constants.Check);
-        var foreignKeyComments = GetCommentLookupByType(commentData, Constants.ForeignKey);
-        var uniqueKeyComments = GetCommentLookupByType(commentData, Constants.Unique);
-        var indexComments = GetCommentLookupByType(commentData, Constants.Index);
-        var triggerComments = GetCommentLookupByType(commentData, Constants.Trigger);
+        var columnComments = GetCommentLookupByType(commentsByType, Constants.Column);
+        var checkComments = GetCommentLookupByType(commentsByType, Constants.Check);
+        var foreignKeyComments = GetCommentLookupByType(commentsByType, Constants.ForeignKey);
+        var uniqueKeyComments = GetCommentLookupByType(commentsByType, Constants.Unique);
+        var indexComments = GetCommentLookupByType(commentsByType, Constants.Index);
+        var triggerComments = GetCommentLookupByType(commentsByType, Constants.Trigger);
 
         return new RelationalDatabaseTableComments(
             tableName,
@@ -173,24 +174,28 @@ public class SqlServerTableCommentProvider : IRelationalDatabaseTableCommentProv
         );
     }
 
-    private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
+    private static Option<string> GetFirstCommentByType(IReadOnlyDictionary<string, List<CommentData>> commentsByType, string objectType)
     {
-        ArgumentNullException.ThrowIfNull(commentsData);
+        ArgumentNullException.ThrowIfNull(commentsByType);
         ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
 
-        return commentsData
-            .Where(c => string.Equals(c.ObjectType, objectType, StringComparison.Ordinal))
+        if (!commentsByType.TryGetValue(objectType, out var comments))
+            return Option<string>.None;
+
+        return comments
             .Select(static c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
             .FirstOrDefault();
     }
 
-    private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IEnumerable<CommentData> commentsData, string objectType)
+    private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IReadOnlyDictionary<string, List<CommentData>> commentsByType, string objectType)
     {
-        ArgumentNullException.ThrowIfNull(commentsData);
+        ArgumentNullException.ThrowIfNull(commentsByType);
         ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
 
-        return commentsData
-            .Where(c => string.Equals(c.ObjectType, objectType, StringComparison.Ordinal))
+        if (!commentsByType.TryGetValue(objectType, out var comments))
+            return new Dictionary<Identifier, Option<string>>(IdentifierComparer.Ordinal);
+
+        return comments
             .Select(static c => new KeyValuePair<Identifier, Option<string>>(
                 Identifier.CreateQualifiedIdentifier(c.ObjectName),
                 !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None

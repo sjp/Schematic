@@ -15,5 +15,6 @@ internal static class GetRoutineDefinition
 select m.definition
 from sys.sql_modules m
 inner join sys.objects o on o.object_id = m.object_id
-where o.schema_id = schema_id(@{nameof(Query.SchemaName)}) and o.name = @{nameof(Query.RoutineName)} and o.is_ms_shipped = 0";
+where o.schema_id = schema_id(@{nameof(Query.SchemaName)}) and o.name = @{nameof(Query.RoutineName)} and o.is_ms_shipped = 0
+    and o.type in ('P', 'FN', 'IF', 'TF')";
 }
