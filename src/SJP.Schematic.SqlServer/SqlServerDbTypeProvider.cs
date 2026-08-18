@@ -188,8 +188,8 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
     {
         ArgumentNullException.ThrowIfNull(typeName);
 
-        return StringToDataTypeMap.ContainsKey(typeName)
-            ? StringToDataTypeMap[typeName]
+        return StringToDataTypeMap.TryGetValue(typeName, out var dataType)
+            ? dataType
             : DataType.Unknown;
     }
 
@@ -203,8 +203,8 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
     {
         ArgumentNullException.ThrowIfNull(typeName);
 
-        return StringToClrTypeMap.ContainsKey(typeName)
-            ? StringToClrTypeMap[typeName]
+        return StringToClrTypeMap.TryGetValue(typeName, out var clrType)
+            ? clrType
             : typeof(object);
     }
 
@@ -245,14 +245,14 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
         return pieces.Join(".");
     }
 
-    private static readonly IEnumerable<Identifier> FixedLengthTypes = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
+    private static readonly IReadOnlySet<Identifier> FixedLengthTypes = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
     {
         new("sys", "char"),
         new("sys", "nchar"),
         new("sys", "binary"),
     };
 
-    private static readonly IEnumerable<Identifier> TypeNamesWithNoLengthAnnotation = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
+    private static readonly IReadOnlySet<Identifier> TypeNamesWithNoLengthAnnotation = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
     {
         new("sys", "bigint"),
         new("sys", "bit"),
