@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Sqlite;
@@ -27,11 +26,11 @@ public class SqliteDialect : DatabaseDialect
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(text);
 
-        return Keywords.Contains(text, StringComparer.OrdinalIgnoreCase);
+        return Keywords.Contains(text);
     }
 
     // https://www.sqlite.org/lang_keywords.html
-    private static readonly IEnumerable<string> Keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    private static readonly IReadOnlySet<string> Keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         "ABORT",
         "ACTION",

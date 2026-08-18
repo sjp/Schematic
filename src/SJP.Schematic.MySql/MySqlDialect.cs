@@ -22,7 +22,7 @@ public class MySqlDialect : DatabaseDialect
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(text);
 
-        return Keywords.Contains(text, StringComparer.OrdinalIgnoreCase);
+        return Keywords.Contains(text);
     }
 
     /// <summary>
@@ -32,7 +32,7 @@ public class MySqlDialect : DatabaseDialect
     public override IDependencyProvider GetDependencyProvider() => new MySqlDependencyProvider();
 
     // https://dev.mysql.com/doc/refman/5.7/en/keywords.html
-    private static readonly IEnumerable<string> Keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    private static readonly IReadOnlySet<string> Keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         "ACCESSIBLE",
         "ACCOUNT",

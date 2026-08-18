@@ -28,11 +28,11 @@ public class SqlServerDialect : DatabaseDialect
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(text);
 
-        return Keywords.Contains(text, StringComparer.OrdinalIgnoreCase);
+        return Keywords.Contains(text);
     }
 
     // https://docs.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql
-    private static readonly IEnumerable<string> Keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    private static readonly IReadOnlySet<string> Keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         "ABSOLUTE",
         "ACTION",

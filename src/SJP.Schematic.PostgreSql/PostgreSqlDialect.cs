@@ -28,11 +28,11 @@ public class PostgreSqlDialect : DatabaseDialect
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(text);
 
-        return Keywords.Contains(text, StringComparer.OrdinalIgnoreCase);
+        return Keywords.Contains(text);
     }
 
     // https://www.postgresql.org/docs/current/static/sql-keywords-appendix.html
-    private static readonly IEnumerable<string> Keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    private static readonly IReadOnlySet<string> Keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         "A",
         "ABORT",

@@ -78,7 +78,7 @@ public class MySqlDbTypeProvider : IDbTypeProvider
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(typeName);
 
-        return FixedLengthTypes.Contains(typeName, StringComparer.OrdinalIgnoreCase);
+        return FixedLengthTypes.Contains(typeName);
     }
 
     /// <summary>
@@ -137,7 +137,7 @@ public class MySqlDbTypeProvider : IDbTypeProvider
 
         builder.Append(typeName);
 
-        if (TypeNamesWithNoLengthAnnotation.Contains(typeName, StringComparer.OrdinalIgnoreCase))
+        if (TypeNamesWithNoLengthAnnotation.Contains(typeName))
             return builder.GetStringAndRelease();
 
         builder.Append('(');
@@ -176,8 +176,8 @@ public class MySqlDbTypeProvider : IDbTypeProvider
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(typeName);
 
-        return StringToDataTypeMap.ContainsKey(typeName)
-            ? StringToDataTypeMap[typeName]
+        return StringToDataTypeMap.TryGetValue(typeName, out var dataType)
+            ? dataType
             : DataType.Unknown;
     }
 
@@ -191,18 +191,18 @@ public class MySqlDbTypeProvider : IDbTypeProvider
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(typeName);
 
-        return StringToClrTypeMap.ContainsKey(typeName)
-            ? StringToClrTypeMap[typeName]
+        return StringToClrTypeMap.TryGetValue(typeName, out var clrType)
+            ? clrType
             : typeof(object);
     }
 
-    private static readonly IEnumerable<string> FixedLengthTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    private static readonly IReadOnlySet<string> FixedLengthTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         "char",
         "binary",
     };
 
-    private static readonly IEnumerable<string> TypeNamesWithNoLengthAnnotation = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    private static readonly IReadOnlySet<string> TypeNamesWithNoLengthAnnotation = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         "bit",
         "tinyint",
