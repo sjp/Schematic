@@ -19,8 +19,6 @@ internal static class GetTableChildKeys
 
         public required string? ChildKeyName { get; init; }
 
-        public required string? EnabledStatus { get; init; }
-
         public required string? DeleteAction { get; init; }
 
         public required string? ParentKeyName { get; init; }
@@ -34,7 +32,6 @@ select
     ac.OWNER as "{nameof(Result.ChildTableSchema)}",
     ac.TABLE_NAME as "{nameof(Result.ChildTableName)}",
     ac.CONSTRAINT_NAME as "{nameof(Result.ChildKeyName)}",
-    ac.STATUS as "{nameof(Result.EnabledStatus)}",
     ac.DELETE_RULE as "{nameof(Result.DeleteAction)}",
     pac.CONSTRAINT_NAME as "{nameof(Result.ParentKeyName)}",
     pac.CONSTRAINT_TYPE as "{nameof(Result.ParentKeyType)}"

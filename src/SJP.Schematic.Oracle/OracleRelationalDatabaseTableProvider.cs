@@ -78,7 +78,9 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         new AsyncCache<Identifier, Option<IDatabaseKey>, OracleTableQueryCache>(LoadPrimaryKeyAsync),
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, OracleTableQueryCache>(LoadUniqueKeysAsync),
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, OracleTableQueryCache>(LoadParentKeysAsync),
-        new AsyncCache<Identifier, IReadOnlyCollection<GetTableChecks.Result>, OracleTableQueryCache>((tableName, _, token) => LoadCheckRowsAsync(tableName, token))
+        new AsyncCache<Identifier, IReadOnlyCollection<GetTableChecks.Result>, OracleTableQueryCache>((tableName, _, token) => LoadCheckRowsAsync(tableName, token)),
+        new AsyncCache<Identifier, IReadOnlyCollection<GetTableConstraints.Result>, OracleTableQueryCache>((tableName, _, token) => LoadConstraintRowsAsync(tableName, token)),
+        new AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, OracleTableQueryCache>(LoadColumnLookupAsync)
     );
 
     /// <summary>
@@ -245,28 +247,28 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
     private async Task<Option<IDatabaseKey>> LoadPrimaryKeyAsyncCore(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var primaryKeyColumns = await DbConnection.QueryAsync(
-            GetTablePrimaryKey.Sql,
-            new GetTablePrimaryKey.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-            cancellationToken
-        );
+        var constraintRows = await queryCache.GetConstraintRowsAsync(tableName, cancellationToken);
+        var primaryKeyColumns = constraintRows
+            .Where(static row => string.Equals(row.ConstraintType, Constants.PrimaryKeyType, StringComparison.Ordinal))
+            .ToList();
 
         if (primaryKeyColumns.Empty())
             return Option<IDatabaseKey>.None;
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
-        var columnLookup = GetColumnLookup(columns);
+        var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
 
         var groupedByName = primaryKeyColumns.GroupAsDictionary(static row => new { row.ConstraintName, row.EnabledStatus });
         var firstRow = groupedByName.First();
         var constraintName = firstRow.Key.ConstraintName;
         var isEnabled = string.Equals(firstRow.Key.EnabledStatus, Constants.Enabled, StringComparison.Ordinal);
 
-        var keyColumns = firstRow.Value
-            .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
-            .OrderBy(static row => row.ColumnPosition)
-            .Select(row => columnLookup[row.ColumnName!])
-            .ToList();
+        var keyColumns = ResolveColumns(
+            firstRow.Value
+                .Where(static row => row.ColumnName != null)
+                .OrderBy(static row => row.ColumnPosition)
+                .Select(static row => (Identifier)row.ColumnName!),
+            columnLookup
+        ).ToList();
 
         var primaryKey = constraintName != null
             ? new OracleDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns, isEnabled)
@@ -300,15 +302,11 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             cancellationToken
         );
 
-        if (queryResult.Empty())
-            return [];
-
         var indexColumns = queryResult.GroupAsDictionary(static row => new { row.IndexName, row.Uniqueness }).ToList();
         if (indexColumns.Empty())
             return [];
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
-        var columnLookup = GetColumnLookup(columns);
+        var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
 
         var result = new List<IDatabaseIndex>(indexColumns.Count);
         foreach (var indexInfo in indexColumns)
@@ -323,8 +321,8 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 .Select(row =>
                 {
                     var order = string.Equals(row.IsDescending, Constants.Y, StringComparison.Ordinal) ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
-                    var indexColumns = columnLookup.ContainsKey(row.Column)
-                        ? [columnLookup[row.Column]]
+                    var indexColumns = columnLookup.TryGetValue(row.Column, out var indexColumn)
+                        ? [indexColumn]
                         : Array.Empty<IDatabaseColumn>();
                     var expression = Dialect.QuoteName(row.Column);
                     return new DatabaseIndexColumn(expression, indexColumns, order);
@@ -356,17 +354,15 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
     private async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsyncCore(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var uniqueKeyColumns = await DbConnection.QueryAsync(
-            GetTableUniqueKeys.Sql,
-            new GetTableUniqueKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-            cancellationToken
-        );
+        var constraintRows = await queryCache.GetConstraintRowsAsync(tableName, cancellationToken);
+        var uniqueKeyColumns = constraintRows
+            .Where(static row => string.Equals(row.ConstraintType, Constants.UniqueKeyType, StringComparison.Ordinal))
+            .ToList();
 
         if (uniqueKeyColumns.Empty())
             return [];
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
-        var columnLookup = GetColumnLookup(columns);
+        var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
 
         var groupedByName = uniqueKeyColumns
             .Where(static row => row.ConstraintName != null)
@@ -375,11 +371,13 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             .Select(g => new
             {
                 g.Key.ConstraintName,
-                Columns = g.Value
-                    .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
-                    .OrderBy(static row => row.ColumnPosition)
-                    .Select(row => columnLookup[row.ColumnName!])
-                    .ToList(),
+                Columns = ResolveColumns(
+                    g.Value
+                        .Where(static row => row.ColumnName != null)
+                        .OrderBy(static row => row.ColumnPosition)
+                        .Select(static row => (Identifier)row.ColumnName!),
+                    columnLookup
+                ).ToList(),
                 IsEnabled = string.Equals(g.Key.EnabledStatus, Constants.Enabled, StringComparison.Ordinal),
             })
             .ToList();
@@ -413,27 +411,30 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             new GetTableChildKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         );
-        if (queryResult.Empty())
-            return [];
 
         var childKeyRows = queryResult.ToList();
         if (childKeyRows.Empty())
             return [];
 
-        var primaryKey = await queryCache.GetPrimaryKeyAsync(tableName, cancellationToken);
-        var uniqueKeys = await queryCache.GetUniqueKeysAsync(tableName, cancellationToken);
+        var (primaryKey, uniqueKeys) = await (
+            queryCache.GetPrimaryKeyAsync(tableName, cancellationToken),
+            queryCache.GetUniqueKeysAsync(tableName, cancellationToken)
+        ).WhenAll();
         var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
 
         var result = new List<IDatabaseRelationalKey>(childKeyRows.Count);
+        // Memoized per child table name so that a child table referencing this table via more than one
+        // foreign key does not rebuild the same lookup dictionary once per row.
+        var childForeignKeyLookups = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseKey>>();
 
         foreach (var childKeyRow in childKeyRows)
         {
             // ensure we have a key to begin with
             IDatabaseKey? parentKey = null;
             if (string.Equals(childKeyRow.ParentKeyType, Constants.PrimaryKeyType, StringComparison.Ordinal))
-                await primaryKey.IfSomeAsync(k => parentKey = k);
-            else if (childKeyRow.ParentKeyName != null && uniqueKeyLookup.ContainsKey(childKeyRow.ParentKeyName))
-                parentKey = uniqueKeyLookup[childKeyRow.ParentKeyName];
+                primaryKey.IfSome(k => parentKey = k);
+            else if (childKeyRow.ParentKeyName != null && uniqueKeyLookup.TryGetValue(childKeyRow.ParentKeyName, out var uniqueParentKey))
+                parentKey = uniqueParentKey;
             if (parentKey == null)
                 continue;
 
@@ -443,15 +444,19 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             await childTableNameOption
                 .BindAsync(async childTableName =>
                 {
-                    var parentKeys = await queryCache.GetForeignKeysAsync(childTableName, cancellationToken);
-                    var parentKeyLookup = GetDatabaseKeyLookup(parentKeys.Select(static fk => fk.ChildKey).ToList());
+                    if (!childForeignKeyLookups.TryGetValue(childTableName, out var parentKeyLookup))
+                    {
+                        var parentKeys = await queryCache.GetForeignKeysAsync(childTableName, cancellationToken);
+                        parentKeyLookup = GetDatabaseKeyLookup(parentKeys.Select(static fk => fk.ChildKey).ToList());
+                        childForeignKeyLookups[childTableName] = parentKeyLookup;
+                    }
 
                     var childKeyName = Identifier.CreateQualifiedIdentifier(childKeyRow.ChildKeyName);
                     if (!parentKeyLookup.TryGetValue(childKeyName, out var childKey))
                         return OptionAsync<IDatabaseRelationalKey>.None;
 
-                    var deleteAction = childKeyRow.DeleteAction != null && ReferentialActionMapping.ContainsKey(childKeyRow.DeleteAction)
-                        ? ReferentialActionMapping[childKeyRow.DeleteAction]
+                    var deleteAction = childKeyRow.DeleteAction != null && ReferentialActionMapping.TryGetValue(childKeyRow.DeleteAction, out var mappedAction)
+                        ? mappedAction
                         : ReferentialAction.NoAction;
 
                     var relationalKey = new OracleRelationalKey(childTableName, childKey, tableName, parentKey, deleteAction);
@@ -486,20 +491,19 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         if (checks.Empty())
             return [];
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
-        var columnLookup = GetColumnLookup(columns);
+        var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
 
         var columnNotNullConstraints = columnLookup.Keys
             .Select(static k => k.LocalName)
             .Select(GenerateNotNullDefinition)
-            .ToList();
+            .ToHashSet(StringComparer.Ordinal);
 
         var result = new List<IDatabaseCheckConstraint>();
 
         foreach (var checkRow in checks)
         {
             var definition = checkRow.Definition;
-            if (definition == null || columnNotNullConstraints.Contains(definition, StringComparer.Ordinal))
+            if (definition == null || columnNotNullConstraints.Contains(definition))
                 continue;
 
             var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);
@@ -539,6 +543,33 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     }
 
     /// <summary>
+    /// Retrieves the raw primary key, unique key and foreign key constraint rows defined on a given
+    /// table. Shared by <see cref="LoadPrimaryKeyAsync"/>, <see cref="LoadUniqueKeysAsync"/> and
+    /// <see cref="LoadParentKeysAsync"/> so that <c>GetTableConstraints</c> is only queried once per table.
+    /// </summary>
+    /// <param name="tableName">A table name.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of raw constraint rows.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+    internal Task<IReadOnlyCollection<GetTableConstraints.Result>> LoadConstraintRowsAsync(Identifier tableName, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(tableName);
+
+        return LoadConstraintRowsAsyncCore(tableName, cancellationToken);
+    }
+
+    private async Task<IReadOnlyCollection<GetTableConstraints.Result>> LoadConstraintRowsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+    {
+        var constraints = await DbConnection.QueryAsync(
+            GetTableConstraints.Sql,
+            new GetTableConstraints.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+            cancellationToken
+        );
+
+        return constraints.ToList();
+    }
+
+    /// <summary>
     /// Retrieves foreign keys that relate to the given table.
     /// </summary>
     /// <param name="tableName">A table name.</param>
@@ -556,14 +587,16 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
     private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsyncCore(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var queryResult = await DbConnection.QueryAsync(
-            GetTableParentKeys.Sql,
-            new GetTableParentKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-            cancellationToken
-        );
-
-        if (queryResult.Empty())
-            return [];
+        var constraintRows = await queryCache.GetConstraintRowsAsync(tableName, cancellationToken);
+        // A left join is used so that a single query can serve primary/unique/foreign key constraints
+        // alike (see GetTableConstraints.Sql), so a foreign key referencing anything other than a
+        // primary or unique key comes back with null parent-table columns. Drop those here to match the
+        // previous inner-join behaviour, which excluded such rows entirely.
+        var queryResult = constraintRows
+            .Where(static row => string.Equals(row.ConstraintType, Constants.ForeignKeyType, StringComparison.Ordinal)
+                && row.ParentTableSchema != null
+                && row.ParentTableName != null)
+            .ToList();
 
         var foreignKeys = queryResult.GroupAsDictionary(static row => new
         {
@@ -578,10 +611,12 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         if (foreignKeys.Empty())
             return [];
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
-        var columnLookup = GetColumnLookup(columns);
+        var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
 
         var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
+        // Memoized per parent table name so that multiple foreign keys referencing unique keys on the
+        // same parent table don't rebuild the same lookup dictionary once per foreign key.
+        var parentUniqueKeyLookups = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseKey>>();
         foreach (var fkey in foreignKeys)
         {
             var candidateParentTableName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
@@ -598,27 +633,33 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                         return pk.ToAsync();
                     }
 
-                    var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentConstraintName);
-                    var uniqueKeys = await queryCache.GetUniqueKeysAsync(parentTableName, cancellationToken);
-                    var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
+                    if (!parentUniqueKeyLookups.TryGetValue(parentTableName, out var uniqueKeyLookup))
+                    {
+                        var uniqueKeys = await queryCache.GetUniqueKeysAsync(parentTableName, cancellationToken);
+                        uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
+                        parentUniqueKeyLookups[parentTableName] = uniqueKeyLookup;
+                    }
 
-                    return uniqueKeyLookup.ContainsKey(parentKeyName.LocalName)
-                        ? OptionAsync<IDatabaseKey>.Some(uniqueKeyLookup[parentKeyName.LocalName])
+                    var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentConstraintName);
+                    return uniqueKeyLookup.TryGetValue(parentKeyName.LocalName, out var uniqueParentKey)
+                        ? OptionAsync<IDatabaseKey>.Some(uniqueParentKey)
                         : OptionAsync<IDatabaseKey>.None;
                 })
                 .Map(parentKey =>
                 {
                     var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ConstraintName);
-                    var childKeyColumns = fkey.Value
-                        .Where(row => columnLookup.ContainsKey(row.ColumnName))
-                        .OrderBy(static row => row.ColumnPosition)
-                        .Select(row => columnLookup[row.ColumnName])
-                        .ToList();
+                    var childKeyColumns = ResolveColumns(
+                        fkey.Value
+                            .Where(static row => row.ColumnName != null)
+                            .OrderBy(static row => row.ColumnPosition)
+                            .Select(static row => (Identifier)row.ColumnName!),
+                        columnLookup
+                    ).ToList();
 
                     var isEnabled = string.Equals(fkey.Key.EnabledStatus, Constants.Enabled, StringComparison.Ordinal);
                     var childKey = new OracleDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled);
 
-                    var deleteAction = ReferentialActionMapping[fkey.Key.DeleteAction];
+                    var deleteAction = ReferentialActionMapping[fkey.Key.DeleteAction!];
                     return new OracleRelationalKey(tableName, childKey, resolvedParentTableName!, parentKey, deleteAction);
                 })
                 .IfSome(result.Add);
@@ -673,7 +714,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             };
             var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
-            var isNullable = !notNullableColumnNames.Contains(row.ColumnName, StringComparer.Ordinal);
+            var isNullable = row.ColumnName == null || !notNullableColumnNames.Contains(row.ColumnName);
             var isComputed = string.Equals(row.IsComputed, Constants.Yes, StringComparison.Ordinal);
             var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
             var computedColumnDefinition = isComputed && !row.DefaultValue.IsNullOrWhiteSpace()
@@ -715,9 +756,6 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             cancellationToken
         );
 
-        if (queryResult.Empty())
-            return [];
-
         var triggers = queryResult.ToList();
         if (triggers.Empty())
             return [];
@@ -726,8 +764,8 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         foreach (var triggerRow in triggers)
         {
             var triggerName = Identifier.CreateQualifiedIdentifier(triggerRow.TriggerSchema, triggerRow.TriggerName);
-            var queryTiming = triggerRow.TriggerType != null && TimingMapping.ContainsKey(triggerRow.TriggerType)
-                ? TimingMapping[triggerRow.TriggerType]
+            var queryTiming = triggerRow.TriggerType != null && TimingMapping.TryGetValue(triggerRow.TriggerType, out var timing)
+                ? timing
                 : TriggerQueryTiming.After;
             var definition = triggerRow.Definition ?? string.Empty;
             var isEnabled = string.Equals(triggerRow.EnabledStatus, Constants.Enabled, StringComparison.Ordinal);
@@ -790,7 +828,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 && string.Equals(c.EnabledStatus, Constants.Enabled, StringComparison.Ordinal)
                 && columnNotNullConstraints.ContainsKey(c.Definition))
             .Select(c => columnNotNullConstraints[c.Definition!])
-            .ToList();
+            .ToHashSet(StringComparer.Ordinal);
     }
 
     /// <summary>
@@ -863,6 +901,39 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         return result;
     }
 
+    /// <summary>
+    /// Retrieves a table's column lookup, backed by the (cached) column list. Cached in its own right so
+    /// that the <see cref="Dictionary{TKey,TValue}"/> built by <see cref="GetColumnLookup"/> is not
+    /// rebuilt by every one of the several methods (primary key, unique keys, indexes, checks, parent
+    /// keys) that need to resolve column names for a given table.
+    /// </summary>
+    /// <param name="tableName">A table name.</param>
+    /// <param name="queryCache">A query cache for the given context.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A lookup of columns keyed by column name.</returns>
+    private async Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> LoadColumnLookupAsync(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
+        return GetColumnLookup(columns);
+    }
+
+    /// <summary>
+    /// Resolves an ordered sequence of column names against a column lookup, skipping any name that has
+    /// no match (mirroring the previous <c>.Where(lookup.ContainsKey).Select(lookup[...])</c> chains this
+    /// replaces, minus the double dictionary lookup).
+    /// </summary>
+    /// <param name="columnNames">Column names, in the order the resolved columns should appear.</param>
+    /// <param name="columnLookup">A column lookup for the table the names belong to.</param>
+    /// <returns>The resolved columns, in the same order as <paramref name="columnNames"/>.</returns>
+    private static IEnumerable<IDatabaseColumn> ResolveColumns(IEnumerable<Identifier> columnNames, IReadOnlyDictionary<Identifier, IDatabaseColumn> columnLookup)
+    {
+        foreach (var name in columnNames)
+        {
+            if (columnLookup.TryGetValue(name, out var column))
+                yield return column;
+        }
+    }
+
     private static IReadOnlyDictionary<Identifier, IDatabaseKey> GetDatabaseKeyLookup(IReadOnlyCollection<IDatabaseKey> keys)
     {
         ArgumentNullException.ThrowIfNull(keys);
@@ -885,6 +956,10 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         public const string PrimaryKeyType = "P";
 
+        public const string UniqueKeyType = "U";
+
+        public const string ForeignKeyType = "R";
+
         public const string Unique = "UNIQUE";
 
         public const string Update = "UPDATE";
@@ -905,6 +980,8 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, OracleTableQueryCache> _uniqueKeys;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, OracleTableQueryCache> _foreignKeys;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<GetTableChecks.Result>, OracleTableQueryCache> _checkRows;
+        private readonly AsyncCache<Identifier, IReadOnlyCollection<GetTableConstraints.Result>, OracleTableQueryCache> _constraintRows;
+        private readonly AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, OracleTableQueryCache> _columnLookups;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OracleTableQueryCache"/> class.
@@ -915,14 +992,18 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <param name="uniqueKeyLoader">A unique key cache.</param>
         /// <param name="foreignKeyLoader">A foreign key cache.</param>
         /// <param name="checkRowsLoader">A raw check constraint row cache.</param>
-        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="foreignKeyLoader"/> or <paramref name="checkRowsLoader"/> are <see langword="null" />.</exception>
+        /// <param name="constraintRowsLoader">A raw primary/unique/foreign key constraint row cache.</param>
+        /// <param name="columnLookupLoader">A column lookup cache.</param>
+        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="foreignKeyLoader"/>, <paramref name="checkRowsLoader"/>, <paramref name="constraintRowsLoader"/> or <paramref name="columnLookupLoader"/> are <see langword="null" />.</exception>
         internal OracleTableQueryCache(
             AsyncCache<Identifier, Option<Identifier>, OracleTableQueryCache> tableNameLoader,
             AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, OracleTableQueryCache> columnLoader,
             AsyncCache<Identifier, Option<IDatabaseKey>, OracleTableQueryCache> primaryKeyLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, OracleTableQueryCache> uniqueKeyLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, OracleTableQueryCache> foreignKeyLoader,
-            AsyncCache<Identifier, IReadOnlyCollection<GetTableChecks.Result>, OracleTableQueryCache> checkRowsLoader
+            AsyncCache<Identifier, IReadOnlyCollection<GetTableChecks.Result>, OracleTableQueryCache> checkRowsLoader,
+            AsyncCache<Identifier, IReadOnlyCollection<GetTableConstraints.Result>, OracleTableQueryCache> constraintRowsLoader,
+            AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, OracleTableQueryCache> columnLookupLoader
         )
         {
             _tableNames = tableNameLoader ?? throw new ArgumentNullException(nameof(tableNameLoader));
@@ -931,6 +1012,8 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             _uniqueKeys = uniqueKeyLoader ?? throw new ArgumentNullException(nameof(uniqueKeyLoader));
             _foreignKeys = foreignKeyLoader ?? throw new ArgumentNullException(nameof(foreignKeyLoader));
             _checkRows = checkRowsLoader ?? throw new ArgumentNullException(nameof(checkRowsLoader));
+            _constraintRows = constraintRowsLoader ?? throw new ArgumentNullException(nameof(constraintRowsLoader));
+            _columnLookups = columnLookupLoader ?? throw new ArgumentNullException(nameof(columnLookupLoader));
         }
 
         /// <summary>
@@ -1015,6 +1098,34 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             ArgumentNullException.ThrowIfNull(tableName);
 
             return _checkRows.GetByKeyAsync(tableName, this, cancellationToken);
+        }
+
+        /// <summary>
+        /// Retrieves a table's raw primary/unique/foreign key constraint rows from the cache, querying the database when not populated.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of raw constraint rows.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+        internal Task<IReadOnlyCollection<GetTableConstraints.Result>> GetConstraintRowsAsync(Identifier tableName, CancellationToken cancellationToken)
+        {
+            ArgumentNullException.ThrowIfNull(tableName);
+
+            return _constraintRows.GetByKeyAsync(tableName, this, cancellationToken);
+        }
+
+        /// <summary>
+        /// Retrieves a table's column lookup from the cache, querying the database when not populated.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A lookup of columns keyed by column name.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> GetColumnLookupAsync(Identifier tableName, CancellationToken cancellationToken)
+        {
+            ArgumentNullException.ThrowIfNull(tableName);
+
+            return _columnLookups.GetByKeyAsync(tableName, this, cancellationToken);
         }
     }
 }

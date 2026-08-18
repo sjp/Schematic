@@ -52,4 +52,35 @@ public static class OptionExtensions
 
         return Option<T>.None;
     }
+
+    /// <summary>
+    /// Returns <paramref name="first"/> if it resolves to a 'some' state; otherwise lazily invokes
+    /// <paramref name="second"/> and returns its result.
+    /// </summary>
+    /// <remarks>
+    /// Unlike the <c>|</c> operator on <see cref="OptionAsync{A}"/>, which evaluates both operands
+    /// before combining them, this defers invoking <paramref name="second"/> until <paramref name="first"/>
+    /// is known to be 'none' — useful when producing the second option is itself expensive (e.g. issues a
+    /// database query), so that a match on <paramref name="first"/> avoids that work entirely.
+    /// </remarks>
+    /// <typeparam name="T">The type of value contained within the option.</typeparam>
+    /// <param name="first">The option to try first.</param>
+    /// <param name="second">A factory for the option to try when <paramref name="first"/> is 'none'.</param>
+    /// <returns>An <see cref="OptionAsync{T}"/> in the 'some' state if either <paramref name="first"/> or the option produced by <paramref name="second"/> is 'some'; otherwise an option in the 'none' state.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="second"/> is <see langword="null" />.</exception>
+    public static OptionAsync<T> OrElse<T>(this OptionAsync<T> first, Func<OptionAsync<T>> second)
+    {
+        ArgumentNullException.ThrowIfNull(second);
+
+        return OrElseAsyncCore(first, second).ToAsync();
+    }
+
+    private static async Task<Option<T>> OrElseAsyncCore<T>(OptionAsync<T> first, Func<OptionAsync<T>> second)
+    {
+        var firstResolved = await first.ToOption();
+        if (firstResolved.IsSome)
+            return firstResolved;
+
+        return await second().ToOption();
+    }
 }

@@ -88,6 +88,6 @@ public class OracleDatabaseViewProvider : IDatabaseViewProvider
         ArgumentNullException.ThrowIfNull(viewName);
 
         return QueryViewProvider.GetView(viewName, cancellationToken)
-             | MaterializedViewProvider.GetView(viewName, cancellationToken);
+            .OrElse(() => MaterializedViewProvider.GetView(viewName, cancellationToken));
     }
 }

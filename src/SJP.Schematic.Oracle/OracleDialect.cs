@@ -83,9 +83,7 @@ public class OracleDialect : DatabaseDialect
     private static readonly IDbTypeProvider InnerTypeProvider = new OracleDbTypeProvider();
 
     // https://docs.oracle.com/database/121/SQLRF/ap_keywd.htm#SQLRF022
-    // Note: matching is case-sensitive (StringComparer.Ordinal), preserving the pre-existing behaviour of
-    // the explicit comparer previously passed to Contains, which overrode this set's own comparer.
-    private static readonly IReadOnlySet<string> Keywords = new System.Collections.Generic.HashSet<string>(StringComparer.Ordinal)
+    private static readonly IReadOnlySet<string> Keywords = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         "ACCESS",
         "ADD",

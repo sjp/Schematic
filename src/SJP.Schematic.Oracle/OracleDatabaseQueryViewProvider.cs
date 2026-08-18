@@ -207,17 +207,26 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var query = await DbConnection.QueryAsync(
-            GetViewColumns.Sql,
-            new GetViewColumns.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
-            cancellationToken
-        );
+        // GetViewChecks does not depend on the column query's results (only on viewName), so launch both
+        // together rather than awaiting the columns before starting the checks lookup.
+        var (query, checks) = await (
+            DbConnection.QueryAsync(
+                GetViewColumns.Sql,
+                new GetViewColumns.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+                cancellationToken
+            ),
+            DbConnection.QueryAsync(
+                GetViewChecks.Sql,
+                new GetViewChecks.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+                cancellationToken
+            )
+        ).WhenAll();
 
         var columnNames = query
             .Where(static row => row.ColumnName != null)
             .Select(static row => row.ColumnName!)
             .ToList();
-        var notNullableColumnNames = await GetNotNullConstrainedColumnsAsync(viewName, columnNames, cancellationToken);
+        var notNullableColumnNames = BuildNotNullConstrainedColumnNames(checks, columnNames);
         var result = new List<IDatabaseColumn>();
 
         foreach (var row in query)
@@ -235,7 +244,7 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
             };
             var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
-            var isNullable = !notNullableColumnNames.Contains(row.ColumnName, StringComparer.Ordinal);
+            var isNullable = row.ColumnName == null || !notNullableColumnNames.Contains(row.ColumnName);
             var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
             var defaultValue = !row.DefaultValue.IsNullOrWhiteSpace()
                  ? Option<string>.Some(row.DefaultValue)
@@ -273,8 +282,22 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
             cancellationToken
         );
 
+        return BuildNotNullConstrainedColumnNames(checks, columnNames);
+    }
+
+    /// <summary>
+    /// Determines which of <paramref name="columnNames"/> are not-null constrained, given the raw check
+    /// constraint rows for a view. Pure function shared by <see cref="GetNotNullConstrainedColumnsAsyncCore"/>
+    /// and <see cref="LoadColumnsAsyncCore"/> so the checks query can be issued once and combined with a
+    /// concurrently-fetched columns query.
+    /// </summary>
+    /// <param name="checks">The raw check constraint rows for a view.</param>
+    /// <param name="columnNames">The column names for the given view.</param>
+    /// <returns>A set of not-null constrained column names.</returns>
+    private static IReadOnlySet<string> BuildNotNullConstrainedColumnNames(IEnumerable<GetViewChecks.Result> checks, IEnumerable<string> columnNames)
+    {
         if (checks.Empty())
-            return [];
+            return new System.Collections.Generic.HashSet<string>();
 
         var columnNotNullConstraints = columnNames
             .Select(name => new KeyValuePair<string, string>(GenerateNotNullDefinition(name), name))
@@ -285,7 +308,7 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
                 && string.Equals(c.EnabledStatus, EnabledValue, StringComparison.Ordinal)
                 && columnNotNullConstraints.ContainsKey(c.Definition))
             .Select(c => columnNotNullConstraints[c.Definition!])
-            .ToList();
+            .ToHashSet(StringComparer.Ordinal);
     }
 
     /// <summary>

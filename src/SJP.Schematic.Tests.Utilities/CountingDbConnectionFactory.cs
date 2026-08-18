@@ -5,14 +5,14 @@ using System.Threading.Tasks;
 using Polly;
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Lint.Tests.Fakes;
+namespace SJP.Schematic.Tests.Utilities;
 
 /// <summary>
 /// A connection factory decorator that counts how many connections were opened. Each query executed
 /// via <c>ConnectionExtensions</c> (e.g. <c>ExecuteScalarAsync</c>) opens and disposes exactly one
 /// connection, so this doubles as a round-trip counter for tests asserting on query-batching behaviour.
 /// </summary>
-internal sealed class CountingDbConnectionFactory : IDbConnectionFactory
+public sealed class CountingDbConnectionFactory : IDbConnectionFactory
 {
     public CountingDbConnectionFactory(IDbConnectionFactory innerFactory)
     {

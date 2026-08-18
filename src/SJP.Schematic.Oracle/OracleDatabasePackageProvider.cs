@@ -168,13 +168,11 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
             .Select(static p => p.Text!)
             .Join(string.Empty);
         var bodyLines = lines
-            .Where(static p => string.Equals(p.RoutineType, PackageBodyObjectType, StringComparison.Ordinal) && p.Text != null);
-        var orderedBodyText = bodyLines
-            .OrderBy(static p => p.LineNumber)
-            .Select(static p => p.Text!);
+            .Where(static p => string.Equals(p.RoutineType, PackageBodyObjectType, StringComparison.Ordinal) && p.Text != null)
+            .ToList();
 
-        var body = bodyLines.Any()
-            ? Option<string>.Some(orderedBodyText.Join(string.Empty))
+        var body = bodyLines.Count > 0
+            ? Option<string>.Some(bodyLines.OrderBy(static p => p.LineNumber).Select(static p => p.Text!).Join(string.Empty))
             : Option<string>.None;
 
         var specification = OracleUnwrapper.Unwrap(spec);
@@ -197,13 +195,11 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
             .Select(static p => p.Text!)
             .Join(string.Empty);
         var bodyLines = lines
-            .Where(static p => string.Equals(p.RoutineType, PackageBodyObjectType, StringComparison.Ordinal) && p.Text != null);
-        var orderedBodyText = bodyLines
-            .OrderBy(static p => p.LineNumber)
-            .Select(static p => p.Text!);
+            .Where(static p => string.Equals(p.RoutineType, PackageBodyObjectType, StringComparison.Ordinal) && p.Text != null)
+            .ToList();
 
-        var body = bodyLines.Any()
-            ? Option<string>.Some(orderedBodyText.Join(string.Empty))
+        var body = bodyLines.Count > 0
+            ? Option<string>.Some(bodyLines.OrderBy(static p => p.LineNumber).Select(static p => p.Text!).Join(string.Empty))
             : Option<string>.None;
 
         var specification = OracleUnwrapper.Unwrap(spec);

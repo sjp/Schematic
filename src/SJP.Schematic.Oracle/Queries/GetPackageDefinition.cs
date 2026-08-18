@@ -28,6 +28,5 @@ select
     TEXT as "{nameof(Result.Text)}"
 from SYS.ALL_SOURCE
 where OWNER = :{nameof(Query.SchemaName)} and NAME = :{nameof(Query.PackageName)} and TYPE in ('PACKAGE', 'PACKAGE BODY')
-order by LINE
 """;
 }

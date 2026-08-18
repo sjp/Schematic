@@ -96,7 +96,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
     {
         ArgumentNullException.ThrowIfNull(typeName);
 
-        return FixedLengthTypes.Contains(typeName.LocalName, StringComparer.OrdinalIgnoreCase);
+        return FixedLengthTypes.Contains(typeName.LocalName);
     }
 
     /// <summary>
@@ -156,11 +156,24 @@ public class OracleDbTypeProvider : IDbTypeProvider
         var builder = StringBuilderCache.Acquire(typeMetadata.TypeName.LocalName.Length * 2);
         var typeName = typeMetadata.TypeName;
         if (string.Equals(typeName.Schema, "SYS", StringComparison.OrdinalIgnoreCase))
+        {
             builder.Append(QuoteIdentifier(typeName.LocalName));
+        }
         else
-            builder.Append(QuoteName(typeName));
+        {
+            // Inlined rather than delegating to QuoteName(), which acquires its own StringBuilder from
+            // the same thread-static cache slot this builder was already taken from — the nested
+            // Acquire()/Release() pair would otherwise silently drop one of the two builders from the pool.
+            if (typeName.Server != null)
+                builder.Append(QuoteIdentifier(typeName.Server)).Append('.');
+            if (typeName.Database != null)
+                builder.Append(QuoteIdentifier(typeName.Database)).Append('.');
+            if (typeName.Schema != null)
+                builder.Append(QuoteIdentifier(typeName.Schema)).Append('.');
+            builder.Append(QuoteIdentifier(typeName.LocalName));
+        }
 
-        if (TypeNamesWithNoLengthAnnotation.Contains(typeName.LocalName, StringComparer.OrdinalIgnoreCase))
+        if (TypeNamesWithNoLengthAnnotation.Contains(typeName.LocalName))
             return builder.GetStringAndRelease();
 
         var npWithPrecisionOrScale = typeMetadata.NumericPrecision.Filter(static np => np.Precision > 0 || np.Scale > 0);
@@ -254,14 +267,14 @@ public class OracleDbTypeProvider : IDbTypeProvider
         return builder.GetStringAndRelease();
     }
 
-    private static readonly IEnumerable<string> FixedLengthTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    private static readonly IReadOnlySet<string> FixedLengthTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         "CHAR",
         "NCHAR",
         "RAW",
     };
 
-    private static readonly IEnumerable<string> TypeNamesWithNoLengthAnnotation = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    private static readonly IReadOnlySet<string> TypeNamesWithNoLengthAnnotation = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         "BFILE",
         "BINARY_FLOAT",

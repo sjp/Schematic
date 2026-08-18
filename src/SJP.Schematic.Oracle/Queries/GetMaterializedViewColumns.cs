@@ -21,8 +21,6 @@ internal static class GetMaterializedViewColumns
 
         public required int DataLength { get; init; }
 
-        public required int CharacterLength { get; init; }
-
         public required int Precision { get; init; }
 
         public required int Scale { get; init; }
@@ -44,7 +42,6 @@ select
     atc.DATA_PRECISION as "{nameof(Result.Precision)}",
     atc.DATA_SCALE as "{nameof(Result.Scale)}",
     atc.DATA_DEFAULT as "{nameof(Result.DefaultValue)}",
-    atc.CHAR_LENGTH as "{nameof(Result.CharacterLength)}",
     atc.CHARACTER_SET_NAME as "{nameof(Result.Collation)}",
     atc.VIRTUAL_COLUMN as "{nameof(Result.IsComputed)}"
 from SYS.ALL_TAB_COLS atc

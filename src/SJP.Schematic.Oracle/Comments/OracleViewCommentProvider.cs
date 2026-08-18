@@ -98,6 +98,6 @@ public class OracleViewCommentProvider : IDatabaseViewCommentProvider
         ArgumentNullException.ThrowIfNull(viewName);
 
         return QueryViewCommentProvider.GetViewComments(viewName, cancellationToken)
-             | MaterializedViewCommentProvider.GetViewComments(viewName, cancellationToken);
+            .OrElse(() => MaterializedViewCommentProvider.GetViewComments(viewName, cancellationToken));
     }
 }

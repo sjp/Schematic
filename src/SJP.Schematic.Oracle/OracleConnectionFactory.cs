@@ -96,7 +96,7 @@ public class OracleConnectionFactory : IDbConnectionFactory
     /// Gets a database command retry policy builder.
     /// </summary>
     /// <value>A retry policy builder.</value>
-    public PolicyBuilder RetryPolicy => Policy
+    public PolicyBuilder RetryPolicy { get; } = Policy
         .Handle<OracleException>(IsTransientError)
         .Or<TimeoutException>();
 

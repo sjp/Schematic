@@ -88,6 +88,6 @@ public class OracleDatabaseRoutineProvider : IDatabaseRoutineProvider
         ArgumentNullException.ThrowIfNull(routineName);
 
         return SimpleRoutineProvider.GetRoutine(routineName, cancellationToken)
-             | PackageProvider.GetPackage(routineName, cancellationToken).Map<IDatabaseRoutine>(static p => p);
+            .OrElse(() => PackageProvider.GetPackage(routineName, cancellationToken).Map<IDatabaseRoutine>(static p => p));
     }
 }

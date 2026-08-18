@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using System.Text;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Oracle;
@@ -39,8 +39,10 @@ public class OracleDatabaseIdentifierLengthValidation : IOracleDatabaseIdentifie
     {
         ArgumentNullException.ThrowIfNull(identifier);
 
-        var components = new[] { identifier.Server, identifier.Database, identifier.Schema, identifier.LocalName };
-        return components.All(IsIdentifierComponentValid);
+        return IsIdentifierComponentValid(identifier.Server)
+            && IsIdentifierComponentValid(identifier.Database)
+            && IsIdentifierComponentValid(identifier.Schema)
+            && IsIdentifierComponentValid(identifier.LocalName);
     }
 
     // basically, are all of the characters ascii (equivalent to a byte for oracle's purposes)
@@ -51,15 +53,8 @@ public class OracleDatabaseIdentifierLengthValidation : IOracleDatabaseIdentifie
         if (component == null)
             return true;
 
-        var asciiByteCount = GetAsciiByteCount(component);
-        return asciiByteCount == component.Length
-            && asciiByteCount <= MaxIdentifierLength;
-    }
-
-    private static int GetAsciiByteCount(string component)
-    {
-        ArgumentNullException.ThrowIfNull(component);
-
-        return component.Count(static c => c < 128);
+        // Every character being ASCII is equivalent to the ASCII byte count equalling the char count, so
+        // Ascii.IsValid (SIMD-accelerated) answers that directly without also needing a count.
+        return Ascii.IsValid(component) && component.Length <= MaxIdentifierLength;
     }
 }

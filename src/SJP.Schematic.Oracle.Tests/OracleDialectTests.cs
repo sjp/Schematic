@@ -100,4 +100,26 @@ internal static class OracleDialectTests
 
         Assert.That(() => dialect.QuoteIdentifier(input), Throws.ArgumentException);
     }
+
+    [TestCase("SELECT")]
+    [TestCase("select")]
+    [TestCase("Select")]
+    public static void IsReservedKeyword_GivenKeywordInAnyCasing_ReturnsTrue(string text)
+    {
+        var dialect = new OracleDialect();
+
+        var result = dialect.IsReservedKeyword(text);
+
+        Assert.That(result, Is.True);
+    }
+
+    [Test]
+    public static void IsReservedKeyword_GivenNonKeyword_ReturnsFalse()
+    {
+        var dialect = new OracleDialect();
+
+        var result = dialect.IsReservedKeyword("not_a_keyword_at_all");
+
+        Assert.That(result, Is.False);
+    }
 }

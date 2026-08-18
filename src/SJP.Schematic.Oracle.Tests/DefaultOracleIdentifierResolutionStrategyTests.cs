@@ -163,4 +163,29 @@ internal static class DefaultOracleIdentifierResolutionStrategyTests
 
         Assert.That(result, Is.EqualTo(expectedResults));
     }
+
+    [Test]
+    public static void GetResolutionOrder_GivenAlreadyUppercaseIdentifierContainingUnderscore_ReturnsOneIdentifier()
+    {
+        // IsUpper('_') is false, so an All(char.IsUpper) case check would treat "MY_TABLE" as not
+        // fully-uppercase despite it already being so, yielding ToUpperInvariant() (identical to the
+        // input) as a spurious second candidate.
+        var input = new Identifier("A", "B", "C", "MY_TABLE");
+        var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
+
+        var result = identifierResolver.GetResolutionOrder(input).ToList();
+
+        Assert.That(result, Has.Exactly(1).Items);
+    }
+
+    [Test]
+    public static void GetResolutionOrder_GivenAlreadyUppercaseSchemaAndLocalNameContainingUnderscoresAndDigits_ReturnsOneIdentifier()
+    {
+        var input = new Identifier("A", "B", "MY_SCHEMA1", "MY_TABLE2");
+        var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
+
+        var result = identifierResolver.GetResolutionOrder(input).ToList();
+
+        Assert.That(result, Has.Exactly(1).Items);
+    }
 }
