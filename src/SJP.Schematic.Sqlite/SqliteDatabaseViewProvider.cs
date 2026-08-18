@@ -267,8 +267,10 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     {
         var databasePragma = GetDatabasePragma(viewName.Schema!);
 
-        var columns = await LoadColumnsAsync(databasePragma, viewName, cancellationToken);
-        var definition = await LoadDefinitionAsync(viewName, cancellationToken);
+        var (columns, definition) = await (
+            LoadColumnsAsync(databasePragma, viewName, cancellationToken),
+            LoadDefinitionAsync(viewName, cancellationToken)
+        ).WhenAll();
 
         return new DatabaseView(viewName, definition!, columns);
     }

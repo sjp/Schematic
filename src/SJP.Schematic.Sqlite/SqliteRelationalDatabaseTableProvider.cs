@@ -290,14 +290,25 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
     private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var parsedTable = await queryCache.GetParsedTableAsync(tableName, cancellationToken);
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
-        var triggers = await LoadTriggersAsync(tableName, cancellationToken);
-        var primaryKey = await LoadPrimaryKeyAsync(tableName, queryCache, cancellationToken);
-        var uniqueKeys = await LoadUniqueKeysAsync(tableName, queryCache, cancellationToken);
-        var indexes = await LoadIndexesAsync(tableName, queryCache, cancellationToken);
-        var parentKeys = await queryCache.GetForeignKeysAsync(tableName, cancellationToken);
-        var childKeys = await LoadChildKeysAsync(tableName, queryCache, cancellationToken);
+        var (
+            parsedTable,
+            columns,
+            triggers,
+            primaryKey,
+            uniqueKeys,
+            indexes,
+            parentKeys,
+            childKeys
+        ) = await (
+            queryCache.GetParsedTableAsync(tableName, cancellationToken),
+            queryCache.GetColumnsAsync(tableName, cancellationToken),
+            LoadTriggersAsync(tableName, cancellationToken),
+            queryCache.GetPrimaryKeyAsync(tableName, cancellationToken),
+            queryCache.GetUniqueKeysAsync(tableName, cancellationToken),
+            LoadIndexesAsync(tableName, queryCache, cancellationToken),
+            queryCache.GetForeignKeysAsync(tableName, cancellationToken),
+            LoadChildKeysAsync(tableName, queryCache, cancellationToken)
+        ).WhenAll();
         var checks = LoadChecks(parsedTable);
 
         return new RelationalDatabaseTable(
@@ -446,14 +457,21 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         );
         var indexDefinitionLookup = indexDefinitions.ToDictionary(static d => d.IndexName, static d => d.Sql, StringComparer.Ordinal);
 
-        var result = new List<IDatabaseIndex>(nonConstraintIndexLists.Count);
+        var namedIndexLists = nonConstraintIndexLists.Where(static i => i.name != null).ToList();
+        if (namedIndexLists.Empty())
+            return [];
 
-        foreach (var indexList in nonConstraintIndexLists)
+        var indexInfos = await namedIndexLists
+            .Select(i => pragma.IndexXInfoAsync(i.name!, cancellationToken))
+            .ToArray()
+            .WhenAll();
+
+        var result = new List<IDatabaseIndex>(namedIndexLists.Count);
+
+        for (var idx = 0; idx < namedIndexLists.Count; idx++)
         {
-            if (indexList.name == null)
-                continue;
-
-            var indexInfo = await pragma.IndexXInfoAsync(indexList.name, cancellationToken);
+            var indexList = namedIndexLists[idx];
+            var indexInfo = indexInfos[idx];
             var indexColumns = indexInfo
                 .Where(i => i.key && i.cid >= 0 && i.name != null && columnLookup.ContainsKey(i.name))
                 .OrderBy(static i => i.seqno)
@@ -556,9 +574,15 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         var columnLookup = GetColumnLookup(columns);
         var parsedUniqueConstraints = parsedTable.UniqueKeys;
 
-        foreach (var ukIndexList in ukIndexLists)
+        var ukIndexXInfos = await ukIndexLists
+            .Select(uk => pragma.IndexXInfoAsync(uk.name, cancellationToken))
+            .ToArray()
+            .WhenAll();
+
+        for (var idx = 0; idx < ukIndexLists.Count; idx++)
         {
-            var indexXInfos = await pragma.IndexXInfoAsync(ukIndexList.name, cancellationToken);
+            var ukIndexList = ukIndexLists[idx];
+            var indexXInfos = ukIndexXInfos[idx];
             var orderedColumns = indexXInfos
                 .Where(i => i.key && i.cid >= 0 && i.name != null)
                 .OrderBy(static i => i.seqno)
