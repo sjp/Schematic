@@ -28,6 +28,7 @@ left join pg_catalog.pg_description d
     and d.objsubid = 0
 where n.nspname = @{nameof(Query.SchemaName)} and p.proname = @{nameof(Query.RoutineName)}
     and n.nspname not in ('pg_catalog', 'information_schema')
+limit 1
 
 """;
 }

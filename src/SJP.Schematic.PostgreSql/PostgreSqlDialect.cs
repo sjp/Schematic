@@ -16,7 +16,9 @@ public class PostgreSqlDialect : DatabaseDialect
     /// Retrieves a dependency provider for PostgreSQL expressions.
     /// </summary>
     /// <returns>A dependency provider.</returns>
-    public override IDependencyProvider GetDependencyProvider() => new PostgreSqlDependencyProvider();
+    public override IDependencyProvider GetDependencyProvider() => InnerDependencyProvider;
+
+    private static readonly IDependencyProvider InnerDependencyProvider = new PostgreSqlDependencyProvider();
 
     /// <summary>
     /// Determines whether the given text is a reserved keyword.

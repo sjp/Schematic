@@ -25,6 +25,7 @@ public class PostgreSqlDatabaseSequenceProvider : IDatabaseSequenceProvider
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
+        _sequenceProvider = new Lazy<IDatabaseSequenceProvider>(() => new PostgreSqlDatabaseSequenceProviderBase(DbConnection, IdentifierDefaults, IdentifierResolver));
     }
 
     /// <summary>
@@ -59,10 +60,13 @@ public class PostgreSqlDatabaseSequenceProvider : IDatabaseSequenceProvider
 
     /// <summary>
     /// The underlying sequence provider. Constructed lazily so that <see cref="DbConnection"/>
-    /// is only evaluated once a query is actually issued, not at construction time.
+    /// is only evaluated once a query is actually issued, not at construction time, and cached
+    /// thereafter so that repeated calls do not each allocate a new provider.
     /// </summary>
     /// <value>A sequence provider.</value>
-    private IDatabaseSequenceProvider SequenceProvider => new PostgreSqlDatabaseSequenceProviderBase(DbConnection, IdentifierDefaults, IdentifierResolver);
+    private IDatabaseSequenceProvider SequenceProvider => _sequenceProvider.Value;
+
+    private readonly Lazy<IDatabaseSequenceProvider> _sequenceProvider;
 
     /// <summary>
     /// Enumerates all database sequences.

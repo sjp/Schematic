@@ -76,6 +76,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     protected PostgreSqlTableQueryCache CreateQueryCache() => new(
         new AsyncCache<Identifier, Option<Identifier>, PostgreSqlTableQueryCache>((tableName, _, token) => GetResolvedTableName(tableName, token)),
         new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, PostgreSqlTableQueryCache>((tableName, _, token) => LoadColumnsAsync(tableName, token)),
+        new AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, PostgreSqlTableQueryCache>(async (tableName, cache, token) => GetColumnLookup(await cache.GetColumnsAsync(tableName, token))),
         new AsyncCache<Identifier, Option<IDatabaseKey>, PostgreSqlTableQueryCache>(LoadPrimaryKeyAsync),
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, PostgreSqlTableQueryCache>(LoadUniqueKeysAsync),
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, PostgreSqlTableQueryCache>(LoadIndexesAsync),
@@ -208,7 +209,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             queryCache.GetColumnsAsync(tableName, cancellationToken),
             LoadChecksAsync(tableName, cancellationToken),
             LoadTriggersAsync(tableName, cancellationToken),
-            LoadIndexesAsync(tableName, queryCache, cancellationToken),
+            queryCache.GetIndexesAsync(tableName, cancellationToken),
             queryCache.GetPrimaryKeyAsync(tableName, cancellationToken),
             queryCache.GetUniqueKeysAsync(tableName, cancellationToken),
             queryCache.GetForeignKeysAsync(tableName, cancellationToken),
@@ -255,8 +256,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         if (primaryKeyColumns.Empty())
             return Option<IDatabaseKey>.None;
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
-        var columnLookup = GetColumnLookup(columns);
+        var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
 
         var groupedByName = primaryKeyColumns.GroupAsDictionary(static row => new { row.ConstraintName });
         var firstRow = groupedByName.First();
@@ -264,13 +264,13 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         if (constraintName == null)
             return Option<IDatabaseKey>.None;
 
-        var keyColumns = groupedByName
-            .Where(row => string.Equals(row.Key.ConstraintName, constraintName, StringComparison.Ordinal))
-            .SelectMany(g => g.Value
-                .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
+        var keyColumns = ResolveColumns(
+            firstRow.Value
+                .Where(static row => row.ColumnName != null)
                 .OrderBy(static row => row.OrdinalPosition)
-                .Select(row => columnLookup[row.ColumnName!]))
-            .ToList();
+                .Select(static row => (Identifier)row.ColumnName!),
+            columnLookup
+        ).ToList();
 
         var primaryKey = new PostgreSqlDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns);
         return Option<IDatabaseKey>.Some(primaryKey);
@@ -316,8 +316,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         if (indexColumns.Empty())
             return [];
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
-        var columnLookup = GetColumnLookup(columns);
+        var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
 
         var result = new List<IDatabaseIndex>(indexColumns.Count);
         foreach (var indexInfo in indexColumns)
@@ -329,15 +328,20 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                 ? Option<string>.Some(indexInfo.Key.FilterDefinition)
                 : Option<string>.None;
 
-            var indexCols = indexInfo.Value
+            // sorted once and reused for both the key and included columns below, instead of sorting
+            // the same rows twice. NOTE: the two branches deliberately keep their existing, slightly
+            // different filter ordering relative to Take/Skip (key columns filter nulls before Take,
+            // included columns filter nulls after Skip) -- preserved as-is, not a perf-motivated change.
+            var sortedRows = indexInfo.Value.OrderBy(static row => row.IndexColumnId).ToList();
+
+            var indexCols = sortedRows
                 .Where(static row => row.IndexColumnExpression != null)
-                .OrderBy(static row => row.IndexColumnId)
                 .Select(row => new
                 {
                     row.IsDescending,
                     Expression = row.IndexColumnExpression,
-                    Column = row.IndexColumnExpression != null && columnLookup.ContainsKey(row.IndexColumnExpression)
-                        ? columnLookup[row.IndexColumnExpression]
+                    Column = row.IndexColumnExpression != null && columnLookup.TryGetValue(row.IndexColumnExpression, out var indexColumn)
+                        ? indexColumn
                         : null,
                 })
                 .Select(row =>
@@ -352,12 +356,13 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                 })
                 .Take(indexInfo.Key.KeyColumnCount)
                 .ToList();
-            var includedCols = indexInfo.Value
-                .OrderBy(static row => row.IndexColumnId)
-                .Skip(indexInfo.Key.KeyColumnCount)
-                .Where(row => row.IndexColumnExpression != null && columnLookup.ContainsKey(row.IndexColumnExpression))
-                .Select(row => columnLookup[row.IndexColumnExpression!])
-                .ToList();
+            var includedCols = ResolveColumns(
+                sortedRows
+                    .Skip(indexInfo.Key.KeyColumnCount)
+                    .Where(static row => row.IndexColumnExpression != null)
+                    .Select(static row => (Identifier)row.IndexColumnExpression!),
+                columnLookup
+            ).ToList();
 
             var index = new PostgreSqlDatabaseIndex(indexName, isUnique, indexCols, includedCols, filterDefinition);
             result.Add(index);
@@ -393,19 +398,20 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         if (uniqueKeyColumns.Empty())
             return [];
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
-        var columnLookup = GetColumnLookup(columns);
+        var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
 
         var groupedByName = uniqueKeyColumns.GroupAsDictionary(static row => new { row.ConstraintName });
         var constraintColumns = groupedByName
             .Select(g => new
             {
                 g.Key.ConstraintName,
-                Columns = g.Value
-                    .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
-                    .OrderBy(static row => row.OrdinalPosition)
-                    .Select(row => columnLookup[row.ColumnName!])
-                    .ToList(),
+                Columns = ResolveColumns(
+                    g.Value
+                        .Where(static row => row.ColumnName != null)
+                        .OrderBy(static row => row.OrdinalPosition)
+                        .Select(static row => (Identifier)row.ColumnName!),
+                    columnLookup
+                ).ToList(),
             })
             .ToList();
         if (constraintColumns.Empty())
@@ -461,11 +467,17 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         if (groupedChildKeys.Empty())
             return [];
 
-        var primaryKey = await queryCache.GetPrimaryKeyAsync(tableName, cancellationToken);
-        var uniqueKeys = await queryCache.GetUniqueKeysAsync(tableName, cancellationToken);
+        var (primaryKey, uniqueKeys, indexes) = await (
+            queryCache.GetPrimaryKeyAsync(tableName, cancellationToken),
+            queryCache.GetUniqueKeysAsync(tableName, cancellationToken),
+            queryCache.GetIndexesAsync(tableName, cancellationToken)
+        ).WhenAll();
         var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
-        var indexes = await queryCache.GetIndexesAsync(tableName, cancellationToken);
         var uniqueIndexLookup = GetUniqueIndexLookup(indexes);
+
+        // memoises the child table's foreign-key lookup across grouped child-key rows that share the
+        // same child table, instead of rebuilding it (and re-querying the cache) once per row.
+        var childParentKeyLookups = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseKey>>(IdentifierComparer.Ordinal);
 
         var result = new List<IDatabaseRelationalKey>(groupedChildKeys.Count);
 
@@ -475,8 +487,8 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             IDatabaseKey? parentKey = null;
             if (string.Equals(groupedChildKey.Key.ParentKeyType, Constants.PrimaryKeyType, StringComparison.Ordinal))
                 await primaryKey.IfSomeAsync(k => parentKey = k);
-            else if (uniqueKeyLookup.ContainsKey(groupedChildKey.Key.ParentKeyName))
-                parentKey = uniqueKeyLookup[groupedChildKey.Key.ParentKeyName];
+            else if (uniqueKeyLookup.TryGetValue(groupedChildKey.Key.ParentKeyName, out var uniqueKey))
+                parentKey = uniqueKey;
             else if (uniqueIndexLookup.TryGetValue(groupedChildKey.Key.ParentKeyName, out var uniqueIndex))
                 // the foreign key references a unique index with no backing UNIQUE constraint
                 parentKey = CreateKeyFromUniqueIndex(uniqueIndex);
@@ -490,8 +502,12 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             await childTableNameOption
                 .BindAsync(async childTableName =>
                 {
-                    var childParentKeys = await queryCache.GetForeignKeysAsync(childTableName, cancellationToken);
-                    var parentKeyLookup = GetDatabaseKeyLookup(childParentKeys.Select(static fk => fk.ChildKey).ToList());
+                    if (!childParentKeyLookups.TryGetValue(childTableName, out var parentKeyLookup))
+                    {
+                        var childParentKeys = await queryCache.GetForeignKeysAsync(childTableName, cancellationToken);
+                        parentKeyLookup = GetDatabaseKeyLookup(childParentKeys.Select(static fk => fk.ChildKey).ToList());
+                        childParentKeyLookups[childTableName] = parentKeyLookup;
+                    }
 
                     var childKeyName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildKeyName);
                     if (!parentKeyLookup.TryGetValue(childKeyName, out var childKey))
@@ -580,8 +596,12 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         if (foreignKeys.Empty())
             return [];
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
-        var columnLookup = GetColumnLookup(columns);
+        var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
+
+        // memoises the parent table's unique-key/unique-index lookups across foreign keys that share
+        // the same parent table, instead of rebuilding them (and re-querying the cache) once per key.
+        var parentUniqueKeyLookups = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseKey>>(IdentifierComparer.Ordinal);
+        var parentUniqueIndexLookups = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseIndex>>(IdentifierComparer.Ordinal);
 
         var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
         foreach (var fkey in foreignKeys)
@@ -601,15 +621,24 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                     }
 
                     var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
-                    var uniqueKeys = await queryCache.GetUniqueKeysAsync(parentTableName, cancellationToken);
-                    var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
+
+                    if (!parentUniqueKeyLookups.TryGetValue(parentTableName, out var uniqueKeyLookup))
+                    {
+                        var uniqueKeys = await queryCache.GetUniqueKeysAsync(parentTableName, cancellationToken);
+                        uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
+                        parentUniqueKeyLookups[parentTableName] = uniqueKeyLookup;
+                    }
 
                     if (uniqueKeyLookup.TryGetValue(parentKeyName.LocalName, out var uniqueKey))
                         return OptionAsync<IDatabaseKey>.Some(uniqueKey);
 
                     // the foreign key references a unique index with no backing UNIQUE constraint
-                    var parentIndexes = await queryCache.GetIndexesAsync(parentTableName, cancellationToken);
-                    var parentUniqueIndexLookup = GetUniqueIndexLookup(parentIndexes);
+                    if (!parentUniqueIndexLookups.TryGetValue(parentTableName, out var parentUniqueIndexLookup))
+                    {
+                        var parentIndexes = await queryCache.GetIndexesAsync(parentTableName, cancellationToken);
+                        parentUniqueIndexLookup = GetUniqueIndexLookup(parentIndexes);
+                        parentUniqueIndexLookups[parentTableName] = parentUniqueIndexLookup;
+                    }
 
                     return parentUniqueIndexLookup.TryGetValue(parentKeyName.LocalName, out var uniqueIndex)
                         ? OptionAsync<IDatabaseKey>.Some(CreateKeyFromUniqueIndex(uniqueIndex))
@@ -620,11 +649,13 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                     var parentTableName = resolvedParentTableName!;
 
                     var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ChildKeyName);
-                    var childKeyColumns = fkey.Value
-                        .Where(row => row.ColumnName != null && columnLookup.ContainsKey(row.ColumnName))
-                        .OrderBy(static row => row.ConstraintColumnId)
-                        .Select(row => columnLookup[row.ColumnName!])
-                        .ToList();
+                    var childKeyColumns = ResolveColumns(
+                        fkey.Value
+                            .Where(static row => row.ColumnName != null)
+                            .OrderBy(static row => row.ConstraintColumnId)
+                            .Select(static row => (Identifier)row.ColumnName!),
+                        columnLookup
+                    ).ToList();
 
                     var childKey = new PostgreSqlDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
 
@@ -791,6 +822,17 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         return result;
     }
 
+    // Resolves a sequence of column names against a lookup, preserving order and silently skipping any
+    // name that has no corresponding column.
+    private static IEnumerable<IDatabaseColumn> ResolveColumns(IEnumerable<Identifier> columnNames, IReadOnlyDictionary<Identifier, IDatabaseColumn> columnLookup)
+    {
+        foreach (var name in columnNames)
+        {
+            if (columnLookup.TryGetValue(name, out var column))
+                yield return column;
+        }
+    }
+
     private static IReadOnlyDictionary<Identifier, IDatabaseKey> GetDatabaseKeyLookup(IReadOnlyCollection<IDatabaseKey> keys)
     {
         ArgumentNullException.ThrowIfNull(keys);
@@ -953,6 +995,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     {
         private readonly AsyncCache<Identifier, Option<Identifier>, PostgreSqlTableQueryCache> _tableNames;
         private readonly AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, PostgreSqlTableQueryCache> _columns;
+        private readonly AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, PostgreSqlTableQueryCache> _columnLookups;
         private readonly AsyncCache<Identifier, Option<IDatabaseKey>, PostgreSqlTableQueryCache> _primaryKeys;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, PostgreSqlTableQueryCache> _uniqueKeys;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, PostgreSqlTableQueryCache> _indexes;
@@ -963,14 +1006,16 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         /// </summary>
         /// <param name="tableNameLoader">A table name cache.</param>
         /// <param name="columnLoader">A column cache.</param>
+        /// <param name="columnLookupLoader">A column lookup cache.</param>
         /// <param name="primaryKeyLoader">A primary key cache.</param>
         /// <param name="uniqueKeyLoader">A unique key cache.</param>
         /// <param name="indexLoader">An index cache.</param>
         /// <param name="foreignKeyLoader">A foreign key cache.</param>
-        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="indexLoader"/> or <paramref name="foreignKeyLoader"/> are <see langword="null" />.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="columnLookupLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="indexLoader"/> or <paramref name="foreignKeyLoader"/> are <see langword="null" />.</exception>
         public PostgreSqlTableQueryCache(
             AsyncCache<Identifier, Option<Identifier>, PostgreSqlTableQueryCache> tableNameLoader,
             AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, PostgreSqlTableQueryCache> columnLoader,
+            AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, PostgreSqlTableQueryCache> columnLookupLoader,
             AsyncCache<Identifier, Option<IDatabaseKey>, PostgreSqlTableQueryCache> primaryKeyLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, PostgreSqlTableQueryCache> uniqueKeyLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, PostgreSqlTableQueryCache> indexLoader,
@@ -979,6 +1024,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         {
             _tableNames = tableNameLoader ?? throw new ArgumentNullException(nameof(tableNameLoader));
             _columns = columnLoader ?? throw new ArgumentNullException(nameof(columnLoader));
+            _columnLookups = columnLookupLoader ?? throw new ArgumentNullException(nameof(columnLookupLoader));
             _primaryKeys = primaryKeyLoader ?? throw new ArgumentNullException(nameof(primaryKeyLoader));
             _uniqueKeys = uniqueKeyLoader ?? throw new ArgumentNullException(nameof(uniqueKeyLoader));
             _indexes = indexLoader ?? throw new ArgumentNullException(nameof(indexLoader));
@@ -1011,6 +1057,20 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             ArgumentNullException.ThrowIfNull(tableName);
 
             return _columns.GetByKeyAsync(tableName, this, cancellationToken);
+        }
+
+        /// <summary>
+        /// Retrieves a table's column lookup from the cache, querying the database when not populated.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A dictionary whose keys are column names, and the values are the columns associated with those names.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> GetColumnLookupAsync(Identifier tableName, CancellationToken cancellationToken)
+        {
+            ArgumentNullException.ThrowIfNull(tableName);
+
+            return _columnLookups.GetByKeyAsync(tableName, this, cancellationToken);
         }
 
         /// <summary>

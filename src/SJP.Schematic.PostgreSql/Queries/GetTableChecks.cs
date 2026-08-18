@@ -30,5 +30,12 @@ where
     c.contype = 'c'
     and t.relname = @{nameof(Query.TableName)}
     and ns.nspname = @{nameof(Query.SchemaName)}
+    -- defensive guard against a partition-cloned check constraint, matching GetTableChildKeys and
+    -- GetTableParentKeys. Provably a no-op today: c.conrelid = t.oid alone already makes
+    -- (conrelid, contypid, conname) unique, so duplicates cannot occur for any table this provider
+    -- resolves. Deliberately NOT conislocal/coninhcount -- those would incorrectly drop checks
+    -- inherited via legacy CREATE TABLE ... INHERITS, whose children are ordinary tables that this
+    -- provider does expose and that do enforce the inherited check.
+    and c.conparentid = 0
 """;
 }

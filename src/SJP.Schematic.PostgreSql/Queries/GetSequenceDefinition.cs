@@ -37,5 +37,6 @@ select
     cache_size as "{nameof(Result.CacheSize)}"
 from pg_catalog.pg_sequences
 where schemaname = @{nameof(Query.SchemaName)} and sequencename = @{nameof(Query.SequenceName)}
+limit 1
 """;
 }

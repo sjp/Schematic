@@ -11,8 +11,14 @@ internal static class GetViewDefinition
         public required string ViewName { get; init; }
     }
 
-    internal const string Sql = @$"
-select view_definition
-from information_schema.views
-where table_schema = @{nameof(Query.SchemaName)} and table_name = @{nameof(Query.ViewName)}";
+    // pg_views.definition is pg_get_viewdef(oid) with no privilege check, whereas
+    // information_schema.views.view_definition wraps the same call in a pg_has_role() guard and
+    // returns null when the caller does not own the view. The text produced is identical.
+    internal const string Sql = $"""
+
+select definition
+from pg_catalog.pg_views
+where schemaname = @{nameof(Query.SchemaName)} and viewname = @{nameof(Query.ViewName)}
+limit 1
+""";
 }

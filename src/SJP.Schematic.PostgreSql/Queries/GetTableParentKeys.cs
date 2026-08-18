@@ -46,9 +46,13 @@ select
     c.confdeltype as "{nameof(Result.DeleteAction)}"
 from pg_catalog.pg_namespace ns
 inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
-inner join pg_catalog.pg_constraint c on c.conrelid = t.oid and c.contype = 'f'
-inner join pg_catalog.pg_attribute tc on tc.attrelid = t.oid and tc.attnum = any(c.conkey)
-inner join pg_catalog.unnest(c.conkey) with ordinality as child_cols(col_index, con_index) on child_cols.col_index = tc.attnum
+-- conparentid = 0 excludes rows pg_constraint adds when the *referenced* table (confrelid) is
+-- partitioned: since PG 12, referencing a partitioned table clones one extra constraint row per
+-- partition of that table (addFkRecurseReferenced), all sharing this foreign key's name. Those
+-- clones' confrelid points at a partition, which is never resolvable as a table on its own.
+inner join pg_catalog.pg_constraint c on c.conrelid = t.oid and c.contype = 'f' and c.conparentid = 0
+cross join pg_catalog.unnest(c.conkey) with ordinality as child_cols(attnum, con_index)
+inner join pg_catalog.pg_attribute tc on tc.attrelid = t.oid and tc.attnum = child_cols.attnum
 inner join pg_catalog.pg_class pt on pt.oid = c.confrelid
 inner join pg_catalog.pg_namespace pns on pns.oid = pt.relnamespace
 -- a foreign key's conindid is the OID of the unique index on the *referenced* table; that index may be

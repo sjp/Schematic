@@ -160,38 +160,36 @@ public class PostgreSqlQueryViewCommentProvider : IDatabaseViewCommentProvider
             cancellationToken
         );
 
-        var commentData = result.Select(r => new CommentData
-        {
-            ObjectName = r.ObjectName,
-            Comment = r.Comment,
-            ObjectType = r.ObjectType,
-        }).ToList();
+        var commentsByType = result.GroupAsDictionary(static c => c.ObjectType!);
 
-        var viewComment = GetFirstCommentByType(commentData, Constants.View);
-        var columnComments = GetCommentLookupByType(commentData, Constants.Column);
+        var viewComment = GetFirstCommentByType(commentsByType, Constants.View);
+        var columnComments = GetCommentLookupByType(commentsByType, Constants.Column);
 
         return new DatabaseViewComments(viewName, viewComment, columnComments);
     }
 
-    private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
+    private static Option<string> GetFirstCommentByType(IReadOnlyDictionary<string, List<GetViewComments.Result>> commentsByType, string objectType)
     {
-        ArgumentNullException.ThrowIfNull(commentsData);
-        if (objectType.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(objectType));
+        ArgumentNullException.ThrowIfNull(commentsByType);
+        ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
 
-        return commentsData
-            .Where(c => string.Equals(c.ObjectType, objectType, StringComparison.Ordinal))
+        if (!commentsByType.TryGetValue(objectType, out var comments))
+            return Option<string>.None;
+
+        return comments
             .Select(static c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
             .FirstOrDefault();
     }
 
-    private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IEnumerable<CommentData> commentsData, string objectType)
+    private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IReadOnlyDictionary<string, List<GetViewComments.Result>> commentsByType, string objectType)
     {
-        ArgumentNullException.ThrowIfNull(commentsData);
+        ArgumentNullException.ThrowIfNull(commentsByType);
         ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
 
-        return commentsData
-            .Where(c => string.Equals(c.ObjectType, objectType, StringComparison.Ordinal))
+        if (!commentsByType.TryGetValue(objectType, out var comments))
+            return new Dictionary<Identifier, Option<string>>(IdentifierComparer.Ordinal);
+
+        return comments
             .Select(static c => new KeyValuePair<Identifier, Option<string>>(
                 Identifier.CreateQualifiedIdentifier(c.ObjectName),
                 !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None
@@ -218,14 +216,5 @@ public class PostgreSqlQueryViewCommentProvider : IDatabaseViewCommentProvider
         public const string View = "VIEW";
 
         public const string Column = "COLUMN";
-    }
-
-    private sealed record CommentData
-    {
-        public string? ObjectName { get; init; }
-
-        public string? ObjectType { get; init; }
-
-        public string? Comment { get; init; }
     }
 }

@@ -46,5 +46,6 @@ from (
     where n.nspname = @{nameof(Query.SchemaName)} and p.proname = @{nameof(Query.RoutineName)}
         and n.nspname not in ('pg_catalog', 'information_schema')
 ) r
+limit 1
 """;
 }

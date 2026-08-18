@@ -21,7 +21,7 @@ public class DefaultPostgreSqlIdentifierResolutionStrategy : IIdentifierResoluti
     {
         ArgumentNullException.ThrowIfNull(identifier);
 
-        var localNames = GetResolutionOrder(identifier.LocalName);
+        var localNames = GetResolutionOrder(identifier.LocalName).ToList();
 
         // fast path for basic table lookup
         if (identifier.Schema == null)

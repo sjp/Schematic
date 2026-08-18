@@ -51,5 +51,11 @@ left join pg_catalog.pg_constraint pkc
     and pkc.conrelid = c.confrelid
     and pkc.contype in ('p', 'u')
 where pt.relname = @{nameof(Query.TableName)} and pns.nspname = @{nameof(Query.SchemaName)}
+    -- since PG 11 a foreign key declared on a partitioned table is cloned onto each of its
+    -- partitions, with the same name and a non-zero conparentid. Partitions are never resolvable as
+    -- tables (see GetAllTableNames/GetTableName), so the clones would only resolve to nothing; only
+    -- the constraint as declared on the partitioned table itself is wanted.
+    and c.conparentid = 0
+    and not t.relispartition
 """;
 }

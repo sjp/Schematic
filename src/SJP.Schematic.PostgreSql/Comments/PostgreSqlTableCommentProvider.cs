@@ -160,24 +160,19 @@ public class PostgreSqlTableCommentProvider : IRelationalDatabaseTableCommentPro
             cancellationToken
         );
 
-        var commentData = result.Select(r => new CommentData
-        {
-            ObjectName = r.ObjectName,
-            Comment = r.Comment,
-            ObjectType = r.ObjectType,
-        }).ToList();
+        var commentsByType = result.GroupAsDictionary(static c => c.ObjectType!);
 
-        var tableComment = GetFirstCommentByType(commentData, Constants.Table);
-        var primaryKeyComment = GetFirstCommentByType(commentData, Constants.Primary);
+        var tableComment = GetFirstCommentByType(commentsByType, Constants.Table);
+        var primaryKeyComment = GetFirstCommentByType(commentsByType, Constants.Primary);
 
-        var columnComments = GetCommentLookupByType(commentData, Constants.Column);
-        var checkComments = GetCommentLookupByType(commentData, Constants.Check);
-        var foreignKeyComments = GetCommentLookupByType(commentData, Constants.ForeignKey);
-        var uniqueKeyComments = GetCommentLookupByType(commentData, Constants.Unique);
-        var indexComments = GetCommentLookupByType(commentData, Constants.Index)
+        var columnComments = GetCommentLookupByType(commentsByType, Constants.Column);
+        var checkComments = GetCommentLookupByType(commentsByType, Constants.Check);
+        var foreignKeyComments = GetCommentLookupByType(commentsByType, Constants.ForeignKey);
+        var uniqueKeyComments = GetCommentLookupByType(commentsByType, Constants.Unique);
+        var indexComments = GetCommentLookupByType(commentsByType, Constants.Index)
             .Where(kv => !uniqueKeyComments.ContainsKey(kv.Key))
             .ToReadOnlyDictionary(IdentifierComparer.Ordinal);
-        var triggerComments = GetCommentLookupByType(commentData, Constants.Trigger);
+        var triggerComments = GetCommentLookupByType(commentsByType, Constants.Trigger);
 
         return new RelationalDatabaseTableComments(
             tableName,
@@ -192,27 +187,29 @@ public class PostgreSqlTableCommentProvider : IRelationalDatabaseTableCommentPro
         );
     }
 
-    private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
+    private static Option<string> GetFirstCommentByType(IReadOnlyDictionary<string, List<GetTableComments.Result>> commentsByType, string objectType)
     {
-        ArgumentNullException.ThrowIfNull(commentsData);
-        if (objectType.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(objectType));
+        ArgumentNullException.ThrowIfNull(commentsByType);
+        ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
 
-        return commentsData
-            .Where(c => string.Equals(c.ObjectType, objectType, StringComparison.Ordinal))
+        if (!commentsByType.TryGetValue(objectType, out var comments))
+            return Option<string>.None;
+
+        return comments
             .Select(static c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
             .FirstOrDefault();
     }
 
-    private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IEnumerable<CommentData> commentsData, string objectType)
+    private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IReadOnlyDictionary<string, List<GetTableComments.Result>> commentsByType, string objectType)
     {
-        ArgumentNullException.ThrowIfNull(commentsData);
-        if (objectType.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(objectType));
+        ArgumentNullException.ThrowIfNull(commentsByType);
+        ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
 
-        return commentsData
-            .Where(c => string.Equals(c.ObjectType, objectType, StringComparison.Ordinal))
-            .Select(c => new KeyValuePair<Identifier, Option<string>>(
+        if (!commentsByType.TryGetValue(objectType, out var comments))
+            return new Dictionary<Identifier, Option<string>>(IdentifierComparer.Ordinal);
+
+        return comments
+            .Select(static c => new KeyValuePair<Identifier, Option<string>>(
                 Identifier.CreateQualifiedIdentifier(c.ObjectName),
                 !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None
             ))
@@ -250,14 +247,5 @@ public class PostgreSqlTableCommentProvider : IRelationalDatabaseTableCommentPro
         public const string Index = "INDEX";
 
         public const string Trigger = "TRIGGER";
-    }
-
-    private sealed record CommentData
-    {
-        public string? ObjectName { get; init; }
-
-        public string? ObjectType { get; init; }
-
-        public string? Comment { get; init; }
     }
 }

@@ -219,13 +219,19 @@ select
     c.is_generated as "{nameof(Result.IsGenerated)}",
     c.generation_expression as "{nameof(Result.GenerationExpression)}"
 from information_schema.columns c
+-- pg_get_serial_sequence() resolves a column's owning sequence via its DEFAULT expression, which
+-- identity columns never have (they use GENERATED ... AS IDENTITY, not a default), so it already
+-- returns null for them; skipping the call there avoids a regclass resolution + pg_depend scan per
+-- identity column without changing the result.
 cross join lateral (
-    select pg_catalog.parse_ident(
-        pg_catalog.pg_get_serial_sequence(
-            pg_catalog.quote_ident(c.table_schema) || '.' || pg_catalog.quote_ident(c.table_name),
-            c.column_name
+    select case when c.is_identity = 'NO' then
+        pg_catalog.parse_ident(
+            pg_catalog.pg_get_serial_sequence(
+                pg_catalog.quote_ident(c.table_schema) || '.' || pg_catalog.quote_ident(c.table_name),
+                c.column_name
+            )
         )
-    ) as parts
+    end as parts
 ) seq
 where c.table_schema = @{nameof(Query.SchemaName)} and c.table_name = @{nameof(Query.TableName)}
 order by c.ordinal_position

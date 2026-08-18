@@ -60,5 +60,6 @@ where
     t.relkind in ('r', 'p')
     and t.relname = @{nameof(Query.TableName)}
     and ns.nspname = @{nameof(Query.SchemaName)}
+order by i.relname, "{nameof(Result.IndexColumnId)}"
 """;
 }

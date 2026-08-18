@@ -34,6 +34,5 @@ inner join pg_catalog.pg_attribute a on a.attrelid = t.oid and a.attnum = con_co
 where t.relkind in ('r', 'p')
     and t.relname = @{nameof(Query.TableName)}
     and ns.nspname = @{nameof(Query.SchemaName)}
-order by con_cols.ordinal_position
 """;
 }

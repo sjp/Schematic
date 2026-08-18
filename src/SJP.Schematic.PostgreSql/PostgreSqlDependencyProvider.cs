@@ -42,6 +42,7 @@ public sealed class PostgreSqlDependencyProvider : IDependencyProvider
 
         var seen = new HashSet<Identifier>(Comparer);
         var result = new List<Identifier>();
+        var parts = new List<string>(4);
 
         var i = 0;
         while (i < tokens.Count)
@@ -53,8 +54,11 @@ public sealed class PostgreSqlDependencyProvider : IDependencyProvider
             }
 
             // Stitch together qualified names of the form identifier (DOT identifier)*,
-            // e.g. schema.table or schema.table.column.
-            var parts = new List<string> { UnquoteIdentifier(tokens[i].Text) };
+            // e.g. schema.table or schema.table.column. The buffer is reused across identifier
+            // occurrences -- almost every name is 1 or 2 parts -- instead of allocating a fresh
+            // List for each one.
+            parts.Clear();
+            parts.Add(UnquoteIdentifier(tokens[i].Text));
             while (i + 2 < tokens.Count
                 && tokens[i + 1].Type == PostgreSQLLexer.DOT
                 && IsIdentifier(tokens[i + 2]))

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -152,11 +151,11 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
         {
             npWithPrecisionOrScale.IfSome(precision =>
             {
-                builder.Append(precision.Precision.ToString(CultureInfo.InvariantCulture));
+                builder.Append(precision.Precision);
                 if (precision.Scale > 0)
                 {
                     builder.Append(", ");
-                    builder.Append(precision.Scale.ToString(CultureInfo.InvariantCulture));
+                    builder.Append(precision.Scale);
                 }
             });
         }
@@ -166,7 +165,7 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
                 ? typeMetadata.MaxLength / 2
                 : typeMetadata.MaxLength;
 
-            builder.Append(maxLength.ToString(CultureInfo.InvariantCulture));
+            builder.Append(maxLength);
         }
 
         builder.Append(')');
@@ -184,8 +183,8 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
     {
         ArgumentNullException.ThrowIfNull(typeName);
 
-        return StringToDataTypeMap.ContainsKey(typeName)
-            ? StringToDataTypeMap[typeName]
+        return StringToDataTypeMap.TryGetValue(typeName, out var dataType)
+            ? dataType
             : DataType.Unknown;
     }
 
@@ -199,8 +198,8 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
     {
         ArgumentNullException.ThrowIfNull(typeName);
 
-        return StringToClrTypeMap.ContainsKey(typeName)
-            ? StringToClrTypeMap[typeName]
+        return StringToClrTypeMap.TryGetValue(typeName, out var clrType)
+            ? clrType
             : typeof(object);
     }
 
@@ -241,13 +240,13 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
         return pieces.Join(".");
     }
 
-    private static readonly IEnumerable<Identifier> FixedLengthTypes = new HashSet<Identifier>(IdentifierComparer.Ordinal)
+    private static readonly IReadOnlySet<Identifier> FixedLengthTypes = new HashSet<Identifier>(IdentifierComparer.Ordinal)
     {
         new("pg_catalog", "bit"),
         new("pg_catalog", "char"),
     };
 
-    private static readonly IEnumerable<Identifier> TypeNamesWithNoLengthAnnotation = new HashSet<Identifier>(IdentifierComparer.Ordinal)
+    private static readonly IReadOnlySet<Identifier> TypeNamesWithNoLengthAnnotation = new HashSet<Identifier>(IdentifierComparer.Ordinal)
     {
         new("pg_catalog", "bigint"),
         new("pg_catalog", "int8"),

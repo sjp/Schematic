@@ -29,6 +29,7 @@ left join pg_catalog.pg_description d
 where nc.nspname = @{nameof(Query.SchemaName)} and c.relname = @{nameof(Query.SequenceName)}
     and nc.nspname not in ('pg_catalog', 'information_schema')
     and c.relkind = 'S'
+limit 1
 
 """;
 }
