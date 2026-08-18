@@ -41,6 +41,11 @@ public sealed class MySqlExpressionComparer : IEqualityComparer<string>
         if (x is null || y is null)
             return false;
 
+        // Identical expressions are the common case (e.g. comparing an expression against itself), and
+        // this avoids lexing both sides twice for it.
+        if (string.Equals(x, y, StringComparison.Ordinal))
+            return true;
+
         var xTokens = Tokenize(x, nameof(x));
         var yTokens = Tokenize(y, nameof(y));
 
@@ -95,34 +100,38 @@ public sealed class MySqlExpressionComparer : IEqualityComparer<string>
         if (tokens.Empty())
             return [];
 
-        var result = new List<IToken>(tokens);
-
-        var lastIndex = result.Count - 1;
-        if (result[0].Type == MySQLLexer.OPEN_PAR_SYMBOL && result[lastIndex].Type == MySQLLexer.CLOSE_PAR_SYMBOL)
+        // Strip a single outermost wrapping pair, e.g. "(a + b)" -> "a + b". This is a one-off check
+        // against the raw token boundaries, not applied recursively.
+        var start = 0;
+        var end = tokens.Count;
+        if (tokens[0].Type == MySQLLexer.OPEN_PAR_SYMBOL && tokens[end - 1].Type == MySQLLexer.CLOSE_PAR_SYMBOL)
         {
-            result.RemoveAt(lastIndex);
-            result.RemoveAt(0);
+            start = 1;
+            end--;
         }
 
-        for (var i = 0; i < result.Count; i++)
+        // Collapse any parens that directly wrap a single number token, e.g. "(5)" -> "5". This is done
+        // as a single forward pass, treating the output list as a stack: whenever a ')' is reached and the
+        // last two emitted tokens are '(' followed by a number, both are popped and the number is re-added.
+        // Because a token can be wrapped by more than one such pair (e.g. "((5))"), the same number can be
+        // collapsed against several enclosing pairs in turn as the closing parens are encountered.
+        var result = new List<IToken>(end - start);
+        for (var i = start; i < end; i++)
         {
-            if (!IsNumber(result[i].Type))
-                continue;
-
-            // can't unwrap first char, no prefix to strip
-            // same applies to last char
-            if (i == 0 || i == (result.Count - 1))
-                continue;
-
-            var prevToken = result[i - 1];
-            var nextToken = result[i + 1];
-            if (prevToken.Type == MySQLLexer.OPEN_PAR_SYMBOL
-                && nextToken.Type == MySQLLexer.CLOSE_PAR_SYMBOL)
+            var token = tokens[i];
+            if (token.Type == MySQLLexer.CLOSE_PAR_SYMBOL
+                && result.Count >= 2
+                && IsNumber(result[^1].Type)
+                && result[^2].Type == MySQLLexer.OPEN_PAR_SYMBOL)
             {
-                // remove next first
-                result.RemoveAt(i + 1);
-                result.RemoveAt(i - 1);
-                i--; // decrement because we've just removed a prefix
+                var number = result[^1];
+                result.RemoveAt(result.Count - 1);
+                result.RemoveAt(result.Count - 1);
+                result.Add(number);
+            }
+            else
+            {
+                result.Add(token);
             }
         }
 

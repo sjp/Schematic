@@ -141,14 +141,16 @@ public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
             cancellationToken
         );
 
-        var tableComment = GetFirstCommentByType(commentsData, Constants.Table);
+        var commentsByType = commentsData.GroupAsDictionary(static c => c.ObjectType);
+
+        var tableComment = GetFirstCommentByType(commentsByType, Constants.Table);
         var primaryKeyComment = Option<string>.None;
 
-        var columnComments = GetCommentLookupByType(commentsData, Constants.Column);
+        var columnComments = GetCommentLookupByType(commentsByType, Constants.Column);
         var checkComments = Empty.CommentLookup;
         var foreignKeyComments = Empty.CommentLookup;
         var uniqueKeyComments = Empty.CommentLookup;
-        var indexComments = GetCommentLookupByType(commentsData, Constants.Index);
+        var indexComments = GetCommentLookupByType(commentsByType, Constants.Index);
         var triggerComments = Empty.CommentLookup;
 
         return new RelationalDatabaseTableComments(
@@ -164,24 +166,28 @@ public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
         );
     }
 
-    private static Option<string> GetFirstCommentByType(IEnumerable<GetTableComments.Result> commentsData, string objectType)
+    private static Option<string> GetFirstCommentByType(IReadOnlyDictionary<string, List<GetTableComments.Result>> commentsByType, string objectType)
     {
-        ArgumentNullException.ThrowIfNull(commentsData);
+        ArgumentNullException.ThrowIfNull(commentsByType);
         ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
 
-        return commentsData
-            .Where(c => string.Equals(c.ObjectType, objectType, StringComparison.Ordinal))
+        if (!commentsByType.TryGetValue(objectType, out var comments))
+            return Option<string>.None;
+
+        return comments
             .Select(static c => !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None)
             .FirstOrDefault();
     }
 
-    private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IEnumerable<GetTableComments.Result> commentsData, string objectType)
+    private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IReadOnlyDictionary<string, List<GetTableComments.Result>> commentsByType, string objectType)
     {
-        ArgumentNullException.ThrowIfNull(commentsData);
+        ArgumentNullException.ThrowIfNull(commentsByType);
         ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
 
-        return commentsData
-            .Where(c => string.Equals(c.ObjectType, objectType, StringComparison.Ordinal))
+        if (!commentsByType.TryGetValue(objectType, out var comments))
+            return new Dictionary<Identifier, Option<string>>(IdentifierComparer.Ordinal);
+
+        return comments
             .Select(static c => new KeyValuePair<Identifier, Option<string>>(
                 Identifier.CreateQualifiedIdentifier(c.ObjectName),
                 !c.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(c.Comment) : Option<string>.None
