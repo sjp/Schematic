@@ -15,7 +15,7 @@ internal sealed class SearchRendererSakilaTests : SakilaTest
     public async Task RenderAsync_GivenSakilaTablesAndViews_IncludesTableAndColumnEntries()
     {
         using var tempDir = new TemporaryDirectory();
-        var database = GetDatabase();
+        var database = await GetSnapshotDatabaseAsync();
         var tables = await database.GetAllTables();
         var views = await database.GetAllViews();
 
@@ -38,7 +38,7 @@ internal sealed class SearchRendererSakilaTests : SakilaTest
     public async Task RenderAsync_GivenSakilaTablesAndViews_RegistersSummaryPayloadUnderSearchBundleKey()
     {
         using var tempDir = new TemporaryDirectory();
-        var database = GetDatabase();
+        var database = await GetSnapshotDatabaseAsync();
         var tables = await database.GetAllTables();
         var bundle = new BundleBuilder();
 

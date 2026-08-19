@@ -21,7 +21,7 @@ internal sealed class TableOrderingRendererSakilaTests : SakilaTest
     public async Task RenderAsync_GivenSakilaTables_WritesInsertionAndDeletionOrderFiles()
     {
         using var tempDir = new TemporaryDirectory();
-        var database = GetDatabase();
+        var database = await GetSnapshotDatabaseAsync();
         var tables = await database.GetAllTables();
 
         var renderer = new TableOrderingRenderer(Connection.Dialect);
@@ -41,7 +41,7 @@ internal sealed class TableOrderingRendererSakilaTests : SakilaTest
     public async Task RenderAsync_GivenSakilaTables_InsertionOrderPlacesParentTableBeforeChild()
     {
         using var tempDir = new TemporaryDirectory();
-        var database = GetDatabase();
+        var database = await GetSnapshotDatabaseAsync();
         var tables = await database.GetAllTables();
 
         var renderer = new TableOrderingRenderer(Connection.Dialect);

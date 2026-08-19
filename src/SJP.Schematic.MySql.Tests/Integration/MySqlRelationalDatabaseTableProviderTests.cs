@@ -14,10 +14,14 @@ namespace SJP.Schematic.MySql.Tests.Integration;
 internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlTest
 {
     private IRelationalDatabaseTableProvider TableProvider => new MySqlRelationalDatabaseTableProvider(Connection, IdentifierDefaults);
+    private AsyncLazy<IReadOnlyCollection<IRelationalDatabaseTable>> _getAllTables;
+    private Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables() => _getAllTables.Task;
 
     [OneTimeSetUp]
     public async Task Init()
     {
+        _getAllTables = new AsyncLazy<IReadOnlyCollection<IRelationalDatabaseTable>>(() => TableProvider.GetAllTables());
+
         await DbConnection.ExecuteAsync("create table db_test_table_1 ( title nvarchar(200) )", CancellationToken.None);
 
         await DbConnection.ExecuteAsync("create table if not exists table_test_table_1 ( test_column int )", CancellationToken.None);
@@ -232,42 +236,40 @@ end
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await DbConnection.ExecuteAsync("drop table db_test_table_1", CancellationToken.None);
-
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_2", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_3", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_4", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_5", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_6", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_7", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_8", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_9", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_10", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_11", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_12", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_13", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_16", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_17", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_18", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_19", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_21", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_22", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_24", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_25", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_27", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_28", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_37", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_15", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_33", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_34", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_35", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists table_test_table_36", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists trigger_test_table_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table if exists trigger_test_table_2", CancellationToken.None);
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop table db_test_table_1",
+        "drop table if exists table_test_table_1",
+        "drop table if exists table_test_table_2",
+        "drop table if exists table_test_table_3",
+        "drop table if exists table_test_table_4",
+        "drop table if exists table_test_table_5",
+        "drop table if exists table_test_table_6",
+        "drop table if exists table_test_table_7",
+        "drop table if exists table_test_table_8",
+        "drop table if exists table_test_table_9",
+        "drop table if exists table_test_table_10",
+        "drop table if exists table_test_table_11",
+        "drop table if exists table_test_table_12",
+        "drop table if exists table_test_table_13",
+        "drop table if exists table_test_table_16",
+        "drop table if exists table_test_table_17",
+        "drop table if exists table_test_table_18",
+        "drop table if exists table_test_table_19",
+        "drop table if exists table_test_table_21",
+        "drop table if exists table_test_table_22",
+        "drop table if exists table_test_table_24",
+        "drop table if exists table_test_table_25",
+        "drop table if exists table_test_table_27",
+        "drop table if exists table_test_table_28",
+        "drop table if exists table_test_table_37",
+        "drop table if exists table_test_table_15",
+        "drop table if exists table_test_table_33",
+        "drop table if exists table_test_table_34",
+        "drop table if exists table_test_table_35",
+        "drop table if exists table_test_table_36",
+        "drop table if exists trigger_test_table_1",
+        "drop table if exists trigger_test_table_2"
+    );
 
     private Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
     {
@@ -401,7 +403,7 @@ end
     [Test]
     public async Task GetAllTables_WhenRetrieved_ContainsTables()
     {
-        var tables = await TableProvider.GetAllTables();
+        var tables = await GetAllTables();
 
         Assert.That(tables, Is.Not.Empty);
     }
@@ -409,7 +411,7 @@ end
     [Test]
     public async Task GetAllTables_WhenRetrieved_ContainsTestTable()
     {
-        var tables = await TableProvider.GetAllTables();
+        var tables = await GetAllTables();
         var containsTestTable = tables.Any(t => string.Equals(t.Name.LocalName, "db_test_table_1", StringComparison.Ordinal));
 
         Assert.That(containsTestTable, Is.True);

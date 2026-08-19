@@ -15,7 +15,7 @@ internal sealed class ConstraintsRendererSakilaTests : SakilaTest
     public async Task RenderAsync_GivenSakilaTables_WritesSummaryFileWithNonZeroForeignKeys()
     {
         using var tempDir = new TemporaryDirectory();
-        var database = GetDatabase();
+        var database = await GetSnapshotDatabaseAsync();
         var tables = await database.GetAllTables();
 
         var renderer = new ConstraintsRenderer();
@@ -35,7 +35,7 @@ internal sealed class ConstraintsRendererSakilaTests : SakilaTest
     public async Task RenderAsync_GivenSakilaTables_RegistersSummaryPayloadUnderConstraintsBundleKey()
     {
         using var tempDir = new TemporaryDirectory();
-        var database = GetDatabase();
+        var database = await GetSnapshotDatabaseAsync();
         var tables = await database.GetAllTables();
         var bundle = new BundleBuilder();
 

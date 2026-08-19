@@ -15,7 +15,7 @@ internal sealed class TriggersRendererSakilaTests : SakilaTest
     public async Task RenderAsync_GivenSakilaTables_WritesSummaryFile()
     {
         using var tempDir = new TemporaryDirectory();
-        var database = GetDatabase();
+        var database = await GetSnapshotDatabaseAsync();
         var tables = await database.GetAllTables();
 
         var renderer = new TriggersRenderer();
@@ -31,7 +31,7 @@ internal sealed class TriggersRendererSakilaTests : SakilaTest
     public async Task RenderAsync_GivenSakilaTables_RegistersSummaryPayloadUnderTriggersBundleKey()
     {
         using var tempDir = new TemporaryDirectory();
-        var database = GetDatabase();
+        var database = await GetSnapshotDatabaseAsync();
         var tables = await database.GetAllTables();
         var bundle = new BundleBuilder();
 

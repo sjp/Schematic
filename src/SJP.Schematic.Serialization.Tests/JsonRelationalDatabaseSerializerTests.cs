@@ -17,7 +17,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     [Test]
     public async Task Serialize_WhenInvoked_ExportsWithoutError()
     {
-        var db = GetDatabase();
+        var db = await GetSnapshotDatabaseAsync();
         await using var jsonOutputStream = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream, db);
         var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
@@ -70,7 +70,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     [Test]
     public async Task SerializeDeserialize_WhenRoundTripped_ExportsAndParsesWithoutError()
     {
-        var db = GetDatabase();
+        var db = await GetSnapshotDatabaseAsync();
 
         await using var jsonOutputStream = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream, db);
@@ -84,7 +84,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     [Test]
     public async Task SerializeDeserialize_WhenRoundTripped_PreservesJsonStructure()
     {
-        var db = GetDatabase();
+        var db = await GetSnapshotDatabaseAsync();
 
         await using var jsonOutputStream = new MemoryStream();
         await Serializer.SerializeAsync(jsonOutputStream, db);

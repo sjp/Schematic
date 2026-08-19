@@ -15,7 +15,7 @@ internal sealed class TablesRendererSakilaTests : SakilaTest
     public async Task RenderAsync_GivenSakilaTables_WritesSummaryFileWithMatchingTableCount()
     {
         using var tempDir = new TemporaryDirectory();
-        var database = GetDatabase();
+        var database = await GetSnapshotDatabaseAsync();
         var tables = await database.GetAllTables();
 
         var renderer = new TablesRenderer();
@@ -33,7 +33,7 @@ internal sealed class TablesRendererSakilaTests : SakilaTest
     public async Task RenderAsync_GivenSakilaTables_RegistersSummaryPayloadUnderTablesBundleKey()
     {
         using var tempDir = new TemporaryDirectory();
-        var database = GetDatabase();
+        var database = await GetSnapshotDatabaseAsync();
         var tables = await database.GetAllTables();
         var bundle = new BundleBuilder();
 

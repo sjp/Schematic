@@ -27,6 +27,7 @@ internal static class Config
 
 [Category("OracleDatabase")]
 [DatabaseTestFixture(typeof(Config), nameof(Config.ConnectionFactory), "No Oracle DB available")]
+[Parallelizable(ParallelScope.Children)]
 internal abstract class OracleTest
 {
     protected ISchematicConnection Connection { get; } = Config.SchematicConnection;

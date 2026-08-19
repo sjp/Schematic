@@ -14,10 +14,14 @@ namespace SJP.Schematic.SqlServer.Tests.Integration;
 internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : SqlServerTest
 {
     private IRelationalDatabaseTableProvider TableProvider => new SqlServerRelationalDatabaseTableProvider(Connection, IdentifierDefaults);
+    private AsyncLazy<IReadOnlyCollection<IRelationalDatabaseTable>> _getAllTables;
+    private Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables() => _getAllTables.Task;
 
     [OneTimeSetUp]
     public async Task Init()
     {
+        _getAllTables = new AsyncLazy<IReadOnlyCollection<IRelationalDatabaseTable>>(() => TableProvider.GetAllTables());
+
         await DbConnection.ExecuteAsync("create table db_test_table_1 ( title nvarchar(200) )", CancellationToken.None);
 
         await DbConnection.ExecuteAsync("create table table_test_table_1 ( test_column int )", CancellationToken.None);
@@ -347,54 +351,61 @@ end
     {
         var supportsJsonDataType = await DatabaseProvider.SupportsJsonDataType(CancellationToken.None);
 
-        await DbConnection.ExecuteAsync("drop table db_test_table_1", CancellationToken.None);
+        List<string> tableNames = [
+            "db_test_table_1",
+            "table_test_table_1",
+            "table_test_table_2",
+            "table_test_table_3",
+            "table_test_table_4",
+            "table_test_table_5",
+            "table_test_table_6",
+            "table_test_table_7",
+            "table_test_table_8",
+            "table_test_table_9",
+            "table_test_table_10",
+            "table_test_table_11",
+            "table_test_table_12",
+            "table_test_table_13",
+            "table_test_table_14",
+            "table_test_table_16",
+            "table_test_table_17",
+            "table_test_table_18",
+            "table_test_table_19",
+            "table_test_table_20",
+            "table_test_table_21",
+            "table_test_table_22",
+            "table_test_table_23",
+            "table_test_table_24",
+            "table_test_table_25",
+            "table_test_table_26",
+            "table_test_table_27",
+            "table_test_table_28",
+            "table_test_table_29",
+            "table_test_table_30",
+            "table_test_table_31",
+            "table_test_table_15",
+            "table_test_table_32",
+            "table_test_table_33",
+            "table_test_table_34",
+            "table_test_table_35",
+            "table_test_table_36",
+        ];
 
-        await DbConnection.ExecuteAsync("drop table table_test_table_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_2", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_3", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_4", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_5", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_6", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_7", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_8", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_9", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_10", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_11", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_12", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_13", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_14", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_16", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_17", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_18", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_19", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_20", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_21", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_22", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_23", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_24", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_25", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_26", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_27", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_28", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_29", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_30", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_31", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_15", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_32", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_33", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_34", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_35", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_36", CancellationToken.None);
         if (supportsJsonDataType)
-            await DbConnection.ExecuteAsync("drop table table_test_table_37", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_38", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_39", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_40", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_41", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_43", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_test_table_42", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table trigger_test_table_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table trigger_test_table_2", CancellationToken.None);
+            tableNames.Add("table_test_table_37");
+
+        tableNames.AddRange([
+            "table_test_table_38",
+            "table_test_table_39",
+            "table_test_table_40",
+            "table_test_table_41",
+            "table_test_table_43",
+            "table_test_table_42",
+            "trigger_test_table_1",
+            "trigger_test_table_2",
+        ]);
+
+        await DropTablesAsync([.. tableNames]);
     }
 
     private Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)
@@ -550,7 +561,7 @@ end
     [Test]
     public async Task GetAllTables_WhenRetrieved_ContainsTables()
     {
-        var tables = await TableProvider.GetAllTables();
+        var tables = await GetAllTables();
 
         Assert.That(tables, Is.Not.Empty);
     }
@@ -558,7 +569,7 @@ end
     [Test]
     public async Task GetAllTables_WhenRetrieved_ContainsTestTable()
     {
-        var tables = await TableProvider.GetAllTables();
+        var tables = await GetAllTables();
         var containsTestTable = tables.Any(t => string.Equals(t.Name.LocalName, "db_test_table_1", StringComparison.Ordinal));
 
         Assert.That(containsTestTable, Is.True);

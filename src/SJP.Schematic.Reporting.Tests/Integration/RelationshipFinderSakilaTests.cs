@@ -2,7 +2,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
-using SJP.Schematic.Sqlite;
 using SJP.Schematic.Tests.Utilities;
 using SJP.Schematic.Tests.Utilities.Integration;
 
@@ -23,7 +22,7 @@ internal sealed class RelationshipFinderSakilaTests : SakilaTest
     [Test]
     public async Task GetTablesByDegrees_GivenNullTable_ThrowsArgumentNullException()
     {
-        var database = GetDatabase();
+        var database = await GetSnapshotDatabaseAsync();
         var actor = await database.GetTable("actor").UnwrapSomeAsync();
         var finder = new RelationshipFinder([actor]);
 
@@ -33,7 +32,7 @@ internal sealed class RelationshipFinderSakilaTests : SakilaTest
     [Test]
     public async Task GetTablesByDegrees_GivenZeroDegrees_ReturnsOnlySeedTable()
     {
-        var database = GetDatabase();
+        var database = await GetSnapshotDatabaseAsync();
         var (actor, filmActor, film) = await GetActorFilmActorFilmAsync(database);
         var finder = new RelationshipFinder([actor, filmActor, film]);
 
@@ -45,7 +44,7 @@ internal sealed class RelationshipFinderSakilaTests : SakilaTest
     [Test]
     public async Task GetTablesByDegrees_GivenOneDegree_ReturnsSeedAndDirectlyRelatedTables()
     {
-        var database = GetDatabase();
+        var database = await GetSnapshotDatabaseAsync();
         var (actor, filmActor, film) = await GetActorFilmActorFilmAsync(database);
         var finder = new RelationshipFinder([actor, filmActor, film]);
 
@@ -57,7 +56,7 @@ internal sealed class RelationshipFinderSakilaTests : SakilaTest
     [Test]
     public async Task GetTablesByDegrees_GivenTwoDegrees_ReturnsWidenedSetOfRelatedTables()
     {
-        var database = GetDatabase();
+        var database = await GetSnapshotDatabaseAsync();
         var (actor, filmActor, film) = await GetActorFilmActorFilmAsync(database);
         var finder = new RelationshipFinder([actor, filmActor, film]);
 
@@ -69,7 +68,7 @@ internal sealed class RelationshipFinderSakilaTests : SakilaTest
     [Test]
     public async Task GetTablesByDegrees_GivenRelatedTableNotInSuppliedSet_ExcludesItFromResult()
     {
-        var database = GetDatabase();
+        var database = await GetSnapshotDatabaseAsync();
         var actor = await database.GetTable("actor").UnwrapSomeAsync();
 
         // Only "actor" is known to the finder -- "film_actor" is related in the full schema, but
@@ -81,7 +80,7 @@ internal sealed class RelationshipFinderSakilaTests : SakilaTest
         Assert.That(result.Select(static t => t.Name.LocalName), Is.EquivalentTo(new[] { "actor" }));
     }
 
-    private static async Task<(IRelationalDatabaseTable Actor, IRelationalDatabaseTable FilmActor, IRelationalDatabaseTable Film)> GetActorFilmActorFilmAsync(ISqliteDatabase database)
+    private static async Task<(IRelationalDatabaseTable Actor, IRelationalDatabaseTable FilmActor, IRelationalDatabaseTable Film)> GetActorFilmActorFilmAsync(IRelationalDatabase database)
     {
         var actor = await database.GetTable("actor").UnwrapSomeAsync();
         var filmActor = await database.GetTable("film_actor").UnwrapSomeAsync();

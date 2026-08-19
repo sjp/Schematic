@@ -15,7 +15,7 @@ internal sealed class DbmlRendererSakilaTests : SakilaTest
     public async Task RenderAsync_GivenSakilaTables_WritesNonEmptyDbmlFile()
     {
         using var tempDir = new TemporaryDirectory();
-        var database = GetDatabase();
+        var database = await GetSnapshotDatabaseAsync();
         var tables = await database.GetAllTables();
 
         var renderer = new DbmlRenderer();

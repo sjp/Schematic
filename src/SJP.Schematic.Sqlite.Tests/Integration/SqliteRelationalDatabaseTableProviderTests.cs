@@ -19,10 +19,14 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     }
 
     private IRelationalDatabaseTableProvider TableProvider { get; }
+    private AsyncLazy<IReadOnlyCollection<IRelationalDatabaseTable>> _getAllTables;
+    private Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables() => _getAllTables.Task;
 
     [OneTimeSetUp]
     public async Task Init()
     {
+        _getAllTables = new AsyncLazy<IReadOnlyCollection<IRelationalDatabaseTable>>(() => TableProvider.GetAllTables());
+
         await DbConnection.ExecuteAsync("create table db_test_table_1 (id integer)", CancellationToken.None);
 
         await DbConnection.ExecuteAsync("create table table_test_table_1 ( test_column int )", CancellationToken.None);
@@ -432,7 +436,7 @@ end", CancellationToken.None);
     [Test]
     public async Task GetAllTables_WhenRetrieved_ContainsTables()
     {
-        var tables = await TableProvider.GetAllTables();
+        var tables = await GetAllTables();
 
         Assert.That(tables, Is.Not.Empty);
     }
@@ -440,7 +444,7 @@ end", CancellationToken.None);
     [Test]
     public async Task GetAllTables_WhenRetrieved_ContainsTestTable()
     {
-        var tables = await TableProvider.GetAllTables();
+        var tables = await GetAllTables();
         var containsTestTable = tables.Any(t => string.Equals(t.Name.LocalName, "db_test_table_1", StringComparison.Ordinal));
 
         Assert.That(containsTestTable, Is.True);

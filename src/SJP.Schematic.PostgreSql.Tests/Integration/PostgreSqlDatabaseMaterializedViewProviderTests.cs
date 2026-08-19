@@ -41,7 +41,12 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
-        lock (_lock)
+        return GetViewAsyncCore(viewName);
+    }
+
+    private async Task<IDatabaseView> GetViewAsyncCore(Identifier viewName)
+    {
+        using (await _lock.LockAsync())
         {
             if (!_viewsCache.TryGetValue(viewName, out var lazyView))
             {
@@ -49,7 +54,7 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
                 _viewsCache[viewName] = lazyView;
             }
 
-            return lazyView.Task;
+            return await lazyView;
         }
     }
 

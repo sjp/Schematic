@@ -15,7 +15,7 @@ internal sealed class OrphansRendererSakilaTests : SakilaTest
     public async Task RenderAsync_GivenSakilaTables_ExcludesTablesThatHaveRelationships()
     {
         using var tempDir = new TemporaryDirectory();
-        var database = GetDatabase();
+        var database = await GetSnapshotDatabaseAsync();
         var tables = await database.GetAllTables();
 
         var renderer = new OrphansRenderer();
@@ -35,7 +35,7 @@ internal sealed class OrphansRendererSakilaTests : SakilaTest
     public async Task RenderAsync_GivenSakilaTables_RegistersSummaryPayloadUnderOrphansBundleKey()
     {
         using var tempDir = new TemporaryDirectory();
-        var database = GetDatabase();
+        var database = await GetSnapshotDatabaseAsync();
         var tables = await database.GetAllTables();
         var bundle = new BundleBuilder();
 

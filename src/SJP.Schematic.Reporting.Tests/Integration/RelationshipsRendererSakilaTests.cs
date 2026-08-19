@@ -15,7 +15,7 @@ internal sealed class RelationshipsRendererSakilaTests : SakilaTest
     public async Task RenderAsync_GivenSakilaTables_WritesGraphWithMatchingNodeAndEdgeCounts()
     {
         using var tempDir = new TemporaryDirectory();
-        var database = GetDatabase();
+        var database = await GetSnapshotDatabaseAsync();
         var tables = await database.GetAllTables();
 
         var renderer = new RelationshipsRenderer();
@@ -39,7 +39,7 @@ internal sealed class RelationshipsRendererSakilaTests : SakilaTest
     public async Task RenderAsync_GivenSakilaTables_RegistersSummaryPayloadUnderRelationshipsBundleKey()
     {
         using var tempDir = new TemporaryDirectory();
-        var database = GetDatabase();
+        var database = await GetSnapshotDatabaseAsync();
         var tables = await database.GetAllTables();
         var bundle = new BundleBuilder();
 

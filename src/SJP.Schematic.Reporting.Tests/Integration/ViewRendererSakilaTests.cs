@@ -17,7 +17,7 @@ internal sealed class ViewRendererSakilaTests : SakilaTest
     public async Task RenderAsync_GivenSakilaViews_WritesDetailFilePerViewUnderViewsSubdirectory()
     {
         using var tempDir = new TemporaryDirectory();
-        var database = GetDatabase();
+        var database = await GetSnapshotDatabaseAsync();
         var views = await database.GetAllViews();
 
         var renderer = new ViewRenderer();
@@ -35,7 +35,7 @@ internal sealed class ViewRendererSakilaTests : SakilaTest
     public async Task RenderAsync_GivenSakilaViews_RegistersDetailPayloadPerViewUnderViewBundleKey()
     {
         using var tempDir = new TemporaryDirectory();
-        var database = GetDatabase();
+        var database = await GetSnapshotDatabaseAsync();
         var views = await database.GetAllViews();
         var bundle = new BundleBuilder();
 
