@@ -39,9 +39,10 @@ public sealed class DatabaseTestFixtureAttribute : TestFixtureAttribute
         if (getMethod == null)
             return;
 
-        if (ResultCache.TryGetValue(getMethod, out var cachedResult) && !cachedResult)
+        if (ResultCache.TryGetValue(getMethod, out var cachedResult))
         {
-            Ignore = ignoreMessage;
+            if (!cachedResult)
+                Ignore = ignoreMessage;
             return;
         }
 

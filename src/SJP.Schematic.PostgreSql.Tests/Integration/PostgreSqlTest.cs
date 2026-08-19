@@ -58,6 +58,13 @@ internal abstract class PostgreSqlTest
     private readonly Lazy<PostgreSqlDatabaseProvider> _databaseProvider;
     private readonly Lazy<IIdentifierDefaults> _defaults;
 
+    [OneTimeTearDown]
+    public void DisposeConnection()
+    {
+        if (_connection.IsValueCreated && _connection.Value.ConnectionFactory is IDisposable disposable)
+            disposable.Dispose();
+    }
+
     /// <summary>
     /// Executes multiple DDL statements as a single round-trip. Npgsql sends multi-statement
     /// command text as-is, so any mix of statements can be batched together.

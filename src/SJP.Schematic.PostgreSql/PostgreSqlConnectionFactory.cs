@@ -13,7 +13,7 @@ namespace SJP.Schematic.PostgreSql;
 /// A connection factory that provides PostgreSQL connections.
 /// </summary>
 /// <seealso cref="IDbConnectionFactory" />
-public class PostgreSqlConnectionFactory : IDbConnectionFactory
+public class PostgreSqlConnectionFactory : IDbConnectionFactory, IDisposable, IAsyncDisposable
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="PostgreSqlConnectionFactory"/> class.
@@ -106,6 +106,18 @@ public class PostgreSqlConnectionFactory : IDbConnectionFactory
     public PolicyBuilder RetryPolicy => Policy
         .Handle<PostgresException>(IsTransientError)
         .Or<TimeoutException>();
+
+    /// <summary>
+    /// Disposes the connection pool (<see cref="NpgsqlDataSource"/>) dedicated to this factory
+    /// instance, releasing any connections it is holding open.
+    /// </summary>
+    public void Dispose() => DataSource.Dispose();
+
+    /// <summary>
+    /// Disposes the connection pool (<see cref="NpgsqlDataSource"/>) dedicated to this factory
+    /// instance, releasing any connections it is holding open.
+    /// </summary>
+    public ValueTask DisposeAsync() => DataSource.DisposeAsync();
 
     private static bool IsTransientError(PostgresException pgex)
     {
