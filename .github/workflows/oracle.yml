@@ -3,11 +3,23 @@ name: oracle
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [ master ]
+    paths-ignore: &paths-ignore
+      - 'src/SJP.Schematic.Reporting/ui/**'
+      - 'docs/**'
+      - '**/*.md'
+      - 'LICENSE'
+      - '*.png'
+      - '*.svg'
   pull_request:
     branches: [ master ]
+    paths-ignore: *paths-ignore
 
 jobs:
   db:
@@ -15,10 +27,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tag: [21]
+        # gvenzl/oracle-xe and gvenzl/oracle-free are the same test target (both expose
+        # localhost/XEPDB1 with the same credentials) - only the image family and tag differ.
+        include:
+          - image: oracle-xe
+            tag: 21
+          - image: oracle-free
+            tag: 23
+          - image: oracle-free
+            tag: latest
     services:
       oracle:
-        image: gvenzl/oracle-xe:${{ matrix.tag }}
+        image: gvenzl/${{ matrix.image }}:${{ matrix.tag }}
         env:
           ORACLE_PASSWORD: schematic_root
           ORACLE_DATABASE: schematic
@@ -64,3 +84,4 @@ jobs:
       uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
+        flags: oracle

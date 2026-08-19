@@ -3,11 +3,23 @@ name: postgres
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [ master ]
+    paths-ignore: &paths-ignore
+      - 'src/SJP.Schematic.Reporting/ui/**'
+      - 'docs/**'
+      - '**/*.md'
+      - 'LICENSE'
+      - '*.png'
+      - '*.svg'
   pull_request:
     branches: [ master ]
+    paths-ignore: *paths-ignore
 
 jobs:
   db:
@@ -61,3 +73,4 @@ jobs:
       uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
+        flags: postgres

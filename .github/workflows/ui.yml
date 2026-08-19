@@ -3,11 +3,19 @@ name: ui
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [ master ]
+    paths: &paths
+      - 'src/SJP.Schematic.Reporting/ui/**'
+      - '.github/workflows/ui.yml'
   pull_request:
     branches: [ master ]
+    paths: *paths
 
 jobs:
   ui:

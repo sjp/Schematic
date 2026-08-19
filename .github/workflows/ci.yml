@@ -3,18 +3,26 @@ name: ci
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [ master ]
+    paths-ignore: &paths-ignore
+      - 'docs/**'
+      - '**/*.md'
+      - 'LICENSE'
+      - '*.png'
+      - '*.svg'
   pull_request:
     branches: [ master ]
+    paths-ignore: *paths-ignore
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v7
 
@@ -24,6 +32,16 @@ jobs:
         node-version: '26'
         cache: npm
         cache-dependency-path: src/SJP.Schematic.Reporting/ui/package-lock.json
+
+    - name: Cache UI build output
+      uses: actions/cache@v6
+      with:
+        path: |
+          src/SJP.Schematic.Reporting/obj/npm-ci.stamp
+          src/SJP.Schematic.Reporting/obj/vite-build.stamp
+          src/SJP.Schematic.Reporting/ui/node_modules
+          src/SJP.Schematic.Reporting/ui/dist
+        key: ui-build-${{ runner.os }}-${{ hashFiles('src/SJP.Schematic.Reporting/ui/*.json', 'src/SJP.Schematic.Reporting/ui/*.html', 'src/SJP.Schematic.Reporting/ui/*.ts', 'src/SJP.Schematic.Reporting/ui/src/**') }}
 
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v6
@@ -53,3 +71,4 @@ jobs:
       uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
+        flags: dotnet
