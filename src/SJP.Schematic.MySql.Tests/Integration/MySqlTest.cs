@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -6,6 +7,10 @@ using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Tests.Utilities;
+
+// Caps how many tests run concurrently under [Parallelizable(ParallelScope.Children)], so the DB
+// service container's max_connections isn't exhausted regardless of the CI runner's core count.
+[assembly: LevelOfParallelism(4)]
 
 namespace SJP.Schematic.MySql.Tests.Integration;
 
@@ -33,15 +38,26 @@ internal static class Config
 [Parallelizable(ParallelScope.Children)]
 internal abstract class MySqlTest
 {
-    protected ISchematicConnection Connection { get; } = Config.SchematicConnection;
+    protected ISchematicConnection Connection => _connection.Value;
 
     protected IDbConnectionFactory DbConnection => Connection.ConnectionFactory;
 
     protected IDatabaseDialect Dialect => Connection.Dialect;
 
-    protected MySqlDatabaseProvider DatabaseProvider { get; } = new(Config.SchematicConnection);
+    protected MySqlDatabaseProvider DatabaseProvider => _databaseProvider.Value;
 
-    protected IIdentifierDefaults IdentifierDefaults { get; } = new MySqlDatabaseProvider(Config.SchematicConnection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
+    protected IIdentifierDefaults IdentifierDefaults => _defaults.Value;
+
+    protected MySqlTest()
+    {
+        _connection = new Lazy<ISchematicConnection>(() => Config.SchematicConnection);
+        _databaseProvider = new Lazy<MySqlDatabaseProvider>(() => new MySqlDatabaseProvider(Connection));
+        _defaults = new Lazy<IIdentifierDefaults>(() => new MySqlDatabaseProvider(Connection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult());
+    }
+
+    private readonly Lazy<ISchematicConnection> _connection;
+    private readonly Lazy<MySqlDatabaseProvider> _databaseProvider;
+    private readonly Lazy<IIdentifierDefaults> _defaults;
 
     /// <summary>
     /// Executes multiple DDL statements as a single round-trip. MySqlConnector natively supports

@@ -4,6 +4,10 @@ using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Tests.Utilities;
 
+// Caps how many tests run concurrently under [Parallelizable(ParallelScope.Children)], so the DB
+// service container's max_connections isn't exhausted regardless of the CI runner's core count.
+[assembly: LevelOfParallelism(4)]
+
 namespace SJP.Schematic.Oracle.Tests.Integration;
 
 internal static class Config
