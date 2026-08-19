@@ -88,11 +88,11 @@ public class AutoIncrementColumnNotInKeyRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0029";
+    protected static string RuleId => "SCHEMATIC0029";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Auto-incrementing column is not part of any candidate key.";
+    protected static string RuleTitle => "Auto-incrementing column is not part of any candidate key.";
 }

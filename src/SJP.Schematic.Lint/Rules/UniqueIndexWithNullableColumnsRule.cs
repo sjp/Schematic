@@ -114,11 +114,11 @@ public class UniqueIndexWithNullableColumnsRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0022";
+    protected static string RuleId => "SCHEMATIC0022";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Unique index contains nullable columns.";
+    protected static string RuleTitle => "Unique index contains nullable columns.";
 }

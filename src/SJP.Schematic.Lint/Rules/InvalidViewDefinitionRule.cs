@@ -175,11 +175,11 @@ public class InvalidViewDefinitionRule : Rule, IViewRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0010";
+    protected static string RuleId => "SCHEMATIC0010";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Invalid view definition.";
+    protected static string RuleTitle => "Invalid view definition.";
 }

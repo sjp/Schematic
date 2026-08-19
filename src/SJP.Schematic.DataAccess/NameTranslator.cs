@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Frozen;
 using System.Globalization;
 using System.Linq;
 using SJP.Schematic.Core;
@@ -51,7 +51,7 @@ public abstract class NameTranslator : INameTranslator
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(identifier);
 
-        if (Keywords.Contains(identifier, StringComparer.OrdinalIgnoreCase))
+        if (Keywords.Contains(identifier))
             return false;
 
         var firstChar = identifier[0];
@@ -65,7 +65,7 @@ public abstract class NameTranslator : INameTranslator
 
         return restChars
             .Select(static c => c.GetUnicodeCategory())
-            .All(ValidPartCategories.Contains);
+            .All(IsValidPartCategory);
     }
 
     /// <summary>
@@ -85,7 +85,7 @@ public abstract class NameTranslator : INameTranslator
 
         var chars = objectName
             .Select(static c => new { NameChar = c, CharCategory = c.GetUnicodeCategory() })
-            .Where(static cc => ValidPartCategories.Contains(cc.CharCategory))
+            .Where(static cc => IsValidPartCategory(cc.CharCategory))
             .Select(static cc => cc.NameChar);
 
         return new string(chars.ToArray());
@@ -114,38 +114,36 @@ public abstract class NameTranslator : INameTranslator
 
         var chars = columnName
             .Select(c => new { NameChar = c, CharCategory = c.GetUnicodeCategory() })
-            .Where(cc => ValidPartCategories.Contains(cc.CharCategory))
+            .Where(cc => IsValidPartCategory(cc.CharCategory))
             .Select(cc => cc.NameChar);
 
         return new string(chars.ToArray());
     }
 
-    private static readonly IEnumerable<UnicodeCategory> ValidPartCategories =
-    [
+    private const uint ValidPartCategoriesMask =
         // letter character
-        UnicodeCategory.UppercaseLetter,
-        UnicodeCategory.LowercaseLetter,
-        UnicodeCategory.TitlecaseLetter,
-        UnicodeCategory.ModifierLetter,
-        UnicodeCategory.OtherLetter,
-        UnicodeCategory.LetterNumber,
-
+          (1u << (int)UnicodeCategory.UppercaseLetter)
+        | (1u << (int)UnicodeCategory.LowercaseLetter)
+        | (1u << (int)UnicodeCategory.TitlecaseLetter)
+        | (1u << (int)UnicodeCategory.ModifierLetter)
+        | (1u << (int)UnicodeCategory.OtherLetter)
+        | (1u << (int)UnicodeCategory.LetterNumber)
         // combining character
-        UnicodeCategory.NonSpacingMark,
-        UnicodeCategory.SpacingCombiningMark,
-
+        | (1u << (int)UnicodeCategory.NonSpacingMark)
+        | (1u << (int)UnicodeCategory.SpacingCombiningMark)
         // decimal digit character
-        UnicodeCategory.DecimalDigitNumber,
-
+        | (1u << (int)UnicodeCategory.DecimalDigitNumber)
         // connecting character
-        UnicodeCategory.ConnectorPunctuation,
-
+        | (1u << (int)UnicodeCategory.ConnectorPunctuation)
         // formatting character
-        UnicodeCategory.Format,
-    ];
+        | (1u << (int)UnicodeCategory.Format);
 
-    private static readonly IEnumerable<string> Keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    {
+    private static bool IsValidPartCategory(UnicodeCategory category) =>
+        (uint)category < 32 && (ValidPartCategoriesMask & (1u << (int)category)) != 0;
+
+    private static readonly FrozenSet<string> Keywords = FrozenSet.Create(
+        StringComparer.OrdinalIgnoreCase,
+        [
         "abstract",
         "as",
         "base",
@@ -219,10 +217,9 @@ public abstract class NameTranslator : INameTranslator
         "unsafe",
         "ushort",
         "using",
-        "static",
         "virtual",
         "void",
         "volatile",
         "while",
-    };
+        ]);
 }

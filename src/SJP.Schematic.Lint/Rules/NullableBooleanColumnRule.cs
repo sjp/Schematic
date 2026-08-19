@@ -80,11 +80,11 @@ public class NullableBooleanColumnRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0032";
+    protected static string RuleId => "SCHEMATIC0032";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Nullable boolean column.";
+    protected static string RuleTitle => "Nullable boolean column.";
 }

@@ -4,5 +4,5 @@ internal static class ErrorCode
 {
     public static int Success { get; }
 
-    public static int Error { get; } = 1;
+    public static int Error => 1;
 }

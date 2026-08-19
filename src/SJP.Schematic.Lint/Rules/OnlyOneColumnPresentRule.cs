@@ -77,11 +77,11 @@ public class OnlyOneColumnPresentRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0015";
+    protected static string RuleId => "SCHEMATIC0015";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Only one column present on table.";
+    protected static string RuleTitle => "Only one column present on table.";
 }

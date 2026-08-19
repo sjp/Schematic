@@ -220,11 +220,11 @@ public class DisabledObjectsRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0004";
+    protected static string RuleId => "SCHEMATIC0004";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Disabled constraint, index or triggers present on a table.";
+    protected static string RuleTitle => "Disabled constraint, index or triggers present on a table.";
 }

@@ -85,11 +85,11 @@ public class PrimaryKeyNotIntegerRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0018";
+    protected static string RuleId => "SCHEMATIC0018";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Table contains a non-integer primary key.";
+    protected static string RuleTitle => "Table contains a non-integer primary key.";
 }

@@ -117,7 +117,7 @@ public class DatabaseSequence : IDatabaseSequence
     /// A constant value used when a cache size is unknown.
     /// </summary>
     /// <value>A constant to refer to an unknown cache size.</value>
-    public static int UnknownCacheSize { get; } = -1;
+    public static int UnknownCacheSize => -1;
 
     /// <summary>
     /// Returns a string that provides a basic string representation of this object.

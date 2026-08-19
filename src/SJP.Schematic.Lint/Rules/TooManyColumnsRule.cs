@@ -88,11 +88,11 @@ public class TooManyColumnsRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0021";
+    protected static string RuleId => "SCHEMATIC0021";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Too many columns present on the table.";
+    protected static string RuleTitle => "Too many columns present on the table.";
 }

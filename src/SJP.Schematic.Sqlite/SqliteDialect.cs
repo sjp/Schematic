@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Frozen;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Sqlite;
@@ -30,8 +30,9 @@ public class SqliteDialect : DatabaseDialect
     }
 
     // https://www.sqlite.org/lang_keywords.html
-    private static readonly IReadOnlySet<string> Keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    {
+    private static readonly FrozenSet<string> Keywords = FrozenSet.Create(
+        StringComparer.OrdinalIgnoreCase,
+        [
         "ABORT",
         "ACTION",
         "ADD",
@@ -156,7 +157,7 @@ public class SqliteDialect : DatabaseDialect
         "WHERE",
         "WITH",
         "WITHOUT",
-    };
+        ]);
 
     /// <summary>
     /// Quotes a qualified name.

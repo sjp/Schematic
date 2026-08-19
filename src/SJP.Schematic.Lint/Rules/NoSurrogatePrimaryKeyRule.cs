@@ -89,11 +89,11 @@ public class NoSurrogatePrimaryKeyRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0013";
+    protected static string RuleId => "SCHEMATIC0013";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "No surrogate primary key present on table.";
+    protected static string RuleTitle => "No surrogate primary key present on table.";
 }

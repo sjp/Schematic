@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -168,15 +169,21 @@ public static class SyntaxUtilities
         [nameof(Int16)] = PredefinedType(Token(SyntaxKind.ShortKeyword)),
         [nameof(UInt16)] = PredefinedType(Token(SyntaxKind.UShortKeyword)),
         [nameof(String)] = PredefinedType(Token(SyntaxKind.StringKeyword)),
-    };
+    }.ToFrozenDictionary(StringComparer.Ordinal);
 
     private static IReadOnlyCollection<string> GetLines(string comment)
     {
         ArgumentNullException.ThrowIfNull(comment);
 
-        return comment.Split(NewlineChars, StringSplitOptions.RemoveEmptyEntries);
+        var lines = new List<string>();
+        foreach (var line in comment.AsSpan().EnumerateLines())
+        {
+            if (!line.IsEmpty)
+                lines.Add(line.ToString());
+        }
+
+        return lines;
     }
 
-    private static readonly char[] NewlineChars = ['\r', '\n'];
     private static readonly SyntaxToken XmlNewline = XmlTextNewLine(Environment.NewLine);
 }

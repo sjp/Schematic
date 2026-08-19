@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -77,7 +78,7 @@ public class ColumnWithNullDefaultValueRule : Rule, ITableRule
     protected static bool IsNullDefaultValue(string defaultValue)
     {
         return !defaultValue.IsNullOrWhiteSpace()
-            && NullValues.Contains(defaultValue, StringComparer.Ordinal);
+            && NullValues.Contains(defaultValue);
     }
 
     /// <summary>
@@ -100,13 +101,13 @@ public class ColumnWithNullDefaultValueRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0002";
+    protected static string RuleId => "SCHEMATIC0002";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Null default values assigned to column.";
+    protected static string RuleTitle => "Null default values assigned to column.";
 
-    private static readonly IEnumerable<string> NullValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "null", "(null)" };
+    private static readonly FrozenSet<string> NullValues = FrozenSet.Create(StringComparer.OrdinalIgnoreCase, "null", "(null)");
 }

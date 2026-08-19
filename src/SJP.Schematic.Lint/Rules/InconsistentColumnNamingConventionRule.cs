@@ -98,11 +98,11 @@ public class InconsistentColumnNamingConventionRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0035";
+    protected static string RuleId => "SCHEMATIC0035";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Inconsistent column naming convention.";
+    protected static string RuleTitle => "Inconsistent column naming convention.";
 }

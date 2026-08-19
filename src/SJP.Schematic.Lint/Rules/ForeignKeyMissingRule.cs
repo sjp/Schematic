@@ -135,11 +135,11 @@ public class ForeignKeyMissingRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0008";
+    protected static string RuleId => "SCHEMATIC0008";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Column name implies a relationship missing a foreign key constraint.";
+    protected static string RuleTitle => "Column name implies a relationship missing a foreign key constraint.";
 }

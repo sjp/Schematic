@@ -109,11 +109,11 @@ public class ForeignKeyIsPrimaryKeyRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0007";
+    protected static string RuleId => "SCHEMATIC0007";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Foreign key relationships contains the same columns as the target key.";
+    protected static string RuleTitle => "Foreign key relationships contains the same columns as the target key.";
 }

@@ -227,8 +227,8 @@ public sealed class Table
             ParentTableUrl = UrlRouter.GetTableUrl(parentTableName);
             ParentColumnNames = parentColumnNames.Join(", ");
 
-            DeleteActionDescription = _actionDescription[deleteAction];
-            UpdateActionDescription = _actionDescription[updateAction];
+            DeleteActionDescription = GetActionDescription(deleteAction);
+            UpdateActionDescription = GetActionDescription(updateAction);
         }
 
         public string ParentConstraintName { get; }
@@ -245,13 +245,14 @@ public sealed class Table
 
         public string UpdateActionDescription { get; }
 
-        private static readonly IReadOnlyDictionary<ReferentialAction, string> _actionDescription = new Dictionary<ReferentialAction, string>
+        private static string GetActionDescription(ReferentialAction action) => action switch
         {
-            [ReferentialAction.NoAction] = "NO ACTION",
-            [ReferentialAction.Restrict] = "RESTRICT",
-            [ReferentialAction.Cascade] = "CASCADE",
-            [ReferentialAction.SetDefault] = "SET DEFAULT",
-            [ReferentialAction.SetNull] = "SET NULL",
+            ReferentialAction.NoAction => "NO ACTION",
+            ReferentialAction.Restrict => "RESTRICT",
+            ReferentialAction.Cascade => "CASCADE",
+            ReferentialAction.SetDefault => "SET DEFAULT",
+            ReferentialAction.SetNull => "SET NULL",
+            _ => throw new ArgumentOutOfRangeException(nameof(action)),
         };
     }
 
@@ -329,11 +330,11 @@ public sealed class Table
             Definition = definition;
 
             var queryFlags = queryTiming.GetFlags()
-                .Select(static qt => TimingDescriptions[qt])
+                .Select(static qt => GetTimingDescription(qt))
                 .Order(StringComparer.Ordinal)
                 .ToList();
             var eventFlags = triggerEvent.GetFlags()
-                .Select(static te => EventDescriptions[te])
+                .Select(static te => GetEventDescription(te))
                 .Order(StringComparer.Ordinal)
                 .ToList();
 
@@ -349,18 +350,20 @@ public sealed class Table
 
         public string Events { get; }
 
-        private static readonly IReadOnlyDictionary<TriggerQueryTiming, string> TimingDescriptions = new Dictionary<TriggerQueryTiming, string>
+        private static string GetTimingDescription(TriggerQueryTiming timing) => timing switch
         {
-            [TriggerQueryTiming.After] = "AFTER",
-            [TriggerQueryTiming.Before] = "BEFORE",
-            [TriggerQueryTiming.InsteadOf] = "INSTEAD OF",
+            TriggerQueryTiming.After => "AFTER",
+            TriggerQueryTiming.Before => "BEFORE",
+            TriggerQueryTiming.InsteadOf => "INSTEAD OF",
+            _ => throw new ArgumentOutOfRangeException(nameof(timing)),
         };
 
-        private static readonly IReadOnlyDictionary<TriggerEvent, string> EventDescriptions = new Dictionary<TriggerEvent, string>
+        private static string GetEventDescription(TriggerEvent triggerEvent) => triggerEvent switch
         {
-            [TriggerEvent.Delete] = "DELETE",
-            [TriggerEvent.Insert] = "INSERT",
-            [TriggerEvent.Update] = "UPDATE",
+            TriggerEvent.Delete => "DELETE",
+            TriggerEvent.Insert => "INSERT",
+            TriggerEvent.Update => "UPDATE",
+            _ => throw new ArgumentOutOfRangeException(nameof(triggerEvent)),
         };
     }
 

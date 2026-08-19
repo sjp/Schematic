@@ -74,11 +74,11 @@ public class NoNonNullableColumnsPresentRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0012";
+    protected static string RuleId => "SCHEMATIC0012";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "No not-null columns present on the table.";
+    protected static string RuleTitle => "No not-null columns present on the table.";
 }

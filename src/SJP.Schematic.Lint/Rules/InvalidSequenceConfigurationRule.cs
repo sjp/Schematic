@@ -93,11 +93,11 @@ public class InvalidSequenceConfigurationRule : Rule, ISequenceRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0027";
+    protected static string RuleId => "SCHEMATIC0027";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Invalid sequence configuration.";
+    protected static string RuleTitle => "Invalid sequence configuration.";
 }

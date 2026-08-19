@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -245,14 +246,14 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
         return pieces.Join(".");
     }
 
-    private static readonly IReadOnlySet<Identifier> FixedLengthTypes = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
+    private static readonly FrozenSet<Identifier> FixedLengthTypes = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
     {
         new("sys", "char"),
         new("sys", "nchar"),
         new("sys", "binary"),
-    };
+    }.ToFrozenSet(IdentifierComparer.OrdinalIgnoreCase);
 
-    private static readonly IReadOnlySet<Identifier> TypeNamesWithNoLengthAnnotation = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
+    private static readonly FrozenSet<Identifier> TypeNamesWithNoLengthAnnotation = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
     {
         new("sys", "bigint"),
         new("sys", "bit"),
@@ -275,9 +276,9 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
         new("sys", "tinyint"),
         new("sys", "uniqueidentifier"),
         new("sys", "xml"),
-    };
+    }.ToFrozenSet(IdentifierComparer.OrdinalIgnoreCase);
 
-    private static readonly IReadOnlyDictionary<Identifier, DataType> StringToDataTypeMap = new Dictionary<Identifier, DataType>(IdentifierComparer.OrdinalIgnoreCase)
+    private static readonly FrozenDictionary<Identifier, DataType> StringToDataTypeMap = new Dictionary<Identifier, DataType>(IdentifierComparer.OrdinalIgnoreCase)
     {
         [new Identifier("sys", "bigint")] = DataType.BigInteger,
         [new Identifier("sys", "binary")] = DataType.Binary,
@@ -313,9 +314,9 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
         [new Identifier("sys", "varbinary")] = DataType.Binary,
         [new Identifier("sys", "varchar")] = DataType.String,
         [new Identifier("sys", "xml")] = DataType.Xml,
-    };
+    }.ToFrozenDictionary(IdentifierComparer.OrdinalIgnoreCase);
 
-    private static readonly IReadOnlyDictionary<Identifier, Type> StringToClrTypeMap = new Dictionary<Identifier, Type>(IdentifierComparer.OrdinalIgnoreCase)
+    private static readonly FrozenDictionary<Identifier, Type> StringToClrTypeMap = new Dictionary<Identifier, Type>(IdentifierComparer.OrdinalIgnoreCase)
     {
         [new Identifier("sys", "bigint")] = typeof(long),
         [new Identifier("sys", "binary")] = typeof(byte[]),
@@ -351,5 +352,5 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
         [new Identifier("sys", "varbinary")] = typeof(byte[]),
         [new Identifier("sys", "varchar")] = typeof(string),
         [new Identifier("sys", "xml")] = typeof(string),
-    };
+    }.ToFrozenDictionary(IdentifierComparer.OrdinalIgnoreCase);
 }

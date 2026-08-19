@@ -94,11 +94,11 @@ public class IndexOnLargeTextColumnRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0034";
+    protected static string RuleId => "SCHEMATIC0034";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Index defined over a large text or binary column.";
+    protected static string RuleTitle => "Index defined over a large text or binary column.";
 }

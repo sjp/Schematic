@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using SJP.Schematic.Core;
@@ -83,8 +84,9 @@ public class OracleDialect : DatabaseDialect
     private static readonly IDbTypeProvider InnerTypeProvider = new OracleDbTypeProvider();
 
     // https://docs.oracle.com/database/121/SQLRF/ap_keywd.htm#SQLRF022
-    private static readonly IReadOnlySet<string> Keywords = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    {
+    private static readonly FrozenSet<string> Keywords = FrozenSet.Create(
+        StringComparer.OrdinalIgnoreCase,
+        [
         "ACCESS",
         "ADD",
         "ALL",
@@ -296,5 +298,5 @@ public class OracleDialect : DatabaseDialect
         "]",
         "^",
         "|",
-    };
+        ]);
 }

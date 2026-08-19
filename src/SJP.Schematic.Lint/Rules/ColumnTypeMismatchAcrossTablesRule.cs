@@ -88,11 +88,11 @@ public class ColumnTypeMismatchAcrossTablesRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0028";
+    protected static string RuleId => "SCHEMATIC0028";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Identically named columns have differing types across tables.";
+    protected static string RuleTitle => "Identically named columns have differing types across tables.";
 }

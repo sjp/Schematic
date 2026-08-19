@@ -351,11 +351,11 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0023";
+    protected static string RuleId => "SCHEMATIC0023";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Whitespace present in object name.";
+    protected static string RuleTitle => "Whitespace present in object name.";
 }

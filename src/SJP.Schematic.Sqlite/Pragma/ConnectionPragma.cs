@@ -311,7 +311,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
     public async Task<Encoding> EncodingAsync(CancellationToken cancellationToken = default)
     {
         var encodingName = await DbConnection.ExecuteScalarAsync<string>(EncodingReadQuery, cancellationToken);
-        if (!NameEncodingMapping.TryGetValue(encodingName!, out var encoding))
+        if (!TryParseEncodingName(encodingName, out var encoding))
             throw new InvalidOperationException("Unknown and unsupported encoding found: " + encodingName);
 
         return encoding;
@@ -342,7 +342,7 @@ public class ConnectionPragma : ISqliteConnectionPragma
         if (!encoding.IsValid())
             throw new ArgumentException($"The {nameof(Encoding)} provided must be a valid enum.", nameof(encoding));
 
-        var value = EncodingNameMapping[encoding];
+        var value = GetEncodingName(encoding);
         return PragmaPrefix + "encoding = '" + value + "'";
     }
 
@@ -800,19 +800,34 @@ public class ConnectionPragma : ISqliteConnectionPragma
     /// <returns>A SQL query.</returns>
     protected string WritableSchemaSetQuery(bool enable) => PragmaPrefix + "writable_schema = " + Convert.ToInt32(enable).ToString(CultureInfo.InvariantCulture);
 
-    private static readonly IReadOnlyDictionary<Encoding, string> EncodingNameMapping = new Dictionary<Encoding, string>
+    private static string GetEncodingName(Encoding encoding) => encoding switch
     {
-        [Encoding.Utf8] = "UTF-8",
-        [Encoding.Utf16] = "UTF-16",
-        [Encoding.Utf16le] = "UTF-16le",
-        [Encoding.Utf16be] = "UTF-16be",
+        Encoding.Utf8 => "UTF-8",
+        Encoding.Utf16 => "UTF-16",
+        Encoding.Utf16le => "UTF-16le",
+        Encoding.Utf16be => "UTF-16be",
+        _ => throw new ArgumentOutOfRangeException(nameof(encoding)),
     };
 
-    private static readonly IReadOnlyDictionary<string, Encoding> NameEncodingMapping = new Dictionary<string, Encoding>(StringComparer.Ordinal)
+    private static bool TryParseEncodingName(string? encodingName, out Encoding encoding)
     {
-        ["UTF-8"] = Encoding.Utf8,
-        ["UTF-16"] = Encoding.Utf16,
-        ["UTF-16le"] = Encoding.Utf16le,
-        ["UTF-16be"] = Encoding.Utf16be,
-    };
+        switch (encodingName)
+        {
+            case "UTF-8":
+                encoding = Encoding.Utf8;
+                return true;
+            case "UTF-16":
+                encoding = Encoding.Utf16;
+                return true;
+            case "UTF-16le":
+                encoding = Encoding.Utf16le;
+                return true;
+            case "UTF-16be":
+                encoding = Encoding.Utf16be;
+                return true;
+            default:
+                encoding = default;
+                return false;
+        }
+    }
 }

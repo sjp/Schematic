@@ -347,11 +347,11 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0020";
+    protected static string RuleId => "SCHEMATIC0020";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Object name is a reserved keyword.";
+    protected static string RuleTitle => "Object name is a reserved keyword.";
 }

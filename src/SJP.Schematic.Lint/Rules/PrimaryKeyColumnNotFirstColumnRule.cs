@@ -97,11 +97,11 @@ public class PrimaryKeyColumnNotFirstColumnRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0017";
+    protected static string RuleId => "SCHEMATIC0017";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Table primary key whose only column is not the first column in the table.";
+    protected static string RuleTitle => "Table primary key whose only column is not the first column in the table.";
 }

@@ -23,7 +23,7 @@ public sealed class IdentifierComparer : IEqualityComparer<Identifier>, ICompare
         if (!comparison.IsValid())
             throw new ArgumentException($"The {nameof(StringComparison)} provided must be a valid enum.", nameof(comparison));
 
-        _comparer = StringComparerLookup[comparison];
+        _comparer = GetStringComparer(comparison);
 
         _defaultServer = defaultServer.IsNullOrWhiteSpace() ? null : defaultServer;
         _defaultDatabase = defaultDatabase.IsNullOrWhiteSpace() ? null : defaultDatabase;
@@ -177,13 +177,14 @@ public sealed class IdentifierComparer : IEqualityComparer<Identifier>, ICompare
     private readonly int _defaultServerHash;
     private readonly StringComparer _comparer;
 
-    private static readonly Dictionary<StringComparison, StringComparer> StringComparerLookup = new()
+    private static StringComparer GetStringComparer(StringComparison comparison) => comparison switch
     {
-        [StringComparison.CurrentCulture] = StringComparer.CurrentCulture,
-        [StringComparison.CurrentCultureIgnoreCase] = StringComparer.CurrentCultureIgnoreCase,
-        [StringComparison.Ordinal] = StringComparer.Ordinal,
-        [StringComparison.OrdinalIgnoreCase] = StringComparer.OrdinalIgnoreCase,
-        [StringComparison.InvariantCulture] = StringComparer.InvariantCulture,
-        [StringComparison.InvariantCultureIgnoreCase] = StringComparer.InvariantCultureIgnoreCase,
+        StringComparison.CurrentCulture => StringComparer.CurrentCulture,
+        StringComparison.CurrentCultureIgnoreCase => StringComparer.CurrentCultureIgnoreCase,
+        StringComparison.Ordinal => StringComparer.Ordinal,
+        StringComparison.OrdinalIgnoreCase => StringComparer.OrdinalIgnoreCase,
+        StringComparison.InvariantCulture => StringComparer.InvariantCulture,
+        StringComparison.InvariantCultureIgnoreCase => StringComparer.InvariantCultureIgnoreCase,
+        _ => throw new ArgumentOutOfRangeException(nameof(comparison)),
     };
 }

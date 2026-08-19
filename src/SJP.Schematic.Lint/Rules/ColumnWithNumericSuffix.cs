@@ -82,13 +82,13 @@ public partial class ColumnWithNumericSuffix : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0003";
+    protected static string RuleId => "SCHEMATIC0003";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Column with a numeric suffix.";
+    protected static string RuleTitle => "Column with a numeric suffix.";
 
     [GeneratedRegex(".*[0-9]$", RegexOptions.Compiled, matchTimeoutMilliseconds: 100)]
     private static partial Regex NumericSuffixRegex();

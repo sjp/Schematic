@@ -108,11 +108,11 @@ public class ForeignKeyColumnTypeMismatchRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0005";
+    protected static string RuleId => "SCHEMATIC0005";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Foreign key relationships contain mismatching types.";
+    protected static string RuleTitle => "Foreign key relationships contain mismatching types.";
 }

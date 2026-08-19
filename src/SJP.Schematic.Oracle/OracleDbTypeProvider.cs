@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -267,14 +268,14 @@ public class OracleDbTypeProvider : IDbTypeProvider
         return builder.GetStringAndRelease();
     }
 
-    private static readonly IReadOnlySet<string> FixedLengthTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    private static readonly FrozenSet<string> FixedLengthTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         "CHAR",
         "NCHAR",
         "RAW",
-    };
+    }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
-    private static readonly IReadOnlySet<string> TypeNamesWithNoLengthAnnotation = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    private static readonly FrozenSet<string> TypeNamesWithNoLengthAnnotation = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         "BFILE",
         "BINARY_FLOAT",
@@ -289,9 +290,9 @@ public class OracleDbTypeProvider : IDbTypeProvider
         "ROWID",
         "SDO_GEOMETRY",
         "XMLTYPE",
-    };
+    }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
-    private static readonly Dictionary<string, DataType> StringToDataTypeMap = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly FrozenDictionary<string, DataType> StringToDataTypeMap = new Dictionary<string, DataType>(StringComparer.OrdinalIgnoreCase)
     {
         ["BFILE"] = DataType.LargeBinary,
         ["BINARY_DOUBLE"] = DataType.Float,
@@ -325,9 +326,9 @@ public class OracleDbTypeProvider : IDbTypeProvider
         ["UNSIGNED INTEGER"] = DataType.BigInteger,
         ["VARCHAR2"] = DataType.String,
         ["XMLTYPE"] = DataType.Xml,
-    };
+    }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
 
-    private static readonly Dictionary<string, Type> StringToClrTypeMap = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly FrozenDictionary<string, Type> StringToClrTypeMap = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
     {
         ["BFILE"] = typeof(byte[]),
         ["BINARY_DOUBLE"] = typeof(double),
@@ -361,5 +362,5 @@ public class OracleDbTypeProvider : IDbTypeProvider
         ["UNSIGNED INTEGER"] = typeof(decimal),
         ["VARCHAR2"] = typeof(string),
         ["XMLTYPE"] = typeof(string),
-    };
+    }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
 }

@@ -181,13 +181,13 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0014";
+    protected static string RuleId => "SCHEMATIC0014";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "No not-null values exist for a nullable column.";
+    protected static string RuleTitle => "No not-null values exist for a nullable column.";
 
     private readonly ExistsQueryExecutor _existsQueryExecutor;
 }

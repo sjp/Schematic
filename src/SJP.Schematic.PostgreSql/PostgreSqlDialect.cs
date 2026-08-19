@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using SJP.Schematic.Core;
@@ -34,8 +35,9 @@ public class PostgreSqlDialect : DatabaseDialect
     }
 
     // https://www.postgresql.org/docs/current/static/sql-keywords-appendix.html
-    private static readonly IReadOnlySet<string> Keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    {
+    private static readonly FrozenSet<string> Keywords = FrozenSet.Create(
+        StringComparer.OrdinalIgnoreCase,
+        [
         "A",
         "ABORT",
         "ABS",
@@ -793,7 +795,7 @@ public class PostgreSqlDialect : DatabaseDialect
         "YEAR",
         "YES",
         "ZONE",
-    };
+        ]);
 
     /// <summary>
     /// Quotes a string identifier, e.g. a column name.

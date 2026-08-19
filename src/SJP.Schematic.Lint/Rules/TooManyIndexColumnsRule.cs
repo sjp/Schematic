@@ -95,11 +95,11 @@ public class TooManyIndexColumnsRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0033";
+    protected static string RuleId => "SCHEMATIC0033";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Index contains too many columns.";
+    protected static string RuleTitle => "Index contains too many columns.";
 }

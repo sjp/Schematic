@@ -72,11 +72,11 @@ public class EmptyRoutineDefinitionRule : Rule, IRoutineRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0037";
+    protected static string RuleId => "SCHEMATIC0037";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Routine has an empty definition.";
+    protected static string RuleTitle => "Routine has an empty definition.";
 }

@@ -211,11 +211,11 @@ public class ForeignKeyIndexRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0006";
+    protected static string RuleId => "SCHEMATIC0006";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Indexes missing on foreign key.";
+    protected static string RuleTitle => "Indexes missing on foreign key.";
 }

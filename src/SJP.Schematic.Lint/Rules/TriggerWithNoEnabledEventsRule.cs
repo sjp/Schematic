@@ -80,11 +80,11 @@ public class TriggerWithNoEnabledEventsRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0038";
+    protected static string RuleId => "SCHEMATIC0038";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Trigger is not bound to any event.";
+    protected static string RuleTitle => "Trigger is not bound to any event.";
 }

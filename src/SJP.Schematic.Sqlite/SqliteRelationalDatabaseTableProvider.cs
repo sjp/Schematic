@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -1126,14 +1127,14 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     private readonly AsyncLazy<Version> _dbVersion;
     private readonly AsyncLazy<IReadOnlyList<pragma_database_list>> _databaseList;
 
-    private static readonly IReadOnlyDictionary<string, ReferentialAction> RelationalUpdateMapping = new Dictionary<string, ReferentialAction>(StringComparer.OrdinalIgnoreCase)
+    private static readonly FrozenDictionary<string, ReferentialAction> RelationalUpdateMapping = new Dictionary<string, ReferentialAction>(StringComparer.OrdinalIgnoreCase)
     {
         ["NO ACTION"] = ReferentialAction.NoAction,
         ["RESTRICT"] = ReferentialAction.Restrict,
         ["SET NULL"] = ReferentialAction.SetNull,
         ["SET DEFAULT"] = ReferentialAction.SetDefault,
         ["CASCADE"] = ReferentialAction.Cascade,
-    };
+    }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
 
     private static readonly SqliteTypeAffinityParser AffinityParser = new();
     private static readonly SqliteTableParser TableParser = new();

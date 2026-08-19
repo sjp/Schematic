@@ -75,11 +75,11 @@ public class NoIndexesPresentOnTableRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0011";
+    protected static string RuleId => "SCHEMATIC0011";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "No indexes present on table.";
+    protected static string RuleTitle => "No indexes present on table.";
 }

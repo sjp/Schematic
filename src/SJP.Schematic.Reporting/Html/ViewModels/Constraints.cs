@@ -127,8 +127,8 @@ public sealed class Constraints
             ChildColumnNames = childColumnNames.Join(", ");
             ParentColumnNames = parentColumnNames.Join(", ");
 
-            DeleteActionDescription = _actionDescription[deleteAction];
-            UpdateActionDescription = _actionDescription[updateAction];
+            DeleteActionDescription = GetActionDescription(deleteAction);
+            UpdateActionDescription = GetActionDescription(updateAction);
         }
 
         public string ParentConstraintName { get; }
@@ -145,13 +145,14 @@ public sealed class Constraints
 
         public string UpdateActionDescription { get; }
 
-        private static readonly IReadOnlyDictionary<ReferentialAction, string> _actionDescription = new Dictionary<ReferentialAction, string>
+        private static string GetActionDescription(ReferentialAction action) => action switch
         {
-            [ReferentialAction.NoAction] = "NO ACTION",
-            [ReferentialAction.Restrict] = "RESTRICT",
-            [ReferentialAction.Cascade] = "CASCADE",
-            [ReferentialAction.SetDefault] = "SET DEFAULT",
-            [ReferentialAction.SetNull] = "SET NULL",
+            ReferentialAction.NoAction => "NO ACTION",
+            ReferentialAction.Restrict => "RESTRICT",
+            ReferentialAction.Cascade => "CASCADE",
+            ReferentialAction.SetDefault => "SET DEFAULT",
+            ReferentialAction.SetNull => "SET NULL",
+            _ => throw new ArgumentOutOfRangeException(nameof(action)),
         };
     }
 

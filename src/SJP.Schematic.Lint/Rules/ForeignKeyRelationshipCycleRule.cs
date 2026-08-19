@@ -65,11 +65,11 @@ public class ForeignKeyRelationshipCycleRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0009";
+    protected static string RuleId => "SCHEMATIC0009";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Foreign key relationships contain a cycle.";
+    protected static string RuleTitle => "Foreign key relationships contain a cycle.";
 }

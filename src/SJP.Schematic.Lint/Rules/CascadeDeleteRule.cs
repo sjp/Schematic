@@ -99,11 +99,11 @@ public class CascadeDeleteRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0031";
+    protected static string RuleId => "SCHEMATIC0031";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Foreign key with a CASCADE delete action.";
+    protected static string RuleTitle => "Foreign key with a CASCADE delete action.";
 }

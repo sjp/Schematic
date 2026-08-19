@@ -76,11 +76,11 @@ public partial class SelectStarInViewDefinitionRule : Rule, IViewRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0036";
+    protected static string RuleId => "SCHEMATIC0036";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "View definition selects all columns using a wildcard.";
+    protected static string RuleTitle => "View definition selects all columns using a wildcard.";
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using SJP.Schematic.Core;
@@ -240,13 +241,13 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
         return pieces.Join(".");
     }
 
-    private static readonly IReadOnlySet<Identifier> FixedLengthTypes = new HashSet<Identifier>(IdentifierComparer.Ordinal)
+    private static readonly FrozenSet<Identifier> FixedLengthTypes = new HashSet<Identifier>(IdentifierComparer.Ordinal)
     {
         new("pg_catalog", "bit"),
         new("pg_catalog", "char"),
-    };
+    }.ToFrozenSet(IdentifierComparer.Ordinal);
 
-    private static readonly IReadOnlySet<Identifier> TypeNamesWithNoLengthAnnotation = new HashSet<Identifier>(IdentifierComparer.Ordinal)
+    private static readonly FrozenSet<Identifier> TypeNamesWithNoLengthAnnotation = new HashSet<Identifier>(IdentifierComparer.Ordinal)
     {
         new("pg_catalog", "bigint"),
         new("pg_catalog", "int8"),
@@ -289,9 +290,9 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
         new("pg_catalog", "txid_snapshot"),
         new("pg_catalog", "uuid"),
         new("pg_catalog", "xml"),
-    };
+    }.ToFrozenSet(IdentifierComparer.Ordinal);
 
-    private static readonly IReadOnlyDictionary<Identifier, DataType> StringToDataTypeMap = new Dictionary<Identifier, DataType>(IdentifierComparer.Ordinal)
+    private static readonly FrozenDictionary<Identifier, DataType> StringToDataTypeMap = new Dictionary<Identifier, DataType>(IdentifierComparer.Ordinal)
     {
         [new Identifier("pg_catalog", "bigint")] = DataType.BigInteger,
         [new Identifier("pg_catalog", "int8")] = DataType.BigInteger,
@@ -350,9 +351,9 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
         [new Identifier("pg_catalog", "tsvector")] = DataType.Unknown,
         [new Identifier("pg_catalog", "txid_snapshot")] = DataType.Unknown,
         [new Identifier("pg_catalog", "uuid")] = DataType.UniqueIdentifier,
-    };
+    }.ToFrozenDictionary(IdentifierComparer.Ordinal);
 
-    private static readonly IReadOnlyDictionary<Identifier, Type> StringToClrTypeMap = new Dictionary<Identifier, Type>(IdentifierComparer.Ordinal)
+    private static readonly FrozenDictionary<Identifier, Type> StringToClrTypeMap = new Dictionary<Identifier, Type>(IdentifierComparer.Ordinal)
     {
         [new Identifier("pg_catalog", "bigint")] = typeof(long),
         [new Identifier("pg_catalog", "int8")] = typeof(long),
@@ -411,5 +412,5 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
         [new Identifier("pg_catalog", "tsvector")] = typeof(object),
         [new Identifier("pg_catalog", "txid_snapshot")] = typeof(object),
         [new Identifier("pg_catalog", "uuid")] = typeof(Guid),
-    };
+    }.ToFrozenDictionary(IdentifierComparer.Ordinal);
 }

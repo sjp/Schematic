@@ -429,7 +429,7 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
 
             if (relationalKey.DeleteAction != ReferentialAction.NoAction)
             {
-                var deleteAction = ForeignKeyAction[relationalKey.DeleteAction];
+                var deleteAction = GetForeignKeyAction(relationalKey.DeleteAction);
                 var foreignKeyOnDeleteArg = AttributeArgument(
                     AssignmentExpression(
                         SyntaxKind.SimpleAssignmentExpression,
@@ -443,7 +443,7 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
 
             if (relationalKey.UpdateAction != ReferentialAction.NoAction)
             {
-                var updateAction = ForeignKeyAction[relationalKey.UpdateAction];
+                var updateAction = GetForeignKeyAction(relationalKey.UpdateAction);
                 var foreignKeyOnUpdateArg = AttributeArgument(
                     AssignmentExpression(
                         SyntaxKind.SimpleAssignmentExpression,
@@ -664,12 +664,13 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
         return false;
     }
 
-    private static readonly IReadOnlyDictionary<ReferentialAction, string> ForeignKeyAction = new Dictionary<ReferentialAction, string>
+    private static string GetForeignKeyAction(ReferentialAction action) => action switch
     {
-        [ReferentialAction.NoAction] = "NO ACTION",
-        [ReferentialAction.Restrict] = "RESTRICT",
-        [ReferentialAction.Cascade] = "CASCADE",
-        [ReferentialAction.SetDefault] = "SET DEFAULT",
-        [ReferentialAction.SetNull] = "SET NULL",
+        ReferentialAction.NoAction => "NO ACTION",
+        ReferentialAction.Restrict => "RESTRICT",
+        ReferentialAction.Cascade => "CASCADE",
+        ReferentialAction.SetDefault => "SET DEFAULT",
+        ReferentialAction.SetNull => "SET NULL",
+        _ => throw new ArgumentOutOfRangeException(nameof(action)),
     };
 }

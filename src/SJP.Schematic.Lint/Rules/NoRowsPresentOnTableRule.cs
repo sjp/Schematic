@@ -129,13 +129,13 @@ public class NoRowsPresentOnTableRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0039";
+    protected static string RuleId => "SCHEMATIC0039";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "No rows present in table.";
+    protected static string RuleTitle => "No rows present in table.";
 
     private readonly ExistsQueryExecutor _existsQueryExecutor;
 }

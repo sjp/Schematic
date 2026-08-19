@@ -73,11 +73,11 @@ public class CandidateKeyMissingRule : Rule, ITableRule
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0001";
+    protected static string RuleId => "SCHEMATIC0001";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Table missing a candidate (primary or unique) key.";
+    protected static string RuleTitle => "Table missing a candidate (primary or unique) key.";
 }

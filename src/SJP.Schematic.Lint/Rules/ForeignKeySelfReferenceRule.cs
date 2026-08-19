@@ -205,13 +205,13 @@ where {whereFilterClauses}
     /// The rule identifier.
     /// </summary>
     /// <value>A rule identifier.</value>
-    protected static string RuleId { get; } = "SCHEMATIC0024";
+    protected static string RuleId => "SCHEMATIC0024";
 
     /// <summary>
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle { get; } = "Table contains a row where a foreign key self-references the primary key of the same row.";
+    protected static string RuleTitle => "Table contains a row where a foreign key self-references the primary key of the same row.";
 
     private async Task<string> GetFromQuerySuffixAsync()
     {

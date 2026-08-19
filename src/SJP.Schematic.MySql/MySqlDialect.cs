@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using SJP.Schematic.Core;
@@ -32,8 +33,9 @@ public class MySqlDialect : DatabaseDialect
     public override IDependencyProvider GetDependencyProvider() => new MySqlDependencyProvider();
 
     // https://dev.mysql.com/doc/refman/5.7/en/keywords.html
-    private static readonly IReadOnlySet<string> Keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    {
+    private static readonly FrozenSet<string> Keywords = FrozenSet.Create(
+        StringComparer.OrdinalIgnoreCase,
+        [
         "ACCESSIBLE",
         "ACCOUNT",
         "ACTION",
@@ -656,7 +658,7 @@ public class MySqlDialect : DatabaseDialect
         "YEAR",
         "YEAR_MONTH",
         "ZEROFILL",
-    };
+        ]);
 
     /// <summary>
     /// Quotes a string identifier, e.g. a column name.

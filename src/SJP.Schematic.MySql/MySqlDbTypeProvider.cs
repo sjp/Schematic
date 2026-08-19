@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -196,13 +197,13 @@ public class MySqlDbTypeProvider : IDbTypeProvider
             : typeof(object);
     }
 
-    private static readonly IReadOnlySet<string> FixedLengthTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    private static readonly FrozenSet<string> FixedLengthTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         "char",
         "binary",
-    };
+    }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
-    private static readonly IReadOnlySet<string> TypeNamesWithNoLengthAnnotation = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    private static readonly FrozenSet<string> TypeNamesWithNoLengthAnnotation = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         "bit",
         "tinyint",
@@ -228,9 +229,9 @@ public class MySqlDbTypeProvider : IDbTypeProvider
         "multilinestring",
         "multipolygon",
         "geometrycollection",
-    };
+    }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
-    private static readonly IReadOnlyDictionary<string, DataType> StringToDataTypeMap = new Dictionary<string, DataType>(StringComparer.OrdinalIgnoreCase)
+    private static readonly FrozenDictionary<string, DataType> StringToDataTypeMap = new Dictionary<string, DataType>(StringComparer.OrdinalIgnoreCase)
     {
         ["bit"] = DataType.Boolean,
         ["tinyint"] = DataType.Integer,
@@ -268,9 +269,9 @@ public class MySqlDbTypeProvider : IDbTypeProvider
         ["multilinestring"] = DataType.Geometry,
         ["multipolygon"] = DataType.Geometry,
         ["geometrycollection"] = DataType.Geometry,
-    };
+    }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
 
-    private static readonly IReadOnlyDictionary<string, Type> StringToClrTypeMap = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
+    private static readonly FrozenDictionary<string, Type> StringToClrTypeMap = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
     {
         ["bit"] = typeof(bool),
         ["tinyint"] = typeof(byte),
@@ -308,5 +309,5 @@ public class MySqlDbTypeProvider : IDbTypeProvider
         ["multilinestring"] = typeof(object),
         ["multipolygon"] = typeof(object),
         ["geometrycollection"] = typeof(object),
-    };
+    }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
 }

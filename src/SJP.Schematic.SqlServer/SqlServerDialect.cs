@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using SJP.Schematic.Core;
@@ -32,8 +33,9 @@ public class SqlServerDialect : DatabaseDialect
     }
 
     // https://docs.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql
-    private static readonly IReadOnlySet<string> Keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    {
+    private static readonly FrozenSet<string> Keywords = FrozenSet.Create(
+        StringComparer.OrdinalIgnoreCase,
+        [
         "ABSOLUTE",
         "ACTION",
         "ADA",
@@ -346,7 +348,7 @@ public class SqlServerDialect : DatabaseDialect
         "WRITETEXT",
         "YEAR",
         "ZONE",
-    };
+        ]);
 
     /// <summary>
     /// Quotes a string identifier, e.g. a column name.
