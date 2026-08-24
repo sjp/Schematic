@@ -35,7 +35,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss(), fileProtocolHtml()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(import.meta.dirname, "./src"),
     },
   },
   build: {
@@ -46,9 +46,10 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // A single self-contained IIFE bundle so the app loads as a classic
-        // script over both `file://` and `http://`.
+        // script over both `file://` and `http://`. Vite disables code
+        // splitting automatically for the `iife` format, so the whole graph
+        // is inlined into one chunk.
         format: "iife",
-        inlineDynamicImports: true,
         entryFileNames: "assets/app-[hash].js",
         assetFileNames: "assets/app-[hash][extname]",
       },
