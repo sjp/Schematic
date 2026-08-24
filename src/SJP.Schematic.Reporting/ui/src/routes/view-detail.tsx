@@ -1,10 +1,11 @@
-import { useMemo } from "react";
 import { Link, getRouteApi } from "@tanstack/react-router";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Check, Minus } from "lucide-react";
+import { useMemo } from "react";
+
 import { DataTable } from "@/components/DataTable";
-import type { AppTableFeatures } from "@/lib/tableFeatures";
 import { useDetail } from "@/hooks/useReportData";
+import type { AppTableFeatures } from "@/lib/tableFeatures";
 import type { ViewColumn, ViewDetail } from "@/types/report";
 
 const routeApi = getRouteApi("/views/$viewKey");
@@ -23,9 +24,7 @@ function Section({
       <h2 className="text-lg font-semibold">
         {title}
         {count !== undefined && (
-          <span className="text-muted-foreground ml-2 text-sm font-normal">
-            ({count})
-          </span>
+          <span className="ml-2 text-sm font-normal text-muted-foreground">({count})</span>
         )}
       </h2>
       {children}
@@ -35,10 +34,7 @@ function Section({
 
 export function ViewDetailPage() {
   const { viewKey } = routeApi.useParams();
-  const { data, isPending, isError, error } = useDetail<ViewDetail>(
-    "view",
-    viewKey,
-  );
+  const { data, isPending, isError, error } = useDetail<ViewDetail>("view", viewKey);
 
   const columns = useMemo<ColumnDef<AppTableFeatures, ViewColumn>[]>(
     () => [
@@ -46,9 +42,7 @@ export function ViewDetailPage() {
       {
         accessorKey: "columnName",
         header: "Name",
-        cell: ({ row }) => (
-          <span className="font-medium">{row.original.columnName}</span>
-        ),
+        cell: ({ row }) => <span className="font-medium">{row.original.columnName}</span>,
       },
       { accessorKey: "type", header: "Type" },
       {
@@ -56,12 +50,9 @@ export function ViewDetailPage() {
         header: "Nullable",
         cell: ({ getValue }) =>
           getValue<boolean>() ? (
-            <Check className="text-emerald-500 size-4" aria-label="Nullable" />
+            <Check className="size-4 text-emerald-500" aria-label="Nullable" />
           ) : (
-            <Minus
-              className="text-muted-foreground size-4"
-              aria-label="Not nullable"
-            />
+            <Minus className="size-4 text-muted-foreground" aria-label="Not nullable" />
           ),
       },
       {
@@ -80,27 +71,18 @@ export function ViewDetailPage() {
     return <p className="text-muted-foreground">Loading…</p>;
   }
   if (isError || !data) {
-    return (
-      <p className="text-destructive">
-        Failed to load view: {error?.message ?? "not found"}
-      </p>
-    );
+    return <p className="text-destructive">Failed to load view: {error?.message ?? "not found"}</p>;
   }
 
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <Link
-          to="/views"
-          className="text-muted-foreground text-sm hover:underline"
-        >
+        <Link to="/views" className="text-sm text-muted-foreground hover:underline">
           Views
         </Link>
         <span className="text-muted-foreground">/</span>
         <h1 className="text-2xl font-semibold">{data.name}</h1>
-        <span className="text-muted-foreground text-sm">
-          {data.columnsCount} columns
-        </span>
+        <span className="text-sm text-muted-foreground">{data.columnsCount} columns</span>
       </div>
 
       <Section title="Columns" count={data.columnsCount}>
@@ -119,7 +101,7 @@ export function ViewDetailPage() {
               <li key={ref.url}>
                 <a
                   href={ref.url}
-                  className="bg-muted text-primary inline-block rounded-md px-2 py-1 text-sm hover:underline"
+                  className="inline-block rounded-md bg-muted px-2 py-1 text-sm text-primary hover:underline"
                 >
                   {ref.name}
                 </a>
@@ -130,9 +112,7 @@ export function ViewDetailPage() {
       )}
 
       <Section title="Definition">
-        <pre className="overflow-x-auto rounded-md border p-3 text-xs">
-          {data.definition}
-        </pre>
+        <pre className="overflow-x-auto rounded-md border p-3 text-xs">{data.definition}</pre>
       </Section>
     </div>
   );

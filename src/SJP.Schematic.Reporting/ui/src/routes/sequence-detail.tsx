@@ -1,4 +1,5 @@
 import { Link, getRouteApi } from "@tanstack/react-router";
+
 import { useDetail } from "@/hooks/useReportData";
 import type { SequenceDetail } from "@/types/report";
 
@@ -7,7 +8,7 @@ const routeApi = getRouteApi("/sequences/$sequenceKey");
 function Property({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <dt className="text-muted-foreground text-sm">{label}</dt>
+      <dt className="text-sm text-muted-foreground">{label}</dt>
       <dd className="font-medium">{value}</dd>
     </div>
   );
@@ -15,29 +16,21 @@ function Property({ label, value }: { label: string; value: React.ReactNode }) {
 
 export function SequenceDetailPage() {
   const { sequenceKey } = routeApi.useParams();
-  const { data, isPending, isError, error } = useDetail<SequenceDetail>(
-    "sequence",
-    sequenceKey,
-  );
+  const { data, isPending, isError, error } = useDetail<SequenceDetail>("sequence", sequenceKey);
 
   if (isPending) {
     return <p className="text-muted-foreground">Loading…</p>;
   }
   if (isError || !data) {
     return (
-      <p className="text-destructive">
-        Failed to load sequence: {error?.message ?? "not found"}
-      </p>
+      <p className="text-destructive">Failed to load sequence: {error?.message ?? "not found"}</p>
     );
   }
 
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <Link
-          to="/sequences"
-          className="text-muted-foreground text-sm hover:underline"
-        >
+        <Link to="/sequences" className="text-sm text-muted-foreground hover:underline">
           Sequences
         </Link>
         <span className="text-muted-foreground">/</span>

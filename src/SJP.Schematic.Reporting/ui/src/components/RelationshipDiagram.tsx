@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import {
   Background,
   Controls,
@@ -10,16 +10,14 @@ import {
   type Node,
   type NodeProps,
 } from "@xyflow/react";
+
 import "@xyflow/react/dist/style.css";
 import ELK from "elkjs/lib/elk.bundled.js";
-import { useNavigate } from "@tanstack/react-router";
 import { KeyRound, Link2, ShieldCheck } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+
 import { cn } from "@/lib/utils";
-import type {
-  GraphColumn,
-  GraphTable,
-  RelationshipGraph,
-} from "@/types/report";
+import type { GraphColumn, GraphTable, RelationshipGraph } from "@/types/report";
 
 const elk = new ELK();
 
@@ -45,10 +43,7 @@ function nodeSize(table: GraphTable, columns: GraphColumn[]) {
     (max, c) => Math.max(max, c.name.length + c.type.length + 4),
     table.name.length + 6,
   );
-  const width = Math.min(
-    MAX_WIDTH,
-    Math.max(MIN_WIDTH, longestContent * CHAR_WIDTH + 28),
-  );
+  const width = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, longestContent * CHAR_WIDTH + 28));
   const height = HEADER_HEIGHT + columns.length * ROW_HEIGHT + FOOTER_HEIGHT;
   return { width, height };
 }
@@ -60,29 +55,17 @@ function TableNodeComponent({ data }: NodeProps<TableFlowNode>) {
     <div
       style={{ width }}
       className={cn(
-        "bg-card overflow-hidden rounded-md border text-xs shadow-sm",
-        table.isHighlighted
-          ? "border-primary ring-primary/40 ring-2"
-          : "border-border",
+        "overflow-hidden rounded-md border bg-card text-xs shadow-sm",
+        table.isHighlighted ? "border-primary ring-2 ring-primary/40" : "border-border",
       )}
     >
       {/* Both handles exist on every node so any table can be either endpoint of an edge. */}
-      <Handle
-        type="target"
-        position={Position.Left}
-        className="!bg-muted-foreground !border-0"
-      />
-      <Handle
-        type="source"
-        position={Position.Right}
-        className="!bg-muted-foreground !border-0"
-      />
+      <Handle type="target" position={Position.Left} className="!border-0 !bg-muted-foreground" />
+      <Handle type="source" position={Position.Right} className="!border-0 !bg-muted-foreground" />
       <div
         className={cn(
           "truncate border-b px-2 py-1.5 font-semibold",
-          table.isHighlighted
-            ? "bg-primary text-primary-foreground border-primary"
-            : "bg-muted",
+          table.isHighlighted ? "border-primary bg-primary text-primary-foreground" : "bg-muted",
         )}
         title={table.name}
       >
@@ -90,49 +73,31 @@ function TableNodeComponent({ data }: NodeProps<TableFlowNode>) {
       </div>
       <div>
         {columns.length === 0 ? (
-          <div className="text-muted-foreground px-2 py-1 italic">
-            no key columns
-          </div>
+          <div className="px-2 py-1 text-muted-foreground italic">no key columns</div>
         ) : (
           columns.map((c) => (
             <div
               key={c.name}
-              className="border-border/40 flex items-center gap-1 border-b px-2 py-0.5 last:border-b-0"
+              className="flex items-center gap-1 border-b border-border/40 px-2 py-0.5 last:border-b-0"
             >
               {c.isPrimaryKey && (
-                <KeyRound
-                  className="size-3 shrink-0 text-amber-500"
-                  aria-label="Primary key"
-                />
+                <KeyRound className="size-3 shrink-0 text-amber-500" aria-label="Primary key" />
               )}
               {c.isUniqueKey && (
-                <ShieldCheck
-                  className="size-3 shrink-0 text-sky-500"
-                  aria-label="Unique key"
-                />
+                <ShieldCheck className="size-3 shrink-0 text-sky-500" aria-label="Unique key" />
               )}
               {c.isForeignKey && (
-                <Link2
-                  className="size-3 shrink-0 text-emerald-500"
-                  aria-label="Foreign key"
-                />
+                <Link2 className="size-3 shrink-0 text-emerald-500" aria-label="Foreign key" />
               )}
-              <span
-                className={cn(
-                  "truncate",
-                  (c.isPrimaryKey || c.isUniqueKey) && "font-medium",
-                )}
-              >
+              <span className={cn("truncate", (c.isPrimaryKey || c.isUniqueKey) && "font-medium")}>
                 {c.name}
               </span>
-              <span className="text-muted-foreground ml-auto truncate pl-2">
-                {c.type}
-              </span>
+              <span className="ml-auto truncate pl-2 text-muted-foreground">{c.type}</span>
             </div>
           ))
         )}
       </div>
-      <div className="text-muted-foreground bg-muted/50 flex justify-between border-t px-2 py-1">
+      <div className="flex justify-between border-t bg-muted/50 px-2 py-1 text-muted-foreground">
         <span title="parent keys · child keys">
           {table.parentKeysCount} ▴ {table.childKeysCount} ▾
         </span>
@@ -145,14 +110,9 @@ const nodeTypes = { table: TableNodeComponent };
 
 type LayoutResult = { nodes: TableFlowNode[]; edges: Edge[] };
 
-async function layoutGraph(
-  graph: RelationshipGraph,
-  compact: boolean,
-): Promise<LayoutResult> {
+async function layoutGraph(graph: RelationshipGraph, compact: boolean): Promise<LayoutResult> {
   const prepared = graph.nodes.map((table) => {
-    const columns = compact
-      ? table.columns.filter((c) => c.isKey)
-      : table.columns;
+    const columns = compact ? table.columns.filter((c) => c.isKey) : table.columns;
     const { width, height } = nodeSize(table, columns);
     return { table, columns, width, height };
   });
@@ -233,8 +193,7 @@ export function RelationshipDiagram({
   useEffect(() => {
     let cancelled = false;
     void layoutGraph(graph, compact).then((result) => {
-      if (!cancelled)
-        setLayout({ ...result, forGraph: graph, forCompact: compact });
+      if (!cancelled) setLayout({ ...result, forGraph: graph, forCompact: compact });
     });
     return () => {
       cancelled = true;
@@ -242,23 +201,20 @@ export function RelationshipDiagram({
   }, [graph, compact]);
 
   const isEmpty = useMemo(() => graph.nodes.length === 0, [graph]);
-  const ready =
-    layout !== null &&
-    layout.forGraph === graph &&
-    layout.forCompact === compact;
+  const ready = layout !== null && layout.forGraph === graph && layout.forCompact === compact;
 
   if (isEmpty) {
     return (
-      <div className="bg-card text-muted-foreground rounded-md border p-6 text-sm">
+      <div className="rounded-md border bg-card p-6 text-sm text-muted-foreground">
         No related tables to diagram.
       </div>
     );
   }
 
   return (
-    <div className="bg-card h-[600px] overflow-hidden rounded-md border">
+    <div className="h-[600px] overflow-hidden rounded-md border bg-card">
       {!ready ? (
-        <div className="text-muted-foreground flex h-full items-center justify-center text-sm">
+        <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
           Laying out diagram…
         </div>
       ) : (

@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   type ColumnDef,
   type PaginationState,
@@ -16,6 +15,8 @@ import {
   ChevronsRight,
   ChevronsUpDown,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -83,12 +84,8 @@ export function DataTable<TData extends RowData>({
   const filteredCount = table.getFilteredRowModel().rows.length;
   const pageCount = table.getPageCount();
   const { pageIndex } = table.state.pagination;
-  const firstRow =
-    filteredCount === 0 ? 0 : pageIndex * pagination.pageSize + 1;
-  const lastRow = Math.min(
-    (pageIndex + 1) * pagination.pageSize,
-    filteredCount,
-  );
+  const firstRow = filteredCount === 0 ? 0 : pageIndex * pagination.pageSize + 1;
+  const lastRow = Math.min((pageIndex + 1) * pagination.pageSize, filteredCount);
 
   return (
     <div className="space-y-3">
@@ -99,7 +96,7 @@ export function DataTable<TData extends RowData>({
           placeholder={filterPlaceholder}
           className="max-w-sm"
         />
-        <span className="text-muted-foreground text-sm">
+        <span className="text-sm text-muted-foreground">
           {filteredCount === data.length
             ? `${filteredCount}`
             : `${filteredCount} of ${data.length}`}
@@ -124,10 +121,7 @@ export function DataTable<TData extends RowData>({
                             sorted && "text-foreground",
                           )}
                         >
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                          {flexRender(header.column.columnDef.header, header.getContext())}
                           {sorted === "asc" ? (
                             <ArrowUp className="size-3.5" />
                           ) : sorted === "desc" ? (
@@ -137,10 +131,7 @@ export function DataTable<TData extends RowData>({
                           )}
                         </button>
                       ) : (
-                        flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )
+                        flexRender(header.column.columnDef.header, header.getContext())
                       )}
                     </TableHead>
                   );
@@ -154,10 +145,7 @@ export function DataTable<TData extends RowData>({
                 <TableRow key={row.id}>
                   {row.getAllCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -166,7 +154,7 @@ export function DataTable<TData extends RowData>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="text-muted-foreground h-24 text-center"
+                  className="h-24 text-center text-muted-foreground"
                 >
                   {emptyMessage}
                 </TableCell>
@@ -177,11 +165,11 @@ export function DataTable<TData extends RowData>({
       </div>
       {pageCount > 1 && (
         <div className="flex items-center justify-between gap-2">
-          <span className="text-muted-foreground text-sm">
+          <span className="text-sm text-muted-foreground">
             {firstRow}–{lastRow} of {filteredCount}
           </span>
           <div className="flex items-center gap-2">
-            <span className="text-muted-foreground text-sm">
+            <span className="text-sm text-muted-foreground">
               Page {pageIndex + 1} of {pageCount}
             </span>
             <Button

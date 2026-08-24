@@ -1,6 +1,7 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
 import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
 import { SearchCommand } from "@/components/SearchCommand";
 import { renderWithClient } from "@/test/utils";
 import type { SearchSummary } from "@/types/report";
@@ -35,9 +36,7 @@ describe("SearchCommand", () => {
       ]),
     });
 
-    const headings = screen
-      .getAllByText(/^(Table|View|Column)$/)
-      .map((el) => el.textContent);
+    const headings = screen.getAllByText(/^(Table|View|Column)$/).map((el) => el.textContent);
     expect(headings).toEqual(["Table", "View", "Column"]);
   });
 
@@ -52,9 +51,7 @@ describe("SearchCommand", () => {
     const user = userEvent.setup();
     const onOpenChange = vi.fn();
     renderWithClient(<SearchCommand open onOpenChange={onOpenChange} />, {
-      seed: seedSearch([
-        { name: "actor", objectType: "Table", url: "#/tables/actor-1" },
-      ]),
+      seed: seedSearch([{ name: "actor", objectType: "Table", url: "#/tables/actor-1" }]),
     });
 
     await user.click(within(screen.getByRole("dialog")).getByText("actor"));

@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { loadDetail, loadSummary } from "@/lib/dataSource";
+
 import {
   detailQueryOptions,
   ensureDetail,
   ensureSummary,
   summaryQueryOptions,
 } from "@/hooks/useReportData";
+import { loadDetail, loadSummary } from "@/lib/dataSource";
 import { queryClient } from "@/lib/queryClient";
 
 vi.mock("@/lib/dataSource", () => ({
@@ -15,10 +16,7 @@ vi.mock("@/lib/dataSource", () => ({
 
 describe("summaryQueryOptions", () => {
   it("builds a queryKey scoped to the summary key", () => {
-    expect(summaryQueryOptions("tables").queryKey).toEqual([
-      "summary",
-      "tables",
-    ]);
+    expect(summaryQueryOptions("tables").queryKey).toEqual(["summary", "tables"]);
   });
 
   it("delegates queryFn to loadSummary with the same key", async () => {

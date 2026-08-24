@@ -4,27 +4,28 @@ import {
   createRoute,
   createRouter,
 } from "@tanstack/react-router";
-import { RootLayout } from "@/components/layout/RootLayout";
+
 import { NotFound } from "@/components/layout/NotFound";
-import { DashboardPage } from "@/routes/dashboard";
-import { TablesPage } from "@/routes/tables";
-import { TableDetailPage } from "@/routes/table-detail";
-import { ViewsPage } from "@/routes/views";
-import { ViewDetailPage } from "@/routes/view-detail";
-import { RoutinesPage } from "@/routes/routines";
-import { RoutineDetailPage } from "@/routes/routine-detail";
-import { SequencesPage } from "@/routes/sequences";
-import { SequenceDetailPage } from "@/routes/sequence-detail";
-import { SynonymsPage } from "@/routes/synonyms";
-import { SynonymDetailPage } from "@/routes/synonym-detail";
-import { TriggersPage } from "@/routes/triggers";
+import { RootLayout } from "@/components/layout/RootLayout";
+import { ensureDetail, ensureSummary } from "@/hooks/useReportData";
 import { ColumnsPage } from "@/routes/columns";
 import { ConstraintsPage } from "@/routes/constraints";
+import { DashboardPage } from "@/routes/dashboard";
 import { IndexesPage } from "@/routes/indexes";
-import { OrphansPage } from "@/routes/orphans";
 import { LintPage } from "@/routes/lint";
+import { OrphansPage } from "@/routes/orphans";
 import { RelationshipsPage } from "@/routes/relationships";
-import { ensureDetail, ensureSummary } from "@/hooks/useReportData";
+import { RoutineDetailPage } from "@/routes/routine-detail";
+import { RoutinesPage } from "@/routes/routines";
+import { SequenceDetailPage } from "@/routes/sequence-detail";
+import { SequencesPage } from "@/routes/sequences";
+import { SynonymDetailPage } from "@/routes/synonym-detail";
+import { SynonymsPage } from "@/routes/synonyms";
+import { TableDetailPage } from "@/routes/table-detail";
+import { TablesPage } from "@/routes/tables";
+import { TriggersPage } from "@/routes/triggers";
+import { ViewDetailPage } from "@/routes/view-detail";
+import { ViewsPage } from "@/routes/views";
 import type {
   MainSummary,
   RoutineDetail,
@@ -102,8 +103,7 @@ const routineDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/routines/$routineKey",
   component: RoutineDetailPage,
-  loader: ({ params }) =>
-    ensureDetail<RoutineDetail>("routine", params.routineKey),
+  loader: ({ params }) => ensureDetail<RoutineDetail>("routine", params.routineKey),
   head: ({ loaderData }) => titleMeta(loaderData?.name),
 });
 
@@ -119,8 +119,7 @@ const sequenceDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/sequences/$sequenceKey",
   component: SequenceDetailPage,
-  loader: ({ params }) =>
-    ensureDetail<SequenceDetail>("sequence", params.sequenceKey),
+  loader: ({ params }) => ensureDetail<SequenceDetail>("sequence", params.sequenceKey),
   head: ({ loaderData }) => titleMeta(loaderData?.name),
 });
 
@@ -136,8 +135,7 @@ const synonymDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/synonyms/$synonymKey",
   component: SynonymDetailPage,
-  loader: ({ params }) =>
-    ensureDetail<SynonymDetail>("synonym", params.synonymKey),
+  loader: ({ params }) => ensureDetail<SynonymDetail>("synonym", params.synonymKey),
   head: ({ loaderData }) => titleMeta(loaderData?.name),
 });
 

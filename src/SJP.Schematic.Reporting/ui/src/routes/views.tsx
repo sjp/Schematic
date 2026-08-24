@@ -1,10 +1,11 @@
-import { useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Check, Eye, Minus } from "lucide-react";
+import { useMemo } from "react";
+
 import { DataTable } from "@/components/DataTable";
-import type { AppTableFeatures } from "@/lib/tableFeatures";
 import { useSummary } from "@/hooks/useReportData";
+import type { AppTableFeatures } from "@/lib/tableFeatures";
 import type { ViewSummary, ViewsSummary } from "@/types/report";
 
 /** Extracts the route safeKey from a `#/views/<key>` hash url. */
@@ -24,7 +25,7 @@ export function ViewsPage() {
           <Link
             to="/views/$viewKey"
             params={{ viewKey: keyFromUrl(row.original.viewUrl) }}
-            className="text-primary font-medium hover:underline"
+            className="font-medium text-primary hover:underline"
           >
             {row.original.name}
           </Link>
@@ -36,15 +37,9 @@ export function ViewsPage() {
         header: "Materialized",
         cell: ({ getValue }) =>
           getValue<boolean>() ? (
-            <Check
-              className="text-emerald-500 size-4"
-              aria-label="Materialized"
-            />
+            <Check className="size-4 text-emerald-500" aria-label="Materialized" />
           ) : (
-            <Minus
-              className="text-muted-foreground size-4"
-              aria-label="Not materialized"
-            />
+            <Minus className="size-4 text-muted-foreground" aria-label="Not materialized" />
           ),
       },
     ],
@@ -55,15 +50,13 @@ export function ViewsPage() {
     return <p className="text-muted-foreground">Loading…</p>;
   }
   if (isError) {
-    return (
-      <p className="text-destructive">Failed to load views: {error.message}</p>
-    );
+    return <p className="text-destructive">Failed to load views: {error.message}</p>;
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <Eye className="text-primary size-6" />
+        <Eye className="size-6 text-primary" />
         <h1 className="text-2xl font-semibold">Views</h1>
         <span className="text-muted-foreground">({data.viewsCount})</span>
       </div>

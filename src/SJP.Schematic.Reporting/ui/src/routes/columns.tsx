@@ -1,10 +1,11 @@
-import { useMemo } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Check, Columns3, Minus } from "lucide-react";
+import { useMemo } from "react";
+
 import { DataTable } from "@/components/DataTable";
-import type { AppTableFeatures } from "@/lib/tableFeatures";
 import { IconTooltip } from "@/components/IconTooltip";
 import { useSummary } from "@/hooks/useReportData";
+import type { AppTableFeatures } from "@/lib/tableFeatures";
 import type { ColumnRow, ColumnsSummary } from "@/types/report";
 
 const KEY_BADGES = [
@@ -19,16 +20,14 @@ function KeyBadges({ row }: { row: ColumnRow }) {
   if (badges.length === 0)
     return (
       <IconTooltip label="No key membership">
-        <Minus className="text-muted-foreground size-4" aria-label="No key" />
+        <Minus className="size-4 text-muted-foreground" aria-label="No key" />
       </IconTooltip>
     );
   return (
     <span className="flex gap-1">
       {badges.map((b) => (
         <IconTooltip key={b.abbr} label={b.label}>
-          <span className="bg-muted rounded px-1.5 py-0.5 text-xs font-medium">
-            {b.abbr}
-          </span>
+          <span className="rounded bg-muted px-1.5 py-0.5 text-xs font-medium">{b.abbr}</span>
         </IconTooltip>
       ))}
     </span>
@@ -36,8 +35,7 @@ function KeyBadges({ row }: { row: ColumnRow }) {
 }
 
 export function ColumnsPage() {
-  const { data, isPending, isError, error } =
-    useSummary<ColumnsSummary>("columns");
+  const { data, isPending, isError, error } = useSummary<ColumnsSummary>("columns");
 
   const columns = useMemo<ColumnDef<AppTableFeatures, ColumnRow>[]>(
     () => [
@@ -45,10 +43,7 @@ export function ColumnsPage() {
         accessorKey: "name",
         header: "Parent",
         cell: ({ row }) => (
-          <a
-            href={row.original.parentUrl}
-            className="text-primary hover:underline"
-          >
+          <a href={row.original.parentUrl} className="text-primary hover:underline">
             {row.original.name}
           </a>
         ),
@@ -58,9 +53,7 @@ export function ColumnsPage() {
       {
         accessorKey: "columnName",
         header: "Column",
-        cell: ({ row }) => (
-          <span className="font-medium">{row.original.columnName}</span>
-        ),
+        cell: ({ row }) => <span className="font-medium">{row.original.columnName}</span>,
       },
       { accessorKey: "type", header: "Data Type" },
       {
@@ -68,12 +61,9 @@ export function ColumnsPage() {
         header: "Nullable",
         cell: ({ getValue }) =>
           getValue<boolean>() ? (
-            <Check className="text-emerald-500 size-4" aria-label="Nullable" />
+            <Check className="size-4 text-emerald-500" aria-label="Nullable" />
           ) : (
-            <Minus
-              className="text-muted-foreground size-4"
-              aria-label="Not nullable"
-            />
+            <Minus className="size-4 text-muted-foreground" aria-label="Not nullable" />
           ),
       },
       {
@@ -97,17 +87,13 @@ export function ColumnsPage() {
     return <p className="text-muted-foreground">Loading…</p>;
   }
   if (isError) {
-    return (
-      <p className="text-destructive">
-        Failed to load columns: {error.message}
-      </p>
-    );
+    return <p className="text-destructive">Failed to load columns: {error.message}</p>;
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <Columns3 className="text-primary size-6" />
+        <Columns3 className="size-6 text-primary" />
         <h1 className="text-2xl font-semibold">Columns</h1>
         <span className="text-muted-foreground">({data.columnsCount})</span>
       </div>

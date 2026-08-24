@@ -1,5 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+
 import { useSummary } from "@/hooks/useReportData";
 import { ColumnsPage } from "@/routes/columns";
 import type { ColumnRow, ColumnsSummary } from "@/types/report";
@@ -53,9 +54,7 @@ describe("ColumnsPage", () => {
     } as never);
 
     render(<ColumnsPage />);
-    expect(
-      screen.getByText("Failed to load columns: boom"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Failed to load columns: boom")).toBeInTheDocument();
   });
 
   it("renders a PK/UK/FK badge for each key membership on the row", () => {
@@ -113,9 +112,7 @@ describe("ColumnsPage", () => {
     } as never);
 
     render(<ColumnsPage />);
-    expect(
-      within(rowByColumnName("optional_col")).getByLabelText("Nullable"),
-    ).toBeInTheDocument();
+    expect(within(rowByColumnName("optional_col")).getByLabelText("Nullable")).toBeInTheDocument();
     expect(
       within(rowByColumnName("required_col")).getByLabelText("Not nullable"),
     ).toBeInTheDocument();

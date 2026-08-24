@@ -1,10 +1,11 @@
-import { useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Check, ListOrdered, Minus } from "lucide-react";
+import { useMemo } from "react";
+
 import { DataTable } from "@/components/DataTable";
-import type { AppTableFeatures } from "@/lib/tableFeatures";
 import { useSummary } from "@/hooks/useReportData";
+import type { AppTableFeatures } from "@/lib/tableFeatures";
 import type { SequenceSummary, SequencesSummary } from "@/types/report";
 
 /** Extracts the route safeKey from a `#/sequences/<key>` hash url. */
@@ -13,8 +14,7 @@ function keyFromUrl(sequenceUrl: string): string {
 }
 
 export function SequencesPage() {
-  const { data, isPending, isError, error } =
-    useSummary<SequencesSummary>("sequences");
+  const { data, isPending, isError, error } = useSummary<SequencesSummary>("sequences");
 
   const columns = useMemo<ColumnDef<AppTableFeatures, SequenceSummary>[]>(
     () => [
@@ -25,7 +25,7 @@ export function SequencesPage() {
           <Link
             to="/sequences/$sequenceKey"
             params={{ sequenceKey: keyFromUrl(row.original.sequenceUrl) }}
-            className="text-primary font-medium hover:underline"
+            className="font-medium text-primary hover:underline"
           >
             {row.original.name}
           </Link>
@@ -49,12 +49,9 @@ export function SequencesPage() {
         header: "Cycle",
         cell: ({ getValue }) =>
           getValue<boolean>() ? (
-            <Check className="text-emerald-500 size-4" aria-label="Cycles" />
+            <Check className="size-4 text-emerald-500" aria-label="Cycles" />
           ) : (
-            <Minus
-              className="text-muted-foreground size-4"
-              aria-label="Does not cycle"
-            />
+            <Minus className="size-4 text-muted-foreground" aria-label="Does not cycle" />
           ),
       },
     ],
@@ -65,17 +62,13 @@ export function SequencesPage() {
     return <p className="text-muted-foreground">Loading…</p>;
   }
   if (isError) {
-    return (
-      <p className="text-destructive">
-        Failed to load sequences: {error.message}
-      </p>
-    );
+    return <p className="text-destructive">Failed to load sequences: {error.message}</p>;
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <ListOrdered className="text-primary size-6" />
+        <ListOrdered className="size-6 text-primary" />
         <h1 className="text-2xl font-semibold">Sequences</h1>
         <span className="text-muted-foreground">({data.sequencesCount})</span>
       </div>

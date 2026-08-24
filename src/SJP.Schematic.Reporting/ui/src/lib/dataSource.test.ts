@@ -32,9 +32,7 @@ describe("dataSource — served over http", () => {
     vi.mocked(fetch).mockResolvedValue({ ok: false, status: 404 } as Response);
 
     const { loadSummary } = await import("@/lib/dataSource");
-    await expect(loadSummary("tables")).rejects.toThrow(
-      "Failed to load data/tables.json (404)",
-    );
+    await expect(loadSummary("tables")).rejects.toThrow("Failed to load data/tables.json (404)");
   });
 
   it("loadDetail fetches and parses the detail json", async () => {
@@ -80,9 +78,7 @@ describe("dataSource — opened from disk", () => {
 
   it("loadSummary throws when window.__schematic is not defined", async () => {
     const { loadSummary } = await import("@/lib/dataSource");
-    await expect(loadSummary("tables")).rejects.toThrow(
-      "window.__schematic is not defined",
-    );
+    await expect(loadSummary("tables")).rejects.toThrow("window.__schematic is not defined");
   });
 
   it("loadDetail reads the nested type/key entry", async () => {

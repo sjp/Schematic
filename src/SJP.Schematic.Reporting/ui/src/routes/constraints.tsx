@@ -1,9 +1,10 @@
-import { useMemo } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { KeyRound } from "lucide-react";
+import { useMemo } from "react";
+
 import { DataTable } from "@/components/DataTable";
-import type { AppTableFeatures } from "@/lib/tableFeatures";
 import { useSummary } from "@/hooks/useReportData";
+import type { AppTableFeatures } from "@/lib/tableFeatures";
 import type {
   CheckConstraintRow,
   ConstraintsSummary,
@@ -33,9 +34,7 @@ function Section({
     <section className="space-y-3">
       <h2 className="text-lg font-semibold">
         {title}
-        <span className="text-muted-foreground ml-2 text-sm font-normal">
-          ({count})
-        </span>
+        <span className="ml-2 text-sm font-normal text-muted-foreground">({count})</span>
       </h2>
       {children}
     </section>
@@ -43,8 +42,7 @@ function Section({
 }
 
 export function ConstraintsPage() {
-  const { data, isPending, isError, error } =
-    useSummary<ConstraintsSummary>("constraints");
+  const { data, isPending, isError, error } = useSummary<ConstraintsSummary>("constraints");
 
   const keyColumns = <T extends PrimaryKeyConstraintRow | UniqueKeyRow>() =>
     [
@@ -52,10 +50,7 @@ export function ConstraintsPage() {
         accessorKey: "tableName",
         header: "Table",
         cell: ({ row }: { row: { original: T } }) => (
-          <TableLink
-            name={row.original.tableName}
-            url={row.original.tableUrl}
-          />
+          <TableLink name={row.original.tableName} url={row.original.tableUrl} />
         ),
       },
       { accessorKey: "constraintName", header: "Constraint" },
@@ -70,12 +65,7 @@ export function ConstraintsPage() {
       {
         accessorKey: "tableName",
         header: "Table",
-        cell: ({ row }) => (
-          <TableLink
-            name={row.original.tableName}
-            url={row.original.tableUrl}
-          />
-        ),
+        cell: ({ row }) => <TableLink name={row.original.tableName} url={row.original.tableUrl} />,
       },
       { accessorKey: "constraintName", header: "Constraint" },
       { accessorKey: "childColumnNames", header: "Columns" },
@@ -83,10 +73,7 @@ export function ConstraintsPage() {
         accessorKey: "parentTableName",
         header: "Parent Table",
         cell: ({ row }) => (
-          <TableLink
-            name={row.original.parentTableName}
-            url={row.original.parentTableUrl}
-          />
+          <TableLink name={row.original.parentTableName} url={row.original.parentTableUrl} />
         ),
       },
       { accessorKey: "parentColumnNames", header: "Parent Columns" },
@@ -96,27 +83,18 @@ export function ConstraintsPage() {
     [],
   );
 
-  const checkColumns = useMemo<
-    ColumnDef<AppTableFeatures, CheckConstraintRow>[]
-  >(
+  const checkColumns = useMemo<ColumnDef<AppTableFeatures, CheckConstraintRow>[]>(
     () => [
       {
         accessorKey: "tableName",
         header: "Table",
-        cell: ({ row }) => (
-          <TableLink
-            name={row.original.tableName}
-            url={row.original.tableUrl}
-          />
-        ),
+        cell: ({ row }) => <TableLink name={row.original.tableName} url={row.original.tableUrl} />,
       },
       { accessorKey: "constraintName", header: "Constraint" },
       {
         accessorKey: "definition",
         header: "Definition",
-        cell: ({ getValue }) => (
-          <code className="text-xs">{getValue<string>()}</code>
-        ),
+        cell: ({ getValue }) => <code className="text-xs">{getValue<string>()}</code>,
       },
     ],
     [],
@@ -126,17 +104,13 @@ export function ConstraintsPage() {
     return <p className="text-muted-foreground">Loading…</p>;
   }
   if (isError) {
-    return (
-      <p className="text-destructive">
-        Failed to load constraints: {error.message}
-      </p>
-    );
+    return <p className="text-destructive">Failed to load constraints: {error.message}</p>;
   }
 
   return (
     <div className="space-y-8">
       <div className="flex items-center gap-3">
-        <KeyRound className="text-primary size-6" />
+        <KeyRound className="size-6 text-primary" />
         <h1 className="text-2xl font-semibold">Constraints</h1>
       </div>
 

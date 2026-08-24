@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Command } from "cmdk";
 import {
@@ -10,18 +9,13 @@ import {
   SquareFunction,
   Table2,
 } from "lucide-react";
+import { useMemo } from "react";
+
 import { useSummary } from "@/hooks/useReportData";
 import type { SearchEntry, SearchSummary } from "@/types/report";
 
 // Stable display order for the grouped result sections.
-const TYPE_ORDER = [
-  "Table",
-  "View",
-  "Sequence",
-  "Synonym",
-  "Routine",
-  "Column",
-];
+const TYPE_ORDER = ["Table", "View", "Sequence", "Synonym", "Routine", "Column"];
 
 const TYPE_ICON: Record<string, typeof Table2> = {
   Table: Table2,
@@ -50,8 +44,7 @@ export function SearchCommand({
       byType.set(entry.objectType, list);
     }
     return [...byType.entries()].sort(
-      ([a], [b]) =>
-        (TYPE_ORDER.indexOf(a) + 1 || 99) - (TYPE_ORDER.indexOf(b) + 1 || 99),
+      ([a], [b]) => (TYPE_ORDER.indexOf(a) + 1 || 99) - (TYPE_ORDER.indexOf(b) + 1 || 99),
     );
   }, [data]);
 
@@ -68,20 +61,20 @@ export function SearchCommand({
         <Dialog.Overlay className="fixed inset-0 z-40 bg-black/50" />
         <Dialog.Content
           aria-describedby={undefined}
-          className="bg-popover text-popover-foreground fixed top-[20%] left-1/2 z-50 w-full max-w-lg -translate-x-1/2 overflow-hidden rounded-lg border shadow-lg"
+          className="fixed top-[20%] left-1/2 z-50 w-full max-w-lg -translate-x-1/2 overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-lg"
         >
           {/* Radix requires an accessible title; visually hidden to keep the palette clean. */}
           <Dialog.Title className="sr-only">Search schema</Dialog.Title>
           <Command shouldFilter label="Search schema">
             <div className="flex items-center gap-2 border-b px-3">
-              <SearchIcon className="text-muted-foreground size-4 shrink-0" />
+              <SearchIcon className="size-4 shrink-0 text-muted-foreground" />
               <Command.Input
                 placeholder="Search tables, views, columns…"
-                className="placeholder:text-muted-foreground h-11 w-full bg-transparent py-3 text-sm outline-none"
+                className="h-11 w-full bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground"
               />
             </div>
             <Command.List className="max-h-80 overflow-y-auto p-1">
-              <Command.Empty className="text-muted-foreground py-6 text-center text-sm">
+              <Command.Empty className="py-6 text-center text-sm text-muted-foreground">
                 No results found.
               </Command.Empty>
               {grouped.map(([type, items]) => {
@@ -90,19 +83,19 @@ export function SearchCommand({
                   <Command.Group
                     key={type}
                     heading={type}
-                    className="text-muted-foreground [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium"
+                    className="text-muted-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground"
                   >
                     {items.map((entry, i) => (
                       <Command.Item
                         key={`${type}:${entry.parent ?? ""}:${entry.name}:${entry.url}:${i}`}
                         value={`${entry.name} ${entry.parent ?? ""} ${type}`}
                         onSelect={() => go(entry.url)}
-                        className="text-foreground data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm"
+                        className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm text-foreground data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground"
                       >
-                        <Icon className="text-muted-foreground size-4 shrink-0" />
+                        <Icon className="size-4 shrink-0 text-muted-foreground" />
                         <span className="truncate">{entry.name}</span>
                         {entry.parent && (
-                          <span className="text-muted-foreground ml-auto truncate text-xs">
+                          <span className="ml-auto truncate text-xs text-muted-foreground">
                             {entry.parent}
                           </span>
                         )}

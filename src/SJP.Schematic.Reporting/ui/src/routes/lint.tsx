@@ -1,4 +1,5 @@
 import { ShieldCheck, TriangleAlert } from "lucide-react";
+
 import { useSummary } from "@/hooks/useReportData";
 import type { LintSummary } from "@/types/report";
 
@@ -9,17 +10,13 @@ export function LintPage() {
     return <p className="text-muted-foreground">Loading…</p>;
   }
   if (isError) {
-    return (
-      <p className="text-destructive">
-        Failed to load lint results: {error.message}
-      </p>
-    );
+    return <p className="text-destructive">Failed to load lint results: {error.message}</p>;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <ShieldCheck className="text-primary size-6" />
+        <ShieldCheck className="size-6 text-primary" />
         <h1 className="text-2xl font-semibold">Lint</h1>
         <span className="text-muted-foreground">({data.lintRulesCount})</span>
       </div>
@@ -33,13 +30,13 @@ export function LintPage() {
               <h2 className="flex items-center gap-2 text-lg font-semibold">
                 <TriangleAlert className="size-4 text-amber-500" />
                 {rule.ruleTitle}
-                <span className="text-muted-foreground text-sm font-normal">
+                <span className="text-sm font-normal text-muted-foreground">
                   ({rule.messageCount})
                 </span>
               </h2>
               <ul className="list-disc space-y-1 pl-10">
                 {rule.messages.map((message, i) => (
-                  <li key={i} className="text-muted-foreground text-sm">
+                  <li key={i} className="text-sm text-muted-foreground">
                     {message}
                   </li>
                 ))}

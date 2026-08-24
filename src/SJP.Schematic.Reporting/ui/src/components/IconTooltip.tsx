@@ -1,8 +1,4 @@
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 /**
  * Wraps a small status icon (key membership, nullability, …) in a tooltip and
@@ -22,7 +18,7 @@ export function IconTooltip({
       <TooltipTrigger asChild>
         <span
           tabIndex={0}
-          className="focus-visible:ring-ring inline-flex cursor-help rounded-sm outline-none focus-visible:ring-2"
+          className="inline-flex cursor-help rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           {children}
         </span>

@@ -1,7 +1,8 @@
-import { describe, expect, it } from "vitest";
+import type { ColumnDef } from "@tanstack/react-table";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import type { ColumnDef } from "@tanstack/react-table";
+import { describe, expect, it } from "vitest";
+
 import { DataTable } from "@/components/DataTable";
 import type { AppTableFeatures } from "@/lib/tableFeatures";
 
@@ -31,39 +32,21 @@ function bodyRowTexts() {
 describe("DataTable", () => {
   it("renders every row when it fits on one page", () => {
     render(<DataTable columns={columns} data={rows} />);
-    expect(bodyRowTexts()).toEqual([
-      "alpha",
-      "bravo",
-      "charlie",
-      "delta",
-      "echo",
-    ]);
+    expect(bodyRowTexts()).toEqual(["alpha", "bravo", "charlie", "delta", "echo"]);
     // Row-count text shows the bare count when nothing is filtered out.
     expect(screen.getByText("5", { selector: "span" })).toBeInTheDocument();
   });
 
   it("shows the empty message when there is no data", () => {
-    render(
-      <DataTable columns={columns} data={[]} emptyMessage="Nothing here." />,
-    );
+    render(<DataTable columns={columns} data={[]} emptyMessage="Nothing here." />);
     expect(screen.getByText("Nothing here.")).toBeInTheDocument();
   });
 
   it("respects initialSorting", () => {
     render(
-      <DataTable
-        columns={columns}
-        data={rows}
-        initialSorting={[{ id: "value", desc: false }]}
-      />,
+      <DataTable columns={columns} data={rows} initialSorting={[{ id: "value", desc: false }]} />,
     );
-    expect(bodyRowTexts()).toEqual([
-      "charlie",
-      "echo",
-      "bravo",
-      "delta",
-      "alpha",
-    ]);
+    expect(bodyRowTexts()).toEqual(["charlie", "echo", "bravo", "delta", "alpha"]);
   });
 
   it("toggles sort order when a sortable header is clicked", async () => {
@@ -71,22 +54,10 @@ describe("DataTable", () => {
     render(<DataTable columns={columns} data={rows} />);
 
     await user.click(screen.getByRole("button", { name: "Name" }));
-    expect(bodyRowTexts()).toEqual([
-      "alpha",
-      "bravo",
-      "charlie",
-      "delta",
-      "echo",
-    ]);
+    expect(bodyRowTexts()).toEqual(["alpha", "bravo", "charlie", "delta", "echo"]);
 
     await user.click(screen.getByRole("button", { name: "Name" }));
-    expect(bodyRowTexts()).toEqual([
-      "echo",
-      "delta",
-      "charlie",
-      "bravo",
-      "alpha",
-    ]);
+    expect(bodyRowTexts()).toEqual(["echo", "delta", "charlie", "bravo", "alpha"]);
   });
 
   it("filters rows after the debounce elapses", async () => {
@@ -105,9 +76,7 @@ describe("DataTable", () => {
 
     expect(bodyRowTexts()).toEqual(["alpha", "bravo"]);
     expect(screen.getByRole("button", { name: "First page" })).toBeDisabled();
-    expect(
-      screen.getByRole("button", { name: "Previous page" }),
-    ).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Previous page" })).toBeDisabled();
 
     await user.click(screen.getByRole("button", { name: "Next page" }));
     expect(bodyRowTexts()).toEqual(["charlie", "delta"]);

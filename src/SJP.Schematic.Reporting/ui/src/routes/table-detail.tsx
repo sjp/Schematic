@@ -1,11 +1,11 @@
-import { useMemo, useState } from "react";
 import { Link, getRouteApi } from "@tanstack/react-router";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Check, KeyRound, Link2, Minus, ShieldCheck } from "lucide-react";
+import { useMemo, useState } from "react";
+
 import { DataTable } from "@/components/DataTable";
-import type { AppTableFeatures } from "@/lib/tableFeatures";
-import { RelationshipDiagram } from "@/components/RelationshipDiagram";
 import { IconTooltip } from "@/components/IconTooltip";
+import { RelationshipDiagram } from "@/components/RelationshipDiagram";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useDetail } from "@/hooks/useReportData";
+import type { AppTableFeatures } from "@/lib/tableFeatures";
 import type { KeyConstraint, TableColumn, TableDetail } from "@/types/report";
 
 const routeApi = getRouteApi("/tables/$tableKey");
@@ -34,9 +35,7 @@ function Section({
       <h2 className="text-lg font-semibold">
         {title}
         {count !== undefined && (
-          <span className="text-muted-foreground ml-2 text-sm font-normal">
-            ({count})
-          </span>
+          <span className="ml-2 text-sm font-normal text-muted-foreground">({count})</span>
         )}
       </h2>
       {children}
@@ -45,10 +44,7 @@ function Section({
 }
 
 /** Whether `columnName` is one of a constraint's (comma-separated) columns. */
-function constraintCovers(
-  constraint: KeyConstraint,
-  columnName: string,
-): boolean {
+function constraintCovers(constraint: KeyConstraint, columnName: string): boolean {
   return constraint.columnNames
     .split(",")
     .map((c) => c.trim())
@@ -64,9 +60,7 @@ function KeyIcons({
   primaryKey?: KeyConstraint;
   uniqueKeys: KeyConstraint[];
 }) {
-  const matchedUniqueKeys = uniqueKeys.filter((uk) =>
-    constraintCovers(uk, column.columnName),
-  );
+  const matchedUniqueKeys = uniqueKeys.filter((uk) => constraintCovers(uk, column.columnName));
   return (
     <span className="ml-1 inline-flex gap-0.5 align-middle">
       {column.isPrimaryKey && (
@@ -74,16 +68,11 @@ function KeyIcons({
           label={
             <>
               <span className="font-medium">Primary key</span>
-              {primaryKey?.constraintName && (
-                <> · {primaryKey.constraintName}</>
-              )}
+              {primaryKey?.constraintName && <> · {primaryKey.constraintName}</>}
             </>
           }
         >
-          <KeyRound
-            className="text-amber-500 size-3.5"
-            aria-label="Primary key"
-          />
+          <KeyRound className="size-3.5 text-amber-500" aria-label="Primary key" />
         </IconTooltip>
       )}
       {column.isUniqueKey && (
@@ -94,18 +83,13 @@ function KeyIcons({
               {matchedUniqueKeys.length > 0 && (
                 <>
                   {" · "}
-                  {matchedUniqueKeys
-                    .map((uk) => uk.constraintName || "—")
-                    .join(", ")}
+                  {matchedUniqueKeys.map((uk) => uk.constraintName || "—").join(", ")}
                 </>
               )}
             </>
           }
         >
-          <ShieldCheck
-            className="text-sky-500 size-3.5"
-            aria-label="Unique key"
-          />
+          <ShieldCheck className="size-3.5 text-sky-500" aria-label="Unique key" />
         </IconTooltip>
       )}
       {column.isForeignKey && (
@@ -121,10 +105,7 @@ function KeyIcons({
             </div>
           }
         >
-          <Link2
-            className="text-emerald-500 size-3.5"
-            aria-label="Foreign key"
-          />
+          <Link2 className="size-3.5 text-emerald-500" aria-label="Foreign key" />
         </IconTooltip>
       )}
     </span>
@@ -133,10 +114,7 @@ function KeyIcons({
 
 export function TableDetailPage() {
   const { tableKey } = routeApi.useParams();
-  const { data, isPending, isError, error } = useDetail<TableDetail>(
-    "table",
-    tableKey,
-  );
+  const { data, isPending, isError, error } = useDetail<TableDetail>("table", tableKey);
 
   const columns = useMemo<ColumnDef<AppTableFeatures, TableColumn>[]>(
     () => [
@@ -161,12 +139,9 @@ export function TableDetailPage() {
         header: "Nullable",
         cell: ({ getValue }) =>
           getValue<boolean>() ? (
-            <Check className="text-emerald-500 size-4" aria-label="Nullable" />
+            <Check className="size-4 text-emerald-500" aria-label="Nullable" />
           ) : (
-            <Minus
-              className="text-muted-foreground size-4"
-              aria-label="Not nullable"
-            />
+            <Minus className="size-4 text-muted-foreground" aria-label="Not nullable" />
           ),
       },
       {
@@ -188,9 +163,7 @@ export function TableDetailPage() {
   }
   if (isError || !data) {
     return (
-      <p className="text-destructive">
-        Failed to load table: {error?.message ?? "not found"}
-      </p>
+      <p className="text-destructive">Failed to load table: {error?.message ?? "not found"}</p>
     );
   }
 
@@ -199,17 +172,12 @@ export function TableDetailPage() {
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <Link
-          to="/tables"
-          className="text-muted-foreground text-sm hover:underline"
-        >
+        <Link to="/tables" className="text-sm text-muted-foreground hover:underline">
           Tables
         </Link>
         <span className="text-muted-foreground">/</span>
         <h1 className="text-2xl font-semibold">{data.name}</h1>
-        <span className="text-muted-foreground text-sm">
-          {data.columnsCount} columns
-        </span>
+        <span className="text-sm text-muted-foreground">{data.columnsCount} columns</span>
       </div>
 
       <Section title="Columns" count={data.columnsCount}>
@@ -225,12 +193,7 @@ export function TableDetailPage() {
         <Section title="Primary Key">
           <SimpleTable
             head={["Constraint", "Columns"]}
-            rows={[
-              [
-                data.primaryKey.constraintName || "—",
-                data.primaryKey.columnNames,
-              ],
-            ]}
+            rows={[[data.primaryKey.constraintName || "—", data.primaryKey.columnNames]]}
           />
         </Section>
       )}
@@ -239,10 +202,7 @@ export function TableDetailPage() {
         <Section title="Unique Keys" count={data.uniqueKeysCount}>
           <SimpleTable
             head={["Constraint", "Columns"]}
-            rows={data.uniqueKeys.map((uk) => [
-              uk.constraintName || "—",
-              uk.columnNames,
-            ])}
+            rows={data.uniqueKeys.map((uk) => [uk.constraintName || "—", uk.columnNames])}
           />
         </Section>
       )}
@@ -266,10 +226,7 @@ export function TableDetailPage() {
                   <TableCell>{fk.constraintName || "—"}</TableCell>
                   <TableCell>{fk.childColumnNames}</TableCell>
                   <TableCell>
-                    <a
-                      href={fk.parentTableUrl}
-                      className="text-primary hover:underline"
-                    >
+                    <a href={fk.parentTableUrl} className="text-primary hover:underline">
                       {fk.parentTableName}
                     </a>
                   </TableCell>
@@ -287,10 +244,7 @@ export function TableDetailPage() {
         <Section title="Check Constraints" count={data.checkConstraintsCount}>
           <SimpleTable
             head={["Constraint", "Definition"]}
-            rows={data.checkConstraints.map((c) => [
-              c.constraintName || "—",
-              c.definition,
-            ])}
+            rows={data.checkConstraints.map((c) => [c.constraintName || "—", c.definition])}
           />
         </Section>
       )}
@@ -313,15 +267,12 @@ export function TableDetailPage() {
                   <TableCell>
                     {ix.isUnique ? (
                       <IconTooltip label="Unique index">
-                        <Check
-                          className="text-emerald-500 size-4"
-                          aria-label="Unique index"
-                        />
+                        <Check className="size-4 text-emerald-500" aria-label="Unique index" />
                       </IconTooltip>
                     ) : (
                       <IconTooltip label="Non-unique index">
                         <Minus
-                          className="text-muted-foreground size-4"
+                          className="size-4 text-muted-foreground"
                           aria-label="Non-unique index"
                         />
                       </IconTooltip>
@@ -347,9 +298,7 @@ export function TableDetailPage() {
                     {tr.queryTiming} {tr.events}
                   </span>
                 </div>
-                <pre className="overflow-x-auto p-3 text-xs">
-                  {tr.definition}
-                </pre>
+                <pre className="overflow-x-auto p-3 text-xs">{tr.definition}</pre>
               </div>
             ))}
           </div>
@@ -379,13 +328,7 @@ export function TableDetailPage() {
   );
 }
 
-function SimpleTable({
-  head,
-  rows,
-}: {
-  head: string[];
-  rows: (string | number)[][];
-}) {
+function SimpleTable({ head, rows }: { head: string[]; rows: (string | number)[][] }) {
   return (
     <Table>
       <TableHeader>

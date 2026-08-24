@@ -1,6 +1,6 @@
-import type { ReactElement } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render } from "@testing-library/react";
+import type { ReactElement } from "react";
 
 /** A fresh, isolated QueryClient per test — mirrors `lib/queryClient.ts`'s options. */
 function createTestQueryClient() {
@@ -25,16 +25,12 @@ function createTestQueryClient() {
  */
 export function renderWithClient(
   ui: ReactElement,
-  {
-    seed,
-  }: { seed?: Array<{ queryKey: readonly unknown[]; data: unknown }> } = {},
+  { seed }: { seed?: Array<{ queryKey: readonly unknown[]; data: unknown }> } = {},
 ) {
   const queryClient = createTestQueryClient();
   for (const { queryKey, data } of seed ?? []) {
     queryClient.setQueryData(queryKey, data);
   }
 
-  return render(
-    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
-  );
+  return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
 }

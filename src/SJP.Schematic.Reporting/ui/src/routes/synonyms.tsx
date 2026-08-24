@@ -1,10 +1,11 @@
-import { useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Replace } from "lucide-react";
+import { useMemo } from "react";
+
 import { DataTable } from "@/components/DataTable";
-import type { AppTableFeatures } from "@/lib/tableFeatures";
 import { useSummary } from "@/hooks/useReportData";
+import type { AppTableFeatures } from "@/lib/tableFeatures";
 import type { SynonymSummary, SynonymsSummary } from "@/types/report";
 
 /** Extracts the route safeKey from a `#/synonyms/<key>` hash url. */
@@ -13,8 +14,7 @@ function keyFromUrl(synonymUrl: string): string {
 }
 
 export function SynonymsPage() {
-  const { data, isPending, isError, error } =
-    useSummary<SynonymsSummary>("synonyms");
+  const { data, isPending, isError, error } = useSummary<SynonymsSummary>("synonyms");
 
   const columns = useMemo<ColumnDef<AppTableFeatures, SynonymSummary>[]>(
     () => [
@@ -25,7 +25,7 @@ export function SynonymsPage() {
           <Link
             to="/synonyms/$synonymKey"
             params={{ synonymKey: keyFromUrl(row.original.synonymUrl) }}
-            className="text-primary font-medium hover:underline"
+            className="font-medium text-primary hover:underline"
           >
             {row.original.name}
           </Link>
@@ -36,10 +36,7 @@ export function SynonymsPage() {
         header: "Target",
         cell: ({ row }) =>
           row.original.targetUrl ? (
-            <a
-              href={row.original.targetUrl}
-              className="text-primary hover:underline"
-            >
+            <a href={row.original.targetUrl} className="text-primary hover:underline">
               {row.original.targetName}
             </a>
           ) : (
@@ -54,17 +51,13 @@ export function SynonymsPage() {
     return <p className="text-muted-foreground">Loading…</p>;
   }
   if (isError) {
-    return (
-      <p className="text-destructive">
-        Failed to load synonyms: {error.message}
-      </p>
-    );
+    return <p className="text-destructive">Failed to load synonyms: {error.message}</p>;
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <Replace className="text-primary size-6" />
+        <Replace className="size-6 text-primary" />
         <h1 className="text-2xl font-semibold">Synonyms</h1>
         <span className="text-muted-foreground">({data.synonymsCount})</span>
       </div>

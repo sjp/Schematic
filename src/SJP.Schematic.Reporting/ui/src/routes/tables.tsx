@@ -1,10 +1,11 @@
-import { useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Table2 } from "lucide-react";
+import { useMemo } from "react";
+
 import { DataTable } from "@/components/DataTable";
-import type { AppTableFeatures } from "@/lib/tableFeatures";
 import { useSummary } from "@/hooks/useReportData";
+import type { AppTableFeatures } from "@/lib/tableFeatures";
 import type { TableSummary, TablesSummary } from "@/types/report";
 
 /** Extracts the route safeKey from a `#/tables/<key>` hash url. */
@@ -13,8 +14,7 @@ function keyFromUrl(tableUrl: string): string {
 }
 
 export function TablesPage() {
-  const { data, isPending, isError, error } =
-    useSummary<TablesSummary>("tables");
+  const { data, isPending, isError, error } = useSummary<TablesSummary>("tables");
 
   const columns = useMemo<ColumnDef<AppTableFeatures, TableSummary>[]>(
     () => [
@@ -25,7 +25,7 @@ export function TablesPage() {
           <Link
             to="/tables/$tableKey"
             params={{ tableKey: keyFromUrl(row.original.tableUrl) }}
-            className="text-primary font-medium hover:underline"
+            className="font-medium text-primary hover:underline"
           >
             {row.original.name}
           </Link>
@@ -42,15 +42,13 @@ export function TablesPage() {
     return <p className="text-muted-foreground">Loading…</p>;
   }
   if (isError) {
-    return (
-      <p className="text-destructive">Failed to load tables: {error.message}</p>
-    );
+    return <p className="text-destructive">Failed to load tables: {error.message}</p>;
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <Table2 className="text-primary size-6" />
+        <Table2 className="size-6 text-primary" />
         <h1 className="text-2xl font-semibold">Tables</h1>
         <span className="text-muted-foreground">({data.tablesCount})</span>
       </div>

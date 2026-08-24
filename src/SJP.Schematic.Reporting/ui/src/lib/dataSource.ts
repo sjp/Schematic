@@ -51,17 +51,13 @@ export async function loadDetail<T>(type: string, key: string): Promise<T> {
     // Mirror the http path, which throws on a missing (404) detail, so an unknown/stale key never
     // resolves to a successful `undefined` that violates the Promise<T> contract.
     if (detail === undefined) {
-      throw new Error(
-        `No "${type}" detail for key "${key}" in window.__schematic.`,
-      );
+      throw new Error(`No "${type}" detail for key "${key}" in window.__schematic.`);
     }
     return detail;
   }
   const response = await fetch(`data/${type}/${key}.json`);
   if (!response.ok) {
-    throw new Error(
-      `Failed to load data/${type}/${key}.json (${response.status})`,
-    );
+    throw new Error(`Failed to load data/${type}/${key}.json (${response.status})`);
   }
   return (await response.json()) as T;
 }

@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { HeadContent, Outlet, useRouterState } from "@tanstack/react-router";
 import {
   Columns3,
@@ -17,6 +16,8 @@ import {
   Unlink,
   Zap,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+
 import { SearchCommand } from "@/components/SearchCommand";
 import { cn } from "@/lib/utils";
 
@@ -93,10 +94,7 @@ export function RootLayout() {
         </div>
         <nav className="flex-1 space-y-0.5 overflow-y-auto p-2">
           {NAV.map((item) => {
-            const isActive =
-              item.path === "/"
-                ? pathname === "/"
-                : pathname.startsWith(item.path);
+            const isActive = item.path === "/" ? pathname === "/" : pathname.startsWith(item.path);
             const Icon = item.icon;
             return (
               <a
@@ -119,18 +117,16 @@ export function RootLayout() {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex h-14 shrink-0 items-center justify-between border-b px-6">
-          <div className="text-sm text-muted-foreground">
-            Database schema report
-          </div>
+          <div className="text-sm text-muted-foreground">Database schema report</div>
           <button
             type="button"
             onClick={() => setSearchOpen(true)}
-            className="text-muted-foreground hover:text-foreground flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition-colors"
+            className="flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
             aria-label="Search schema"
           >
             <Search className="size-4" />
             <span>Search</span>
-            <kbd className="bg-muted text-muted-foreground ml-2 rounded px-1.5 py-0.5 text-xs font-medium">
+            <kbd className="ml-2 rounded bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
               ⌘K
             </kbd>
           </button>

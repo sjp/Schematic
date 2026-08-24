@@ -1,5 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+
 import { useSummary } from "@/hooks/useReportData";
 import { LintPage } from "@/routes/lint";
 import type { LintSummary } from "@/types/report";
@@ -32,9 +33,7 @@ describe("LintPage", () => {
     } as never);
 
     render(<LintPage />);
-    expect(
-      screen.getByText("Failed to load lint results: network down"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Failed to load lint results: network down")).toBeInTheDocument();
   });
 
   it("shows an empty state when there are no lint issues", () => {
@@ -68,9 +67,7 @@ describe("LintPage", () => {
 
     render(<LintPage />);
     expect(screen.getByText("Missing primary key")).toBeInTheDocument();
-    expect(
-      screen.getByText("Table actor has no primary key."),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Table actor has no primary key.")).toBeInTheDocument();
     expect(screen.getByText("Table film too.")).toBeInTheDocument();
   });
 });

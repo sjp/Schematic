@@ -1,5 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+
 import { useSummary } from "@/hooks/useReportData";
 import { TablesPage } from "@/routes/tables";
 import type { TablesSummary } from "@/types/report";

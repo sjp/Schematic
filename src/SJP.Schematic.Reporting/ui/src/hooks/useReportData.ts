@@ -1,4 +1,5 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
+
 import { loadDetail, loadSummary } from "@/lib/dataSource";
 import { queryClient } from "@/lib/queryClient";
 

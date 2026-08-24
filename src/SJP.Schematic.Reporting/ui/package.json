@@ -1,15 +1,15 @@
 {
   "name": "sjp-reporting",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true});fs.rmSync('.tsbuild',{recursive:true,force:true})\"",
     "lint": "oxlint",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -47,8 +47,8 @@
     "@vitejs/plugin-react": "^6.0.5",
     "@vitest/coverage-v8": "^4.1.10",
     "jsdom": "^30.0.1",
+    "oxfmt": "^0.64.0",
     "oxlint": "^1.78.0",
-    "prettier": "^3.9.5",
     "typescript": "^7.0.2",
     "vite": "^8.2.1",
     "vitest": "^4.1.9"

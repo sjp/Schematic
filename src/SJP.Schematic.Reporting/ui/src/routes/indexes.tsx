@@ -1,15 +1,15 @@
-import { useMemo } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Check, ListTree, Minus } from "lucide-react";
+import { useMemo } from "react";
+
 import { DataTable } from "@/components/DataTable";
-import type { AppTableFeatures } from "@/lib/tableFeatures";
 import { IconTooltip } from "@/components/IconTooltip";
 import { useSummary } from "@/hooks/useReportData";
+import type { AppTableFeatures } from "@/lib/tableFeatures";
 import type { IndexRow, IndexesSummary } from "@/types/report";
 
 export function IndexesPage() {
-  const { data, isPending, isError, error } =
-    useSummary<IndexesSummary>("indexes");
+  const { data, isPending, isError, error } = useSummary<IndexesSummary>("indexes");
 
   const columns = useMemo<ColumnDef<AppTableFeatures, IndexRow>[]>(
     () => [
@@ -17,10 +17,7 @@ export function IndexesPage() {
         accessorKey: "tableName",
         header: "Table",
         cell: ({ row }) => (
-          <a
-            href={row.original.tableUrl}
-            className="text-primary hover:underline"
-          >
+          <a href={row.original.tableUrl} className="text-primary hover:underline">
             {row.original.tableName}
           </a>
         ),
@@ -28,9 +25,7 @@ export function IndexesPage() {
       {
         accessorKey: "name",
         header: "Name",
-        cell: ({ row }) => (
-          <span className="font-medium">{row.original.name}</span>
-        ),
+        cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
       },
       {
         accessorKey: "isUnique",
@@ -38,14 +33,11 @@ export function IndexesPage() {
         cell: ({ getValue }) =>
           getValue<boolean>() ? (
             <IconTooltip label="Unique index">
-              <Check className="text-emerald-500 size-4" aria-label="Unique" />
+              <Check className="size-4 text-emerald-500" aria-label="Unique" />
             </IconTooltip>
           ) : (
             <IconTooltip label="Non-unique index">
-              <Minus
-                className="text-muted-foreground size-4"
-                aria-label="Not unique"
-              />
+              <Minus className="size-4 text-muted-foreground" aria-label="Not unique" />
             </IconTooltip>
           ),
       },
@@ -59,17 +51,13 @@ export function IndexesPage() {
     return <p className="text-muted-foreground">Loading…</p>;
   }
   if (isError) {
-    return (
-      <p className="text-destructive">
-        Failed to load indexes: {error.message}
-      </p>
-    );
+    return <p className="text-destructive">Failed to load indexes: {error.message}</p>;
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <ListTree className="text-primary size-6" />
+        <ListTree className="size-6 text-primary" />
         <h1 className="text-2xl font-semibold">Indexes</h1>
         <span className="text-muted-foreground">({data.indexesCount})</span>
       </div>

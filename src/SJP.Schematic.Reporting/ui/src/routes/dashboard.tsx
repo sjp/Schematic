@@ -9,6 +9,7 @@ import {
   SquareFunction,
   Table2,
 } from "lucide-react";
+
 import { useSummary } from "@/hooks/useReportData";
 import type { MainSummary } from "@/types/report";
 
@@ -26,11 +27,7 @@ export function DashboardPage() {
     return <p className="text-muted-foreground">Loading…</p>;
   }
   if (isError) {
-    return (
-      <p className="text-destructive">
-        Failed to load schema summary: {error.message}
-      </p>
-    );
+    return <p className="text-destructive">Failed to load schema summary: {error.message}</p>;
   }
 
   const stats: Stat[] = [
@@ -82,12 +79,10 @@ export function DashboardPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <Database className="text-primary size-7" />
+        <Database className="size-7 text-primary" />
         <div>
           <h1 className="text-2xl font-semibold">{data.databaseName}</h1>
-          <p className="text-muted-foreground text-sm">
-            {data.databaseVersion}
-          </p>
+          <p className="text-sm text-muted-foreground">{data.databaseVersion}</p>
         </div>
       </div>
 
@@ -95,15 +90,11 @@ export function DashboardPage() {
         {stats.map((stat) => {
           const Icon = stat.icon;
           const card = (
-            <div className="bg-card flex items-center gap-3 rounded-lg border p-4 transition-colors hover:bg-accent/40">
-              <Icon className="text-muted-foreground size-6" />
+            <div className="flex items-center gap-3 rounded-lg border bg-card p-4 transition-colors hover:bg-accent/40">
+              <Icon className="size-6 text-muted-foreground" />
               <div>
-                <div className="text-2xl font-semibold tabular-nums">
-                  {stat.value}
-                </div>
-                <div className="text-muted-foreground text-sm">
-                  {stat.label}
-                </div>
+                <div className="text-2xl font-semibold tabular-nums">{stat.value}</div>
+                <div className="text-sm text-muted-foreground">{stat.label}</div>
               </div>
             </div>
           );
@@ -118,9 +109,7 @@ export function DashboardPage() {
       </div>
 
       {data.schemas.length > 0 && (
-        <div className="text-muted-foreground text-sm">
-          Schemas: {data.schemas.join(", ")}
-        </div>
+        <div className="text-sm text-muted-foreground">Schemas: {data.schemas.join(", ")}</div>
       )}
     </div>
   );
