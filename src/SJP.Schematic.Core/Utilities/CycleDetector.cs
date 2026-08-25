@@ -37,53 +37,63 @@ public class CycleDetector
         return GetCyclePaths(graph);
     }
 
-    private IReadOnlyCollection<IReadOnlyCollection<Identifier>> GetCyclePaths(IVertexListGraph<Identifier, SEquatableEdge<Identifier>> graph)
+    private static IReadOnlyCollection<IReadOnlyCollection<Identifier>> GetCyclePaths(IVertexListGraph<Identifier, SEquatableEdge<Identifier>> graph)
     {
         ArgumentNullException.ThrowIfNull(graph);
 
-        var examinedEdges = new List<IEdge<Identifier>>();
+        var predecessors = new Dictionary<Identifier, Identifier>();
         var cycles = new List<IReadOnlyCollection<Identifier>>();
         var dfs = new DepthFirstSearchAlgorithm<Identifier, SEquatableEdge<Identifier>>(graph);
 
-        void onExamineEdge(SEquatableEdge<Identifier> e) => examinedEdges.Add(e);
-        void onCyclingEdgeFound(SEquatableEdge<Identifier> e) => OnCyclingEdgeFound(examinedEdges, cycles, e);
+        void onTreeEdge(SEquatableEdge<Identifier> e) => predecessors[e.Target] = e.Source;
+        void onCyclingEdgeFound(SEquatableEdge<Identifier> e) => OnCyclingEdgeFound(predecessors, cycles, e);
 
         try
         {
-            dfs.ExamineEdge += onExamineEdge;
+            dfs.TreeEdge += onTreeEdge;
             dfs.BackEdge += onCyclingEdgeFound;
             dfs.Compute();
             return cycles;
         }
         finally
         {
-            dfs.ExamineEdge -= onExamineEdge;
+            dfs.TreeEdge -= onTreeEdge;
             dfs.BackEdge -= onCyclingEdgeFound;
         }
     }
 
-    private static void OnCyclingEdgeFound(IReadOnlyCollection<IEdge<Identifier>> examinedEdges, ICollection<IReadOnlyCollection<Identifier>> cycles, SEquatableEdge<Identifier> e)
+    private static void OnCyclingEdgeFound(IReadOnlyDictionary<Identifier, Identifier> predecessors, ICollection<IReadOnlyCollection<Identifier>> cycles, SEquatableEdge<Identifier> e)
     {
-        var cycleNodes = new HashSet<Identifier>
-        {
-            e.Source,
-            e.Target
-        };
-
-        var examinedEdgesList = examinedEdges.ToList();
-        var startIndex = examinedEdgesList.FindIndex(edge => edge.Source.Equals(e.Target));
-
-        for (var i = startIndex; i < examinedEdgesList.Count; i++)
-        {
-            var edge = examinedEdgesList[i];
-            cycleNodes.Add(edge.Source);
-            cycleNodes.Add(edge.Target);
-        }
-
-        if (ContainsCycle(cycles, cycleNodes))
+        var cycleNodes = GetCycleNodes(predecessors, e);
+        if (cycleNodes == null || ContainsCycle(cycles, cycleNodes))
             return;
 
         cycles.Add(cycleNodes);
+    }
+
+    /// <summary>
+    /// Walks the current depth-first search path backwards from the source of a back edge to its
+    /// target, giving the vertices that form the cycle in the order they are traversed.
+    /// </summary>
+    /// <param name="predecessors">The tree edge predecessor of each visited vertex.</param>
+    /// <param name="backEdge">A back edge, i.e. an edge pointing at an ancestor of its source.</param>
+    /// <returns>The vertices forming the cycle, or <see langword="null" /> when the target is not an ancestor of the source.</returns>
+    private static IReadOnlyCollection<Identifier>? GetCycleNodes(IReadOnlyDictionary<Identifier, Identifier> predecessors, SEquatableEdge<Identifier> backEdge)
+    {
+        var reversedPath = new List<Identifier> { backEdge.Source };
+        var current = backEdge.Source;
+
+        while (!current.Equals(backEdge.Target))
+        {
+            if (!predecessors.TryGetValue(current, out var predecessor))
+                return null;
+
+            reversedPath.Add(predecessor);
+            current = predecessor;
+        }
+
+        reversedPath.Reverse();
+        return reversedPath;
     }
 
     private static bool ContainsCycle(IEnumerable<IReadOnlyCollection<Identifier>> existingCycles, IReadOnlyCollection<Identifier> newCycle)
