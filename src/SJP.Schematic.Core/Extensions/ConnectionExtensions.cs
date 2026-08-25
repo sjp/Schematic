@@ -87,6 +87,7 @@ public static class ConnectionExtensions
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of query results from the database.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <see langword="null" /> or <paramref name="sql"/> is <see langword="null" />, empty, or whitespace.</exception>
+    /// <remarks>Results are streamed as they are read from the database. Only the initial execution of the query is retried; once results have been provided, any error is propagated to the caller.</remarks>
     public static IAsyncEnumerable<T> QueryEnumerableAsync<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
         where T : notnull
     {
@@ -118,6 +119,7 @@ public static class ConnectionExtensions
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of query results from the database.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <see langword="null" />, <paramref name="parameters"/> is <see langword="null" />, or <paramref name="sql"/> is <see langword="null" />, empty, or whitespace.</exception>
+    /// <remarks>Results are streamed as they are read from the database. Only the initial execution of the query is retried; once results have been provided, any error is propagated to the caller.</remarks>
     public static IAsyncEnumerable<T> QueryEnumerableAsync<T>(this IDbConnectionFactory connectionFactory, string sql, ISqlQuery<T> parameters, CancellationToken cancellationToken)
         where T : notnull
     {
@@ -487,25 +489,48 @@ public static class ConnectionExtensions
         );
     }
 
+    /// <summary>
+    /// Enumerates a streaming query, retrying only the initial execution of the query.
+    /// </summary>
+    /// <remarks>
+    /// A streaming query is backed by an iterator that cannot resume once one of its <c>MoveNextAsync()</c>
+    /// calls has failed, so retrying mid-stream would silently return a truncated set of results. Each attempt
+    /// therefore enumerates the source from the start, and any error raised after the first row has been
+    /// provided to the caller is propagated instead of retried.
+    /// </remarks>
     private static async IAsyncEnumerable<T> WithRetryPolicy<T>(this IAsyncEnumerable<T> source, IAsyncPolicy policy, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        var enumerator = source.WithCancellation(cancellationToken).GetAsyncEnumerator();
+        var (enumerator, hasNext) = await policy.ExecuteAsync(_ => StartEnumerationAsync(source, cancellationToken), cancellationToken);
 
         try
         {
-            bool hasNext;
-
-            do
+            while (hasNext)
             {
-                hasNext = await policy.ExecuteAsync(async () => await enumerator.MoveNextAsync());
-                if (hasNext)
-                    yield return enumerator.Current;
+                cancellationToken.ThrowIfCancellationRequested();
+                yield return enumerator.Current;
+
+                hasNext = await enumerator.MoveNextAsync();
             }
-            while (hasNext);
         }
         finally
         {
-            await policy.ExecuteAsync(async () => await enumerator.DisposeAsync());
+            await enumerator.DisposeAsync();
+        }
+    }
+
+    private static async Task<(IAsyncEnumerator<T> Enumerator, bool HasFirstResult)> StartEnumerationAsync<T>(IAsyncEnumerable<T> source, CancellationToken cancellationToken)
+    {
+        var enumerator = source.GetAsyncEnumerator(cancellationToken);
+
+        try
+        {
+            return (enumerator, await enumerator.MoveNextAsync());
+        }
+        catch
+        {
+            // a failed attempt must release its resources before another attempt starts
+            await enumerator.DisposeAsync();
+            throw;
         }
     }
 
