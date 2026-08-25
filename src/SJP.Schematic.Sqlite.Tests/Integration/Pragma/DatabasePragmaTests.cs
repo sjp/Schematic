@@ -21,13 +21,13 @@ internal sealed class DatabasePragmaTests : SqliteTest
 
     private static ISqliteConnectionPragma CreateConnectionPragma(IDbConnectionFactory connectionFactory)
     {
-        var conn = new SchematicConnection(Guid.NewGuid(), connectionFactory, new SqliteDialect());
+        var conn = new SchematicConnection(connectionFactory, new SqliteDialect());
         return new ConnectionPragma(conn);
     }
 
     private static ISqliteDatabasePragma CreateDatabasePragma(IDbConnectionFactory connectionFactory, string schemaName)
     {
-        var conn = new SchematicConnection(Guid.NewGuid(), connectionFactory, new SqliteDialect());
+        var conn = new SchematicConnection(connectionFactory, new SqliteDialect());
         return new DatabasePragma(conn, schemaName);
     }
 

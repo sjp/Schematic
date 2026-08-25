@@ -141,8 +141,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 return DbConnection.QueryEnumerableAsync<GetAllTableNames.Result>(sql, cancellationToken)
                     .Where(static result => !IsReservedTableName(result.TableName))
                     .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.TableName))
-                    .ToListAsync(cancellationToken)
-                    .AsTask();
+                    .ToListAsync(cancellationToken);
             })
             .ToArray()
             .WhenAll();

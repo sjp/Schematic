@@ -23,7 +23,7 @@ internal sealed class ConnectionPragmaTests : SqliteTest
 
     private static ISqliteConnectionPragma CreateConnectionPragma(IDbConnectionFactory connectionFactory)
     {
-        var conn = new SchematicConnection(Guid.NewGuid(), connectionFactory, new SqliteDialect());
+        var conn = new SchematicConnection(connectionFactory, new SqliteDialect());
         return new ConnectionPragma(conn);
     }
 

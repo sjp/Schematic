@@ -136,8 +136,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
                 return DbConnection.QueryEnumerableAsync<GetAllViewNames.Result>(sql, cancellationToken)
                     .Where(static result => !IsReservedViewName(result.ViewName))
                     .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.ViewName))
-                    .ToListAsync(cancellationToken)
-                    .AsTask();
+                    .ToListAsync(cancellationToken);
             })
             .ToArray()
             .WhenAll();

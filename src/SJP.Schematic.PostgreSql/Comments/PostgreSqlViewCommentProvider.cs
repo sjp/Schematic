@@ -54,8 +54,8 @@ public class PostgreSqlViewCommentProvider : IDatabaseViewCommentProvider
     public async IAsyncEnumerable<IDatabaseViewComments> EnumerateAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var (queryViews, materializedViews) = await (
-            QueryViewCommentProvider.EnumerateAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask(),
-            MaterializedViewCommentProvider.EnumerateAllViewComments(cancellationToken).ToListAsync(cancellationToken).AsTask()
+            QueryViewCommentProvider.EnumerateAllViewComments(cancellationToken).ToListAsync(cancellationToken),
+            MaterializedViewCommentProvider.EnumerateAllViewComments(cancellationToken).ToListAsync(cancellationToken)
         ).WhenAll();
 
         var viewComments = queryViews
