@@ -108,8 +108,11 @@ public class RelationalDatabase : IRelationalDatabase
     {
         ArgumentNullException.ThrowIfNull(objectName);
 
+        var server = objectName.Server ?? IdentifierDefaults.Server;
+        var database = objectName.Database ?? IdentifierDefaults.Database;
         var schema = objectName.Schema ?? IdentifierDefaults.Schema;
-        return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, objectName.LocalName);
+
+        return Identifier.CreateQualifiedIdentifier(server, database, schema, objectName.LocalName);
     }
 
     /// <summary>

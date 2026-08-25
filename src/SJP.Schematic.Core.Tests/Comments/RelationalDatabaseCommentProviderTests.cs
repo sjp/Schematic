@@ -871,4 +871,72 @@ internal static class RelationalDatabaseCommentProviderTests
 
         Assert.That(dbRoutine, OptionIs.None);
     }
+    [Test]
+    public static async Task GetTableComments_WhenGivenTableNameQualifiedByDefaultDatabase_ReturnsTableCommentFromCtor()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+
+        var testTableName = Identifier.CreateQualifiedIdentifier("test_table_name");
+        var tableComment = new Mock<IRelationalDatabaseTableComments>(MockBehavior.Strict);
+        tableComment.Setup(t => t.TableName).Returns(testTableName);
+        var tableComments = new[] { tableComment.Object };
+
+        var viewComments = Array.Empty<IDatabaseViewComments>();
+        var sequenceComments = Array.Empty<IDatabaseSequenceComments>();
+        var synonymComments = Array.Empty<IDatabaseSynonymComments>();
+        var routineComments = Array.Empty<IDatabaseRoutineComments>();
+
+        var commentProvider = new RelationalDatabaseCommentProvider(
+            identifierDefaults,
+            identifierResolver,
+            tableComments,
+            viewComments,
+            sequenceComments,
+            synonymComments,
+            routineComments
+        );
+
+        var qualifiedTableName = Identifier.CreateQualifiedIdentifier("test_database", "test_schema", "test_table_name");
+        var dbTableComments = await commentProvider.GetTableComments(qualifiedTableName).ToOption();
+        var tableName = dbTableComments.Match(t => t.TableName.LocalName, string.Empty);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(dbTableComments, OptionIs.Some);
+            Assert.That(tableName, Is.EqualTo(testTableName.LocalName));
+        }
+    }
+
+    [Test]
+    public static async Task GetTableComments_WhenGivenTableNameQualifiedByDifferentDatabase_ReturnsNone()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+
+        var testTableName = Identifier.CreateQualifiedIdentifier("test_table_name");
+        var tableComment = new Mock<IRelationalDatabaseTableComments>(MockBehavior.Strict);
+        tableComment.Setup(t => t.TableName).Returns(testTableName);
+        var tableComments = new[] { tableComment.Object };
+
+        var viewComments = Array.Empty<IDatabaseViewComments>();
+        var sequenceComments = Array.Empty<IDatabaseSequenceComments>();
+        var synonymComments = Array.Empty<IDatabaseSynonymComments>();
+        var routineComments = Array.Empty<IDatabaseRoutineComments>();
+
+        var commentProvider = new RelationalDatabaseCommentProvider(
+            identifierDefaults,
+            identifierResolver,
+            tableComments,
+            viewComments,
+            sequenceComments,
+            synonymComments,
+            routineComments
+        );
+
+        var otherDatabaseTableName = Identifier.CreateQualifiedIdentifier("other_database", "test_schema", "test_table_name");
+        var dbTableComments = await commentProvider.GetTableComments(otherDatabaseTableName).ToOption();
+
+        Assert.That(dbTableComments, OptionIs.None);
+    }
 }

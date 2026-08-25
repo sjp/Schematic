@@ -911,6 +911,107 @@ internal static class RelationalDatabaseTests
         });
     }
 
+    [Test]
+    public static async Task GetTable_WhenGivenTableNameQualifiedByDefaultDatabase_ReturnsTableFromCtor()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+
+        var testTableName = Identifier.CreateQualifiedIdentifier("test_table_name");
+        var table = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
+        table.Setup(t => t.Name).Returns(testTableName);
+        var tables = new[] { table.Object };
+
+        var views = Array.Empty<IDatabaseView>();
+        var sequences = Array.Empty<IDatabaseSequence>();
+        var synonyms = Array.Empty<IDatabaseSynonym>();
+        var routines = Array.Empty<IDatabaseRoutine>();
+
+        var database = new RelationalDatabase(
+            identifierDefaults,
+            identifierResolver,
+            tables,
+            views,
+            sequences,
+            synonyms,
+            routines
+        );
+
+        var qualifiedTableName = Identifier.CreateQualifiedIdentifier("test_database", "test_schema", "test_table_name");
+        var dbTable = await database.GetTable(qualifiedTableName).ToOption();
+        var tableName = dbTable.Match(t => t.Name.LocalName, string.Empty);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(dbTable, OptionIs.Some);
+            Assert.That(tableName, Is.EqualTo(testTableName.LocalName));
+        }
+    }
+
+    [Test]
+    public static async Task GetTable_WhenGivenTableNameQualifiedByDifferentDatabase_ReturnsNone()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+
+        var testTableName = Identifier.CreateQualifiedIdentifier("test_table_name");
+        var table = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
+        table.Setup(t => t.Name).Returns(testTableName);
+        var tables = new[] { table.Object };
+
+        var views = Array.Empty<IDatabaseView>();
+        var sequences = Array.Empty<IDatabaseSequence>();
+        var synonyms = Array.Empty<IDatabaseSynonym>();
+        var routines = Array.Empty<IDatabaseRoutine>();
+
+        var database = new RelationalDatabase(
+            identifierDefaults,
+            identifierResolver,
+            tables,
+            views,
+            sequences,
+            synonyms,
+            routines
+        );
+
+        var otherDatabaseTableName = Identifier.CreateQualifiedIdentifier("other_database", "test_schema", "test_table_name");
+        var dbTable = await database.GetTable(otherDatabaseTableName).ToOption();
+
+        Assert.That(dbTable, OptionIs.None);
+    }
+
+    [Test]
+    public static async Task GetTable_WhenGivenTableNameQualifiedByDifferentServer_ReturnsNone()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+
+        var testTableName = Identifier.CreateQualifiedIdentifier("test_table_name");
+        var table = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
+        table.Setup(t => t.Name).Returns(testTableName);
+        var tables = new[] { table.Object };
+
+        var views = Array.Empty<IDatabaseView>();
+        var sequences = Array.Empty<IDatabaseSequence>();
+        var synonyms = Array.Empty<IDatabaseSynonym>();
+        var routines = Array.Empty<IDatabaseRoutine>();
+
+        var database = new RelationalDatabase(
+            identifierDefaults,
+            identifierResolver,
+            tables,
+            views,
+            sequences,
+            synonyms,
+            routines
+        );
+
+        var otherServerTableName = Identifier.CreateQualifiedIdentifier("other_server", "test_database", "test_schema", "test_table_name");
+        var dbTable = await database.GetTable(otherServerTableName).ToOption();
+
+        Assert.That(dbTable, OptionIs.None);
+    }
+
     private sealed class EnumerationCountingCollection<T> : IReadOnlyCollection<T>
     {
         private readonly IReadOnlyCollection<T> _collection;
