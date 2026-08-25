@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <Description>Core library for generating data access projects in .NET</Description>
+    <PackageTags>$(PackageTags);orm;codegen</PackageTags>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>

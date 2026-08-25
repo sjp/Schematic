@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <Description>SQLite database metadata provider for Schematic</Description>
+    <PackageTags>$(PackageTags);sqlite</PackageTags>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>

@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <Description>Oracle database metadata provider for Schematic</Description>
+    <PackageTags>$(PackageTags);oracle</PackageTags>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>

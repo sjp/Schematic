@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <Description>Library for detecting and reporting potential database issues</Description>
+    <PackageTags>$(PackageTags);lint;analysis;rules</PackageTags>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>

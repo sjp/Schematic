@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <Description>PostgreSQL database metadata provider for Schematic</Description>
+    <PackageTags>$(PackageTags);postgresql;postgres;npgsql</PackageTags>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>

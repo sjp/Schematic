@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <Description>Generate DBML files for use with dbdiagram.io</Description>
+    <PackageTags>$(PackageTags);dbml;dbdiagram;erd;diagram</PackageTags>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>

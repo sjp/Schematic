@@ -8,6 +8,7 @@
         <TreatSpecificWarningsAsErrors />
         <Features>strict</Features>
         <AnalysisLevel>latest</AnalysisLevel>
+        <VersionPrefix>0.1.0</VersionPrefix>
         <Copyright>Copyright © Simon Potter 2026</Copyright>
         <RepositoryUrl>https://github.com/sjp/Schematic.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
@@ -17,6 +18,14 @@
         <Company></Company>
         <Product />
         <PackageProjectUrl>https://github.com/sjp/Schematic</PackageProjectUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageTags>database;schema;sql;metadata</PackageTags>
+        <!-- Compares each pack against the previously shipped surface so an accidental API break
+             fails the build. Add PackageValidationBaselineVersion once a version has been
+             published; until then this only validates the package's internal consistency. -->
+        <EnablePackageValidation>true</EnablePackageValidation>
+        <!-- IsTrimmable/IsAotCompatible are deliberately unset; the dependency graph relies on
+             reflection throughout. See the packaging section of CONTRIBUTING.md. -->
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -32,6 +41,10 @@
         <DebugType>full</DebugType>
         <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="$(RootDirectory)/README.md" Pack="true" PackagePath="/" Visible="false" />
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>

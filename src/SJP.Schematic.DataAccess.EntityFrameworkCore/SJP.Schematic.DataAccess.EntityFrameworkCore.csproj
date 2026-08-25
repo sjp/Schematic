@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <Description>Library for generating EF Core data access projects</Description>
+    <PackageTags>$(PackageTags);orm;codegen;entity-framework;efcore</PackageTags>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>

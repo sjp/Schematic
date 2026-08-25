@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <Description>MySQL database metadata provider for Schematic</Description>
+    <PackageTags>$(PackageTags);mysql;mariadb</PackageTags>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>

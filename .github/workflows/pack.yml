@@ -60,5 +60,5 @@ jobs:
       working-directory: src
 
     - name: Pack
-      run: dotnet pack --configuration Release --no-restore
+      run: dotnet pack --configuration Release --no-restore -p:ContinuousIntegrationBuild=true
       working-directory: src

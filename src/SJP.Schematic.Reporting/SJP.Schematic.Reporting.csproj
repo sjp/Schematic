@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <Description>A reporting engine for Schematic. Generates schema reports for databases.</Description>
+    <PackageTags>$(PackageTags);report;documentation;erd;diagram</PackageTags>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <Nullable>enable</Nullable>
     <!-- Emit a manifest of embedded resources so AssetExporter can read the embedded Vite build

@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <AssemblyName>schematic</AssemblyName>
     <Description>Tool for accessing and running Schematic functionality</Description>
+    <PackageTags>$(PackageTags);cli;dotnet-tool;codegen;lint;report</PackageTags>
     <IsPackable>true</IsPackable>
     <PackAsTool>true</PackAsTool>
     <PackageId>dotnet-schematic</PackageId>
