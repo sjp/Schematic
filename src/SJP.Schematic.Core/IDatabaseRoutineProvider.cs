@@ -26,7 +26,7 @@ public interface IDatabaseRoutineProvider
     IAsyncEnumerable<IDatabaseRoutine> EnumerateAllRoutines(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets all database routines.
+    /// Gets all database routines, in parallel if possible.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database routines.</returns>

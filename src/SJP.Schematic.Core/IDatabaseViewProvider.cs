@@ -26,7 +26,7 @@ public interface IDatabaseViewProvider
     IAsyncEnumerable<IDatabaseView> EnumerateAllViews(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets all database views.
+    /// Gets all database views, in parallel if possible.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database views.</returns>

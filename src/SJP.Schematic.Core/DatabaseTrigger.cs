@@ -21,8 +21,8 @@ public class DatabaseTrigger : IDatabaseTrigger
     /// <param name="queryTiming">The query timing.</param>
     /// <param name="events">The events.</param>
     /// <param name="isEnabled">if set to <see langword="true" /> [is enabled].</param>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />, or <paramref name="definition"/> is <c>null, empty, or whitespace</c>.</exception>
-    /// <exception cref="ArgumentException">If invalid enum values are provided for <paramref name="queryTiming"/> or <paramref name="events"/>. Additionally this will be thrown when provided a <paramref name="events"/> value of <see cref="TriggerEvent.None"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="definition"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="definition"/> is empty or whitespace. Also thrown when invalid enum values are provided for <paramref name="queryTiming"/> or <paramref name="events"/>, or when provided a <paramref name="events"/> value of <see cref="TriggerEvent.None"/>.</exception>
     public DatabaseTrigger(Identifier name, string definition, TriggerQueryTiming queryTiming, TriggerEvent events, bool isEnabled)
     {
         ArgumentNullException.ThrowIfNull(name);

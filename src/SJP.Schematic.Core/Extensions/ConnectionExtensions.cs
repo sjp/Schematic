@@ -26,7 +26,8 @@ public static class ConnectionExtensions
     /// <param name="sql">The SQL to query with.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of query results from the database.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <see langword="null" /> or <paramref name="sql"/> is <see langword="null" />, empty, or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> or <paramref name="sql"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="sql"/> is empty or whitespace.</exception>
     public static Task<IEnumerable<T>> QueryAsync<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
         where T : notnull
     {
@@ -52,7 +53,8 @@ public static class ConnectionExtensions
     /// <param name="parameters">Parameters for the associated SQL query.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of query results from the database.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <see langword="null" />, <paramref name="parameters"/> is <see langword="null" />, or <paramref name="sql"/> is <see langword="null" />, empty, or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/>, <paramref name="sql"/> or <paramref name="parameters"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="sql"/> is empty or whitespace.</exception>
     public static Task<IEnumerable<T>> QueryAsync<T>(this IDbConnectionFactory connectionFactory, string sql, ISqlQuery<T> parameters, CancellationToken cancellationToken)
         where T : notnull
     {
@@ -79,7 +81,8 @@ public static class ConnectionExtensions
     /// <param name="sql">The SQL to query with.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of query results from the database.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <see langword="null" /> or <paramref name="sql"/> is <see langword="null" />, empty, or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> or <paramref name="sql"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="sql"/> is empty or whitespace.</exception>
     /// <remarks>Results are streamed as they are read from the database. Only the initial execution of the query is retried; once results have been provided, any error is propagated to the caller.</remarks>
     public static IAsyncEnumerable<T> QueryEnumerableAsync<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
         where T : notnull
@@ -104,7 +107,8 @@ public static class ConnectionExtensions
     /// <param name="parameters">Parameters for the associated SQL query.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of query results from the database.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <see langword="null" />, <paramref name="parameters"/> is <see langword="null" />, or <paramref name="sql"/> is <see langword="null" />, empty, or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/>, <paramref name="sql"/> or <paramref name="parameters"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="sql"/> is empty or whitespace.</exception>
     /// <remarks>Results are streamed as they are read from the database. Only the initial execution of the query is retried; once results have been provided, any error is propagated to the caller.</remarks>
     public static IAsyncEnumerable<T> QueryEnumerableAsync<T>(this IDbConnectionFactory connectionFactory, string sql, ISqlQuery<T> parameters, CancellationToken cancellationToken)
         where T : notnull
@@ -130,9 +134,11 @@ public static class ConnectionExtensions
     /// <param name="sql">The SQL to query with.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A single scalar value.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <see langword="null" />, or <paramref name="sql"/> is <see langword="null" />, empty, or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> or <paramref name="sql"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="sql"/> is empty or whitespace.</exception>
     /// <remarks>If the results contain more than one column or row, the value of the first column of the first row is taken.</remarks>
     public static Task<T?> ExecuteScalarAsync<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
+        where T : notnull
     {
         ArgumentNullException.ThrowIfNull(connectionFactory);
         ArgumentException.ThrowIfNullOrWhiteSpace(sql);
@@ -156,7 +162,8 @@ public static class ConnectionExtensions
     /// <param name="parameters">Parameters for the associated SQL query.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A single scalar value.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <see langword="null" />, <paramref name="parameters"/> is <see langword="null" />, or <paramref name="sql"/> is <see langword="null" />, empty, or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/>, <paramref name="sql"/> or <paramref name="parameters"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="sql"/> is empty or whitespace.</exception>
     /// <remarks>If the results contain more than one column or row, the value of the first column of the first row is taken.</remarks>
     public static Task<TResult?> ExecuteScalarAsync<TResult>(this IDbConnectionFactory connectionFactory, string sql, ISqlQuery<TResult> parameters, CancellationToken cancellationToken)
         where TResult : notnull
@@ -183,7 +190,8 @@ public static class ConnectionExtensions
     /// <param name="sql">The SQL to query with.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task containing the number of rows affected by the given query.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <see langword="null" />, or <paramref name="sql"/> is <see langword="null" />, empty, or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> or <paramref name="sql"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="sql"/> is empty or whitespace.</exception>
     public static Task<int> ExecuteAsync(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(connectionFactory);
@@ -207,7 +215,8 @@ public static class ConnectionExtensions
     /// <param name="parameters">Parameters for the associated SQL query.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task containing the number of rows affected by the given query.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <see langword="null" />, <paramref name="parameters"/> is <see langword="null" />, or <paramref name="sql"/> is <see langword="null" />, empty, or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/>, <paramref name="sql"/> or <paramref name="parameters"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="sql"/> is empty or whitespace.</exception>
     public static Task<int> ExecuteAsync(this IDbConnectionFactory connectionFactory, string sql, object parameters, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(connectionFactory);
@@ -232,7 +241,8 @@ public static class ConnectionExtensions
     /// <param name="sql">The SQL to query with.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A single scalar value if one is available, otherwise none.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <see langword="null" />, or <paramref name="sql"/> is <see langword="null" />, empty, or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> or <paramref name="sql"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="sql"/> is empty or whitespace.</exception>
     /// <remarks>If the results contain more than one column or row, the value of the first column of the first row is taken. If there are no results, no results are provided.</remarks>
     public static OptionAsync<T> QueryFirstOrNone<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
         where T : notnull
@@ -264,7 +274,8 @@ public static class ConnectionExtensions
     /// <param name="parameters">Parameters for the associated SQL query.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A single scalar value if one is available, otherwise none.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <see langword="null" />, <paramref name="parameters"/> is <see langword="null" />, or <paramref name="sql"/> is <see langword="null" />, empty, or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/>, <paramref name="sql"/> or <paramref name="parameters"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="sql"/> is empty or whitespace.</exception>
     /// <remarks>If the results contain more than one column or row, the value of the first column of the first row is taken. If there are no results, no results are provided.</remarks>
     public static OptionAsync<TResult> QueryFirstOrNone<TResult>(this IDbConnectionFactory connectionFactory, string sql, ISqlQuery<TResult> parameters, CancellationToken cancellationToken)
         where TResult : notnull
@@ -296,7 +307,8 @@ public static class ConnectionExtensions
     /// <param name="sql">The SQL to query with.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task containing a single row of data.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <see langword="null" />, or <paramref name="sql"/> is <see langword="null" />, empty, or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> or <paramref name="sql"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="sql"/> is empty or whitespace.</exception>
     public static Task<T> QuerySingleAsync<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
         where T : notnull
     {
@@ -323,7 +335,8 @@ public static class ConnectionExtensions
     /// <param name="parameters">Parameters for the associated SQL query.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A single row of data.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <see langword="null" />, <paramref name="parameters"/> is <see langword="null" />, or <paramref name="sql"/> is <see langword="null" />, empty, or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/>, <paramref name="sql"/> or <paramref name="parameters"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="sql"/> is empty or whitespace.</exception>
     public static Task<TResult> QuerySingleAsync<TResult>(this IDbConnectionFactory connectionFactory, string sql, ISqlQuery<TResult> parameters, CancellationToken cancellationToken)
         where TResult : notnull
     {
@@ -350,7 +363,8 @@ public static class ConnectionExtensions
     /// <param name="sql">The SQL to query with.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task containing single row of data if only one row is returned, otherwise none.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <see langword="null" />, or <paramref name="sql"/> is <see langword="null" />, empty, or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> or <paramref name="sql"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="sql"/> is empty or whitespace.</exception>
     public static OptionAsync<T> QuerySingleOrNone<T>(this IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
         where T : notnull
     {
@@ -377,7 +391,8 @@ public static class ConnectionExtensions
     /// <param name="parameters">Parameters for the associated SQL query.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task containing single row of data if only one row is returned, otherwise none.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/> is <see langword="null" />, <paramref name="parameters"/> is <see langword="null" />, or <paramref name="sql"/> is <see langword="null" />, empty, or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionFactory"/>, <paramref name="sql"/> or <paramref name="parameters"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="sql"/> is empty or whitespace.</exception>
     public static OptionAsync<TResult> QuerySingleOrNone<TResult>(this IDbConnectionFactory connectionFactory, string sql, ISqlQuery<TResult> parameters, CancellationToken cancellationToken)
         where TResult : notnull
     {

@@ -26,7 +26,7 @@ public interface IDatabaseSynonymProvider
     IAsyncEnumerable<IDatabaseSynonym> EnumerateAllSynonyms(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets all database synonyms.
+    /// Gets all database synonyms, in parallel if possible.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database synonyms.</returns>

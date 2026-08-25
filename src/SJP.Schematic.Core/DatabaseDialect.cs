@@ -40,6 +40,7 @@ public abstract class DatabaseDialect : IDatabaseDialect
     /// <param name="identifier">An identifier.</param>
     /// <returns>A quoted identifier.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="identifier"/> is empty or whitespace.</exception>
     public virtual string QuoteIdentifier(string identifier)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(identifier);

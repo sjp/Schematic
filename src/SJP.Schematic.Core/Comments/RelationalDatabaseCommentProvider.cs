@@ -10,7 +10,7 @@ using SJP.Schematic.Core.Extensions;
 namespace SJP.Schematic.Core.Comments;
 
 /// <summary>
-/// A database object comment provider that always returns no results.
+/// A database object comment provider that serves comments from in-memory collections supplied on construction.
 /// </summary>
 /// <seealso cref="IRelationalDatabaseCommentProvider" />
 public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvider

@@ -21,8 +21,8 @@ public class DatabaseIndexColumn : IDatabaseIndexColumn
     /// <param name="expression">A textual expression defining the index column.</param>
     /// <param name="column">A column that the index column is dependent upon.</param>
     /// <param name="order">The index column ordering.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="column"/> is <see langword="null" />. Alternatively if <paramref name="expression"/> is <see langword="null" />, empty or whitespace.</exception>
-    /// <exception cref="ArgumentException"><paramref name="order"/> is an invalid enum.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="column"/> or <paramref name="expression"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="expression"/> is empty or whitespace, or <paramref name="order"/> is an invalid enum.</exception>
     public DatabaseIndexColumn(string expression, IDatabaseColumn column, IndexColumnOrder order)
         : this(expression, [column], order)
     {
@@ -34,8 +34,8 @@ public class DatabaseIndexColumn : IDatabaseIndexColumn
     /// <param name="expression">A textual expression defining the index column.</param>
     /// <param name="dependentColumns">Columns that the index column is dependent upon.</param>
     /// <param name="order">The index column ordering.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="dependentColumns"/> is <see langword="null" /> or contains <see langword="null" /> values. Alternatively if <paramref name="expression"/> is <see langword="null" />, empty or whitespace.</exception>
-    /// <exception cref="ArgumentException"><paramref name="dependentColumns"/> is empty, or <paramref name="order"/> is an invalid enum.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="dependentColumns"/> is <see langword="null" /> or contains <see langword="null" /> values, or <paramref name="expression"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="expression"/> is empty or whitespace, <paramref name="dependentColumns"/> is empty, or <paramref name="order"/> is an invalid enum.</exception>
     public DatabaseIndexColumn(string expression, IEnumerable<IDatabaseColumn> dependentColumns, IndexColumnOrder order)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(expression);

@@ -21,8 +21,8 @@ public class ColumnDataType : IDbType
     /// <param name="maxLength">The maximum length the column can store.</param>
     /// <param name="numericPrecision">The numeric precision.</param>
     /// <param name="collation">The collation.</param>
-    /// <exception cref="ArgumentException"><paramref name="dataType"/> is not a valid enum.</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <see langword="null" />, empty or whitespace. Alternatively if <paramref name="typeName"/> or <paramref name="clrType"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="typeName"/>, <paramref name="definition"/> or <paramref name="clrType"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="definition"/> is empty or whitespace, or <paramref name="dataType"/> is not a valid enum.</exception>
     public ColumnDataType(
         Identifier typeName,
         DataType dataType,

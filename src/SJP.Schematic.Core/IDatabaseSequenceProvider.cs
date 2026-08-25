@@ -26,7 +26,7 @@ public interface IDatabaseSequenceProvider
     IAsyncEnumerable<IDatabaseSequence> EnumerateAllSequences(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets all database sequences.
+    /// Gets all database sequences, in parallel if possible.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database sequences.</returns>

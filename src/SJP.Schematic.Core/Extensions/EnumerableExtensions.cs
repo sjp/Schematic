@@ -37,7 +37,6 @@ public static class EnumerableExtensions
     /// <typeparam name="T">The type of objects to enumerate.</typeparam>
     /// <param name="source">The source collection.</param>
     /// <returns><see langword="true" /> if the collection is <see langword="null" /> or has elements which are <see langword="null" />; otherwise <see langword="false" />.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null" />.</exception>
     public static bool NullOrAnyNull<T>(this IEnumerable<T> source) where T : notnull
         => source?.Any(static x => x == null) != false;
 

@@ -33,10 +33,10 @@ public class ColumnTypeMetadata
     public int MaxLength { get; set; }
 
     /// <summary>
-    /// Gets or sets the type of the color.
+    /// Gets or sets the CLR type that the column data type maps to.
     /// </summary>
     /// <value>
-    /// The type of the color.
+    /// The CLR type.
     /// </value>
     public Type? ClrType { get; set; }
 

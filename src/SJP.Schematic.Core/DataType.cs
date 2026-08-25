@@ -68,7 +68,7 @@ public enum DataType
     LargeBinary,
 
     /// <summary>
-    /// Type representing floating point types, such as <c>FLOAT</c> or <c>REAL</c>.
+    /// Type representing exact fixed-point types, such as <c>NUMERIC</c> or <c>DECIMAL</c>.
     /// </summary>
     Numeric,
 
