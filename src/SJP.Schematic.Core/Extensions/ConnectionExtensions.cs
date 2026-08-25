@@ -413,24 +413,13 @@ public static class ConnectionExtensions
     private static async Task<Option<T>> QuerySingleOrNoneAsyncCore<T>(IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
         where T : notnull
     {
-        try
-        {
-            var command = new CommandDefinition(sql, commandType: CommandType.Text, cancellationToken: cancellationToken);
+        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        await using var _ = connection.WithDispose(connectionFactory);
 
-            var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
-            await using var _ = connection.WithDispose(connectionFactory);
+        var retryPolicy = BuildRetryPolicy(connectionFactory);
+        var source = connection.QueryUnbufferedAsync<T>(sql, commandType: CommandType.Text).WithRetryPolicy(retryPolicy, cancellationToken);
 
-            var retryPolicy = BuildRetryPolicy(connectionFactory);
-            var result = await retryPolicy.ExecuteAsync(_ => connection.QuerySingleOrDefaultAsync<T>(command), cancellationToken);
-
-            return result != null
-                ? Option<T>.Some(result)
-                : Option<T>.None;
-        }
-        catch (InvalidOperationException) // for > 1 case
-        {
-            return Option<T>.None;
-        }
+        return await SingleOrNoneAsync(source, cancellationToken);
     }
 
     /// <summary>
@@ -456,24 +445,39 @@ public static class ConnectionExtensions
     private static async Task<Option<TResult>> QuerySingleOrNoneAsyncCore<TResult>(IDbConnectionFactory connectionFactory, string sql, ISqlQuery<TResult> parameters, CancellationToken cancellationToken)
         where TResult : notnull
     {
-        try
-        {
-            var command = new CommandDefinition(sql, parameters, commandType: CommandType.Text, cancellationToken: cancellationToken);
+        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        await using var _ = connection.WithDispose(connectionFactory);
 
-            var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
-            await using var _ = connection.WithDispose(connectionFactory);
+        var retryPolicy = BuildRetryPolicy(connectionFactory);
+        var source = connection.QueryUnbufferedAsync<TResult>(sql, parameters, commandType: CommandType.Text).WithRetryPolicy(retryPolicy, cancellationToken);
 
-            var retryPolicy = BuildRetryPolicy(connectionFactory);
-            var result = await retryPolicy.ExecuteAsync(_ => connection.QuerySingleOrDefaultAsync<TResult>(command), cancellationToken);
+        return await SingleOrNoneAsync(source, cancellationToken);
+    }
 
-            return result != null
-                ? Option<TResult>.Some(result)
-                : Option<TResult>.None;
-        }
-        catch (InvalidOperationException) // for > 1 case
-        {
-            return Option<TResult>.None;
-        }
+    /// <summary>
+    /// Returns the only element of a sequence, or a 'none' value when the sequence is empty or contains more than one element.
+    /// </summary>
+    /// <remarks>
+    /// At most two elements are read, so an unexpectedly large result set is detected without materialising all of it.
+    /// Any error raised while querying propagates instead of being conflated with an absent result.
+    /// </remarks>
+    private static async Task<Option<T>> SingleOrNoneAsync<T>(IAsyncEnumerable<T> source, CancellationToken cancellationToken)
+        where T : notnull
+    {
+        await using var enumerator = source.GetAsyncEnumerator(cancellationToken);
+
+        if (!await enumerator.MoveNextAsync())
+            return Option<T>.None;
+
+        var result = enumerator.Current;
+
+        // a second row means there is no single unambiguous result
+        if (await enumerator.MoveNextAsync())
+            return Option<T>.None;
+
+        return result != null
+            ? Option<T>.Some(result)
+            : Option<T>.None;
     }
 
     private static IAsyncPolicy BuildRetryPolicy(IDbConnectionFactory connectionFactory)

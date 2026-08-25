@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Data.Common;
 using System.Threading;
+using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Sqlite;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Core.Tests.Extensions;
 
@@ -308,6 +312,104 @@ internal static class ConnectionExtensionsTests
         var connection = Mock.Of<IDbConnectionFactory>();
 
         Assert.That(() => connection.QuerySingleOrNone<string>("test", null, CancellationToken.None), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static async Task QuerySingleOrNone_WithoutParamsGivenNoRows_ReturnsNone()
+    {
+        var connectionFactory = CreateInMemoryConnectionFactory();
+
+        var result = await connectionFactory.QuerySingleOrNone<string>("select 'test' as dummy where 1 = 0", CancellationToken.None).ToOption();
+
+        Assert.That(result, OptionIs.None);
+    }
+
+    [Test]
+    public static async Task QuerySingleOrNone_WithoutParamsGivenOneRow_ReturnsSomeContainingRow()
+    {
+        var connectionFactory = CreateInMemoryConnectionFactory();
+
+        var result = await connectionFactory.QuerySingleOrNone<string>("select 'test' as dummy", CancellationToken.None).ToOption();
+
+        Assert.That(result.UnwrapSome(), Is.EqualTo("test"));
+    }
+
+    [Test]
+    public static async Task QuerySingleOrNone_WithoutParamsGivenTwoRows_ReturnsNone()
+    {
+        var connectionFactory = CreateInMemoryConnectionFactory();
+
+        var result = await connectionFactory.QuerySingleOrNone<string>("select 'first' as dummy union all select 'second' as dummy", CancellationToken.None).ToOption();
+
+        Assert.That(result, OptionIs.None);
+    }
+
+    [Test]
+    public static void QuerySingleOrNone_WithoutParamsWhenConnectionFailsToOpen_PropagatesException()
+    {
+        var connectionFactory = CreateFailingConnectionFactory();
+
+        Assert.That(async () => await connectionFactory.QuerySingleOrNone<string>("select 'test' as dummy", CancellationToken.None).ToOption(), Throws.InvalidOperationException);
+    }
+
+    [Test]
+    public static void QuerySingleOrNone_WithoutParamsGivenInvalidSql_PropagatesException()
+    {
+        var connectionFactory = CreateInMemoryConnectionFactory();
+
+        Assert.That(async () => await connectionFactory.QuerySingleOrNone<string>("not valid sql", CancellationToken.None).ToOption(), Throws.InstanceOf<DbException>());
+    }
+
+    [Test]
+    public static async Task QuerySingleOrNone_WithParamsGivenNoRows_ReturnsNone()
+    {
+        var connectionFactory = CreateInMemoryConnectionFactory();
+        var param = new TestQuery { Test = "test" };
+
+        var result = await connectionFactory.QuerySingleOrNone("select @Test as dummy where 1 = 0", param, CancellationToken.None).ToOption();
+
+        Assert.That(result, OptionIs.None);
+    }
+
+    [Test]
+    public static async Task QuerySingleOrNone_WithParamsGivenOneRow_ReturnsSomeContainingRow()
+    {
+        var connectionFactory = CreateInMemoryConnectionFactory();
+        var param = new TestQuery { Test = "test" };
+
+        var result = await connectionFactory.QuerySingleOrNone("select @Test as dummy", param, CancellationToken.None).ToOption();
+
+        Assert.That(result.UnwrapSome(), Is.EqualTo("test"));
+    }
+
+    [Test]
+    public static async Task QuerySingleOrNone_WithParamsGivenTwoRows_ReturnsNone()
+    {
+        var connectionFactory = CreateInMemoryConnectionFactory();
+        var param = new TestQuery { Test = "test" };
+
+        var result = await connectionFactory.QuerySingleOrNone("select @Test as dummy union all select @Test || '2' as dummy", param, CancellationToken.None).ToOption();
+
+        Assert.That(result, OptionIs.None);
+    }
+
+    [Test]
+    public static void QuerySingleOrNone_WithParamsWhenConnectionFailsToOpen_PropagatesException()
+    {
+        var connectionFactory = CreateFailingConnectionFactory();
+        var param = new TestQuery { Test = "test" };
+
+        Assert.That(async () => await connectionFactory.QuerySingleOrNone("select @Test as dummy", param, CancellationToken.None).ToOption(), Throws.InvalidOperationException);
+    }
+
+    private static IDbConnectionFactory CreateInMemoryConnectionFactory() => new SqliteConnectionFactory("Data Source=:memory:");
+
+    private static IDbConnectionFactory CreateFailingConnectionFactory()
+    {
+        var factoryMock = new Mock<IDbConnectionFactory>(MockBehavior.Strict);
+        factoryMock.Setup(f => f.OpenConnectionAsync(It.IsAny<CancellationToken>())).ThrowsAsync(new InvalidOperationException("the connection is closed"));
+
+        return factoryMock.Object;
     }
 
     private sealed record TestQuery : ISqlQuery<string>
