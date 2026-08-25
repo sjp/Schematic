@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -13,6 +14,12 @@ namespace SJP.Schematic.Core;
 /// </summary>
 public class RelationalDatabase : IRelationalDatabase
 {
+    private readonly FrozenDictionary<Identifier, IRelationalDatabaseTable> _tablesByName;
+    private readonly FrozenDictionary<Identifier, IDatabaseView> _viewsByName;
+    private readonly FrozenDictionary<Identifier, IDatabaseSequence> _sequencesByName;
+    private readonly FrozenDictionary<Identifier, IDatabaseSynonym> _synonymsByName;
+    private readonly FrozenDictionary<Identifier, IDatabaseRoutine> _routinesByName;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="RelationalDatabase"/> class.
     /// </summary>
@@ -41,6 +48,12 @@ public class RelationalDatabase : IRelationalDatabase
         Sequences = sequences ?? throw new ArgumentNullException(nameof(sequences));
         Synonyms = synonyms ?? throw new ArgumentNullException(nameof(synonyms));
         Routines = routines ?? throw new ArgumentNullException(nameof(routines));
+
+        _tablesByName = BuildLookup(Tables);
+        _viewsByName = BuildLookup(Views);
+        _sequencesByName = BuildLookup(Sequences);
+        _synonymsByName = BuildLookup(Synonyms);
+        _routinesByName = BuildLookup(Routines);
     }
 
     /// <summary>
@@ -100,30 +113,40 @@ public class RelationalDatabase : IRelationalDatabase
     }
 
     /// <summary>
+    /// Builds a lookup of database objects, keyed by their qualified names.
+    /// </summary>
+    /// <typeparam name="T">The type of database object to index.</typeparam>
+    /// <param name="objects">Database objects.</param>
+    /// <returns>A lookup of database objects, keyed by qualified name.</returns>
+    private FrozenDictionary<Identifier, T> BuildLookup<T>(IReadOnlyCollection<T> objects) where T : IDatabaseEntity
+    {
+        var result = new Dictionary<Identifier, T>(objects.Count);
+
+        // when names collide the first object encountered takes precedence
+        foreach (var obj in objects)
+            result.TryAdd(QualifyObjectName(obj.Name), obj);
+
+        return result.ToFrozenDictionary();
+    }
+
+    /// <summary>
     /// Attempts to retrieve a database object.
     /// </summary>
     /// <typeparam name="T">The type of database object to retrieve.</typeparam>
-    /// <param name="objects">Database objects.</param>
+    /// <param name="objectsByName">Database objects, keyed by their qualified names.</param>
     /// <param name="objectName">The name of the database object to retrieve.</param>
     /// <returns>An option type with a database object, if available, otherwise an option type in the none state.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <see langword="null" />.</exception>
-    protected OptionAsync<T> GetResolvedObject<T>(IReadOnlyCollection<T> objects, Identifier objectName) where T : IDatabaseEntity
+    protected OptionAsync<T> GetResolvedObject<T>(IReadOnlyDictionary<Identifier, T> objectsByName, Identifier objectName) where T : IDatabaseEntity
     {
+        ArgumentNullException.ThrowIfNull(objectsByName);
         ArgumentNullException.ThrowIfNull(objectName);
 
-        var objectsByName = objects.ToLookup(o => QualifyObjectName(o.Name));
-        var resolvedNames = IdentifierResolver
+        return IdentifierResolver
             .GetResolutionOrder(objectName)
-            .Select(QualifyObjectName);
-
-        return resolvedNames
-            .Select(name =>
-            {
-                var obj = objectsByName[name].FirstOrDefault();
-                return obj != null
-                    ? Option<T>.Some(obj)
-                    : Option<T>.None;
-            })
+            .Select(name => objectsByName.TryGetValue(QualifyObjectName(name), out var obj)
+                ? Option<T>.Some(obj)
+                : Option<T>.None)
             .FirstSome()
             .ToAsync();
     }
@@ -153,7 +176,7 @@ public class RelationalDatabase : IRelationalDatabase
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
-        return GetResolvedObject(Tables, tableName);
+        return GetResolvedObject(_tablesByName, tableName);
     }
 
     /// <summary>
@@ -181,7 +204,7 @@ public class RelationalDatabase : IRelationalDatabase
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
-        return GetResolvedObject(Views, viewName);
+        return GetResolvedObject(_viewsByName, viewName);
     }
 
     /// <summary>
@@ -209,7 +232,7 @@ public class RelationalDatabase : IRelationalDatabase
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
 
-        return GetResolvedObject(Sequences, sequenceName);
+        return GetResolvedObject(_sequencesByName, sequenceName);
     }
 
     /// <summary>
@@ -237,7 +260,7 @@ public class RelationalDatabase : IRelationalDatabase
     {
         ArgumentNullException.ThrowIfNull(synonymName);
 
-        return GetResolvedObject(Synonyms, synonymName);
+        return GetResolvedObject(_synonymsByName, synonymName);
     }
 
     /// <summary>
@@ -265,6 +288,6 @@ public class RelationalDatabase : IRelationalDatabase
     {
         ArgumentNullException.ThrowIfNull(routineName);
 
-        return GetResolvedObject(Routines, routineName);
+        return GetResolvedObject(_routinesByName, routineName);
     }
 }

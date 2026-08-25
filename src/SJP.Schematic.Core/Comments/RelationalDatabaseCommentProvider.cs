@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -14,6 +15,12 @@ namespace SJP.Schematic.Core.Comments;
 /// <seealso cref="IRelationalDatabaseCommentProvider" />
 public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvider
 {
+    private readonly FrozenDictionary<Identifier, IRelationalDatabaseTableComments> _tableCommentsByName;
+    private readonly FrozenDictionary<Identifier, IDatabaseViewComments> _viewCommentsByName;
+    private readonly FrozenDictionary<Identifier, IDatabaseSequenceComments> _sequenceCommentsByName;
+    private readonly FrozenDictionary<Identifier, IDatabaseSynonymComments> _synonymCommentsByName;
+    private readonly FrozenDictionary<Identifier, IDatabaseRoutineComments> _routineCommentsByName;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="RelationalDatabaseCommentProvider"/> class.
     /// </summary>
@@ -41,6 +48,12 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
         SequenceComments = sequenceComments?.ToList() ?? throw new ArgumentNullException(nameof(sequenceComments));
         SynonymComments = synonymComments?.ToList() ?? throw new ArgumentNullException(nameof(synonymComments));
         RoutineComments = routineComments?.ToList() ?? throw new ArgumentNullException(nameof(routineComments));
+
+        _tableCommentsByName = BuildLookup(TableComments, static c => c.TableName);
+        _viewCommentsByName = BuildLookup(ViewComments, static c => c.ViewName);
+        _sequenceCommentsByName = BuildLookup(SequenceComments, static c => c.SequenceName);
+        _synonymCommentsByName = BuildLookup(SynonymComments, static c => c.SynonymName);
+        _routineCommentsByName = BuildLookup(RoutineComments, static c => c.RoutineName);
     }
 
     /// <summary>
@@ -161,20 +174,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     {
         ArgumentNullException.ThrowIfNull(routineName);
 
-        var routineNames = IdentifierResolver
-            .GetResolutionOrder(routineName)
-            .Select(QualifyObjectName);
-
-        return routineNames
-            .Select(name =>
-            {
-                var routineComments = RoutineComments.FirstOrDefault(o => QualifyObjectName(o.RoutineName) == name);
-                return routineComments != null
-                    ? Option<IDatabaseRoutineComments>.Some(routineComments)
-                    : Option<IDatabaseRoutineComments>.None;
-            })
-            .FirstSome()
-            .ToAsync();
+        return GetResolvedComments(_routineCommentsByName, routineName);
     }
 
     /// <summary>
@@ -188,20 +188,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
 
-        var sequenceNames = IdentifierResolver
-            .GetResolutionOrder(sequenceName)
-            .Select(QualifyObjectName);
-
-        return sequenceNames
-            .Select(name =>
-            {
-                var sequenceComments = SequenceComments.FirstOrDefault(o => QualifyObjectName(o.SequenceName) == name);
-                return sequenceComments != null
-                    ? Option<IDatabaseSequenceComments>.Some(sequenceComments)
-                    : Option<IDatabaseSequenceComments>.None;
-            })
-            .FirstSome()
-            .ToAsync();
+        return GetResolvedComments(_sequenceCommentsByName, sequenceName);
     }
 
     /// <summary>
@@ -215,20 +202,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     {
         ArgumentNullException.ThrowIfNull(synonymName);
 
-        var synonymNames = IdentifierResolver
-            .GetResolutionOrder(synonymName)
-            .Select(QualifyObjectName);
-
-        return synonymNames
-            .Select(name =>
-            {
-                var synonymComments = SynonymComments.FirstOrDefault(o => QualifyObjectName(o.SynonymName) == name);
-                return synonymComments != null
-                    ? Option<IDatabaseSynonymComments>.Some(synonymComments)
-                    : Option<IDatabaseSynonymComments>.None;
-            })
-            .FirstSome()
-            .ToAsync();
+        return GetResolvedComments(_synonymCommentsByName, synonymName);
     }
 
     /// <summary>
@@ -242,20 +216,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
-        var tableNames = IdentifierResolver
-            .GetResolutionOrder(tableName)
-            .Select(QualifyObjectName);
-
-        return tableNames
-            .Select(name =>
-            {
-                var tableComments = TableComments.FirstOrDefault(o => QualifyObjectName(o.TableName) == name);
-                return tableComments != null
-                    ? Option<IRelationalDatabaseTableComments>.Some(tableComments)
-                    : Option<IRelationalDatabaseTableComments>.None;
-            })
-            .FirstSome()
-            .ToAsync();
+        return GetResolvedComments(_tableCommentsByName, tableName);
     }
 
     /// <summary>
@@ -269,20 +230,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
-        var viewNames = IdentifierResolver
-            .GetResolutionOrder(viewName)
-            .Select(QualifyObjectName);
-
-        return viewNames
-            .Select(name =>
-            {
-                var viewComments = ViewComments.FirstOrDefault(o => QualifyObjectName(o.ViewName) == name);
-                return viewComments != null
-                    ? Option<IDatabaseViewComments>.Some(viewComments)
-                    : Option<IDatabaseViewComments>.None;
-            })
-            .FirstSome()
-            .ToAsync();
+        return GetResolvedComments(_viewCommentsByName, viewName);
     }
 
     /// <summary>
@@ -297,5 +245,41 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
 
         var schema = objectName.Schema ?? IdentifierDefaults.Schema;
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, objectName.LocalName);
+    }
+
+    /// <summary>
+    /// Builds a lookup of database object comments, keyed by their qualified names.
+    /// </summary>
+    /// <typeparam name="T">The type of comments to index.</typeparam>
+    /// <param name="comments">A collection of database object comments.</param>
+    /// <param name="nameSelector">Retrieves the name of the object that a set of comments describes.</param>
+    /// <returns>A lookup of database object comments, keyed by qualified name.</returns>
+    private FrozenDictionary<Identifier, T> BuildLookup<T>(IReadOnlyCollection<T> comments, Func<T, Identifier> nameSelector)
+    {
+        var result = new Dictionary<Identifier, T>(comments.Count);
+
+        // when names collide the first set of comments encountered takes precedence
+        foreach (var comment in comments)
+            result.TryAdd(QualifyObjectName(nameSelector(comment)), comment);
+
+        return result.ToFrozenDictionary();
+    }
+
+    /// <summary>
+    /// Attempts to retrieve comments for a database object.
+    /// </summary>
+    /// <typeparam name="T">The type of comments to retrieve.</typeparam>
+    /// <param name="commentsByName">Database object comments, keyed by their qualified names.</param>
+    /// <param name="objectName">The name of the database object whose comments should be retrieved.</param>
+    /// <returns>An option type with database object comments, if available, otherwise an option type in the none state.</returns>
+    private OptionAsync<T> GetResolvedComments<T>(FrozenDictionary<Identifier, T> commentsByName, Identifier objectName)
+    {
+        return IdentifierResolver
+            .GetResolutionOrder(objectName)
+            .Select(name => commentsByName.TryGetValue(QualifyObjectName(name), out var comments)
+                ? Option<T>.Some(comments)
+                : Option<T>.None)
+            .FirstSome()
+            .ToAsync();
     }
 }

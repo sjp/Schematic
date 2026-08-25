@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Moq;
@@ -869,5 +871,65 @@ internal static class RelationalDatabaseTests
         var dbRoutine = await database.GetRoutine("missing_routine_name").ToOption();
 
         Assert.That(dbRoutine, OptionIs.None);
+    }
+
+    [Test]
+    public static async Task GetTable_WhenInvokedRepeatedly_OnlyEnumeratesTablesFromCtorOnce()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+
+        var testTableName = Identifier.CreateQualifiedIdentifier("test_table_name");
+        var table = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
+        table.Setup(t => t.Name).Returns(testTableName);
+        var tables = new EnumerationCountingCollection<IRelationalDatabaseTable>([table.Object]);
+
+        var views = Array.Empty<IDatabaseView>();
+        var sequences = Array.Empty<IDatabaseSequence>();
+        var synonyms = Array.Empty<IDatabaseSynonym>();
+        var routines = Array.Empty<IDatabaseRoutine>();
+
+        var database = new RelationalDatabase(
+            identifierDefaults,
+            identifierResolver,
+            tables,
+            views,
+            sequences,
+            synonyms,
+            routines
+        );
+
+        var enumerationCountAfterCtor = tables.EnumerationCount;
+
+        _ = await database.GetTable(testTableName).ToOption();
+        _ = await database.GetTable("missing_table_name").ToOption();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(enumerationCountAfterCtor, Is.EqualTo(1));
+            Assert.That(tables.EnumerationCount, Is.EqualTo(enumerationCountAfterCtor));
+        });
+    }
+
+    private sealed class EnumerationCountingCollection<T> : IReadOnlyCollection<T>
+    {
+        private readonly IReadOnlyCollection<T> _collection;
+
+        public EnumerationCountingCollection(IReadOnlyCollection<T> collection)
+        {
+            _collection = collection;
+        }
+
+        public int EnumerationCount { get; private set; }
+
+        public int Count => _collection.Count;
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            EnumerationCount++;
+            return _collection.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
