@@ -32,10 +32,12 @@ internal static class CycleDetectorTests
 
         var mockChildKey = new Mock<IDatabaseKey>(MockBehavior.Strict);
         mockChildKey.Setup(c => c.KeyType).Returns(DatabaseKeyType.Foreign);
+        mockChildKey.Setup(c => c.Columns).Returns([]);
         var childKey = mockChildKey.Object;
 
         var mockParentKey = new Mock<IDatabaseKey>(MockBehavior.Strict);
         mockParentKey.Setup(p => p.KeyType).Returns(DatabaseKeyType.Primary);
+        mockParentKey.Setup(p => p.Columns).Returns([]);
         var parentKey = mockParentKey.Object;
 
         // create tables with no cycle where the path is a -> b -> c
@@ -90,10 +92,12 @@ internal static class CycleDetectorTests
 
         var mockChildKey = new Mock<IDatabaseKey>(MockBehavior.Strict);
         mockChildKey.Setup(c => c.KeyType).Returns(DatabaseKeyType.Foreign);
+        mockChildKey.Setup(c => c.Columns).Returns([]);
         var childKey = mockChildKey.Object;
 
         var mockParentKey = new Mock<IDatabaseKey>(MockBehavior.Strict);
         mockParentKey.Setup(p => p.KeyType).Returns(DatabaseKeyType.Primary);
+        mockParentKey.Setup(p => p.Columns).Returns([]);
         var parentKey = mockParentKey.Object;
 
         // create tables with no cycle where the path is a -> b -> c -> a

@@ -167,19 +167,32 @@ internal static class NoSurrogatePrimaryKeyRuleTests
             true
         );
 
+        var testParentKey1 = new DatabaseKey(
+            Option<Identifier>.Some("test_parent_key_1"),
+            DatabaseKeyType.Primary,
+            [testColumnA],
+            true
+        );
+        var testParentKey2 = new DatabaseKey(
+            Option<Identifier>.Some("test_parent_key_2"),
+            DatabaseKeyType.Primary,
+            [testColumnB],
+            true
+        );
+
         var relationalKey1 = new DatabaseRelationalKey(
             "test",
             testForeignKey1,
-            "test",
-            testPrimaryKey,
+            "test_parent_1",
+            testParentKey1,
             ReferentialAction.Cascade,
             ReferentialAction.Cascade
         );
         var relationalKey2 = new DatabaseRelationalKey(
             "test",
             testForeignKey2,
-            "test",
-            testPrimaryKey,
+            "test_parent_2",
+            testParentKey2,
             ReferentialAction.Cascade,
             ReferentialAction.Cascade
         );

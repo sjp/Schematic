@@ -93,10 +93,12 @@ internal static class DatabaseRelationalKeyTests
 
         var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
         childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
+        childKeyMock.Setup(k => k.Columns).Returns([]);
         var childKey = childKeyMock.Object;
 
         var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
         parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
+        parentKeyMock.Setup(k => k.Columns).Returns([]);
         var parentKey = parentKeyMock.Object;
 
         var relationalKey = new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
@@ -115,11 +117,13 @@ internal static class DatabaseRelationalKeyTests
 
         var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
         childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
+        childKeyMock.Setup(k => k.Columns).Returns([]);
         childKeyMock.Setup(k => k.Name).Returns(keyName);
         var childKey = childKeyMock.Object;
 
         var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
         parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
+        parentKeyMock.Setup(k => k.Columns).Returns([]);
         var parentKey = parentKeyMock.Object;
 
         var relationalKey = new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
@@ -141,10 +145,12 @@ internal static class DatabaseRelationalKeyTests
 
         var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
         childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
+        childKeyMock.Setup(k => k.Columns).Returns([]);
         var childKey = childKeyMock.Object;
 
         var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
         parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
+        parentKeyMock.Setup(k => k.Columns).Returns([]);
         var parentKey = parentKeyMock.Object;
 
         var relationalKey = new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
@@ -163,10 +169,12 @@ internal static class DatabaseRelationalKeyTests
 
         var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
         childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
+        childKeyMock.Setup(k => k.Columns).Returns([]);
         var childKey = childKeyMock.Object;
 
         var parentKey = new Mock<IDatabaseKey>(MockBehavior.Strict);
         parentKey.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
+        parentKey.Setup(k => k.Columns).Returns([]);
         parentKey.Setup(t => t.Name).Returns(keyName);
         var parentKeyArg = parentKey.Object;
 
@@ -189,10 +197,12 @@ internal static class DatabaseRelationalKeyTests
 
         var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
         childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
+        childKeyMock.Setup(k => k.Columns).Returns([]);
         var childKey = childKeyMock.Object;
 
         var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
         parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
+        parentKeyMock.Setup(k => k.Columns).Returns([]);
         var parentKey = parentKeyMock.Object;
 
         var relationalKey = new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
@@ -210,10 +220,12 @@ internal static class DatabaseRelationalKeyTests
 
         var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
         childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
+        childKeyMock.Setup(k => k.Columns).Returns([]);
         var childKey = childKeyMock.Object;
 
         var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
         parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
+        parentKeyMock.Setup(k => k.Columns).Returns([]);
         var parentKey = parentKeyMock.Object;
 
         var relationalKey = new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
@@ -253,6 +265,30 @@ internal static class DatabaseRelationalKeyTests
         Assert.That(() => new DatabaseRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction), Throws.ArgumentException);
     }
 
+    [Test]
+    public static void Ctor_GivenKeysWithDifferentColumnCounts_ThrowsArgumentException()
+    {
+        const string childTableName = "child_table";
+        const string parentTableName = "parent_table";
+        Identifier childKeyName = "test_child_key";
+        Identifier parentKeyName = "test_parent_key";
+
+        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
+        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
+        childKeyMock.Setup(k => k.Name).Returns(childKeyName);
+        childKeyMock.Setup(k => k.Columns).Returns([Mock.Of<IDatabaseColumn>(), Mock.Of<IDatabaseColumn>()]);
+
+        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
+        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
+        parentKeyMock.Setup(k => k.Name).Returns(parentKeyName);
+        parentKeyMock.Setup(k => k.Columns).Returns([Mock.Of<IDatabaseColumn>()]);
+
+        const ReferentialAction deleteAction = ReferentialAction.NoAction;
+        const ReferentialAction updateAction = ReferentialAction.NoAction;
+
+        Assert.That(() => new DatabaseRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction), Throws.ArgumentException);
+    }
+
     [TestCase(null, "test_table_1", null, null, "test_table_2", null, "Relational Key: test_table_1 -> test_table_2")]
     [TestCase("child_schema", "test_table_1", null, null, "test_table_2", null, "Relational Key: child_schema.test_table_1 -> test_table_2")]
     [TestCase(null, "test_table_1", null, "parent_schema", "test_table_2", null, "Relational Key: test_table_1 -> parent_schema.test_table_2")]
@@ -286,10 +322,12 @@ internal static class DatabaseRelationalKeyTests
         var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
         childKeyMock.Setup(k => k.Name).Returns(childKeyIdentifier);
         childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
+        childKeyMock.Setup(k => k.Columns).Returns([]);
 
         var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
         parentKeyMock.Setup(k => k.Name).Returns(parentKeyIdentifier);
         parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
+        parentKeyMock.Setup(k => k.Columns).Returns([]);
 
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.NoAction;

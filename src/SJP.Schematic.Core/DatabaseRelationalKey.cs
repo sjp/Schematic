@@ -27,6 +27,7 @@ public class DatabaseRelationalKey : IDatabaseRelationalKey
     /// <paramref name="updateAction"/> or <paramref name="deleteAction"/> will throw this exception if given an invalid enum value.
     /// Alternatively if the child key is not a foreign key this will also be thrown.
     /// Furthermore, if the parent key is not a unique or primary key, this will also be thrown.
+    /// Lastly, if the child and parent keys do not have the same number of columns, this will also be thrown.
     /// </exception>
     /// <exception cref="ArgumentNullException"><paramref name="parentTableName"/> or <paramref name="childTableName"/> or <paramref name="parentKey"/> or <paramref name="childKey"/> is <see langword="null" /></exception>
     public DatabaseRelationalKey(Identifier childTableName, IDatabaseKey childKey, Identifier parentTableName, IDatabaseKey parentKey, ReferentialAction deleteAction, ReferentialAction updateAction)
@@ -45,6 +46,14 @@ public class DatabaseRelationalKey : IDatabaseRelationalKey
             throw new ArgumentException($"The child key must be a foreign key, instead given a key of type '{childKey.KeyType}'.", nameof(childKey));
         if (ParentKey.KeyType != DatabaseKeyType.Primary && ParentKey.KeyType != DatabaseKeyType.Unique)
             throw new ArgumentException($"The parent key must be a primary or unique key, instead given a key of type '{parentKey.KeyType}'.", nameof(parentKey));
+
+        if (ChildKey.Columns.Count != ParentKey.Columns.Count)
+        {
+            var childKeyName = ChildKey.Name.Match(static name => " '" + name.LocalName + "'", static () => string.Empty);
+            var parentKeyName = ParentKey.Name.Match(static name => " '" + name.LocalName + "'", static () => string.Empty);
+
+            throw new ArgumentException($"The child and parent key column counts must match. The child key{childKeyName} has {ChildKey.Columns.Count} column(s), while the parent key{parentKeyName} has {ParentKey.Columns.Count} column(s).", nameof(childKey));
+        }
 
         DeleteAction = deleteAction;
         UpdateAction = updateAction;
