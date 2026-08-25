@@ -18,7 +18,8 @@ public class OracleDialect : DatabaseDialect
     /// </summary>
     /// <param name="identifier">An identifier.</param>
     /// <returns>A quoted identifier.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="identifier"/> is empty or whitespace.</exception>
     public override string QuoteIdentifier(string identifier)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(identifier);
@@ -61,7 +62,8 @@ public class OracleDialect : DatabaseDialect
     /// </summary>
     /// <param name="text">A piece of text.</param>
     /// <returns><see langword="true" /> if the given text is a reserved keyword; otherwise, <see langword="false" />.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="text"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="text"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="text"/> is empty or whitespace.</exception>
     public override bool IsReservedKeyword(string text)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(text);

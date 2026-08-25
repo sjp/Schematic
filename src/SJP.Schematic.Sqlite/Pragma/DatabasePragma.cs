@@ -22,7 +22,8 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// </summary>
     /// <param name="connection">A database connection.</param>
     /// <param name="schemaName">A schema  name.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />. If <paramref name="schemaName"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> or <paramref name="schemaName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="schemaName"/> is empty or whitespace.</exception>
     public DatabasePragma(ISchematicConnection connection, string schemaName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(schemaName);
@@ -368,7 +369,8 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// </summary>
     /// <param name="indexName">An index name.</param>
     /// <returns>A SQL query.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="indexName"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="indexName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="indexName"/> is empty or whitespace.</exception>
     protected string IndexInfoQuery(string indexName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(indexName);
@@ -415,7 +417,8 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <param name="indexName">An index name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>One element for each column in the named index, not just key columns.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="indexName"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="indexName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="indexName"/> is empty or whitespace.</exception>
     public Task<IEnumerable<pragma_index_xinfo>> IndexXInfoAsync(string indexName, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(indexName);
@@ -428,7 +431,8 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// </summary>
     /// <param name="indexName">An index name.</param>
     /// <returns>A SQL query.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="indexName"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="indexName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="indexName"/> is empty or whitespace.</exception>
     protected string IndexXInfoQuery(string indexName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(indexName);

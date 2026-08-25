@@ -1056,7 +1056,8 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// </summary>
     /// <param name="schema">A schema name.</param>
     /// <returns>A database pragma.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="schema"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="schema"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="schema"/> is empty or whitespace.</exception>
     protected ISqliteDatabasePragma GetDatabasePragma(string schema)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(schema);
@@ -1096,7 +1097,8 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// </summary>
     /// <param name="pragmaUpdateAction">An update action from SQLite.</param>
     /// <returns>A referential action.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="pragmaUpdateAction"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="pragmaUpdateAction"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="pragmaUpdateAction"/> is empty or whitespace.</exception>
     protected static ReferentialAction GetReferentialAction(string pragmaUpdateAction)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(pragmaUpdateAction);

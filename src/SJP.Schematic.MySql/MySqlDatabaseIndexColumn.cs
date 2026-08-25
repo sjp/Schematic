@@ -19,7 +19,8 @@ public class MySqlDatabaseIndexColumn : IDatabaseIndexColumn
     /// </summary>
     /// <param name="expression">An expression that represents the index column.</param>
     /// <param name="column">A database column the index is dependent on.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="column"/> is <see langword="null" />. Alternatively if <paramref name="expression"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="column"/> or <paramref name="expression"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="expression"/> is empty or whitespace.</exception>
     public MySqlDatabaseIndexColumn(string expression, IDatabaseColumn column)
     {
         ArgumentNullException.ThrowIfNull(column);

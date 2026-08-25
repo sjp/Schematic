@@ -214,7 +214,8 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
     /// </summary>
     /// <param name="identifier">An identifier component.</param>
     /// <returns>A quoted identifier component.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="identifier"/> is empty or whitespace.</exception>
     protected static string QuoteIdentifier(string identifier)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(identifier);

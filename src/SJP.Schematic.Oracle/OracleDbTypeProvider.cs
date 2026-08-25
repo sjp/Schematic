@@ -92,7 +92,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
     /// </summary>
     /// <param name="typeName">Name of the type.</param>
     /// <returns><see langword="true" /> if the type has a fixed length, otherwise <see langword="false" />.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
     protected static bool GetIsFixedLength(Identifier typeName)
     {
         ArgumentNullException.ThrowIfNull(typeName);
@@ -208,7 +208,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
     /// </summary>
     /// <param name="typeName">Name of the type.</param>
     /// <returns>A general data type class.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
     protected static DataType GetDataType(Identifier typeName)
     {
         ArgumentNullException.ThrowIfNull(typeName);
@@ -222,7 +222,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
     /// </summary>
     /// <param name="typeName">A type name.</param>
     /// <returns>A CLR type for the associated database type.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
     protected static Type GetClrType(Identifier typeName)
     {
         ArgumentNullException.ThrowIfNull(typeName);
@@ -236,7 +236,8 @@ public class OracleDbTypeProvider : IDbTypeProvider
     /// </summary>
     /// <param name="identifier">An identifier component.</param>
     /// <returns>A quoted identifier component.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="identifier"/> is empty or whitespace.</exception>
     protected static string QuoteIdentifier(string identifier)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(identifier);

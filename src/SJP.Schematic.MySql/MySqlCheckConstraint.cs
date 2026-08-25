@@ -20,7 +20,8 @@ public class MySqlCheckConstraint : IDatabaseCheckConstraint
     /// <param name="checkName">The name of the check constraint.</param>
     /// <param name="definition">The constraint definition.</param>
     /// <param name="isEnabled">Determines whether the check constraint is enabled.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="checkName"/> is <see langword="null" />. Alternatively if <paramref name="definition"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="checkName"/> or <paramref name="definition"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="definition"/> is empty or whitespace.</exception>
     public MySqlCheckConstraint(Identifier checkName, string definition, bool isEnabled)
     {
         ArgumentNullException.ThrowIfNull(checkName);

@@ -27,7 +27,8 @@ public class SqlServerConnectionFactory : IDbConnectionFactory
     /// from an <c>Azure.Identity</c> credential such as <c>DefaultAzureCredential</c>, or from an
     /// environment variable.
     /// </param>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionString"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionString"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="connectionString"/> is empty or whitespace.</exception>
     public SqlServerConnectionFactory(string connectionString, Action<SqlConnection>? connectionConfiguration = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);

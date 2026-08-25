@@ -21,7 +21,8 @@ public class OracleDatabasePackage : IOracleDatabasePackage
     /// <param name="name">The package name.</param>
     /// <param name="specification">The package specification.</param>
     /// <param name="body">The package body, if available.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" /> or <paramref name="specification"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="specification"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="specification"/> is empty or whitespace.</exception>
     public OracleDatabasePackage(Identifier name, string specification, Option<string> body)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(specification);

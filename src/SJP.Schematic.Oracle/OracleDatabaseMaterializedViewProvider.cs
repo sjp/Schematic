@@ -315,7 +315,8 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="columnName">A column name.</param>
     /// <returns>A <c>NOT NULL</c> constraint definition for the given column.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columnName"/> is empty or whitespace.</exception>
     protected static string GenerateNotNullDefinition(string columnName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(columnName);

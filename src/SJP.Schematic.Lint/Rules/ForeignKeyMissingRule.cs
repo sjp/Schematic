@@ -93,7 +93,8 @@ public class ForeignKeyMissingRule : Rule, ITableRule
     /// </summary>
     /// <param name="columnName">The name of the column that can imply a table name.</param>
     /// <returns>The implied table name if found, otherwise the value of <paramref name="columnName"/>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columnName"/> is empty or whitespace.</exception>
     protected static string GetImpliedTableName(string columnName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
@@ -116,7 +117,8 @@ public class ForeignKeyMissingRule : Rule, ITableRule
     /// <param name="tableName">The name of the table.</param>
     /// <param name="targetTableName">The implied target table.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="targetTableName"/> is <see langword="null" />. Also thrown when <paramref name="columnName"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/>, <paramref name="targetTableName"/> or <paramref name="columnName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columnName"/> is empty or whitespace.</exception>
     protected virtual IRuleMessage BuildMessage(string columnName, Identifier tableName, Identifier targetTableName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(columnName);

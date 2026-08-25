@@ -15,8 +15,8 @@ public abstract class Rule : IRule
     /// <param name="id">A unique identifier for the rule.</param>
     /// <param name="title">A descriptive title.</param>
     /// <param name="level">The reporting level.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="id"/> or <paramref name="title"/> is <see langword="null" />, empty or whitespace.</exception>
-    /// <exception cref="ArgumentException"><paramref name="level"/> is an invalid value.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="id"/> or <paramref name="title"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="id"/> or <paramref name="title"/> is empty or whitespace, or <paramref name="level"/> is an invalid value.</exception>
     protected Rule(string id, string title, RuleLevel level)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);

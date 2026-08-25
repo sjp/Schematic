@@ -27,7 +27,8 @@ public class EFCoreDbContextBuilder
     /// </summary>
     /// <param name="nameTranslator">A name translator.</param>
     /// <param name="baseNamespace">The base namespace.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="nameTranslator"/> is <see langword="null" />, or <paramref name="baseNamespace"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="nameTranslator"/> or <paramref name="baseNamespace"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="baseNamespace"/> is empty or whitespace.</exception>
     public EFCoreDbContextBuilder(INameTranslator nameTranslator, string baseNamespace)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(baseNamespace);

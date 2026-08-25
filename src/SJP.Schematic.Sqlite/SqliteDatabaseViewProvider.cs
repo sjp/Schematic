@@ -404,7 +404,8 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="schema">A schema name.</param>
     /// <returns>A database pragma.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="schema"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="schema"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="schema"/> is empty or whitespace.</exception>
     protected ISqliteDatabasePragma GetDatabasePragma(string schema)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(schema);

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Antlr4.Runtime;
 using SJP.Schematic.Core;
@@ -30,8 +30,8 @@ public sealed class MySqlDependencyProvider : IDependencyProvider
     /// <param name="objectName">The name of an object defined by an expression (e.g. a computed column definition).</param>
     /// <param name="expression">A SQL expression that may contain dependent object names.</param>
     /// <returns>A collection of identifiers found in the expression.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <see langword="null" />. Alternatively, if <paramref name="expression"/> is <see langword="null" />, empty or whitespace.</exception>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="expression"/> could not be tokenized as a valid SQL expression.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="objectName"/> or <paramref name="expression"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="expression"/> is empty or whitespace, or could not be tokenized as a valid SQL expression.</exception>
     /// <remarks>This will also return unqualified identifiers, which may cause ambiguity between object names and column names. Additionally it may return other identifiers, such as aliases or type names.</remarks>
     public IReadOnlyCollection<Identifier> GetDependencies(Identifier objectName, string expression)
     {

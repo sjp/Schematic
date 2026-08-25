@@ -24,7 +24,8 @@ public class PostgreSqlConnectionFactory : IDbConnectionFactory, IDisposable, IA
     /// Use this to authenticate via a mechanism other than the connection string, e.g. from an
     /// environment variable or an external credential provider.
     /// </param>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionString"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionString"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="connectionString"/> is empty or whitespace.</exception>
     public PostgreSqlConnectionFactory(string connectionString, Action<NpgsqlConnection>? connectionConfiguration = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);

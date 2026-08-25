@@ -24,7 +24,8 @@ public class SqliteConnectionFactory : IDbConnectionFactory
     /// Use this to configure the connection via a mechanism other than the connection string, e.g. from
     /// an environment variable or an external secret store.
     /// </param>
-    /// <exception cref="ArgumentNullException"><paramref name="connectionString"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionString"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="connectionString"/> is empty or whitespace.</exception>
     public SqliteConnectionFactory(string connectionString, Action<SqliteConnection>? connectionConfiguration = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);

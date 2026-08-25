@@ -74,7 +74,8 @@ public partial class ColumnWithNumericSuffix : Rule, ITableRule
     /// <param name="tableName">The name of the table.</param>
     /// <param name="columnName">The name of the column with a numeric suffix.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" /> or <paramref name="columnName"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="columnName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columnName"/> is empty or whitespace.</exception>
     protected virtual IRuleMessage BuildMessage(Identifier tableName, string columnName)
     {
         ArgumentNullException.ThrowIfNull(tableName);

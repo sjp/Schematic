@@ -24,7 +24,7 @@ public class SqliteDatabaseKey : IDatabaseKey
     /// <param name="name">The constraint name, if available.</param>
     /// <param name="keyType">Type of the key constraint.</param>
     /// <param name="columns">A collection of table columns.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="columns"/> is <see langword="null" />. Alternatively, if <paramref name="columns"/> is empty or has <see langword="null" /> values.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="columns"/> is <see langword="null" />, empty, or has <see langword="null" /> values.</exception>
     /// <exception cref="ArgumentException"><paramref name="keyType"/> is not a valid enum.</exception>
     public SqliteDatabaseKey(Option<Identifier> name, DatabaseKeyType keyType, IEnumerable<IDatabaseColumn> columns)
     {

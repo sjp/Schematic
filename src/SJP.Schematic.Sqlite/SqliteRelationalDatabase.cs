@@ -230,8 +230,8 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// <param name="schemaName">The name to assign for the attached database.</param>
     /// <param name="fileName">The path to a SQLite database.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-    /// <exception cref="ArgumentNullException">Thrown when either <paramref name="fileName"/> or <paramref name="schemaName"/> is null, empty or whitespace.</exception>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="schemaName"/> is <c>main</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="schemaName"/> or <paramref name="fileName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="schemaName"/> or <paramref name="fileName"/> is empty or whitespace, or <paramref name="schemaName"/> is <c>main</c>.</exception>
     /// <returns>A task that represents the asynchronous operation.</returns>
     public Task AttachDatabaseAsync(string schemaName, string fileName, CancellationToken cancellationToken = default)
     {
@@ -249,8 +249,8 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// </summary>
     /// <param name="schemaName">The name to assign for the attached database.</param>
     /// <param name="fileName">The path to a SQLite database.</param>
-    /// <exception cref="ArgumentNullException">Thrown when either <paramref name="fileName"/> or <paramref name="schemaName"/> is null, empty or whitespace.</exception>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="schemaName"/> is <c>main</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="schemaName"/> or <paramref name="fileName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="schemaName"/> or <paramref name="fileName"/> is empty or whitespace, or <paramref name="schemaName"/> is <c>main</c>.</exception>
     /// <returns>A SQL query that can be used to add a database file to the current connection.</returns>
     protected string AttachDatabaseQuery(string schemaName, string fileName)
     {
@@ -270,8 +270,8 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// </summary>
     /// <param name="schemaName">The name of an attached database.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="schemaName"/> is null, empty or whitespace.</exception>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="schemaName"/> is <c>main</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="schemaName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="schemaName"/> is empty or whitespace, or is <c>main</c>.</exception>
     /// <returns>A task that represents the asynchronous operation.</returns>
     public Task DetachDatabaseAsync(string schemaName, CancellationToken cancellationToken = default)
     {
@@ -287,8 +287,8 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// Constructs a SQL query that removes an attached database from the current database connection.
     /// </summary>
     /// <param name="schemaName">The name of an attached database.</param>
-    /// <exception cref="ArgumentNullException">Thrown when or <paramref name="schemaName"/> is null, empty or whitespace.</exception>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="schemaName"/> is <c>main</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="schemaName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="schemaName"/> is empty or whitespace, or is <c>main</c>.</exception>
     /// <returns>A SQL query that can be used to remove a database file from the current connection.</returns>
     protected string DetachDatabaseQuery(string schemaName)
     {
@@ -315,7 +315,8 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// </summary>
     /// <param name="schemaName">The name of an attached database.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-    /// <exception cref="ArgumentNullException">Thrown when or <paramref name="schemaName"/> is null, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="schemaName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="schemaName"/> is empty or whitespace.</exception>
     /// <returns>A task that represents the asynchronous operation.</returns>
     public Task VacuumAsync(string schemaName, CancellationToken cancellationToken = default)
     {
@@ -330,7 +331,8 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// </summary>
     /// <param name="filePath">A file path that will store the resulting vacuum'd database.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-    /// <exception cref="ArgumentNullException">Thrown when or <paramref name="filePath"/> is null, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="filePath"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="filePath"/> is empty or whitespace.</exception>
     /// <returns>A task that represents the asynchronous operation.</returns>
     public Task VacuumIntoAsync(string filePath, CancellationToken cancellationToken = default)
     {
@@ -346,7 +348,8 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// <param name="filePath">A file path that will store the resulting vacuum'd database.</param>
     /// <param name="schemaName">The name of an attached database.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-    /// <exception cref="ArgumentNullException">Thrown when or <paramref name="schemaName"/> is null, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="filePath"/> or <paramref name="schemaName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="filePath"/> or <paramref name="schemaName"/> is empty or whitespace.</exception>
     /// <returns>A task that represents the asynchronous operation.</returns>
     public Task VacuumIntoAsync(string filePath, string schemaName, CancellationToken cancellationToken = default)
     {
@@ -361,7 +364,8 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// Constructs a SQL query that rebuild and repack a database file.
     /// </summary>
     /// <param name="schemaName">The name of an attached database.</param>
-    /// <exception cref="ArgumentNullException">Thrown when or <paramref name="schemaName"/> is null, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="schemaName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="schemaName"/> is empty or whitespace.</exception>
     /// <returns>A SQL query that can be used to rebuild and repack a database file.</returns>
     protected string VacuumQuery(string schemaName)
     {
@@ -374,7 +378,8 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// Constructs a SQL query that rebuild and repack a database into a separate file.
     /// </summary>
     /// <param name="filePath">A file path that will store the resulting vacuum'd database.</param>
-    /// <exception cref="ArgumentNullException">Thrown when or <paramref name="filePath"/> is null, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="filePath"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="filePath"/> is empty or whitespace.</exception>
     /// <returns>A SQL query that can be used to rebuild and repack a database file.</returns>
     protected string VacuumIntoQuery(string filePath)
     {
@@ -388,7 +393,8 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// </summary>
     /// <param name="filePath">A file path that will store the resulting vacuum'd database.</param>
     /// <param name="schemaName">The name of an attached database.</param>
-    /// <exception cref="ArgumentNullException">Thrown when or <paramref name="schemaName"/> is null, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="schemaName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="schemaName"/> is empty or whitespace.</exception>
     /// <returns>A SQL query that can be used to rebuild and repack a database file.</returns>
     protected string VacuumIntoQuery(string filePath, string schemaName)
     {

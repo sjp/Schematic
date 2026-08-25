@@ -46,7 +46,8 @@ public abstract class NameTranslator : INameTranslator
     /// </summary>
     /// <param name="identifier">A string to test.</param>
     /// <returns><see langword="true" /> if <paramref name="identifier"/> is a valid identifier; otherwise, <see langword="false" />.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <see langword="null" />, empty or whitespace</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="identifier"/> is empty or whitespace.</exception>
     protected static bool IsValidIdentifier(string identifier)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(identifier);
@@ -73,7 +74,8 @@ public abstract class NameTranslator : INameTranslator
     /// </summary>
     /// <param name="objectName">An object name.</param>
     /// <returns>A valid identifier.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <see langword="null" />, empty or whitespace</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="objectName"/> is empty or whitespace.</exception>
     protected static string CreateValidIdentifier(string objectName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(objectName);
@@ -97,8 +99,8 @@ public abstract class NameTranslator : INameTranslator
     /// <param name="className">The name of the containing class.</param>
     /// <param name="columnName">The name of the column the property maps to.</param>
     /// <returns>A valid identifier.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="className"/> or <paramref name="columnName"/> are <see langword="null" />, empty or whitespace.
-    /// </exception>
+    /// <exception cref="ArgumentNullException"><paramref name="className"/> or <paramref name="columnName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="className"/> or <paramref name="columnName"/> is empty or whitespace.</exception>
     protected static string CreateValidIdentifier(string className, string columnName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(className);

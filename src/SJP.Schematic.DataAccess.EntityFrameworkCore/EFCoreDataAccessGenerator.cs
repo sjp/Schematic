@@ -69,8 +69,8 @@ public class EFCoreDataAccessGenerator : IDataAccessGenerator
     /// <param name="baseNamespace">The base C# namespace to use for generated files.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A task indicating the completion of the source code generation.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="projectPath"/> or <paramref name="baseNamespace"/> are <see langword="null" />, empty or whitespace.</exception>
-    /// <exception cref="ArgumentException">Thrown if <paramref name="projectPath"/> is not a path to a <c>csproj</c> file.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="projectPath"/> or <paramref name="baseNamespace"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="projectPath"/> or <paramref name="baseNamespace"/> is empty or whitespace, or <paramref name="projectPath"/> is not a path to a <c>csproj</c> file.</exception>
     public Task GenerateAsync(string projectPath, string baseNamespace, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(projectPath);

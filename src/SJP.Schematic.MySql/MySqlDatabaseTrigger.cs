@@ -22,8 +22,8 @@ public class MySqlDatabaseTrigger : IDatabaseTrigger
     /// <param name="definition">The definition of the trigger.</param>
     /// <param name="queryTiming">A trigger query timing.</param>
     /// <param name="events">Table events that cause the trigger to fire.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />. Alternatively if <paramref name="definition"/> is <see langword="null" />, empty or whitespace.</exception>
-    /// <exception cref="ArgumentException"><paramref name="queryTiming"/> or <paramref name="events"/> is an invalid enum or has invalid values.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="definition"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="definition"/> is empty or whitespace, or <paramref name="queryTiming"/> or <paramref name="events"/> is an invalid enum or has invalid values.</exception>
     public MySqlDatabaseTrigger(Identifier name, string definition, TriggerQueryTiming queryTiming, TriggerEvent events)
     {
         ArgumentNullException.ThrowIfNull(name);

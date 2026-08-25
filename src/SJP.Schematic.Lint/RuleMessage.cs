@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using EnumsNET;
 using LanguageExt;
 using SJP.Schematic.Core;
@@ -19,8 +19,8 @@ public class RuleMessage : IRuleMessage
     /// <param name="title">The rule title.</param>
     /// <param name="level">The warning/reporting level.</param>
     /// <param name="message">A descriptive message that informs about the potential issue that was discovered.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="ruleId"/> or <paramref name="title"/> or <paramref name="message"/> are <see langword="null" />, empty or whitespace.</exception>
-    /// <exception cref="ArgumentException">The given rule reporting level was not a valid value.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="ruleId"/>, <paramref name="title"/> or <paramref name="message"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="ruleId"/>, <paramref name="title"/> or <paramref name="message"/> is empty or whitespace, or the given rule reporting level was not a valid value.</exception>
     public RuleMessage(string ruleId, string title, RuleLevel level, string message)
         : this(ruleId, title, level, message, Option<Identifier>.None)
     {
@@ -34,8 +34,8 @@ public class RuleMessage : IRuleMessage
     /// <param name="level">The warning/reporting level.</param>
     /// <param name="message">A descriptive message that informs about the potential issue that was discovered.</param>
     /// <param name="objectName">The name of the database object the message concerns, when attributable to one.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="ruleId"/> or <paramref name="title"/> or <paramref name="message"/> are <see langword="null" />, empty or whitespace.</exception>
-    /// <exception cref="ArgumentException">The given rule reporting level was not a valid value.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="ruleId"/>, <paramref name="title"/> or <paramref name="message"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="ruleId"/>, <paramref name="title"/> or <paramref name="message"/> is empty or whitespace, or the given rule reporting level was not a valid value.</exception>
     public RuleMessage(string ruleId, string title, RuleLevel level, string message, Option<Identifier> objectName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(ruleId);

@@ -267,7 +267,8 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     /// <param name="tableName">The name of the table.</param>
     /// <param name="columnName">The name of the column.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />, or <paramref name="columnName"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="columnName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columnName"/> is empty or whitespace.</exception>
     protected virtual IRuleMessage BuildTableColumnMessage(Identifier tableName, string columnName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -297,7 +298,8 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
     /// <param name="viewName">The name of the view.</param>
     /// <param name="columnName">The name of the column.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />, or <paramref name="columnName"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> or <paramref name="columnName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columnName"/> is empty or whitespace.</exception>
     protected virtual IRuleMessage BuildViewColumnMessage(Identifier viewName, string columnName)
     {
         ArgumentNullException.ThrowIfNull(viewName);
